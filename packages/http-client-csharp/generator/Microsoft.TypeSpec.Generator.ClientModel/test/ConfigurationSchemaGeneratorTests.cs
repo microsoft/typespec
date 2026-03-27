@@ -326,6 +326,171 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void Generate_OptionsDefinition_IncludesStringProperty()
+        {
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "audience",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    defaultValue: new InputConstant("https://api.example.com", InputPrimitiveType.String),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef);
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef);
+
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension");
+            Assert.AreEqual("#/definitions/options", allOf[0]?["$ref"]?.GetValue<string>());
+
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties);
+            var audienceProp = extensionProperties!["Audience"];
+            Assert.IsNotNull(audienceProp, "String option property should exist");
+            Assert.AreEqual("string", audienceProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
+        public void Generate_OptionsDefinition_IncludesIntegerProperty()
+        {
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "maxRetries",
+                    InputPrimitiveType.Int32,
+                    isRequired: false,
+                    defaultValue: new InputConstant(3, InputPrimitiveType.Int32),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef);
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef);
+
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count);
+
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties);
+            var maxRetriesProp = extensionProperties!["MaxRetries"];
+            Assert.IsNotNull(maxRetriesProp, "Integer option property should exist");
+            Assert.AreEqual("integer", maxRetriesProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
+        public void Generate_OptionsDefinition_IncludesMultipleMixedProperties()
+        {
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "audience",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    defaultValue: new InputConstant("https://api.example.com", InputPrimitiveType.String),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false),
+                InputFactory.QueryParameter(
+                    "enableCaching",
+                    InputPrimitiveType.Boolean,
+                    isRequired: false,
+                    defaultValue: new InputConstant(true, InputPrimitiveType.Boolean),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false),
+                InputFactory.QueryParameter(
+                    "maxRetries",
+                    InputPrimitiveType.Int32,
+                    isRequired: false,
+                    defaultValue: new InputConstant(3, InputPrimitiveType.Int32),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef);
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef);
+
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension with multiple properties");
+            Assert.AreEqual("#/definitions/options", allOf[0]?["$ref"]?.GetValue<string>());
+            Assert.AreEqual("object", allOf[1]?["type"]?.GetValue<string>());
+
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties);
+
+            // Verify all three additional properties are present with correct types
+            var audienceProp = extensionProperties!["Audience"];
+            Assert.IsNotNull(audienceProp, "String option property should exist");
+            Assert.AreEqual("string", audienceProp!["type"]?.GetValue<string>());
+
+            var enableCachingProp = extensionProperties!["EnableCaching"];
+            Assert.IsNotNull(enableCachingProp, "Boolean option property should exist");
+            Assert.AreEqual("boolean", enableCachingProp!["type"]?.GetValue<string>());
+
+            var maxRetriesProp = extensionProperties!["MaxRetries"];
+            Assert.IsNotNull(maxRetriesProp, "Integer option property should exist");
+            Assert.AreEqual("integer", maxRetriesProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
         public void Generate_HandlesMultipleClients()
         {
             var client1 = InputFactory.Client("ServiceA");
