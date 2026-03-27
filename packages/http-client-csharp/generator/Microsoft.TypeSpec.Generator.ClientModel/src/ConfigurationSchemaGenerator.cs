@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             var schema = BuildSchema(clientsWithSettings, sectionName, optionsRef);
-            return JsonSerializer.Serialize(schema, s_jsonOptions);
+            return JsonSerializer.Serialize(schema, s_jsonOptions).ReplaceLineEndings("\n") + "\n";
         }
 
         private static JsonObject BuildSchema(
