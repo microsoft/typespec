@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
-        public void Generate_IncludesDefinitions()
+        public void Generate_DoesNotIncludeLocalDefinitions()
         {
             var client = InputFactory.Client("TestService");
             var clientProvider = new ClientProvider(client);
@@ -113,23 +113,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(result);
             var doc = JsonNode.Parse(result!)!;
 
+            // Common definitions (credential, options) are provided by System.ClientModel base schema
+            // and should not be duplicated in the generated schema
             var definitions = doc["definitions"];
-            Assert.IsNotNull(definitions, "Schema should have a definitions section");
-
-            // Verify credential definition
-            var credential = definitions!["credential"];
-            Assert.IsNotNull(credential, "Definitions should include 'credential'");
-            Assert.AreEqual("object", credential!["type"]?.GetValue<string>());
-
-            // Verify options definition
-            var options = definitions["options"];
-            Assert.IsNotNull(options, "Definitions should include 'options'");
-            Assert.AreEqual("object", options!["type"]?.GetValue<string>());
-
-            // Verify options has expected base properties
-            var optionsProperties = options["properties"];
-            Assert.IsNotNull(optionsProperties?["NetworkTimeout"], "Options definition should include NetworkTimeout");
-            Assert.IsNotNull(optionsProperties?["RetryPolicy"], "Options definition should include RetryPolicy");
+            Assert.IsNull(definitions, "Schema should not include local definitions; they are provided by the base schema");
         }
 
         [Test]

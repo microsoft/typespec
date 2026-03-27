@@ -37,45 +37,5 @@
         "description": "Configuration for a named client instance."
       }
     }
-  },
-  "definitions": {
-    "credential": {
-      "type": "object",
-      "description": "Credential configuration for authenticating with the service.",
-      "properties": {
-        "Type": {
-          "type": "string",
-          "description": "The credential type to use for authentication."
-        }
-      }
-    },
-    "options": {
-      "type": "object",
-      "description": "Client pipeline options.",
-      "properties": {
-        "NetworkTimeout": {
-          "type": "string",
-          "description": "The network timeout (TimeSpan format, e.g. \u002700:01:40\u0027)."
-        },
-        "RetryPolicy": {
-          "type": "object",
-          "description": "Retry policy configuration.",
-          "properties": {
-            "MaxRetries": {
-              "type": "integer",
-              "description": "Maximum number of retries."
-            },
-            "Delay": {
-              "type": "string",
-              "description": "Delay between retries (TimeSpan format)."
-            },
-            "MaxDelay": {
-              "type": "string",
-              "description": "Maximum delay between retries (TimeSpan format)."
-            }
-          }
-        }
-      }
-    }
   }
 }
