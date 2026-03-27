@@ -10,10 +10,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Disable directory indexing for the configuration page
-  if (
-    context.url.pathname === "/docs/handbook/configuration/configuration/" ||
-    context.url.pathname === "/docs/handbook/configuration/configuration"
-  ) {
+  const normalizedPath = context.url.pathname.replace(/\/$/, "");
+  if (normalizedPath === "/docs/handbook/configuration/configuration") {
     response.headers.set("X-Robots-Tag", "noindex");
   }
 
