@@ -284,7 +284,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 // Register as a local definition if we're collecting them
                 if (localDefinitions != null)
                 {
-                    var definitionName = char.ToLowerInvariant(enumProvider.Name[0]) + enumProvider.Name.Substring(1);
+                    var name = enumProvider.Name;
+                    var definitionName = name.Length > 1
+                        ? char.ToLowerInvariant(name[0]) + name.Substring(1)
+                        : name.ToLowerInvariant();
                     if (!localDefinitions.ContainsKey(definitionName))
                     {
                         localDefinitions[definitionName] = enumSchema;
