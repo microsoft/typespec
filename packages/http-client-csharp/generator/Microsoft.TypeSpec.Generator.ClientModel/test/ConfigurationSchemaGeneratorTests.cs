@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
-        public void Generate_DoesNotIncludeLocalDefinitions()
+        public void Generate_DoesNotIncludeBaseDefinitions_WhenNoCustomTypes()
         {
             var client = InputFactory.Client("TestService");
             var clientProvider = new ClientProvider(client);
@@ -113,10 +113,72 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(result);
             var doc = JsonNode.Parse(result!)!;
 
-            // Common definitions (credential, options) are provided by System.ClientModel base schema
-            // and should not be duplicated in the generated schema
+            // When no custom types (enums, models) are used, there should be no local definitions.
+            // Common definitions (credential, options) are provided by System.ClientModel base schema.
             var definitions = doc["definitions"];
-            Assert.IsNull(definitions, "Schema should not include local definitions; they are provided by the base schema");
+            Assert.IsNull(definitions, "Schema should not include local definitions when no custom types are used");
+        }
+
+        [Test]
+        public void Generate_IncludesLocalDefinitions_ForEnumTypes()
+        {
+            // Create a non-api-version enum type
+            var retryModeEnum = InputFactory.StringEnum(
+                "RetryMode",
+                [("Fixed", "Fixed"), ("Exponential", "Exponential")],
+                isExtensible: false);
+
+            // Reset and reload mock with the enum registered
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [retryModeEnum]);
+
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "retryMode",
+                    retryModeEnum,
+                    isRequired: false,
+                    defaultValue: new InputConstant("Exponential", retryModeEnum),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify local definitions contain the enum
+            var definitions = doc["definitions"];
+            Assert.IsNotNull(definitions, "Schema should include local definitions for non-base types");
+
+            var retryModeDef = definitions!["retryMode"];
+            Assert.IsNotNull(retryModeDef, "Definitions should include 'retryMode' enum");
+
+            // Fixed enum should have enum values
+            var enumValues = retryModeDef!["enum"];
+            Assert.IsNotNull(enumValues, "Enum definition should have 'enum' values");
+
+            // Verify the option property references the local definition via $ref
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var options = clientEntry?["properties"]?["Options"];
+            var allOf = options?["allOf"];
+            Assert.IsNotNull(allOf, "Options should use allOf when client has custom options");
+
+            var extensionProperties = allOf!.AsArray()[1]?["properties"];
+            var retryModeProp = extensionProperties!["RetryMode"];
+            Assert.IsNotNull(retryModeProp, "Custom option property should exist");
+            Assert.AreEqual("#/definitions/retryMode", retryModeProp!["$ref"]?.GetValue<string>());
         }
 
         [Test]

@@ -15,13 +15,7 @@
               "description": "Gets or sets the Endpoint."
             },
             "Client": {
-              "enum": [
-                "default",
-                "multi-client",
-                "renamed-operation",
-                "two-operation-group",
-                "client-operation-group"
-              ]
+              "$ref": "#/definitions/clientType"
             },
             "Credential": {
               "$ref": "#/definitions/credential"
@@ -41,13 +35,7 @@
               "description": "Gets or sets the Endpoint."
             },
             "Client": {
-              "enum": [
-                "default",
-                "multi-client",
-                "renamed-operation",
-                "two-operation-group",
-                "client-operation-group"
-              ]
+              "$ref": "#/definitions/clientType"
             },
             "Credential": {
               "$ref": "#/definitions/credential"
@@ -62,6 +50,17 @@
         "type": "object",
         "description": "Configuration for a named client instance."
       }
+    }
+  },
+  "definitions": {
+    "clientType": {
+      "enum": [
+        "default",
+        "multi-client",
+        "renamed-operation",
+        "two-operation-group",
+        "client-operation-group"
+      ]
     }
   }
 }
