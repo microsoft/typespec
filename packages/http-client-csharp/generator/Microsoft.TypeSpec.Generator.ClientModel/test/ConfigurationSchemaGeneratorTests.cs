@@ -102,6 +102,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void Generate_IncludesDefinitions()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var definitions = doc["definitions"];
+            Assert.IsNotNull(definitions, "Schema should have a definitions section");
+
+            // Verify credential definition
+            var credential = definitions!["credential"];
+            Assert.IsNotNull(credential, "Definitions should include 'credential'");
+            Assert.AreEqual("object", credential!["type"]?.GetValue<string>());
+
+            // Verify options definition
+            var options = definitions["options"];
+            Assert.IsNotNull(options, "Definitions should include 'options'");
+            Assert.AreEqual("object", options!["type"]?.GetValue<string>());
+
+            // Verify options has expected base properties
+            var optionsProperties = options["properties"];
+            Assert.IsNotNull(optionsProperties?["NetworkTimeout"], "Options definition should include NetworkTimeout");
+            Assert.IsNotNull(optionsProperties?["RetryPolicy"], "Options definition should include RetryPolicy");
+        }
+
+        [Test]
         public void Generate_IncludesEndpointProperty_ForStringEndpoint()
         {
             var inputParameters = new[]

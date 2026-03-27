@@ -76,8 +76,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                             ["description"] = "Configuration for a named client instance."
                         }
                     }
+                },
+                ["definitions"] = BuildDefinitions(optionsRef)
+            };
+        }
+
+        private static JsonObject BuildDefinitions(string optionsRef)
+        {
+            var definitions = new JsonObject
+            {
+                ["credential"] = new JsonObject
+                {
+                    ["type"] = "object",
+                    ["description"] = "Credential configuration for authenticating with the service.",
+                    ["properties"] = new JsonObject
+                    {
+                        ["Type"] = new JsonObject
+                        {
+                            ["type"] = "string",
+                            ["description"] = "The credential type to use for authentication."
+                        }
+                    }
+                },
+                [optionsRef] = new JsonObject
+                {
+                    ["type"] = "object",
+                    ["description"] = "Client pipeline options.",
+                    ["properties"] = new JsonObject
+                    {
+                        ["NetworkTimeout"] = new JsonObject
+                        {
+                            ["type"] = "string",
+                            ["description"] = "The network timeout (TimeSpan format, e.g. '00:01:40')."
+                        },
+                        ["RetryPolicy"] = new JsonObject
+                        {
+                            ["type"] = "object",
+                            ["description"] = "Retry policy configuration.",
+                            ["properties"] = new JsonObject
+                            {
+                                ["MaxRetries"] = new JsonObject
+                                {
+                                    ["type"] = "integer",
+                                    ["description"] = "Maximum number of retries."
+                                },
+                                ["Delay"] = new JsonObject
+                                {
+                                    ["type"] = "string",
+                                    ["description"] = "Delay between retries (TimeSpan format)."
+                                },
+                                ["MaxDelay"] = new JsonObject
+                                {
+                                    ["type"] = "string",
+                                    ["description"] = "Maximum delay between retries (TimeSpan format)."
+                                }
+                            }
+                        }
+                    }
                 }
             };
+
+            return definitions;
         }
 
         private static JsonObject BuildClientEntry(ClientProvider client, string optionsRef)
