@@ -491,6 +491,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void Generate_OptionsDefinition_IncludesModelProperty()
+        {
+            // Create a model type with properties
+            var retryPolicyModel = InputFactory.Model(
+                "RetryPolicyConfig",
+                properties:
+                [
+                    InputFactory.Property("MaxRetries", InputPrimitiveType.Int32),
+                    InputFactory.Property("Delay", InputPrimitiveType.String)
+                ]);
+
+            // Reset and reload mock with the model registered
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+            MockHelpers.LoadMockGenerator(inputModels: () => [retryPolicyModel]);
+
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "retryPolicy",
+                    retryPolicyModel,
+                    isRequired: false,
+                    defaultValue: new InputConstant(null, retryPolicyModel),
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify local definitions contain the model
+            var definitions = doc["definitions"];
+            Assert.IsNotNull(definitions, "Schema should include local definitions");
+
+            var retryPolicyDef = definitions!["retryPolicyConfig"];
+            Assert.IsNotNull(retryPolicyDef, "Definitions should include 'retryPolicyConfig' model");
+            Assert.AreEqual("object", retryPolicyDef!["type"]?.GetValue<string>());
+
+            // Verify the model definition has its properties
+            var modelProperties = retryPolicyDef["properties"];
+            Assert.IsNotNull(modelProperties, "Model definition should have properties");
+            Assert.IsNotNull(modelProperties!["MaxRetries"], "Model should have MaxRetries property");
+            Assert.AreEqual("integer", modelProperties["MaxRetries"]!["type"]?.GetValue<string>());
+            Assert.IsNotNull(modelProperties["Delay"], "Model should have Delay property");
+            Assert.AreEqual("string", modelProperties["Delay"]!["type"]?.GetValue<string>());
+
+            // Verify the options definition references the model via $ref
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef);
+            var optionsDefName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = definitions[optionsDefName];
+            Assert.IsNotNull(optionsDef);
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension");
+
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties);
+            var retryPolicyProp = extensionProperties!["RetryPolicy"];
+            Assert.IsNotNull(retryPolicyProp, "Model option property should exist");
+            Assert.AreEqual("#/definitions/retryPolicyConfig", retryPolicyProp!["$ref"]?.GetValue<string>());
+        }
+
+        [Test]
         public void Generate_HandlesMultipleClients()
         {
             var client1 = InputFactory.Client("ServiceA");

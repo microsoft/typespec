@@ -220,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     return GetJsonSchemaForEnum(effectiveType, localDefinitions);
                 }
 
-                return new JsonObject { ["type"] = "object" };
+                return GetJsonSchemaForModel(effectiveType, localDefinitions);
             }
 
             // Handle collection types
@@ -313,6 +313,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             // Fallback: just string
             return new JsonObject { ["type"] = "string" };
+        }
+
+        private static JsonObject GetJsonSchemaForModel(CSharpType modelType, Dictionary<string, JsonObject>? localDefinitions)
+        {
+            // Search for the model provider in the output library
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
+                .FirstOrDefault(m => !(m is EnumProvider) && m.Type.Equals(modelType));
+
+            if (modelProvider != null)
+            {
+                var name = modelProvider.Name;
+                var definitionName = name.Length > 1
+                    ? char.ToLowerInvariant(name[0]) + name.Substring(1)
+                    : name.ToLowerInvariant();
+
+                if (localDefinitions != null && !localDefinitions.ContainsKey(definitionName))
+                {
+                    var modelProperties = new JsonObject();
+                    foreach (var prop in modelProvider.Properties
+                        .Where(p => p.Modifiers.HasFlag(MethodSignatureModifiers.Public)))
+                    {
+                        modelProperties[prop.Name] = GetJsonSchemaForType(prop.Type, localDefinitions);
+                    }
+
+                    var modelSchema = new JsonObject { ["type"] = "object" };
+                    if (modelProperties.Count > 0)
+                    {
+                        modelSchema["properties"] = modelProperties;
+                    }
+
+                    localDefinitions[definitionName] = modelSchema;
+                }
+
+                if (localDefinitions != null)
+                {
+                    return new JsonObject { ["$ref"] = $"#/definitions/{definitionName}" };
+                }
+            }
+
+            return new JsonObject { ["type"] = "object" };
         }
 
         private static JsonObject BuildArraySchema(CSharpType listType, Dictionary<string, JsonObject>? localDefinitions)
