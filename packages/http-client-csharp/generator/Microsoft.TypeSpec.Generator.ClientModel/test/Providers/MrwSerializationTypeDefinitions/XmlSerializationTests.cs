@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -8,10 +9,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -687,6 +691,115 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "value")]
+        [TestCase(typeof(string), SerializationFormat.Default, ExpectedResult = "value")]
+        [TestCase(typeof(bool), SerializationFormat.Default, ExpectedResult = "value")]
+        [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "value")]
+        [TestCase(typeof(float), SerializationFormat.Default, ExpectedResult = "value")]
+        [TestCase(typeof(double), SerializationFormat.Default, ExpectedResult = "value")]
+        public string SerializeXmlValueCore_PrimitiveTypes(Type type, SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                type,
+                new VariableExpression(type, "value"),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.DateTime_ISO8601, ExpectedResult = "value.ToString(\"O\")")]
+        [TestCase(SerializationFormat.DateTime_RFC1123, ExpectedResult = "value.ToString(\"R\")")]
+        [TestCase(SerializationFormat.DateTime_RFC3339, ExpectedResult = "value.ToString(\"O\")")]
+        public string SerializeXmlValueCore_DateTimeOffset(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                typeof(DateTimeOffset),
+                new VariableExpression(typeof(DateTimeOffset), "value"),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "value.ToString(\"P\")")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "value.ToString(\"c\")")]
+        public string SerializeXmlValueCore_TimeSpan(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                typeof(TimeSpan),
+                new VariableExpression(typeof(TimeSpan), "value"),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [Test]
+        public void SerializeXmlValueOverride_CustomTypeSerialization()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            // override SerializeXmlValue to return a custom expression for string types
+            var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
+            mockTypeFactory.Setup(p => p.SerializeXmlValue(
+                It.Is<CSharpType>(t => t.FrameworkType == typeof(string)),
+                It.IsAny<ValueExpression>(),
+                It.IsAny<SerializationFormat>()))
+                .Returns((CSharpType type, ValueExpression value, SerializationFormat format) =>
+                    value.Invoke(nameof(ToString)));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void DeserializeXmlValueOverride_CustomTypeDeserialization()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockDeserializeMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            // override DeserializeXmlValue to return a custom expression for string types
+            var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
+            mockTypeFactory.Setup(p => p.DeserializeXmlValue(
+                It.Is<CSharpType>(t => t.FrameworkType == typeof(string)),
+                It.IsAny<ScopedApi<System.Xml.Linq.XElement>>(),
+                It.IsAny<ScopedApi<ModelReaderWriterOptions>>(),
+                It.IsAny<SerializationFormat>()))
+                .Returns((CSharpType type, ScopedApi<System.Xml.Linq.XElement> element, ScopedApi<ModelReaderWriterOptions> mrwOptions, SerializationFormat format) =>
+                    element.InvokeToString());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private class MockMrwProvider : MrwSerializationTypeDefinition
         {
             public MockMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
@@ -718,6 +831,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods()
                     .Where(m => m.Signature.ExplicitInterface != null &&
                                 m.Signature.ExplicitInterface.Name == "IPersistableModel")];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+        }
+
+        private class MockDeserializeMrwProvider : MrwSerializationTypeDefinition
+        {
+            public MockDeserializeMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
+                : base(inputModel, modelProvider)
+            {
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return [.. base.BuildMethods()
+                    .Where(m => m.Signature.Name.StartsWith("Deserialize") || m.Signature.Name.StartsWith("PersistableModelCreateCore"))];
             }
 
             protected override FieldProvider[] BuildFields() => [];
