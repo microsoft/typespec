@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
@@ -10,6 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         public ValueExpression? Inner { get; internal set; } = Inner;
         public string MemberName { get; private set; } = MemberName;
+        internal CodeWriterDeclaration? Declaration { get; set; }
         internal override void Write(CodeWriter writer)
         {
             if (Inner is not null)
@@ -17,9 +19,17 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 Inner.Write(writer);
                 writer.AppendRaw(".");
             }
-            // workaround to avoid Roslyn reducing properties named Object to object
-            // Should come up with a better approach - https://github.com/microsoft/typespec/issues/4724
-            writer.AppendRaw(MemberName == "Object" && Inner == null ? $"this.{MemberName}" : MemberName);
+
+            if (Declaration is not null)
+            {
+                writer.Append(Declaration, referenceOnly: true);
+            }
+            else
+            {
+                // workaround to avoid Roslyn reducing properties named Object to object
+                // Should come up with a better approach - https://github.com/microsoft/typespec/issues/4724
+                writer.AppendRaw(MemberName == "Object" && Inner == null ? $"this.{MemberName}" : MemberName);
+            }
         }
 
         internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
