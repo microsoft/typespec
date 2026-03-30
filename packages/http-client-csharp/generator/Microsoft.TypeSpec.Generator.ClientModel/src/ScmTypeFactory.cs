@@ -260,8 +260,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ValueExpression value,
             ScopedApi<XmlWriter> xmlWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
-            SerializationFormat serializationFormat)
-                => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, serializationFormat);
+            SerializationFormat format)
+                => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, format);
 
         protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
 
