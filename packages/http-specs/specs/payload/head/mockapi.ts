@@ -9,7 +9,7 @@ Scenarios.Payload_Head_getProperties = passOnSuccess({
   response: {
     status: 200,
     headers: {
-      "content-type": "text/plain",
+      "content-type": "text/plain; charset=utf-8",
       "x-ms-meta": "hello",
     },
   },

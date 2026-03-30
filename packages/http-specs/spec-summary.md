@@ -1784,7 +1784,7 @@ A HEAD operation that returns response headers including Content-Type and x-ms-m
 
 Expected response headers:
 
-- Content-Type: text/plain
+- Content-Type: text/plain; charset=utf-8
 - x-ms-meta: hello
 
 ### Payload_JsonMergePatch_createResource
