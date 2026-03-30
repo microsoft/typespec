@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import payload.pageable.serverdrivenpagination.alternateinitialverb.Filter;
 
 public class PageableTests {
 
@@ -16,6 +17,8 @@ public class PageableTests {
     private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
     private final ServerDrivenPaginationContinuationTokenClient tokenClient
         = new PageableClientBuilder().buildServerDrivenPaginationContinuationTokenClient();
+    private final ServerDrivenPaginationAlternateInitialVerbClient alternateInitialVerbClient
+        = new PageableClientBuilder().buildServerDrivenPaginationAlternateInitialVerbClient();
 
     @Test
     public void testNextLink() {
@@ -96,6 +99,15 @@ public class PageableTests {
     @Test
     public void testLinkString() {
         PagedIterable<Pet> pagedIterable = client.linkString();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testAlternateInitialVerbPost() {
+        PagedIterable<Pet> pagedIterable = alternateInitialVerbClient.post(new Filter("foo eq bar"));
 
         Assertions.assertEquals(4, pagedIterable.stream().count());
         Assertions.assertEquals(List.of("1", "2", "3", "4"),
