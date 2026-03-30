@@ -22,7 +22,8 @@ if($LastExitCode -ne 0) {
 }
 
 # Check for untracked files that should have been committed (e.g. newly generated files)
-$untrackedOutput = Invoke-LoggedCommand "git ls-files --others --exclude-standard -- $packageRoot"
+$generatorRoot = "$packageRoot/generator"
+$untrackedOutput = Invoke-LoggedCommand "git ls-files --others --exclude-standard -- $generatorRoot"
 if ($untrackedOutput) {
     Write-Host "Untracked files detected:"
     Write-Host $untrackedOutput
