@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SpecialWords
+namespace SpecialWords._ExtensibleStrings
 {
     public partial class ExtensibleStrings
     {
@@ -18,12 +18,12 @@ namespace SpecialWords
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PutExtensibleStringValue(string accept, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual ClientResult PutExtensibleStringValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutExtensibleStringValueAsync(string accept, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutExtensibleStringValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<string> PutExtensibleStringValue(string accept, ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ExtensibleString> PutExtensibleStringValue(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<string>> PutExtensibleStringValueAsync(string accept, ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ExtensibleString>> PutExtensibleStringValueAsync(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
     }
 }

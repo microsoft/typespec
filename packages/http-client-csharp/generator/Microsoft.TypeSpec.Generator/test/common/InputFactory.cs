@@ -278,7 +278,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? summary = null,
             string? serializedName = null,
             string? doc = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            ArrayKnownEncoding? encode = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -294,7 +295,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
-                serializationOptions: serializationOptions);
+                serializationOptions: serializationOptions,
+                encode: encode);
         }
 
         public static InputHeaderParameter HeaderParameter(
@@ -469,7 +471,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             string? serializedName = null,
             InputRequestLocation location = InputRequestLocation.Body,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? paramAlias = null)
         {
             return new InputMethodParameter(
                 name: name,
@@ -483,7 +486,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 access: null,
                 location: location,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name)
+            {
+                ParamAlias = paramAlias
+            };
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]

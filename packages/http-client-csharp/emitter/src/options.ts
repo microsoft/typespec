@@ -1,10 +1,8 @@
 import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
-import { CSharpEmitterContext } from "./index.js";
 import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
 import { LoggerLevel } from "./lib/logger-level.js";
-import { CodeModel } from "./type/code-model.js";
 
 /**
  * The emitter options for the CSharp emitter.
@@ -20,7 +18,6 @@ export interface CSharpEmitterOptions {
   "disable-xml-docs"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
-  "update-code-model"?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
@@ -116,12 +113,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
     },
-    "update-code-model": {
-      type: "object",
-      nullable: true,
-      description:
-        "Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.",
-    },
     license: {
       type: "object",
       additionalProperties: false,
@@ -160,7 +151,6 @@ export const defaultOptions = {
   debug: undefined,
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
-  "update-code-model": (model: CodeModel, context: CSharpEmitterContext) => model,
   "sdk-context-options": {
     additionalDecorators: [DYNAMIC_MODEL_DECORATOR_PATTERN],
   },

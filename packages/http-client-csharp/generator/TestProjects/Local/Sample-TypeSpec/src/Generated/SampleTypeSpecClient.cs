@@ -726,7 +726,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
@@ -777,7 +777,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
@@ -1887,6 +1887,16 @@ namespace SampleTypeSpec
 
             ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Initializes a new instance of Notebooks. </summary>
+        /// <param name="notebook"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="notebook"/> is null. </exception>
+        public virtual Notebooks GetNotebooksClient(string notebook)
+        {
+            Argument.AssertNotNull(notebook, nameof(notebook));
+
+            return new Notebooks(Pipeline, _endpoint, notebook);
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>

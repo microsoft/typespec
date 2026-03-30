@@ -341,6 +341,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
@@ -863,7 +864,7 @@ const diagnostics = {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
       noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
       discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
-      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
+      duplicateDefaultVariant: paramMessage`Discriminated union ${"unionName"} only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },

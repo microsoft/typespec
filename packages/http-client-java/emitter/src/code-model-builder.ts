@@ -506,6 +506,14 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(schema, {
             usage: [SchemaContext.Public],
           });
+          if (schema instanceof ObjectSchema && schema.usage) {
+            const schemaUsage: SchemaContext[] | undefined = schema.usage;
+            // And, remove the Paged, as we assume customer explicitly asks Public
+            const index = schemaUsage.indexOf(SchemaContext.Paged);
+            if (index >= 0) {
+              schemaUsage.splice(index, 1);
+            }
+          }
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 
@@ -2829,13 +2837,15 @@ export class CodeModelBuilder {
     }
 
     // discriminator
-    if (type.discriminatedSubtypes && type.discriminatorProperty) {
+    if (type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
         this.processModelProperty(type.discriminatorProperty),
       );
-      for (const discriminatorValue in type.discriminatedSubtypes) {
-        const subType = type.discriminatedSubtypes[discriminatorValue];
-        this.processSchema(subType, subType.name);
+      if (type.discriminatedSubtypes) {
+        for (const discriminatorValue in type.discriminatedSubtypes) {
+          const subType = type.discriminatedSubtypes[discriminatorValue];
+          this.processSchema(subType, subType.name);
+        }
       }
     }
 

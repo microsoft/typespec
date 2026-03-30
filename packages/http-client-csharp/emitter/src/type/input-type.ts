@@ -199,6 +199,7 @@ export interface InputMethodParameter extends InputPropertyTypeBase {
   location: RequestLocation;
   scope: InputParameterScope;
   serializedName: string;
+  paramAlias?: string;
 }
 
 export interface InputQueryParameter extends InputPropertyTypeBase {

@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -123,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
+         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
             if (_serviceVersionsEnums is null)
             {
@@ -133,11 +134,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                // For multi-service clients, use the full namespace to guarantee uniqueness
-                // (the last segment alone can collide when services share a namespace).
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -161,11 +177,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
-            foreach (var enumProvider in _serviceVersionsEnums.Values)
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var fieldName = _inputClient.IsMultiServiceClient
-                    ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
-                    : LatestVersionFieldName;
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
+                }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,

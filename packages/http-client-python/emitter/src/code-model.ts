@@ -263,7 +263,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   // operation has same clientNamespace as the operation group
   for (const og of operationGroups) {
     for (const op of og.operations) {
-      op.clientNamespace = getClientNamespace(context, og.clientNamespace);
+      op.clientNamespace = og.clientNamespace;
     }
   }
 
@@ -394,7 +394,8 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   for (const type of typesMap.values()) {
     if (
       type["type"] === "model" &&
-      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly &&
+      (type["usage"] & UsageFlags.Input) === 0
     ) {
       type["usage"] = UsageFlags.None;
     }
