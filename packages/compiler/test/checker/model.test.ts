@@ -42,7 +42,7 @@ describe("compiler: models", () => {
       model A { x: int32; x: int32; }
       `);
     strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Model already has a property/);
+    match(diagnostics[0].message, /Model A already has a property/);
   });
 
   it("emit single error when there is an invalid ref in a templated type", async () => {
@@ -710,7 +710,7 @@ describe("compiler: models", () => {
         model B is A { x: int32 };
         `);
       strictEqual(diagnostics.length, 1);
-      match(diagnostics[0].message, /Model already has a property/);
+      match(diagnostics[0].message, /Model B already has a property/);
     });
 
     it("emit error when is non model or array", async () => {

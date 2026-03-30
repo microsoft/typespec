@@ -341,6 +341,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
