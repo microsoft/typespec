@@ -265,7 +265,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return CreateXmlWriteDictionaryForEachStatement(value, underlyingType.Arguments[0], underlyingType.Arguments[1], serializationFormat);
             }
 
-            return ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+            if (!underlyingType.IsFrameworkType)
+            {
+                return ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+            }
+
+            return underlyingType.FrameworkType switch
+            {
+                Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
+                    => _xmlWriterSnippet.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
+                Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                    => _xmlWriterSnippet.WriteBase64StringValue(t == typeof(BinaryData)
+                    ? value.As<BinaryData>().ToArray()
+                    : value.NullableStructValue(valueType),
+                    serializationFormat.ToFormatSpecifier()),
+                _ => ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat)
+            };
         }
 
         private MethodBodyStatement CreateXmlWriteListStatement(
@@ -1064,18 +1079,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return xmlWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter);
             }
 
-            var frameworkType = underlyingType.FrameworkType;
-            return frameworkType switch
-            {
-                Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
-                    => xmlWriter.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
-                Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
-                    => xmlWriter.WriteBase64StringValue(t == typeof(BinaryData)
-                    ? value.As<BinaryData>().ToArray()
-                    : value.NullableStructValue(valueType),
-                    serializationFormat.ToFormatSpecifier()),
-                _ => xmlWriter.WriteValue(CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat))
-            };
+            return xmlWriter.WriteValue(CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat));
         }
 
         private MethodBodyStatement CreateXmlDeserializeAttributeStatements(

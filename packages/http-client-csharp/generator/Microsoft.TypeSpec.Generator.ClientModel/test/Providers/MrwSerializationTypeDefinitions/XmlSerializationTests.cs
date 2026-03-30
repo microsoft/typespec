@@ -709,9 +709,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return statement.ToDisplayString();
         }
 
-        [TestCase(SerializationFormat.DateTime_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"O\");\n")]
-        [TestCase(SerializationFormat.DateTime_RFC1123, ExpectedResult = "writer.WriteStringValue(value, \"R\");\n")]
-        [TestCase(SerializationFormat.DateTime_RFC3339, ExpectedResult = "writer.WriteStringValue(value, \"O\");\n")]
+        [TestCase(SerializationFormat.DateTime_ISO8601, ExpectedResult = "writer.WriteValue(value.ToString(\"O\"));\n")]
+        [TestCase(SerializationFormat.DateTime_RFC1123, ExpectedResult = "writer.WriteValue(value.ToString(\"R\"));\n")]
+        [TestCase(SerializationFormat.DateTime_RFC3339, ExpectedResult = "writer.WriteValue(value.ToString(\"O\"));\n")]
         public string SerializeXmlValueCore_DateTimeOffset(SerializationFormat format)
         {
             var statement = MrwSerializationTypeDefinition.SerializeXmlValueCore(
@@ -723,8 +723,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return statement.ToDisplayString();
         }
 
-        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
-        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteStringValue(value, \"c\");\n")]
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteValue(value.ToString(\"P\"));\n")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteValue(value.ToString(\"c\"));\n")]
         public string SerializeXmlValueCore_TimeSpan(SerializationFormat format)
         {
             var statement = MrwSerializationTypeDefinition.SerializeXmlValueCore(
