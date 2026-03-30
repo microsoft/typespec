@@ -1,12 +1,15 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
       - release/*
-    paths-ignore:
-      - "website/**"
+  merge_group:
+
 permissions:
   contents: read
 
@@ -15,29 +18,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  preview:
-    runs-on: ubuntu-latest
-
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-slim
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
     steps:
       - uses: actions/checkout@v6
+      # cspell:ignore dorny
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4
+        id: filter
         with:
-          fetch-depth: 0 ## Needed for Changesets to find `main` branch
+          filters: |
+            core:
+              - '**'
+              - '!.prettierignore'
+              - '!.prettierrc.json'
+              - '!cspell.yaml'
+              - '!eslint.config.json'
+              - '!.chronus/**'
+              - '!eng/emitters/**'
+              - '!packages/http-client-csharp/**'
+              - '!packages/http-client-java/**'
+              - '!packages/http-client-python/**'
 
-      - uses: actions/setup-dotnet@v5
-        name: Setup .NET
-        with:
-          # Automatically read .NET SDK version from global.json to stay in sync
-          global-json-file: packages/http-client-csharp/global.json
+  core:
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
+    uses: ./.github/workflows/core-ci.yml
 
-      - uses: ./.github/actions/setup
-
-      - name: Install dependencies
-        run: npx tsx eng/tsp-core/tpm/cli.ts install --since origin/main
-
-      - name: Build
-        run: npx tsx eng/tsp-core/tpm/cli.ts build --since origin/main
-
-      - name: Bump version to prerelease targets
-        run: pnpm chronus version --prerelease "{nextVersion}-pr.${{ github.event.pull_request.number }}.${{ github.run_number }}"
-
-      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-slim
+    if: "!cancelled() || needs.core.result == 'cancelled'"
+    needs: [core]
+    steps:
+      - name: Validate CI results
+        run: |
+          if [[ "${{ needs.core.result }}" == "failure" || "${{ needs.core.result }}" == "cancelled" ]]; then
+            echo "Core CI failed or was cancelled"
+            exit 1
+          fi
+          echo "All CI checks passed or were appropriately skipped"

@@ -5249,12 +5249,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     diagnosticTarget?: DiagnosticTarget,
   ) {
     if (properties.has(newProp.name)) {
+      const modelName = newProp.model?.name;
       reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "duplicate-property",
-          format: { propName: newProp.name },
-          target: diagnosticTarget ?? newProp,
-        }),
+        modelName
+          ? createDiagnostic({
+              code: "duplicate-property",
+              messageId: "withModel",
+              format: { propName: newProp.name, modelName },
+              target: diagnosticTarget ?? newProp,
+            })
+          : createDiagnostic({
+              code: "duplicate-property",
+              format: { propName: newProp.name },
+              target: diagnosticTarget ?? newProp,
+            }),
       );
       return;
     }
