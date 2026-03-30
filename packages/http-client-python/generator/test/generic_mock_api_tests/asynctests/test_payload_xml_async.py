@@ -7,6 +7,8 @@ import datetime
 import pytest
 from payload.xml.aio import XmlClient
 from payload.xml.models import (
+    Author,
+    Book,
     SimpleModel,
     ModelWithSimpleArrays,
     ModelWithArrayOfModel,
@@ -21,6 +23,17 @@ from payload.xml.models import (
     ModelWithEncodedNames,
     ModelWithEnum,
     ModelWithDatetime,
+    ModelWithRenamedProperty,
+    ModelWithNestedModel,
+    ModelWithRenamedNestedModel,
+    ModelWithWrappedPrimitiveCustomItemNames,
+    ModelWithUnwrappedModelArray,
+    ModelWithRenamedWrappedModelArray,
+    ModelWithRenamedUnwrappedModelArray,
+    ModelWithRenamedWrappedAndItemModelArray,
+    ModelWithRenamedAttribute,
+    ModelWithNamespace,
+    ModelWithNamespaceOnProperties,
 )
 
 
@@ -148,3 +161,100 @@ async def test_xml_error_value(client: XmlClient, core_library):
     assert ex.value.status_code == 400
     assert ex.value.model.message == "Something went wrong"
     assert ex.value.model.code == 400
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_property(client: XmlClient):
+    model = ModelWithRenamedProperty(title="foo", author="bar")
+    assert await client.model_with_renamed_property_value.get() == model
+    await client.model_with_renamed_property_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_nested_model(client: XmlClient):
+    model = ModelWithNestedModel(nested=SimpleModel(name="foo", age=123))
+    assert await client.model_with_nested_model_value.get() == model
+    await client.model_with_nested_model_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_nested_model(client: XmlClient):
+    model = ModelWithRenamedNestedModel(author=Author(name="foo"))
+    assert await client.model_with_renamed_nested_model_value.get() == model
+    await client.model_with_renamed_nested_model_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_wrapped_primitive_custom_item_names(client: XmlClient):
+    model = ModelWithWrappedPrimitiveCustomItemNames(tags=["fiction", "classic"])
+    assert await client.model_with_wrapped_primitive_custom_item_names_value.get() == model
+    await client.model_with_wrapped_primitive_custom_item_names_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_unwrapped_model_array(client: XmlClient):
+    model = ModelWithUnwrappedModelArray(
+        items=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_unwrapped_model_array_value.get() == model
+    await client.model_with_unwrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_wrapped_model_array(client: XmlClient):
+    model = ModelWithRenamedWrappedModelArray(
+        items=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_renamed_wrapped_model_array_value.get() == model
+    await client.model_with_renamed_wrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_unwrapped_model_array(client: XmlClient):
+    model = ModelWithRenamedUnwrappedModelArray(
+        items=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_renamed_unwrapped_model_array_value.get() == model
+    await client.model_with_renamed_unwrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_wrapped_and_item_model_array(client: XmlClient):
+    model = ModelWithRenamedWrappedAndItemModelArray(
+        books=[
+            Book(title="The Great Gatsby"),
+            Book(title="Les Miserables"),
+        ]
+    )
+    assert await client.model_with_renamed_wrapped_and_item_model_array_value.get() == model
+    await client.model_with_renamed_wrapped_and_item_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_attribute(client: XmlClient):
+    model = ModelWithRenamedAttribute(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
+    assert await client.model_with_renamed_attribute_value.get() == model
+    await client.model_with_renamed_attribute_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_namespace(client: XmlClient):
+    model = ModelWithNamespace(id=123, title="The Great Gatsby")
+    assert await client.model_with_namespace_value.get() == model
+    await client.model_with_namespace_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_namespace_on_properties(client: XmlClient):
+    model = ModelWithNamespaceOnProperties(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
+    assert await client.model_with_namespace_on_properties_value.get() == model
+    await client.model_with_namespace_on_properties_value.put(model)
