@@ -67,7 +67,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             var schema = new JsonObject
             {
-                ["$schema"] = "http://json-schema.org/draft-07/schema#",
                 ["type"] = "object",
                 ["properties"] = new JsonObject
                 {

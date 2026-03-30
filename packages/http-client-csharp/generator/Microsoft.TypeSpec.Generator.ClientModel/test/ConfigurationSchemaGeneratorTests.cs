@@ -59,7 +59,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(result);
 
             var doc = JsonNode.Parse(result!)!;
-            Assert.AreEqual("http://json-schema.org/draft-07/schema#", doc["$schema"]?.GetValue<string>());
             Assert.AreEqual("object", doc["type"]?.GetValue<string>());
 
             // Since the default generator uses SCM (System.ClientModel), the section should be "Clients"
