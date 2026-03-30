@@ -189,8 +189,7 @@ public final class XmlTests {
 
     @Test
     public void testModelWithRenamedProperty() {
-        ModelWithRenamedPropertyValueClient client
-            = new XmlClientBuilder().buildModelWithRenamedPropertyValueClient();
+        ModelWithRenamedPropertyValueClient client = new XmlClientBuilder().buildModelWithRenamedPropertyValueClient();
 
         client.put(new ModelWithRenamedProperty("foo", "bar"));
 
@@ -237,8 +236,7 @@ public final class XmlTests {
         ModelWithUnwrappedModelArrayValueClient client
             = new XmlClientBuilder().buildModelWithUnwrappedModelArrayValueClient();
 
-        client.put(new ModelWithUnwrappedModelArray(
-            List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+        client.put(new ModelWithUnwrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
 
         ModelWithUnwrappedModelArray model = client.get();
         Assertions.assertEquals(2, model.getItems().size());
