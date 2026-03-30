@@ -251,8 +251,8 @@ public final class XmlTests {
         ModelWithRenamedWrappedModelArrayValueClient client
             = new XmlClientBuilder().buildModelWithRenamedWrappedModelArrayValueClient();
 
-        client.put(new ModelWithRenamedWrappedModelArray(
-            List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+        client.put(
+            new ModelWithRenamedWrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
 
         ModelWithRenamedWrappedModelArray model = client.get();
         Assertions.assertEquals(2, model.getItems().size());
@@ -267,8 +267,8 @@ public final class XmlTests {
         ModelWithRenamedUnwrappedModelArrayValueClient client
             = new XmlClientBuilder().buildModelWithRenamedUnwrappedModelArrayValueClient();
 
-        client.put(new ModelWithRenamedUnwrappedModelArray(
-            List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+        client.put(
+            new ModelWithRenamedUnwrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
 
         ModelWithRenamedUnwrappedModelArray model = client.get();
         Assertions.assertEquals(2, model.getItems().size());
