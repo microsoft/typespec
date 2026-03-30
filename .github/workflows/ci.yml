@@ -49,7 +49,7 @@ jobs:
 
   ci-gate:
     name: CI Gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: always()
     needs: [core]
     steps:
