@@ -22,12 +22,11 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
-      core: ${{ steps.result.outputs.core }}
+      core: ${{ steps.filter.outputs.core }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: dorny/paths-filter@v3
-        if: github.event_name != 'merge_group'
         id: filter
         with:
           filters: |
@@ -42,15 +41,6 @@ jobs:
               - '!packages/http-client-csharp/**'
               - '!packages/http-client-java/**'
               - '!packages/http-client-python/**'
-
-      - name: Determine changes
-        id: result
-        run: |
-          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
-            echo "core=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "core=${{ steps.filter.outputs.core }}" >> "$GITHUB_OUTPUT"
-          fi
 
   core:
     needs: changes
