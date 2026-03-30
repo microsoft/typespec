@@ -746,11 +746,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => [inputModel],
-                createSerializationsCore: (inputType, typeProvider)
-                    => inputType is InputModelType modeltype
-                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
-                    : []);
+                inputModels: () => [inputModel]);
 
             // override SerializeXmlValue to return a custom statement for string types
             var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
@@ -767,7 +763,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
             Assert.IsNotNull(serializationProvider);
 
-            var writer = new TypeProviderWriter(serializationProvider);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "XmlModelWriteCore"));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }

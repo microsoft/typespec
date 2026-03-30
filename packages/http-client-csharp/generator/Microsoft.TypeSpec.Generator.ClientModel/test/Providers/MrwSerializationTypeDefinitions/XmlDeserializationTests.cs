@@ -660,11 +660,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => [inputModel],
-                createSerializationsCore: (inputType, typeProvider)
-                    => inputType is InputModelType modeltype
-                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
-                    : []);
+                inputModels: () => [inputModel]);
 
             // override DeserializeXmlValue to return a custom expression for string types
             var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
