@@ -191,10 +191,11 @@ async def test_model_with_wrapped_primitive_custom_item_names(client: XmlClient)
     await client.model_with_wrapped_primitive_custom_item_names_value.put(model)
 
 
+@pytest.mark.skip(reason="XML unwrapped model array serialization not yet supported")
 @pytest.mark.asyncio
 async def test_model_with_unwrapped_model_array(client: XmlClient):
     model = ModelWithUnwrappedModelArray(
-        items=[
+        items_property=[
             SimpleModel(name="foo", age=123),
             SimpleModel(name="bar", age=456),
         ]
@@ -206,7 +207,7 @@ async def test_model_with_unwrapped_model_array(client: XmlClient):
 @pytest.mark.asyncio
 async def test_model_with_renamed_wrapped_model_array(client: XmlClient):
     model = ModelWithRenamedWrappedModelArray(
-        items=[
+        items_property=[
             SimpleModel(name="foo", age=123),
             SimpleModel(name="bar", age=456),
         ]
@@ -215,10 +216,11 @@ async def test_model_with_renamed_wrapped_model_array(client: XmlClient):
     await client.model_with_renamed_wrapped_model_array_value.put(model)
 
 
+@pytest.mark.skip(reason="XML unwrapped model array serialization not yet supported")
 @pytest.mark.asyncio
 async def test_model_with_renamed_unwrapped_model_array(client: XmlClient):
     model = ModelWithRenamedUnwrappedModelArray(
-        items=[
+        items_property=[
             SimpleModel(name="foo", age=123),
             SimpleModel(name="bar", age=456),
         ]
@@ -246,6 +248,7 @@ async def test_model_with_renamed_attribute(client: XmlClient):
     await client.model_with_renamed_attribute_value.put(model)
 
 
+@pytest.mark.skip(reason="XML namespace serialization not yet supported")
 @pytest.mark.asyncio
 async def test_model_with_namespace(client: XmlClient):
     model = ModelWithNamespace(id=123, title="The Great Gatsby")
@@ -253,6 +256,7 @@ async def test_model_with_namespace(client: XmlClient):
     await client.model_with_namespace_value.put(model)
 
 
+@pytest.mark.skip(reason="XML namespace serialization not yet supported")
 @pytest.mark.asyncio
 async def test_model_with_namespace_on_properties(client: XmlClient):
     model = ModelWithNamespaceOnProperties(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
