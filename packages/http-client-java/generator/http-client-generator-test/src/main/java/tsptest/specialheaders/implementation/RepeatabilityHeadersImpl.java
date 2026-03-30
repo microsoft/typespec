@@ -665,14 +665,12 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createLroWithResponseAsync(name, resource, requestOptions),
-            new OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.client.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.client.getServiceVersion().getVersion()),
-                "result"),
+            new OperationLocationPollingStrategy<>(new PollingStrategyOptions(this.client.getHttpPipeline())
+                .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
+                .setContext(requestOptions != null && requestOptions.getContext() != null
+                    ? requestOptions.getContext()
+                    : Context.NONE)
+                .setServiceVersion(this.client.getServiceVersion().getVersion()), "result"),
             TypeReference.createInstance(PollOperationDetails.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -727,14 +725,12 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createLroWithResponse(name, resource, requestOptions),
-            new SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.client.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.client.getServiceVersion().getVersion()),
-                "result"),
+            new SyncOperationLocationPollingStrategy<>(new PollingStrategyOptions(this.client.getHttpPipeline())
+                .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
+                .setContext(requestOptions != null && requestOptions.getContext() != null
+                    ? requestOptions.getContext()
+                    : Context.NONE)
+                .setServiceVersion(this.client.getServiceVersion().getVersion()), "result"),
             TypeReference.createInstance(PollOperationDetails.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -789,14 +785,12 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createLroWithResponseAsync(name, resource, requestOptions),
-            new OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.client.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.client.getServiceVersion().getVersion()),
-                "result"),
+            new OperationLocationPollingStrategy<>(new PollingStrategyOptions(this.client.getHttpPipeline())
+                .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
+                .setContext(requestOptions != null && requestOptions.getContext() != null
+                    ? requestOptions.getContext()
+                    : Context.NONE)
+                .setServiceVersion(this.client.getServiceVersion().getVersion()), "result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
@@ -851,14 +845,12 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createLroWithResponse(name, resource, requestOptions),
-            new SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.client.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.client.getServiceVersion().getVersion()),
-                "result"),
+            new SyncOperationLocationPollingStrategy<>(new PollingStrategyOptions(this.client.getHttpPipeline())
+                .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
+                .setContext(requestOptions != null && requestOptions.getContext() != null
+                    ? requestOptions.getContext()
+                    : Context.NONE)
+                .setServiceVersion(this.client.getServiceVersion().getVersion()), "result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 }
