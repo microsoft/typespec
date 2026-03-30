@@ -125,8 +125,32 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Pull Request instructions
 
-- When the work is done, run `pnpm chronus add` to add a changelog entry. Select the correct type of change (fix, feat, docs, etc.) and provide a clear description based on the initial issue description. Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages. For new features, include a short code block in the changelog entry that showcases the new functionality; skip code blocks for simple bug fixes.
+### Changelog entries
+
+When the work is done, run `pnpm chronus add` to add a changelog entry. The valid change kinds are defined in [`.chronus/config.yaml`](../.chronus/config.yaml). Do **NOT** use `feat`, `docs`, `patch`, `minor`, or `major` — these are not valid change kinds.
+
+**If a PR affects multiple packages with different types of changes, create a separate changelog entry for each.** For example, if the PR adds a feature to `@typespec/http` and fixes a bug in `@typespec/openapi3`, run `pnpm chronus add` twice to create two separate changelog entries — one with `feature` for `@typespec/http` and one with `fix` for `@typespec/openapi3`. Do NOT bundle different change types into a single entry.
+
+### Changelog message guidelines
+
+- Provide a clear description based on the initial issue description.
+- Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages.
+- For new features, include a short code block in the changelog entry that showcases the new functionality; skip code blocks for simple bug fixes.
+
+### TDD approach
+
 - Always start by defining additional unit tests/updating existing unit tests to fulfill the requirements first. Then make changes to the code accordingly. If you are following the TDD (Test Driven Development) approach, make sure to run the tests and see them fail before implementing the code changes.
+
+## Branch Naming Conventions
+
+### Out-of-sync / hotfix releases
+
+Out-of-sync releases and hotfix releases follow the same flow using a `publish/` branch:
+
+- **Pattern:** `publish/<package>-release-<MM-DD>` (e.g., `publish/python-release-03-26`)
+- These branches skip certain CI checks (consistency, external-integration) and auto-publish on merge
+- For **out-of-sync releases**, the PR targets `main`
+- For **hotfix releases**, the PR targets the corresponding `release/*` branch (e.g., `release/v0.60`) instead of `main`
 
 ## Available Task Instructions
 

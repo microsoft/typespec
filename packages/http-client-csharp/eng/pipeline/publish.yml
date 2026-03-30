@@ -100,6 +100,7 @@ extends:
           os: linux
         jobs:
           - job: CreatePR
+            timeoutInMinutes: 90
             steps:
               - checkout: self
               - pwsh: |

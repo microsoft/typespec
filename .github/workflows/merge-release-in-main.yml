@@ -25,13 +25,16 @@ jobs:
 
       - name: Generate branch name
         id: branchname
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          echo "branchname=backmerge/${{ github.ref_name }}-$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "branchname=backmerge/${REF_NAME}-$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
       - name: Create branch
+        env:
+          BRANCH: ${{ steps.branchname.outputs.branchname }}
         run: |
-          branch="${{ steps.branchname.outputs.branchname }}"
-          git checkout -b $branch
-          git push --set-upstream origin $branch
+          git checkout -b "$BRANCH"
+          git push --set-upstream origin "$BRANCH"
 
       - name: create pull request
         id: open-pr
