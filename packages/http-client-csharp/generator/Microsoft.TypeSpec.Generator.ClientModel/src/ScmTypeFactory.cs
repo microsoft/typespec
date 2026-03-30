@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -254,11 +255,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             SerializationFormat format)
                 => MrwSerializationTypeDefinition.DeserializeXmlValueCore(valueType, element, mrwOptionsParameter, format);
 
-        public virtual ValueExpression SerializeXmlValue(
+        public virtual MethodBodyStatement SerializeXmlValue(
             CSharpType valueType,
             ValueExpression value,
+            ScopedApi<XmlWriter> xmlWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
-                => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, serializationFormat);
+                => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, serializationFormat);
 
         protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
 

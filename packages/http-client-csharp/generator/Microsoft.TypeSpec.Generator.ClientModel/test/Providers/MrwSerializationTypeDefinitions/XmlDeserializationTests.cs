@@ -14,6 +14,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -647,6 +648,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
                 format);
             return expr.ToDisplayString();
+        }
+
+        [Test]
+        public void DeserializeXmlValueOverride_CustomTypeDeserialization()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            // override DeserializeXmlValue to return a custom expression for string types
+            var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
+            mockTypeFactory.Setup(p => p.DeserializeXmlValue(
+                It.Is<CSharpType>(t => t.FrameworkType == typeof(string)),
+                It.IsAny<ScopedApi<XElement>>(),
+                It.IsAny<ScopedApi<ModelReaderWriterOptions>>(),
+                It.IsAny<SerializationFormat>()))
+                .Returns((CSharpType type, ScopedApi<XElement> element, ScopedApi<ModelReaderWriterOptions> mrwOptions, SerializationFormat format) =>
+                    element.InvokeToString());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
