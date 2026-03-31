@@ -85,7 +85,7 @@ ${chalk.bold("Examples:")}
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
-  : resolve(fileURLToPath(import.meta.url), "../../../../");
+  : resolve(fileURLToPath(import.meta.url), "../../../");
 const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
 const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder

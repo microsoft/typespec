@@ -1,3 +1,0 @@
--r ../dev_requirements.txt
--e ../../../generator
--e ../unbranded/generated/special-words
