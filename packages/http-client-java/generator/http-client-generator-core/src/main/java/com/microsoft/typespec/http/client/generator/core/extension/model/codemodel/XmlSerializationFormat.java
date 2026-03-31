@@ -192,9 +192,9 @@ public class XmlSerializationFormat extends SerializationFormat {
         return XmlSerializationFormat.class.getName() + "@" + Integer.toHexString(System.identityHashCode(this))
             + "[name=" + Objects.toString(name, "<null>") + ",namespace=" + Objects.toString(namespace, "<null>")
             + ",prefix=" + Objects.toString(prefix, "<null>") + ",attribute=" + attribute + ",wrapped=" + wrapped
-            + ",itemsName=" + Objects.toString(itemsName, "<null>")
-            + ",itemsNamespace=" + Objects.toString(itemsNamespace, "<null>")
-            + ",itemsPrefix=" + Objects.toString(itemsPrefix, "<null>") + "]";
+            + ",itemsName=" + Objects.toString(itemsName, "<null>") + ",itemsNamespace="
+            + Objects.toString(itemsNamespace, "<null>") + ",itemsPrefix=" + Objects.toString(itemsPrefix, "<null>")
+            + "]";
     }
 
     @Override
