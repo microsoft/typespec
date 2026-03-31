@@ -199,3 +199,4 @@ minimumReleaseAgeExclude:
   - "@alloy-js/*"
 
 overrides:
+  dompurify: ^3.3.3 # Monaco editor pinned to 3.2.7 https://github.com/microsoft/monaco-editor/issues/5248
