@@ -56,7 +56,6 @@ catalog:
   "@types/deep-equal": ^1.0.4
   "@types/express": ^5.0.6
   "@types/micromatch": ^4.0.10
-  "@types/mocha": ^10.0.10
   "@types/morgan": ^1.9.10
   "@types/multer": ^2.1.0
   "@types/mustache": ~4.2.6
@@ -128,7 +127,6 @@ catalog:
   log-symbols: ^7.0.1
   lzutf8: 0.6.3
   micromatch: ^4.0.8
-  mocha: ^11.7.5
   monaco-editor: ~0.55.1
   monaco-editor-core: ^0.55.1
   morgan: ^1.10.1
@@ -200,3 +198,6 @@ minimumReleaseAgeExclude:
 
 overrides:
   dompurify: ^3.3.3 # Monaco editor pinned to 3.2.7 https://github.com/microsoft/monaco-editor/issues/5248
+  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
+  diff@>=6.0.0 <8.0.3: '>=8.0.3'
+  yaml@>=2.0.0 <2.8.3: '>=2.8.3'

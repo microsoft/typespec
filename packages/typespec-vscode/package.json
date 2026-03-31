@@ -283,7 +283,6 @@
   },
   "devDependencies": {
     "@types/cross-spawn": "catalog:",
-    "@types/mocha": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "@types/vscode": "~1.110.0",
@@ -300,7 +299,6 @@
     "c8": "catalog:",
     "cross-spawn": "catalog:",
     "esbuild": "catalog:",
-    "mocha": "catalog:",
     "playwright": "catalog:",
     "rimraf": "catalog:",
     "semver": "catalog:",
