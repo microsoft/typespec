@@ -7,4 +7,8 @@ export interface XmlSerializationFormat extends SerializationFormat {
   attribute: boolean;
   wrapped: boolean;
   text: boolean;
+  // items
+  itemsName?: string;
+  itemsNamespace?: string;
+  itemsPrefix?: string;
 }
