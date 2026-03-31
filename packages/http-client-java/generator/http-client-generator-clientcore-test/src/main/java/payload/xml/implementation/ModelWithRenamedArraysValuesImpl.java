@@ -89,7 +89,7 @@ public final class ModelWithRenamedArraysValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains fields of wrapped and unwrapped arrays of primitive types that have different XML
+     * @return §3.3, §3.4 — Contains fields of wrapped and unwrapped arrays of primitive types that have different XML
      * representations along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)

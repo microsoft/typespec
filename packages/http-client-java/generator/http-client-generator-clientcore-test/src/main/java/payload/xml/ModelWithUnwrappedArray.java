@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields of wrapped and unwrapped arrays of primitive types.
+ * §3.2 — Contains fields of wrapped and unwrapped arrays of primitive types.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithUnwrappedArray implements XmlSerializable<ModelWithUnwrappedArray> {

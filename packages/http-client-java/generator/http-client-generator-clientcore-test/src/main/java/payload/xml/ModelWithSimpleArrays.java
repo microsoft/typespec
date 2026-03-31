@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields of arrays of primitive types.
+ * §3.1 — Contains fields of arrays of primitive types.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithSimpleArrays implements XmlSerializable<ModelWithSimpleArrays> {

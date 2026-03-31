@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using SpecialWords;
+using SpecialWords._ExtensibleStrings;
 using SpecialWords._ModelProperties;
 using SpecialWords._Models;
 using SpecialWordsAssert = SpecialWords._Models.Assert;
@@ -284,6 +285,32 @@ namespace TestProjects.Spector.Tests.Http.SpecialWords
             var client = new SpecialWordsClient(host, null).GetModelPropertiesClient();
             var response = await client.SameAsModelAsync(body);
             NUnit.Framework.Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task ModelProperties_DictMethodsAsync() => Test(async (host) =>
+        {
+            DictMethods body = new DictMethods("ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok");
+            var client = new SpecialWordsClient(host, null).GetModelPropertiesClient();
+            var response = await client.DictMethodsAsync(body);
+            NUnit.Framework.Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task ModelProperties_WithListAsync() => Test(async (host) =>
+        {
+            ModelWithList body = new ModelWithList("ok");
+            var client = new SpecialWordsClient(host, null).GetModelPropertiesClient();
+            var response = await client.WithListAsync(body);
+            NUnit.Framework.Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task ExtensibleStrings_PutExtensibleStringValueAsync() => Test(async (host) =>
+        {
+            var client = new SpecialWordsClient(host, null).GetExtensibleStringsClient();
+            var response = await client.PutExtensibleStringValueAsync(ExtensibleString.Class);
+            NUnit.Framework.Assert.AreEqual(ExtensibleString.Class, response.Value);
         });
     }
 }
