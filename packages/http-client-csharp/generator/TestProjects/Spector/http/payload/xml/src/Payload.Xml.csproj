@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.9.0" />
+    <PackageReference Include="System.ClientModel" Version="1.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\Payload.Xml.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Payload.Xml.targets" />
   </ItemGroup>
 </Project>
