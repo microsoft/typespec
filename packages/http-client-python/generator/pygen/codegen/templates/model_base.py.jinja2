@@ -1297,7 +1297,7 @@ def _set_xml_attribute(
 
     :param ET.Element element: The element to set the attribute on.
     :param str name: The default attribute name (wire name).
-    :param value: The attribute value.
+    :param any value: The attribute value.
     :param dict prop_meta: The property metadata dictionary.
     """
     xml_name = prop_meta.get("name", name)
