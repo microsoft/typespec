@@ -38,8 +38,8 @@ catalog:
   "@eslint/js": ^10.0.1
   "@expressive-code/core": ^0.41.7
   "@fluentui/react-components": ~9.73.3
-  "@fluentui/react-icons": ^2.0.321
-  "@fluentui/react-list": ^9.6.11
+  "@fluentui/react-icons": ^2.0.323
+  "@fluentui/react-list": ^9.6.12
   "@inquirer/prompts": ^8.3.0
   "@microsoft/api-extractor": ^7.57.7
   "@microsoft/api-extractor-model": ^7.33.4
@@ -53,8 +53,8 @@ catalog:
   "@scalar/json-magic": ^0.11.5
   "@scalar/openapi-parser": ^0.24.1
   "@scalar/openapi-types": ^0.5.0
-  "@storybook/cli": ^10.1.8
-  "@storybook/react-vite": ^10.1.8
+  "@storybook/cli": ^10.3.3
+  "@storybook/react-vite": ^10.3.3
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^6.9.1
   "@testing-library/react": ^16.3.2
@@ -170,7 +170,7 @@ catalog:
   sharp: ^0.34.5
   simple-git: ^3.33.0
   source-map-support: ~0.5.21
-  storybook: ^10.2.19
+  storybook: ^10.3.3
   strip-json-comments: ~5.0.3
   swagger-ui-dist: ^5.32.0
   swagger-ui-express: ^5.0.1
