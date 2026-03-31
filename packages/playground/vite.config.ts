@@ -44,9 +44,6 @@ export default defineConfig({
       external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },
-  esbuild: {
-    logOverride: { "this-is-undefined-in-esm": "silent" },
-  },
   assetsInclude: [/\.tsp$/],
   optimizeDeps: {},
   plugins: [
