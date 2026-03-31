@@ -1,10 +1,22 @@
 /* eslint-disable no-console */
 import { spawn } from "child_process";
+import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../");
+
+// Get Python venv path
+function getVenvPython(): string {
+  const venvPath = join(root, "venv");
+  if (fs.existsSync(join(venvPath, "bin"))) {
+    return join(venvPath, "bin", "python");
+  } else if (fs.existsSync(join(venvPath, "Scripts"))) {
+    return join(venvPath, "Scripts", "python.exe");
+  }
+  throw new Error("Virtual environment not found. Run 'npm run install' first.");
+}
 
 const colors = {
   reset: "\x1b[0m",
@@ -99,11 +111,27 @@ async function formatEmitter(check: boolean): Promise<boolean> {
 
 async function formatGenerator(check: boolean): Promise<boolean> {
   console.log(`\n${colors.bold}=== Formatting Python Generator ===${colors.reset}\n`);
-  const args = ["generator/", "scripts/", "--config", "./scripts/ci/config/pyproject.toml"];
+
+  let pythonPath: string;
+  try {
+    pythonPath = getVenvPython();
+  } catch (error) {
+    console.error(colors.red + (error as Error).message + colors.reset);
+    return false;
+  }
+
+  const args = [
+    "-m",
+    "black",
+    "generator/",
+    "scripts/",
+    "--config",
+    "./scripts/ci/config/pyproject.toml",
+  ];
   if (check) {
     args.push("--check");
   }
-  return runCommand("black", args);
+  return runCommand(pythonPath, args);
 }
 
 async function main(): Promise<void> {
