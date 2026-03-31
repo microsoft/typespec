@@ -647,8 +647,9 @@ class Model(_MyMutableMapping):
                     # unwrapped element is array
                     if prop_meta.get("unwrapped", False):
                         # unwrapped array could either use prop items meta/prop meta
-                        if prop_meta.get("itemsName"):
-                            xml_name = prop_meta.get("itemsName")
+                        _items_name = prop_meta.get("itemsName")
+                        if _items_name:
+                            xml_name = _items_name
                             _items_ns = prop_meta.get("itemsNs")
                             if _items_ns is not None:
                                 xml_ns = _items_ns
