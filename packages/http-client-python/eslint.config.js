@@ -5,7 +5,13 @@ import tsEslint from "typescript-eslint";
 
 export default defineConfig(
   {
-    ignores: ["**/dist/**/*", "**/.temp/**/*", "**/venv/**/*", "**/generator/**/*", "**/tests/**/*"],
+    ignores: [
+      "**/dist/**/*",
+      "**/.temp/**/*",
+      "**/venv/**/*",
+      "**/generator/**/*",
+      "**/tests/**/*",
+    ],
   },
   eslint.configs.recommended,
   ...tsEslint.configs.recommended,

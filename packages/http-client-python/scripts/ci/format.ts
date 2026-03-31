@@ -31,6 +31,7 @@ const argv = parseArgs({
   options: {
     emitter: { type: "boolean", short: "e" },
     generator: { type: "boolean", short: "g" },
+    generated: { type: "boolean" },
     check: { type: "boolean", short: "c" },
     help: { type: "boolean", short: "h" },
   },
@@ -48,7 +49,10 @@ ${colors.bold}Options:${colors.reset}
       Format TypeScript emitter code with Prettier.
 
   ${colors.cyan}-g, --generator${colors.reset}
-      Format Python generator code with Black.
+      Format Python generator source code (pygen) with Black.
+
+  ${colors.cyan}--generated${colors.reset}
+      Format generated SDK packages with Black.
 
   ${colors.cyan}-c, --check${colors.reset}
       Check formatting without making changes (exit with error if unformatted).
@@ -57,20 +61,20 @@ ${colors.bold}Options:${colors.reset}
       Show this help message.
 
 ${colors.bold}Examples:${colors.reset}
-  ${colors.cyan}# Format everything (emitter + generator)${colors.reset}
+  ${colors.cyan}# Format emitter + pygen source (default)${colors.reset}
   tsx format.ts
 
   ${colors.cyan}# Format only TypeScript emitter${colors.reset}
   tsx format.ts --emitter
-  tsx format.ts -e
 
-  ${colors.cyan}# Format only Python generator${colors.reset}
+  ${colors.cyan}# Format only pygen source code${colors.reset}
   tsx format.ts --generator
-  tsx format.ts -g
 
   ${colors.cyan}# Check formatting without making changes${colors.reset}
   tsx format.ts --check
-  tsx format.ts -c
+
+  ${colors.cyan}# Format generated SDK packages${colors.reset}
+  tsx format.ts --generated
 `);
   process.exit(0);
 }
@@ -104,15 +108,25 @@ function runCommand(command: string, args: string[]): Promise<boolean> {
 async function formatEmitter(check: boolean): Promise<boolean> {
   console.log(`\n${colors.bold}=== Formatting TypeScript Emitter ===${colors.reset}\n`);
   // Use prettier directly for check mode, otherwise use pnpm format:dir
+  // Exclude CHANGELOG.md as it's managed by chronus changelog tool
   if (check) {
-    return runCommand("npx", ["prettier", "--check", "emitter/", "scripts/", "*.json", "*.md"]);
+    return runCommand("npx", [
+      "prettier",
+      "--check",
+      "emitter/",
+      "scripts/",
+      "*.json",
+      "README.md",
+      "CONTRIBUTING.md",
+      "ARCHITECTURE.md",
+    ]);
   } else {
     return runCommand("pnpm", ["-w", "format:dir", "packages/http-client-python"]);
   }
 }
 
-async function formatGenerator(check: boolean): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Formatting Python Generator ===${colors.reset}\n`);
+async function formatPygenSource(check: boolean): Promise<boolean> {
+  console.log(`\n${colors.bold}=== Formatting Python Generator (pygen) ===${colors.reset}\n`);
 
   let pythonPath: string;
   try {
@@ -125,8 +139,33 @@ async function formatGenerator(check: boolean): Promise<boolean> {
   const args = [
     "-m",
     "black",
-    "generator/",
+    "generator/pygen",
     "scripts/",
+    "--config",
+    "./scripts/ci/config/pyproject.toml",
+  ];
+  if (check) {
+    args.push("--check");
+  }
+  return runCommand(pythonPath, args);
+}
+
+async function formatGeneratedPackages(check: boolean): Promise<boolean> {
+  console.log(`\n${colors.bold}=== Formatting Generated SDK Packages ===${colors.reset}\n`);
+
+  let pythonPath: string;
+  try {
+    pythonPath = getVenvPython();
+  } catch (error) {
+    console.error(colors.red + (error as Error).message + colors.reset);
+    return false;
+  }
+
+  const args = [
+    "-m",
+    "black",
+    "generator/test/azure/generated",
+    "generator/test/unbranded/generated",
     "--config",
     "./scripts/ci/config/pyproject.toml",
   ];
@@ -139,8 +178,21 @@ async function formatGenerator(check: boolean): Promise<boolean> {
 async function main(): Promise<void> {
   const runEmitter = argv.values.emitter;
   const runGenerator = argv.values.generator;
-  const runBoth = !runEmitter && !runGenerator;
+  const runGenerated = argv.values.generated;
   const check = argv.values.check || false;
+
+  // If --generated is specified, only format generated packages
+  if (runGenerated) {
+    const result = await formatGeneratedPackages(check);
+    if (!result) process.exit(1);
+    console.log(
+      `\n${colors.green}${colors.bold}Generated SDK formatting ${check ? "check " : ""}complete!${colors.reset}\n`,
+    );
+    return;
+  }
+
+  // Default: format emitter + pygen source
+  const runBoth = !runEmitter && !runGenerator;
 
   let success = true;
 
@@ -150,7 +202,7 @@ async function main(): Promise<void> {
   }
 
   if (runGenerator || runBoth) {
-    const result = await formatGenerator(check);
+    const result = await formatPygenSource(check);
     if (!result) success = false;
   }
 
