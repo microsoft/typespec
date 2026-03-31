@@ -25,7 +25,7 @@ from pathlib import Path
 from venvtools import python_run
 from package_manager import install_packages, create_venv_with_package_manager
 
-_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent
 
 
 def main():

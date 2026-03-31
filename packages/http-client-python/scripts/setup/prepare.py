@@ -15,7 +15,7 @@ if not sys.version_info >= (3, 9, 0):
 from pathlib import Path
 from package_manager import create_venv_with_package_manager, install_packages
 
-_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent
 
 
 def main():

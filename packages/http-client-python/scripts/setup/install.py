@@ -38,7 +38,7 @@ except (ImportError, ModuleNotFoundError):
 
 from pathlib import Path
 
-_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+_ROOT_DIR = Path(__file__).parent.parent.parent
 
 
 def main():
