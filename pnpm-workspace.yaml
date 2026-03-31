@@ -197,6 +197,6 @@ minimumReleaseAgeExclude:
 
 overrides:
   dompurify: ^3.3.3 # Monaco editor pinned to 3.2.7 https://github.com/microsoft/monaco-editor/issues/5248
-  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
-  diff@>=6.0.0 <8.0.3: '>=8.0.3'
-  yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
+  diff@>=6.0.0 <8.0.3: ">=8.0.3"
+  yaml@>=2.0.0 <2.8.3: ">=2.8.3"
