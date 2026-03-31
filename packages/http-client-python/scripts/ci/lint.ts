@@ -1,11 +1,23 @@
 /* eslint-disable no-console */
 import { spawn } from "child_process";
+import fs from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../");
 const testsDir = join(root, "tests");
+
+// Get Python venv path
+function getVenvPython(): string {
+  const venvPath = join(root, "venv");
+  if (fs.existsSync(join(venvPath, "bin"))) {
+    return join(venvPath, "bin", "python");
+  } else if (fs.existsSync(join(venvPath, "Scripts"))) {
+    return join(venvPath, "Scripts", "python.exe");
+  }
+  throw new Error("Virtual environment not found. Run 'npm run install' first.");
+}
 
 const colors = {
   reset: "\x1b[0m",
@@ -102,14 +114,18 @@ async function lintGenerator(flavor?: string): Promise<boolean> {
     `\n${colors.bold}=== Linting Python Generator (${flavors.join(", ")}) ===${colors.reset}\n`,
   );
 
+  let pythonPath: string;
+  try {
+    pythonPath = getVenvPython();
+  } catch (error) {
+    console.error(colors.red + (error as Error).message + colors.reset);
+    return false;
+  }
+
   let success = true;
   for (const f of flavors) {
     const toxEnv = `lint-${f}`;
-    const result = await runCommand(
-      "python",
-      ["-m", "tox", "-c", "tox.ini", "-e", toxEnv],
-      testsDir,
-    );
+    const result = await runCommand(pythonPath, ["-m", "tox", "-c", "tox.ini", "-e", toxEnv], testsDir);
     if (!result) success = false;
   }
   return success;

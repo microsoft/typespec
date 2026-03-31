@@ -168,7 +168,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       try {
         await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
         await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
-      } catch (error) {
+      } catch {
         // if the python env is not ready, we use pyodide instead
         resolvedOptions["use-pyodide"] = true;
       }
@@ -269,7 +269,7 @@ async function setupPyodideCall(root: string) {
         if (lockAge > 300) {
           fs.unlinkSync(micropipLockPath);
         }
-      } catch (err) {
+      } catch {
         // ignore
       }
     }
@@ -288,7 +288,7 @@ async function setupPyodideCall(root: string) {
       fs.closeSync(fd);
       fs.unlinkSync(micropipLockPath);
       break;
-    } catch (err) {
+    } catch {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

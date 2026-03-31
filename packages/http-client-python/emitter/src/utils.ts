@@ -317,7 +317,7 @@ function parseToken(token: Token): string {
     case "codespan":
       parsed += `\`\`${token.text}\`\``;
       break;
-    case "code":
+    case "code": {
       let codeBlockStyle = token.codeBlockStyle;
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
@@ -328,6 +328,7 @@ function parseToken(token: Token): string {
       }
       parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
+    }
     case "link":
       if (token.href !== undefined) {
         parsed += `\`${token.text} <${token.href}>\`_`;
