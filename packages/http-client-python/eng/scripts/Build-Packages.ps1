@@ -57,10 +57,10 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
-    # Only run lint:py on Linux OS
+    # Only run lint on Linux OS
     if ($IsLinux) {
         Write-Host "run lint check for pygen"
-        Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+        Invoke-LoggedCommand "npm run lint -- --generator" -GroupOutput
     }
 
     # pack the emitter
