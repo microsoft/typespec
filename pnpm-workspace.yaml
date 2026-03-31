@@ -14,9 +14,9 @@ catalog:
   "@alloy-js/python": ^0.3.0
   "@alloy-js/rollup-plugin": ^0.1.0
   "@alloy-js/typescript": ^0.22.0
-  "@astrojs/check": ^0.9.7
-  "@astrojs/react": ^5.0.0
-  "@astrojs/starlight": ^0.38.1
+  "@astrojs/check": ^0.9.8
+  "@astrojs/react": ^5.0.2
+  "@astrojs/starlight": ^0.38.2
   "@azure/identity": ~4.13.0
   "@azure/storage-blob": ~12.31.0
   "@babel/code-frame": ~7.29.0
@@ -24,8 +24,8 @@ catalog:
   "@chronus/chronus": ^1.3.1
   "@chronus/github": ^1.0.6
   "@chronus/github-pr-commenter": ^1.0.6
-  "@docsearch/css": ^4.6.0
-  "@docsearch/js": ^4.6.0
+  "@docsearch/css": ^4.6.2
+  "@docsearch/js": ^4.6.2
   "@eslint/js": ^10.0.1
   "@expressive-code/core": ^0.41.7
   "@fluentui/react-components": ~9.73.3
@@ -93,7 +93,7 @@ catalog:
   ajv-formats: ~3.0.1
   astro: ^6.0.4
   astro-expressive-code: ^0.41.7
-  astro-rehype-relative-markdown-links: ^0.18.1
+  astro-rehype-relative-markdown-links: ^0.19.0
   body-parser: ^2.2.2
   c8: ^11.0.0
   change-case: ~5.4.4
@@ -170,8 +170,8 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  typedoc: ^0.28.17
-  typedoc-plugin-markdown: ^4.10.0
+  typedoc: ^0.28.18
+  typedoc-plugin-markdown: ^4.11.0
   typescript: ~5.9.3
   typescript-eslint: ^8.57.0
   uri-template: ^2.0.0
