@@ -19,11 +19,11 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_pyright_config_file_location():
-    pyright_config = os.path.join(os.getcwd(), "../../eng/scripts/ci/pyrightconfig.json")
+    pyright_config = os.path.join(os.getcwd(), "../../scripts/ci/config/pyrightconfig.json")
     if os.path.exists(pyright_config):
         return pyright_config
     else:
-        return os.path.join(os.getcwd(), "../../../eng/scripts/ci/pyrightconfig.json")
+        return os.path.join(os.getcwd(), "../../../scripts/ci/config/pyrightconfig.json")
 
 
 def _single_dir_pyright(mod):

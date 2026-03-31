@@ -103,10 +103,12 @@ function runCommand(command: string, args: string[]): Promise<boolean> {
 
 async function formatEmitter(check: boolean): Promise<boolean> {
   console.log(`\n${colors.bold}=== Formatting TypeScript Emitter ===${colors.reset}\n`);
-  const args = check
-    ? ["-w", "format:dir", "packages/http-client-python", "--", "--check"]
-    : ["-w", "format:dir", "packages/http-client-python"];
-  return runCommand("pnpm", args);
+  // Use prettier directly for check mode, otherwise use pnpm format:dir
+  if (check) {
+    return runCommand("npx", ["prettier", "--check", "emitter/", "scripts/", "*.json", "*.md"]);
+  } else {
+    return runCommand("pnpm", ["-w", "format:dir", "packages/http-client-python"]);
+  }
 }
 
 async function formatGenerator(check: boolean): Promise<boolean> {

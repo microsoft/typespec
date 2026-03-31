@@ -2,4 +2,3 @@
 -r base.txt
 pylint==4.0.4
 black==24.8.0
-azure-pylint-guidelines-checker==0.5.2 --index-url=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-python/pypi/simple/
