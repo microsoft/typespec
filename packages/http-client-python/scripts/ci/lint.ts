@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import { spawn } from "child_process";
-import { cpus } from "os";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
@@ -99,12 +98,18 @@ async function lintEmitter(): Promise<boolean> {
 
 async function lintGenerator(flavor?: string): Promise<boolean> {
   const flavors = flavor ? [flavor] : ["azure", "unbranded"];
-  console.log(`\n${colors.bold}=== Linting Python Generator (${flavors.join(", ")}) ===${colors.reset}\n`);
+  console.log(
+    `\n${colors.bold}=== Linting Python Generator (${flavors.join(", ")}) ===${colors.reset}\n`,
+  );
 
   let success = true;
   for (const f of flavors) {
     const toxEnv = `lint-${f}`;
-    const result = await runCommand("python", ["-m", "tox", "-c", "tox.ini", "-e", toxEnv], testsDir);
+    const result = await runCommand(
+      "python",
+      ["-m", "tox", "-c", "tox.ini", "-e", toxEnv],
+      testsDir,
+    );
     if (!result) success = false;
   }
   return success;

@@ -35,28 +35,21 @@
     "install": "tsx ./scripts/setup/install.ts",
     "prepare": "tsx ./scripts/setup/prepare.ts",
     "setup": "npm run build && npm run install",
-
     "test": "tsx ./scripts/ci/run-tests.ts",
     "test:emitter": "tsx ./scripts/ci/run-tests.ts --emitter",
     "test:generator": "tsx ./scripts/ci/run-tests.ts --generator",
-
     "lint": "tsx ./scripts/ci/lint.ts",
     "lint:emitter": "tsx ./scripts/ci/lint.ts --emitter",
     "lint:generator": "tsx ./scripts/ci/lint.ts --generator",
-
     "format": "tsx ./scripts/ci/format.ts",
     "format:emitter": "tsx ./scripts/ci/format.ts --emitter",
     "format:generator": "tsx ./scripts/ci/format.ts --generator",
     "format:check": "tsx ./scripts/ci/format.ts --check",
-
     "mypy": "tsx ./scripts/ci/run-tests.ts --generator --env=mypy",
     "pyright": "tsx ./scripts/ci/run-tests.ts --generator --env=pyright",
-
     "regenerate": "tsx ./scripts/ci/regenerate.ts",
-
     "ci": "npm run test && npm run lint",
     "ci:generator": "tsx ./scripts/ci/run-tests.ts --generator --env=ci",
-
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
     "change:add": "pnpm chronus add",
     "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-python/reference --skip-js"

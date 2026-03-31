@@ -128,7 +128,9 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`\n${colors.green}${colors.bold}All formatting ${check ? "checks passed" : "complete"}!${colors.reset}\n`);
+  console.log(
+    `\n${colors.green}${colors.bold}All formatting ${check ? "checks passed" : "complete"}!${colors.reset}\n`,
+  );
 }
 
 main().catch((error) => {

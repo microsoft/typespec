@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { spawn, ChildProcess } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 import fs from "fs";
-import { cpus, platform } from "os";
+import { cpus } from "os";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
@@ -154,7 +154,7 @@ async function runParallel(
   envs: string[],
   pythonPath: string,
   maxJobs: number,
-  name?: string
+  name?: string,
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
   const running: Map<string, Promise<ToxResult>> = new Map();
@@ -182,7 +182,7 @@ async function runParallel(
 async function runSequential(
   envs: string[],
   pythonPath: string,
-  name?: string
+  name?: string,
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
   for (const env of envs) {
@@ -213,7 +213,7 @@ function printSummary(results: ToxResult[]): void {
     `  ${colors.green}Passed: ${passed.length}${colors.reset}  ` +
       `${colors.red}Failed: ${failed.length}${colors.reset}  ` +
       `Total: ${results.length}  ` +
-      `Duration: ${totalDuration.toFixed(1)}s`
+      `Duration: ${totalDuration.toFixed(1)}s`,
   );
   console.log("─".repeat(60) + "\n");
 
@@ -288,9 +288,26 @@ async function main(): Promise<void> {
   const allResults: ToxResult[] = [];
 
   // Header
-  console.log(colors.cyan + "\n╔══════════════════════════════════════════════════════════╗" + colors.reset);
-  console.log(colors.cyan + "║" + colors.reset + colors.bold + "           TypeSpec Python SDK Generator Tests            " + colors.reset + colors.cyan + "║" + colors.reset);
-  console.log(colors.cyan + "╚══════════════════════════════════════════════════════════╝" + colors.reset + "\n");
+  console.log(
+    colors.cyan + "\n╔══════════════════════════════════════════════════════════╗" + colors.reset,
+  );
+  console.log(
+    colors.cyan +
+      "║" +
+      colors.reset +
+      colors.bold +
+      "           TypeSpec Python SDK Generator Tests            " +
+      colors.reset +
+      colors.cyan +
+      "║" +
+      colors.reset,
+  );
+  console.log(
+    colors.cyan +
+      "╚══════════════════════════════════════════════════════════╝" +
+      colors.reset +
+      "\n",
+  );
 
   // Run emitter tests if requested
   if (runEmitter || runBoth) {
@@ -304,8 +321,7 @@ async function main(): Promise<void> {
     console.log(`\n${colors.bold}=== Generator Tests (Python) ===${colors.reset}\n`);
 
     // Determine flavors
-    const flavors =
-      argv.values.flavor === "all" ? ["azure", "unbranded"] : [argv.values.flavor!];
+    const flavors = argv.values.flavor === "all" ? ["azure", "unbranded"] : [argv.values.flavor!];
 
     // Determine environments
     let baseEnvs: string[];
