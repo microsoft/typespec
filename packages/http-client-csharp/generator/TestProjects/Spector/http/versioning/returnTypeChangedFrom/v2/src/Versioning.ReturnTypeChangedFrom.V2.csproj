@@ -12,4 +12,9 @@
   <ItemGroup>
     <PackageReference Include="System.ClientModel" Version="1.10.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\Versioning.ReturnTypeChangedFrom.V2.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Versioning.ReturnTypeChangedFrom.V2.targets" />
+  </ItemGroup>
 </Project>
