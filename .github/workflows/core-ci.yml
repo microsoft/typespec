@@ -4,39 +4,8 @@ permissions:
   contents: read
 
 on:
-  push:
-    branches:
-      - main
-    # Exclude isolated emitter packages and files already checked by dedicated CI workflows
-    paths-ignore:
-      - ".prettierignore"
-      - ".prettierrc.json"
-      - "cspell.yaml"
-      - "eslint.config.json"
-      - ".chronus/**"
-      - "eng/emitters/**"
-      - "packages/http-client-csharp/**"
-      - "packages/http-client-java/**"
-      - "packages/http-client-python/**"
-  pull_request:
-    branches:
-      - main
-      - "release/*"
-    paths-ignore:
-      - ".prettierignore"
-      - ".prettierrc.json"
-      - "cspell.yaml"
-      - "eslint.config.json"
-      - ".chronus/**"
-      - "eng/emitters/**"
-      - "packages/http-client-csharp/**"
-      - "packages/http-client-java/**"
-      - "packages/http-client-python/**"
-  merge_group:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   build:

@@ -1464,5 +1464,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsFalse(methodBody.Contains("EnumerateArray"),
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }
+
     }
 }

@@ -1,16 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -600,6 +604,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             }
 
             protected override FieldProvider[] BuildFields() => [];
+        }
+
+        [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "((int)foo)")]
+        [TestCase(typeof(string), SerializationFormat.Default, ExpectedResult = "((string)foo)")]
+        [TestCase(typeof(bool), SerializationFormat.Default, ExpectedResult = "((bool)foo)")]
+        [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "((long)foo)")]
+        [TestCase(typeof(float), SerializationFormat.Default, ExpectedResult = "((float)foo)")]
+        [TestCase(typeof(double), SerializationFormat.Default, ExpectedResult = "((double)foo)")]
+        [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "((byte)((int)foo))")]
+        [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "((sbyte)((int)foo))")]
+        [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "((short)((int)foo))")]
+        public string DeserializeXmlValueCore_PrimitiveTypes(Type type, SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.DeserializeXmlValueCore(
+                type,
+                new ScopedApi<XElement>(new VariableExpression(typeof(XElement), "foo")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.DateTime_ISO8601, ExpectedResult = "foo.GetDateTimeOffset(\"O\")")]
+        [TestCase(SerializationFormat.DateTime_RFC1123, ExpectedResult = "foo.GetDateTimeOffset(\"R\")")]
+        [TestCase(SerializationFormat.DateTime_RFC3339, ExpectedResult = "foo.GetDateTimeOffset(\"O\")")]
+        public string DeserializeXmlValueCore_DateTimeOffset(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.DeserializeXmlValueCore(
+                typeof(DateTimeOffset),
+                new ScopedApi<XElement>(new VariableExpression(typeof(XElement), "foo")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "foo.GetTimeSpan(\"c\")")]
+        public string DeserializeXmlValueCore_TimeSpan(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.DeserializeXmlValueCore(
+                typeof(TimeSpan),
+                new ScopedApi<XElement>(new VariableExpression(typeof(XElement), "foo")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [Test]
+        public void DeserializeXmlValueOverride_CustomTypeDeserialization()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel]);
+
+            // override DeserializeXmlValue to return a custom expression for string types
+            var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
+            mockTypeFactory.Setup(p => p.DeserializeXmlValue(
+                It.Is<CSharpType>(t => t.FrameworkType == typeof(string)),
+                It.IsAny<ScopedApi<XElement>>(),
+                It.IsAny<ScopedApi<ModelReaderWriterOptions>>(),
+                It.IsAny<SerializationFormat>()))
+                .Returns((CSharpType type, ScopedApi<XElement> element, ScopedApi<ModelReaderWriterOptions> mrwOptions, SerializationFormat format) =>
+                    element.InvokeToString());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
