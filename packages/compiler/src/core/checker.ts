@@ -3823,7 +3823,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    return probeTemplateAccessBaseEntity(baseNode);
+    return undefined;
   }
 
   /** Probe a node for a template access base without surfacing diagnostics. */
@@ -4478,13 +4478,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /** Resolve the effective type used for member lookup on a base symbol. */
-  function getMemberResolutionType(ctx: CheckContext, base: Sym): Type | undefined {
+  function getMemberResolutionType(_ctx: CheckContext, base: Sym): Type | undefined {
     if (base.flags & SymbolFlags.LateBound) {
       return base.type && isType(base.type) ? base.type : undefined;
     }
     if (base.flags & SymbolFlags.Member) {
-      const type = checkMemberSym(ctx, base);
-      return isErrorType(type) ? undefined : type;
+      return base.type && isType(base.type) ? base.type : undefined;
     }
     return undefined;
   }
@@ -6586,7 +6585,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
     if (!parentTemplate || shouldRunDecorators) {
-      const docComment = getDocCommentForSymbol(sym);
+      const docComment = getDocCommentForSymbol(sym) ?? getOperationParameterDocComment(prop);
       if (docComment) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
@@ -6594,6 +6593,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     pendingResolutions.finish(sym, ResolutionKind.Type);
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
+    if (prop.parent?.kind !== SyntaxKind.ModelExpression) {
+      return undefined;
+    }
+
+    const signature = prop.parent.parent;
+    if (signature?.kind !== SyntaxKind.OperationSignatureDeclaration) {
+      return undefined;
+    }
+
+    const operation = signature.parent;
+    if (operation?.kind !== SyntaxKind.OperationStatement) {
+      return undefined;
+    }
+
+    return extractParamDocs(operation).get(prop.id.sv);
   }
 
   function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
