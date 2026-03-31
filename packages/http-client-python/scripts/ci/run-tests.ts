@@ -179,7 +179,7 @@ async function runParallel(
   return results;
 }
 
-async function runSequential(
+async function _runSequential(
   envs: string[],
   pythonPath: string,
   name?: string,

@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../");
+const monorepoRoot = join(root, "../../");
 const testsDir = join(root, "tests");
 
 // Get Python venv path
@@ -110,7 +111,12 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${colors.bold}=== Linting TypeScript Emitter ===${colors.reset}\n`);
-  return runCommand("npx", ["eslint", "emitter/", "--max-warnings=0"]);
+  // Run eslint from monorepo root to use the shared eslint config
+  return runCommand(
+    "npx",
+    ["eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
+    monorepoRoot,
+  );
 }
 
 async function lintPygenSource(): Promise<boolean> {
