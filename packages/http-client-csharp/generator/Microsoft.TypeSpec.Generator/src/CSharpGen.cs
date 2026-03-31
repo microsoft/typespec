@@ -112,7 +112,10 @@ namespace Microsoft.TypeSpec.Generator
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
-            // Write project scaffolding files
+            // Write additional output files (e.g. configuration schemas, .targets files)
+            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+
+            // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
