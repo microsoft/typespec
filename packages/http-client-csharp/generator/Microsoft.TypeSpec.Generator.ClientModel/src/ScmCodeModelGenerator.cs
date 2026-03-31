@@ -60,7 +60,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 }
                 Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
                 await File.WriteAllTextAsync(schemaPath, schemaContent);
+
+                // Generate the .targets file for JsonSchemaSegment registration
+                var packageName = Configuration.PackageName;
+                var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                var targetsContent = GenerateTargetsFile();
+                Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                await File.WriteAllTextAsync(targetsPath, targetsContent);
             }
+        }
+
+        private static string GenerateTargetsFile()
+        {
+            return "<Project>\n" +
+                   "  <ItemGroup>\n" +
+                   "    <JsonSchemaSegment Include=\"$(MSBuildThisFileDirectory)..\\..\\ConfigurationSchema.json\"\n" +
+                   "                       FilePathPattern=\"appsettings.*.json\" />\n" +
+                   "  </ItemGroup>\n" +
+                   "</Project>\n";
         }
     }
 }
