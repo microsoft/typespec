@@ -7,7 +7,7 @@ import {
   ValidationError,
 } from "@typespec/spec-api";
 import micromatch from "micromatch";
-import { inspect, isDeepStrictEqual } from "node:util";
+import { inspect } from "node:util";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
