@@ -324,32 +324,11 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
-
-                // Try to find the assembly in the NuGet global packages folder.
-                // When version is null (centrally managed packages), scan all available versions.
-                string? resolvedAssemblyPath = FindPackageAssembly(
-                    globalPackagesFolder, refPackageName, refVersion);
-
-                // If not found locally and we have a version, download from NuGet
-                if (resolvedAssemblyPath == null && !string.IsNullOrEmpty(refVersion))
-                {
-                    try
-                    {
-                        var downloader = new NugetPackageDownloader(refPackageName, refVersion, null, nugetSettings);
-                        var downloadedPath = await downloader.DownloadAndInstallPackage();
-                        var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
-                        if (File.Exists(downloadedAssembly))
-                        {
-                            resolvedAssemblyPath = downloadedAssembly;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Could not download package {refPackageName}@{refVersion}: {ex.Message}");
-                    }
-                }
+                // Search the NuGet global packages folder for any cached version of this package.
+                // We don't require a specific version — the cache will contain the correct version
+                // from the last dotnet restore, regardless of whether the version is specified in
+                // the csproj or centrally managed via Directory.Packages.props.
+                string? resolvedAssemblyPath = FindPackageAssembly(globalPackagesFolder, refPackageName);
 
                 if (resolvedAssemblyPath != null)
                 {
@@ -362,31 +341,19 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Searches the NuGet global packages folder for a package assembly.
-        /// When <paramref name="version"/> is null, scans all available versions and
-        /// returns the first match found (for centrally managed package references).
+        /// Searches the NuGet global packages folder for a package assembly across all cached versions.
+        /// Returns the first matching assembly found, preferring newer versions.
         /// </summary>
-        private static string? FindPackageAssembly(string globalPackagesFolder, string packageName, string? version)
+        private static string? FindPackageAssembly(string globalPackagesFolder, string packageName)
         {
             var packageDir = Path.Combine(globalPackagesFolder, packageName.ToLowerInvariant());
 
-            IEnumerable<string> versionDirs;
-            if (!string.IsNullOrEmpty(version))
+            if (!Directory.Exists(packageDir))
             {
-                // Specific version
-                versionDirs = [Path.Combine(packageDir, version.ToLowerInvariant())];
-            }
-            else
-            {
-                // No version specified (centrally managed) — try all available versions
-                if (!Directory.Exists(packageDir))
-                {
-                    return null;
-                }
-                versionDirs = Directory.GetDirectories(packageDir).OrderDescending();
+                return null;
             }
 
-            foreach (var versionDir in versionDirs)
+            foreach (var versionDir in Directory.GetDirectories(packageDir).OrderDescending())
             {
                 foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
                 {
