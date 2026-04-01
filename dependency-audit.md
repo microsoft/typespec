@@ -45,7 +45,7 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
   - `@inquirer/prompts` locations:
     - `packages/compiler/src/init/init.ts`
     - `packages/compiler/src/init/prompts.ts`
-- [ ] **`onigasm` → `vscode-oniguruma`** — `onigasm` is stale (last updated May 2022) and superseded by `vscode-oniguruma` which is already a devDep of compiler. Used in 1 file:
+- [x] **`onigasm` → `vscode-oniguruma`** — `onigasm` is stale (last updated May 2022) and superseded by `vscode-oniguruma` which is already a devDep of compiler. Used in 1 file:
   - `packages/tmlanguage-generator/src/tmlanguage-generator.ts`
 - [ ] **`lzutf8`** — Stale since July 2022. Consider replacing with `lz-string` or the browser `CompressionStream` API. Used in 1 file:
   - `packages/playground/src/state-storage.ts`

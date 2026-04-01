@@ -123,7 +123,6 @@ catalog:
   morgan: ^1.10.1
   multer: ^2.1.1
   mustache: ~4.2.0
-  onigasm: ~2.2.5
   ora: ^9.3.0
   p-limit: ^7.3.0
   pathe: ^2.0.3

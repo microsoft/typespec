@@ -354,9 +354,6 @@ catalogs:
     mustache:
       specifier: ~4.2.0
       version: 4.2.0
-    onigasm:
-      specifier: ~2.2.5
-      version: 2.2.5
     ora:
       specifier: ^9.3.0
       version: 9.3.0
@@ -2650,12 +2647,12 @@ importers:
 
   packages/tmlanguage-generator:
     dependencies:
-      onigasm:
-        specifier: 'catalog:'
-        version: 2.2.5
       plist:
         specifier: 'catalog:'
         version: 3.1.0
+      vscode-oniguruma:
+        specifier: 'catalog:'
+        version: 2.0.1
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -10782,9 +10779,6 @@ packages:
   onetime@7.0.0:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
-
-  onigasm@2.2.5:
-    resolution: {integrity: sha512-F+th54mPc0l1lp1ZcFMyL/jTs2Tlq4SqIHKIXGZOR/VkHkF9A7Fr5rRr5+ZG/lWeRsyrClLYRq7s/yFQ/XhWCA==}
 
   oniguruma-parser@0.12.1:
     resolution: {integrity: sha512-8Unqkvk1RYc6yq2WBYRj4hdnsAxVze8i7iPfQr8e4uSP3tRv0rpZcbGUDvxfQQcdwHt/e9PrMvGCsa8OqG9X3w==}
@@ -23657,10 +23651,6 @@ snapshots:
   onetime@7.0.0:
     dependencies:
       mimic-function: 5.0.1
-
-  onigasm@2.2.5:
-    dependencies:
-      lru-cache: 5.1.1
 
   oniguruma-parser@0.12.1: {}
 
