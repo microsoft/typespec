@@ -175,10 +175,7 @@ describe("compiler: config file loading", () => {
       strictEqual(nestedConfig.project !== undefined, true);
 
       strictEqual(rootConfig.project!.entrypoint.endsWith("project-nested/main.tsp"), true);
-      strictEqual(
-        nestedConfig.project!.entrypoint.endsWith("services/orders/main.tsp"),
-        true,
-      );
+      strictEqual(nestedConfig.project!.entrypoint.endsWith("services/orders/main.tsp"), true);
 
       deepStrictEqual(rootConfig.emit, ["openapi"]);
       deepStrictEqual(nestedConfig.emit, ["@typespec/http-client-csharp"]);
