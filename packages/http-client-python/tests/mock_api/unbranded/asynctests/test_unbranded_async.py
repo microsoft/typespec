@@ -4,11 +4,12 @@
 # ------------------------------------
 import traceback
 import pytest
+import pytest_asyncio
 from typetest.scalar.aio import ScalarClient
 from corehttp.exceptions import HttpResponseError
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ScalarClient() as client:
         yield client

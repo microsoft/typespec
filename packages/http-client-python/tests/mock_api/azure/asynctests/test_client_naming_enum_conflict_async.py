@@ -4,12 +4,13 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from client.naming.enumconflict.aio import EnumConflictClient
 from client.naming.enumconflict.firstnamespace import models as first_models
 from client.naming.enumconflict.secondnamespace import models as second_models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with EnumConflictClient() as client:
         yield client

@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.encode.duration.aio import DurationClient
 from specs.azure.encode.duration import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with DurationClient() as client:
         yield client

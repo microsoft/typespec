@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from routes.aio import RoutesClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RoutesClient() as client:
         yield client

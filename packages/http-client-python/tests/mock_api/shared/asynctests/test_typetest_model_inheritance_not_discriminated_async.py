@@ -4,17 +4,18 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.notdiscriminated.aio import NotDiscriminatedClient
 from typetest.model.notdiscriminated.models import Siamese
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NotDiscriminatedClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def valid_body():
     return Siamese(name="abc", age=32, smart=True)
 

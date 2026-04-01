@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.clientdefaultvalue.aio import ClientDefaultValueClient
 from specs.azure.clientgenerator.core.clientdefaultvalue.models import ModelWithDefaultValues
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ClientDefaultValueClient() as client:
         yield client

@@ -6,11 +6,12 @@
 # --------------------------------------------------------------------------
 from typing import Any
 import pytest
+import pytest_asyncio
 from typetest.property.optional import models
 from typetest.property.optional.aio import OptionalClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with OptionalClient() as client:
         yield client

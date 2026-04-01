@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from payload.mediatype.aio import MediaTypeClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with MediaTypeClient(endpoint="http://localhost:3000") as client:
         yield client

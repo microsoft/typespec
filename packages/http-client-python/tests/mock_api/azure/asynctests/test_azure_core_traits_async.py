@@ -7,13 +7,14 @@ import functools
 from datetime import datetime
 
 import pytest
+import pytest_asyncio
 from azure.core.exceptions import HttpResponseError
 from azure.core import MatchConditions
 from specs.azure.core.traits.aio import TraitsClient
 from specs.azure.core.traits.models import UserActionParam
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with TraitsClient() as client:
         yield client

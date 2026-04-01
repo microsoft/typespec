@@ -4,17 +4,18 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.nesteddiscriminator.aio import NestedDiscriminatorClient
 from typetest.model.nesteddiscriminator.models import GoblinShark, Salmon, Fish
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NestedDiscriminatorClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def valid_body():
     return GoblinShark(age=1)
 
@@ -30,7 +31,7 @@ async def test_put_model(client, valid_body):
     await client.put_model(valid_body)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def valid_recursive_body():
     return Salmon(
         {

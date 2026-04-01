@@ -5,10 +5,11 @@
 # --------------------------------------------------------------------------
 import inspect
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.override.aio import OverrideClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with OverrideClient() as client:
         yield client

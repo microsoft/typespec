@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.core.lro.rpc.aio import RpcClient
 from specs.azure.core.lro.rpc import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RpcClient() as client:
         yield client

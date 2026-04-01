@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.hierarchybuilding.aio import HierarchyBuildingClient
 from specs.azure.clientgenerator.core.hierarchybuilding.models import (
     Pet,
@@ -11,7 +12,7 @@ from specs.azure.clientgenerator.core.hierarchybuilding.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with HierarchyBuildingClient() as client:
         yield client

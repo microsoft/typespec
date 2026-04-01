@@ -4,12 +4,13 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from azure.core.exceptions import HttpResponseError
 from azure.resourcemanager.multiservice.combined.aio import CombinedClient
 from azure.resourcemanager.multiservice.combined.models import VirtualMachine, Disk
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(credential, authentication_policy):
     """Create a Combined async client for testing."""
     return CombinedClient(

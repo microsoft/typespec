@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specialheaders.repeatability.aio import RepeatabilityClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RepeatabilityClient() as client:
         yield client

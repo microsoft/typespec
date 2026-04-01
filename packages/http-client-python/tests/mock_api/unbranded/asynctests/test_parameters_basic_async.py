@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.basic.aio import BasicClient
 from parameters.basic.explicitbody.models import User
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with BasicClient() as client:
         yield client

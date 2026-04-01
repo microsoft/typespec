@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from versioning.renamedfrom.aio import RenamedFromClient
 from versioning.renamedfrom.models import NewModel, NewEnum
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RenamedFromClient(endpoint="http://localhost:3000", version="v2") as client:
         yield client

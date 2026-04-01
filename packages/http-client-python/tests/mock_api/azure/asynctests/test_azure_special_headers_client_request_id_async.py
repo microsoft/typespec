@@ -6,11 +6,12 @@
 import functools
 
 import pytest
+import pytest_asyncio
 
 from azure.specialheaders.xmsclientrequestid.aio import XmsClientRequestIdClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with XmsClientRequestIdClient() as client:
         yield client

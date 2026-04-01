@@ -7,12 +7,13 @@
 import decimal
 
 import pytest
+import pytest_asyncio
 import datetime
 from typetest.property.valuetypes import models
 from typetest.property.valuetypes.aio import ValueTypesClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ValueTypesClient() as client:
         yield client

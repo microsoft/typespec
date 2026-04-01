@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from versioning.removed.aio import RemovedClient
 from versioning.removed.models import ModelV2, EnumV2, ModelV3, EnumV3
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RemovedClient(endpoint="http://localhost:3000", version="v2") as client:
         yield client

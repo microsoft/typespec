@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.access.aio import AccessClient
 from specs.azure.clientgenerator.core.access import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AccessClient() as client:
         yield client

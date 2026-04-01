@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from authentication.apikey.aio import ApiKeyClient
 from authentication.http.custom.aio import CustomClient
 from authentication.oauth2.aio import OAuth2Client
@@ -14,7 +15,7 @@ from authentication.noauth.union.aio import UnionClient as NoauthUnionClient
 # Utilities functions
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def api_key_client(key_credential):
     client = None
 
@@ -41,7 +42,7 @@ def token_credential(core_library):
     return FakeCredential()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def oauth2_client(token_credential):
     client = None
 
@@ -54,7 +55,7 @@ async def oauth2_client(token_credential):
         await client.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def http_custom_client(key_credential):
     client = None
 

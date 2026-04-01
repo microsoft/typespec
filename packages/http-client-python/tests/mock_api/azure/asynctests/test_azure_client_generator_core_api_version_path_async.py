@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from client.alternateapiversion.service.path.aio import PathClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with PathClient(endpoint="http://localhost:3000") as client:
         yield client

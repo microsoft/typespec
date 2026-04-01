@@ -5,11 +5,12 @@
 # --------------------------------------------------------------------------
 
 import pytest
+import pytest_asyncio
 from specs.documentation.aio import DocumentationClient
 from specs.documentation import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with DocumentationClient(endpoint="http://localhost:3000") as client:
         yield client

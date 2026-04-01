@@ -6,6 +6,7 @@
 import datetime
 
 import pytest
+import pytest_asyncio
 from encode.datetime.aio import DatetimeClient
 from encode.datetime.models import (
     DefaultDatetimeProperty,
@@ -16,7 +17,7 @@ from encode.datetime.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with DatetimeClient() as client:
         yield client

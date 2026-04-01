@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.flattenproperty.aio import FlattenPropertyClient
 from specs.azure.clientgenerator.core.flattenproperty.models import (
     ChildFlattenModel,
@@ -16,7 +17,7 @@ from specs.azure.clientgenerator.core.flattenproperty.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with FlattenPropertyClient() as client:
         yield client

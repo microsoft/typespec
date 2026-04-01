@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from azure.resourcemanager.commonproperties.aio import CommonPropertiesClient
 from azure.resourcemanager.commonproperties import models
 from azure.core import exceptions
@@ -12,7 +13,7 @@ SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
 RESOURCE_GROUP_NAME = "test-rg"
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(credential, authentication_policy):
     async with CommonPropertiesClient(
         credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy

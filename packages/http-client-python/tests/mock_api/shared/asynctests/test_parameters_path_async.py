@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.path.aio import PathClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with PathClient() as client:
         yield client

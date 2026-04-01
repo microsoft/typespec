@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.example.basic.aio import AzureExampleClient
 from specs.azure.example.basic.models import ActionRequest, Model
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AzureExampleClient() as client:
         yield client

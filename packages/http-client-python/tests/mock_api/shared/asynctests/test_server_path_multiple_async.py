@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from server.path.multiple.aio import MultipleClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with MultipleClient(endpoint="http://localhost:3000") as client:
         yield client

@@ -5,12 +5,13 @@
 # --------------------------------------------------------------------------
 
 import pytest
+import pytest_asyncio
 import isodate
 from typetest.array.aio import ArrayClient
 from typetest.array import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ArrayClient() as client:
         yield client

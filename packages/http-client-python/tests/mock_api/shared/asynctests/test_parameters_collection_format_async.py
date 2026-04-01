@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.collectionformat.aio import CollectionFormatClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with CollectionFormatClient() as client:
         yield client

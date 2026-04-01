@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from pathlib import Path
 from encode.bytes.aio import BytesClient
 from encode.bytes.models import (
@@ -16,7 +17,7 @@ from encode.bytes.models import (
 FILE_FOLDER = Path(__file__).parent.parent
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with BytesClient() as client:
         yield client

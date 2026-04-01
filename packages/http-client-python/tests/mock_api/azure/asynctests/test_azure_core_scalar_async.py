@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.core.scalar.aio import ScalarClient
 from specs.azure.core.scalar import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ScalarClient() as client:
         yield client

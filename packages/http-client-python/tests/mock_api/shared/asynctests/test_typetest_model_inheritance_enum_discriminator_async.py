@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.enumdiscriminator.aio import EnumDiscriminatorClient
 from typetest.model.enumdiscriminator import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with EnumDiscriminatorClient() as client:
         yield client

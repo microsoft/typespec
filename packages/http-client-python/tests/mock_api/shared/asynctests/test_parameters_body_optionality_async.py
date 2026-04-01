@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.bodyoptionality.aio import BodyOptionalityClient
 from parameters.bodyoptionality.models import BodyModel
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with BodyOptionalityClient() as client:
         yield client

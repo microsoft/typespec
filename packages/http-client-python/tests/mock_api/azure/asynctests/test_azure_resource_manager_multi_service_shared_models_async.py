@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from azure.resourcemanager.multiservicesharedmodels.combined.aio import CombinedClient
 from azure.resourcemanager.multiservicesharedmodels.combined.models import (
     VirtualMachine,
@@ -14,7 +15,7 @@ from azure.resourcemanager.multiservicesharedmodels.combined.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(credential, authentication_policy):
     """Create a Combined async client for testing."""
     return CombinedClient(

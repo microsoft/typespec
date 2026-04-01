@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 
 from specs.azure.clientgenerator.core.nextlinkverb.aio import NextLinkVerbClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NextLinkVerbClient(endpoint="http://localhost:3000") as client:
         yield client

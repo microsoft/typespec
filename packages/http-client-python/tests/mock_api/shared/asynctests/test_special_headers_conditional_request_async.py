@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 import datetime
 from specialheaders.conditionalrequest.aio import ConditionalRequestClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ConditionalRequestClient() as client:
         yield client

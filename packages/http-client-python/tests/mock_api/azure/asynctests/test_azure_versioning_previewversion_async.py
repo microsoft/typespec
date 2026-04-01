@@ -4,17 +4,18 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.versioning.previewversion.aio import PreviewVersionClient
 from specs.azure.versioning.previewversion.models import UpdateWidgetColorRequest
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with PreviewVersionClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def stable_client():
     async with PreviewVersionClient(api_version="2024-06-01") as client:
         yield client

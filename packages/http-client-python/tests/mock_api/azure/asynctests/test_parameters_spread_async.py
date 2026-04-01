@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.spread.aio import SpreadClient
 from parameters.spread.models import BodyParameter
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with SpreadClient() as client:
         yield client

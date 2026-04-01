@@ -6,6 +6,7 @@
 # --------------------------------------------------------------------------
 import json
 import pytest
+import pytest_asyncio
 from typetest.property.nullable import models
 from typetest.property.nullable.aio import NullableClient
 from typetest.property.nullable._utils.model_base import (  # pylint: disable=protected-access
@@ -18,7 +19,7 @@ except ImportError:
     from azure.core.serialization import NULL
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NullableClient() as client:
         yield client

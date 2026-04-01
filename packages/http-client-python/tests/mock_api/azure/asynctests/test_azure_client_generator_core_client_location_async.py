@@ -4,31 +4,32 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.clientgenerator.core.clientlocation.parameter.aio import MoveMethodParameterToClient
 from specs.azure.clientgenerator.core.clientlocation.subclient.aio import MoveToExistingSubClient
 from specs.azure.clientgenerator.core.clientlocation.newsubclient.aio import MoveToNewSubClient
 from specs.azure.clientgenerator.core.clientlocation.rootclient.aio import MoveToRootClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def move_method_parameter_to_client():
     async with MoveMethodParameterToClient(storage_account="testaccount") as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def move_to_existing_sub_client():
     async with MoveToExistingSubClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def move_to_new_sub_client():
     async with MoveToNewSubClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def move_to_root_client():
     async with MoveToRootClient() as client:
         yield client

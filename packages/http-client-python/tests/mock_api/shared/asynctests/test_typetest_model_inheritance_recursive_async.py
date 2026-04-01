@@ -4,17 +4,18 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.recursive.aio import RecursiveClient
 from typetest.model.recursive.models import Extension
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with RecursiveClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def expected():
     return Extension(
         {

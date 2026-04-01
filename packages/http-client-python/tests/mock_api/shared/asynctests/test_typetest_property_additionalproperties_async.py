@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.property.additionalproperties import models
 from typetest.property.additionalproperties.aio import AdditionalPropertiesClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AdditionalPropertiesClient() as client:
         yield client

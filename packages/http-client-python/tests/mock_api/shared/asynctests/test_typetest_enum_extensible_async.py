@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.enum.extensible import models, aio
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with aio.ExtensibleClient() as client:
         yield client

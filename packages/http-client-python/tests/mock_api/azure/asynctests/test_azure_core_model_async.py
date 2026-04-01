@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specs.azure.core.model.aio import ModelClient
 from specs.azure.core.model.models import AzureEmbeddingModel
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ModelClient() as client:
         yield client

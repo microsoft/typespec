@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.usage import models
 from typetest.model.usage.aio import UsageClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with UsageClient() as client:
         yield client

@@ -4,17 +4,18 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.singlediscriminator.aio import SingleDiscriminatorClient
 from typetest.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with SingleDiscriminatorClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def valid_body():
     return Sparrow(wingspan=1)
 
@@ -29,7 +30,7 @@ async def test_put_model(client, valid_body):
     await client.put_model(valid_body)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def recursive_body():
     return Eagle(
         {

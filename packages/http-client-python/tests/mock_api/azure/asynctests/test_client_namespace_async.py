@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from client.clientnamespace.aio import ClientNamespaceFirstClient
 from client.clientnamespace.first.models import FirstClientResult
 
@@ -12,13 +13,13 @@ from client.clientnamespace.second.models import SecondClientResult
 from client.clientnamespace.second.sub.models import SecondClientEnumType
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def first_client():
     async with ClientNamespaceFirstClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def second_client():
     async with ClientNamespaceSecondClient() as client:
         yield client

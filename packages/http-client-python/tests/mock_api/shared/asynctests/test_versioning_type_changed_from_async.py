@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from versioning.typechangedfrom.aio import TypeChangedFromClient
 from versioning.typechangedfrom.models import TestModel
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with TypeChangedFromClient(endpoint="http://localhost:3000", version="v2") as client:
         yield client

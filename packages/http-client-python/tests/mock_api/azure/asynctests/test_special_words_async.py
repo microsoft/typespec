@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from specialwords.aio import SpecialWordsClient
 from specialwords import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with SpecialWordsClient() as client:
         yield client

@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from azure.resourcemanager.methodsubscriptionid.aio import MethodSubscriptionIdClient
 from azure.resourcemanager.methodsubscriptionid import models
 
@@ -11,7 +12,7 @@ SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
 RESOURCE_GROUP_NAME = "test-rg"
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(credential, authentication_policy):
     async with MethodSubscriptionIdClient(
         credential,

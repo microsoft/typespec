@@ -5,11 +5,12 @@
 # --------------------------------------------------------------------------
 import base64
 import pytest
+import pytest_asyncio
 from payload.contentnegotiation.aio import ContentNegotiationClient
 from payload.contentnegotiation.differentbody.models import PngImageAsJson
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ContentNegotiationClient(endpoint="http://localhost:3000") as client:
         yield client

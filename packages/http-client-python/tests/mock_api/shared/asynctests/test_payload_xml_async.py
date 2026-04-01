@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import datetime
 import pytest
+import pytest_asyncio
 from payload.xml.aio import XmlClient
 from payload.xml.models import (
     Author,
@@ -37,7 +38,7 @@ from payload.xml.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with XmlClient(endpoint="http://localhost:3000") as client:
         yield client

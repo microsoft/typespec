@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from parameters.query.aio import QueryClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with QueryClient() as client:
         yield client

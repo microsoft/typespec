@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from versioning.added.aio import AddedClient
 from versioning.added.models import ModelV1, ModelV2, EnumV1, EnumV2
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AddedClient(endpoint="http://localhost:3000", version="v2") as client:
         yield client

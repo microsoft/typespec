@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from payload.pageable.aio import PageableClient
 from payload.pageable.serverdrivenpagination.alternateinitialverb.models import Filter
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with PageableClient(endpoint="http://localhost:3000") as client:
         yield client

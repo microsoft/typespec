@@ -7,10 +7,11 @@ import decimal
 from functools import reduce
 
 import pytest
+import pytest_asyncio
 from typetest.scalar.aio import ScalarClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ScalarClient() as client:
         yield client

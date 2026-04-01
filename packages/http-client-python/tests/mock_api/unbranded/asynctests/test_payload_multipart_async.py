@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 from pathlib import Path
 import pytest
+import pytest_asyncio
 from payload.multipart import models
 from payload.multipart.aio import MultiPartClient
 from payload.multipart.formdata.httpparts.nonstring.models import FloatRequest
@@ -14,7 +15,7 @@ JPG = Path(__file__).parent.parent / "data/image.jpg"
 PNG = Path(__file__).parent.parent / "data/image.png"
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with MultiPartClient(endpoint="http://localhost:3000") as client:
         yield client

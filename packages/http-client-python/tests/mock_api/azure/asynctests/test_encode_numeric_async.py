@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from encode.numeric.aio import NumericClient
 from encode.numeric import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NumericClient() as client:
         yield client

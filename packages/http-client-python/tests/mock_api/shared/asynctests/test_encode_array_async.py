@@ -5,11 +5,12 @@
 # --------------------------------------------------------------------------
 
 import pytest
+import pytest_asyncio
 from encode.array.aio import ArrayClient
 from encode.array import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with ArrayClient() as client:
         yield client

@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.model.empty.aio import EmptyClient
 from typetest.model.empty.models import EmptyInput, EmptyOutput, EmptyInputOutput
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with EmptyClient() as client:
         yield client

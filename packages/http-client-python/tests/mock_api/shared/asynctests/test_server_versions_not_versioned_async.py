@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from server.versions.notversioned.aio import NotVersionedClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NotVersionedClient(endpoint="http://localhost:3000") as client:
         yield client

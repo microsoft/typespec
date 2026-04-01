@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from headasbooleantrue.aio import VisibilityClient as HeadAsBooleanTrueClient
 from headasbooleantrue import models as models_true
 
@@ -11,13 +12,13 @@ from headasbooleanfalse.aio import VisibilityClient as HeadAsBooleanFalseClient
 from headasbooleanfalse import models as models_false
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client_true():
     async with HeadAsBooleanTrueClient() as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client_false():
     async with HeadAsBooleanFalseClient() as client:
         yield client

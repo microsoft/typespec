@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from serialization.encodedname.json.aio import JsonClient
 from serialization.encodedname.json.property import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with JsonClient() as client:
         yield client

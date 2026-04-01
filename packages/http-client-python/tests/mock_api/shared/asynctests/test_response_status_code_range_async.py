@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from response.statuscoderange.aio import StatusCodeRangeClient
 from response.statuscoderange.models import ErrorInRange, NotFoundError
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with StatusCodeRangeClient(endpoint="http://localhost:3000") as client:
         yield client

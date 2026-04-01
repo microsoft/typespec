@@ -6,6 +6,7 @@
 import datetime
 
 import pytest
+import pytest_asyncio
 from encode.duration.aio import DurationClient
 from encode.duration.property.models import (
     Int32SecondsDurationProperty,
@@ -16,7 +17,7 @@ from encode.duration.property.models import (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with DurationClient() as client:
         yield client

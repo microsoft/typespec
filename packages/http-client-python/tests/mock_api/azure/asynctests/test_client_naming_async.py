@@ -4,11 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from client.naming.main.aio import NamingClient
 from client.naming.main import models
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with NamingClient() as client:
         yield client

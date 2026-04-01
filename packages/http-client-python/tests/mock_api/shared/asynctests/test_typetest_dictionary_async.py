@@ -4,12 +4,13 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from typetest.dictionary import models
 from typetest.dictionary.aio import DictionaryClient
 import isodate
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with DictionaryClient() as client:
         yield client

@@ -4,10 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from server.path.single.aio import SingleClient
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with SingleClient(endpoint="http://localhost:3000") as client:
         yield client

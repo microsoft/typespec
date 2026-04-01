@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 from payload.jsonmergepatch.aio import JsonMergePatchClient
 from payload.jsonmergepatch.models import InnerModel, Resource, ResourcePatch
 
@@ -13,7 +14,7 @@ except ImportError:
     from corehttp.serialization import NULL
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with JsonMergePatchClient(endpoint="http://localhost:3000") as client:
         yield client
