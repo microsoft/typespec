@@ -294,9 +294,6 @@ catalogs:
     cspell:
       specifier: ^9.7.0
       version: 9.7.0
-    date-fns:
-      specifier: ^4.1.0
-      version: 4.1.0
     debounce:
       specifier: ~3.0.0
       version: 3.0.0
@@ -342,9 +339,6 @@ catalogs:
     globby:
       specifier: ~16.1.1
       version: 16.1.1
-    grammarkdown:
-      specifier: ~3.3.2
-      version: 3.3.2
     happy-dom:
       specifier: ^20.8.9
       version: 20.8.9
@@ -354,9 +348,6 @@ catalogs:
     is-unicode-supported:
       specifier: ^2.1.0
       version: 2.1.0
-    json5:
-      specifier: ^2.2.3
-      version: 2.2.3
     log-symbols:
       specifier: ^7.0.1
       version: 7.0.1
@@ -758,9 +749,6 @@ importers:
       '@typespec/bundler':
         specifier: workspace:^
         version: link:../bundler
-      json5:
-        specifier: 'catalog:'
-        version: 2.2.3
       picocolors:
         specifier: 'catalog:'
         version: 1.1.1
@@ -920,9 +908,6 @@ importers:
       c8:
         specifier: 'catalog:'
         version: 11.0.0
-      grammarkdown:
-        specifier: 'catalog:'
-        version: 3.3.2
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
@@ -3127,9 +3112,6 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
-      date-fns:
-        specifier: 'catalog:'
-        version: 4.1.0
       es-module-shims:
         specifier: 'catalog:'
         version: 2.8.0
@@ -8558,9 +8540,6 @@ packages:
   data-urls@5.0.0:
     resolution: {integrity: sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg==}
     engines: {node: '>=18'}
-
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   dayjs@1.11.20:
     resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==}
@@ -21020,8 +20999,6 @@ snapshots:
     dependencies:
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-
-  date-fns@4.1.0: {}
 
   dayjs@1.11.20: {}
 

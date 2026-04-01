@@ -7,7 +7,7 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
 
 ## 🔴 Unused Dependencies — Remove
 
-- [ ] **`grammarkdown`** — Remove from `packages/compiler/package.json`. No imports or script references found anywhere in the codebase.
+- [x] **`grammarkdown`** — Remove from `packages/compiler/package.json`. No imports or script references found anywhere in the codebase.
 - [ ] **`json5`** — Remove from `packages/bundle-uploader/package.json`. No imports found in any source file.
 - [ ] **`date-fns`** — Remove from `website/package.json`. No imports found anywhere under `website/`.
 
