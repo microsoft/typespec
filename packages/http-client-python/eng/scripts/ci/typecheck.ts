@@ -2,6 +2,7 @@
 import { spawn } from "child_process";
 import fs from "fs";
 import { dirname, join } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
@@ -19,14 +20,6 @@ function getVenvPython(): string {
   throw new Error("Virtual environment not found. Run 'npm run install' first.");
 }
 
-const colors = {
-  reset: "\x1b[0m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  cyan: "\x1b[36m",
-  bold: "\x1b[1m",
-};
-
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
@@ -40,43 +33,43 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${colors.bold}Usage:${colors.reset} tsx typecheck.ts [options]
+${pc.bold("Usage:")} tsx typecheck.ts [options]
 
-${colors.bold}Description:${colors.reset}
+${pc.bold("Description:")}
   Run type checking (mypy + pyright) on Python code.
 
-${colors.bold}Options:${colors.reset}
-  ${colors.cyan}--generated${colors.reset}
+${pc.bold("Options:")}
+  ${pc.cyan("--generated")}
       Run type checking on generated SDK packages (via tox).
       Use with --flavor to specify azure or unbranded.
 
-  ${colors.cyan}-f, --flavor <azure|unbranded>${colors.reset}
+  ${pc.cyan("-f, --flavor <azure|unbranded>")}
       SDK flavor to check (only applies to --generated).
       If not specified, checks both flavors.
 
-  ${colors.cyan}--mypy${colors.reset}
+  ${pc.cyan("--mypy")}
       Run only mypy (skip pyright).
 
-  ${colors.cyan}--pyright${colors.reset}
+  ${pc.cyan("--pyright")}
       Run only pyright (skip mypy).
 
-  ${colors.cyan}-h, --help${colors.reset}
+  ${pc.cyan("-h, --help")}
       Show this help message.
 
-${colors.bold}Examples:${colors.reset}
-  ${colors.cyan}# Type check pygen source (default - runs both mypy and pyright)${colors.reset}
+${pc.bold("Examples:")}
+  ${pc.dim("# Type check pygen source (default - runs both mypy and pyright)")}
   tsx typecheck.ts
 
-  ${colors.cyan}# Run only mypy on pygen source${colors.reset}
+  ${pc.dim("# Run only mypy on pygen source")}
   tsx typecheck.ts --mypy
 
-  ${colors.cyan}# Run only pyright on pygen source${colors.reset}
+  ${pc.dim("# Run only pyright on pygen source")}
   tsx typecheck.ts --pyright
 
-  ${colors.cyan}# Type check generated SDK packages${colors.reset}
+  ${pc.dim("# Type check generated SDK packages")}
   tsx typecheck.ts --generated
 
-  ${colors.cyan}# Type check generated SDK packages for azure only${colors.reset}
+  ${pc.dim("# Type check generated SDK packages for azure only")}
   tsx typecheck.ts --generated --flavor=azure
 `);
   process.exit(0);
@@ -84,7 +77,7 @@ ${colors.bold}Examples:${colors.reset}
 
 function runCommand(command: string, args: string[], cwd?: string): Promise<boolean> {
   return new Promise((resolve) => {
-    console.log(`${colors.cyan}[RUN]${colors.reset} ${command} ${args.join(" ")}`);
+    console.log(`${pc.cyan("[RUN]")} ${command} ${args.join(" ")}`);
     const proc = spawn(command, args, {
       cwd: cwd || root,
       stdio: "inherit",
@@ -93,29 +86,29 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 
     proc.on("close", (code) => {
       if (code === 0) {
-        console.log(`${colors.green}[PASS]${colors.reset} ${command} completed successfully`);
+        console.log(`${pc.green("[PASS]")} ${command} completed successfully`);
         resolve(true);
       } else {
-        console.log(`${colors.red}[FAIL]${colors.reset} ${command} failed with code ${code}`);
+        console.log(`${pc.red("[FAIL]")} ${command} failed with code ${code}`);
         resolve(false);
       }
     });
 
     proc.on("error", (err) => {
-      console.log(`${colors.red}[ERROR]${colors.reset} ${command}: ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} ${command}: ${err.message}`);
       resolve(false);
     });
   });
 }
 
 async function runMypyOnPygen(): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Running mypy on pygen ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Running mypy on pygen ===")}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -129,13 +122,13 @@ async function runMypyOnPygen(): Promise<boolean> {
 }
 
 async function runPyrightOnPygen(): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Running pyright on pygen ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Running pyright on pygen ===")}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -155,14 +148,14 @@ async function runTypecheckOnGenerated(
 ): Promise<boolean> {
   const flavors = flavor ? [flavor] : ["azure", "unbranded"];
   console.log(
-    `\n${colors.bold}=== Type Checking Generated SDK Packages (${flavors.join(", ")}) ===${colors.reset}\n`,
+    `\n${pc.bold(`=== Type Checking Generated SDK Packages (${flavors.join(", ")}) ===`)}\n`,
   );
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -202,9 +195,7 @@ async function main(): Promise<void> {
   if (runGenerated) {
     const result = await runTypecheckOnGenerated(argv.values.flavor, mypyOnly, pyrightOnly);
     if (!result) process.exit(1);
-    console.log(
-      `\n${colors.green}${colors.bold}Generated SDK type checking complete!${colors.reset}\n`,
-    );
+    console.log(`\n${pc.green(pc.bold("Generated SDK type checking complete!"))}\n`);
     return;
   }
 
@@ -225,10 +216,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`\n${colors.green}${colors.bold}All type checks passed!${colors.reset}\n`);
+  console.log(`\n${pc.green(pc.bold("All type checks passed!"))}\n`);
 }
 
 main().catch((error) => {
-  console.error(`${colors.red}Unexpected error:${colors.reset}`, error);
+  console.error(`${pc.red("Unexpected error:")}`, error);
   process.exit(1);
 });

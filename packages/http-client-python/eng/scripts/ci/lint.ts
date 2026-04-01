@@ -2,6 +2,7 @@
 import { spawn } from "child_process";
 import fs from "fs";
 import { dirname, join } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
@@ -20,14 +21,6 @@ function getVenvPython(): string {
   throw new Error("Virtual environment not found. Run 'npm run install' first.");
 }
 
-const colors = {
-  reset: "\x1b[0m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  cyan: "\x1b[36m",
-  bold: "\x1b[1m",
-};
-
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
@@ -41,43 +34,43 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${colors.bold}Usage:${colors.reset} tsx lint.ts [options]
+${pc.bold("Usage:")} tsx lint.ts [options]
 
-${colors.bold}Description:${colors.reset}
+${pc.bold("Description:")}
   Run linting checks on the codebase.
 
-${colors.bold}Options:${colors.reset}
-  ${colors.cyan}-e, --emitter${colors.reset}
+${pc.bold("Options:")}
+  ${pc.cyan("-e, --emitter")}
       Run ESLint on TypeScript emitter code.
 
-  ${colors.cyan}-g, --generator${colors.reset}
+  ${pc.cyan("-g, --generator")}
       Run pylint on Python generator source code (pygen).
 
-  ${colors.cyan}--generated${colors.reset}
+  ${pc.cyan("--generated")}
       Run pylint on generated SDK packages (via tox).
       Use with --flavor to specify azure or unbranded.
 
-  ${colors.cyan}-f, --flavor <azure|unbranded>${colors.reset}
+  ${pc.cyan("-f, --flavor <azure|unbranded>")}
       SDK flavor to lint (only applies to --generated).
       If not specified, lints both flavors.
 
-  ${colors.cyan}-h, --help${colors.reset}
+  ${pc.cyan("-h, --help")}
       Show this help message.
 
-${colors.bold}Examples:${colors.reset}
-  ${colors.cyan}# Lint emitter + pygen source (default)${colors.reset}
+${pc.bold("Examples:")}
+  ${pc.dim("# Lint emitter + pygen source (default)")}
   tsx lint.ts
 
-  ${colors.cyan}# Lint only TypeScript emitter${colors.reset}
+  ${pc.dim("# Lint only TypeScript emitter")}
   tsx lint.ts --emitter
 
-  ${colors.cyan}# Lint only pygen source code${colors.reset}
+  ${pc.dim("# Lint only pygen source code")}
   tsx lint.ts --generator
 
-  ${colors.cyan}# Lint generated SDK packages${colors.reset}
+  ${pc.dim("# Lint generated SDK packages")}
   tsx lint.ts --generated
 
-  ${colors.cyan}# Lint generated SDK packages for azure only${colors.reset}
+  ${pc.dim("# Lint generated SDK packages for azure only")}
   tsx lint.ts --generated --flavor=azure
 `);
   process.exit(0);
@@ -85,7 +78,7 @@ ${colors.bold}Examples:${colors.reset}
 
 function runCommand(command: string, args: string[], cwd?: string): Promise<boolean> {
   return new Promise((resolve) => {
-    console.log(`${colors.cyan}[RUN]${colors.reset} ${command} ${args.join(" ")}`);
+    console.log(`${pc.cyan("[RUN]")} ${command} ${args.join(" ")}`);
     const proc = spawn(command, args, {
       cwd: cwd || root,
       stdio: "inherit",
@@ -94,23 +87,23 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 
     proc.on("close", (code) => {
       if (code === 0) {
-        console.log(`${colors.green}[PASS]${colors.reset} ${command} completed successfully`);
+        console.log(`${pc.green("[PASS]")} ${command} completed successfully`);
         resolve(true);
       } else {
-        console.log(`${colors.red}[FAIL]${colors.reset} ${command} failed with code ${code}`);
+        console.log(`${pc.red("[FAIL]")} ${command} failed with code ${code}`);
         resolve(false);
       }
     });
 
     proc.on("error", (err) => {
-      console.log(`${colors.red}[ERROR]${colors.reset} ${command}: ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} ${command}: ${err.message}`);
       resolve(false);
     });
   });
 }
 
 async function lintEmitter(): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Linting TypeScript Emitter ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
   // Run eslint from monorepo root to use the shared eslint config
   return runCommand(
     "npx",
@@ -120,13 +113,13 @@ async function lintEmitter(): Promise<boolean> {
 }
 
 async function lintPygenSource(): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Linting Python Generator (pygen) ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Linting Python Generator (pygen) ===")}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -143,15 +136,13 @@ async function lintPygenSource(): Promise<boolean> {
 
 async function lintGeneratedPackages(flavor?: string): Promise<boolean> {
   const flavors = flavor ? [flavor] : ["azure", "unbranded"];
-  console.log(
-    `\n${colors.bold}=== Linting Generated SDK Packages (${flavors.join(", ")}) ===${colors.reset}\n`,
-  );
+  console.log(`\n${pc.bold(`=== Linting Generated SDK Packages (${flavors.join(", ")}) ===`)}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -177,7 +168,7 @@ async function main(): Promise<void> {
   if (runGenerated) {
     const result = await lintGeneratedPackages(argv.values.flavor);
     if (!result) process.exit(1);
-    console.log(`\n${colors.green}${colors.bold}Generated SDK linting complete!${colors.reset}\n`);
+    console.log(`\n${pc.green(pc.bold("Generated SDK linting complete!"))}\n`);
     return;
   }
 
@@ -200,10 +191,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`\n${colors.green}${colors.bold}All linting checks passed!${colors.reset}\n`);
+  console.log(`\n${pc.green(pc.bold("All linting checks passed!"))}\n`);
 }
 
 main().catch((error) => {
-  console.error(`${colors.red}Unexpected error:${colors.reset}`, error);
+  console.error(`${pc.red("Unexpected error:")}`, error);
   process.exit(1);
 });

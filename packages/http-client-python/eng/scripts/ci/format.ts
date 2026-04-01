@@ -2,6 +2,7 @@
 import { spawn } from "child_process";
 import fs from "fs";
 import { dirname, join } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
@@ -18,14 +19,6 @@ function getVenvPython(): string {
   throw new Error("Virtual environment not found. Run 'npm run install' first.");
 }
 
-const colors = {
-  reset: "\x1b[0m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  cyan: "\x1b[36m",
-  bold: "\x1b[1m",
-};
-
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
@@ -39,41 +32,41 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${colors.bold}Usage:${colors.reset} tsx format.ts [options]
+${pc.bold("Usage:")} tsx format.ts [options]
 
-${colors.bold}Description:${colors.reset}
+${pc.bold("Description:")}
   Format code using Prettier (TypeScript) and Black (Python).
 
-${colors.bold}Options:${colors.reset}
-  ${colors.cyan}-e, --emitter${colors.reset}
+${pc.bold("Options:")}
+  ${pc.cyan("-e, --emitter")}
       Format TypeScript emitter code with Prettier.
 
-  ${colors.cyan}-g, --generator${colors.reset}
+  ${pc.cyan("-g, --generator")}
       Format Python generator source code (pygen) with Black.
 
-  ${colors.cyan}--generated${colors.reset}
+  ${pc.cyan("--generated")}
       Format generated SDK packages with Black.
 
-  ${colors.cyan}-c, --check${colors.reset}
+  ${pc.cyan("-c, --check")}
       Check formatting without making changes (exit with error if unformatted).
 
-  ${colors.cyan}-h, --help${colors.reset}
+  ${pc.cyan("-h, --help")}
       Show this help message.
 
-${colors.bold}Examples:${colors.reset}
-  ${colors.cyan}# Format emitter + pygen source (default)${colors.reset}
+${pc.bold("Examples:")}
+  ${pc.dim("# Format emitter + pygen source (default)")}
   tsx format.ts
 
-  ${colors.cyan}# Format only TypeScript emitter${colors.reset}
+  ${pc.dim("# Format only TypeScript emitter")}
   tsx format.ts --emitter
 
-  ${colors.cyan}# Format only pygen source code${colors.reset}
+  ${pc.dim("# Format only pygen source code")}
   tsx format.ts --generator
 
-  ${colors.cyan}# Check formatting without making changes${colors.reset}
+  ${pc.dim("# Check formatting without making changes")}
   tsx format.ts --check
 
-  ${colors.cyan}# Format generated SDK packages${colors.reset}
+  ${pc.dim("# Format generated SDK packages")}
   tsx format.ts --generated
 `);
   process.exit(0);
@@ -81,7 +74,7 @@ ${colors.bold}Examples:${colors.reset}
 
 function runCommand(command: string, args: string[]): Promise<boolean> {
   return new Promise((resolve) => {
-    console.log(`${colors.cyan}[RUN]${colors.reset} ${command} ${args.join(" ")}`);
+    console.log(`${pc.cyan("[RUN]")} ${command} ${args.join(" ")}`);
     const proc = spawn(command, args, {
       cwd: root,
       stdio: "inherit",
@@ -90,23 +83,23 @@ function runCommand(command: string, args: string[]): Promise<boolean> {
 
     proc.on("close", (code) => {
       if (code === 0) {
-        console.log(`${colors.green}[PASS]${colors.reset} ${command} completed successfully`);
+        console.log(`${pc.green("[PASS]")} ${command} completed successfully`);
         resolve(true);
       } else {
-        console.log(`${colors.red}[FAIL]${colors.reset} ${command} failed with code ${code}`);
+        console.log(`${pc.red("[FAIL]")} ${command} failed with code ${code}`);
         resolve(false);
       }
     });
 
     proc.on("error", (err) => {
-      console.log(`${colors.red}[ERROR]${colors.reset} ${command}: ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} ${command}: ${err.message}`);
       resolve(false);
     });
   });
 }
 
 async function formatEmitter(check: boolean): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Formatting TypeScript Emitter ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Formatting TypeScript Emitter ===")}\n`);
   // Use prettier directly for check mode, otherwise use pnpm format:dir
   // Exclude CHANGELOG.md as it's managed by chronus changelog tool
   if (check) {
@@ -126,13 +119,13 @@ async function formatEmitter(check: boolean): Promise<boolean> {
 }
 
 async function formatPygenSource(check: boolean): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Formatting Python Generator (pygen) ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Formatting Python Generator (pygen) ===")}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -151,13 +144,13 @@ async function formatPygenSource(check: boolean): Promise<boolean> {
 }
 
 async function formatGeneratedPackages(check: boolean): Promise<boolean> {
-  console.log(`\n${colors.bold}=== Formatting Generated SDK Packages ===${colors.reset}\n`);
+  console.log(`\n${pc.bold("=== Formatting Generated SDK Packages ===")}\n`);
 
   let pythonPath: string;
   try {
     pythonPath = getVenvPython();
   } catch (error) {
-    console.error(colors.red + (error as Error).message + colors.reset);
+    console.error(pc.red((error as Error).message));
     return false;
   }
 
@@ -186,7 +179,7 @@ async function main(): Promise<void> {
     const result = await formatGeneratedPackages(check);
     if (!result) process.exit(1);
     console.log(
-      `\n${colors.green}${colors.bold}Generated SDK formatting ${check ? "check " : ""}complete!${colors.reset}\n`,
+      `\n${pc.green(pc.bold(`Generated SDK formatting ${check ? "check " : ""}complete!`))}\n`,
     );
     return;
   }
@@ -211,11 +204,11 @@ async function main(): Promise<void> {
   }
 
   console.log(
-    `\n${colors.green}${colors.bold}All formatting ${check ? "checks passed" : "complete"}!${colors.reset}\n`,
+    `\n${pc.green(pc.bold(`All formatting ${check ? "checks passed" : "complete"}!`))}\n`,
   );
 }
 
 main().catch((error) => {
-  console.error(`${colors.red}Unexpected error:${colors.reset}`, error);
+  console.error(`${pc.red("Unexpected error:")}`, error);
   process.exit(1);
 });

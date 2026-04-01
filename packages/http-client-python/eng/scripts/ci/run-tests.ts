@@ -3,26 +3,12 @@ import { ChildProcess, spawn } from "child_process";
 import fs from "fs";
 import { cpus } from "os";
 import { dirname, join } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 const testsDir = join(root, "tests");
-
-// ANSI color codes
-const colors = {
-  reset: "\x1b[0m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  cyan: "\x1b[36m",
-  bold: "\x1b[1m",
-};
-
-function log(color: string, prefix: string, message: string): void {
-  console.log(`${color}${prefix}${colors.reset} ${message}`);
-}
 
 const argv = parseArgs({
   args: process.argv.slice(2),
@@ -103,7 +89,7 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
     args.push("--", "-k", name);
   }
 
-  log(colors.blue, "[START]", `${env}`);
+  console.log(`${pc.blue("[START]")} ${env}`);
 
   return new Promise((resolve) => {
     const proc: ChildProcess = spawn(pythonPath, args, {
@@ -124,9 +110,9 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
       const success = code === 0;
 
       if (success) {
-        log(colors.green, "[PASS]", `${env} (${duration.toFixed(1)}s)`);
+        console.log(`${pc.green("[PASS]")} ${env} (${duration.toFixed(1)}s)`);
       } else {
-        log(colors.red, "[FAIL]", `${env} (${duration.toFixed(1)}s)`);
+        console.log(`${pc.red("[FAIL]")} ${env} (${duration.toFixed(1)}s)`);
       }
 
       resolve({
@@ -139,7 +125,7 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
 
     proc.on("error", (err) => {
       const duration = (Date.now() - startTime) / 1000;
-      log(colors.red, "[ERROR]", `${env}: ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} ${env}: ${err.message}`);
       resolve({
         env,
         success: false,
@@ -193,32 +179,30 @@ async function _runSequential(
 }
 
 function printSummary(results: ToxResult[]): void {
-  console.log("\n" + colors.bold + "═".repeat(60) + colors.reset);
-  console.log(colors.bold + " Test Results Summary" + colors.reset);
-  console.log(colors.bold + "═".repeat(60) + colors.reset + "\n");
+  console.log("\n" + pc.bold("═".repeat(60)));
+  console.log(pc.bold(" Test Results Summary"));
+  console.log(pc.bold("═".repeat(60)) + "\n");
 
   const passed = results.filter((r) => r.success);
   const failed = results.filter((r) => !r.success);
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
 
   for (const result of results) {
-    const status = result.success
-      ? `${colors.green}PASS${colors.reset}`
-      : `${colors.red}FAIL${colors.reset}`;
+    const status = result.success ? pc.green("PASS") : pc.red("FAIL");
     console.log(`  ${status}  ${result.env} (${result.duration.toFixed(1)}s)`);
   }
 
   console.log("\n" + "─".repeat(60));
   console.log(
-    `  ${colors.green}Passed: ${passed.length}${colors.reset}  ` +
-      `${colors.red}Failed: ${failed.length}${colors.reset}  ` +
+    `  ${pc.green(`Passed: ${passed.length}`)}  ` +
+      `${pc.red(`Failed: ${failed.length}`)}  ` +
       `Total: ${results.length}  ` +
       `Duration: ${totalDuration.toFixed(1)}s`,
   );
   console.log("─".repeat(60) + "\n");
 
   if (failed.length > 0) {
-    console.log(colors.red + "Failed environments:" + colors.reset);
+    console.log(pc.red("Failed environments:"));
     for (const result of failed) {
       console.log(`  - ${result.env}`);
       if (result.error && !argv.values.quiet) {
@@ -231,7 +215,7 @@ function printSummary(results: ToxResult[]): void {
 
 async function runEmitterTests(): Promise<ToxResult> {
   const startTime = Date.now();
-  log(colors.blue, "[START]", "emitter (vitest)");
+  console.log(`${pc.blue("[START]")} emitter (vitest)`);
 
   return new Promise((resolve) => {
     const proc: ChildProcess = spawn("npx", ["vitest", "run", "-c", "./emitter/vitest.config.ts"], {
@@ -252,9 +236,9 @@ async function runEmitterTests(): Promise<ToxResult> {
       const success = code === 0;
 
       if (success) {
-        log(colors.green, "[PASS]", `emitter (vitest) (${duration.toFixed(1)}s)`);
+        console.log(`${pc.green("[PASS]")} emitter (vitest) (${duration.toFixed(1)}s)`);
       } else {
-        log(colors.red, "[FAIL]", `emitter (vitest) (${duration.toFixed(1)}s)`);
+        console.log(`${pc.red("[FAIL]")} emitter (vitest) (${duration.toFixed(1)}s)`);
       }
 
       resolve({
@@ -267,7 +251,7 @@ async function runEmitterTests(): Promise<ToxResult> {
 
     proc.on("error", (err) => {
       const duration = (Date.now() - startTime) / 1000;
-      log(colors.red, "[ERROR]", `emitter (vitest): ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} emitter (vitest): ${err.message}`);
       resolve({
         env: "emitter (vitest)",
         success: false,
@@ -288,37 +272,24 @@ async function main(): Promise<void> {
   const allResults: ToxResult[] = [];
 
   // Header
+  console.log(pc.cyan("\n╔══════════════════════════════════════════════════════════╗"));
   console.log(
-    colors.cyan + "\n╔══════════════════════════════════════════════════════════╗" + colors.reset,
+    pc.cyan("║") +
+      pc.bold("           TypeSpec Python SDK Generator Tests            ") +
+      pc.cyan("║"),
   );
-  console.log(
-    colors.cyan +
-      "║" +
-      colors.reset +
-      colors.bold +
-      "           TypeSpec Python SDK Generator Tests            " +
-      colors.reset +
-      colors.cyan +
-      "║" +
-      colors.reset,
-  );
-  console.log(
-    colors.cyan +
-      "╚══════════════════════════════════════════════════════════╝" +
-      colors.reset +
-      "\n",
-  );
+  console.log(pc.cyan("╚══════════════════════════════════════════════════════════╝") + "\n");
 
   // Run emitter tests if requested
   if (runEmitter || runBoth) {
-    console.log(`${colors.bold}=== Emitter Tests (TypeScript) ===${colors.reset}\n`);
+    console.log(`${pc.bold("=== Emitter Tests (TypeScript) ===")}\n`);
     const emitterResult = await runEmitterTests();
     allResults.push(emitterResult);
   }
 
   // Run generator tests if requested
   if (runGenerator || runBoth) {
-    console.log(`\n${colors.bold}=== Generator Tests (Python) ===${colors.reset}\n`);
+    console.log(`\n${pc.bold("=== Generator Tests (Python) ===")}\n`);
 
     // Determine flavors
     const flavors = argv.values.flavor === "all" ? ["azure", "unbranded"] : [argv.values.flavor!];
@@ -349,7 +320,7 @@ async function main(): Promise<void> {
     try {
       pythonPath = getVenvPython();
     } catch (error) {
-      console.error(colors.red + (error as Error).message + colors.reset);
+      console.error(pc.red((error as Error).message));
       process.exit(1);
     }
 
@@ -390,6 +361,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(colors.red + "Unexpected error:" + colors.reset, error);
+  console.error(`${pc.red("Unexpected error:")}`, error);
   process.exit(1);
 });
