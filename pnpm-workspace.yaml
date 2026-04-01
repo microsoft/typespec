@@ -50,7 +50,6 @@ catalog:
   "@testing-library/jest-dom": ^6.9.1
   "@testing-library/react": ^16.3.2
   "@types/babel__code-frame": ~7.27.0
-  "@types/body-parser": ^1.19.6
   "@types/cross-spawn": ~6.0.6
   "@types/debounce": ~1.2.4
   "@types/deep-equal": ^1.0.4
@@ -94,7 +93,6 @@ catalog:
   astro: ^6.0.4
   astro-expressive-code: ^0.41.7
   astro-rehype-relative-markdown-links: ^0.18.1
-  body-parser: ^2.2.2
   c8: ^11.0.0
   change-case: ~5.4.4
   chokidar: ~5.0.0

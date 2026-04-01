@@ -17,7 +17,7 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
 
 - [x] **`c8`** (per-package devDeps) — Remove `c8` from individual package devDependencies (29 packages). The repo uses `@vitest/coverage-v8` for coverage. Only the root `package.json` uses `c8` directly in the `merge-coverage` script — keep it there or migrate that script.
   - Affected packages: `asset-emitter`, `best-practices`, `bundle-uploader`, `bundler`, `compiler`, `eslint-plugin-typespec`, `events`, `html-program-viewer`, `http`, `internal-build-utils`, `json-schema`, `library-linter`, `monarch`, `openapi`, `openapi3`, `pack`, `playground`, `playground-website`, `protobuf`, `react-components`, `rest`, `sse`, `standalone`, `streams`, `tspd`, `typespec-vscode`, `versioning`, `xml`
-- [ ] **`body-parser`** — Replace with Express 5 built-in `express.json()` / `express.urlencoded()` in `packages/spector/src/server/server.ts`. Also remove `@types/body-parser` from spector devDeps.
+- [x] **`body-parser`** — Replace with Express 5 built-in `express.json()` / `express.urlencoded()` in `packages/spector/src/server/server.ts`. Also remove `@types/body-parser` from spector devDeps.
 
 ---
 

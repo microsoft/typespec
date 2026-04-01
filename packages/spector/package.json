@@ -43,7 +43,6 @@
     "@typespec/spec-coverage-sdk": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "ajv": "catalog:",
-    "body-parser": "catalog:",
     "deep-equal": "catalog:",
     "express": "catalog:",
     "globby": "catalog:",
@@ -57,7 +56,6 @@
     "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/body-parser": "catalog:",
     "@types/deep-equal": "catalog:",
     "@types/express": "catalog:",
     "@types/micromatch": "catalog:",

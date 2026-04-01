@@ -135,9 +135,6 @@ catalogs:
     '@types/babel__code-frame':
       specifier: ~7.27.0
       version: 7.27.0
-    '@types/body-parser':
-      specifier: ^1.19.6
-      version: 1.19.6
     '@types/cross-spawn':
       specifier: ~6.0.6
       version: 6.0.6
@@ -267,9 +264,6 @@ catalogs:
     astro-rehype-relative-markdown-links:
       specifier: ^0.18.1
       version: 0.18.1
-    body-parser:
-      specifier: ^2.2.2
-      version: 2.2.2
     c8:
       specifier: ^11.0.0
       version: 11.0.0
@@ -2504,9 +2498,6 @@ importers:
       ajv:
         specifier: 'catalog:'
         version: 8.18.0
-      body-parser:
-        specifier: 'catalog:'
-        version: 2.2.2
       deep-equal:
         specifier: 'catalog:'
         version: 2.2.3
@@ -2541,9 +2532,6 @@ importers:
         specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
-      '@types/body-parser':
-        specifier: 'catalog:'
-        version: 1.19.6
       '@types/deep-equal':
         specifier: 'catalog:'
         version: 1.0.4
