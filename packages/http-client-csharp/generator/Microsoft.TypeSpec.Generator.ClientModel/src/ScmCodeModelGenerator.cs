@@ -30,6 +30,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
             new SerializationFormatDefinition();
 
+        /// <summary>
+        /// Gets or sets the top-level section name used in the generated ConfigurationSchema.json.
+        /// Defaults to "Clients". Azure SDK generators should set this to "AzureClients".
+        /// </summary>
+        public string ConfigurationSchemaSectionName { get; set; } = ConfigurationSchemaGenerator.DefaultSectionName;
+
+        /// <summary>
+        /// Gets or sets the $ref value used for the base options definition in the generated ConfigurationSchema.json.
+        /// Defaults to "options". Azure SDK generators should set this to "azureOptions".
+        /// </summary>
+        public string ConfigurationSchemaOptionsRef { get; set; } = ConfigurationSchemaGenerator.DefaultOptionsRef;
+
+        /// <summary>
+        /// Gets or sets whether to generate the .NuGet.targets file alongside the ConfigurationSchema.json.
+        /// Defaults to true. Set to false when the build infrastructure handles targets file packing centrally.
+        /// </summary>
+        public bool GenerateNuGetTargets { get; set; } = true;
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)
@@ -49,7 +67,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override async Task WriteAdditionalFiles(string outputPath)
         {
-            var schemaContent = ConfigurationSchemaGenerator.Generate(OutputLibrary);
+            var schemaContent = ConfigurationSchemaGenerator.Generate(
+                OutputLibrary,
+                ConfigurationSchemaSectionName,
+                ConfigurationSchemaOptionsRef);
             if (schemaContent != null)
             {
                 var schemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
@@ -61,12 +82,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
                 await File.WriteAllTextAsync(schemaPath, schemaContent);
 
-                // Generate the .targets file for JsonSchemaSegment registration
-                var packageName = Configuration.PackageName;
-                var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
-                var targetsContent = GenerateTargetsFile();
-                Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
-                await File.WriteAllTextAsync(targetsPath, targetsContent);
+                if (GenerateNuGetTargets)
+                {
+                    // Generate the .targets file for JsonSchemaSegment registration
+                    var packageName = Configuration.PackageName;
+                    var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                    var targetsContent = GenerateTargetsFile();
+                    Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                    await File.WriteAllTextAsync(targetsPath, targetsContent);
+                }
             }
         }
 
