@@ -98,7 +98,7 @@ export const validateXmlBodyEquals = (
       );
     }
   } else {
-    if (!deepEqual(actualParsed, expectedParsed, { strict: true })) {
+    if (!isDeepStrictEqual(actualParsed, expectedParsed, { strict: true })) {
       throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedXml, request.rawBody);
     }
   }
