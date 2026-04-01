@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
-        public void AddPackageReferencesFromProject_AddsReferencesFromCsproj()
+        public async Task AddPackageReferencesFromProject_AddsReferencesFromCsproj()
         {
             var ns = "TestNamespace";
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
@@ -144,14 +144,14 @@ namespace My.External.Library
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
-            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should have added one metadata reference");
         }
 
         [Test]
-        public void AddPackageReferencesFromProject_SkipsWhenNoCsproj()
+        public async Task AddPackageReferencesFromProject_SkipsWhenNoCsproj()
         {
             // Use a namespace that doesn't match any .csproj in the project dir
             MockHelpers.LoadMockGenerator(
@@ -160,24 +160,27 @@ namespace My.External.Library
                 configuration: "{\"package-name\": \"NonExistentNamespace\"}");
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
-            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references when no .csproj exists");
         }
 
         [Test]
-        public void AddPackageReferencesFromProject_SkipsPackageNotInCache()
+        public async Task AddPackageReferencesFromProject_SkipsPackageNotInCache()
         {
             var ns = "TestNamespace";
 
-            // Create a .csproj referencing a package that's NOT in the cache
+            // Create a .csproj referencing a package that doesn't exist in
+            // the cache or on any NuGet feed — should gracefully skip it.
             var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include=""Some.Missing.Package"" Version=""1.0.0"" />
+    <PackageReference Include=""Some.Missing.Package"">
+      <Version>1.0.0</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>";
             var csProjPath = Path.Combine(_projectDir!, "src", $"{ns}.csproj");
@@ -189,7 +192,7 @@ namespace My.External.Library
                 configuration: $"{{\"package-name\": \"{ns}\"}}");
 
             var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
-            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references for packages not in cache");

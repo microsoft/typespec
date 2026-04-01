@@ -284,7 +284,7 @@ namespace Microsoft.TypeSpec.Generator
         /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
         /// as metadata references so that custom code referencing external NuGet types compiles correctly.
         /// </summary>
-        internal static void AddPackageReferencesFromProject()
+        internal static async Task AddPackageReferencesFromProject()
         {
             var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             string projectFilePath = Path.GetFullPath(
@@ -311,6 +311,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Try to find the assembly in the NuGet global packages folder
+                string? resolvedAssemblyPath = null;
                 foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
                 {
                     var assemblyPath = Path.Combine(
@@ -323,12 +324,37 @@ namespace Microsoft.TypeSpec.Generator
 
                     if (File.Exists(assemblyPath))
                     {
-                        CodeModelGenerator.Instance.AddMetadataReference(
-                            MetadataReference.CreateFromFile(assemblyPath));
-                        CodeModelGenerator.Instance.Emitter.Debug(
-                            $"Added metadata reference: {refPackageName}@{refVersion} ({tfm})");
+                        resolvedAssemblyPath = assemblyPath;
                         break;
                     }
+                }
+
+                // If not found locally, download from NuGet
+                if (resolvedAssemblyPath == null)
+                {
+                    try
+                    {
+                        var downloader = new NugetPackageDownloader(refPackageName, refVersion, null, nugetSettings);
+                        var downloadedPath = await downloader.DownloadAndInstallPackage();
+                        var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
+                        if (File.Exists(downloadedAssembly))
+                        {
+                            resolvedAssemblyPath = downloadedAssembly;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Could not download package {refPackageName}@{refVersion}: {ex.Message}");
+                    }
+                }
+
+                if (resolvedAssemblyPath != null)
+                {
+                    CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(resolvedAssemblyPath));
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added metadata reference: {refPackageName}@{refVersion}");
                 }
             }
         }

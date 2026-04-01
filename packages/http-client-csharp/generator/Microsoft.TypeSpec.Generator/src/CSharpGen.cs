@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // Resolve PackageReference items from the .csproj so custom code referencing
             // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
-            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
