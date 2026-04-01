@@ -354,13 +354,17 @@ async function main(): Promise<void> {
     }
 
     // Determine parallelism
+    // Test environments must run sequentially because they each start a mock server on port 3000
+    const hasTestEnvs = envs.some((e) => e.startsWith("test-"));
     const maxJobs = argv.values.jobs
       ? parseInt(argv.values.jobs, 10)
-      : Math.max(2, cpus().length - 2);
+      : hasTestEnvs
+        ? 1
+        : Math.max(2, cpus().length - 2);
 
     console.log(`  Flavors:      ${flavors.join(", ")}`);
     console.log(`  Environments: ${envs.join(", ")}`);
-    console.log(`  Jobs:         ${maxJobs}`);
+    console.log(`  Jobs:         ${maxJobs}${hasTestEnvs && !argv.values.jobs ? " (sequential for test envs)" : ""}`);
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
     }
