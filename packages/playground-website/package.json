@@ -85,7 +85,6 @@
     "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "cross-env": "catalog:",
     "rimraf": "catalog:",
     "rollup-plugin-visualizer": "catalog:",

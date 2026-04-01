@@ -8,14 +8,14 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
 ## 🔴 Unused Dependencies — Remove
 
 - [x] **`grammarkdown`** — Remove from `packages/compiler/package.json`. No imports or script references found anywhere in the codebase.
-- [ ] **`json5`** — Remove from `packages/bundle-uploader/package.json`. No imports found in any source file.
-- [ ] **`date-fns`** — Remove from `website/package.json`. No imports found anywhere under `website/`.
+- [x] **`json5`** — Remove from `packages/bundle-uploader/package.json`. No imports found in any source file.
+- [x] **`date-fns`** — Remove from `website/package.json`. No imports found anywhere under `website/`.
 
 ---
 
 ## 🟡 Redundant with Existing Tooling
 
-- [ ] **`c8`** (per-package devDeps) — Remove `c8` from individual package devDependencies (29 packages). The repo uses `@vitest/coverage-v8` for coverage. Only the root `package.json` uses `c8` directly in the `merge-coverage` script — keep it there or migrate that script.
+- [x] **`c8`** (per-package devDeps) — Remove `c8` from individual package devDependencies (29 packages). The repo uses `@vitest/coverage-v8` for coverage. Only the root `package.json` uses `c8` directly in the `merge-coverage` script — keep it there or migrate that script.
   - Affected packages: `asset-emitter`, `best-practices`, `bundle-uploader`, `bundler`, `compiler`, `eslint-plugin-typespec`, `events`, `html-program-viewer`, `http`, `internal-build-utils`, `json-schema`, `library-linter`, `monarch`, `openapi`, `openapi3`, `pack`, `playground`, `playground-website`, `protobuf`, `react-components`, `rest`, `sse`, `standalone`, `streams`, `tspd`, `typespec-vscode`, `versioning`, `xml`
 - [ ] **`body-parser`** — Replace with Express 5 built-in `express.json()` / `express.urlencoded()` in `packages/spector/src/server/server.ts`. Also remove `@types/body-parser` from spector devDeps.
 

@@ -661,9 +661,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -722,9 +719,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -768,9 +762,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -811,9 +802,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -905,9 +893,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
@@ -1015,9 +1000,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       eslint:
         specifier: 'catalog:'
         version: 10.0.3
@@ -1051,9 +1033,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1121,9 +1100,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1166,9 +1142,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1625,9 +1598,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       chokidar:
         specifier: 'catalog:'
         version: 5.0.0
@@ -1677,9 +1647,6 @@ importers:
       ajv-formats:
         specifier: 'catalog:'
         version: 3.0.1(ajv@8.18.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1704,9 +1671,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1732,9 +1696,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       happy-dom:
         specifier: 'catalog:'
         version: 20.8.9
@@ -1789,9 +1750,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1868,9 +1826,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -1902,9 +1857,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2032,9 +1984,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -2156,9 +2105,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -2220,9 +2166,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       micromatch:
         specifier: 'catalog:'
         version: 4.0.8
@@ -2281,9 +2224,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2326,9 +2266,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2670,9 +2607,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2710,9 +2644,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       esbuild:
         specifier: 'catalog:'
         version: 0.27.4
@@ -2758,9 +2689,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2899,9 +2827,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2968,9 +2893,6 @@ importers:
       ajv:
         specifier: 'catalog:'
         version: 8.18.0
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       cross-spawn:
         specifier: 'catalog:'
         version: 7.0.6
@@ -3025,9 +2947,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -3058,9 +2977,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      c8:
-        specifier: 'catalog:'
-        version: 11.0.0
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3

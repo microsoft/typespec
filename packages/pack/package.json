@@ -52,7 +52,6 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "source-map-support": "catalog:",
     "typescript": "catalog:",
