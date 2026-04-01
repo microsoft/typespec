@@ -107,7 +107,7 @@ async function formatEmitter(check: boolean): Promise<boolean> {
       "prettier",
       "--check",
       "emitter/",
-      "scripts/",
+      "eng/scripts/",
       "*.json",
       "README.md",
       "CONTRIBUTING.md",
@@ -133,7 +133,7 @@ async function formatPygenSource(check: boolean): Promise<boolean> {
     "-m",
     "black",
     "generator/pygen",
-    "scripts/",
+    "eng/scripts/",
     "--config",
     "./eng/scripts/ci/config/pyproject.toml",
   ];

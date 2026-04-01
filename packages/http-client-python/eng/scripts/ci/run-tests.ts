@@ -335,7 +335,9 @@ async function main(): Promise<void> {
 
     console.log(`  Flavors:      ${flavors.join(", ")}`);
     console.log(`  Environments: ${envs.join(", ")}`);
-    console.log(`  Jobs:         ${maxJobs}${hasTestEnvs && !argv.values.jobs ? " (sequential for test envs)" : ""}`);
+    console.log(
+      `  Jobs:         ${maxJobs}${hasTestEnvs && !argv.values.jobs ? " (sequential for test envs)" : ""}`,
+    );
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
     }
