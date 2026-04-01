@@ -97,6 +97,104 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.NotNull(fooMethod, "Foo method should be found in the SimpleType");
         }
 
+        [Test]
+        public void AddPackageReferencesFromProject_AddsReferencesFromCsproj()
+        {
+            var ns = "TestNamespace";
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+
+            // Create a fake external package assembly in the NuGet cache
+            var externalPkgName = "My.External.Library";
+            var externalPkgVersion = "2.0.0";
+            var externalPkgDir = Path.Combine(
+                nugetCacheDir, externalPkgName.ToLowerInvariant(), externalPkgVersion, "lib", "netstandard2.0");
+            Directory.CreateDirectory(externalPkgDir);
+
+            var externalSyntaxTree = CSharpSyntaxTree.ParseText(@"
+namespace My.External.Library
+{
+    public class ExternalCredential { }
+}");
+            var externalCompilation = CSharpCompilation.Create(
+                externalPkgName,
+                [externalSyntaxTree],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var externalDllPath = Path.Combine(externalPkgDir, $"{externalPkgName}.dll");
+            var emitResult = externalCompilation.Emit(externalDllPath);
+            Assert.IsTrue(emitResult.Success, "Failed to emit external test assembly");
+
+            // Create a .csproj with a PackageReference to the external package
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""{externalPkgName}"">
+      <Version>{externalPkgVersion}</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>";
+            var csProjPath = Path.Combine(_projectDir!, "src", $"{ns}.csproj");
+            File.WriteAllText(csProjPath, csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should have added one metadata reference");
+        }
+
+        [Test]
+        public void AddPackageReferencesFromProject_SkipsWhenNoCsproj()
+        {
+            // Use a namespace that doesn't match any .csproj in the project dir
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "NonExistentNamespace",
+                outputPath: _projectDir,
+                configuration: "{\"package-name\": \"NonExistentNamespace\"}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references when no .csproj exists");
+        }
+
+        [Test]
+        public void AddPackageReferencesFromProject_SkipsPackageNotInCache()
+        {
+            var ns = "TestNamespace";
+
+            // Create a .csproj referencing a package that's NOT in the cache
+            var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""Some.Missing.Package"" Version=""1.0.0"" />
+  </ItemGroup>
+</Project>";
+            var csProjPath = Path.Combine(_projectDir!, "src", $"{ns}.csproj");
+            File.WriteAllText(csProjPath, csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references for packages not in cache");
+        }
+
         private void CreateTestAssemblyAndProjectFile(string nugetCacheDir, string csProjectFileName)
         {
             var ns = csProjectFileName.StartsWith("TestNamespaceUnevaluatedFrameworkValue")

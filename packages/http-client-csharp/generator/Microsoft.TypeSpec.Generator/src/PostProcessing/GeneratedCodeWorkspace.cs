@@ -286,14 +286,16 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static void AddPackageReferencesFromProject()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             string projectFilePath = Path.GetFullPath(
                 Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))
+            {
                 return;
+            }
 
-            var projectRoot = ProjectRootElement.Open(projectFilePath);
+            var projectRoot = ProjectRootElement.Open(projectFilePath, new Microsoft.Build.Evaluation.ProjectCollection());
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
@@ -301,11 +303,12 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
             {
                 var refPackageName = item.Include;
-                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value
-                    ?? item.Children.OfType<ProjectMetadataElement>().FirstOrDefault(m => m.Name == "Version")?.Value;
+                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
 
                 if (string.IsNullOrEmpty(refPackageName) || string.IsNullOrEmpty(refVersion))
+                {
                     continue;
+                }
 
                 // Try to find the assembly in the NuGet global packages folder
                 foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
