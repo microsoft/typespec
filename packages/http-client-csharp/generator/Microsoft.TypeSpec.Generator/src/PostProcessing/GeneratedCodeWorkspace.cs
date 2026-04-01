@@ -300,12 +300,25 @@ namespace Microsoft.TypeSpec.Generator
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
+            // Build a set of assembly names already registered so we can skip them
+            var existingRefs = new HashSet<string>(
+                CodeModelGenerator.Instance.AdditionalMetadataReferences
+                    .Select(r => Path.GetFileNameWithoutExtension(r.Display ?? ""))
+                    .Where(n => !string.IsNullOrEmpty(n)),
+                StringComparer.OrdinalIgnoreCase);
+
             foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
             {
                 var refPackageName = item.Include;
                 var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
 
                 if (string.IsNullOrEmpty(refPackageName) || string.IsNullOrEmpty(refVersion))
+                {
+                    continue;
+                }
+
+                // Skip packages already added as metadata references (e.g., by a plugin)
+                if (existingRefs.Contains(refPackageName))
                 {
                     continue;
                 }
