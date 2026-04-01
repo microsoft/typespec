@@ -6,6 +6,9 @@
 import os
 import subprocess
 import signal
+import time
+import urllib.request
+import urllib.error
 import pytest
 import importlib
 from pathlib import Path
@@ -13,6 +16,23 @@ from pathlib import Path
 # Root of the http-client-python package
 ROOT = Path(__file__).parent.parent
 DATA_FOLDER = Path(__file__).parent / "mock_api" / "shared"
+
+# Server configuration
+SERVER_HOST = "localhost"
+SERVER_PORT = 3000
+SERVER_URL = f"http://{SERVER_HOST}:{SERVER_PORT}"
+
+
+def wait_for_server(url: str, timeout: int = 60, interval: float = 0.5) -> bool:
+    """Wait for the server to be ready by polling the URL."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            urllib.request.urlopen(url, timeout=1)
+            return True
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError):
+            time.sleep(interval)
+    return False
 
 
 def start_server_process():
@@ -50,6 +70,12 @@ def terminate_server_process(process):
 def testserver():
     """Start spector mock api tests."""
     server = start_server_process()
+
+    # Wait for server to be ready
+    if not wait_for_server(SERVER_URL, timeout=60):
+        terminate_server_process(server)
+        pytest.fail(f"Mock API server failed to start within 60 seconds at {SERVER_URL}")
+
     yield
     terminate_server_process(server)
 
