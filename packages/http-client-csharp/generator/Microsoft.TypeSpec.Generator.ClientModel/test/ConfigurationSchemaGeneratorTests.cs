@@ -749,6 +749,96 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.AreEqual("boolean", nullableBoolSchema["type"]?.GetValue<string>());
         }
 
+        [Test]
+        public void Generate_UsesCustomSectionName()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output, sectionName: "AzureClients");
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            Assert.IsNull(doc["properties"]?["Clients"], "Schema should not have a 'Clients' section");
+            var azureClients = doc["properties"]?["AzureClients"];
+            Assert.IsNotNull(azureClients, "Schema should have an 'AzureClients' section");
+
+            var testClient = azureClients!["properties"]?["TestService"];
+            Assert.IsNotNull(testClient, "Schema should have a well-known 'TestService' entry under AzureClients");
+        }
+
+        [Test]
+        public void Generate_UsesCustomOptionsRef()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output, optionsRef: "azureOptions");
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // The options definition should inherit from azureOptions instead of options
+            var definitions = doc["definitions"];
+            Assert.IsNotNull(definitions);
+
+            // Find the client options definition and verify it references azureOptions
+            foreach (var def in definitions!.AsObject())
+            {
+                var allOf = def.Value?["allOf"];
+                if (allOf != null)
+                {
+                    var baseRef = allOf.AsArray()[0]?["$ref"]?.GetValue<string>();
+                    Assert.AreEqual("#/definitions/azureOptions", baseRef,
+                        $"Definition '{def.Key}' should reference azureOptions");
+                }
+            }
+        }
+
+        [Test]
+        public void Generate_UsesCustomSectionNameAndOptionsRef()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(
+                output,
+                sectionName: "AzureClients",
+                optionsRef: "azureOptions");
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify section name
+            Assert.IsNull(doc["properties"]?["Clients"]);
+            Assert.IsNotNull(doc["properties"]?["AzureClients"]);
+
+            // Verify options ref
+            var clientEntry = doc["properties"]?["AzureClients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry);
+
+            // The options definition should use azureOptions
+            var optionsRef = clientEntry!["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef);
+            var defName = optionsRef!.Replace("#/definitions/", "");
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef);
+            Assert.AreEqual("#/definitions/azureOptions", optionsDef!["allOf"]?.AsArray()[0]?["$ref"]?.GetValue<string>());
+        }
+
+        [Test]
+        public void ConfigurationSchemaOptions_HasCorrectDefaults()
+        {
+            var options = new ConfigurationSchemaOptions();
+            Assert.AreEqual("Clients", options.SectionName);
+            Assert.AreEqual("options", options.OptionsRef);
+            Assert.IsTrue(options.GenerateNuGetTargets);
+        }
+
         /// <summary>
         /// Test output library that wraps provided TypeProviders.
         /// </summary>
