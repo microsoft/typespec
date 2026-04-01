@@ -11,7 +11,7 @@
     "noEmitOnError": true,
     "outDir": "dist",
     "skipLibCheck": true,
-    "types": ["mocha"],
+    "types": [],
     "rootDir": "."
   },
   "exclude": ["dist", "temp", "templates", "vitest.config.ts"]

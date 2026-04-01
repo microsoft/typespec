@@ -71,6 +71,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 builder.CompileIncludes.Add(compileInclude);
             }
 
+            // Add pack items for ConfigurationSchema.json and .targets file
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
+            var schemaPath = Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, "schema", "ConfigurationSchema.json");
+            if (File.Exists(schemaPath))
+            {
+                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\schema\ConfigurationSchema.json", @"\"));
+                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
+            }
+
             return builder.Write();
         }
 
@@ -81,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
-            new("System.ClientModel", "1.9.0"),
+            new("System.ClientModel", "1.10.0"),
         };
 
         protected virtual string GetSolutionFileContent()
