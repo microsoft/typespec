@@ -198,6 +198,110 @@ namespace My.External.Library
             Assert.AreEqual(refCountBefore, refCountAfter, "Should not add references for packages not in cache");
         }
 
+        [Test]
+        public async Task AddPackageReferencesFromProject_SkipsAlreadyAddedReferences()
+        {
+            var ns = "TestNamespace";
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+
+            // Create a fake external package assembly in the NuGet cache
+            var externalPkgName = "Already.Added.Package";
+            var externalPkgVersion = "1.0.0";
+            var dllPath = CreateFakeNuGetPackage(nugetCacheDir, externalPkgName, externalPkgVersion);
+
+            // Create a .csproj referencing the package
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""{externalPkgName}"">
+      <Version>{externalPkgVersion}</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            // Pre-add the reference (simulating a plugin that already added it)
+            CodeModelGenerator.Instance.AddMetadataReference(
+                MetadataReference.CreateFromFile(dllPath));
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore, refCountAfter,
+                "Should not add duplicate reference for a package already in AdditionalMetadataReferences");
+        }
+
+        [Test]
+        public async Task AddPackageReferencesFromProject_AddsMultiplePackageReferences()
+        {
+            var ns = "TestNamespace";
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+
+            // Create two fake packages in the cache
+            CreateFakeNuGetPackage(nugetCacheDir, "First.Package", "1.0.0");
+            CreateFakeNuGetPackage(nugetCacheDir, "Second.Package", "3.5.0");
+
+            var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""First.Package"">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include=""Second.Package"">
+      <Version>3.5.0</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+        }
+
+        /// <summary>
+        /// Creates a fake NuGet package assembly in the given cache directory and returns the DLL path.
+        /// </summary>
+        private static string CreateFakeNuGetPackage(string nugetCacheDir, string packageName, string version)
+        {
+            var pkgDir = Path.Combine(
+                nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
+            Directory.CreateDirectory(pkgDir);
+
+            var syntaxTree = CSharpSyntaxTree.ParseText($@"
+namespace {packageName}
+{{
+    public class Placeholder {{ }}
+}}");
+            var compilation = CSharpCompilation.Create(
+                packageName,
+                [syntaxTree],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            var dllPath = Path.Combine(pkgDir, $"{packageName}.dll");
+            var result = compilation.Emit(dllPath);
+            Assert.IsTrue(result.Success, $"Failed to emit fake assembly for {packageName}");
+            return dllPath;
+        }
+
         private void CreateTestAssemblyAndProjectFile(string nugetCacheDir, string csProjectFileName)
         {
             var ns = csProjectFileName.StartsWith("TestNamespaceUnevaluatedFrameworkValue")
