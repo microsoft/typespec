@@ -29,13 +29,12 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "express": "catalog:",
-    "xml2js": "catalog:"
+    "fast-xml-parser": "catalog:"
   },
   "devDependencies": {
     "@types/express": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
-    "@types/xml2js": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "rimraf": "catalog:",

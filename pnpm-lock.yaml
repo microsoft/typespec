@@ -186,9 +186,6 @@ catalogs:
     '@types/which':
       specifier: ^3.0.4
       version: 3.0.4
-    '@types/xml2js':
-      specifier: ^0.4.14
-      version: 0.4.14
     '@types/yargs':
       specifier: ~17.0.35
       version: 17.0.35
@@ -321,6 +318,9 @@ catalogs:
     express:
       specifier: ^5.2.1
       version: 5.2.1
+    fast-xml-parser:
+      specifier: ^5.5.9
+      version: 5.5.9
     globby:
       specifier: ~16.1.1
       version: 16.1.1
@@ -513,9 +513,6 @@ catalogs:
     which:
       specifier: ^6.0.1
       version: 6.0.1
-    xml2js:
-      specifier: ^0.6.2
-      version: 0.6.2
     yaml:
       specifier: ~2.8.2
       version: 2.8.2
@@ -2330,9 +2327,9 @@ importers:
       express:
         specifier: 'catalog:'
         version: 5.2.1
-      xml2js:
+      fast-xml-parser:
         specifier: 'catalog:'
-        version: 0.6.2
+        version: 5.5.9
     devDependencies:
       '@types/express':
         specifier: 'catalog:'
@@ -2343,9 +2340,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.0
-      '@types/xml2js':
-        specifier: 'catalog:'
-        version: 0.4.14
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
@@ -2483,9 +2477,6 @@ importers:
       source-map-support:
         specifier: 'catalog:'
         version: 0.5.21
-      xml2js:
-        specifier: 'catalog:'
-        version: 0.6.2
       yaml:
         specifier: 'catalog:'
         version: 2.8.2
@@ -2508,9 +2499,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.5.0
-      '@types/xml2js':
-        specifier: 'catalog:'
-        version: 0.4.14
       '@types/yargs':
         specifier: 'catalog:'
         version: 17.0.35
@@ -6793,9 +6781,6 @@ packages:
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
-  '@types/xml2js@0.4.14':
-    resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
-
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
 
@@ -8941,8 +8926,15 @@ packages:
   fast-xml-builder@1.1.3:
     resolution: {integrity: sha512-1o60KoFw2+LWKQu3IdcfcFlGTW4dpqEWmjhYec6H82AYZU2TVBXep6tMl8Z1Y+wM+ZrzCwe3BZ9Vyd9N2rIvmg==}
 
+  fast-xml-builder@1.1.4:
+    resolution: {integrity: sha512-f2jhpN4Eccy0/Uz9csxh3Nu6q4ErKxf0XIsasomfOihuSUa3/xw6w8dnOtCDgEItQFJG8KyXPzQXzcODDrrbOg==}
+
   fast-xml-parser@5.5.5:
     resolution: {integrity: sha512-NLY+V5NNbdmiEszx9n14mZBseJTC50bRq1VHsaxOmR72JDuZt+5J1Co+dC/4JPnyq+WrIHNM69r0sqf7BMb3Mg==}
+    hasBin: true
+
+  fast-xml-parser@5.5.9:
+    resolution: {integrity: sha512-jldvxr1MC6rtiZKgrFnDSvT8xuH+eJqxqOBThUVjYrxssYTo1avZLGql5l0a0BAERR01CadYzZ83kVEkbyDg+g==}
     hasBin: true
 
   fastq@1.20.1:
@@ -11000,6 +10992,10 @@ packages:
     resolution: {integrity: sha512-qdVgY8KXmVdJZRSS1JdEPOKPdTiEK/pi0RkcT2sw1RhXxohdujUlJFPuS1TSkevZ9vzd3ZlL7ULl1MHGTApKzQ==}
     engines: {node: '>=14.0.0'}
 
+  path-expression-matcher@1.2.0:
+    resolution: {integrity: sha512-DwmPWeFn+tq7TiyJ2CxezCAirXjFxvaiD03npak3cRjlP9+OjTmSy1EpIrEbh+l6JgUundniloMLDQ/6VTdhLQ==}
+    engines: {node: '>=14.0.0'}
+
   path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
     engines: {node: '>=0.10.0'}
@@ -12086,6 +12082,9 @@ packages:
 
   strnum@2.2.0:
     resolution: {integrity: sha512-Y7Bj8XyJxnPAORMZj/xltsfo55uOiyHcU2tnAVzHUnSJR/KsEX+9RoDeXEnsXtl/CX4fAcrt64gZ13aGaWPeBg==}
+
+  strnum@2.2.2:
+    resolution: {integrity: sha512-DnR90I+jtXNSTXWdwrEy9FakW7UX+qUZg28gj5fk2vxxl7uS/3bpI4fjFYVmdK9etptYBPNkpahuQnEwhwECqA==}
 
   structured-source@4.0.0:
     resolution: {integrity: sha512-qGzRFNJDjFieQkl/sVOI2dUjHKRyL9dAJi2gCPGJLbJHBIkyOHxjuocpIEfbLioX+qSJpvbYdT49/YCdMznKxA==}
@@ -13197,10 +13196,6 @@ packages:
 
   xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
-    engines: {node: '>=4.0.0'}
-
-  xml2js@0.6.2:
-    resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
     engines: {node: '>=4.0.0'}
 
   xmlbuilder@11.0.1:
@@ -18537,10 +18532,6 @@ snapshots:
     dependencies:
       '@types/node': 25.5.0
 
-  '@types/xml2js@0.4.14':
-    dependencies:
-      '@types/node': 25.5.0
-
   '@types/yargs-parser@21.0.3': {}
 
   '@types/yargs@17.0.35':
@@ -21294,11 +21285,21 @@ snapshots:
     dependencies:
       path-expression-matcher: 1.1.3
 
+  fast-xml-builder@1.1.4:
+    dependencies:
+      path-expression-matcher: 1.2.0
+
   fast-xml-parser@5.5.5:
     dependencies:
       fast-xml-builder: 1.1.3
       path-expression-matcher: 1.1.3
       strnum: 2.2.0
+
+  fast-xml-parser@5.5.9:
+    dependencies:
+      fast-xml-builder: 1.1.4
+      path-expression-matcher: 1.2.0
+      strnum: 2.2.2
 
   fastq@1.20.1:
     dependencies:
@@ -23906,6 +23907,8 @@ snapshots:
 
   path-expression-matcher@1.1.3: {}
 
+  path-expression-matcher@1.2.0: {}
+
   path-is-absolute@1.0.1: {}
 
   path-key@3.1.1: {}
@@ -25221,6 +25224,8 @@ snapshots:
 
   strnum@2.2.0: {}
 
+  strnum@2.2.2: {}
+
   structured-source@4.0.0:
     dependencies:
       boundary: 2.0.0
@@ -26269,11 +26274,6 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xml2js@0.5.0:
-    dependencies:
-      sax: 1.5.0
-      xmlbuilder: 11.0.1
-
-  xml2js@0.6.2:
     dependencies:
       sax: 1.5.0
       xmlbuilder: 11.0.1

@@ -50,7 +50,6 @@
     "multer": "catalog:",
     "picocolors": "catalog:",
     "source-map-support": "catalog:",
-    "xml2js": "catalog:",
     "yaml": "catalog:",
     "yargs": "catalog:"
   },
@@ -60,7 +59,6 @@
     "@types/morgan": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
-    "@types/xml2js": "catalog:",
     "@types/yargs": "catalog:",
     "@typespec/tspd": "workspace:^",
     "rimraf": "catalog:",
