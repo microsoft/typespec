@@ -280,6 +280,56 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        /// <summary>
+        /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
+        /// as metadata references so that custom code referencing external NuGet types compiles correctly.
+        /// </summary>
+        internal static void AddPackageReferencesFromProject()
+        {
+            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            string projectFilePath = Path.GetFullPath(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
+            if (!File.Exists(projectFilePath))
+                return;
+
+            var projectRoot = ProjectRootElement.Open(projectFilePath);
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
+            {
+                var refPackageName = item.Include;
+                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value
+                    ?? item.Children.OfType<ProjectMetadataElement>().FirstOrDefault(m => m.Name == "Version")?.Value;
+
+                if (string.IsNullOrEmpty(refPackageName) || string.IsNullOrEmpty(refVersion))
+                    continue;
+
+                // Try to find the assembly in the NuGet global packages folder
+                foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                {
+                    var assemblyPath = Path.Combine(
+                        globalPackagesFolder,
+                        refPackageName.ToLowerInvariant(),
+                        refVersion.ToLowerInvariant(),
+                        "lib",
+                        tfm,
+                        $"{refPackageName}.dll");
+
+                    if (File.Exists(assemblyPath))
+                    {
+                        CodeModelGenerator.Instance.AddMetadataReference(
+                            MetadataReference.CreateFromFile(assemblyPath));
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Added metadata reference: {refPackageName}@{refVersion} ({tfm})");
+                        break;
+                    }
+                }
+            }
+        }
+
         internal static async Task<Compilation?> LoadBaselineContract()
         {
             var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
