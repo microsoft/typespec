@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
+using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
@@ -295,7 +296,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            var projectRoot = ProjectRootElement.Open(projectFilePath, new Microsoft.Build.Evaluation.ProjectCollection());
+            var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
@@ -303,16 +304,16 @@ namespace Microsoft.TypeSpec.Generator
             // Build a set of assembly names already registered so we can skip them
             var existingRefs = new HashSet<string>(
                 CodeModelGenerator.Instance.AdditionalMetadataReferences
-                    .Select(r => Path.GetFileNameWithoutExtension(r.Display ?? ""))
+                    .Where(r => r.Display is not null)
+                    .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
                     .Where(n => !string.IsNullOrEmpty(n)),
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
             {
                 var refPackageName = item.Include;
-                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
 
-                if (string.IsNullOrEmpty(refPackageName) || string.IsNullOrEmpty(refVersion))
+                if (string.IsNullOrEmpty(refPackageName))
                 {
                     continue;
                 }
@@ -323,27 +324,15 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                // Try to find the assembly in the NuGet global packages folder
-                string? resolvedAssemblyPath = null;
-                foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
-                {
-                    var assemblyPath = Path.Combine(
-                        globalPackagesFolder,
-                        refPackageName.ToLowerInvariant(),
-                        refVersion.ToLowerInvariant(),
-                        "lib",
-                        tfm,
-                        $"{refPackageName}.dll");
+                var refVersion = item.Metadata.FirstOrDefault(m => m.Name == "Version")?.Value;
 
-                    if (File.Exists(assemblyPath))
-                    {
-                        resolvedAssemblyPath = assemblyPath;
-                        break;
-                    }
-                }
+                // Try to find the assembly in the NuGet global packages folder.
+                // When version is null (centrally managed packages), scan all available versions.
+                string? resolvedAssemblyPath = FindPackageAssembly(
+                    globalPackagesFolder, refPackageName, refVersion);
 
-                // If not found locally, download from NuGet
-                if (resolvedAssemblyPath == null)
+                // If not found locally and we have a version, download from NuGet
+                if (resolvedAssemblyPath == null && !string.IsNullOrEmpty(refVersion))
                 {
                     try
                     {
@@ -367,9 +356,49 @@ namespace Microsoft.TypeSpec.Generator
                     CodeModelGenerator.Instance.AddMetadataReference(
                         MetadataReference.CreateFromFile(resolvedAssemblyPath));
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Added metadata reference: {refPackageName}@{refVersion}");
+                        $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Searches the NuGet global packages folder for a package assembly.
+        /// When <paramref name="version"/> is null, scans all available versions and
+        /// returns the first match found (for centrally managed package references).
+        /// </summary>
+        private static string? FindPackageAssembly(string globalPackagesFolder, string packageName, string? version)
+        {
+            var packageDir = Path.Combine(globalPackagesFolder, packageName.ToLowerInvariant());
+
+            IEnumerable<string> versionDirs;
+            if (!string.IsNullOrEmpty(version))
+            {
+                // Specific version
+                versionDirs = [Path.Combine(packageDir, version.ToLowerInvariant())];
+            }
+            else
+            {
+                // No version specified (centrally managed) — try all available versions
+                if (!Directory.Exists(packageDir))
+                {
+                    return null;
+                }
+                versionDirs = Directory.GetDirectories(packageDir).OrderDescending();
+            }
+
+            foreach (var versionDir in versionDirs)
+            {
+                foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                {
+                    var assemblyPath = Path.Combine(versionDir, "lib", tfm, $"{packageName}.dll");
+                    if (File.Exists(assemblyPath))
+                    {
+                        return assemblyPath;
+                    }
+                }
+            }
+
+            return null;
         }
 
         internal static async Task<Compilation?> LoadBaselineContract()

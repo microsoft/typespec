@@ -199,6 +199,40 @@ namespace My.External.Library
         }
 
         [Test]
+        public async Task AddPackageReferencesFromProject_ResolvesPackageWithNoVersion()
+        {
+            var ns = "TestNamespace";
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+
+            // Create a fake package in the cache (simulating a centrally managed package)
+            var externalPkgName = "Centrally.Managed.Package";
+            CreateFakeNuGetPackage(nugetCacheDir, externalPkgName, "4.2.0");
+
+            // Create a .csproj with no Version on the PackageReference
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include=""{externalPkgName}"" />
+  </ItemGroup>
+</Project>";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore + 1, refCountAfter,
+                "Should resolve package from cache even without a version (centrally managed)");
+        }
+
+        [Test]
         public async Task AddPackageReferencesFromProject_SkipsAlreadyAddedReferences()
         {
             var ns = "TestNamespace";
