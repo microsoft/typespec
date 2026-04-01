@@ -18,6 +18,8 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
+using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -325,10 +327,31 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Search the NuGet global packages folder for any cached version of this package.
-                // We don't require a specific version — the cache will contain the correct version
-                // from the last dotnet restore, regardless of whether the version is specified in
-                // the csproj or centrally managed via Directory.Packages.props.
                 string? resolvedAssemblyPath = FindPackageAssembly(globalPackagesFolder, refPackageName);
+
+                // If not found in cache, download the latest version from NuGet feeds
+                if (resolvedAssemblyPath == null)
+                {
+                    try
+                    {
+                        var latestVersion = await ResolveLatestPackageVersion(refPackageName, nugetSettings);
+                        if (latestVersion != null)
+                        {
+                            var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
+                            var downloadedPath = await downloader.DownloadAndInstallPackage();
+                            var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
+                            if (File.Exists(downloadedAssembly))
+                            {
+                                resolvedAssemblyPath = downloadedAssembly;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Could not download package {refPackageName}: {ex.Message}");
+                    }
+                }
 
                 if (resolvedAssemblyPath != null)
                 {
@@ -362,6 +385,39 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         return assemblyPath;
                     }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Queries configured NuGet feeds to resolve the latest stable version of a package.
+        /// </summary>
+        private static async Task<string?> ResolveLatestPackageVersion(string packageName, ISettings nugetSettings)
+        {
+            var sources = SettingsUtility.GetEnabledSources(nugetSettings);
+            using var cacheContext = new SourceCacheContext();
+            foreach (var source in sources)
+            {
+                try
+                {
+                    var repository = Repository.Factory.GetCoreV3(source.Source);
+                    var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
+                    var versions = await resource.GetAllVersionsAsync(
+                        packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None);
+                    var latest = versions?
+                        .Where(v => !v.IsPrerelease)
+                        .OrderByDescending(v => v)
+                        .FirstOrDefault();
+                    if (latest != null)
+                    {
+                        return latest.ToString();
+                    }
+                }
+                catch
+                {
+                    // Skip sources that fail (auth, network, etc.)
                 }
             }
 
