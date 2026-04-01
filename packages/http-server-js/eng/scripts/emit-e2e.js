@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
 import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { globby } from "globby";
-import { select } from "@inquirer/prompts";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "path";
@@ -16,7 +16,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function pathExists(path) {
-  return access(path).then(() => true, () => false);
+  return access(path).then(
+    () => true,
+    () => false,
+  );
 }
 
 const projectRoot = join(__dirname, "../..");

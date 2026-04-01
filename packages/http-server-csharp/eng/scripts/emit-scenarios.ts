@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
+import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
 import { access, copyFile, mkdir, readFile, rm, writeFile } from "fs/promises";
 import { globby } from "globby";
-import { select } from "@inquirer/prompts";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "pathe";
@@ -40,7 +40,10 @@ const __dirname = dirname(__filename);
 const tspConfig = join(__dirname, "tspconfig.yaml");
 
 async function pathExists(path: string): Promise<boolean> {
-  return access(path).then(() => true, () => false);
+  return access(path).then(
+    () => true,
+    () => false,
+  );
 }
 
 const basePath = join(__dirname, "../..");
