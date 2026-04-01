@@ -28,12 +28,10 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "deep-equal": "catalog:",
     "express": "catalog:",
     "xml2js": "catalog:"
   },
   "devDependencies": {
-    "@types/deep-equal": "catalog:",
     "@types/express": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",

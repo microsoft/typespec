@@ -5,9 +5,8 @@ import {
   ResolverConfig,
   ValidationError,
 } from "@typespec/spec-api";
-import deepEqual from "deep-equal";
 import micromatch from "micromatch";
-import { inspect } from "node:util";
+import { inspect, isDeepStrictEqual } from "node:util";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
@@ -79,7 +78,7 @@ class ServerTestsGenerator {
   async #validateBody(response: Response, body: MockBody) {
     if (Buffer.isBuffer(body.rawContent)) {
       const responseData = Buffer.from(await response.arrayBuffer());
-      if (!deepEqual(responseData, body.rawContent)) {
+      if (!isDeepStrictEqual(responseData, body.rawContent)) {
         throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
       }
     } else {
@@ -98,7 +97,7 @@ class ServerTestsGenerator {
         case "application/json":
           const expected = JSON.parse(raw as any);
           const actual = JSON.parse(responseData);
-          if (!deepEqual(actual, expected, { strict: true })) {
+          if (!isDeepStrictEqual(actual, expected)) {
             throw new ValidationError("Response data mismatch", expected, actual);
           }
       }

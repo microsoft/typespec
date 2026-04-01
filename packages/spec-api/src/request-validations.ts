@@ -1,4 +1,4 @@
-import deepEqual from "deep-equal";
+import { isDeepStrictEqual } from "node:util";
 import { parseString } from "xml2js";
 import { CollectionFormat, RequestExt } from "./types.js";
 import { ValidationError } from "./validation-error.js";
@@ -20,7 +20,7 @@ export const validateRawBodyEquals = (
     return;
   }
 
-  if (!deepEqual(actualRawBody, expectedRawBody, { strict: true })) {
+  if (!isDeepStrictEqual(actualRawBody, expectedRawBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedRawBody, actualRawBody);
   }
 };
@@ -36,7 +36,7 @@ export const validateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(request.body, expectedBody, { strict: true })) {
+  if (!isDeepStrictEqual(request.body, expectedBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
   }
 };
@@ -64,7 +64,7 @@ export const validateXmlBodyEquals = (request: RequestExt, expectedBody: string)
     expectedParsedBody = result;
   });
 
-  if (!deepEqual(actualParsedBody, expectedParsedBody, { strict: true })) {
+  if (!isDeepStrictEqual(actualParsedBody, expectedParsedBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.rawBody);
   }
 };
@@ -80,7 +80,7 @@ export const validateCoercedDateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(coerceDate(request.body), expectedBody, { strict: true })) {
+  if (!isDeepStrictEqual(coerceDate(request.body), expectedBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
   }
 };
@@ -148,7 +148,7 @@ export const validateQueryParam = (
   if (collectionFormat && Array.isArray(expected)) {
     // verify query parameter as collection
     if (collectionFormat === "multi" && Array.isArray(actual)) {
-      isExpected = deepEqual(actual, expected);
+      isExpected = isDeepStrictEqual(actual, expected);
     } else if (collectionFormat !== "multi" && typeof actual === "string") {
       const expectedString = expected.join(splitterMap[collectionFormat]);
       isExpected = expectedString === decodeURIComponent(actual);

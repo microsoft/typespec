@@ -52,7 +52,6 @@ catalog:
   "@types/babel__code-frame": ~7.27.0
   "@types/cross-spawn": ~6.0.6
   "@types/debounce": ~1.2.4
-  "@types/deep-equal": ^1.0.4
   "@types/express": ^5.0.6
   "@types/micromatch": ^4.0.10
   "@types/morgan": ^1.9.10
@@ -103,7 +102,6 @@ catalog:
   cspell: ^9.7.0
   debounce: ~3.0.0
   decimal.js: ^10.6.0
-  deep-equal: ^2.2.3
   ecmarkup: ~23.0.2
   env-paths: ^4.0.0
   es-module-shims: ~2.8.0

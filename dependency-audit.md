@@ -38,7 +38,7 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
   - `packages/bundler/src/cli.ts`
   - `packages/tspd/src/cli.ts`
   - Last npm update: June 2023.
-- [ ] **`deep-equal`** — Replace with `node:util.isDeepStrictEqual()`. Used in 3 files:
+- [x] **`deep-equal`** — Replace with `node:util.isDeepStrictEqual()`. Used in 3 files:
   - `packages/spec-api/src/expectation.ts`
   - `packages/spec-api/src/request-validations.ts`
   - `packages/spector/src/actions/server-test.ts`

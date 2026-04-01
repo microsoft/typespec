@@ -44,11 +44,9 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:^",
-    "@typespec/spector": "workspace:^",
-    "deep-equal": "catalog:"
+    "@typespec/spector": "workspace:^"
   },
   "devDependencies": {
-    "@types/deep-equal": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
     "@typespec/json-schema": "workspace:^",
