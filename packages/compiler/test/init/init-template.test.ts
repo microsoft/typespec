@@ -123,7 +123,6 @@ it("specifying both config and emitters merge the 2", async () => {
   const output = getOutputFile("tspconfig.yaml");
   ok(output);
   expect(parse(output)).toEqual({
-    project: true,
     "warn-as-error": true,
     emit: ["foo"],
     options: {
