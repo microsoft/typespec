@@ -45,7 +45,6 @@
     "@typespec/compiler": "workspace:^",
     "esbuild": "catalog:",
     "esbuild-plugins-node-modules-polyfill": "catalog:",
-    "node-stdlib-browser": "catalog:",
     "picocolors": "catalog:",
     "yargs": "catalog:"
   },

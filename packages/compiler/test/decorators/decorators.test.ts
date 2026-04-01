@@ -1159,7 +1159,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-discriminated-union-variant",
-        message: `Discriminated union only allow a single default variant(Without a variant name).`,
+        message: `Discriminated union Foo only allow a single default variant(Without a variant name).`,
       });
     });
 

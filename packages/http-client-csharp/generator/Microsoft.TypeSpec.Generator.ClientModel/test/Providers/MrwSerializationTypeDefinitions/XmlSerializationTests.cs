@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -8,10 +9,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -683,6 +688,84 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 serializationProvider,
                 name => name == "PersistableModelWriteCore"));
 
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(string), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(bool), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(float), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(double), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        public string SerializeXmlValueCore_PrimitiveTypes(Type type, SerializationFormat format)
+        {
+            var statement = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                type,
+                new VariableExpression(type, "value"),
+                new ScopedApi<XmlWriter>(new VariableExpression(typeof(XmlWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return statement.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.DateTime_ISO8601, ExpectedResult = "writer.WriteValue(value.ToString(\"O\"));\n")]
+        [TestCase(SerializationFormat.DateTime_RFC1123, ExpectedResult = "writer.WriteValue(value.ToString(\"R\"));\n")]
+        [TestCase(SerializationFormat.DateTime_RFC3339, ExpectedResult = "writer.WriteValue(value.ToString(\"O\"));\n")]
+        public string SerializeXmlValueCore_DateTimeOffset(SerializationFormat format)
+        {
+            var statement = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                typeof(DateTimeOffset),
+                new VariableExpression(typeof(DateTimeOffset), "value"),
+                new ScopedApi<XmlWriter>(new VariableExpression(typeof(XmlWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return statement.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteValue(value.ToString(\"P\"));\n")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteValue(value.ToString(\"c\"));\n")]
+        public string SerializeXmlValueCore_TimeSpan(SerializationFormat format)
+        {
+            var statement = MrwSerializationTypeDefinition.SerializeXmlValueCore(
+                typeof(TimeSpan),
+                new VariableExpression(typeof(TimeSpan), "value"),
+                new ScopedApi<XmlWriter>(new VariableExpression(typeof(XmlWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return statement.ToDisplayString();
+        }
+
+        [Test]
+        public void SerializeXmlValueOverride_CustomTypeSerialization()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("Name")))]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel]);
+
+            // override SerializeXmlValue to return a custom statement for string types
+            var mockTypeFactory = Mock.Get((ScmTypeFactory)mockGenerator.Object.TypeFactory);
+            mockTypeFactory.Setup(p => p.SerializeXmlValue(
+                It.Is<CSharpType>(t => t.FrameworkType == typeof(string)),
+                It.IsAny<ValueExpression>(),
+                It.IsAny<ScopedApi<XmlWriter>>(),
+                It.IsAny<ScopedApi<ModelReaderWriterOptions>>(),
+                It.IsAny<SerializationFormat>()))
+                .Returns((CSharpType type, ValueExpression value, ScopedApi<XmlWriter> xmlWriter, ScopedApi<ModelReaderWriterOptions> options, SerializationFormat format) =>
+                    xmlWriter.WriteValue(value.Invoke(nameof(ToString))));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "XmlModelWriteCore"));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }

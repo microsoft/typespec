@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public final class XmlTests {
@@ -185,5 +186,149 @@ public final class XmlTests {
         XmlErrorBody errorBody = (XmlErrorBody) exception.getValue();
         Assertions.assertEquals("Something went wrong", errorBody.getMessage());
         Assertions.assertEquals(400, errorBody.getCode());
+    }
+
+    @Test
+    public void testModelWithRenamedProperty() {
+        ModelWithRenamedPropertyValueClient client = new XmlClientBuilder().buildModelWithRenamedPropertyValueClient();
+
+        client.put(new ModelWithRenamedProperty("foo", "bar"));
+
+        ModelWithRenamedProperty model = client.get();
+        Assertions.assertEquals("foo", model.getTitle());
+        Assertions.assertEquals("bar", model.getAuthor());
+    }
+
+    @Test
+    public void testModelWithNestedModel() {
+        ModelWithNestedModelValueClient client = new XmlClientBuilder().buildModelWithNestedModelValueClient();
+
+        client.put(new ModelWithNestedModel(new SimpleModel("foo", 123)));
+
+        ModelWithNestedModel model = client.get();
+        Assertions.assertEquals("foo", model.getNested().getName());
+        Assertions.assertEquals(123, model.getNested().getAge());
+    }
+
+    @Test
+    public void testModelWithRenamedNestedModel() {
+        ModelWithRenamedNestedModelValueClient client
+            = new XmlClientBuilder().buildModelWithRenamedNestedModelValueClient();
+
+        client.put(new ModelWithRenamedNestedModel(new Author("foo")));
+
+        ModelWithRenamedNestedModel model = client.get();
+        Assertions.assertEquals("foo", model.getAuthor().getName());
+    }
+
+    @Test
+    public void testModelWithWrappedPrimitiveCustomItemNames() {
+        ModelWithWrappedPrimitiveCustomItemNamesValueClient client
+            = new XmlClientBuilder().buildModelWithWrappedPrimitiveCustomItemNamesValueClient();
+
+        client.put(new ModelWithWrappedPrimitiveCustomItemNames(List.of("fiction", "classic")));
+
+        ModelWithWrappedPrimitiveCustomItemNames model = client.get();
+        Assertions.assertEquals(List.of("fiction", "classic"), model.getTags());
+    }
+
+    @Test
+    public void testModelWithUnwrappedModelArray() {
+        ModelWithUnwrappedModelArrayValueClient client
+            = new XmlClientBuilder().buildModelWithUnwrappedModelArrayValueClient();
+
+        client.put(new ModelWithUnwrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+
+        ModelWithUnwrappedModelArray model = client.get();
+        Assertions.assertEquals(2, model.getItems().size());
+        Assertions.assertEquals("foo", model.getItems().get(0).getName());
+        Assertions.assertEquals(123, model.getItems().get(0).getAge());
+        Assertions.assertEquals("bar", model.getItems().get(1).getName());
+        Assertions.assertEquals(456, model.getItems().get(1).getAge());
+    }
+
+    @Test
+    public void testModelWithRenamedWrappedModelArray() {
+        ModelWithRenamedWrappedModelArrayValueClient client
+            = new XmlClientBuilder().buildModelWithRenamedWrappedModelArrayValueClient();
+
+        client.put(
+            new ModelWithRenamedWrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+
+        ModelWithRenamedWrappedModelArray model = client.get();
+        Assertions.assertEquals(2, model.getItems().size());
+        Assertions.assertEquals("foo", model.getItems().get(0).getName());
+        Assertions.assertEquals(123, model.getItems().get(0).getAge());
+        Assertions.assertEquals("bar", model.getItems().get(1).getName());
+        Assertions.assertEquals(456, model.getItems().get(1).getAge());
+    }
+
+    @Test
+    public void testModelWithRenamedUnwrappedModelArray() {
+        ModelWithRenamedUnwrappedModelArrayValueClient client
+            = new XmlClientBuilder().buildModelWithRenamedUnwrappedModelArrayValueClient();
+
+        client.put(
+            new ModelWithRenamedUnwrappedModelArray(List.of(new SimpleModel("foo", 123), new SimpleModel("bar", 456))));
+
+        ModelWithRenamedUnwrappedModelArray model = client.get();
+        Assertions.assertEquals(2, model.getItems().size());
+        Assertions.assertEquals("foo", model.getItems().get(0).getName());
+        Assertions.assertEquals(123, model.getItems().get(0).getAge());
+        Assertions.assertEquals("bar", model.getItems().get(1).getName());
+        Assertions.assertEquals(456, model.getItems().get(1).getAge());
+    }
+
+    @Test
+    public void testModelWithRenamedWrappedAndItemModelArray() {
+        ModelWithRenamedWrappedAndItemModelArrayValueClient client
+            = new XmlClientBuilder().buildModelWithRenamedWrappedAndItemModelArrayValueClient();
+
+        client.put(new ModelWithRenamedWrappedAndItemModelArray(
+            List.of(new Book("The Great Gatsby"), new Book("Les Miserables"))));
+
+        ModelWithRenamedWrappedAndItemModelArray model = client.get();
+        Assertions.assertEquals(2, model.getBooks().size());
+        Assertions.assertEquals("The Great Gatsby", model.getBooks().get(0).getTitle());
+        Assertions.assertEquals("Les Miserables", model.getBooks().get(1).getTitle());
+    }
+
+    @Test
+    public void testModelWithRenamedAttribute() {
+        ModelWithRenamedAttributeValueClient client
+            = new XmlClientBuilder().buildModelWithRenamedAttributeValueClient();
+
+        client.put(new ModelWithRenamedAttribute(123, "The Great Gatsby", "F. Scott Fitzgerald"));
+
+        ModelWithRenamedAttribute model = client.get();
+        Assertions.assertEquals(123, model.getId());
+        Assertions.assertEquals("The Great Gatsby", model.getTitle());
+        Assertions.assertEquals("F. Scott Fitzgerald", model.getAuthor());
+    }
+
+    @Disabled("namespace mismatch")
+    @Test
+    public void testModelWithNamespace() {
+        ModelWithNamespaceValueClient client = new XmlClientBuilder().buildModelWithNamespaceValueClient();
+
+        client.put(new ModelWithNamespace(123, "The Great Gatsby"));
+
+        ModelWithNamespace model = client.get();
+        Assertions.assertEquals(123, model.getId());
+        Assertions.assertEquals("The Great Gatsby", model.getTitle());
+    }
+
+    @Disabled("namespace mismatch")
+    @Test
+    public void testModelWithNamespaceOnProperties() {
+        ModelWithNamespaceOnPropertiesValueClient client
+            = new XmlClientBuilder().buildModelWithNamespaceOnPropertiesValueClient();
+
+        client.put(new ModelWithNamespaceOnProperties(123, "The Great Gatsby", "F. Scott Fitzgerald"));
+
+        ModelWithNamespaceOnProperties model = client.get();
+        Assertions.assertEquals(123, model.getId());
+        Assertions.assertEquals("The Great Gatsby", model.getTitle());
+        Assertions.assertEquals("F. Scott Fitzgerald", model.getAuthor());
     }
 }

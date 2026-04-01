@@ -50,7 +50,7 @@ describe("Namespace Converter", () => {
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
       const sdkPackage = sdkContext.sdkPackage;
-      const parsedNamespaces = fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
+      const [parsedNamespaces] = fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
 
       strictEqual(parsedNamespaces.length, 1);
 
