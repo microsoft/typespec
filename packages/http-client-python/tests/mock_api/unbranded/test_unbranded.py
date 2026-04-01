@@ -51,7 +51,7 @@ def check_sensitive_word(folder: Path, word: str) -> str:
 
 
 def test_sensitive_word():
-    check_folder = (Path(os.path.dirname(__file__)) / "../generated").resolve()
+    check_folder = (Path(os.path.dirname(__file__)) / "../../generated/unbranded").resolve()
     assert [] == check_sensitive_word(check_folder, "azure")
     # after update spector, it shall also equal to []
     expected = [

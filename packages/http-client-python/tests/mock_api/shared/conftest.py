@@ -28,10 +28,14 @@ def start_server_process():
 
 
 def terminate_server_process(process):
-    if os.name == "nt":
-        process.kill()
-    else:
-        os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+    try:
+        if os.name == "nt":
+            process.kill()
+        else:
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
+    except ProcessLookupError:
+        # Process already terminated, which is fine
+        pass
 
 
 @pytest.fixture(scope="session", autouse=True)

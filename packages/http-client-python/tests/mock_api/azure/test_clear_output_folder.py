@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from pathlib import Path
 
-GENERATED_PATH = Path(__file__).parent.parent.resolve() / "generated"
+GENERATED_PATH = Path(__file__).parent.parent.parent.resolve() / "generated" / "azure"
 
 
 def test_clear_output_folder():
