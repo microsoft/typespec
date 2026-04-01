@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "Clients": {
+      "type": "object",
+      "properties": {
+        "TestService": {
+          "type": "object",
+          "description": "Configuration for TestService.",
+          "properties": {
+            "Endpoint": {
+              "type": "string",
+              "description": "Gets or sets the Endpoint."
+            },
+            "ConnectionConfig": {
+              "$ref": "#/definitions/connectionConfig"
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/testServiceOptions"
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "description": "Configuration for a named client instance."
+      }
+    }
+  },
+  "definitions": {
+    "connectionConfig": {
+      "type": "object",
+      "properties": {
+        "Host": {
+          "type": "string"
+        },
+        "Port": {
+          "type": "integer"
+        }
+      }
+    },
+    "testServiceOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    }
+  }
+}

@@ -10,9 +10,9 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientOptionsProvider : TypeProvider
     {
-        private const string ServicePrefix = "Service";
         private const string VersionSuffix = "Version";
         private const string ApiVersionSuffix = "ApiVersion";
         private const string LatestPrefix = "Latest";
@@ -124,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
+        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
             if (_serviceVersionsEnums is null)
             {

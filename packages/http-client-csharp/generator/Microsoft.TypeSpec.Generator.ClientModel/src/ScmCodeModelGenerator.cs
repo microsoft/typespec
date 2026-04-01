@@ -4,7 +4,9 @@
 using System;
 using System.ClientModel;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 
@@ -43,6 +45,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+        }
+
+        public override async Task WriteAdditionalFiles(string outputPath)
+        {
+            var schemaContent = ConfigurationSchemaGenerator.Generate(OutputLibrary);
+            if (schemaContent != null)
+            {
+                var schemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
+                var schemaDir = Path.GetDirectoryName(schemaPath);
+                if (schemaDir != null)
+                {
+                    Directory.CreateDirectory(schemaDir);
+                }
+                Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
+                await File.WriteAllTextAsync(schemaPath, schemaContent);
+
+                // Generate the .targets file for JsonSchemaSegment registration
+                var packageName = Configuration.PackageName;
+                var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                var targetsContent = GenerateTargetsFile();
+                Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                await File.WriteAllTextAsync(targetsPath, targetsContent);
+            }
+        }
+
+        private static string GenerateTargetsFile()
+        {
+            return "<Project>\n" +
+                   "  <ItemGroup>\n" +
+                   "    <JsonSchemaSegment Include=\"$(MSBuildThisFileDirectory)..\\..\\ConfigurationSchema.json\"\n" +
+                   "                       FilePathPattern=\"appsettings.*.json\" />\n" +
+                   "  </ItemGroup>\n" +
+                   "</Project>\n";
         }
     }
 }
