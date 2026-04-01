@@ -33,7 +33,7 @@ const argv = parseArgs({
     env: { type: "string" },
     jobs: { type: "string", short: "j" },
     name: { type: "string", short: "n" },
-    verbose: { type: "boolean", short: "v", default: false },
+    quiet: { type: "boolean", short: "q", default: false },
     help: { type: "boolean", short: "h", default: false },
   },
 });
@@ -51,7 +51,7 @@ Options:
                                   Available: test, lint, mypy, pyright, docs, ci, unittest
   -j, --jobs <n>                  Number of parallel jobs (default: CPU cores - 2)
   -n, --name <pattern>            Filter tests by name pattern
-  -v, --verbose                   Verbose output
+  -q, --quiet                     Suppress test output (only show pass/fail summary)
   -h, --help                      Show this help message
 
 Environments (for --generator):
@@ -108,12 +108,12 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
   return new Promise((resolve) => {
     const proc: ChildProcess = spawn(pythonPath, args, {
       cwd: testsDir,
-      stdio: argv.values.verbose ? "inherit" : "pipe",
+      stdio: !argv.values.quiet ? "inherit" : "pipe",
       env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
     });
 
     let stderr = "";
-    if (!argv.values.verbose && proc.stderr) {
+    if (argv.values.quiet && proc.stderr) {
       proc.stderr.on("data", (data) => {
         stderr += data.toString();
       });
@@ -221,7 +221,7 @@ function printSummary(results: ToxResult[]): void {
     console.log(colors.red + "Failed environments:" + colors.reset);
     for (const result of failed) {
       console.log(`  - ${result.env}`);
-      if (result.error && argv.values.verbose) {
+      if (result.error && !argv.values.quiet) {
         console.log(`    ${result.error.split("\n").slice(0, 5).join("\n    ")}`);
       }
     }
@@ -236,12 +236,12 @@ async function runEmitterTests(): Promise<ToxResult> {
   return new Promise((resolve) => {
     const proc: ChildProcess = spawn("npx", ["vitest", "run", "-c", "./emitter/vitest.config.ts"], {
       cwd: root,
-      stdio: argv.values.verbose ? "inherit" : "pipe",
+      stdio: !argv.values.quiet ? "inherit" : "pipe",
       shell: true,
     });
 
     let stderr = "";
-    if (!argv.values.verbose && proc.stderr) {
+    if (argv.values.quiet && proc.stderr) {
       proc.stderr.on("data", (data) => {
         stderr += data.toString();
       });
