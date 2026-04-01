@@ -1,5 +1,6 @@
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import { DiagnosticHandler } from "./diagnostics.js";
 import { resolvePath } from "./path-utils.js";
 import { CompilerHost } from "./types.js";
@@ -32,6 +33,12 @@ export async function resolveTypeSpecEntrypointForDir(
   dir: string,
   reportDiagnostic: DiagnosticHandler,
 ): Promise<string> {
+  // Check for project tspconfig.yaml first — highest priority
+  const config = await loadTypeSpecConfigForPath(host, dir, false, false);
+  if (config.project) {
+    return config.project.entrypoint;
+  }
+
   const pkgJsonPath = resolvePath(dir, "package.json");
   const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
     allowFileNotFound: true,

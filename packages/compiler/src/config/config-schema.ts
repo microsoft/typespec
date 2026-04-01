@@ -18,6 +18,22 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       type: "string",
       nullable: true,
     },
+    project: {
+      oneOf: [
+        { type: "boolean", const: true },
+        {
+          type: "object",
+          properties: {
+            entrypoint: {
+              type: "string",
+              nullable: true,
+            },
+          },
+          additionalProperties: false,
+          required: [],
+        },
+      ],
+    } as any, // AJV typing doesn't handle oneOf with mixed types well
     "environment-variables": {
       type: "object",
       nullable: true,

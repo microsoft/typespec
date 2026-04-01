@@ -3,6 +3,7 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
+import { TypeSpecConfigFilename, loadTypeSpecConfigFile } from "../config/config-loader.js";
 import { debugLoggers } from "./debug.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { ServerLog } from "./types.js";
@@ -27,6 +28,25 @@ export async function resolveEntrypointFile(
   }
 
   while (true) {
+    // Check for project tspconfig.yaml first — highest priority
+    const tspConfigPath = joinPaths(dir, TypeSpecConfigFilename);
+    const tspConfigStat = await doIO(
+      () => host.stat(tspConfigPath),
+      tspConfigPath,
+      logMainFileSearchDiagnostic,
+      options,
+    );
+    if (tspConfigStat?.isFile()) {
+      const config = await loadTypeSpecConfigFile(host, tspConfigPath);
+      if (config.diagnostics.length === 0 && config.project) {
+        logDebug({
+          level: "debug",
+          message: `project entrypoint resolved from tspconfig.yaml (${tspConfigPath}) as ${config.project.entrypoint}`,
+        });
+        return config.project.entrypoint;
+      }
+    }
+
     let pkg: any;
     const pkgPath = joinPaths(dir, "package.json");
     const cached = await fileSystemCache?.get(pkgPath);

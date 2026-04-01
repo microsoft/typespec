@@ -1,0 +1,4 @@
+project:
+  entrypoint: main.tsp
+emit:
+  - "@typespec/http-client-csharp"

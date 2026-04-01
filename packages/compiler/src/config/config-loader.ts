@@ -9,7 +9,12 @@ import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
-import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
+import {
+  TypeSpecConfig,
+  TypeSpecProjectConfig,
+  TypeSpecRawConfig,
+  TypeSpecRawProjectConfig,
+} from "./types.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -180,13 +185,15 @@ async function loadConfigFile(
 
   const emit = data.emit;
   const options = data.options;
+  const configDir = getDirectoryPath(filename);
 
   return omitUndefined({
-    projectRoot: getDirectoryPath(filename),
+    projectRoot: configDir,
     file: yamlScript,
     filename,
     diagnostics,
     extends: data.extends,
+    project: resolveProjectConfig(data.project, configDir),
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",
@@ -197,6 +204,22 @@ async function loadConfigFile(
     options,
     linter: data.linter,
   });
+}
+
+/**
+ * Resolve the raw project config into a normalized project config with absolute paths.
+ */
+function resolveProjectConfig(
+  raw: TypeSpecRawProjectConfig | undefined,
+  configDir: string,
+): TypeSpecProjectConfig | undefined {
+  if (raw === undefined) {
+    return undefined;
+  }
+  const entrypoint = raw === true ? "main.tsp" : (raw.entrypoint ?? "main.tsp");
+  return {
+    entrypoint: resolvePath(configDir, entrypoint),
+  };
 }
 
 export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Diagnostic[] {

@@ -2,6 +2,30 @@ import type { Diagnostic, RuleRef } from "../core/types.js";
 import type { YamlScript } from "../yaml/types.js";
 
 /**
+ * Resolved project configuration for a project boundary.
+ */
+export interface TypeSpecProjectConfig {
+  /**
+   * Resolved absolute path to the entrypoint file.
+   */
+  entrypoint: string;
+}
+
+/**
+ * Raw project configuration as provided in tspconfig.yaml.
+ * Can be `true` (shorthand for all defaults) or an object with explicit settings.
+ */
+export type TypeSpecRawProjectConfig =
+  | true
+  | {
+      /**
+       * Main TypeSpec file for this project, relative to config directory.
+       * @default "main.tsp"
+       */
+      entrypoint?: string;
+    };
+
+/**
  * Represent the normalized user configuration.
  */
 export interface TypeSpecConfig {
@@ -27,6 +51,13 @@ export interface TypeSpecConfig {
    * Path to another TypeSpec config to extend.
    */
   extends?: string;
+
+  /**
+   * Resolved project configuration.
+   * When present, this config defines a project boundary and the directory
+   * containing this file is the project root.
+   */
+  project?: TypeSpecProjectConfig;
 
   /**
    * Environment variables configuration
@@ -76,6 +107,13 @@ export interface TypeSpecConfig {
  */
 export interface TypeSpecRawConfig {
   extends?: string;
+
+  /**
+   * Marks this configuration as a project boundary.
+   * When present, the directory containing this file is the project root.
+   */
+  project?: TypeSpecRawProjectConfig;
+
   "environment-variables"?: Record<string, ConfigEnvironmentVariable>;
   parameters?: Record<string, ConfigParameter>;
 

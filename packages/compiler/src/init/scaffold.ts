@@ -180,6 +180,13 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
+
+  // Mark generated projects as project boundaries
+  if (config.template.target !== "library") {
+    rawConfig ??= {};
+    rawConfig.project = true;
+  }
+
   const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }

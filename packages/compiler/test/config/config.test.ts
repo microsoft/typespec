@@ -134,6 +134,57 @@ describe("compiler: config file loading", () => {
     });
   });
 
+  describe("project config", () => {
+    const loadFullConfig = async (path: string, lookup: boolean = true) => {
+      const fullPath = join(scenarioRoot, path);
+      return loadTypeSpecConfigForPath(NodeHost, fullPath, false, lookup);
+    };
+
+    it("loads project: true shorthand", async () => {
+      const config = await loadFullConfig("project-basic", false);
+      strictEqual(config.diagnostics.length, 0);
+      strictEqual(config.project !== undefined, true);
+      strictEqual(config.project!.entrypoint.endsWith("main.tsp"), true);
+      deepStrictEqual(config.emit, ["openapi"]);
+    });
+
+    it("loads project with explicit entrypoint", async () => {
+      const config = await loadFullConfig("project-entrypoint", false);
+      strictEqual(config.diagnostics.length, 0);
+      strictEqual(config.project !== undefined, true);
+      strictEqual(config.project!.entrypoint.endsWith("src/service.tsp"), true);
+      deepStrictEqual(config.emit, ["openapi"]);
+    });
+
+    it("resolves entrypoint as absolute path relative to config directory", async () => {
+      const config = await loadFullConfig("project-entrypoint", false);
+      const expectedSuffix = join("project-entrypoint", "src", "service.tsp");
+      strictEqual(config.project!.entrypoint.endsWith(expectedSuffix), true);
+    });
+
+    it("config without project field has no project property", async () => {
+      const config = await loadFullConfig("simple", false);
+      strictEqual(config.project, undefined);
+    });
+
+    it("loads nested project configs independently", async () => {
+      const rootConfig = await loadFullConfig("project-nested", false);
+      const nestedConfig = await loadFullConfig("project-nested/services/orders", false);
+
+      strictEqual(rootConfig.project !== undefined, true);
+      strictEqual(nestedConfig.project !== undefined, true);
+
+      strictEqual(rootConfig.project!.entrypoint.endsWith("project-nested/main.tsp"), true);
+      strictEqual(
+        nestedConfig.project!.entrypoint.endsWith("services/orders/main.tsp"),
+        true,
+      );
+
+      deepStrictEqual(rootConfig.emit, ["openapi"]);
+      deepStrictEqual(nestedConfig.emit, ["@typespec/http-client-csharp"]);
+    });
+  });
+
   describe("validation", () => {
     const validator = createJSONSchemaValidator(TypeSpecConfigJsonSchema);
     const file = createSourceFile("<content>", "<path>");
@@ -167,6 +218,28 @@ describe("compiler: config file loading", () => {
 
     it("succeeds if config is valid", () => {
       deepStrictEqual(validate({ options: { openapi: {} } }), []);
+    });
+
+    it("succeeds with project: true", () => {
+      deepStrictEqual(validate({ project: true }), []);
+    });
+
+    it("succeeds with project object with entrypoint", () => {
+      deepStrictEqual(validate({ project: { entrypoint: "src/main.tsp" } }), []);
+    });
+
+    it("succeeds with project object without entrypoint", () => {
+      deepStrictEqual(validate({ project: {} }), []);
+    });
+
+    it("fails with project: false", () => {
+      const diagnostics = validate({ project: false } as any);
+      strictEqual(diagnostics.length > 0, true);
+    });
+
+    it("fails with project containing unknown properties", () => {
+      const diagnostics = validate({ project: { unknown: "value" } } as any);
+      strictEqual(diagnostics.length > 0, true);
     });
   });
 });
