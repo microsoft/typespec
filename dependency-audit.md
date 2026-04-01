@@ -43,7 +43,7 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
   - `packages/spec-api/src/request-validations.ts`
   - `packages/spector/src/actions/server-test.ts`
   - Also remove `@types/deep-equal` from `http-specs`, `spec-api`, `spector`.
-- [ ] **`fs-extra`** — Replace with `node:fs/promises` + `fs.cp()`. Used in 3 eng/ scripts only:
+- [x] **`fs-extra`** — Replace with `node:fs/promises` + `fs.cp()`. Used in 3 eng/ scripts only:
   - `packages/http-client-js/eng/scripts/emit-e2e.js`
   - `packages/http-server-js/eng/scripts/emit-e2e.js`
   - `packages/http-server-csharp/eng/scripts/emit-scenarios.ts`

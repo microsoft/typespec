@@ -74,7 +74,6 @@
     "concurrently": "catalog:",
     "cross-env": "catalog:",
     "execa": "catalog:",
-    "fs-extra": "catalog:",
     "globby": "catalog:",
     "inquirer": "catalog:",
     "ora": "catalog:",

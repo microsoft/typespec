@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { run } from "@typespec/internal-build-utils";
-import { copy, pathExists } from "fs-extra";
-import { mkdir, readFile, rm, writeFile } from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, writeFile } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
 import ora from "ora";
@@ -39,6 +38,10 @@ interface CommandLineArgs {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const tspConfig = join(__dirname, "tspconfig.yaml");
+
+async function pathExists(path: string): Promise<boolean> {
+  return access(path).then(() => true, () => false);
+}
 
 const basePath = join(__dirname, "../..");
 const logDirRoot = join(basePath, "temp", "emit-scenarios-logs");
@@ -78,7 +81,8 @@ async function copySelectiveFiles(
   for (const file of files) {
     const src = join(sourceDir, file);
     const dest = join(targetDir, file);
-    await copy(src, dest);
+    await mkdir(dirname(dest), { recursive: true });
+    await copyFile(src, dest);
   }
 }
 

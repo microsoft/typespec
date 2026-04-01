@@ -78,7 +78,6 @@
     "@vitest/ui": "catalog:",
     "decimal.js": "catalog:",
     "express": "catalog:",
-    "fs-extra": "catalog:",
     "globby": "catalog:",
     "inquirer": "catalog:",
     "morgan": "catalog:",

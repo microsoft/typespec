@@ -321,9 +321,6 @@ catalogs:
     express:
       specifier: ^5.2.1
       version: 5.2.1
-    fs-extra:
-      specifier: ^11.3.4
-      version: 11.3.4
     globby:
       specifier: ~16.1.1
       version: 16.1.1
@@ -1270,9 +1267,6 @@ importers:
       execa:
         specifier: 'catalog:'
         version: 9.6.1
-      fs-extra:
-        specifier: 'catalog:'
-        version: 11.3.4
       globby:
         specifier: 'catalog:'
         version: 16.1.1
@@ -1370,9 +1364,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
-      fs-extra:
-        specifier: 'catalog:'
-        version: 11.3.4
       globby:
         specifier: 'catalog:'
         version: 16.1.1
@@ -1449,9 +1440,6 @@ importers:
       express:
         specifier: 'catalog:'
         version: 5.2.1
-      fs-extra:
-        specifier: 'catalog:'
-        version: 11.3.4
       globby:
         specifier: 'catalog:'
         version: 16.1.1
