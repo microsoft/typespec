@@ -79,7 +79,7 @@
     "decimal.js": "catalog:",
     "express": "catalog:",
     "globby": "catalog:",
-    "inquirer": "catalog:",
+    "@inquirer/prompts": "catalog:",
     "morgan": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",

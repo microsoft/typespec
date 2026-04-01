@@ -75,7 +75,7 @@
     "cross-env": "catalog:",
     "execa": "catalog:",
     "globby": "catalog:",
-    "inquirer": "catalog:",
+    "@inquirer/prompts": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",
     "picocolors": "catalog:",

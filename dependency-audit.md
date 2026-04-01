@@ -23,21 +23,6 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
 
 ## 🟠 Replace with Node.js Built-ins
 
-- [ ] **`rimraf`** — Replace with `fs.rmSync(path, { recursive: true, force: true })` or `node -e` in npm scripts. Used in `clean`/`purge` scripts across 36 packages + 1 test file (`packages/typespec-vscode/test/extension/create-typespec.test.ts`). Some runtime files already use `fs/promises.rm` directly.
-- [ ] **`globby`** — Replace with `node:fs.glob` (Node 22+). Used in 7 files:
-  - `packages/compiler/src/testing/test-host.ts`
-  - `packages/compiler/src/core/formatter-fs.ts`
-  - `packages/http-client-js/eng/scripts/emit-e2e.js`
-  - `packages/http-server-js/eng/scripts/emit-e2e.js`
-  - `packages/http-server-csharp/eng/scripts/emit-scenarios.ts`
-  - `packages/spector/src/utils/file-utils.ts`
-  - `packages/tsp-integration/src/validate.ts`
-- [ ] **`source-map-support`** — Replace with Node.js `--enable-source-maps` flag. Used in 4 CLI entry points:
-  - `packages/compiler/src/core/cli/cli.ts`
-  - `packages/pack/src/cli.ts`
-  - `packages/bundler/src/cli.ts`
-  - `packages/tspd/src/cli.ts`
-  - Last npm update: June 2023.
 - [x] **`deep-equal`** — Replace with `node:util.isDeepStrictEqual()`. Used in 3 files:
   - `packages/spec-api/src/expectation.ts`
   - `packages/spec-api/src/request-validations.ts`
@@ -47,17 +32,12 @@ Excludes standalone emitters: `http-client-csharp`, `http-client-java`, `http-cl
   - `packages/http-client-js/eng/scripts/emit-e2e.js`
   - `packages/http-server-js/eng/scripts/emit-e2e.js`
   - `packages/http-server-csharp/eng/scripts/emit-scenarios.ts`
-- [ ] **`which`** — Replace with Node.js built-in PATH resolution. Used in 1 file:
-  - `packages/typespec-vscode/src/utils.ts`
-  - Also remove `@types/which`.
-- [ ] **`strip-json-comments`** — Replace with inline function or JSON5. Used in 1 file:
-  - `packages/internal-build-utils/src/prerelease.ts`
 
 ---
 
 ## 🟠 Library Consolidation
 
-- [ ] **`inquirer` → `@inquirer/prompts`** — The legacy monolith `inquirer` (v13) is used in 3 eng/ scripts. The modern modular `@inquirer/prompts` (v8) is already used in the compiler. Consolidate to `@inquirer/prompts`.
+- [x] **`inquirer` → `@inquirer/prompts`** — The legacy monolith `inquirer` (v13) is used in 3 eng/ scripts. The modern modular `@inquirer/prompts` (v8) is already used in the compiler. Consolidate to `@inquirer/prompts`.
   - `inquirer` locations:
     - `packages/http-client-js/eng/scripts/emit-e2e.js`
     - `packages/http-server-js/eng/scripts/emit-e2e.js`
