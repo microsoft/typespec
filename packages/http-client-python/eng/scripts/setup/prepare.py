@@ -15,6 +15,7 @@ if not sys.version_info >= (3, 9, 0):
 from pathlib import Path
 from package_manager import create_venv_with_package_manager, install_packages
 
+# eng/scripts/setup/prepare.py -> need to go up 4 levels to get to package root
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 

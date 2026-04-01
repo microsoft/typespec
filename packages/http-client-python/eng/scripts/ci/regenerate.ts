@@ -22,15 +22,65 @@ import {
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
-    flavor: { type: "string" },
-    name: { type: "string" },
-    debug: { type: "boolean" },
+    flavor: { type: "string", short: "f" },
+    name: { type: "string", short: "n" },
+    debug: { type: "boolean", short: "d" },
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
     pyodide: { type: "boolean" },
+    help: { type: "boolean", short: "h" },
   },
 });
+
+// Show help message
+if (argv.values.help) {
+  console.log(`
+${chalk.bold("Usage:")} tsx regenerate.ts [options]
+
+${chalk.bold("Description:")}
+  Regenerates Python SDK code from TypeSpec definitions.
+
+${chalk.bold("Options:")}
+  ${chalk.cyan("-f, --flavor <azure|unbranded>")}
+      SDK flavor to regenerate. If not specified, regenerates both flavors.
+
+  ${chalk.cyan("-n, --name <pattern>")}
+      Filter packages by name pattern (case-insensitive substring match).
+      Examples:
+        --name xml              Regenerate packages containing "xml"
+        --name authentication   Regenerate authentication packages
+        --name type/array       Regenerate the type/array package
+
+  ${chalk.cyan("-d, --debug")}
+      Enable debug output during regeneration.
+
+  ${chalk.cyan("--pyodide")}
+      Use Pyodide (WebAssembly Python) instead of native Python.
+
+  ${chalk.cyan("-h, --help")}
+      Show this help message.
+
+${chalk.bold("Examples:")}
+  ${chalk.dim("# Regenerate all packages for both flavors")}
+  tsx regenerate.ts
+
+  ${chalk.dim("# Regenerate only Azure packages")}
+  tsx regenerate.ts --flavor azure
+  tsx regenerate.ts -f azure
+
+  ${chalk.dim("# Regenerate a specific package by name")}
+  tsx regenerate.ts --flavor azure --name authentication-api-key
+  tsx regenerate.ts -f azure -n authentication
+
+  ${chalk.dim("# Regenerate all XML-related packages")}
+  tsx regenerate.ts --name xml
+
+  ${chalk.dim("# Regenerate with debug output")}
+  tsx regenerate.ts -f unbranded -n array --debug
+`);
+  process.exit(0);
+}
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir

@@ -25,6 +25,7 @@ from pathlib import Path
 from venvtools import python_run
 from package_manager import install_packages, create_venv_with_package_manager
 
+# eng/scripts/setup/build_pygen_wheel.py -> need to go up 4 levels to get to package root
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 

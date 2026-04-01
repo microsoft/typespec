@@ -6,7 +6,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "../../");
+const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 const testsDir = join(root, "tests");
 
 // ANSI color codes

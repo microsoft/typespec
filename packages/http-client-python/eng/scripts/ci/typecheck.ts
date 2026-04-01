@@ -5,7 +5,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "../../");
+const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
 const testsDir = join(root, "tests");
 
 // Get Python venv path
@@ -123,7 +123,7 @@ async function runMypyOnPygen(): Promise<boolean> {
     "-m",
     "mypy",
     "generator/pygen",
-    "--config-file=scripts/ci/config/mypy.ini",
+    "--config-file=eng/scripts/ci/config/mypy.ini",
     "--ignore-missing",
   ]);
 }
@@ -143,7 +143,7 @@ async function runPyrightOnPygen(): Promise<boolean> {
     "-m",
     "pyright",
     "-p",
-    "scripts/ci/config/pyrightconfig.json",
+    "eng/scripts/ci/config/pyrightconfig.json",
     "generator/pygen",
   ]);
 }
