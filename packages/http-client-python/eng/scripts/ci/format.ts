@@ -100,23 +100,28 @@ function runCommand(command: string, args: string[]): Promise<boolean> {
 
 async function formatEmitter(check: boolean): Promise<boolean> {
   console.log(`\n${pc.bold("=== Formatting TypeScript Emitter ===")}\n`);
-  // Use prettier directly for check mode, otherwise use pnpm format:dir
+  // Use prettier directly - it's available via node_modules/.bin in PATH
   // Exclude CHANGELOG.md as it's managed by chronus changelog tool
-  if (check) {
-    return runCommand("pnpm", [
-      "exec",
-      "prettier",
-      "--check",
-      "emitter/",
-      "eng/scripts/",
-      "*.json",
-      "README.md",
-      "CONTRIBUTING.md",
-      "ARCHITECTURE.md",
-    ]);
-  } else {
-    return runCommand("pnpm", ["-w", "format:dir", "packages/http-client-python"]);
-  }
+  const args = check
+    ? [
+        "--check",
+        "emitter/",
+        "eng/scripts/",
+        "*.json",
+        "README.md",
+        "CONTRIBUTING.md",
+        "ARCHITECTURE.md",
+      ]
+    : [
+        "--write",
+        "emitter/",
+        "eng/scripts/",
+        "*.json",
+        "README.md",
+        "CONTRIBUTING.md",
+        "ARCHITECTURE.md",
+      ];
+  return runCommand("prettier", args);
 }
 
 async function formatPygenSource(check: boolean): Promise<boolean> {

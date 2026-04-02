@@ -76,9 +76,15 @@ ${pc.bold("Examples:")}
   process.exit(0);
 }
 
-function runCommand(command: string, args: string[], cwd?: string): Promise<boolean> {
+function runCommand(
+  command: string,
+  args: string[],
+  cwd?: string,
+  displayName?: string,
+): Promise<boolean> {
+  const name = displayName || command;
   return new Promise((resolve) => {
-    console.log(`${pc.cyan("[RUN]")} ${command} ${args.join(" ")}`);
+    console.log(`${pc.cyan("[RUN]")} ${name} ${args.join(" ")}`);
     const proc = spawn(command, args, {
       cwd: cwd || root,
       stdio: "inherit",
@@ -87,16 +93,16 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 
     proc.on("close", (code) => {
       if (code === 0) {
-        console.log(`${pc.green("[PASS]")} ${command} completed successfully`);
+        console.log(`${pc.green("[PASS]")} ${name} completed successfully`);
         resolve(true);
       } else {
-        console.log(`${pc.red("[FAIL]")} ${command} failed with code ${code}`);
+        console.log(`${pc.red("[FAIL]")} ${name} failed with code ${code}`);
         resolve(false);
       }
     });
 
     proc.on("error", (err) => {
-      console.log(`${pc.red("[ERROR]")} ${command}: ${err.message}`);
+      console.log(`${pc.red("[ERROR]")} ${name}: ${err.message}`);
       resolve(false);
     });
   });
@@ -104,12 +110,13 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
-  // Run eslint from monorepo root to use the shared eslint config
-  // Use pnpm exec to ensure we use the monorepo's installed eslint
+  // Run eslint from monorepo root to use the shared config and plugins
+  const eslintBin = join(monorepoRoot, "node_modules", ".bin", "eslint");
   return runCommand(
-    "pnpm",
-    ["exec", "eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
+    eslintBin,
+    ["packages/http-client-python/emitter/", "--max-warnings=0"],
     monorepoRoot,
+    "eslint",
   );
 }
 

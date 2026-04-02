@@ -218,15 +218,11 @@ async function runEmitterTests(): Promise<ToxResult> {
   console.log(`${pc.blue("[START]")} emitter (vitest)`);
 
   return new Promise((resolve) => {
-    const proc: ChildProcess = spawn(
-      "pnpm",
-      ["exec", "vitest", "run", "-c", "./emitter/vitest.config.ts"],
-      {
-        cwd: root,
-        stdio: !argv.values.quiet ? "inherit" : "pipe",
-        shell: true,
-      },
-    );
+    const proc: ChildProcess = spawn("vitest", ["run", "-c", "./emitter/vitest.config.ts"], {
+      cwd: root,
+      stdio: !argv.values.quiet ? "inherit" : "pipe",
+      shell: true,
+    });
 
     let stderr = "";
     if (argv.values.quiet && proc.stderr) {
