@@ -29,6 +29,11 @@ def make_body_parameter_yaml(property_to_parameter_name: dict) -> dict:
     }
 
 
+def mangled_property_name(name: str) -> str:
+    """Return the Python-mangled form of a name when used as a model property client name."""
+    return name + PadType.PROPERTY.value
+
+
 def test_escaped_reserved_words():
     expected_conversion_model = {"Self": "Self", "And": "AndModel"}
     for name in expected_conversion_model:
@@ -59,7 +64,7 @@ def test_mapping_protocol_names_are_tsp_property_reserved_words():
     # property *client names* must be renamed (e.g. items -> items_property).
     for name in RESERVED_TSP_MODEL_PROPERTIES:
         result = make_tsp_plugin().pad_reserved_words(name, PadType.PROPERTY, {})
-        expected = f"{name}{PadType.PROPERTY.value}"
+        expected = mangled_property_name(name)
         assert result == expected, (
             f"Expected '{name}' to be padded to '{expected}' "
             f"when used as a model property client name, but got '{result}'"
@@ -96,7 +101,7 @@ def test_update_parameter_property_to_parameter_name_wire_keys_not_padded(mappin
         f"Wire name '{mapping_name}' must remain as the key in propertyToParameterName "
         f"but was not found. Current keys: {list(yaml_data['propertyToParameterName'].keys())}"
     )
-    mangled = f"{mapping_name}{PadType.PROPERTY}"
+    mangled = mangled_property_name(mapping_name)
     assert mangled not in yaml_data["propertyToParameterName"], (
         f"Mangled name '{mangled}' must NOT appear as a key in propertyToParameterName "
         f"because keys are wire names, not Python property names."
@@ -150,7 +155,7 @@ def test_update_parameter_all_mapping_names_wire_names_preserved():
             f"Wire name '{wire_name}' was incorrectly mangled. "
             f"Current keys: {list(result.keys())}"
         )
-        mangled = f"{wire_name}{PadType.PROPERTY}"
+        mangled = mangled_property_name(wire_name)
         assert mangled not in result, (
             f"Mangled key '{mangled}' must not appear; wire names must not be padded."
         )
