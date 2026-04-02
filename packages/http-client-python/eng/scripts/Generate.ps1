@@ -31,8 +31,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Regeneration failed" }
 
     Write-Host "`n=== Regenerating documentation ===" -ForegroundColor Cyan
-    & npm run regen-docs
-    if ($LASTEXITCODE -ne 0) { throw "Documentation regeneration failed" }
+    # Check if tspd is available (requires full monorepo build)
+    $tspdCli = Join-Path $packageRoot "../../packages/tspd/dist/src/cli.js"
+    if (Test-Path $tspdCli) {
+        & npm run regen-docs
+        if ($LASTEXITCODE -ne 0) { throw "Documentation regeneration failed" }
+    } else {
+        Write-Host "Skipping documentation regeneration (tspd not built)" -ForegroundColor Yellow
+        Write-Host "Run from monorepo root with full build to regenerate docs" -ForegroundColor Yellow
+    }
 
     Write-Host "`n=== Generation complete ===" -ForegroundColor Green
 }
