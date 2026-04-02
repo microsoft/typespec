@@ -4904,3 +4904,46 @@ def test_eq_nested_models():
         optional_myself=OptionalModel(optional_str="inner"),
     )
     assert model1 != model2_different_pet
+
+
+# --- Regression test for the spread-body wire-name bug fix ---
+def test_as_attribute_dict_with_mapping_protocol_property_names(core_library):
+    """Verify that azure.core.serialization.as_attribute_dict still returns Python attribute names
+    (e.g. 'items_property') even after the preprocess fix that corrects wire names in
+    propertyToParameterName.  The fix only affects spread body parameter wire names; it must NOT
+    affect model property renaming (items -> items_property on the Python side).
+    """
+    try:
+        # azure-flavored generated package layout
+        from specialwords.models import DictMethods
+    except ImportError:
+        # unbranded-flavored generated package layout
+        from specialwords.modelproperties.models import DictMethods  # type: ignore[no-redef]
+
+    # Build from wire names (as would arrive in a service response)
+    wire_response = {
+        "keys": "ok",
+        "items": "ok",
+        "values": "ok",
+        "popitem": "ok",
+        "clear": "ok",
+        "update": "ok",
+        "setdefault": "ok",
+        "pop": "ok",
+        "get": "ok",
+        "copy": "ok",
+    }
+    model = DictMethods(wire_response)
+
+    # model.as_dict() must return the WIRE names
+    assert model.as_dict() == wire_response
+
+    # as_attribute_dict() must return the PYTHON attribute names (padded)
+    result = core_library.serialization.as_attribute_dict(model)
+    expected = {k + "_property": v for k, v in wire_response.items()}
+    assert result == expected, (
+        f"as_attribute_dict() returned wrong keys.\n"
+        f"Expected: {expected}\n"
+        f"Got:      {result}\n"
+        f"The preprocess fix must NOT rename model property wire names."
+    )
