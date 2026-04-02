@@ -86,15 +86,22 @@ function runCommand(
   const name = displayName || command;
 
   // Add node_modules/.bin directories to PATH so commands like eslint can be found
+  // Also set NODE_PATH so that config files can resolve packages from monorepo's node_modules
   const pathSep = process.platform === "win32" ? ";" : ":";
   const binPaths = [
     join(workingDir, "node_modules", ".bin"),
     join(root, "node_modules", ".bin"),
     join(monorepoRoot, "node_modules", ".bin"),
   ].join(pathSep);
+  const nodePaths = [
+    join(workingDir, "node_modules"),
+    join(root, "node_modules"),
+    join(monorepoRoot, "node_modules"),
+  ].join(pathSep);
   const env = {
     ...process.env,
     PATH: `${binPaths}${pathSep}${process.env.PATH}`,
+    NODE_PATH: nodePaths,
   };
 
   return new Promise((resolve) => {
