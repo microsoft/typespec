@@ -82,13 +82,28 @@ function runCommand(
   cwd?: string,
   displayName?: string,
 ): Promise<boolean> {
+  const workingDir = cwd || root;
   const name = displayName || command;
+
+  // Add node_modules/.bin directories to PATH so commands like eslint can be found
+  const pathSep = process.platform === "win32" ? ";" : ":";
+  const binPaths = [
+    join(workingDir, "node_modules", ".bin"),
+    join(root, "node_modules", ".bin"),
+    join(monorepoRoot, "node_modules", ".bin"),
+  ].join(pathSep);
+  const env = {
+    ...process.env,
+    PATH: `${binPaths}${pathSep}${process.env.PATH}`,
+  };
+
   return new Promise((resolve) => {
     console.log(`${pc.cyan("[RUN]")} ${name} ${args.join(" ")}`);
     const proc = spawn(command, args, {
-      cwd: cwd || root,
+      cwd: workingDir,
       stdio: "inherit",
       shell: true,
+      env,
     });
 
     proc.on("close", (code) => {
@@ -111,12 +126,10 @@ function runCommand(
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
   // Run eslint from monorepo root to use the shared config and plugins
-  const eslintBin = join(monorepoRoot, "node_modules", ".bin", "eslint");
   return runCommand(
-    eslintBin,
+    "eslint",
     ["packages/http-client-python/emitter/", "--max-warnings=0"],
     monorepoRoot,
-    "eslint",
   );
 }
 

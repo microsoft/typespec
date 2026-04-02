@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../../");
+const monorepoRoot = join(root, "../../");
 const testsDir = join(root, "tests");
 
 const argv = parseArgs({
@@ -217,11 +218,23 @@ async function runEmitterTests(): Promise<ToxResult> {
   const startTime = Date.now();
   console.log(`${pc.blue("[START]")} emitter (vitest)`);
 
+  // Add node_modules/.bin directories to PATH so vitest can be found
+  const pathSep = process.platform === "win32" ? ";" : ":";
+  const binPaths = [
+    join(root, "node_modules", ".bin"),
+    join(monorepoRoot, "node_modules", ".bin"),
+  ].join(pathSep);
+  const env = {
+    ...process.env,
+    PATH: `${binPaths}${pathSep}${process.env.PATH}`,
+  };
+
   return new Promise((resolve) => {
     const proc: ChildProcess = spawn("vitest", ["run", "-c", "./emitter/vitest.config.ts"], {
       cwd: root,
       stdio: !argv.values.quiet ? "inherit" : "pipe",
       shell: true,
+      env,
     });
 
     let stderr = "";
