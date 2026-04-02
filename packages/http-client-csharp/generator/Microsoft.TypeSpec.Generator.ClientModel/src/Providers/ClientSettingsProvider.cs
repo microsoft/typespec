@@ -180,6 +180,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
                     }
                 }
+                else if (type.IsStruct)
+                {
+                    // Non-enum structs (e.g. string-wrapping types like audience structs)
+                    // are bound using the same pattern as extensible enums: new TypeName(stringValue)
+                    AppendEnumBinding(body, sectionParam, propName, varName, type);
+                }
                 else
                 {
                     AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
