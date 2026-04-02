@@ -134,12 +134,13 @@ function runCommand(
 
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
-  // Run eslint from monorepo root using npm exec to ensure proper module resolution
+  // Run eslint with local config to avoid dependency on monorepo's eslint.config.js
+  // This ensures the package can be linted in CI without full monorepo dependencies
   return runCommand(
-    "npm",
-    ["exec", "--", "eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
-    monorepoRoot,
-    "eslint packages/http-client-python/emitter/ --max-warnings=0",
+    "eslint",
+    ["emitter/", "--config", "eng/scripts/ci/config/eslint-ci.config.mjs", "--max-warnings=0"],
+    root,
+    "eslint emitter/ --max-warnings=0",
   );
 }
 
