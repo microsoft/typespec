@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -837,6 +838,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.AreEqual("Clients", options.SectionName);
             Assert.AreEqual("options", options.OptionsRef);
             Assert.IsTrue(options.GenerateNuGetTargets);
+        }
+
+        [Test]
+        public async Task Generate_IncludesCustomCodeOptionsProperties()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestServiceOptions with an "Audience" property.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.ClientOptions, "ClientOptions should not be null");
+            Assert.IsNotNull(clientProvider.ClientOptions!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Find the options definition
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should reference a local definition");
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef, $"Options definition '{defName}' should exist");
+
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension with custom properties");
+
+            // Verify the custom "Audience" property from the partial class is included
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties, "Extension properties should exist");
+            var audienceProp = extensionProperties!["Audience"];
+            Assert.IsNotNull(audienceProp, "Custom code 'Audience' property should be included in the schema");
+            Assert.AreEqual("string", audienceProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
+        public async Task Generate_IncludesCustomConstructorParameters()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestService with a constructor that takes a "connectionString" parameter.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify the custom "ConnectionString" constructor parameter appears as a client-level property
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry, "TestService client entry should exist");
+
+            var connectionStringProp = clientEntry!["properties"]?["ConnectionString"];
+            Assert.IsNotNull(connectionStringProp,
+                "Custom constructor parameter 'connectionString' should appear as 'ConnectionString' in the schema");
+            Assert.AreEqual("string", connectionStringProp!["type"]?.GetValue<string>());
         }
 
         /// <summary>

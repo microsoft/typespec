@@ -105,6 +105,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this));
             }
 
+            // Include custom constructor parameters from custom code (e.g., hand-written constructors
+            // added via partial classes) that are not already covered by generated parameters.
+            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            var customConstructors = _clientProvider.CustomCodeView?.Constructors;
+            if (customConstructors != null)
+            {
+                var knownProps = new HashSet<string>(properties.Select(p => p.Name));
+                knownProps.Add("Credential");
+                knownProps.Add("Options");
+                foreach (var ctor in customConstructors)
+                {
+                    foreach (var param in ctor.Signature.Parameters)
+                    {
+                        var propName = param.Name.ToIdentifierName();
+                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        {
+                            properties.Add(new PropertyProvider(
+                                null,
+                                MethodSignatureModifiers.Public,
+                                param.Type.WithNullable(true),
+                                propName,
+                                new AutoPropertyBody(true),
+                                this));
+                            knownProps.Add(propName);
+                        }
+                    }
+                }
+            }
+
             var clientOptions = _clientProvider.EffectiveClientOptions;
             if (clientOptions != null)
             {
@@ -134,6 +163,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var propName = param.Name.ToIdentifierName();
                 AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
+            }
+
+            // Bind custom constructor parameters from custom code
+            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            var customConstructors = _clientProvider.CustomCodeView?.Constructors;
+            if (customConstructors != null)
+            {
+                var knownProps = new HashSet<string>();
+                if (EndpointProperty != null)
+                {
+                    knownProps.Add(EndpointProperty.Name);
+                }
+                foreach (var param in OtherRequiredParams)
+                {
+                    knownProps.Add(param.Name.ToIdentifierName());
+                }
+                knownProps.Add("Credential");
+                knownProps.Add("Options");
+                foreach (var ctor in customConstructors)
+                {
+                    foreach (var param in ctor.Signature.Parameters)
+                    {
+                        var propName = param.Name.ToIdentifierName();
+                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        {
+                            AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
+                            knownProps.Add(propName);
+                        }
+                    }
+                }
             }
 
             var clientOptions = _clientProvider.EffectiveClientOptions;
@@ -390,6 +449,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
             ifExistsStatement.Add(This.Property(propName).Assign(New.Instance(type, sectionVar)).Terminate());
             body.Add(ifExistsStatement);
+        }
+
+        /// <summary>
+        /// Checks if a type is a standard client parameter type that should not be included as a
+        /// custom settings property (credential types, endpoint types, or options types).
+        /// </summary>
+        internal static bool IsStandardParameterType(CSharpType type)
+        {
+            var effectiveType = type.IsNullable ? type.WithNullable(false) : type;
+
+            // Skip endpoint types (Uri)
+            if (effectiveType.IsFrameworkType && effectiveType.FrameworkType == typeof(Uri))
+            {
+                return true;
+            }
+
+            // Skip credential types — compare by both type equality and name since the CSharpType
+            // from CustomCodeView (Roslyn-based) may not directly equal typeof()-based CSharpType.
+            var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            if (tokenCredentialType != null)
+            {
+                if (effectiveType.Equals(tokenCredentialType) ||
+                    effectiveType.Name == tokenCredentialType.Name)
+                {
+                    return true;
+                }
+            }
+
+            // Skip options types (derives from ClientPipelineOptions)
+            var optionsType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType;
+            if (effectiveType.Equals(optionsType) || effectiveType.Name == optionsType.Name)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

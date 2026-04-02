@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -912,5 +913,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             c.Signature?.Initializer != null &&
             c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
             c.Signature.Parameters.Any(p => p.Name == "settings");
+
+        [Test]
+        public async Task TestProperties_IncludesCustomConstructorParameters()
+        {
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var settings = clientProvider.ClientSettings;
+            Assert.IsNotNull(settings);
+
+            var connectionStringProp = settings!.Properties
+                .FirstOrDefault(p => p.Name == "ConnectionString");
+            Assert.IsNotNull(connectionStringProp,
+                "Settings should include 'ConnectionString' property from custom constructor parameter");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_BindsCustomConstructorParameters()
+        {
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+
+            var bindCoreMethod = settings!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("ConnectionString"),
+                "BindCore should bind the custom constructor parameter 'ConnectionString' from configuration");
+        }
     }
 }

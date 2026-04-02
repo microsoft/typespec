@@ -115,6 +115,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 properties[propName] = GetJsonSchemaForType(param.Type, localDefinitions);
             }
 
+            // Add custom constructor parameters from custom code (e.g., hand-written constructors
+            // added via partial classes) that are not already covered by generated parameters.
+            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            var customConstructors = client.CustomCodeView?.Constructors;
+            if (customConstructors != null)
+            {
+                var knownProps = new HashSet<string>(properties.Select(p => p.Key));
+                knownProps.Add("Credential");
+                knownProps.Add("Options");
+                foreach (var ctor in customConstructors)
+                {
+                    foreach (var param in ctor.Signature.Parameters)
+                    {
+                        var propName = param.Name.ToIdentifierName();
+                        if (!knownProps.Contains(propName) &&
+                            !ClientSettingsProvider.IsStandardParameterType(param.Type))
+                        {
+                            properties[propName] = GetJsonSchemaForType(param.Type, localDefinitions);
+                            knownProps.Add(propName);
+                        }
+                    }
+                }
+            }
+
             // Add credential reference (defined in System.ClientModel base schema)
             properties["Credential"] = new JsonObject
             {
@@ -157,6 +181,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 var customProperties = clientOptions.Properties
                     .Where(p => p.Modifiers.HasFlag(MethodSignatureModifiers.Public))
                     .ToList();
+
+                // Also include custom code properties (e.g., hand-written properties added via partial classes)
+                // that are not already in the generated properties set.
+                var generatedPropNames = new HashSet<string>(customProperties.Select(p => p.Name));
+                var customCodeProperties = clientOptions.CustomCodeView?.Properties;
+                if (customCodeProperties != null)
+                {
+                    foreach (var prop in customCodeProperties)
+                    {
+                        if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                            !generatedPropNames.Contains(prop.Name))
+                        {
+                            customProperties.Add(prop);
+                            generatedPropNames.Add(prop.Name);
+                        }
+                    }
+                }
 
                 var allOfArray = new JsonArray
                 {
