@@ -105,7 +105,9 @@ function runCommand(
   };
 
   return new Promise((resolve) => {
-    console.log(`${pc.cyan("[RUN]")} ${name} ${args.join(" ")}`);
+    // If displayName is provided, show it as-is; otherwise show command + args
+    const logMessage = displayName ? displayName : `${command} ${args.join(" ")}`;
+    console.log(`${pc.cyan("[RUN]")} ${logMessage}`);
     const proc = spawn(command, args, {
       cwd: workingDir,
       stdio: "inherit",
@@ -132,11 +134,12 @@ function runCommand(
 
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
-  // Run eslint from monorepo root to use the shared config and plugins
+  // Run eslint from monorepo root using npm exec to ensure proper module resolution
   return runCommand(
-    "eslint",
-    ["packages/http-client-python/emitter/", "--max-warnings=0"],
+    "npm",
+    ["exec", "--", "eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
     monorepoRoot,
+    "eslint packages/http-client-python/emitter/ --max-warnings=0",
   );
 }
 
