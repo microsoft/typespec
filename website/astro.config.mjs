@@ -6,12 +6,12 @@ import { processSidebar } from "@typespec/astro-utils/sidebar";
 import astroExpressiveCode from "astro-expressive-code";
 import rehypeAstroRelativeMarkdownLinks from "astro-rehype-relative-markdown-links";
 import { defineConfig } from "astro/config";
-import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import current from "./src/content/current-sidebar";
+import { computeSriHash } from "./src/utils/sri-hash";
 
 /** Scan the release-notes directory and return the slug of the latest release note. */
 function getLatestReleaseNoteSlug() {
@@ -44,9 +44,7 @@ const latestReleaseNote = getLatestReleaseNoteSlug();
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
-// Compute subresource integrity hash for 1ds-init.js at build time
-const initJsContent = readFileSync(resolve(import.meta.dirname, "public/1ds-init.js"));
-const initJsIntegrity = `sha384-${createHash("sha384").update(initJsContent).digest("base64")}`;
+const initJsIntegrity = computeSriHash("1ds-init.js");
 
 // https://astro.build/config
 export default defineConfig({
