@@ -271,6 +271,43 @@ namespace ModelProperties {
   @route("dict-methods")
   op dictMethods(@body body: DictMethods): void;
 
+  @scenario
+  @scenarioDoc("""
+    Verify that spread body parameters can use names that are Python dict methods.
+    These names (keys, items, values, etc.) may conflict with Python's dict class methods,
+    but must still be sent with the correct wire name.
+    
+    Send
+    
+    ```json
+    {
+      "keys": "ok",
+      "items": "ok",
+      "values": "ok",
+      "popitem": "ok",
+      "clear": "ok",
+      "update": "ok",
+      "setdefault": "ok",
+      "pop": "ok",
+      "get": "ok",
+      "copy": "ok"
+    }
+    ```
+    """)
+  @route("spread-dict-methods")
+  op spreadDictMethods(
+    keys: string,
+    items: string,
+    values: string,
+    popitem: string,
+    clear: string,
+    update: string,
+    setdefault: string,
+    pop: string,
+    get: string,
+    copy: string,
+  ): void;
+
   // Test for model property named "list" which is a reserved word in many languages
   model ModelWithList {
     list: string;

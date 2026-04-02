@@ -63,6 +63,27 @@ async def test_model_properties_dict_methods(client: SpecialWordsClient):
 
 
 @pytest.mark.asyncio
+async def test_model_properties_spread_dict_methods(client: SpecialWordsClient):
+    """Regression test: spread body parameters named with Mapping protocol names must use
+    the original name as the wire key, not the Python-mangled attribute name.
+
+    For example, 'items' must be sent as {"items": ...} on the wire, not {"items_property": ...}.
+    """
+    await client.model_properties.spread_dict_methods(
+        keys="ok",
+        items="ok",
+        values="ok",
+        popitem="ok",
+        clear="ok",
+        update="ok",
+        setdefault="ok",
+        pop="ok",
+        get="ok",
+        copy="ok",
+    )
+
+
+@pytest.mark.asyncio
 async def test_model_properties_with_list(client: SpecialWordsClient):
     await client.model_properties.with_list(model_properties_models.ModelWithList(list="ok"))
 

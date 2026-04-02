@@ -39,6 +39,29 @@ Scenarios.SpecialWords_ModelProperties_dictMethods = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
+Scenarios.SpecialWords_ModelProperties_spreadDictMethods = passOnSuccess({
+  uri: "/special-words/model-properties/spread-dict-methods",
+  method: "post",
+  request: {
+    body: json({
+      keys: "ok",
+      items: "ok",
+      values: "ok",
+      popitem: "ok",
+      clear: "ok",
+      update: "ok",
+      setdefault: "ok",
+      pop: "ok",
+      get: "ok",
+      copy: "ok",
+    }),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});
+
 Scenarios.SpecialWords_ModelProperties_withList = passOnSuccess({
   uri: "/special-words/model-properties/list",
   method: "post",

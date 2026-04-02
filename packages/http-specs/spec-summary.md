@@ -4411,6 +4411,31 @@ Send
 { "SameAsModel": "ok" }
 ```
 
+### SpecialWords_ModelProperties_spreadDictMethods
+
+- Endpoint: `get /special-words/model-properties/spread-dict-methods`
+
+Verify that spread body parameters can use names that are Python dict methods.
+These names (keys, items, values, etc.) may conflict with Python's dict class methods,
+but must still be sent with the correct wire name.
+
+Send
+
+```json
+{
+  "keys": "ok",
+  "items": "ok",
+  "values": "ok",
+  "popitem": "ok",
+  "clear": "ok",
+  "update": "ok",
+  "setdefault": "ok",
+  "pop": "ok",
+  "get": "ok",
+  "copy": "ok"
+}
+```
+
 ### SpecialWords_ModelProperties_withList
 
 - Endpoint: `get /special-words/model-properties/list`
