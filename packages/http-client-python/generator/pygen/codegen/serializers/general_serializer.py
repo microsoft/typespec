@@ -29,7 +29,7 @@ VERSION_MAP = {
 }
 
 MIN_PYTHON_VERSION = "3.9"
-MAX_PYTHON_VERSION = "3.13"
+MAX_PYTHON_VERSION = "3.14"
 
 
 class GeneralSerializer(BaseSerializer):
