@@ -117,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             // Add custom constructor parameters from custom code (e.g., hand-written constructors
             // added via partial classes) that are not already covered by generated parameters.
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration.
             var customConstructors = client.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -126,6 +127,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();

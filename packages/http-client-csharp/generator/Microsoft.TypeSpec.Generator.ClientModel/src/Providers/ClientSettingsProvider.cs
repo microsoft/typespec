@@ -107,7 +107,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Include custom constructor parameters from custom code (e.g., hand-written constructors
             // added via partial classes) that are not already covered by generated parameters.
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration binding.
             var customConstructors = _clientProvider.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -116,6 +117,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
@@ -165,8 +171,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
             }
 
-            // Bind custom constructor parameters from custom code
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Bind custom constructor parameters from custom code.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration binding.
             var customConstructors = _clientProvider.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -183,6 +190,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();

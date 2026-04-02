@@ -919,6 +919,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.AreEqual("string", connectionStringProp!["type"]?.GetValue<string>());
         }
 
+        [Test]
+        public async Task Generate_ExcludesInternalConstructorParameters()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestService with a public constructor (connectionString) and an internal
+            // constructor (internalParam, anotherInternalParam).
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry, "TestService client entry should exist");
+
+            // Public constructor param should be included
+            var connectionStringProp = clientEntry!["properties"]?["ConnectionString"];
+            Assert.IsNotNull(connectionStringProp,
+                "Public constructor parameter 'connectionString' should appear in schema");
+
+            // Internal constructor params should NOT be included
+            var internalParamProp = clientEntry["properties"]?["InternalParam"];
+            Assert.IsNull(internalParamProp,
+                "Internal constructor parameter 'internalParam' should NOT appear in schema");
+
+            var anotherInternalProp = clientEntry["properties"]?["AnotherInternalParam"];
+            Assert.IsNull(anotherInternalProp,
+                "Internal constructor parameter 'anotherInternalParam' should NOT appear in schema");
+        }
+
         /// <summary>
         /// Test output library that wraps provided TypeProviders.
         /// </summary>
