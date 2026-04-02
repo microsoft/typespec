@@ -105,9 +105,10 @@ function runCommand(command: string, args: string[], cwd?: string): Promise<bool
 async function lintEmitter(): Promise<boolean> {
   console.log(`\n${pc.bold("=== Linting TypeScript Emitter ===")}\n`);
   // Run eslint from monorepo root to use the shared eslint config
+  // Use pnpm exec to ensure we use the monorepo's installed eslint
   return runCommand(
-    "npx",
-    ["eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
+    "pnpm",
+    ["exec", "eslint", "packages/http-client-python/emitter/", "--max-warnings=0"],
     monorepoRoot,
   );
 }

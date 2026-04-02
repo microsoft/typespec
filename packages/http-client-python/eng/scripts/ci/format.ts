@@ -103,7 +103,8 @@ async function formatEmitter(check: boolean): Promise<boolean> {
   // Use prettier directly for check mode, otherwise use pnpm format:dir
   // Exclude CHANGELOG.md as it's managed by chronus changelog tool
   if (check) {
-    return runCommand("npx", [
+    return runCommand("pnpm", [
+      "exec",
       "prettier",
       "--check",
       "emitter/",
