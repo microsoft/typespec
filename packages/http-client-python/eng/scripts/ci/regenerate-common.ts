@@ -135,6 +135,9 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   "service/multi-service": {
     namespace: "service.multiservice",
   },
+  "service/multiple-services": {
+    namespace: "service.multipleservices",
+  },
 };
 
 export const BASE_EMITTER_OPTIONS: Record<

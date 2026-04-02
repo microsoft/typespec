@@ -55,6 +55,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
 -e ./generated/service-multi-service
+-e ./generated/service-multiple-services
 # === end common azure dependencies across repos ===
 
 # === common test dependencies across repos ===
