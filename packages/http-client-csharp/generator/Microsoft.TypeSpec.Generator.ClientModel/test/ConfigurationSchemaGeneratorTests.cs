@@ -750,6 +750,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void GetJsonSchemaForType_ReturnsStringSchema_ForNonEnumStruct()
+        {
+            // A non-enum struct (e.g. a custom code audience type) should be treated as a string,
+            // not as a complex object.
+            var structType = CreateNonEnumStructType("CustomAudience", "TestNamespace");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(structType);
+            Assert.AreEqual("string", schema["type"]?.GetValue<string>(),
+                "Non-enum struct types should be represented as strings in the schema");
+            Assert.IsNull(schema["$ref"],
+                "Non-enum struct types should NOT be treated as model references");
+        }
+
+        [Test]
         public void Generate_UsesCustomSectionName()
         {
             var client = InputFactory.Client("TestService");
@@ -837,6 +851,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.AreEqual("Clients", options.SectionName);
             Assert.AreEqual("options", options.OptionsRef);
             Assert.IsTrue(options.GenerateNuGetTargets);
+        }
+
+        /// <summary>
+        /// Creates a CSharpType representing a non-framework struct that is NOT an enum,
+        /// simulating custom code types like audience structs.
+        /// </summary>
+        private static CSharpType CreateNonEnumStructType(string name, string ns)
+        {
+            var ctor = typeof(CSharpType).GetConstructor(
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                [typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(CSharpType),
+                 typeof(IReadOnlyList<CSharpType>), typeof(bool), typeof(bool), typeof(CSharpType), typeof(Type)],
+                null)!;
+            return (CSharpType)ctor.Invoke([name, ns, true, false, null, Array.Empty<CSharpType>(), true, true, null, null]);
         }
 
         /// <summary>

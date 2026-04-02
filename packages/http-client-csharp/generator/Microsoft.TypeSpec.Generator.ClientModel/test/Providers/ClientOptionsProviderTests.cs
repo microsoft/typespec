@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -1119,6 +1121,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "IConfigurationSection constructor should assign to Mode property");
             Assert.IsFalse(bodyString.Contains("new ClientMode"),
                 "IConfigurationSection constructor should NOT use new for fixed enum property binding");
+        }
+
+        [Test]
+        public void TestAppendBindingForProperty_WithNonEnumStructProperty()
+        {
+            // Simulate a non-enum struct type (e.g. a custom code audience type where
+            // IsEnum is false because the type is from custom code, not the input model)
+            var structType = CreateNonEnumStructType("CustomAudience", "TestNamespace");
+
+            var body = new List<MethodBodyStatement>();
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", structType);
+
+            Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
+            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(bodyString.Contains("is string"),
+                "Should use 'is string' pattern for non-enum struct property binding (same as extensible enum)");
+            Assert.IsTrue(bodyString.Contains("new"),
+                "Should create new instance for non-enum struct property binding");
+            Assert.IsFalse(bodyString.Contains("GetSection"),
+                "Should NOT use GetSection/IConfigurationSection for non-enum struct property binding");
+        }
+
+        /// <summary>
+        /// Creates a CSharpType representing a non-framework struct that is NOT an enum,
+        /// simulating custom code types like audience structs.
+        /// </summary>
+        private static CSharpType CreateNonEnumStructType(string name, string ns)
+        {
+            var ctor = typeof(CSharpType).GetConstructor(
+                BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                [typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(CSharpType),
+                 typeof(IReadOnlyList<CSharpType>), typeof(bool), typeof(bool), typeof(CSharpType), typeof(Type)],
+                null)!;
+            return (CSharpType)ctor.Invoke([name, ns, true, false, null, Array.Empty<CSharpType>(), true, true, null, null]);
         }
     }
 }

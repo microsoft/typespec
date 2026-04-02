@@ -219,6 +219,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     return GetJsonSchemaForEnum(effectiveType, localDefinitions);
                 }
 
+                if (effectiveType.IsStruct)
+                {
+                    // Non-enum structs (e.g. custom code string-wrapping types like audience structs)
+                    // are represented as strings in the schema.
+                    return new JsonObject { ["type"] = "string" };
+                }
+
                 return GetJsonSchemaForModel(effectiveType, localDefinitions);
             }
 
