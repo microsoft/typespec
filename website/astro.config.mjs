@@ -6,6 +6,7 @@ import { processSidebar } from "@typespec/astro-utils/sidebar";
 import astroExpressiveCode from "astro-expressive-code";
 import rehypeAstroRelativeMarkdownLinks from "astro-rehype-relative-markdown-links";
 import { defineConfig } from "astro/config";
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
@@ -42,6 +43,10 @@ function getLatestReleaseNoteSlug() {
 const latestReleaseNote = getLatestReleaseNoteSlug();
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
+
+// Compute subresource integrity hash for 1ds-init.js at build time
+const initJsContent = readFileSync(resolve(import.meta.dirname, "public/1ds-init.js"));
+const initJsIntegrity = `sha384-${createHash("sha384").update(initJsContent).digest("base64")}`;
 
 // https://astro.build/config
 export default defineConfig({
@@ -107,7 +112,7 @@ export default defineConfig({
             type: "module",
             async: true,
             src: "1ds-init.js",
-            integrity: "sha384-idYZGvEvTNaaqBGjIeT/diHjEM13+k+Utpb4k+TjTW/ui8yYALU1FXvgk+lG/EZG",
+            integrity: initJsIntegrity,
           },
         },
       ],
