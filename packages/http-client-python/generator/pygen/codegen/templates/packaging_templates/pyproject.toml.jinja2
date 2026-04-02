@@ -77,11 +77,15 @@ version = "{{ options.get("package-version", "unknown") }}"
 ]
 {% endfor %}
 {% endif %}
-{% if code_model.is_azure_flavor %}
+{% if code_model.is_azure_flavor or (KEEP_FIELDS and KEEP_FIELDS.get('project.urls.repository')) %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls.repository') %}
+{% set repo_url = KEEP_FIELDS.get('project.urls.repository') %}
+{% else %}
 {% set ns_parts = code_model.namespace.split('.') %}
 {# Derive the SDK service folder: for azure.mgmt.X use X (last part), for azure.X.* use X (second part) #}
 {% set service_folder = ns_parts[-1] if (ns_parts | length > 2 and ns_parts[1] == 'mgmt') else (ns_parts[1] if ns_parts | length > 1 else '') %}
 {% set repo_url = ("https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/" + service_folder + "/" + (options.get('package-name') | lower)) if service_folder else "https://github.com/Azure/azure-sdk-for-python" %}
+{% endif %}
 
 [project.urls]
 repository = "{{ repo_url }}"

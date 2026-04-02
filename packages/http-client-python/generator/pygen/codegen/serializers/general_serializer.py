@@ -109,6 +109,12 @@ class GeneralSerializer(BaseSerializer):
                     "optional-dependencies"
                 ]
 
+            # Keep user-specified repository URL so it is not overwritten on regeneration
+            if "urls" in loaded_pyproject_toml["project"] and "repository" in loaded_pyproject_toml["project"]["urls"]:
+                result["KEEP_FIELDS"]["project.urls.repository"] = loaded_pyproject_toml["project"]["urls"][
+                    "repository"
+                ]
+
         return result
 
     def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
