@@ -261,108 +261,126 @@ stages:
   # Produces the artifact `publish_artifacts` which contains the following:
   #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
   #                              be placed in the `/eng` folder of the sdk repository.
-  - ${{ if ne(parameters.Publish, 'none') }}:
-      - stage: ${{ parameters.StagePrefix }}_Publish
-        displayName: ${{ parameters.StagePrefix }} - Publish
+  # - ${{ if ne(parameters.Publish, 'none') }}:
+  #     - stage: ${{ parameters.StagePrefix }}_Publish
+  #       displayName: ${{ parameters.StagePrefix }} - Publish
+  #       condition: and(succeeded(), ${{ parameters.Condition }})
+  #       dependsOn:
+  #         - ${{ parameters.DependsOn }}
+  #         - ${{ parameters.StagePrefix }}_Build
+  #         - ${{ if parameters.PublishDependsOnTest }}:
+  #             - ${{ parameters.StagePrefix }}_Test
+  #             - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+  #                 - ${{ parameters.StagePrefix }}_Regen_Test
+  #       variables:
+  #         toolsRepositoryPath: $(Build.SourcesDirectory)
+  #         buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+  #       pool:
+  #         name: $(LINUXPOOL)
+  #         image: $(LINUXVMIMAGE)
+  #         os: linux
+  #       jobs:
+  #         - job: Publish
+  #           steps:
+  #             - checkout: self
+
+  #             - download: current
+  #               artifact: build_artifacts_${{ parameters.LanguageShortName }}
+  #               displayName: Download build artifacts
+
+  #             # Always publish to internal feed
+  #             - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+  #               parameters:
+  #                 npmrcPath: $(buildArtifactsPath)/packages/.npmrc
+  #                 registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
+
+  #             - ${{ each package in parameters.Packages }}:
+  #                 - ${{ if eq(package.type, 'npm') }}:
+  #                     - pwsh: |
+  #                         $file = Resolve-Path "${{ package.file }}"
+  #                         Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+  #                         npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+  #                       displayName: Publish ${{ package.name }} to internal feed
+  #                       workingDirectory: $(buildArtifactsPath)/packages
+
+  #             # If publishing publicly, also publish to npmjs.org
+  #             - ${{ if eq(parameters.Publish, 'public') }}:
+  #                 - pwsh: |
+  #                     "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
+  #                   displayName: Authenticate .npmrc for npmjs.org
+  #                   workingDirectory: $(buildArtifactsPath)/packages
+  #                 - ${{ each package in parameters.Packages }}:
+  #                     - ${{ if eq(package.type, 'npm') }}:
+  #                         - pwsh: |
+  #                             $file = Resolve-Path "${{ package.file }}"
+  #                             Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+  #                             npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+  #                           displayName: Publish ${{ package.name }} to npmjs.org
+  #                           workingDirectory: $(buildArtifactsPath)/packages
+  #             - ${{ if parameters.HasNugetPackages }}:
+  #                 - task: 1ES.PublishNuget@1
+  #                   displayName: Publish Nuget packages
+  #                   inputs:
+  #                     packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
+  #                     packageParentPath: $(buildArtifactsPath)/packages
+  #                     # todo update so we can publish publicly to nuget
+  #                     publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
+  #                     nuGetFeedType: internal
+  #                     # must set useDotNetTask=true on ubuntu-24.04 or later
+  #                     useDotNetTask: true
+
+  #             - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
+  #               parameters:
+  #                 Artifacts:
+  #                   - ${{ each package in parameters.Packages }}:
+  #                       - name: ${{ package.name }}
+  #                 ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+  #                 ArtifactPath: $(buildArtifactsPath)
+  #                 LanguageShortName: ${{ parameters.LanguageShortName }}
+
+  # templateContext:
+  #   outputs:
+  #     - output: pipelineArtifact
+  #       path: $(Build.ArtifactStagingDirectory)
+  #       artifact: publish_artifacts
+
+  # Upload Playground Bundle stage
+  # Responsible for bundling and uploading the emitter package to the playground package storage.
+  - ${{ if parameters.UploadPlaygroundBundle }}:
+      - stage: ${{ parameters.StagePrefix }}_UploadPlaygroundBundle
+        displayName: ${{ parameters.StagePrefix }} - Upload Playground Bundle
         condition: and(succeeded(), ${{ parameters.Condition }})
         dependsOn:
           - ${{ parameters.DependsOn }}
           - ${{ parameters.StagePrefix }}_Build
-          - ${{ if parameters.PublishDependsOnTest }}:
-              - ${{ parameters.StagePrefix }}_Test
-              - ${{ if ne(length(parameters.TestMatrix), 0) }}:
-                  - ${{ parameters.StagePrefix }}_Regen_Test
         variables:
-          toolsRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+          selfRepositoryPath: $(Build.SourcesDirectory)
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
           os: linux
         jobs:
-          - job: Publish
+          - job: UploadPlaygroundBundle
             steps:
               - checkout: self
-
-              - download: current
-                artifact: build_artifacts_${{ parameters.LanguageShortName }}
-                displayName: Download build artifacts
-
-              # Always publish to internal feed
-              - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                parameters:
-                  npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
-
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if eq(package.type, 'npm') }}:
-                      - pwsh: |
-                          $file = Resolve-Path "${{ package.file }}"
-                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }} to internal feed
-                        workingDirectory: $(buildArtifactsPath)/packages
-
-              # If publishing publicly, also publish to npmjs.org
-              - ${{ if eq(parameters.Publish, 'public') }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
-                  - ${{ each package in parameters.Packages }}:
-                      - ${{ if eq(package.type, 'npm') }}:
-                          - pwsh: |
-                              $file = Resolve-Path "${{ package.file }}"
-                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                            displayName: Publish ${{ package.name }} to npmjs.org
-                            workingDirectory: $(buildArtifactsPath)/packages
-              - ${{ if parameters.HasNugetPackages }}:
-                  - task: 1ES.PublishNuget@1
-                    displayName: Publish Nuget packages
-                    inputs:
-                      packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
-                      packageParentPath: $(buildArtifactsPath)/packages
-                      # todo update so we can publish publicly to nuget
-                      publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
-                      nuGetFeedType: internal
-                      # must set useDotNetTask=true on ubuntu-24.04 or later
-                      useDotNetTask: true
-
-              - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
-                parameters:
-                  Artifacts:
-                    - ${{ each package in parameters.Packages }}:
-                        - name: ${{ package.name }}
-                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  ArtifactPath: $(buildArtifactsPath)
-                  LanguageShortName: ${{ parameters.LanguageShortName }}
-
-              - ${{ if parameters.UploadPlaygroundBundle }}:
-                  - script: npm ci
-                    displayName: Install emitter dependencies for playground bundle
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm run build
-                    displayName: Build emitter for playground bundle
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm install -g pnpm
-                    displayName: Install pnpm for playground bundle upload
-                  - script: pnpm install --filter "@typespec/bundle-uploader..."
-                    displayName: Install bundle-uploader dependencies
-                    workingDirectory: $(Build.SourcesDirectory)
-                  - script: pnpm --filter "@typespec/bundle-uploader..." build
-                    displayName: Build bundle-uploader
-                    workingDirectory: $(Build.SourcesDirectory)
-                  - task: AzureCLI@1
-                    displayName: Upload playground bundle
-                    inputs:
-                      azureSubscription: "Azure SDK Engineering System"
-                      scriptLocation: inlineScript
-                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
-                      workingDirectory: $(Build.SourcesDirectory)
-
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: publish_artifacts
+              - script: npm install -g pnpm
+                displayName: Install pnpm for playground bundle upload
+              - script: npm ci
+                displayName: Install emitter dependencies for playground bundle
+                workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+              - script: npm run build
+                displayName: Build emitter for playground bundle
+                workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+              - script: pnpm install --filter "@typespec/bundle-uploader..."
+                displayName: Install bundle-uploader dependencies
+                workingDirectory: $(Build.SourcesDirectory)
+              - script: pnpm --filter "@typespec/bundle-uploader..." build
+                displayName: Build bundle-uploader
+                workingDirectory: $(Build.SourcesDirectory)
+              - task: AzureCLI@1
+                displayName: Upload playground bundle
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                  workingDirectory: $(Build.SourcesDirectory)
