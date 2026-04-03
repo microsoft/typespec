@@ -1,6 +1,7 @@
 import deepEqual from "deep-equal";
 import { parseString } from "xml2js";
-import { CollectionFormat, RequestExt } from "./types.js";
+import { matchValues, type MockValueMatcher } from "./match-engine.js";
+import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
 export const BODY_NOT_EQUAL_ERROR_MESSAGE = "Body provided doesn't match expected body";
@@ -36,38 +37,88 @@ export const validateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(request.body, expectedBody, { strict: true })) {
-    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
+  const result = matchValues(request.body, expectedBody);
+  if (!result.pass) {
+    throw new ValidationError(
+      `${BODY_NOT_EQUAL_ERROR_MESSAGE}: ${result.message}`,
+      expectedBody,
+      request.body,
+    );
   }
 };
 
-export const validateXmlBodyEquals = (request: RequestExt, expectedBody: string): void => {
+export const validateXmlBodyEquals = (
+  request: RequestExt,
+  expectedBody: string | Resolver,
+  config?: ResolverConfig,
+): void => {
+  const resolvedConfig = config ?? { baseUrl: "" };
+  // When expectedBody is a Resolver (e.g. from xml`...`), serialize() already includes the XML declaration.
+  // When it's a plain string, we need to prepend it.
+  const expectedXml =
+    typeof expectedBody === "string"
+      ? `<?xml version='1.0' encoding='UTF-8'?>` + expectedBody
+      : expectedBody.serialize(resolvedConfig);
+
   if (request.rawBody === undefined || isBodyEmpty(request.rawBody)) {
-    throw new ValidationError(BODY_EMPTY_ERROR_MESSAGE, expectedBody, request.rawBody);
+    throw new ValidationError(BODY_EMPTY_ERROR_MESSAGE, expectedXml, request.rawBody);
   }
 
-  expectedBody = `<?xml version='1.0' encoding='UTF-8'?>` + expectedBody;
-
-  let actualParsedBody = "";
+  let actualParsed: unknown;
   parseString(request.rawBody, (err: Error | null, result: any): void => {
-    if (err !== null) {
-      throw err;
-    }
-    actualParsedBody = result;
+    if (err !== null) throw err;
+    actualParsed = result;
   });
 
-  let expectedParsedBody = "";
-  parseString(expectedBody, (err: Error | null, result: any): void => {
-    if (err !== null) {
-      throw err;
-    }
-    expectedParsedBody = result;
+  let expectedParsed: unknown;
+  parseString(expectedXml, (err: Error | null, result: any): void => {
+    if (err !== null) throw err;
+    expectedParsed = result;
   });
 
-  if (!deepEqual(actualParsedBody, expectedParsedBody, { strict: true })) {
-    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.rawBody);
+  // If the expected body is a DynValue with matchers, use matcher-aware comparison
+  const matchers =
+    typeof expectedBody !== "string" && "getMatchers" in expectedBody
+      ? (expectedBody as any).getMatchers(resolvedConfig)
+      : [];
+
+  if (matchers.length > 0) {
+    const matcherMap = new Map<string, MockValueMatcher>();
+    for (const { serialized, matcher } of matchers) {
+      matcherMap.set(serialized, matcher);
+    }
+    expectedParsed = substituteMatchers(expectedParsed, matcherMap);
+
+    const result = matchValues(actualParsed, expectedParsed);
+    if (!result.pass) {
+      throw new ValidationError(
+        `${BODY_NOT_EQUAL_ERROR_MESSAGE}: ${result.message}`,
+        expectedXml,
+        request.rawBody,
+      );
+    }
+  } else {
+    if (!deepEqual(actualParsed, expectedParsed, { strict: true })) {
+      throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedXml, request.rawBody);
+    }
   }
 };
+
+function substituteMatchers(value: unknown, matcherMap: Map<string, MockValueMatcher>): unknown {
+  if (typeof value === "string") {
+    return matcherMap.get(value) ?? value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => substituteMatchers(v, matcherMap));
+  }
+  if (typeof value === "object" && value !== null) {
+    const obj = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => [k, substituteMatchers(v, matcherMap)]),
+    );
+  }
+  return value;
+}
 
 export const validateCoercedDateBodyEquals = (
   request: RequestExt,
@@ -80,8 +131,13 @@ export const validateCoercedDateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(coerceDate(request.body), expectedBody, { strict: true })) {
-    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
+  const result = matchValues(coerceDate(request.body), expectedBody);
+  if (!result.pass) {
+    throw new ValidationError(
+      `${BODY_NOT_EQUAL_ERROR_MESSAGE}: ${result.message}`,
+      expectedBody,
+      request.body,
+    );
   }
 };
 

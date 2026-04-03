@@ -111,7 +111,7 @@ jobs:
       - run: echo "::add-matcher::.github/matchers/actionlint.json"
         name: Add actionlint problem matcher
 
-      - uses: docker://rhysd/actionlint:1.7.11
+      - uses: docker://rhysd/actionlint:1.7.12
         name: Lint workflows
         with:
           args: -color -verbose

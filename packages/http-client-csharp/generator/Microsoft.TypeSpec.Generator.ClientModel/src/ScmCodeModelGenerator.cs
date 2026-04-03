@@ -30,6 +30,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
             new SerializationFormatDefinition();
 
+        /// <summary>
+        /// Gets the options that control ConfigurationSchema.json generation.
+        /// </summary>
+        public ConfigurationSchemaOptions ConfigurationSchema { get; } = new();
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)
@@ -49,7 +54,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override async Task WriteAdditionalFiles(string outputPath)
         {
-            var schemaContent = ConfigurationSchemaGenerator.Generate(OutputLibrary);
+            var schemaContent = ConfigurationSchemaGenerator.Generate(
+                OutputLibrary,
+                ConfigurationSchema.SectionName,
+                ConfigurationSchema.OptionsRef);
             if (schemaContent != null)
             {
                 var schemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
@@ -61,12 +69,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
                 await File.WriteAllTextAsync(schemaPath, schemaContent);
 
-                // Generate the .targets file for JsonSchemaSegment registration
-                var packageName = Configuration.PackageName;
-                var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
-                var targetsContent = GenerateTargetsFile();
-                Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
-                await File.WriteAllTextAsync(targetsPath, targetsContent);
+                if (ConfigurationSchema.GenerateNuGetTargets)
+                {
+                    // Generate the .targets file for JsonSchemaSegment registration
+                    var packageName = Configuration.PackageName;
+                    var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                    var targetsContent = GenerateTargetsFile();
+                    Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                    await File.WriteAllTextAsync(targetsPath, targetsContent);
+                }
             }
         }
 
