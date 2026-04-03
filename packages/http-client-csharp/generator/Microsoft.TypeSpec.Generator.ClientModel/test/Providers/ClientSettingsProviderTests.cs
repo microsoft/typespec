@@ -966,29 +966,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestSettingsType_DoesNotContainSelfReferentialSettingsProperty()
+        public async Task TestSettingsType_DoesNotContainSelfReferentialSettingsProperty()
         {
-            var client = InputFactory.Client("TestClient");
-            var clientProvider = new ClientProvider(client);
-            var settingsProvider = clientProvider.ClientSettings;
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
 
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
             Assert.IsNotNull(settingsProvider);
 
-            // The settings type should not have a property named "Settings" that references itself.
-            // This would happen if the generated settings constructor (which takes the settings type
-            // as a parameter) is incorrectly treated as a custom constructor.
             var settingsProperty = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Settings");
             Assert.IsNull(settingsProperty,
                 "Settings type should not contain a self-referential 'Settings' property");
         }
 
         [Test]
-        public void TestBindCoreMethod_DoesNotBindSettingsParameter()
+        public async Task TestBindCoreMethod_DoesNotBindSettingsParameter()
         {
-            var client = InputFactory.Client("TestClient");
-            var clientProvider = new ClientProvider(client);
-            var settingsProvider = clientProvider.ClientSettings;
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
 
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
             Assert.IsNotNull(settingsProvider);
 
             var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
