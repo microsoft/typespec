@@ -415,27 +415,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Finds the single-value constructor parameter type for a non-framework struct type
-        /// by looking up the type's constructors. Returns null if no suitable constructor is found.
+        /// by looking up the type's constructors in custom code. Returns null if no suitable
+        /// constructor is found.
         /// </summary>
         internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
         {
-            // Find the type provider — check custom code first since custom-only types
-            // (like audience structs) won't be in the output library
-            TypeProvider? typeProvider = CodeModelGenerator.Instance.SourceInputModel
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
                 .FindForTypeInCustomization(type.Namespace, type.Name);
-
-            typeProvider ??= CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
-                .FirstOrDefault(t => t.Type.Name == type.Name);
 
             if (typeProvider == null)
             {
                 return null;
             }
 
-            // Look for a single-parameter constructor that takes a framework type
-            var constructors = typeProvider.Constructors;
-            foreach (var ctor in constructors)
+            foreach (var ctor in typeProvider.Constructors)
             {
                 var parameters = ctor.Signature.Parameters;
                 if (parameters.Count == 1 && parameters[0].Type.IsFrameworkType)
