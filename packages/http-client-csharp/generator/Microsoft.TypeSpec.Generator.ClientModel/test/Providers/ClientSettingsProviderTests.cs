@@ -972,6 +972,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "Should NOT use GetSection for custom struct with int constructor");
         }
 
+        [Test]
+        public async Task TestBindCoreMethod_WithCustomStructParam_FallsBackToComplexObject()
+        {
+            // A custom struct with no single-parameter framework-type constructor
+            // should fall back to complex object binding
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+            Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
+
+            var body = new List<MethodBodyStatement>();
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Complex", "complex", typeProvider!.Type);
+
+            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(bodyString.Contains("GetSection"),
+                "Should fall back to GetSection for struct with no single-parameter framework-type constructor");
+        }
+
         private static bool IsSettingsConstructor(ConstructorProvider c) =>
             c.Signature?.Initializer != null &&
             c.Signature?.Modifiers == MethodSignatureModifiers.Public &&

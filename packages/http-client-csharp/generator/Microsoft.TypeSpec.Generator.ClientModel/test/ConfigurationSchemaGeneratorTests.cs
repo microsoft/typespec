@@ -992,6 +992,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 "Custom struct with int constructor should produce integer schema");
         }
 
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsObjectSchema_ForCustomStructWithNoValidConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+            Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("object", schema["type"]?.GetValue<string>(),
+                "Custom struct with no single-parameter framework-type constructor should fall back to object");
+        }
+
         /// <summary>
         /// Test output library that wraps provided TypeProviders.
         /// </summary>
