@@ -2,6 +2,7 @@
 import chalk from "chalk";
 import { execFile } from "child_process";
 import { promises, rmSync } from "fs";
+import { platform } from "os";
 import { join, resolve } from "path";
 import { fileURLToPath } from "url";
 import { parseArgs, promisify } from "util";
@@ -175,8 +176,11 @@ const config: RegenerateConfig = {
   executeCommand,
 };
 
+// On Windows, default to Pyodide to avoid slow process spawning overhead
+const usePyodide = argv.values.pyodide ?? platform() === "win32";
+
 const start = performance.now();
-regenerate(argv.values, config)
+regenerate({ ...argv.values, pyodide: usePyodide }, config)
   .then(() =>
     console.log(
       chalk.green(
