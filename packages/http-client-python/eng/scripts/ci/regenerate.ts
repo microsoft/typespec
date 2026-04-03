@@ -321,7 +321,7 @@ async function main() {
   console.log();
 
   const startTime = performance.now();
-  let success = true;
+  let success: boolean;
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);
