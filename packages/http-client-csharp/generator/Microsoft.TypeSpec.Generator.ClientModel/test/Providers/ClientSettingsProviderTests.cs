@@ -917,10 +917,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task TestProperties_IncludesCustomConstructorParameters()
         {
-            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            singletonField?.SetValue(null, null);
-
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -942,10 +938,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task TestBindCoreMethod_BindsCustomConstructorParameters()
         {
-            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            singletonField?.SetValue(null, null);
-
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -968,10 +960,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task TestSettingsType_DoesNotContainSelfReferentialSettingsProperty()
         {
-            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            singletonField?.SetValue(null, null);
-
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -990,10 +978,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task TestBindCoreMethod_DoesNotBindSettingsParameter()
         {
-            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            singletonField?.SetValue(null, null);
-
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
