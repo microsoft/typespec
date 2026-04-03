@@ -185,20 +185,23 @@ function reportJarOutput(program: Program, jarOutput: string) {
   }
 
   // trace or report the logs, according to log level
+  const typeSpecPluginPrefix = "com.microsoft.typespec.http.client.generator.";
+  const errorPrefix = "ERROR " + typeSpecPluginPrefix;
+  const warnPrefix = "WARN " + typeSpecPluginPrefix;
   for (const log of logs) {
-    if (log.startsWith("ERROR ")) {
+    if (log.startsWith(errorPrefix)) {
       reportDiagnostic(program, {
         code: "generator-error",
         format: {
-          errorMessage: log.substring(6),
+          errorMessage: log.substring(errorPrefix.length),
         },
         target: NoTarget,
       });
-    } else if (log.startsWith("WARN ")) {
+    } else if (log.startsWith(warnPrefix)) {
       reportDiagnostic(program, {
         code: "generator-warning",
         format: {
-          warningMessage: log.substring(5),
+          warningMessage: log.substring(warnPrefix.length),
         },
         target: NoTarget,
       });

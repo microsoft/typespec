@@ -133,6 +133,32 @@ describe("compiler: config interpolation", () => {
         },
       ]);
     });
+
+    it("does not interpolate variables that resolve to non-string values", () => {
+      const [resolved, diagnostics] = resolveValues({
+        "output-file": "openapi.{file-type}",
+        "file-type": ["yaml", "json"] as any,
+      });
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(resolved, {
+        "output-file": "openapi.{file-type}",
+        "file-type": ["yaml", "json"],
+      });
+    });
+
+    it("interpolates number and boolean values", () => {
+      const [resolved, diagnostics] = resolveValues({
+        path: "v{version}/debug-{debug}",
+        version: 3 as any,
+        debug: true as any,
+      });
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(resolved, {
+        path: "v3/debug-true",
+        version: 3,
+        debug: true,
+      });
+    });
   });
 
   describe("expandConfigVariables", () => {

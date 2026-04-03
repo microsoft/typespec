@@ -387,6 +387,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Type);
             }
 
+            // Also bind custom code properties (e.g., hand-written properties added via partial classes)
+            var generatedPropNames = new HashSet<string>(Properties.Select(p => p.Name));
+            if (versionPropertyNames != null)
+            {
+                generatedPropNames.UnionWith(versionPropertyNames);
+            }
+            var customCodeProperties = CustomCodeView?.Properties;
+            if (customCodeProperties != null)
+            {
+                foreach (var prop in customCodeProperties)
+                {
+                    if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                        !generatedPropNames.Contains(prop.Name))
+                    {
+                        ClientSettingsProvider.AppendBindingForProperty(
+                            body,
+                            sectionParam,
+                            prop.Name,
+                            prop.Name.ToVariableName(),
+                            prop.Type);
+                        generatedPropNames.Add(prop.Name);
+                    }
+                }
+            }
+
             return new ConstructorProvider(
                 new ConstructorSignature(
                     Type,
