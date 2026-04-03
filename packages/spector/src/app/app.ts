@@ -161,9 +161,7 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
     if (apiDefinition.request?.query) {
       const query = expandDyns(apiDefinition.request.query, config, { resolveMatchers: false });
       Object.entries(query).forEach(([key, value]) => {
-        if (isMatcher(value)) {
-          req.expect.deepEqual(req.query[key], value);
-        } else if (Array.isArray(value)) {
+        if (isMatcher(value) || Array.isArray(value)) {
           req.expect.deepEqual(req.query[key], value);
         } else {
           req.expect.containsQueryParam(key, String(value));
