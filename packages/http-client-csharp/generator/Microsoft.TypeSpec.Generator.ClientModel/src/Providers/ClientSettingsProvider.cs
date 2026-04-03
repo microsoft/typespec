@@ -54,9 +54,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Collect non-endpoint, non-apiVersion required parameters (auth params come separately via InputClient.Auth)
+            // Exclude "settings" parameters to avoid self-referential properties on the settings type
             OtherRequiredParams = inputClient.Parameters
                 .Where(p => p.IsRequired && !p.IsApiVersion &&
-                            !(p is InputEndpointParameter ep && ep.IsEndpoint))
+                            !(p is InputEndpointParameter ep && ep.IsEndpoint) &&
+                            !string.Equals(p.Name, "settings", StringComparison.OrdinalIgnoreCase))
                 .Select(p => ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(p))
                 .Where(p => p != null)
                 .Select(p => p!)
