@@ -250,7 +250,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(
         `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
       );
-      checkForPylintIssues(outputDir, excludePattern);
+      await checkForPylintIssues(outputDir, excludePattern);
     }
   }
 }
@@ -295,7 +295,7 @@ async function setupPyodideCall(root: string) {
   return pyodide;
 }
 
-function checkForPylintIssues(outputDir: string, excludePattern: string) {
+async function checkForPylintIssues(outputDir: string, excludePattern: string) {
   const excludeRegex = new RegExp(excludePattern);
 
   const shouldExcludePath = (filePath: string): boolean => {
@@ -304,9 +304,8 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
     return excludeRegex.test(normalizedPath);
   };
 
-  const processFile = (filePath: string) => {
-    let fileContent;
-    fileContent = fs.readFileSync(filePath, "utf-8");
+  const processFile = async (filePath: string) => {
+    let fileContent = await fs.promises.readFile(filePath, "utf-8");
     const pylintDisables: string[] = [];
     const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
     const lines: string[] = fileContent.split(lineEnding);
@@ -321,32 +320,39 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
         fileContent = lines[0].includes("pylint: disable=")
           ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(lineEnding)
           : `# pylint: disable=${pylintDisables.join(",")}${lineEnding}` + fileContent;
+        await fs.promises.writeFile(filePath, fileContent);
       }
     }
-
-    fs.writeFileSync(filePath, fileContent);
   };
 
-  const walkDir = (dir: string) => {
+  const collectPythonFiles = async (dir: string): Promise<string[]> => {
     if (shouldExcludePath(dir)) {
-      return;
+      return [];
     }
 
-    const files = fs.readdirSync(dir);
-    files.forEach((file) => {
-      const filePath = path.join(dir, file);
+    const files: string[] = [];
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+
+    const promises = entries.map(async (entry) => {
+      const filePath = path.join(dir, entry.name);
 
       if (shouldExcludePath(filePath)) {
-        return;
+        return [];
       }
 
-      if (fs.statSync(filePath).isDirectory()) {
-        walkDir(filePath);
-      } else if (file.endsWith(".py")) {
-        processFile(filePath);
+      if (entry.isDirectory()) {
+        return collectPythonFiles(filePath);
+      } else if (entry.name.endsWith(".py")) {
+        return [filePath];
       }
+      return [];
     });
+
+    const results = await Promise.all(promises);
+    return results.flat();
   };
 
-  walkDir(outputDir);
+  // Collect all Python files first, then process in parallel
+  const pythonFiles = await collectPythonFiles(outputDir);
+  await Promise.all(pythonFiles.map(processFile));
 }
