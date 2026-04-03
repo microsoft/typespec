@@ -912,11 +912,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestBindCoreMethod_WithNonEnumStructParam()
+        public void TestBindCoreMethod_WithNonEnumStructParam_FallsBackToComplexObject()
         {
-            // Simulate a non-enum struct type (like a custom code audience type)
-            // that has IsEnum = false but IsStruct = true
-            var structType = CreateNonEnumStructType("CustomAudience", "TestNamespace");
+            // A non-enum struct with no matching EnumProvider falls back to complex object binding
+            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
 
             var body = new List<MethodBodyStatement>();
             var sectionParam = new ParameterProvider(
@@ -924,13 +923,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 $"The configuration section.",
                 ClientSettingsProvider.IConfigurationSectionType);
 
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", structType);
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Unknown", "unknown", structType);
 
             Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
             var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(bodyString.Contains("is string"), "Should use 'is string' pattern for non-enum struct binding");
-            Assert.IsTrue(bodyString.Contains("new"), "Should create new instance for non-enum struct binding");
-            Assert.IsFalse(bodyString.Contains("GetSection"), "Should NOT use GetSection for non-enum struct binding");
+            Assert.IsTrue(bodyString.Contains("GetSection"), "Should fall back to GetSection when no EnumProvider exists");
         }
 
         /// <summary>

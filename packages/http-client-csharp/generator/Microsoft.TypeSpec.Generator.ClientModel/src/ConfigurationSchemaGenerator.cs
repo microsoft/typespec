@@ -221,9 +221,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
                 if (effectiveType.IsStruct)
                 {
-                    // Non-enum structs (e.g. custom code string-wrapping types like audience structs)
-                    // are represented as strings in the schema.
-                    return new JsonObject { ["type"] = "string" };
+                    // Non-enum struct — look up the EnumProvider to determine the underlying type
+                    return GetJsonSchemaForNonEnumStruct(effectiveType, localDefinitions);
                 }
 
                 return GetJsonSchemaForModel(effectiveType, localDefinitions);
@@ -318,6 +317,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             // Fallback: just string
+            return new JsonObject { ["type"] = "string" };
+        }
+
+        private static JsonObject GetJsonSchemaForNonEnumStruct(CSharpType structType, Dictionary<string, JsonObject>? localDefinitions)
+        {
+            // Look up the EnumProvider to determine the underlying value type
+            var enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
+                .OfType<EnumProvider>()
+                .FirstOrDefault(e => e.Type.Name == structType.Name);
+
+            if (enumProvider != null)
+            {
+                // Use the enum schema which includes known values
+                return GetJsonSchemaForEnum(structType, localDefinitions);
+            }
+
+            // No EnumProvider found — treat as string (most common case for custom extensible enum structs)
             return new JsonObject { ["type"] = "string" };
         }
 

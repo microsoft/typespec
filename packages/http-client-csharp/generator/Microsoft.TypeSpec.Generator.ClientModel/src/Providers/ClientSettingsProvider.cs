@@ -180,11 +180,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
                     }
                 }
-                else if (type.IsStruct)
+                else if (type.IsStruct && TryGetEnumProvider(type) is { } enumProvider)
                 {
-                    // Non-enum structs (e.g. string-wrapping types like audience structs)
-                    // are bound using the same pattern as extensible enums: new TypeName(stringValue)
-                    AppendEnumBinding(body, sectionParam, propName, varName, type);
+                    // Non-enum struct with a matching EnumProvider (e.g. custom code extensible enums
+                    // where IsEnum is false because the type comes from custom code).
+                    // Use the enum's underlying type to pick the correct binding.
+                    var underlyingType = enumProvider.EnumUnderlyingType;
+                    if (underlyingType.IsFrameworkType && underlyingType.FrameworkType == typeof(string))
+                    {
+                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                    else if (underlyingType.IsFrameworkType && (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long)))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+                    }
+                    else if (underlyingType.IsFrameworkType && (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double)))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+                    }
+                    else
+                    {
+                        AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                    }
                 }
                 else
                 {
@@ -396,6 +413,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
             ifExistsStatement.Add(This.Property(propName).Assign(New.Instance(type, sectionVar)).Terminate());
             body.Add(ifExistsStatement);
+        }
+
+        /// <summary>
+        /// Looks up an <see cref="EnumProvider"/> in the output library whose type name matches the given type.
+        /// Returns null if no matching enum provider is found.
+        /// </summary>
+        private static EnumProvider? TryGetEnumProvider(CSharpType type)
+        {
+            return CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
+                .OfType<EnumProvider>()
+                .FirstOrDefault(e => e.Type.Name == type.Name);
         }
     }
 }

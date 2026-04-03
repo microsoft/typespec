@@ -1124,11 +1124,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestAppendBindingForProperty_WithNonEnumStructProperty()
+        public void TestAppendBindingForProperty_WithNonEnumStructProperty_FallsBackToComplexObject()
         {
-            // Simulate a non-enum struct type (e.g. a custom code audience type where
-            // IsEnum is false because the type is from custom code, not the input model)
-            var structType = CreateNonEnumStructType("CustomAudience", "TestNamespace");
+            // A non-enum struct with no matching EnumProvider falls back to complex object binding
+            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
 
             var body = new List<MethodBodyStatement>();
             var sectionParam = new ParameterProvider(
@@ -1136,16 +1135,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 $"The configuration section.",
                 ClientSettingsProvider.IConfigurationSectionType);
 
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", structType);
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Unknown", "unknown", structType);
 
             Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
             var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(bodyString.Contains("is string"),
-                "Should use 'is string' pattern for non-enum struct property binding (same as extensible enum)");
-            Assert.IsTrue(bodyString.Contains("new"),
-                "Should create new instance for non-enum struct property binding");
-            Assert.IsFalse(bodyString.Contains("GetSection"),
-                "Should NOT use GetSection/IConfigurationSection for non-enum struct property binding");
+            Assert.IsTrue(bodyString.Contains("GetSection"),
+                "Should fall back to GetSection when no EnumProvider exists for non-enum struct");
         }
 
         /// <summary>
