@@ -19,7 +19,7 @@ variables:
   - name: LINUXARMVMIMAGE
     value: azure-linux-3-arm64
   - name: WINDOWSVMIMAGE
-    value: windows-2022
+    value: windows-2025
   - name: WINDOWSARMVMIMAGE
     value: windows-2022-arm64-1espt
   - name: MAC_ARM_VM_IMAGE # mac - arm64
