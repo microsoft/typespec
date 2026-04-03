@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -914,7 +915,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public void TestBindCoreMethod_WithNonEnumStructParam_FallsBackToComplexObject()
         {
-            // A non-enum struct with no matching EnumProvider falls back to complex object binding
+            // A non-enum struct with no discoverable constructor falls back to complex object binding
             var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
 
             var body = new List<MethodBodyStatement>();
@@ -927,7 +928,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
             var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(bodyString.Contains("GetSection"), "Should fall back to GetSection when no EnumProvider exists");
+            Assert.IsTrue(bodyString.Contains("GetSection"), "Should fall back to GetSection when no constructor is discoverable");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_WithCustomStructParam()
+        {
+            // A custom struct with a string constructor should use string binding
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var structType = CreateNonEnumStructType("CustomAudience", "SampleNamespace");
+
+            var body = new List<MethodBodyStatement>();
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", structType);
+
+            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(bodyString.Contains("is string"),
+                "Should use 'is string' pattern for custom struct with string constructor");
+            Assert.IsFalse(bodyString.Contains("GetSection"),
+                "Should NOT use GetSection for custom struct with string constructor");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_WithCustomIntStructParam()
+        {
+            // A custom struct with an int constructor should use int.TryParse binding
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var structType = CreateNonEnumStructType("CustomPriority", "SampleNamespace");
+
+            var body = new List<MethodBodyStatement>();
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Priority", "priority", structType);
+
+            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(bodyString.Contains("int.TryParse"),
+                "Should use int.TryParse for custom struct with int constructor");
+            Assert.IsFalse(bodyString.Contains("GetSection"),
+                "Should NOT use GetSection for custom struct with int constructor");
         }
 
         /// <summary>

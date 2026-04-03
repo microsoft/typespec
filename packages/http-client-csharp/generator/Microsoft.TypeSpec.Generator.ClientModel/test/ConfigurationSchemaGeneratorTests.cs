@@ -750,17 +750,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
-        public void GetJsonSchemaForType_ReturnsStringSchema_ForNonEnumStruct()
+        public void GetJsonSchemaForType_ReturnsObjectSchema_ForNonEnumStructWithNoConstructor()
         {
-            // A non-enum struct (e.g. a custom code audience type) should be treated as a string,
-            // not as a complex object.
-            var structType = CreateNonEnumStructType("CustomAudience", "TestNamespace");
+            // A non-enum struct with no discoverable constructor falls back to object,
+            // consistent with AppendComplexObjectBinding in settings binding.
+            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
 
             var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(structType);
-            Assert.AreEqual("string", schema["type"]?.GetValue<string>(),
-                "Non-enum struct types should be represented as strings in the schema");
-            Assert.IsNull(schema["$ref"],
-                "Non-enum struct types should NOT be treated as model references");
+            Assert.AreEqual("object", schema["type"]?.GetValue<string>(),
+                "Non-enum struct types with no discoverable constructor should fall back to object");
         }
 
         [Test]

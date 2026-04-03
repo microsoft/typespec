@@ -342,8 +342,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 }
             }
 
-            // Fallback: treat as string (most common case for custom extensible enum structs)
-            return new JsonObject { ["type"] = "string" };
+            // Fallback: treat as object to be consistent with AppendComplexObjectBinding
+            return new JsonObject { ["type"] = "object" };
         }
 
         private static JsonObject GetJsonSchemaForModel(CSharpType modelType, Dictionary<string, JsonObject>? localDefinitions)
