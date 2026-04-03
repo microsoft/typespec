@@ -415,13 +415,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Finds the single-value constructor parameter type for a non-framework struct type
-        /// by looking up the type provider's constructors. Returns null if no suitable
-        /// constructor is found.
+        /// by looking up the type's constructors. Returns null if no suitable constructor is found.
         /// </summary>
         internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
         {
-            // Find the type provider (generated or custom code) matching this type
-            var typeProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+            // Find the type provider — check custom code first since custom-only types
+            // (like audience structs) won't be in the output library
+            TypeProvider? typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization(type.Namespace, type.Name);
+
+            typeProvider ??= CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
                 .FirstOrDefault(t => t.Type.Name == type.Name);
 
@@ -430,11 +433,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            // Check constructors — look for a single-parameter constructor that takes a value type.
-            // Check custom code constructors first (most relevant for custom structs),
-            // then generated constructors.
-            var allConstructors = typeProvider.CustomCodeView?.Constructors ?? typeProvider.Constructors;
-            foreach (var ctor in allConstructors)
+            // Look for a single-parameter constructor that takes a framework type
+            var constructors = typeProvider.Constructors;
+            foreach (var ctor in constructors)
             {
                 var parameters = ctor.Signature.Parameters;
                 if (parameters.Count == 1 && parameters[0].Type.IsFrameworkType)
