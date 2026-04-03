@@ -180,21 +180,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
                     }
                 }
-                else if (type.IsStruct && TryGetEnumProvider(type) is { } enumProvider)
+                else if (type.IsStruct && TryGetStructUnderlyingType(type) is { } underlyingType)
                 {
-                    // Non-enum struct with a matching EnumProvider (e.g. custom code extensible enums
-                    // where IsEnum is false because the type comes from custom code).
-                    // Use the enum's underlying type to pick the correct binding.
-                    var underlyingType = enumProvider.EnumUnderlyingType;
-                    if (underlyingType.IsFrameworkType && underlyingType.FrameworkType == typeof(string))
+                    // Non-enum struct with a discoverable constructor parameter type.
+                    // Use the constructor's parameter type to pick the correct binding.
+                    if (underlyingType.FrameworkType == typeof(string))
                     {
                         AppendEnumBinding(body, sectionParam, propName, varName, type);
                     }
-                    else if (underlyingType.IsFrameworkType && (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long)))
+                    else if (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long))
                     {
                         AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
                     }
-                    else if (underlyingType.IsFrameworkType && (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double)))
+                    else if (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double))
                     {
                         AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
                     }
@@ -416,15 +414,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Looks up an <see cref="EnumProvider"/> in the output library whose type name matches the given type.
-        /// Returns null if no matching enum provider is found.
+        /// Finds the single-value constructor parameter type for a non-framework struct type
+        /// by looking up the type provider's constructors. Returns null if no suitable
+        /// constructor is found.
         /// </summary>
-        private static EnumProvider? TryGetEnumProvider(CSharpType type)
+        internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
         {
-            return CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+            // Find the type provider (generated or custom code) matching this type
+            var typeProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
-                .OfType<EnumProvider>()
-                .FirstOrDefault(e => e.Type.Name == type.Name);
+                .FirstOrDefault(t => t.Type.Name == type.Name);
+
+            if (typeProvider == null)
+            {
+                return null;
+            }
+
+            // Check constructors — look for a single-parameter constructor that takes a value type.
+            // Check custom code constructors first (most relevant for custom structs),
+            // then generated constructors.
+            var allConstructors = typeProvider.CustomCodeView?.Constructors ?? typeProvider.Constructors;
+            foreach (var ctor in allConstructors)
+            {
+                var parameters = ctor.Signature.Parameters;
+                if (parameters.Count == 1 && parameters[0].Type.IsFrameworkType)
+                {
+                    return parameters[0].Type;
+                }
+            }
+
+            return null;
         }
     }
 }

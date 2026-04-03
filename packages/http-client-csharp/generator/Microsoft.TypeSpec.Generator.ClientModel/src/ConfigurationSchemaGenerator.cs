@@ -322,19 +322,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private static JsonObject GetJsonSchemaForNonEnumStruct(CSharpType structType, Dictionary<string, JsonObject>? localDefinitions)
         {
-            // Look up the EnumProvider to determine the underlying value type
-            var enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
-                .OfType<EnumProvider>()
-                .FirstOrDefault(e => e.Type.Name == structType.Name);
+            // Look up the struct's constructor to determine the underlying value type
+            var underlyingType = ClientSettingsProvider.TryGetStructUnderlyingType(structType);
 
-            if (enumProvider != null)
+            if (underlyingType != null)
             {
-                // Use the enum schema which includes known values
-                return GetJsonSchemaForEnum(structType, localDefinitions);
+                var ft = underlyingType.FrameworkType;
+                if (ft == typeof(string))
+                {
+                    return new JsonObject { ["type"] = "string" };
+                }
+                if (ft == typeof(int) || ft == typeof(long))
+                {
+                    return new JsonObject { ["type"] = "integer" };
+                }
+                if (ft == typeof(float) || ft == typeof(double))
+                {
+                    return new JsonObject { ["type"] = "number" };
+                }
             }
 
-            // No EnumProvider found — treat as string (most common case for custom extensible enum structs)
+            // Fallback: treat as string (most common case for custom extensible enum structs)
             return new JsonObject { ["type"] = "string" };
         }
 
