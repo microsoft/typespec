@@ -3395,3 +3395,30 @@ describe("collection type: defined as emitter option", () => {
     );
   });
 });
+
+it("emits class for model extending another model with no additional properties", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+      model Foo {
+        id: int32;
+        name: string;
+      }
+
+      model Baz extends Foo {}
+
+      @route("/foo/{id}") @get op getFoo(id: int32): Foo;
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int Id { get; set; }",
+          "public string Name { get; set; }",
+        ],
+      ],
+      ["Baz.cs", ["public partial class Baz : Foo"]],
+    ],
+  );
+});

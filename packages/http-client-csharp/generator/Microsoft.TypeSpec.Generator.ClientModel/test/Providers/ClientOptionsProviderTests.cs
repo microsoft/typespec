@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -1124,38 +1122,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestAppendBindingForProperty_WithNonEnumStructProperty_FallsBackToComplexObject()
+        public async Task TestConfigurationSectionConstructorBody_BindsCustomCodeProperties()
         {
-            // A non-enum struct with no matching EnumProvider falls back to complex object binding
-            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var body = new List<MethodBodyStatement>();
-            var sectionParam = new ParameterProvider(
-                "section",
-                $"The configuration section.",
-                ClientSettingsProvider.IConfigurationSectionType);
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
 
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Unknown", "unknown", structType);
+            Assert.IsNotNull(clientOptionsProvider);
+            Assert.IsNotNull(clientOptionsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
 
-            Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
-            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(bodyString.Contains("GetSection"),
-                "Should fall back to GetSection when no EnumProvider exists for non-enum struct");
-        }
+            var configSectionCtor = clientOptionsProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
 
-        /// <summary>
-        /// Creates a CSharpType representing a non-framework struct that is NOT an enum,
-        /// simulating custom code types like audience structs.
-        /// </summary>
-        private static CSharpType CreateNonEnumStructType(string name, string ns)
-        {
-            var ctor = typeof(CSharpType).GetConstructor(
-                BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                [typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(CSharpType),
-                 typeof(IReadOnlyList<CSharpType>), typeof(bool), typeof(bool), typeof(CSharpType), typeof(Type)],
-                null)!;
-            return (CSharpType)ctor.Invoke([name, ns, true, false, null, Array.Empty<CSharpType>(), true, true, null, null]);
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Audience"),
+                "IConfigurationSection constructor should bind the custom code 'Audience' property from configuration");
         }
     }
 }
