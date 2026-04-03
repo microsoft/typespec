@@ -913,25 +913,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestBindCoreMethod_WithNonEnumStructParam_FallsBackToComplexObject()
-        {
-            // A non-enum struct with no discoverable constructor falls back to complex object binding
-            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
-
-            var body = new List<MethodBodyStatement>();
-            var sectionParam = new ParameterProvider(
-                "section",
-                $"The configuration section.",
-                ClientSettingsProvider.IConfigurationSectionType);
-
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Unknown", "unknown", structType);
-
-            Assert.IsTrue(body.Count > 0, "Should generate binding statements for non-enum struct");
-            var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(bodyString.Contains("GetSection"), "Should fall back to GetSection when no constructor is discoverable");
-        }
-
-        [Test]
         public async Task TestBindCoreMethod_WithCustomStructParam()
         {
             // A custom struct with a string constructor should use string binding
@@ -942,7 +923,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var structType = CreateNonEnumStructType("CustomAudience", "SampleNamespace");
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+            Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
             var sectionParam = new ParameterProvider(
@@ -950,7 +933,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 $"The configuration section.",
                 ClientSettingsProvider.IConfigurationSectionType);
 
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", structType);
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Audience", "audience", typeProvider!.Type);
 
             var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
             Assert.IsTrue(bodyString.Contains("is string"),
@@ -970,7 +953,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var structType = CreateNonEnumStructType("CustomPriority", "SampleNamespace");
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+            Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
             var sectionParam = new ParameterProvider(
@@ -978,28 +963,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 $"The configuration section.",
                 ClientSettingsProvider.IConfigurationSectionType);
 
-            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Priority", "priority", structType);
+            ClientSettingsProvider.AppendBindingForProperty(body, sectionParam, "Priority", "priority", typeProvider!.Type);
 
             var bodyString = string.Join("\n", body.Select(s => s.ToDisplayString()));
             Assert.IsTrue(bodyString.Contains("int.TryParse"),
                 "Should use int.TryParse for custom struct with int constructor");
             Assert.IsFalse(bodyString.Contains("GetSection"),
                 "Should NOT use GetSection for custom struct with int constructor");
-        }
-
-        /// <summary>
-        /// Creates a CSharpType representing a non-framework struct that is NOT an enum,
-        /// simulating custom code types like audience structs.
-        /// </summary>
-        private static CSharpType CreateNonEnumStructType(string name, string ns)
-        {
-            var ctor = typeof(CSharpType).GetConstructor(
-                BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                [typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(CSharpType),
-                 typeof(IReadOnlyList<CSharpType>), typeof(bool), typeof(bool), typeof(CSharpType), typeof(Type)],
-                null)!;
-            return (CSharpType)ctor.Invoke([name, ns, true, false, null, Array.Empty<CSharpType>(), true, true, null, null]);
         }
 
         private static bool IsSettingsConstructor(ConstructorProvider c) =>

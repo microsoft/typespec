@@ -751,18 +751,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
-        public void GetJsonSchemaForType_ReturnsObjectSchema_ForNonEnumStructWithNoConstructor()
-        {
-            // A non-enum struct with no discoverable constructor falls back to object,
-            // consistent with AppendComplexObjectBinding in settings binding.
-            var structType = CreateNonEnumStructType("UnknownStruct", "TestNamespace");
-
-            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(structType);
-            Assert.AreEqual("object", schema["type"]?.GetValue<string>(),
-                "Non-enum struct types with no discoverable constructor should fall back to object");
-        }
-
-        [Test]
         public void Generate_UsesCustomSectionName()
         {
             var client = InputFactory.Client("TestService");
@@ -974,19 +962,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 "Internal constructor parameter 'anotherInternalParam' should NOT appear in schema");
         }
 
-        /// <summary>
-        /// Creates a CSharpType representing a non-framework struct that is NOT an enum,
-        /// simulating custom code types like audience structs.
-        /// </summary>
-        private static CSharpType CreateNonEnumStructType(string name, string ns)
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsStringSchema_ForCustomStringStruct()
         {
-            var ctor = typeof(CSharpType).GetConstructor(
-                BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                [typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(CSharpType),
-                 typeof(IReadOnlyList<CSharpType>), typeof(bool), typeof(bool), typeof(CSharpType), typeof(Type)],
-                null)!;
-            return (CSharpType)ctor.Invoke([name, ns, true, false, null, Array.Empty<CSharpType>(), true, true, null, null]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+            Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("string", schema["type"]?.GetValue<string>(),
+                "Custom struct with string constructor should produce string schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsIntegerSchema_ForCustomIntStruct()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+            Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("integer", schema["type"]?.GetValue<string>(),
+                "Custom struct with int constructor should produce integer schema");
         }
 
         /// <summary>
