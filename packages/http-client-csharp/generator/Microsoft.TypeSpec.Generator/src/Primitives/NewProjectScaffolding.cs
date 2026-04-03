@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
-    //TODO Need to define the rest of the extensibility points https://github.com/microsoft/typespec/issues/4065
     public class NewProjectScaffolding
     {
         public async Task<bool> Execute()
@@ -32,7 +31,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             await WriteProjectFiles();
 
+            await WriteAdditionalFiles();
+
             return true;
+        }
+
+        /// <summary>
+        /// Override this method to write additional files during new project scaffolding.
+        /// This is called after the solution and project files have been written.
+        /// </summary>
+        protected virtual Task WriteAdditionalFiles()
+        {
+            return Task.CompletedTask;
         }
 
         private async Task WriteProjectFiles()
