@@ -1,25 +1,28 @@
 /* eslint-disable no-console */
-import chalk from "chalk";
-import { execFile } from "child_process";
+/**
+ * Regenerates Python SDK code from TypeSpec definitions.
+ *
+ * Uses in-process TypeSpec compilation to avoid subprocess spawning overhead.
+ * This is significantly faster than spawning `tsp compile` for each spec.
+ */
+
+import { compile, NodeHost } from "@typespec/compiler";
 import { promises, rmSync } from "fs";
 import { platform } from "os";
-import { join, resolve } from "path";
+import { dirname, join, relative, resolve } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
-import { parseArgs, promisify } from "util";
+import { parseArgs } from "util";
 import {
   BASE_AZURE_EMITTER_OPTIONS,
   BASE_EMITTER_OPTIONS,
-  buildOptions,
-  regenerate,
+  getSubdirectories,
+  SpecialFlags,
   toPosix,
-  type RegenerateConfig,
   type RegenerateFlags,
-  type RegenerateFlagsInput,
-  type TspCommand,
 } from "./regenerate-common.js";
 
-// PARSE INPUT ARGUMENTS
-
+// Parse arguments
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
@@ -29,68 +32,60 @@ const argv = parseArgs({
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
-    pyodide: { type: "boolean" },
     jobs: { type: "string", short: "j" },
     help: { type: "boolean", short: "h" },
   },
 });
 
-// Show help message
 if (argv.values.help) {
   console.log(`
-${chalk.bold("Usage:")} tsx regenerate.ts [options]
+${pc.bold("Usage:")} tsx regenerate.ts [options]
 
-${chalk.bold("Description:")}
-  Regenerates Python SDK code from TypeSpec definitions.
+${pc.bold("Description:")}
+  Regenerates Python SDK code from TypeSpec definitions using in-process compilation.
+  This avoids spawning a new Node.js process for each spec, making it significantly faster.
 
-${chalk.bold("Options:")}
-  ${chalk.cyan("-f, --flavor <azure|unbranded>")}
+${pc.bold("Options:")}
+  ${pc.cyan("-f, --flavor <azure|unbranded>")}
       SDK flavor to regenerate. If not specified, regenerates both flavors.
 
-  ${chalk.cyan("-n, --name <pattern>")}
+  ${pc.cyan("-n, --name <pattern>")}
       Filter packages by name pattern (case-insensitive substring match).
       Examples:
         --name xml              Regenerate packages containing "xml"
         --name authentication   Regenerate authentication packages
         --name type/array       Regenerate the type/array package
 
-  ${chalk.cyan("-d, --debug")}
+  ${pc.cyan("-d, --debug")}
       Enable debug output during regeneration.
 
-  ${chalk.cyan("--pyodide")}
-      Use Pyodide (WebAssembly Python) instead of native Python.
+  ${pc.cyan("-j, --jobs <n>")}
+      Number of parallel compilation tasks (default: 30).
 
-  ${chalk.cyan("-j, --jobs <n>")}
-      Number of parallel jobs (default: 30, or 50 on Windows with Pyodide).
-
-  ${chalk.cyan("-h, --help")}
+  ${pc.cyan("-h, --help")}
       Show this help message.
 
-${chalk.bold("Examples:")}
-  ${chalk.dim("# Regenerate all packages for both flavors")}
+${pc.bold("Examples:")}
+  ${pc.dim("# Regenerate all packages for both flavors")}
   tsx regenerate.ts
 
-  ${chalk.dim("# Regenerate only Azure packages")}
+  ${pc.dim("# Regenerate only Azure packages")}
   tsx regenerate.ts --flavor azure
-  tsx regenerate.ts -f azure
 
-  ${chalk.dim("# Regenerate a specific package by name")}
+  ${pc.dim("# Regenerate a specific package by name")}
   tsx regenerate.ts --flavor azure --name authentication-api-key
-  tsx regenerate.ts -f azure -n authentication
 
-  ${chalk.dim("# Regenerate all XML-related packages")}
-  tsx regenerate.ts --name xml
-
-  ${chalk.dim("# Regenerate with debug output")}
-  tsx regenerate.ts -f unbranded -n array --debug
+  ${pc.dim("# Regenerate with more parallelism")}
+  tsx regenerate.ts --jobs 50
 `);
   process.exit(0);
 }
 
-// Get the directory of the current file
+// Get paths
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
-  : resolve(fileURLToPath(import.meta.url), "../../../../");
+  : resolve(SCRIPT_DIR, "../../../");
 const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
 const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder
@@ -98,6 +93,7 @@ const GENERATED_FOLDER = argv.values.generatedFolder
   : resolve(PLUGIN_DIR, "generator");
 const EMITTER_NAME = argv.values.emitterName || "@typespec/http-client-python";
 
+// Emitter options
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   ...BASE_AZURE_EMITTER_OPTIONS,
   "client/structure/client-operation-group": {
@@ -111,96 +107,242 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/array": {
     "package-name": "typetest-array",
     namespace: "typetest.array",
-    "use-pyodide": "true",
   },
   "type/model/inheritance/recursive": {
     "package-name": "typetest-model-recursive",
     namespace: "typetest.model.recursive",
-    "use-pyodide": "true",
   },
 };
 
-// Function to execute CLI commands asynchronously
-async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  const cmd = tspCommand.command as string[];
-  const execFileAsync = promisify(execFile);
+interface CompileTask {
+  spec: string;
+  outputDir: string;
+  options: Record<string, unknown>;
+}
+
+function defaultPackageName(spec: string): string {
+  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  return toPosix(relative(specDir, dirname(spec)))
+    .replace(/\//g, "-")
+    .toLowerCase();
+}
+
+function getEmitterOptions(spec: string, flavor: string): Record<string, string>[] {
+  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const relativeSpec = toPosix(relative(specDir, spec));
+  const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
+    ? relativeSpec
+    : dirname(relativeSpec);
+  const emitterOpts = EMITTER_OPTIONS[key] ||
+    (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
+  return Array.isArray(emitterOpts) ? emitterOpts : [emitterOpts];
+}
+
+function buildTasks(specs: string[], flags: RegenerateFlags): CompileTask[] {
+  const tasks: CompileTask[] = [];
+
+  for (const spec of specs) {
+    for (const emitterConfig of getEmitterOptions(spec, flags.flavor)) {
+      const options: Record<string, unknown> = { ...emitterConfig };
+
+      // Add flavor-specific options
+      options["flavor"] = flags.flavor;
+      for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
+        options[k] = v;
+      }
+
+      // Set output directory - use tests/generated/<flavor>/<package> structure
+      const packageName = (options["package-name"] as string) || defaultPackageName(spec);
+      const outputDir =
+        (options["emitter-output-dir"] as string) ||
+        toPosix(`${GENERATED_FOLDER}/../tests/generated/${flags.flavor}/${packageName}`);
+      options["emitter-output-dir"] = outputDir;
+
+      // Debug mode
+      if (flags.debug) {
+        options["debug"] = true;
+      }
+
+      // Examples directory
+      options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
+
+      tasks.push({ spec, outputDir, options });
+    }
+  }
+
+  return tasks;
+}
+
+async function compileSpec(task: CompileTask): Promise<{ success: boolean; error?: string }> {
+  const { spec, outputDir, options } = task;
+
   try {
-    console.log(chalk.green(`start tsp ${cmd.join(" ")}`));
-    await execFileAsync("tsp", cmd, { shell: true });
-    console.log(chalk.green(`tsp ${cmd.join(" ")} succeeded`));
+    // Build compiler options
+    const compilerOptions = {
+      emit: [PLUGIN_DIR],
+      options: {
+        [EMITTER_NAME]: options,
+      },
+    };
+
+    // Compile using TypeSpec compiler directly (no subprocess)
+    const program = await compile(NodeHost, spec, compilerOptions);
+
+    if (program.hasError()) {
+      const errors = program.diagnostics
+        .filter((d) => d.severity === "error")
+        .map((d) => d.message)
+        .join("\n");
+      return { success: false, error: errors };
+    }
+
+    return { success: true };
   } catch (err) {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-    console.error(chalk.red(`exec error: ${err}`));
-    throw err;
+    // Clean up on error
+    rmSync(outputDir, { recursive: true, force: true });
+    return { success: false, error: String(err) };
   }
 }
 
-// create some files before regeneration. After regeneration, these files should be deleted and we will test it
-// in test case
-async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
-  if (flags.flavor === "azure") {
-    // create folder if not exists
+async function runParallel(tasks: CompileTask[], maxJobs: number): Promise<Map<string, boolean>> {
+  const results = new Map<string, boolean>();
+  const executing: Set<Promise<void>> = new Set();
+
+  let completed = 0;
+  const total = tasks.length;
+
+  for (const task of tasks) {
+    const run = async () => {
+      const specDir = task.spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+      const shortName = toPosix(relative(specDir, dirname(task.spec)));
+      console.log(pc.blue(`[${completed + 1}/${total}] Compiling ${shortName}...`));
+
+      const result = await compileSpec(task);
+      completed++;
+
+      if (result.success) {
+        console.log(pc.green(`[${completed}/${total}] ${shortName} succeeded`));
+      } else {
+        console.log(pc.red(`[${completed}/${total}] ${shortName} failed: ${result.error}`));
+      }
+
+      results.set(task.spec, result.success);
+    };
+
+    const p = run().finally(() => executing.delete(p));
+    executing.add(p);
+
+    if (executing.size >= maxJobs) {
+      await Promise.race(executing);
+    }
+  }
+
+  await Promise.all(executing);
+  return results;
+}
+
+// Preprocess: create files that should be deleted after regeneration (for testing)
+async function preprocess(flavor: string): Promise<void> {
+  if (flavor === "azure") {
+    // Use tests/generated/<flavor>/<package> structure (same as output)
+    const testsGeneratedDir = resolve(GENERATED_FOLDER, "../tests/generated");
     const folderParts = [
-      "test",
       "azure",
-      "generated",
       "authentication-api-key",
       "authentication",
       "apikey",
       "_operations",
     ];
-    await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
+    await promises.mkdir(join(testsGeneratedDir, ...folderParts), { recursive: true });
     await promises.writeFile(
-      join(GENERATED_FOLDER, ...folderParts, "to_be_deleted.py"),
+      join(testsGeneratedDir, ...folderParts, "to_be_deleted.py"),
       "# This file is to be deleted after regeneration",
     );
   }
 }
 
-function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
-  return buildOptions(spec, GENERATED_FOLDER, flags, config).map((po) => {
-    const optionArgs = Object.entries(po.options).flatMap(([k, v]) => [
-      "--option",
-      `${EMITTER_NAME}.${k}="${v}"`,
-    ]);
-    return {
-      outputDir: po.outputDir,
-      command: ["compile", spec, "--emit", toPosix(PLUGIN_DIR), ...optionArgs],
-    };
-  });
+async function regenerateFlavor(
+  flavor: string,
+  name: string | undefined,
+  debug: boolean,
+  jobs: number,
+): Promise<boolean> {
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Regenerating ${flavor} flavor`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  const flags: RegenerateFlags = { flavor, debug, name };
+
+  // Preprocess
+  await preprocess(flavor);
+
+  // Collect specs
+  const azureSpecs = flavor === "azure" ? await getSubdirectories(AZURE_HTTP_SPECS, flags) : [];
+  const standardSpecs = await getSubdirectories(HTTP_SPECS, flags);
+  const allSpecs = [...azureSpecs, ...standardSpecs];
+
+  console.log(pc.cyan(`Found ${allSpecs.length} specs to compile`));
+  console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
+
+  // Build tasks
+  const tasks = buildTasks(allSpecs, flags);
+
+  // Run compilation
+  const startTime = performance.now();
+  const results = await runParallel(tasks, jobs);
+  const duration = (performance.now() - startTime) / 1000;
+
+  // Summary
+  const succeeded = Array.from(results.values()).filter((v) => v).length;
+  const failed = results.size - succeeded;
+
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Results: ${succeeded} succeeded, ${failed} failed`));
+  console.log(pc.cyan(`Time: ${duration.toFixed(1)}s`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  return failed === 0;
 }
 
-const config: RegenerateConfig = {
-  azureHttpSpecs: AZURE_HTTP_SPECS,
-  httpSpecs: HTTP_SPECS,
-  emitterOptions: EMITTER_OPTIONS,
-  azureEmitterOptions: AZURE_EMITTER_OPTIONS,
-  preprocess,
-  getCmdList: _getCmdList,
-  executeCommand,
-};
+async function main() {
+  const isWindows = platform() === "win32";
+  const flavor = argv.values.flavor;
+  const name = argv.values.name;
+  const debug = argv.values.debug ?? false;
+  const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : 30;
 
-// On Windows, default to Pyodide to avoid slow process spawning overhead
-const isWindows = platform() === "win32";
-const usePyodide = argv.values.pyodide ?? isWindows;
+  console.log(pc.cyan(`\nRegeneration config:`));
+  console.log(pc.cyan(`  Platform: ${isWindows ? "Windows" : "Unix"}`));
+  console.log(pc.cyan(`  Mode:     in-process compilation`));
+  console.log(pc.cyan(`  Jobs:     ${jobs}`));
+  if (name) {
+    console.log(pc.cyan(`  Filter:   ${name}`));
+  }
+  console.log();
 
-// On Windows with Pyodide, we can use more parallelism since we're not spawning Python processes
-// Default: 30 jobs on Linux/macOS, 50 jobs on Windows with Pyodide
-const defaultJobs = isWindows && usePyodide ? 50 : 30;
-const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : defaultJobs;
+  const startTime = performance.now();
+  let success = true;
 
-console.log(chalk.cyan(`\nRegeneration config:`));
-console.log(chalk.cyan(`  Platform: ${isWindows ? "Windows" : "Unix"}`));
-console.log(chalk.cyan(`  Pyodide:  ${usePyodide}`));
-console.log(chalk.cyan(`  Jobs:     ${jobs}\n`));
+  if (flavor) {
+    success = await regenerateFlavor(flavor, name, debug, jobs);
+  } else {
+    // Both flavors
+    const azureSuccess = await regenerateFlavor("azure", name, debug, jobs);
+    const unbrandedSuccess = await regenerateFlavor("unbranded", name, debug, jobs);
+    success = azureSuccess && unbrandedSuccess;
+  }
 
-const start = performance.now();
-regenerate({ ...argv.values, pyodide: usePyodide, jobs }, config)
-  .then(() =>
-    console.log(
-      chalk.green(
-        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
-      ),
-    ),
-  )
-  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));
+  const totalDuration = (performance.now() - startTime) / 1000;
+  console.log(
+    success
+      ? pc.green(`\nRegeneration completed successfully in ${totalDuration.toFixed(1)}s`)
+      : pc.red(`\nRegeneration failed after ${totalDuration.toFixed(1)}s`),
+  );
+
+  process.exit(success ? 0 : 1);
+}
+
+main().catch((err) => {
+  console.error(pc.red(`Fatal error: ${err}`));
+  process.exit(1);
+});
