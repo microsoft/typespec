@@ -330,7 +330,6 @@ async function checkForPylintIssues(outputDir: string, excludePattern: string) {
       return [];
     }
 
-    const files: string[] = [];
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
 
     const promises = entries.map(async (entry) => {
