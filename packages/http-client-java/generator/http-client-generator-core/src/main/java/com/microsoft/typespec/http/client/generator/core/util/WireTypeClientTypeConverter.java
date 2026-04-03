@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.DateTimeRfc1123;
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -168,15 +167,6 @@ public class WireTypeClientTypeConverter {
         String literalValue = literalInWireType;
         try {
             if (wireType == ClassType.DATE_TIME_RFC_1123) {
-                if (literalValue.length() != 29 || !literalValue.endsWith("GMT")) {
-                    /*
-                     * hack
-                     * DateTimeException from DateTimeRfc1123 would log a same error message as generator,
-                     * which trigger the error message from emitter which fails the emitter.
-                     * We need this to be a warning, not an error.
-                     */
-                    throw new DateTimeException("Invalid date time.");
-                }
                 literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
             } else if (wireType == ClassType.BASE_64_URL) {
                 literalValue = new Base64Uri(literalValue).toString();
