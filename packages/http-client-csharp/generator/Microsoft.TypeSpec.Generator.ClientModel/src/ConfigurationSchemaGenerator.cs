@@ -127,7 +127,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
-                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        settings.HasSettingsParameter(ctor))
                     {
                         continue;
                     }

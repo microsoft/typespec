@@ -964,5 +964,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(bodyString.Contains("ConnectionString"),
                 "BindCore should bind the custom constructor parameter 'ConnectionString' from configuration");
         }
+
+        [Test]
+        public void TestSettingsType_DoesNotContainSelfReferentialSettingsProperty()
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            // The settings type should not have a property named "Settings" that references itself.
+            // This would happen if the generated settings constructor (which takes the settings type
+            // as a parameter) is incorrectly treated as a custom constructor.
+            var settingsProperty = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Settings");
+            Assert.IsNull(settingsProperty,
+                "Settings type should not contain a self-referential 'Settings' property");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_DoesNotBindSettingsParameter()
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("GetSection(\"Settings\")"),
+                "BindCore should not bind a self-referential Settings section");
+        }
     }
 }

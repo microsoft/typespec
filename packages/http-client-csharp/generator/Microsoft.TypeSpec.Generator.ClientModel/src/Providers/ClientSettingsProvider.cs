@@ -117,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
-                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
                     {
                         continue;
                     }
@@ -190,7 +191,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
-                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
                     {
                         continue;
                     }
@@ -497,6 +499,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns true if the constructor has a parameter whose type matches this client's
+        /// settings type.
+        /// </summary>
+        internal bool HasSettingsParameter(ConstructorProvider ctor)
+        {
+            return ctor.Signature.Parameters.Any(p => p.Type.Equals(Type));
         }
     }
 }
