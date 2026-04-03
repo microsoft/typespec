@@ -30,6 +30,7 @@ const argv = parseArgs({
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
     pyodide: { type: "boolean" },
+    jobs: { type: "string", short: "j" },
     help: { type: "boolean", short: "h" },
   },
 });
@@ -58,6 +59,9 @@ ${chalk.bold("Options:")}
 
   ${chalk.cyan("--pyodide")}
       Use Pyodide (WebAssembly Python) instead of native Python.
+
+  ${chalk.cyan("-j, --jobs <n>")}
+      Number of parallel jobs (default: 30, or 50 on Windows with Pyodide).
 
   ${chalk.cyan("-h, --help")}
       Show this help message.
@@ -177,10 +181,21 @@ const config: RegenerateConfig = {
 };
 
 // On Windows, default to Pyodide to avoid slow process spawning overhead
-const usePyodide = argv.values.pyodide ?? platform() === "win32";
+const isWindows = platform() === "win32";
+const usePyodide = argv.values.pyodide ?? isWindows;
+
+// On Windows with Pyodide, we can use more parallelism since we're not spawning Python processes
+// Default: 30 jobs on Linux/macOS, 50 jobs on Windows with Pyodide
+const defaultJobs = isWindows && usePyodide ? 50 : 30;
+const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : defaultJobs;
+
+console.log(chalk.cyan(`\nRegeneration config:`));
+console.log(chalk.cyan(`  Platform: ${isWindows ? "Windows" : "Unix"}`));
+console.log(chalk.cyan(`  Pyodide:  ${usePyodide}`));
+console.log(chalk.cyan(`  Jobs:     ${jobs}\n`));
 
 const start = performance.now();
-regenerate({ ...argv.values, pyodide: usePyodide }, config)
+regenerate({ ...argv.values, pyodide: usePyodide, jobs }, config)
   .then(() =>
     console.log(
       chalk.green(

@@ -282,6 +282,7 @@ export interface RegenerateFlagsInput {
   debug?: boolean;
   name?: string;
   pyodide?: boolean;
+  jobs?: number;
 }
 
 export interface RegenerateFlags {
@@ -424,21 +425,24 @@ export async function runTaskPool(
   tasks: Array<() => Promise<void>>,
   poolLimit: number,
 ): Promise<void> {
-  async function worker(start: number, end: number) {
-    while (start < end) {
-      await tasks[start]();
-      start++;
+  const executing: Set<Promise<void>> = new Set();
+
+  for (const task of tasks) {
+    // Start the task
+    const p = task().then(
+      () => executing.delete(p),
+      () => executing.delete(p),
+    );
+    executing.add(p);
+
+    // If at capacity, wait for one to complete
+    if (executing.size >= poolLimit) {
+      await Promise.race(executing);
     }
   }
 
-  const workers = [];
-  let start = 0;
-  while (start < tasks.length) {
-    const end = Math.min(start + poolLimit, tasks.length);
-    workers.push((async () => await worker(start, end))());
-    start = end;
-  }
-  await Promise.all(workers);
+  // Wait for remaining tasks
+  await Promise.all(executing);
 }
 
 export async function regenerate(
@@ -468,6 +472,8 @@ export async function regenerate(
     });
 
     // Run tasks with a concurrency limit
-    await runTaskPool(tasks, 30);
+    // Default: 30 jobs, or use provided value
+    const poolLimit = flags.jobs ?? 30;
+    await runTaskPool(tasks, poolLimit);
   }
 }
