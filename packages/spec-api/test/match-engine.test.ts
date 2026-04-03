@@ -228,7 +228,7 @@ describe("integration with expandDyns({ resolveMatchers: false })", () => {
   });
 
   it("should allow matchValues to do semantic datetime comparison after expandDyns with resolveMatchers:false", () => {
-    // Regression test: query params with datetime matchers must use semantic comparison.
+    // Regression test: query params/headers with datetime matchers must use semantic comparison.
     // Without resolveMatchers:false, expandDyns converts the matcher to the plain string
     // "2022-08-26T18:38:00.000Z", and a strict === comparison against the actual value
     // "2022-08-26T18:38:00Z" (no milliseconds) would fail even though they represent the
@@ -242,6 +242,20 @@ describe("integration with expandDyns({ resolveMatchers: false })", () => {
     // Simulates what createHandler does: isMatcher → deepEqual → matchValues → matcher.check()
     expect(isMatcher(expanded.input)).toBe(true);
     expectPass(matchValues(actualQueryValue, expanded.input, "$", config));
+  });
+
+  it("should allow matchValues to do semantic datetime comparison for header values after expandDyns with resolveMatchers:false", () => {
+    // Regression test: headers with datetime matchers must use semantic comparison, same as query params.
+    // Without resolveMatchers:false the matcher is serialized early and isMatcher() returns false,
+    // so the code falls through to containsHeader() with String(value) — a strict string equality
+    // that fails for semantically equivalent but format-different datetime strings.
+    const headerDef = { "x-ms-date": match.dateTime.rfc7231("Fri, 26 Aug 2022 18:38:00 GMT") };
+    const expanded = expandDyns(headerDef, config, { resolveMatchers: false });
+
+    // isMatcher must still be true so createHandler routes through deepEqual / matchValues
+    expect(isMatcher(expanded["x-ms-date"])).toBe(true);
+    // Semantic check passes for the exact same RFC 7231 string
+    expectPass(matchValues("Fri, 26 Aug 2022 18:38:00 GMT", expanded["x-ms-date"], "$", config));
   });
 
   it("should demonstrate why resolveMatchers:true (default) breaks semantic query param matching", () => {
