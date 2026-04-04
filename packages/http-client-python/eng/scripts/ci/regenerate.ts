@@ -60,7 +60,7 @@ ${pc.bold("Options:")}
       Enable debug output during regeneration.
 
   ${pc.cyan("-j, --jobs <n>")}
-      Number of parallel compilation tasks (default: 30).
+      Number of parallel compilation tasks (default: 30 on Linux/Mac, 10 on Windows).
 
   ${pc.cyan("-h, --help")}
       Show this help message.
@@ -332,7 +332,10 @@ async function main() {
   const flavor = argv.values.flavor;
   const name = argv.values.name;
   const debug = argv.values.debug ?? false;
-  const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : 30;
+  // Windows has slower file system operations and process spawning,
+  // so use fewer parallel jobs to avoid I/O contention and memory pressure
+  const defaultJobs = isWindows ? 10 : 30;
+  const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : defaultJobs;
 
   console.log(pc.cyan(`\nRegeneration config:`));
   console.log(pc.cyan(`  Platform: ${isWindows ? "Windows" : "Unix"}`));
