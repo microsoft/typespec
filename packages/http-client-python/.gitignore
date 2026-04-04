@@ -8,5 +8,9 @@ generator/test/.diff-summary.md
 # Regeneration marker (tracks when generated code was last regenerated)
 .last-regenerate
 
+# Test server coordination files (pytest-xdist)
+tests/.server.lock
+tests/.server.pid
+
 # local folder for debug
 alpha

@@ -12,6 +12,7 @@ import urllib.error
 import pytest
 import importlib
 from pathlib import Path
+from filelock import FileLock
 
 # Root of the http-client-python package
 ROOT = Path(__file__).parent.parent
@@ -21,6 +22,10 @@ DATA_FOLDER = Path(__file__).parent / "mock_api" / "shared"
 SERVER_HOST = "localhost"
 SERVER_PORT = 3000
 SERVER_URL = f"http://{SERVER_HOST}:{SERVER_PORT}"
+
+# Lock file for coordinating server startup across xdist workers
+LOCK_FILE = ROOT / "tests" / ".server.lock"
+PID_FILE = ROOT / "tests" / ".server.pid"
 
 
 def wait_for_server(url: str, timeout: int = 60, interval: float = 0.5) -> bool:
@@ -67,17 +72,50 @@ def terminate_server_process(process):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def testserver():
-    """Start spector mock api tests."""
-    server = start_server_process()
+def testserver(request):
+    """Start spector mock api tests with xdist support.
 
-    # Wait for server to be ready
-    if not wait_for_server(SERVER_URL, timeout=60):
-        terminate_server_process(server)
-        pytest.fail(f"Mock API server failed to start within 60 seconds at {SERVER_URL}")
+    When running with pytest-xdist, only one worker starts the server.
+    Other workers wait for the server to be ready.
+    """
+    # Check if running under xdist
+    worker_id = getattr(request.config, "workerinput", {}).get("workerid", "master")
+    is_xdist = hasattr(request.config, "workerinput")
+
+    server = None
+
+    if is_xdist:
+        # Use file lock to coordinate server startup across workers
+        with FileLock(str(LOCK_FILE)):
+            if not wait_for_server(SERVER_URL, timeout=1, interval=0.1):
+                # Server not running, we need to start it
+                server = start_server_process()
+                # Save PID so we know we're responsible for cleanup
+                PID_FILE.write_text(str(server.pid))
+
+                if not wait_for_server(SERVER_URL, timeout=60):
+                    terminate_server_process(server)
+                    pytest.fail(f"Mock API server failed to start within 60 seconds at {SERVER_URL}")
+
+        # If we didn't start the server, wait for it to be ready
+        if server is None:
+            if not wait_for_server(SERVER_URL, timeout=60):
+                pytest.fail(f"Mock API server not available at {SERVER_URL}")
+    else:
+        # Not running under xdist, use original behavior
+        server = start_server_process()
+        if not wait_for_server(SERVER_URL, timeout=60):
+            terminate_server_process(server)
+            pytest.fail(f"Mock API server failed to start within 60 seconds at {SERVER_URL}")
 
     yield
-    terminate_server_process(server)
+
+    # Only terminate if we started the server
+    if server is not None:
+        terminate_server_process(server)
+        # Clean up PID file
+        if PID_FILE.exists():
+            PID_FILE.unlink()
 
 
 @pytest.fixture
