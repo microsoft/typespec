@@ -213,7 +213,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
     if (parameter.clientDefaultValue) {
-      type = getSimpleTypeResult({
+      type = getSimpleTypeResult(context, {
         type: "constant",
         value: parameter.clientDefaultValue,
         valueType: type,
