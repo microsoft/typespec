@@ -962,6 +962,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 "Internal constructor parameter 'anotherInternalParam' should NOT appear in schema");
         }
 
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsStringSchema_ForCustomStringStruct()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+            Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("string", schema["type"]?.GetValue<string>(),
+                "Custom struct with string constructor should produce string schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsIntegerSchema_ForCustomIntStruct()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+            Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("integer", schema["type"]?.GetValue<string>(),
+                "Custom struct with int constructor should produce integer schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsObjectSchema_ForCustomStructWithNoValidConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+            Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("object", schema["type"]?.GetValue<string>(),
+                "Custom struct with no single-parameter framework-type constructor should fall back to object");
+        }
+
         /// <summary>
         /// Test output library that wraps provided TypeProviders.
         /// </summary>

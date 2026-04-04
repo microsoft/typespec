@@ -253,6 +253,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
                     }
                 }
+                else if (type.IsStruct && TryGetStructUnderlyingType(type) is { } underlyingType)
+                {
+                    // Non-enum struct with a discoverable constructor parameter type.
+                    // Use the constructor's parameter type to pick the correct binding.
+                    if (underlyingType.FrameworkType == typeof(string))
+                    {
+                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                    else if (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+                    }
+                    else if (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+                    }
+                    else
+                    {
+                        AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                    }
+                }
                 else
                 {
                     AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
@@ -466,6 +487,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
+        /// Finds the single-value constructor parameter type for a non-framework struct type
+        /// by looking up the type's constructors in custom code. Returns null if no suitable
+        /// constructor is found.
+        /// </summary>
+        internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
+        {
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization(type.Namespace, type.Name);
+
+            if (typeProvider == null)
+            {
+                return null;
+            }
+
+            foreach (var ctor in typeProvider.Constructors)
+            {
+                var parameters = ctor.Signature.Parameters;
+                if (parameters.Count == 1 && parameters[0].Type.IsFrameworkType)
+                {
+                    return parameters[0].Type;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Checks if a type is a standard client parameter type that should not be included as a
         /// custom settings property (credential types, endpoint types, or options types).
         /// </summary>
@@ -507,7 +555,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasSettingsParameter(ConstructorProvider ctor)
         {
-            return ctor.Signature.Parameters.Any(p => p.Type.Equals(Type));
+            return ctor.Signature.Parameters.Any(p => p.Type.Name == Type.Name);
         }
     }
 }
