@@ -307,6 +307,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
