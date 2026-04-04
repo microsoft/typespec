@@ -120,6 +120,12 @@ interface CompileTask {
   options: Record<string, unknown>;
 }
 
+// Group of tasks for the same spec that must run sequentially
+interface TaskGroup {
+  spec: string;
+  tasks: CompileTask[];
+}
+
 function defaultPackageName(spec: string): string {
   const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
   return toPosix(relative(specDir, dirname(spec)))
@@ -138,10 +144,12 @@ function getEmitterOptions(spec: string, flavor: string): Record<string, string>
   return Array.isArray(emitterOpts) ? emitterOpts : [emitterOpts];
 }
 
-function buildTasks(specs: string[], flags: RegenerateFlags): CompileTask[] {
-  const tasks: CompileTask[] = [];
+function buildTaskGroups(specs: string[], flags: RegenerateFlags): TaskGroup[] {
+  const groups: TaskGroup[] = [];
 
   for (const spec of specs) {
+    const tasks: CompileTask[] = [];
+
     for (const emitterConfig of getEmitterOptions(spec, flags.flavor)) {
       const options: Record<string, unknown> = { ...emitterConfig };
 
@@ -168,9 +176,11 @@ function buildTasks(specs: string[], flags: RegenerateFlags): CompileTask[] {
 
       tasks.push({ spec, outputDir, options });
     }
+
+    groups.push({ spec, tasks });
   }
 
-  return tasks;
+  return groups;
 }
 
 async function compileSpec(task: CompileTask): Promise<{ success: boolean; error?: string }> {
@@ -204,32 +214,44 @@ async function compileSpec(task: CompileTask): Promise<{ success: boolean; error
   }
 }
 
-async function runParallel(tasks: CompileTask[], maxJobs: number): Promise<Map<string, boolean>> {
+async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<string, boolean>> {
   const results = new Map<string, boolean>();
   const executing: Set<Promise<void>> = new Set();
 
+  // Count total tasks for progress
+  const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
   let completed = 0;
-  const total = tasks.length;
 
-  for (const task of tasks) {
-    const run = async () => {
-      const specDir = task.spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
-      const shortName = toPosix(relative(specDir, dirname(task.spec)));
-      console.log(pc.blue(`[${completed + 1}/${total}] Compiling ${shortName}...`));
+  for (const group of groups) {
+    // Each group runs as a unit - tasks within a group run sequentially
+    // But different groups can run in parallel
+    const runGroup = async () => {
+      const specDir = group.spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+      const shortName = toPosix(relative(specDir, dirname(group.spec)));
 
-      const result = await compileSpec(task);
-      completed++;
+      // Run all tasks in this group sequentially to avoid state pollution
+      let groupSuccess = true;
+      for (const task of group.tasks) {
+        const packageName = (task.options["package-name"] as string) || shortName;
+        console.log(pc.blue(`[${completed + 1}/${totalTasks}] Compiling ${packageName}...`));
 
-      if (result.success) {
-        console.log(pc.green(`[${completed}/${total}] ${shortName} succeeded`));
-      } else {
-        console.log(pc.red(`[${completed}/${total}] ${shortName} failed: ${result.error}`));
+        const result = await compileSpec(task);
+        completed++;
+
+        if (result.success) {
+          console.log(pc.green(`[${completed}/${totalTasks}] ${packageName} succeeded`));
+        } else {
+          console.log(
+            pc.red(`[${completed}/${totalTasks}] ${packageName} failed: ${result.error}`),
+          );
+          groupSuccess = false;
+        }
       }
 
-      results.set(task.spec, result.success);
+      results.set(group.spec, groupSuccess);
     };
 
-    const p = run().finally(() => executing.delete(p));
+    const p = runGroup().finally(() => executing.delete(p));
     executing.add(p);
 
     if (executing.size >= maxJobs) {
@@ -281,15 +303,16 @@ async function regenerateFlavor(
   const standardSpecs = await getSubdirectories(HTTP_SPECS, flags);
   const allSpecs = [...azureSpecs, ...standardSpecs];
 
-  console.log(pc.cyan(`Found ${allSpecs.length} specs to compile`));
-  console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
+  // Build task groups (tasks for same spec run sequentially to avoid state pollution)
+  const groups = buildTaskGroups(allSpecs, flags);
+  const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
 
-  // Build tasks
-  const tasks = buildTasks(allSpecs, flags);
+  console.log(pc.cyan(`Found ${allSpecs.length} specs (${totalTasks} total tasks) to compile`));
+  console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
 
   // Run compilation
   const startTime = performance.now();
-  const results = await runParallel(tasks, jobs);
+  const results = await runParallel(groups, jobs);
   const duration = (performance.now() - startTime) / 1000;
 
   // Summary
