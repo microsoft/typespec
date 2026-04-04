@@ -35,7 +35,11 @@ def wait_for_server(url: str, timeout: int = 60, interval: float = 0.5) -> bool:
         try:
             urllib.request.urlopen(url, timeout=1)
             return True
-        except (urllib.error.URLError, urllib.error.HTTPError, OSError):
+        except urllib.error.HTTPError:
+            # Server is up but returned an error (e.g., 404) - that's fine
+            return True
+        except (urllib.error.URLError, OSError):
+            # Server not reachable yet
             time.sleep(interval)
     return False
 
@@ -48,16 +52,17 @@ def start_server_process():
     # Determine flavor from environment or current directory
     flavor = os.environ.get("FLAVOR", "azure")
 
+    # Use absolute paths to avoid issues with cwd changes in parallel workers
     if flavor == "unbranded":
-        os.chdir(http_path.resolve())
-        cmd = "npx tsp-spector serve ./specs"
+        cwd = http_path.resolve()
+        cmd = f"npx tsp-spector serve {cwd / 'specs'}"
     else:
-        os.chdir(azure_http_path.resolve())
-        cmd = f"npx tsp-spector serve ./specs {(http_path / 'specs').resolve()}"
+        cwd = azure_http_path.resolve()
+        cmd = f"npx tsp-spector serve {cwd / 'specs'} {(http_path / 'specs').resolve()}"
 
     if os.name == "nt":
-        return subprocess.Popen(cmd, shell=True)
-    return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
+        return subprocess.Popen(cmd, shell=True, cwd=str(cwd))
+    return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid, cwd=str(cwd))
 
 
 def terminate_server_process(process):
