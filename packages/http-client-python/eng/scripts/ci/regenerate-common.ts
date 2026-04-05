@@ -428,11 +428,8 @@ export async function runTaskPool(
   const executing: Set<Promise<void>> = new Set();
 
   for (const task of tasks) {
-    // Start the task
-    const p = task().then(
-      () => executing.delete(p),
-      () => executing.delete(p),
-    );
+    // Start the task and remove from set when done
+    const p: Promise<void> = task().finally(() => executing.delete(p));
     executing.add(p);
 
     // If at capacity, wait for one to complete
