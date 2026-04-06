@@ -576,5 +576,32 @@ namespace Plugin2 { public class Dummy { } }");
                 try { Directory.Delete(testDir, true); } catch { }
             }
         }
+
+        [Test]
+        public void GetExpectedOutputPath_UsesFirstTargetFrameworkFromMultiTargeting()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+</Project>");
+
+                var result = GeneratorHandler.GetExpectedOutputPath(
+                    Path.Combine(testDir, "MultiTarget.csproj"));
+
+                Assert.IsNotNull(result);
+                var expected = Path.Combine(testDir, "bin", "Release", "net8.0", "MultiTarget.dll");
+                Assert.AreEqual(expected, result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
@@ -254,7 +255,7 @@ namespace Microsoft.TypeSpec.Generator
             try
             {
                 using var stream = File.OpenRead(csprojPath);
-                var doc = System.Xml.Linq.XDocument.Load(stream);
+                var doc = XDocument.Load(stream);
 
                 var propertyGroups = doc.Descendants("PropertyGroup");
                 string? targetFramework = null;
@@ -264,6 +265,20 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     targetFramework ??= pg.Element("TargetFramework")?.Value;
                     assemblyName ??= pg.Element("AssemblyName")?.Value;
+                }
+
+                // For multi-targeting projects, use the first target framework
+                if (string.IsNullOrEmpty(targetFramework))
+                {
+                    foreach (var pg in propertyGroups)
+                    {
+                        var frameworks = pg.Element("TargetFrameworks")?.Value;
+                        if (!string.IsNullOrEmpty(frameworks))
+                        {
+                            targetFramework = frameworks.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                            break;
+                        }
+                    }
                 }
 
                 if (string.IsNullOrEmpty(targetFramework))
