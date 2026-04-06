@@ -200,6 +200,7 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// Builds a plugin .csproj and returns the path to the output DLL.
+        /// The output path is constructed from the csproj properties rather than parsing build output.
         /// </summary>
         internal static string? BuildPlugin(string csprojPath, Emitter emitter)
         {
@@ -219,7 +220,8 @@ namespace Microsoft.TypeSpec.Generator
             };
 
             process.Start();
-            var stdout = process.StandardOutput.ReadToEnd();
+            // Read both streams to avoid deadlocks, even though we only use stderr for error reporting.
+            process.StandardOutput.ReadToEnd();
             var stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
@@ -229,25 +231,53 @@ namespace Microsoft.TypeSpec.Generator
                     $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
             }
 
-            // Parse the build output to find the produced DLL path.
-            // dotnet build outputs a line like: "  MyPlugin -> /path/to/bin/Release/net10.0/MyPlugin.dll"
-            foreach (var line in stdout.Split('\n'))
+            var dllPath = GetExpectedOutputPath(csprojPath);
+            if (dllPath != null && File.Exists(dllPath))
             {
-                var trimmed = line.Trim();
-                var arrowIndex = trimmed.IndexOf(" -> ", StringComparison.Ordinal);
-                if (arrowIndex >= 0)
-                {
-                    var dllPath = trimmed[(arrowIndex + 4)..].Trim();
-                    if (dllPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) && File.Exists(dllPath))
-                    {
-                        emitter.Info($"Plugin built: {dllPath}");
-                        return dllPath;
-                    }
-                }
+                emitter.Info($"Plugin built: {dllPath}");
+                return dllPath;
             }
 
             emitter.Info($"Warning: Build succeeded but could not determine output DLL path for '{csprojPath}'");
             return null;
+        }
+
+        /// <summary>
+        /// Constructs the expected output DLL path from the csproj properties:
+        /// [ProjectDirectory]/bin/Release/[TargetFramework]/[AssemblyName].dll
+        /// </summary>
+        internal static string? GetExpectedOutputPath(string csprojPath)
+        {
+            var projectDir = Path.GetDirectoryName(csprojPath)!;
+            var projectName = Path.GetFileNameWithoutExtension(csprojPath);
+
+            try
+            {
+                using var stream = File.OpenRead(csprojPath);
+                var doc = System.Xml.Linq.XDocument.Load(stream);
+
+                var propertyGroups = doc.Descendants("PropertyGroup");
+                string? targetFramework = null;
+                string? assemblyName = null;
+
+                foreach (var pg in propertyGroups)
+                {
+                    targetFramework ??= pg.Element("TargetFramework")?.Value;
+                    assemblyName ??= pg.Element("AssemblyName")?.Value;
+                }
+
+                if (string.IsNullOrEmpty(targetFramework))
+                {
+                    return null;
+                }
+
+                var effectiveAssemblyName = string.IsNullOrEmpty(assemblyName) ? projectName : assemblyName;
+                return Path.Combine(projectDir, "bin", "Release", targetFramework, $"{effectiveAssemblyName}.dll");
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         internal static IList<string> GetOrderedPluginDlls(string pluginDirectoryStart)

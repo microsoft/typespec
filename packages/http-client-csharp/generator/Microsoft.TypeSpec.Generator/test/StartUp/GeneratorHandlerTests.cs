@@ -477,5 +477,104 @@ namespace Plugin2 { public class Dummy { } }");
                 try { Directory.Delete(testDir2, true); } catch { }
             }
         }
+        [Test]
+        public void GetExpectedOutputPath_ConstructsPathFromCsprojProperties()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                var result = GeneratorHandler.GetExpectedOutputPath(
+                    Path.Combine(testDir, "MyPlugin.csproj"));
+
+                Assert.IsNotNull(result);
+                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "MyPlugin.dll");
+                Assert.AreEqual(expected, result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void GetExpectedOutputPath_UsesAssemblyNameWhenSpecified()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>CustomName</AssemblyName>
+  </PropertyGroup>
+</Project>");
+
+                var result = GeneratorHandler.GetExpectedOutputPath(
+                    Path.Combine(testDir, "MyPlugin.csproj"));
+
+                Assert.IsNotNull(result);
+                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "CustomName.dll");
+                Assert.AreEqual(expected, result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void GetExpectedOutputPath_ReturnsNullWhenNoTargetFramework()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+  </PropertyGroup>
+</Project>");
+
+                var result = GeneratorHandler.GetExpectedOutputPath(
+                    Path.Combine(testDir, "Bad.csproj"));
+
+                Assert.IsNull(result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void GetExpectedOutputPath_ReturnsNullForInvalidXml()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
+
+                var result = GeneratorHandler.GetExpectedOutputPath(
+                    Path.Combine(testDir, "Bad.csproj"));
+
+                Assert.IsNull(result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
     }
 }
