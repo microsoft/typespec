@@ -73,12 +73,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             // Add pack items for ConfigurationSchema.json and .targets file
             var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
-            var schemaPath = Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, "Generated", "schema", "ConfigurationSchema.json");
-            if (File.Exists(schemaPath))
-            {
-                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\Generated\schema\ConfigurationSchema.json", @"\"));
-                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
-            }
+            builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\Generated\schema\ConfigurationSchema.json", @"\"));
+            builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
 
             return builder.Write();
         }
