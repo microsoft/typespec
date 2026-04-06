@@ -15,8 +15,12 @@ const execute = (
       options.onCreate(cp);
     }
 
-    options.onStdOutData && cp.stdout.on("data", options.onStdOutData);
-    options.onStdErrData && cp.stderr.on("data", options.onStdErrData);
+    if (options.onStdOutData) {
+      cp.stdout.on("data", options.onStdOutData);
+    }
+    if (options.onStdErrData) {
+      cp.stderr.on("data", options.onStdErrData);
+    }
 
     let err = "";
     let out = "";
@@ -33,7 +37,7 @@ const execute = (
     cp.on("error", (err) => {
       reject(err);
     });
-    cp.on("close", (code, signal) =>
+    cp.on("close", (code, _signal) =>
       resolve({
         stdout: out,
         stderr: err,
@@ -118,7 +122,7 @@ const tryPython = async (
       `"${PRINT_PYTHON_VERSION_SCRIPT}"`,
     ]);
     return validateVersionRequirement(resolution, result.stdout.trim(), requirement);
-  } catch (e) {
+  } catch {
     return {
       error: true,
       ...resolution,

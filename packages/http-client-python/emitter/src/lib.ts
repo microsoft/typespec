@@ -1,5 +1,6 @@
 import {
   SdkContext,
+  SdkType,
   UnbrandedSdkEmitterOptions,
 } from "@azure-tools/typespec-client-generator-core";
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
@@ -28,6 +29,9 @@ export interface PythonEmitterOptions {
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
   __endpointPathParameters: Record<string, any>[];
+  __typesMap: Map<SdkType, Record<string, any>>;
+  __simpleTypesMap: Map<string | null, Record<string, any>>;
+  __disableGenerationMap: Set<SdkType>;
 }
 
 export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {

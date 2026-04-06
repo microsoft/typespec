@@ -12,7 +12,6 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
-import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 
 const PYODIDE_VERSION = "0.26.2";
@@ -70,6 +69,9 @@ async function createPythonSdkContext(
   return {
     ...sdkContext,
     __endpointPathParameters: [],
+    __typesMap: new Map(),
+    __simpleTypesMap: new Map(),
+    __disableGenerationMap: new Set(),
   };
 }
 
@@ -109,12 +111,6 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
   }
 
   return yamlMap;
-}
-
-function cleanAllCache() {
-  typesMap.clear();
-  simpleTypesMap.clear();
-  disableGenerationMap.clear();
 }
 
 const pyodideGenerationCode = `
@@ -189,9 +185,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
 }
 
 async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
-  // clean all cache to make sure emitter could work in watch mode
-  cleanAllCache();
-
   const program = context.program;
   const sdkContext = await createPythonSdkContext(context);
 
@@ -250,16 +243,30 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
     const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
 
-    if (!program.compilerOptions.noEmit && !program.hasError()) {
-      // if not using pyodide and there's no venv, we try to create venv
-      if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
-        try {
-          await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
-          await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
-        } catch (error) {
-          // if the python env is not ready, we use pyodide instead
-          resolvedOptions["use-pyodide"] = true;
-        }
+  if (typeof window !== "undefined") {
+    // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
+    const pyodide = await setupPyodideCallBrowser();
+
+    const yamlFilePath = "/yaml/python-yaml-path.yaml";
+    pyodide.FS.mkdirTree("/yaml");
+    pyodide.FS.mkdirTree("/output");
+    pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
+
+    await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
+    await copyPyodideOutputToHost(context, pyodide, "/output");
+  } else {
+    const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+    const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
+
+  if (!program.compilerOptions.noEmit && !program.hasError()) {
+    // if not using pyodide and there's no venv, we try to create venv
+    if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
+      try {
+        await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
+        await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
+      } catch {
+        // if the python env is not ready, we use pyodide instead
+        resolvedOptions["use-pyodide"] = true;
       }
     }
 
@@ -329,9 +336,23 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(
         `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
       );
-      checkForPylintIssues(outputDir, excludePattern);
+      await checkForPylintIssues(outputDir, excludePattern);
     }
   }
+}
+
+async function setupPyodideCallBrowser() {
+  const pyodide = await loadPyodide({
+    indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  });
+
+  // use default MEMFS for browser, since NODEFS is not supported
+  pyodide.FS.mkdirTree("/generator");
+  await pyodide.loadPackage("micropip");
+  const micropip = pyodide.pyimport("micropip");
+  await micropip.install(getBrowserPygenWheelUrl());
+
+  return pyodide;
 }
 
 async function setupPyodideCallBrowser() {
@@ -362,7 +383,7 @@ async function setupPyodideCall(root: string) {
         if (lockAge > 300) {
           fs.unlinkSync(micropipLockPath);
         }
-      } catch (err) {
+      } catch {
         // ignore
       }
     }
@@ -381,14 +402,14 @@ async function setupPyodideCall(root: string) {
       fs.closeSync(fd);
       fs.unlinkSync(micropipLockPath);
       break;
-    } catch (err) {
+    } catch {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
   return pyodide;
 }
 
-function checkForPylintIssues(outputDir: string, excludePattern: string) {
+async function checkForPylintIssues(outputDir: string, excludePattern: string) {
   const excludeRegex = new RegExp(excludePattern);
 
   const shouldExcludePath = (filePath: string): boolean => {
@@ -397,9 +418,8 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
     return excludeRegex.test(normalizedPath);
   };
 
-  const processFile = (filePath: string) => {
-    let fileContent;
-    fileContent = fs.readFileSync(filePath, "utf-8");
+  const processFile = async (filePath: string) => {
+    let fileContent = await fs.promises.readFile(filePath, "utf-8");
     const pylintDisables: string[] = [];
     const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
     const lines: string[] = fileContent.split(lineEnding);
@@ -414,32 +434,38 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
         fileContent = lines[0].includes("pylint: disable=")
           ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(lineEnding)
           : `# pylint: disable=${pylintDisables.join(",")}${lineEnding}` + fileContent;
+        await fs.promises.writeFile(filePath, fileContent);
       }
     }
-
-    fs.writeFileSync(filePath, fileContent);
   };
 
-  const walkDir = (dir: string) => {
+  const collectPythonFiles = async (dir: string): Promise<string[]> => {
     if (shouldExcludePath(dir)) {
-      return;
+      return [];
     }
 
-    const files = fs.readdirSync(dir);
-    files.forEach((file) => {
-      const filePath = path.join(dir, file);
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+
+    const promises = entries.map(async (entry) => {
+      const filePath = path.join(dir, entry.name);
 
       if (shouldExcludePath(filePath)) {
-        return;
+        return [];
       }
 
-      if (fs.statSync(filePath).isDirectory()) {
-        walkDir(filePath);
-      } else if (file.endsWith(".py")) {
-        processFile(filePath);
+      if (entry.isDirectory()) {
+        return collectPythonFiles(filePath);
+      } else if (entry.name.endsWith(".py")) {
+        return [filePath];
       }
+      return [];
     });
+
+    const results = await Promise.all(promises);
+    return results.flat();
   };
 
-  walkDir(outputDir);
+  // Collect all Python files first, then process in parallel
+  const pythonFiles = await collectPythonFiles(outputDir);
+  await Promise.all(pythonFiles.map(processFile));
 }
