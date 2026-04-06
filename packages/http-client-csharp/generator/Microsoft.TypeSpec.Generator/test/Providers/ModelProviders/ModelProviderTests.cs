@@ -1221,6 +1221,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
+        [Test]
+        public void PublicModelTypeToKeepUpdatesAfterNamespaceChange()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var originalFqn = modelProvider!.Type.FullyQualifiedName;
+            Assert.AreEqual("Sample.Models.MockInputModel", originalFqn);
+
+            // Simulate a visitor changing the namespace (e.g., NamespaceVisitor)
+            modelProvider.Update(@namespace: "NewNamespace.Models");
+            var newFqn = modelProvider.Type.FullyQualifiedName;
+            Assert.AreEqual("NewNamespace.Models.MockInputModel", newFqn);
+
+            // After namespace change, AdditionalRootTypes should contain the updated FQN
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains(newFqn),
+                $"AdditionalRootTypes should contain the post-visitor FQN '{newFqn}' "
+                + $"but only contains: [{string.Join(", ", rootTypes)}]");
+            Assert.IsFalse(rootTypes.Contains(originalFqn),
+                $"AdditionalRootTypes should not contain the stale pre-visitor FQN '{originalFqn}'");
+        }
+
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]

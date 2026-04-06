@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -154,9 +155,16 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> AdditionalRootTypes { get; } = [];
+        private readonly HashSet<string> _additionalRootTypeNames = [];
+        private readonly HashSet<string> _nonRootTypeNames = [];
+        private readonly List<TypeProvider> _additionalRootTypeProviders = [];
+        private readonly List<TypeProvider> _nonRootTypeProviders = [];
 
-        internal HashSet<string> NonRootTypes { get; } = [];
+        internal HashSet<string> AdditionalRootTypes =>
+            [.. _additionalRootTypeNames, .. _additionalRootTypeProviders.Select(t => t.Type.FullyQualifiedName)];
+
+        internal HashSet<string> NonRootTypes =>
+            [.. _nonRootTypeNames, .. _nonRootTypeProviders.Select(t => t.Type.FullyQualifiedName)];
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -168,21 +176,33 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (isRoot)
             {
-                AdditionalRootTypes.Add(typeName);
+                _additionalRootTypeNames.Add(typeName);
             }
             else
             {
-                NonRootTypes.Add(typeName);
+                _nonRootTypeNames.Add(typeName);
             }
         }
 
         /// <summary>
-        /// Adds a type to the list of types to keep.
+        /// Adds a type to the list of types to keep. The type's fully qualified name is resolved lazily
+        /// when <see cref="AdditionalRootTypes"/> or <see cref="NonRootTypes"/> is accessed, ensuring
+        /// that any namespace changes made by visitors are reflected.
         /// </summary>
         /// <param name="type">The type provider representing the type.</param>
         /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
         /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
-        public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
+        public void AddTypeToKeep(TypeProvider type, bool isRoot = true)
+        {
+            if (isRoot)
+            {
+                _additionalRootTypeProviders.Add(type);
+            }
+            else
+            {
+                _nonRootTypeProviders.Add(type);
+            }
+        }
 
         /// <summary>
         /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.
