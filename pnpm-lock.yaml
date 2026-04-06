@@ -36,21 +36,6 @@ catalogs:
     '@astrojs/starlight':
       specifier: ^0.38.1
       version: 0.38.1
-    '@azure-tools/typespec-autorest':
-      specifier: '>=0.66.0 <1.0.0'
-      version: 0.66.1
-    '@azure-tools/typespec-azure-core':
-      specifier: '>=0.66.0 <1.0.0'
-      version: 0.66.1
-    '@azure-tools/typespec-azure-resource-manager':
-      specifier: '>=0.66.0 <1.0.0'
-      version: 0.66.1
-    '@azure-tools/typespec-azure-rulesets':
-      specifier: '>=0.66.0 <1.0.0'
-      version: 0.66.0
-    '@azure-tools/typespec-client-generator-core':
-      specifier: '>=0.66.2 <1.0.0'
-      version: 0.66.4
     '@azure/identity':
       specifier: ~4.13.0
       version: 4.13.0
@@ -2099,19 +2084,19 @@ importers:
   packages/playground-website:
     dependencies:
       '@azure-tools/typespec-autorest':
-        specifier: 'catalog:'
+        specifier: '>=0.66.0 <1.0.0'
         version: 0.66.1(5073cca808566b0813cd760b0ece4c80)
       '@azure-tools/typespec-azure-core':
-        specifier: 'catalog:'
+        specifier: '>=0.66.0 <1.0.0'
         version: 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
       '@azure-tools/typespec-azure-resource-manager':
-        specifier: 'catalog:'
+        specifier: '>=0.66.0 <1.0.0'
         version: 0.66.1(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@azure-tools/typespec-azure-rulesets':
-        specifier: 'catalog:'
+        specifier: '>=0.66.0 <1.0.0'
         version: 0.66.0(43a25ef11631422e4edc1bf6c9f3e1d2)
       '@azure-tools/typespec-client-generator-core':
-        specifier: 'catalog:'
+        specifier: '>=0.66.2 <1.0.0'
         version: 0.66.4(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/events@packages+events)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/sse@packages+sse)(@typespec/streams@packages+streams)(@typespec/versioning@packages+versioning)(@typespec/xml@packages+xml)
       '@fluentui/react-components':
         specifier: 'catalog:'
