@@ -89,6 +89,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build Playground emitters
+        uses: ./eng/tsp-core/pipelines/templates/build-playground-emitters.yml
+
       - name: Build and pack TypeSpec Azure packages
         run: |
           pnpm --filter "!@typespec/playground-website" --filter "!@typespec/website"  -r build

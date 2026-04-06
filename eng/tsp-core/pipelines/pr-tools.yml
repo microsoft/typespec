@@ -36,6 +36,7 @@ extends:
               - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
 
               - template: /eng/tsp-core/pipelines/templates/build.yml
+              - template: /eng/tsp-core/pipelines/templates/build-playground-emitters.yml
 
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"
