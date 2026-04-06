@@ -62,7 +62,7 @@ jobs:
         run: pnpm exec playwright install
 
       - name: Build playground emitters
-        uses: ./.github/actions/build-playground-emitters
+        run: cd core/packages/http-client-python && npm ci && npm run build
 
       - name: Build
         run: pnpm build
@@ -91,9 +91,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Build Playground emitters
-        uses: ./.github/actions/build-playground-emitters
 
       - name: Build and pack TypeSpec Azure packages
         run: |
