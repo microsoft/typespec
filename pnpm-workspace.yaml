@@ -17,6 +17,11 @@ catalog:
   "@astrojs/check": ^0.9.7
   "@astrojs/react": ^5.0.0
   "@astrojs/starlight": ^0.38.1
+  "@azure-tools/typespec-autorest": ">=0.66.0 <1.0.0"
+  "@azure-tools/typespec-azure-core": ">=0.66.0 <1.0.0"
+  "@azure-tools/typespec-azure-resource-manager": ">=0.66.0 <1.0.0"
+  "@azure-tools/typespec-azure-rulesets": ">=0.66.0 <1.0.0"
+  "@azure-tools/typespec-client-generator-core": ">=0.66.2 <1.0.0"
   "@azure/identity": ~4.13.0
   "@azure/storage-blob": ~12.31.0
   "@babel/code-frame": ~7.29.0
