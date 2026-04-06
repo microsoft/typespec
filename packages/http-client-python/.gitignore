@@ -10,3 +10,7 @@ generator/test/.diff-summary.md
 
 # local folder for debug
 alpha
+
+# pip component detection reports (generated during build)
+component-detection-pip-report.json
+generator/component-detection-pip-report.json
