@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop2", modelTypeProvider.CustomCodeView.Properties[0].Name);
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual( "prop1", wireInfo!.SerializedName);
+            Assert.AreEqual("prop1", wireInfo!.SerializedName);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
 
@@ -104,11 +104,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop1", modelTypeProvider.CustomCodeView.Properties[1].Name);
             Assert.IsNull(modelTypeProvider.CustomCodeView.Properties[1].WireInfo);
 
-            // validate canonical view
-            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            // validate canonical view - Prop2 (with WireInfo from spec) and Prop1 (without WireInfo, as non-spec property)
+            Assert.AreEqual(2, modelTypeProvider.CanonicalView!.Properties.Count);
             Assert.AreEqual("Prop2", modelTypeProvider.CanonicalView.Properties[0].Name);
             wireInfo = modelTypeProvider.CanonicalView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("Prop1", modelTypeProvider.CanonicalView.Properties[1].Name);
+            Assert.IsNull(modelTypeProvider.CanonicalView.Properties[1].WireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
         }

@@ -230,6 +230,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that when a property is renamed with CodeGenMember and the original property name
+        // is redefined, the serialization and deserialization use the CodeGenMember property.
+        [Test]
+        public async Task CanChangePropertyNameAndRedefineOriginal()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(serializationProvider);
+
+            // Validate that the Prop1 property was renamed to Prop2 via CodeGenMember
+            var customCodeView = modelProvider.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            var customProperties = customCodeView!.Properties;
+            Assert.AreEqual(2, customProperties.Count);
+            Assert.AreEqual("Prop2", customProperties[0].Name);
+            Assert.AreEqual("Prop1", customProperties[0].OriginalName);
+            Assert.AreEqual("Prop1", customProperties[1].Name);
+            Assert.IsNull(customProperties[1].OriginalName);
+
+            // Validate that the canonical view has Prop2 (with WireInfo from spec) and Prop1 (without WireInfo, as non-spec)
+            var canonicalView = modelProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(2, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop2", canonicalView.Properties[0].Name);
+            Assert.IsNotNull(canonicalView.Properties[0].WireInfo);
+            Assert.AreEqual("Prop1", canonicalView.Properties[1].Name);
+            Assert.IsNull(canonicalView.Properties[1].WireInfo);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeMockInputModel" || name == "XmlModelWriteCore"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // Validates that a nullable DateTimeOffset property customized via custom code
         // correctly accesses .Value when serializing to XML.
         [Test]

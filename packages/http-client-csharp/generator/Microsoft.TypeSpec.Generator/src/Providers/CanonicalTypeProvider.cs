@@ -159,9 +159,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 foreach (var prop in customProperties)
                 {
-                    // Check if custom property is in spec
-                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
-                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp)))
+                    // Check if custom property is in spec, using the same logic as TryGetSpecProperty
+                    // to ensure properties with CodeGenMember attribute are always preferred.
+                    if (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out var specProp))
+                    {
+                        inputProperties.Add(specProp);
+                    }
+                    else if (_specPropertiesMap.TryGetValue(prop.Name, out specProp) &&
+                             !_renamedProperties.Contains(prop.Name) &&
+                             !_renamedFields.Contains(prop.Name))
                     {
                         inputProperties.Add(specProp);
                     }
@@ -187,11 +193,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Add non-spec properties
                 result.AddRange(nonSpecProperties);
 
-                return [..result];
+                return [.. result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..filteredGeneratedProperties, ..customProperties];
+            return [.. filteredGeneratedProperties, .. customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -256,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..FilterCustomizedFields(generatedFields), ..customFields];
+            return [.. FilterCustomizedFields(generatedFields), .. customFields];
         }
 
         private bool TryGetSpecProperty(
