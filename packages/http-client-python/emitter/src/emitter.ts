@@ -7,13 +7,13 @@ import os from "os";
 import path, { dirname } from "path";
 import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
+import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
-import pkgJson from "../../package.json" with { type: "json" };
 
 const PYODIDE_VERSION = "0.26.2";
 const PYGEN_WHEEL_FILENAME = "pygen-0.1.0-py3-none-any.whl";
