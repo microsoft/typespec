@@ -157,8 +157,8 @@ namespace Microsoft.TypeSpec.Generator
 
         private readonly HashSet<string> _additionalRootTypeNames = [];
         private readonly HashSet<string> _nonRootTypeNames = [];
-        private readonly List<TypeProvider> _additionalRootTypeProviders = [];
-        private readonly List<TypeProvider> _nonRootTypeProviders = [];
+        private readonly HashSet<TypeProvider> _additionalRootTypeProviders = [];
+        private readonly HashSet<TypeProvider> _nonRootTypeProviders = [];
 
         internal HashSet<string> AdditionalRootTypes =>
             [.. _additionalRootTypeNames, .. _additionalRootTypeProviders.Select(t => t.Type.FullyQualifiedName)];
