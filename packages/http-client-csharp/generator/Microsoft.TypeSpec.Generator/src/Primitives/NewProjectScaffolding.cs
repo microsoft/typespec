@@ -71,10 +71,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 builder.CompileIncludes.Add(compileInclude);
             }
 
-            // Add pack items for ConfigurationSchema.json and .targets file
+            // Add pack items for ConfigurationSchema.json and .targets file if no custom schema is defined
             var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
-            builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\Generated\schema\ConfigurationSchema.json", @"\"));
-            builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
+            var customSchemaPath = Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, "schema", "ConfigurationSchema.json");
+            if (!File.Exists(customSchemaPath))
+            {
+                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\Generated\schema\ConfigurationSchema.json", @"\"));
+                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
+            }
 
             return builder.Write();
         }
