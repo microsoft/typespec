@@ -1,6 +1,5 @@
 steps:
   - template: /eng/tsp-core/pipelines/templates/install.yml
-  - template: /eng/tsp-core/pipelines/templates/build-playground-emitters.yml
 
   - script: pnpm exec playwright install
     displayName: Install browsers

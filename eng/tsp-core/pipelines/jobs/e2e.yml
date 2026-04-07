@@ -18,7 +18,6 @@ jobs:
 
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml
-      - template: /eng/tsp-core/pipelines/templates/build-playground-emitters.yml
       - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
       - template: /eng/tsp-core/pipelines/templates/setup-linux-ui.yml
       - template: /eng/tsp-core/pipelines/templates/build.yml

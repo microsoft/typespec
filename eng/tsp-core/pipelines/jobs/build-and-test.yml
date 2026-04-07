@@ -10,8 +10,6 @@ steps:
       nodeVersion: ${{ parameters.nodeVersion }}
       useDotnet: true
 
-  - template: /eng/tsp-core/pipelines/templates/build-playground-emitters.yml
-
   - template: /eng/tsp-core/pipelines/templates/build.yml
 
   - script: pnpm run test:ci
