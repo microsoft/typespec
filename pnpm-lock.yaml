@@ -2083,21 +2083,6 @@ importers:
 
   packages/playground-website:
     dependencies:
-      '@azure-tools/typespec-autorest':
-        specifier: '>=0.66.0 <1.0.0'
-        version: 0.66.1(5073cca808566b0813cd760b0ece4c80)
-      '@azure-tools/typespec-azure-core':
-        specifier: '>=0.66.0 <1.0.0'
-        version: 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@azure-tools/typespec-azure-resource-manager':
-        specifier: '>=0.66.0 <1.0.0'
-        version: 0.66.1(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-azure-rulesets':
-        specifier: '>=0.66.0 <1.0.0'
-        version: 0.66.0(43a25ef11631422e4edc1bf6c9f3e1d2)
-      '@azure-tools/typespec-client-generator-core':
-        specifier: '>=0.66.2 <1.0.0'
-        version: 0.66.4(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/events@packages+events)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/sse@packages+sse)(@typespec/streams@packages+streams)(@typespec/versioning@packages+versioning)(@typespec/xml@packages+xml)
       '@fluentui/react-components':
         specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
@@ -2116,9 +2101,6 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
-      '@typespec/http-client-python':
-        specifier: link:../http-client-python
-        version: link:../http-client-python
       '@typespec/json-schema':
         specifier: workspace:^
         version: link:../json-schema
@@ -3420,66 +3402,6 @@ packages:
 
   '@azu/style-format@1.0.1':
     resolution: {integrity: sha512-AHcTojlNBdD/3/KxIKlg8sxIWHfOtQszLvOpagLTO+bjC3u7SAszu1lf//u7JJC50aUSH+BVWDD/KvaA6Gfn5g==}
-
-  '@azure-tools/typespec-autorest@0.66.1':
-    resolution: {integrity: sha512-9R2S9hr1nie5lvJQnubvywPajOhdUApTED5MIef5KlF1zZL+DKMFDDOKwnSvFvW7ROmL+Ph8FQagw/6+PStlOg==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@azure-tools/typespec-azure-core': ^0.66.1
-      '@azure-tools/typespec-azure-resource-manager': ^0.66.0
-      '@azure-tools/typespec-client-generator-core': ^0.66.4
-      '@typespec/compiler': ^1.10.0
-      '@typespec/http': ^1.10.0
-      '@typespec/openapi': ^1.10.0
-      '@typespec/rest': ^0.80.0
-      '@typespec/versioning': ^0.80.0
-      '@typespec/xml': ^0.80.0
-    peerDependenciesMeta:
-      '@typespec/xml':
-        optional: true
-
-  '@azure-tools/typespec-azure-core@0.66.1':
-    resolution: {integrity: sha512-i8lMegL4s0I6xQT61zIIhmN1aA6iYFoH+7owSl/msOD0yVWx3Khf3ETULX53yHFd7OoUDAjmFx7+8j9atWXzHQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.10.0
-      '@typespec/http': ^1.10.0
-      '@typespec/rest': ^0.80.0
-
-  '@azure-tools/typespec-azure-resource-manager@0.66.1':
-    resolution: {integrity: sha512-LExgmD3oK7iaX0bIdQsoxBYLCMKwPPBHYmLMhNW/GseMF1Dqi1Ne/VP7rmMP0dhrZNFh22LaZI2lTyCKm08DFQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@azure-tools/typespec-azure-core': ^0.66.1
-      '@typespec/compiler': ^1.10.0
-      '@typespec/http': ^1.10.0
-      '@typespec/openapi': ^1.10.0
-      '@typespec/rest': ^0.80.0
-      '@typespec/versioning': ^0.80.0
-
-  '@azure-tools/typespec-azure-rulesets@0.66.0':
-    resolution: {integrity: sha512-Wf0SpphmKDDzHgaqpxl68DpP65VUWjpD3mrnZ3Lw4Pdtt8BcZf7+LKgFF06gPRnh15hR0VbjAERCzxI/qGY4ag==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@azure-tools/typespec-azure-core': ^0.66.0
-      '@azure-tools/typespec-azure-resource-manager': ^0.66.0
-      '@azure-tools/typespec-client-generator-core': ^0.66.1
-      '@typespec/compiler': ^1.10.0
-
-  '@azure-tools/typespec-client-generator-core@0.66.4':
-    resolution: {integrity: sha512-KRMWLvojku2qFnPpUiZNTa/nm49IjSsGVhPmFhQ5a01KwI2T7zT+Ga39/xLTLHHT4aIgBaMWxD4ioZa2ZhbEKw==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@azure-tools/typespec-azure-core': ^0.66.1
-      '@typespec/compiler': ^1.10.0
-      '@typespec/events': ^0.80.0
-      '@typespec/http': ^1.10.0
-      '@typespec/openapi': ^1.10.0
-      '@typespec/rest': ^0.80.0
-      '@typespec/sse': ^0.80.0
-      '@typespec/streams': ^0.80.0
-      '@typespec/versioning': ^0.80.0
-      '@typespec/xml': ^0.80.0
 
   '@azure/abort-controller@2.1.2':
     resolution: {integrity: sha512-nBrLsEWm4J2u5LpAPjxADTlq3trDgVZZXHNKabeXZtpq3d3AbN/KGO82R87rdDz5/lYB024rtEf10/q0urNgsA==}
@@ -14083,59 +14005,6 @@ snapshots:
   '@azu/style-format@1.0.1':
     dependencies:
       '@azu/format-text': 1.0.2
-
-  '@azure-tools/typespec-autorest@0.66.1(5073cca808566b0813cd760b0ece4c80)':
-    dependencies:
-      '@azure-tools/typespec-azure-core': 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@azure-tools/typespec-azure-resource-manager': 0.66.1(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-client-generator-core': 0.66.4(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/events@packages+events)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/sse@packages+sse)(@typespec/streams@packages+streams)(@typespec/versioning@packages+versioning)(@typespec/xml@packages+xml)
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': link:packages/http
-      '@typespec/openapi': link:packages/openapi
-      '@typespec/rest': link:packages/rest
-      '@typespec/versioning': link:packages/versioning
-    optionalDependencies:
-      '@typespec/xml': link:packages/xml
-
-  '@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': link:packages/http
-      '@typespec/rest': link:packages/rest
-
-  '@azure-tools/typespec-azure-resource-manager@0.66.1(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)':
-    dependencies:
-      '@azure-tools/typespec-azure-core': 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': link:packages/http
-      '@typespec/openapi': link:packages/openapi
-      '@typespec/rest': link:packages/rest
-      '@typespec/versioning': link:packages/versioning
-      change-case: 5.4.4
-      pluralize: 8.0.0
-
-  '@azure-tools/typespec-azure-rulesets@0.66.0(43a25ef11631422e4edc1bf6c9f3e1d2)':
-    dependencies:
-      '@azure-tools/typespec-azure-core': 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@azure-tools/typespec-azure-resource-manager': 0.66.1(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
-      '@azure-tools/typespec-client-generator-core': 0.66.4(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/events@packages+events)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/sse@packages+sse)(@typespec/streams@packages+streams)(@typespec/versioning@packages+versioning)(@typespec/xml@packages+xml)
-      '@typespec/compiler': link:packages/compiler
-
-  '@azure-tools/typespec-client-generator-core@0.66.4(@azure-tools/typespec-azure-core@0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/events@packages+events)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/sse@packages+sse)(@typespec/streams@packages+streams)(@typespec/versioning@packages+versioning)(@typespec/xml@packages+xml)':
-    dependencies:
-      '@azure-tools/typespec-azure-core': 0.66.1(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/events': link:packages/events
-      '@typespec/http': link:packages/http
-      '@typespec/openapi': link:packages/openapi
-      '@typespec/rest': link:packages/rest
-      '@typespec/sse': link:packages/sse
-      '@typespec/streams': link:packages/streams
-      '@typespec/versioning': link:packages/versioning
-      '@typespec/xml': link:packages/xml
-      change-case: 5.4.4
-      pluralize: 8.0.0
-      yaml: 2.8.3
 
   '@azure/abort-controller@2.1.2':
     dependencies:

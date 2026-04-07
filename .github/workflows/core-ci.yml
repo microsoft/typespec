@@ -39,8 +39,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - uses: ./.github/actions/build-playground-emitters
-
       - name: Restore .NET dependencies
         run: dotnet restore
         working-directory: packages/typespec-vs
@@ -74,8 +72,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - uses: ./.github/actions/build-playground-emitters
-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
@@ -101,8 +97,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - uses: ./.github/actions/build-playground-emitters
 
       - name: Install Playwright browsers
         run: |

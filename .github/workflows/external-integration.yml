@@ -61,9 +61,6 @@ jobs:
       - name: Install Playwright
         run: pnpm exec playwright install
 
-      - name: Build playground emitters
-        run: cd core/packages/http-client-python && npm ci && npm run build
-
       - name: Build
         run: pnpm build
 
