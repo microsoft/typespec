@@ -118,12 +118,17 @@ export function fromSdkType<T extends SdkType>(
         typeof sdkProperty.serializedName === "string" &&
         sdkProperty.serializedName.toLocaleLowerCase() === "content-type";
 
+      // Check if the original property type was an enum (e.g., when @alternateType collapses
+      // a single-member enum to a constant) - preserve the enum type in this case
+      const isOriginalTypeEnum = sdkProperty?.__raw?.type?.kind === "Enum";
+
       if (
-        sdkProperty &&
-        !isContentTypeHeader &&
-        (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
-        sdkProperty?.type.kind !== "boolean" &&
-        sdkType.valueType.kind !== "boolean"
+        (sdkProperty &&
+          !isContentTypeHeader &&
+          (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
+          sdkProperty?.type.kind !== "boolean" &&
+          sdkType.valueType.kind !== "boolean") ||
+        isOriginalTypeEnum
       ) {
         // turn the constant into an extensible enum
         retVar = diagnostics.pipe(createEnumType(sdkContext, sdkType, namespace!));

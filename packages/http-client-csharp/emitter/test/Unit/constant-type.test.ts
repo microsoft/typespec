@@ -149,4 +149,33 @@ describe("Constant enum conversion", () => {
     strictEqual(enumType.access, undefined);
     strictEqual(enumType.usage, UsageFlags.Input | UsageFlags.Json);
   });
+
+  it("single-member enum with @alternateType should preserve enum type for required property", async () => {
+    const program = await typeSpecCompile(
+      `
+      enum Colors {
+        green,
+      }
+
+      model TestModel {
+        @alternateType("green")
+        prop: Colors;
+      }
+
+      op test(@body input: TestModel): void;
+    `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const testModel = root.models.find((m) => m.name === "TestModel");
+    ok(testModel);
+    const propertyType = testModel.properties[0].type;
+    strictEqual(propertyType.kind, "enum");
+    const enumType = propertyType as InputEnumType;
+    strictEqual(enumType.values.length, 1);
+    strictEqual(enumType.values[0].value, "green");
+  });
 });
