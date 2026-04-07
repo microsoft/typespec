@@ -9,15 +9,17 @@ import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
+import {
+  blackExcludeDirs,
+  BLOB_STORAGE_BASE_URL,
+  PACKAGE_NAME,
+  PYGEN_WHEEL_FILENAME,
+  PYODIDE_VERSION,
+} from "./constants.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
-
-const PYODIDE_VERSION = "0.26.2";
-const PYGEN_WHEEL_FILENAME = "pygen-0.1.0-py3-none-any.whl";
-const BLOB_STORAGE_BASE_URL = "https://typespec.blob.core.windows.net/pkgs";
-const PACKAGE_NAME = "@typespec/http-client-python";
 
 function getBrowserPygenWheelUrl(): string {
   return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
@@ -295,28 +297,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
         execSync(command);
 
-        const blackExcludeDirs = [
-          "__pycache__/",
-          "node_modules/",
-          "venv/",
-          "env/",
-          ".direnv",
-          ".eggs",
-          ".git",
-          ".hg",
-          ".tox",
-          ".venv",
-          ".eggs",
-          ".mypy_cache",
-          ".pytest_cache",
-          ".vscode",
-          ".*_build/",
-          "/build/",
-          "dist",
-          ".nox",
-          ".svn",
-          "TempTypeSpecFiles/",
-        ];
         const excludePattern = blackExcludeDirs.join("|");
         execSync(
           `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
