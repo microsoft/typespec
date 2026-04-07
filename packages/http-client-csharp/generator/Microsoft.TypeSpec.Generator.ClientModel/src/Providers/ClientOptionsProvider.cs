@@ -10,9 +10,9 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientOptionsProvider : TypeProvider
     {
-        private const string ServicePrefix = "Service";
         private const string VersionSuffix = "Version";
         private const string ApiVersionSuffix = "ApiVersion";
         private const string LatestPrefix = "Latest";
@@ -124,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
+        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
             if (_serviceVersionsEnums is null)
             {
@@ -386,6 +385,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Name,
                     property.Name.ToVariableName(),
                     property.Type);
+            }
+
+            // Also bind custom code properties (e.g., hand-written properties added via partial classes)
+            var generatedPropNames = new HashSet<string>(Properties.Select(p => p.Name));
+            if (versionPropertyNames != null)
+            {
+                generatedPropNames.UnionWith(versionPropertyNames);
+            }
+            var customCodeProperties = CustomCodeView?.Properties;
+            if (customCodeProperties != null)
+            {
+                foreach (var prop in customCodeProperties)
+                {
+                    if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                        !generatedPropNames.Contains(prop.Name))
+                    {
+                        ClientSettingsProvider.AppendBindingForProperty(
+                            body,
+                            sectionParam,
+                            prop.Name,
+                            prop.Name.ToVariableName(),
+                            prop.Type);
+                        generatedPropNames.Add(prop.Name);
+                    }
+                }
             }
 
             return new ConstructorProvider(

@@ -18,7 +18,9 @@ const FileViewerComponent = ({
   const [content, setContent] = useState<string>("");
 
   const showFileTree = useMemo(
-    () => outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3,
+    () =>
+      outputFiles.length > 1 &&
+      (outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3),
     [outputFiles],
   );
 

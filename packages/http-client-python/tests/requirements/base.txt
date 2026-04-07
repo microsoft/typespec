@@ -1,0 +1,10 @@
+# Base test dependencies
+pytest==8.3.2
+pytest-asyncio>=0.14.0
+aiohttp
+coverage==7.6.1
+colorama==0.4.6
+isodate>=0.6.1
+typing-extensions>=4.6.0
+tox>=4.16.0
+tox-uv>=1.0.0

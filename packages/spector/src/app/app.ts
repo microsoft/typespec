@@ -1,5 +1,6 @@
 import {
   expandDyns,
+  isMatcher,
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
@@ -105,19 +106,31 @@ function validateBody(
     if (Buffer.isBuffer(body.rawContent)) {
       req.expect.rawBodyEquals(body.rawContent);
     } else {
-      const raw =
-        typeof body.rawContent === "string" ? body.rawContent : body.rawContent?.serialize(config);
       switch (body.contentType) {
-        case "application/json":
-          req.expect.coercedBodyEquals(JSON.parse(raw as any));
+        case "application/json": {
+          const expected =
+            typeof body.rawContent === "string"
+              ? JSON.parse(body.rawContent)
+              : body.rawContent?.resolve(config);
+          req.expect.coercedBodyEquals(expected);
           break;
-        case "application/xml":
-          req.expect.xmlBodyEquals(
-            (raw as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
-          );
+        }
+        case "application/xml": {
+          if (typeof body.rawContent === "string") {
+            const xmlStr = body.rawContent.replace(`<?xml version='1.0' encoding='UTF-8'?>`, "");
+            req.expect.xmlBodyEquals(xmlStr);
+          } else if (body.rawContent) {
+            req.expect.xmlBodyEquals(body.rawContent, config);
+          }
           break;
-        default:
+        }
+        default: {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(config);
           req.expect.rawBodyEquals(raw);
+        }
       }
     }
   }
@@ -133,10 +146,10 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
 
     // Validate headers if present in the request
     if (apiDefinition.request?.headers) {
-      const headers = expandDyns(apiDefinition.request.headers, config);
+      const headers = expandDyns(apiDefinition.request.headers, config, { resolveMatchers: false });
       Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
-          if (Array.isArray(value)) {
+          if (isMatcher(value) || Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);
           } else {
             req.expect.containsHeader(key.toLowerCase(), String(value));
@@ -146,8 +159,9 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
     }
 
     if (apiDefinition.request?.query) {
-      Object.entries(apiDefinition.request.query).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
+      const query = expandDyns(apiDefinition.request.query, config, { resolveMatchers: false });
+      Object.entries(query).forEach(([key, value]) => {
+        if (isMatcher(value) || Array.isArray(value)) {
           req.expect.deepEqual(req.query[key], value);
         } else {
           req.expect.containsQueryParam(key, String(value));

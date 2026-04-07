@@ -253,6 +253,64 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsNull(licenseInfo);
         }
 
+        [Test]
+        public void PluginPaths_ParsedFromConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": [""/path/to/Plugin.dll"", ""/path/to/plugin-dir""]
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNotNull(pluginPaths);
+            Assert.AreEqual(2, pluginPaths!.Count);
+            Assert.AreEqual("/path/to/Plugin.dll", pluginPaths[0]);
+            Assert.AreEqual("/path/to/plugin-dir", pluginPaths[1]);
+        }
+
+        [Test]
+        public void PluginPaths_NullWhenNotInConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNull(pluginPaths);
+        }
+
+        [Test]
+        public void PluginPaths_NullWhenEmptyArray()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": []
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var pluginPaths = CodeModelGenerator.Instance.Configuration.PluginPaths;
+            Assert.IsNull(pluginPaths);
+        }
+
+        [Test]
+        public void PluginPaths_NotInAdditionalConfigOptions()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""plugins"": [""/path/to/Plugin.dll""]
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var additionalOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigurationOptions;
+            Assert.IsFalse(additionalOptions.ContainsKey("plugins"));
+        }
+
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases
         {
             get
