@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
     <None Include="..\Type.Dictionary.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Type.Dictionary.targets" />
   </ItemGroup>
 </Project>

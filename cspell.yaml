@@ -247,6 +247,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -309,6 +310,7 @@ words:
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
