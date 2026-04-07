@@ -1,9 +1,0 @@
-# Build emitter packages required by the playground (excluded from pnpm workspace)
-steps:
-  - task: UsePythonVersion@0
-    displayName: Set up Python
-    inputs:
-      versionSpec: "3.x"
-
-  - script: cd packages/http-client-python && npm ci && npm run build
-    displayName: Build http-client-python emitter
