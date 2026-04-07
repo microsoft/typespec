@@ -217,6 +217,62 @@ describe("integration with expandDyns", () => {
   });
 });
 
+describe("integration with expandDyns({ resolveMatchers: false })", () => {
+  const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
+
+  it("should preserve matcher objects instead of resolving them to plain strings", () => {
+    const content = { timestamp: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z") };
+    const expanded = expandDyns(content, config, { resolveMatchers: false });
+    // Matcher must survive as a matcher, not be converted to a plain string
+    expect(isMatcher(expanded.timestamp)).toBe(true);
+  });
+
+  it("should allow matchValues to do semantic datetime comparison after expandDyns with resolveMatchers:false", () => {
+    // Regression test: query params/headers with datetime matchers must use semantic comparison.
+    // Without resolveMatchers:false, expandDyns converts the matcher to the plain string
+    // "2022-08-26T18:38:00.000Z", and a strict === comparison against the actual value
+    // "2022-08-26T18:38:00Z" (no milliseconds) would fail even though they represent the
+    // same point in time.
+    const queryDef = { input: match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z") };
+    const expanded = expandDyns(queryDef, config, { resolveMatchers: false });
+
+    // The actual query string received from an HTTP request (no milliseconds)
+    const actualQueryValue = "2022-08-26T18:38:00Z";
+
+    // Simulates what createHandler does: isMatcher → deepEqual → matchValues → matcher.check()
+    expect(isMatcher(expanded.input)).toBe(true);
+    expectPass(matchValues(actualQueryValue, expanded.input, "$", config));
+  });
+
+  it("should allow matchValues to do semantic datetime comparison for header values after expandDyns with resolveMatchers:false", () => {
+    // Regression test: headers with datetime matchers must use semantic comparison, same as query params.
+    // Without resolveMatchers:false the matcher is serialized early and isMatcher() returns false,
+    // so the code falls through to containsHeader() with String(value) — a strict string equality
+    // that fails for semantically equivalent but format-different datetime strings.
+    const headerDef = { "x-ms-date": match.dateTime.rfc7231("Fri, 26 Aug 2022 18:38:00 GMT") };
+    const expanded = expandDyns(headerDef, config, { resolveMatchers: false });
+
+    // isMatcher must still be true so createHandler routes through deepEqual / matchValues
+    expect(isMatcher(expanded["x-ms-date"])).toBe(true);
+    // Semantic check passes for the exact same RFC 7231 string
+    expectPass(matchValues("Fri, 26 Aug 2022 18:38:00 GMT", expanded["x-ms-date"], "$", config));
+  });
+
+  it("should demonstrate why resolveMatchers:true (default) breaks semantic query param matching", () => {
+    // With the default resolveMatchers:true, the matcher is eagerly converted to a plain string.
+    // A strict string comparison then fails for semantically equivalent but format-different values.
+    const queryDef = { input: match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z") };
+    const expandedWithResolve = expandDyns(queryDef, config); // resolveMatchers: true (default)
+
+    // The matcher is gone — replaced by its serialized string
+    expect(isMatcher(expandedWithResolve.input)).toBe(false);
+    expect(expandedWithResolve.input).toBe("2022-08-26T18:38:00.000Z");
+
+    // Strict string comparison fails for an equivalent datetime without milliseconds
+    expect(expandedWithResolve.input === "2022-08-26T18:38:00Z").toBe(false);
+  });
+});
+
 describe("integration with json() Resolver", () => {
   const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
 
