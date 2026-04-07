@@ -289,29 +289,37 @@ stages:
                   npmrcPath: $(buildArtifactsPath)/packages/.npmrc
                   registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if eq(package.type, 'npm') }}:
-                      - pwsh: |
-                          $file = Resolve-Path "${{ package.file }}"
-                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }} to internal feed
-                        workingDirectory: $(buildArtifactsPath)/packages
+              # publish to devops feed
+              - pwsh: |
+                  $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+                  foreach ($file in $packageFiles.Name) {
+                    Write-Host "npm publish $file --verbose --access public"
+                    npm publish $file --verbose --access public
+                  }
+                displayName: Publish to DevOps feed
+                workingDirectory: $(buildArtifactsPath)/packages
 
               # If publishing publicly, also publish to npmjs.org
               - ${{ if eq(parameters.Publish, 'public') }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
-                  - ${{ each package in parameters.Packages }}:
-                      - ${{ if eq(package.type, 'npm') }}:
-                          - pwsh: |
-                              $file = Resolve-Path "${{ package.file }}"
-                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                            displayName: Publish ${{ package.name }} to npmjs.org
-                            workingDirectory: $(buildArtifactsPath)/packages
+                  # publish to npmjs.org using ESRP
+                  - task: EsrpRelease@11
+                    inputs:
+                      displayName: Publish to npmjs.org
+                      ConnectedServiceName: Azure SDK PME Managed Identity
+                      ClientId: 5f81938c-2544-4f1f-9251-dd9de5b8a81b
+                      DomainTenantId: 975f013f-7f24-47e8-a7d3-abc4752bf346
+                      UseManagedIdentity: true
+                      KeyVaultName: kv-azuresdk-codesign
+                      SignCertName: azure-sdk-esrp-release-certificate
+                      Intent: PackageDistribution
+                      ContentType: npm
+                      FolderLocation: $(buildArtifactsPath)/packages
+                      Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      ServiceEndpointUrl: https://api.esrp.microsoft.com
+                      # cspell:ignore ESRPRELPACMANTEST
+                      MainPublisher: ESRPRELPACMANTEST
+
               - ${{ if parameters.HasNugetPackages }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages
