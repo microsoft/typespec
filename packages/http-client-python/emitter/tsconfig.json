@@ -4,5 +4,5 @@
     "noEmit": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "src/constants.ts"]
+  "include": ["src/**/*"]
 }
