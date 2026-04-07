@@ -175,6 +175,7 @@ describe("Constant enum conversion", () => {
     const propertyType = testModel.properties[0].type;
     strictEqual(propertyType.kind, "enum");
     const enumType = propertyType as InputEnumType;
+    strictEqual(enumType.isFixed, false);
     strictEqual(enumType.values.length, 1);
     strictEqual(enumType.values[0].value, "green");
   });
