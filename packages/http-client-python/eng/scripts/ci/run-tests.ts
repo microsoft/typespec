@@ -320,8 +320,8 @@ async function main(): Promise<void> {
     const expandedEnvs: string[] = [];
     for (const env of baseEnvs) {
       if (env === "ci") {
-        // Run test first (sequential), then lint/mypy/pyright in parallel
-        expandedEnvs.push("test", "lint", "mypy", "pyright");
+        // Run test first (sequential), then lint/mypy/pyright/docs in parallel
+        expandedEnvs.push("test", "lint", "mypy", "pyright", "docs");
       } else {
         expandedEnvs.push(env);
       }
