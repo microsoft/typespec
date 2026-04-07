@@ -310,6 +310,7 @@ words:
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
