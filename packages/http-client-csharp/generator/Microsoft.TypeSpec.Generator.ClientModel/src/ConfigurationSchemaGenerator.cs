@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             var clientsWithSettings = output.TypeProviders
                 .OfType<ClientProvider>()
-                .Where(c => c.ClientSettings != null)
+                .Where(c => c.ClientSettings != null && c.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 .ToList();
 
             if (clientsWithSettings.Count == 0)

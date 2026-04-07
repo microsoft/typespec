@@ -47,6 +47,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void Generate_ReturnsNull_WhenClientMadeInternalAfterConstruction()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.ClientSettings, "ClientSettings should not be null for individually-initialized client");
+
+            // Simulate a visitor changing the client from public to internal (e.g., management RestClientVisitor)
+            var modifiers = clientProvider.DeclarationModifiers;
+            modifiers &= ~TypeSignatureModifiers.Public;
+            modifiers |= TypeSignatureModifiers.Internal;
+            clientProvider.Update(modifiers: modifiers);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+            Assert.IsNull(result, "Schema should not be generated for internal clients");
+        }
+
+        [Test]
         public void Generate_ReturnsSchema_ForClientWithSettings()
         {
             var client = InputFactory.Client("TestService");
