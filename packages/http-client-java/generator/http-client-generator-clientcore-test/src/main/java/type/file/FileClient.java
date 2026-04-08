@@ -180,8 +180,6 @@ public final class FileClient {
     public Response<Void> uploadFileMultipleContentTypesWithResponse(
         UploadFileMultipleContentTypesContentType contentType, BinaryData file, long contentLength,
         RequestContext requestContext) {
-        // Operation 'uploadFileMultipleContentTypes' can be invoked with multiple content-type. It is difficult to form
-        // a correct method signature for convenience API, and hence the convenience API is not generated.
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileMultipleContentTypes",
             requestContext, updatedContext -> this.serviceClient.uploadFileMultipleContentTypesWithResponse(contentType,
                 file, contentLength, updatedContext));
