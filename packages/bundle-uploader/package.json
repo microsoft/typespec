@@ -20,7 +20,7 @@
   "type": "module",
   "main": "dist/src/index.js",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
