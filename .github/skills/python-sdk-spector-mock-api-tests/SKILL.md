@@ -160,7 +160,7 @@ The `--flavor` flag selects `azure` or `unbranded`. The `--name` flag is a case-
 **Verify** the generated client has the expected method:
 
 ```bash
-grep -r "method_name" tests/generated/azure/<package-name>/
+grep -r "method_name" tests/generated/azure/ < package-name > /
 ```
 
 ## Step 5 — Find existing test file (or create one)
@@ -227,7 +227,7 @@ Format any python files you changed using Black with the project's shared config
 
 ```bash
 cd packages/http-client-python
-python -m black <paths> --config ./eng/scripts/ci/config/pyproject.toml
+python -m black ./eng/scripts/ci/config/pyproject.toml < paths > --config
 ```
 
 Replace `<paths>` with the specific files and/or folders you modified (relative to the `http-client-python` root).
@@ -287,7 +287,7 @@ Before opening a PR, run your new or updated test. You will need two terminals: 
 
    ```bash
    cd packages/http-client-python/tests
-   pytest mock_api/<azure|unbranded|shared>/<test_file>.py -v
+   pytest mock_api/ < azure | unbranded | shared > / < test_file > .py -v
    ```
 
    Verify that all tests pass before proceeding.
