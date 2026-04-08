@@ -6,10 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Union
 {
-    /// <summary>
-    /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
-    /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
-    /// </summary>
     [ModelReaderWriterBuildable(typeof(Cat))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(EnumsOnlyCases))]
@@ -25,16 +21,6 @@ namespace _Type.Union
     [ModelReaderWriterBuildable(typeof(GetResponse9))]
     [ModelReaderWriterBuildable(typeof(MixedLiteralsCases))]
     [ModelReaderWriterBuildable(typeof(MixedTypesCases))]
-    [ModelReaderWriterBuildable(typeof(SendRequest))]
-    [ModelReaderWriterBuildable(typeof(SendRequest1))]
-    [ModelReaderWriterBuildable(typeof(SendRequest2))]
-    [ModelReaderWriterBuildable(typeof(SendRequest3))]
-    [ModelReaderWriterBuildable(typeof(SendRequest4))]
-    [ModelReaderWriterBuildable(typeof(SendRequest5))]
-    [ModelReaderWriterBuildable(typeof(SendRequest6))]
-    [ModelReaderWriterBuildable(typeof(SendRequest7))]
-    [ModelReaderWriterBuildable(typeof(SendRequest8))]
-    [ModelReaderWriterBuildable(typeof(SendRequest9))]
     [ModelReaderWriterBuildable(typeof(StringAndArrayCases))]
     public partial class _TypeUnionContext : ModelReaderWriterContext
     {

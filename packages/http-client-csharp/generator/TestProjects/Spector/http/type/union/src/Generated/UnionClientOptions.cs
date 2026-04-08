@@ -8,23 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Union
 {
-    /// <summary> Client options for <see cref="UnionClient"/>. </summary>
     public partial class UnionClientOptions : ClientPipelineOptions
     {
-        /// <summary> Initializes a new instance of UnionClientOptions. </summary>
-        public UnionClientOptions()
-        {
-        }
+        public UnionClientOptions() => throw null;
 
-        /// <summary> Initializes a new instance of UnionClientOptions from configuration. </summary>
-        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal UnionClientOptions(IConfigurationSection section) : base(section)
-        {
-            if (section is null || !section.Exists())
-            {
-                return;
-            }
-        }
+        internal UnionClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }
