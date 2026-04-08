@@ -2,7 +2,7 @@
 #  Build compiler
 # --------------------------------
 # cspell:ignore tdnf
-FROM mcr.microsoft.com/azurelinux/base/nodejs:24 AS builder
+FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 COPY . /app
 
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
