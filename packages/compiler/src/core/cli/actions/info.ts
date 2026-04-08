@@ -3,10 +3,23 @@ import { fileURLToPath } from "url";
 import { stringify } from "yaml";
 import { loadTypeSpecConfigForPath } from "../../../config/config-loader.js";
 import { CompilerHost, Diagnostic } from "../../types.js";
+import { printEmitterOptionsAction } from "./info/emitter-options.js";
+
+export interface InfoCliArgs {
+  emitter?: string;
+}
+
 /**
- * Print the resolved TypeSpec configuration.
+ * Print the resolved TypeSpec configuration, or emitter options if an emitter is specified.
  */
-export async function printInfoAction(host: CompilerHost): Promise<readonly Diagnostic[]> {
+export async function printInfoAction(
+  host: CompilerHost,
+  args: InfoCliArgs,
+): Promise<readonly Diagnostic[]> {
+  if (args.emitter) {
+    return printEmitterOptionsAction(host, args.emitter);
+  }
+
   const cwd = process.cwd();
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 

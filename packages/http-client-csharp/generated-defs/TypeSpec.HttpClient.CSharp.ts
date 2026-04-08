@@ -1,4 +1,9 @@
-import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorValidatorCallbacks,
+  Model,
+  Namespace,
+} from "@typespec/compiler";
 
 /**
  * Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
@@ -20,7 +25,10 @@ import type { DecoratorContext, Model, Namespace } from "@typespec/compiler";
  * }
  * ```
  */
-export type DynamicModelDecorator = (context: DecoratorContext, target: Model | Namespace) => void;
+export type DynamicModelDecorator = (
+  context: DecoratorContext,
+  target: Model | Namespace,
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecHttpClientCSharpDecorators = {
   dynamicModel: DynamicModelDecorator;

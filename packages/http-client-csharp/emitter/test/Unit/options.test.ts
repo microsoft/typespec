@@ -162,4 +162,27 @@ describe("Configuration tests", async () => {
     expect(config["generate-protocol-methods"]).toBeUndefined();
     expect(config["generate-convenience-methods"]).toBeUndefined();
   });
+
+  it("should pass plugins option to configuration", async () => {
+    const options: CSharpEmitterOptions = {
+      "package-name": "test-package",
+      plugins: ["/path/to/Plugin.dll", "/path/to/plugin-dir"],
+    };
+    const context = createEmitterContext(program, options);
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(options, "namespace", sdkContext);
+
+    expect(config["plugins"]).toEqual(["/path/to/Plugin.dll", "/path/to/plugin-dir"]);
+  });
+
+  it("should not include plugins in configuration when not set", async () => {
+    const options: CSharpEmitterOptions = {
+      "package-name": "test-package",
+    };
+    const context = createEmitterContext(program, options);
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(options, "namespace", sdkContext);
+
+    expect(config["plugins"]).toBeUndefined();
+  });
 });

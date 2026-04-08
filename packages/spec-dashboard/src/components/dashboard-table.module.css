@@ -1,0 +1,83 @@
+.table {
+  border-collapse: collapse;
+}
+
+.table tr:nth-of-type(2n) {
+  background-color: var(--colorNeutralBackground3);
+}
+
+.table td,
+.table th {
+  border: 1px solid var(--colorNeutralStroke3);
+  height: 32px;
+}
+
+.table th {
+  padding: 6px 13px;
+  background-color: var(--colorNeutralBackground1);
+}
+
+.scenario-status-cell {
+  padding: 0;
+  width: 120px;
+}
+
+.header-cell {
+  padding: 0 !important;
+}
+
+.header-grid {
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto 26px 32px;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 2px solid var(--colorNeutralStroke3);
+  grid-template-areas:
+    "name name"
+    "gen-version spec-version"
+    "status status";
+}
+
+.header-name {
+  grid-area: name;
+  border-bottom: 1px solid var(--colorNeutralStroke3);
+  padding: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.header-name:hover {
+  background: var(--colorNeutralStroke3);
+}
+
+.version {
+  font-size: 9pt;
+  font-weight: normal;
+  color: var(--colorNeutralForeground2);
+  padding: 5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  width: 60px;
+  overflow: hidden;
+}
+
+.gen-version {
+  grid-area: gen-version;
+  border-right: 1px solid var(--colorNeutralStroke3);
+}
+
+.spec-version {
+  grid-area: spec-version;
+}
+
+.header-status {
+  grid-area: status;
+  border-top: 1px solid var(--colorNeutralStroke3);
+  height: 32px;
+}
+
+.version-icon {
+  margin-right: 5px;
+  flex: 0 0 auto;
+}

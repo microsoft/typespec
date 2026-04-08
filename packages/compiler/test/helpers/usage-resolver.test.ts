@@ -1,23 +1,20 @@
 import { deepStrictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { UsageFlags, resolveUsages } from "../../src/core/helpers/usage-resolver.js";
 import { getTypeName } from "../../src/index.js";
-import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: helpers: usage resolver", () => {
-  let runner: BasicTestRunner;
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   async function getUsages(
     code: string,
     targetNames?: string | string[],
   ): Promise<{ inputs: string[]; outputs: string[] }> {
-    const testTypes = await runner.compile(code);
+    const compileResult: any = await Tester.compile(code);
+    const { program } = compileResult;
     const targetNames2 = typeof targetNames === "string" ? [targetNames] : targetNames;
     const targetTypes =
-      targetNames2?.map((x) => testTypes[x]) ?? runner.program.checker.getGlobalNamespaceType();
+      targetNames2?.map((x: string) => compileResult[x]) ??
+      program.checker.getGlobalNamespaceType();
     const usages = resolveUsages(targetTypes as any);
 
     const result: { inputs: string[]; outputs: string[] } = { inputs: [], outputs: [] };
@@ -158,7 +155,7 @@ describe("compiler: helpers: usage resolver", () => {
           model Foo {}
           model Bar {}
           op set(): Bar;
-          @test op get(): Foo; 
+          op /*get*/get(): Foo; 
         `,
           "get",
         );
@@ -171,7 +168,7 @@ describe("compiler: helpers: usage resolver", () => {
           `
           model Foo {}
           op set(input: Foo): void;
-          @test op get(): Foo; 
+          op /*get*/get(): Foo; 
         `,
           "get",
         );
@@ -189,7 +186,7 @@ describe("compiler: helpers: usage resolver", () => {
           interface One {
             set(input: Foo): void;
           }
-          @test interface Two {
+          interface /*Two*/Two {
             get(): Foo;
             other(input: Bar): void;
           }
@@ -208,11 +205,11 @@ describe("compiler: helpers: usage resolver", () => {
           model Foo {}
           model Bar {}
           interface One {
-            @test set(input: Foo): void;
+            /*set*/set(input: Foo): void;
           }
           interface Two {
             get(): Foo;
-            @test  other(input: Bar): void;
+            /*other*/other(input: Bar): void;
           }
         `,
           ["set", "other"],

@@ -53,9 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             encode = encode ?? throw new JsonException("DateTime type must have encoding");
             wireType = wireType ?? throw new JsonException("DateTime type must have wireType");
 
-            var dateTimeType = Enum.TryParse<DateTimeKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDateTimeType(encodeKind, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external }
-                : throw new JsonException($"Encoding of DateTime type {encode} is unknown.");
+            var dateTimeType = new InputDateTimeType(new DateTimeKnownEncoding(encode), name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external };
 
             if (id != null)
             {

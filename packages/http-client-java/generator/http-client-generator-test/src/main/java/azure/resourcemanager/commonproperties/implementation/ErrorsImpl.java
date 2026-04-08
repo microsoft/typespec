@@ -30,12 +30,8 @@ public final class ErrorsImpl implements Errors {
         String confidentialResourceName, Context context) {
         Response<ConfidentialResourceInner> inner
             = this.serviceClient().getByResourceGroupWithResponse(resourceGroupName, confidentialResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ConfidentialResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ConfidentialResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ConfidentialResource getByResourceGroup(String resourceGroupName, String confidentialResourceName) {

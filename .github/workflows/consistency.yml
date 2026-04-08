@@ -10,6 +10,9 @@ on:
   merge_group:
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   check-changes:
@@ -22,7 +25,7 @@ jobs:
       !startsWith(github.head_ref, 'backmerge/') &&
       !startsWith(github.head_ref, 'revert-')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
@@ -39,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: comment
           path: comment-out/
@@ -53,7 +56,7 @@ jobs:
     name: Spell check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: ./.github/actions/setup
@@ -69,7 +72,7 @@ jobs:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: ./.github/actions/setup
@@ -88,7 +91,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -103,12 +106,22 @@ jobs:
       - run: pnpm run lint
         name: Lint
 
-  # Check version mismatch
+      # cspell:ignore rhysd
+      # Content copied from https://raw.githubusercontent.com/rhysd/actionlint/2ab3a12c7848f6c15faca9a92612ef4261d0e370/.github/actionlint-matcher.json
+      - run: echo "::add-matcher::.github/matchers/actionlint.json"
+        name: Add actionlint problem matcher
+
+      - uses: docker://rhysd/actionlint:1.7.12
+        name: Lint workflows
+        with:
+          args: -color -verbose
+
+  # Check that all dependencies use the pnpm catalog
   version-consistency:
     name: Versions consistency
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -117,5 +130,5 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm run check-version-mismatch
-        name: Check version mismatch
+      - run: pnpm run check-catalog
+        name: Check catalog usage

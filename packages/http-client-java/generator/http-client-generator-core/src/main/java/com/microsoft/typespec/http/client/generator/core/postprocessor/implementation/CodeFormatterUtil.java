@@ -16,7 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +94,7 @@ public final class CodeFormatterUtil {
                 CodeFormatterUtil.class.getClassLoader().getResourceAsStream("eclipse-format-azure-sdk-for-java.xml"));
 
             NodeList formatterSettingXml = document.getElementsByTagName("setting");
-            Map<String, String> formatterSettings = new HashMap<>();
+            Map<String, String> formatterSettings = new LinkedHashMap<>();
             for (int i = 0; i < formatterSettingXml.getLength(); i++) {
                 org.w3c.dom.Node node = formatterSettingXml.item(i);
                 formatterSettings.put(node.getAttributes().getNamedItem("id").getNodeValue(),

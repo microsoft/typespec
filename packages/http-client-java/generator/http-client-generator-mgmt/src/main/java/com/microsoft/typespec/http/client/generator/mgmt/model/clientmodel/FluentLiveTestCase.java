@@ -6,13 +6,13 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class FluentLiveTestCase {
 
-    private final Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
+    private final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
     private final List<FluentLiveTestStep> steps = new ArrayList<>();
     private String methodName;
     private String description;
@@ -38,8 +38,8 @@ public class FluentLiveTestCase {
     }
 
     public static final class Builder {
-        private Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
-        private List<FluentLiveTestStep> steps = new ArrayList<>();
+        private final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
+        private final List<FluentLiveTestStep> steps = new ArrayList<>();
         private String methodName;
         private String description;
 

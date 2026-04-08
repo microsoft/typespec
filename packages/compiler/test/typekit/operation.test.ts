@@ -1,24 +1,16 @@
 import { assert, expect, it } from "vitest";
-import { expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper } from "../../src/testing/test-utils.js";
+import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
-import { getTypes } from "./utils.js";
+import { Tester } from "../tester.js";
 
 it("can get paging metadata", async () => {
-  const {
-    listPets,
-    context: { program },
-  } = await getTypes(
-    `
+  const { listPets, program } = await Tester.compile(t.code`
     model Pet { name: string }
 
-    @list op listPets(@continuationToken token?: string): {
+    @list op ${t.op("listPets")}(@continuationToken token?: string): {
       @pageItems pets: Pet[];
     };
-  `,
-    ["listPets"],
-  );
+  `);
 
   assert.ok(listPets.kind === "Operation");
 
@@ -28,18 +20,17 @@ it("can get paging metadata", async () => {
 });
 
 it("can get diagnostics from getPagingMetadata", async () => {
-  const runner = createTestWrapper(await createTestHost());
-  const [{ listPets }] = await runner.compileAndDiagnose(`
-      model Pet { name: string }
+  const [{ listPets, program }] = await Tester.compileAndDiagnose(t.code`
+    model Pet { name: string }
 
-      @test @list op listPets(): {
-        pets: Pet[];
-      };
-    `);
+    @list op ${t.op("listPets")}(): {
+      pets: Pet[];
+    };
+  `);
 
   assert.ok(listPets.kind === "Operation");
 
-  const [, diagnostics] = $(runner.program).operation.getPagingMetadata.withDiagnostics(listPets);
+  const [, diagnostics] = $(program).operation.getPagingMetadata.withDiagnostics(listPets);
   expectDiagnostics(diagnostics, {
     code: "missing-paging-items",
   });

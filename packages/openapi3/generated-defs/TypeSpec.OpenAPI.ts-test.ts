@@ -7,4 +7,4 @@ import type { TypeSpecOpenAPIDecorators } from "./TypeSpec.OpenAPI.js";
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: TypeSpecOpenAPIDecorators = $decorators["TypeSpec.OpenAPI"];
+const _decs: TypeSpecOpenAPIDecorators = $decorators["TypeSpec.OpenAPI"];

@@ -20,7 +20,7 @@ export interface Client extends Aspect {
 
   security: Security;
 
-  serviceVersion?: ServiceVersion; // apiVersions is in
+  serviceVersion?: ServiceVersion; // for ServiceVersion class
 
   /**
    * Parent client of this client, if exists.

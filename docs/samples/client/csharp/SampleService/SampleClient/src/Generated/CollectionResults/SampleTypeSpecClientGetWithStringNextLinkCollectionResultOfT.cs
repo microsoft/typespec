@@ -39,7 +39,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                nextPageUri = new Uri(nextPageString);
+                nextPageUri = new Uri(nextPageString, UriKind.RelativeOrAbsolute);
                 message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }

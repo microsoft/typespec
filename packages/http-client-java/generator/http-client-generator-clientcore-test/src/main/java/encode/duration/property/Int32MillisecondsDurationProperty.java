@@ -7,6 +7,7 @@ import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * The Int32MillisecondsDurationProperty model.
@@ -17,7 +18,7 @@ public final class Int32MillisecondsDurationProperty implements JsonSerializable
      * The value property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final int value;
+    private final long value;
 
     /**
      * Creates an instance of Int32MillisecondsDurationProperty class.
@@ -25,8 +26,12 @@ public final class Int32MillisecondsDurationProperty implements JsonSerializable
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public Int32MillisecondsDurationProperty(int value) {
-        this.value = value;
+    public Int32MillisecondsDurationProperty(Duration value) {
+        if (value == null) {
+            this.value = 0L;
+        } else {
+            this.value = value.toMillis();
+        }
     }
 
     /**
@@ -35,8 +40,8 @@ public final class Int32MillisecondsDurationProperty implements JsonSerializable
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public int getValue() {
-        return this.value;
+    public Duration getValue() {
+        return Duration.ofMillis(this.value);
     }
 
     /**
@@ -46,7 +51,7 @@ public final class Int32MillisecondsDurationProperty implements JsonSerializable
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeIntField("value", this.value);
+        jsonWriter.writeLongField("value", this.value);
         return jsonWriter.writeEndObject();
     }
 
@@ -62,13 +67,13 @@ public final class Int32MillisecondsDurationProperty implements JsonSerializable
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static Int32MillisecondsDurationProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            int value = 0;
+            Duration value = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    value = reader.getInt();
+                    value = Duration.ofMillis(reader.getLong());
                 } else {
                     reader.skipChildren();
                 }

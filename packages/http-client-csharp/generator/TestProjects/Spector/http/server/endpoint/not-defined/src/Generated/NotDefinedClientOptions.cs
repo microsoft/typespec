@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Server.Endpoint.NotDefined
 {
     public partial class NotDefinedClientOptions : ClientPipelineOptions
     {
+        public NotDefinedClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal NotDefinedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

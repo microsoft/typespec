@@ -281,6 +281,8 @@ strictEqual(Foo.name, "Foo");
 
 PR with examples https://github.com/microsoft/typespec/pull/7151
 
+### Replace test host setup
+
 ```diff lang=ts title="test-host.ts"
 - import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
 - import { HttpTestLibrary } from "@typespec/http/testing";
@@ -307,16 +309,70 @@ PR with examples https://github.com/microsoft/typespec/pull/7151
 +   .using("My");
 ```
 
-In test files
+### Update test files
+
+Remove the `beforeEach` runner setup and use `Tester` directly. The `program` is available on the compile result.
 
 ```diff lang=ts title="test/my-library.test.ts"
+- import { createMyTestRunner } from "./test-host.js";
++ import { t } from "@typespec/compiler/testing";
++ import { Tester } from "./test-host.js";
+
+- let runner: BasicTestRunner;
+- beforeEach(async () => {
+-   runner = await createMyTestRunner();
+- });
+
  it("mark property as being an attribute", async () => {
 -   const { id } = (await runner.compile(`model Blob {
 -     @test @Xml.attribute id : string
 -   }`)) as { id: ModelProperty };
-+   const { id } = await Tester.compile(t.code`model Blob {
+-   expect(isAttribute(runner.program, id)).toBe(true);
++   const { id, program } = await Tester.compile(t.code`model Blob {
 +      @Xml.attribute ${t.modelProperty("id")} : string
 +   }`);
-   expect(isAttribute(runner.program, id)).toBe(true);
++   expect(isAttribute(program, id)).toBe(true);
  });
+```
+
+### Injecting files
+
+Replace `host.addTypeSpecFile()` / `host.addJsFile()` with the `.files()` chain and `mockFile.js()`:
+
+```diff lang=ts
+- host.addJsFile("./dec.js", { $myDec: () => null });
+- const diagnostics = await runner.diagnose(`
+-   import "./dec.js";
+-   extern dec myDec(target: unknown);
+- `);
++ import { mockFile } from "@typespec/compiler/testing";
++ const diagnostics = await Tester.files({
++   "./dec.js": mockFile.js({ $myDec: () => null }),
++ }).diagnose(`
++   import "./dec.js";
++   extern dec myDec(target: unknown);
++ `);
+```
+
+### Emitter testing
+
+For emitter tests, use `.emit()` to create an `EmitterTester`. The compile result includes `outputs` with the emitted files:
+
+```diff lang=ts title="test-host.ts"
+- export async function createMyEmitterTestRunner() {
+-   const host = await createMyTestHost();
+-   return createTestWrapper(host, {
+-     compilerOptions: { noEmit: false, emit: ["@typespec/my-emitter"] },
+-   });
+- }
+
++ export const EmitterTester = Tester.emit("@typespec/my-emitter");
+```
+
+```diff lang=ts title="test/emitter.test.ts"
+- const runner = await createMyEmitterTestRunner();
+- await runner.compileAndDiagnose(code, { outputDir: "tsp-output" });
+
++ const [result, diagnostics] = await EmitterTester.compileAndDiagnose(code);
++ // result.outputs contains the emitted files as Record<string, string>
 ```

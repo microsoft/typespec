@@ -13,7 +13,7 @@ it("clones decorated properties", async () => {
     import "./blue.js";
     model A { @blue foo: string }
     model B { @blue bar: string }
-    @test model ${t.model("C")} { ... A, ... B }
+    model ${t.model("C")} { ... A, ... B }
   `);
 
   strictEqual(C.properties.size, 2);

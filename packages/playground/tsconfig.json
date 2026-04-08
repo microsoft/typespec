@@ -14,5 +14,6 @@
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },
+  "exclude": ["test", "vitest.config.ts"],
   "references": [{ "path": "../compiler/tsconfig.json" }]
 }

@@ -22,12 +22,12 @@ namespace TestProjects.Spector.Tests.Http.Authentication.Oauth2
             // create a test client to access the private field "_flows". This will be used to pass to the test token provider.
             var tokenProvider = new ClientCredentialTokenProvider("myClientId", "myClientSecret");
             var testClient = new OAuth2Client(tokenProvider);
-            var flowsField = testClient.GetType().GetField("_flows", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var flowsField = testClient.GetType().GetField("_flows", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             Assert.IsNotNull(flowsField, "Flows field should not be null");
-            Assert.IsInstanceOf<Dictionary<string, object>[]>(flowsField!.GetValue(testClient), "Flows field should be of type Dictionary<string, object>[]");
+            Assert.IsInstanceOf<Dictionary<string, object>[]>(flowsField!.GetValue(null), "Flows field should be of type Dictionary<string, object>[]");
 
             // Retrieve the value of the field and cast it to the expected type.
-            var flows = flowsField!.GetValue(testClient) as Dictionary<string, object>[];
+            var flows = flowsField!.GetValue(null) as Dictionary<string, object>[];
             Assert.IsNotNull(flows, "Flows field should be of type Dictionary<string, object>[]");
 
             // Parse the generated scope to use in the test.
@@ -62,12 +62,12 @@ namespace TestProjects.Spector.Tests.Http.Authentication.Oauth2
             // create a test client to access the private field "_flows". This will be used to pass to the test token provider.
             var tokenProvider = new ClientCredentialTokenProvider("myClientId", "myClientSecret");
             var testClient = new OAuth2Client(tokenProvider);
-            var flowsField = testClient.GetType().GetField("_flows", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var flowsField = testClient.GetType().GetField("_flows", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             Assert.IsNotNull(flowsField, "Flows field should not be null");
-            Assert.IsInstanceOf<Dictionary<string, object>[]>(flowsField!.GetValue(testClient), "Flows field should be of type Dictionary<string, object>[]");
+            Assert.IsInstanceOf<Dictionary<string, object>[]>(flowsField!.GetValue(null), "Flows field should be of type Dictionary<string, object>[]");
 
             // Retrieve the value of the field and cast it to the expected type.
-            var flows = flowsField!.GetValue(testClient) as Dictionary<string, object>[];
+            var flows = flowsField!.GetValue(null) as Dictionary<string, object>[];
             Assert.IsNotNull(flows, "Flows field should be of type Dictionary<string, object>[]");
 
             // Parse the generated scope to use in the test.

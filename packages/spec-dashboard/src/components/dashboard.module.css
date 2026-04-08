@@ -1,0 +1,24 @@
+.summary-table {
+  margin: 5px;
+}
+
+.specs-card {
+  margin: 5px;
+  flex: 0;
+}
+
+.specs-row {
+  display: flex;
+}
+
+.spacer {
+  height: 30px;
+}
+
+.card {
+  width: 500px;
+}
+
+.tier-filter {
+  margin-bottom: 20px;
+}

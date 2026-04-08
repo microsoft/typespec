@@ -1,17 +1,7 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { LibraryTsTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createLibraryTsTestHost() {
-  return createTestHost({
-    libraries: [LibraryTsTestLibrary],
-  });
-}
-
-export async function createLibraryTsTestRunner() {
-  const host = await createLibraryTsTestHost();
-
-  return createTestWrapper(host, {
-    autoUsings: ["LibraryTs"]
-  });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
+  libraries: ["library-ts"],
+}).import("library-ts");
 

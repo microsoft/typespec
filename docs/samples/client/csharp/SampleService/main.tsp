@@ -791,7 +791,6 @@ model Plant {
 }
 
 @doc("Tree is a specific type of plant")
-@usage(Usage.xml | Usage.output | Usage.json)
 model Tree extends Plant {
   species: "tree";
 
@@ -809,6 +808,14 @@ interface PlantOperations {
     @body body: Tree;
   };
 
+  @doc("Get a tree as a plant")
+  @get
+  @route("/tree/as-plant/json")
+  getTreeAsJson(): {
+    @header contentType: "application/json";
+    @body body: Tree;
+  };
+
   @doc("Update a tree as a plant")
   @put
   @route("/tree/as-plant")
@@ -816,16 +823,29 @@ interface PlantOperations {
     @header contentType: "application/xml";
     @body body: Tree;
   };
+
+  @doc("Update a tree as a plant")
+  @put
+  @route("/tree/as-plant/json")
+  updateTreeAsJson(@body tree: Tree, @header contentType: "application/json"): {
+    @header contentType: "application/json";
+    @body body: Tree;
+  };
+}
+
+model MetricsClientParams {
+  metricsNamespace: string;
 }
 
 @clientInitialization({
   initializedBy: InitializedBy.individually | InitializedBy.parent,
+  parameters: MetricsClientParams,
 })
 interface Metrics {
   @doc("Get Widget metrics for given day of week")
   @get
-  @route("/metrics/widgets/daysOfWeek")
-  getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
+  @route("/metrics/{metricsNamespace}/widgets/daysOfWeek")
+  getWidgetMetrics(@path metricsNamespace: string, @path day: DaysOfWeekExtensibleEnum): {
     numSold: int32;
     averagePrice: float32;
   };

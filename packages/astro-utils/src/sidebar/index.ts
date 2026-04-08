@@ -53,7 +53,8 @@ export async function processSidebar(
   function getSlugFromPath(directory: string, path: string) {
     const name = parse(path).name.toLocaleLowerCase();
     const normalizedName = name === "index" ? "" : name;
-    return prefix(join(directory, normalizedName))
+    const joined = join(directory, normalizedName);
+    return prefix(joined === "." ? "" : joined)
       .replaceAll("$", "")
       .replaceAll(" ", "-")
       .toLowerCase();

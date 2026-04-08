@@ -1,0 +1,38 @@
+.section {
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  background-color: var(--colorNeutralBackground2);
+  border-radius: var(--borderRadiusXLarge);
+  border: 1px solid var(--colorNeutralStroke2);
+}
+
+.heading {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--colorNeutralForeground1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background-color: var(--colorNeutralBackground1);
+  padding: 16px 16px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 100px;
+}
+
+.card-name {
+  color: var(--colorNeutralForeground2);
+  min-height: calc(var(--lineHeightBase300));
+  display: flex;
+  align-items: center;
+  text-align: center;
+}

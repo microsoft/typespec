@@ -273,7 +273,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);
-            uri.AppendQuery("apiVersion", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("apiVersion", _apiVersion, true);
+            }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);

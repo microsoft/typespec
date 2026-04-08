@@ -1,5 +1,54 @@
 # Change Log - @typespec/http-client-python
 
+## 0.28.3
+
+### Bump dependencies
+
+- [#10297](https://github.com/microsoft/typespec/pull/10297) Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.28.2
+
+### Bug Fixes
+
+- [#10167](https://github.com/microsoft/typespec/pull/10167) Fix import of `_deserialize` in mix of xml and non-xml models
+
+
+## 0.28.1
+
+### Bug Fixes
+
+- [#10084](https://github.com/microsoft/typespec/pull/10084) Fix PermissionError when detecting package manager on WSL
+- [#10105](https://github.com/microsoft/typespec/pull/10105) Remove `None` from "Known values" in `api_version` parameter docstring since the parameter is typed as `str` and `None` is not a valid API version value.
+- [#10117](https://github.com/microsoft/typespec/pull/10117) Fix model usage which is referred both in request and response
+
+
+## 0.28.0
+
+### Features
+
+- [#9898](https://github.com/microsoft/typespec/pull/9898) Remove enum value padding because we generate our enum value names with upper case so there is no need
+
+### Bug Fixes
+
+- [#9778](https://github.com/microsoft/typespec/pull/9778) Return empty list instead of None for non-optional unwrapped XML list fields during deserialization
+- [#9952](https://github.com/microsoft/typespec/pull/9952) Fix extensible enum member names incorrectly getting an `Enum` suffix when the member name matched a Python reserved word (e.g. `ANDEnum` → `AND`, `CLASSEnum` → `CLASS`).
+- [#9964](https://github.com/microsoft/typespec/pull/9964) Remove includeRootSlash client option logic, which should be handled at the TypeSpec core level
+
+
+## 0.27.2
+
+### Bump dependencies
+
+- [#9713](https://github.com/microsoft/typespec/pull/9713) Upgrade dependencies to match root package.json versions (@types/node, rimraf, tsx, typescript, typescript-eslint, vitest)
+
+### Bug Fixes
+
+- [#9812](https://github.com/microsoft/typespec/pull/9812) Fix `__eq__` method in `_MyMutableMapping` to use `isinstance` check instead of attempting to construct a new instance from the other object.
+- [#9776](https://github.com/microsoft/typespec/pull/9776) Allow client options on child clients to override parent clients
+- [#9769](https://github.com/microsoft/typespec/pull/9769) Add pylint disable for list of elem deserialization
+- [#9779](https://github.com/microsoft/typespec/pull/9779) allow decompression in version tolerant
+
+
 ## 0.27.1
 
 ### Bug Fixes

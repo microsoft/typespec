@@ -251,7 +251,7 @@ export async function createTypeSpecProject(
           }
 
           type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
-          let nextStep: nextStepChoice = "Ignore";
+          let nextStep: nextStepChoice;
           const normalizedRootFolder = normalizePath(selectedRootFolder);
           const isFolderOpenedInWorkspace =
             vscode.workspace.workspaceFolders?.find(

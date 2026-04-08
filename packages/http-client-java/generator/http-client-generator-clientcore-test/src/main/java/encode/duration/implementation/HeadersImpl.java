@@ -135,7 +135,7 @@ public final class HeadersImpl {
             path = "/encode/duration/header/int32-milliseconds",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> int32Milliseconds(@HostParam("endpoint") String endpoint, @HeaderParam("duration") int duration,
+        Response<Void> int32Milliseconds(@HostParam("endpoint") String endpoint, @HeaderParam("duration") long duration,
             RequestContext requestContext);
 
         @HttpRequestInformation(
@@ -144,7 +144,7 @@ public final class HeadersImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
-            @HeaderParam("duration") int duration, RequestContext requestContext);
+            @HeaderParam("duration") long duration, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -366,10 +366,11 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsWithResponse(int duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32Milliseconds", requestContext,
             updatedContext -> {
-                return service.int32Milliseconds(this.client.getEndpoint(), duration, updatedContext);
+                long durationConverted = duration.toMillis();
+                return service.int32Milliseconds(this.client.getEndpoint(), durationConverted, updatedContext);
             });
     }
 
@@ -384,10 +385,12 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsLargerUnit",
             requestContext, updatedContext -> {
-                return service.int32MillisecondsLargerUnit(this.client.getEndpoint(), duration, updatedContext);
+                long durationConverted = duration.toMillis();
+                return service.int32MillisecondsLargerUnit(this.client.getEndpoint(), durationConverted,
+                    updatedContext);
             });
     }
 
@@ -402,10 +405,11 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> floatMillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMilliseconds", requestContext,
             updatedContext -> {
-                return service.floatMilliseconds(this.client.getEndpoint(), duration, updatedContext);
+                double durationConverted = (double) duration.toNanos() / 1000_000L;
+                return service.floatMilliseconds(this.client.getEndpoint(), durationConverted, updatedContext);
             });
     }
 
@@ -420,10 +424,12 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMillisecondsLargerUnit",
             requestContext, updatedContext -> {
-                return service.floatMillisecondsLargerUnit(this.client.getEndpoint(), duration, updatedContext);
+                double durationConverted = (double) duration.toNanos() / 1000_000L;
+                return service.floatMillisecondsLargerUnit(this.client.getEndpoint(), durationConverted,
+                    updatedContext);
             });
     }
 
@@ -438,10 +444,11 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> float64MillisecondsWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> float64MillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.float64Milliseconds", requestContext,
             updatedContext -> {
-                return service.float64Milliseconds(this.client.getEndpoint(), duration, updatedContext);
+                double durationConverted = (double) duration.toNanos() / 1000_000L;
+                return service.float64Milliseconds(this.client.getEndpoint(), durationConverted, updatedContext);
             });
     }
 
@@ -456,36 +463,41 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsArray",
             requestContext, updatedContext -> {
-                String durationConverted = duration.stream().map(paramItemValue -> {
-                    if (paramItemValue == null) {
-                        return "";
-                    } else {
-                        String itemValueString = BinaryData.fromObject(paramItemValue).toString();
-                        int strLength = itemValueString.length();
-                        int startOffset = 0;
-                        while (startOffset < strLength) {
-                            if (itemValueString.charAt(startOffset) != '"') {
-                                break;
-                            }
-                            startOffset++;
-                        }
-                        if (startOffset == strLength) {
+                String durationConverted = duration.stream()
+                    .map(paramItemValue -> paramItemValue.toMillis())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(paramItemValue -> {
+                        if (paramItemValue == null) {
                             return "";
-                        }
-                        int endOffset = strLength - 1;
-                        while (endOffset >= 0) {
-                            if (itemValueString.charAt(endOffset) != '"') {
-                                break;
+                        } else {
+                            String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                            int strLength = itemValueString.length();
+                            int startOffset = 0;
+                            while (startOffset < strLength) {
+                                if (itemValueString.charAt(startOffset) != '"') {
+                                    break;
+                                }
+                                startOffset++;
                             }
+                            if (startOffset == strLength) {
+                                return "";
+                            }
+                            int endOffset = strLength - 1;
+                            while (endOffset >= 0) {
+                                if (itemValueString.charAt(endOffset) != '"') {
+                                    break;
+                                }
 
-                            endOffset--;
+                                endOffset--;
+                            }
+                            return itemValueString.substring(startOffset, endOffset + 1);
                         }
-                        return itemValueString.substring(startOffset, endOffset + 1);
-                    }
-                }).collect(Collectors.joining(","));
+                    })
+                    .collect(Collectors.joining(","));
                 return service.int32MillisecondsArray(this.client.getEndpoint(), durationConverted, updatedContext);
             });
     }

@@ -119,6 +119,19 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Constant header '${"headerName"}' is removed from response headers.`,
       },
     },
+    "spread-json-merge-patch-payload-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "Spread JSON merge-patch payload is not supported. The reason is that a property in JSON merge-patch payload class can: set a value; not set so that value does not change; set to null to remove the value. A parameter on method cannot distinguish the latter 2 cases.",
+      },
+    },
+    "type-not-supported-on-text-plain": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Complex SDK type is not supported for "text/plain" content-type. Emitter would use string type on '${"operationName"}' ${"payloadKind"}.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,

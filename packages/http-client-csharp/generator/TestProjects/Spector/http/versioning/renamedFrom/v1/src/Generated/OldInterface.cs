@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace Versioning.RenamedFrom
     public partial class OldInterface
     {
         protected OldInterface() => throw null;
+
+        internal OldInterface(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

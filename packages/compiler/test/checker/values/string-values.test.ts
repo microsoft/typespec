@@ -87,6 +87,14 @@ describe("string templates", () => {
         "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
     });
   });
+
+  it("only emit invalid-ref error when interpolating an invalid reference, not non-literal-string-template", async () => {
+    const diagnostics = await diagnoseValue(`string("Some \${bad}")`);
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: "Unknown identifier bad",
+    });
+  });
 });
 
 describe("validate literal are assignable", () => {

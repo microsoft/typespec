@@ -206,17 +206,22 @@ export function resolveOptions(
 ): ResolvedOpenAPI3EmitterOptions {
   const resolvedOptions = { ...defaultOptions, ...context.options };
 
-  const fileType =
-    resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
+  const rawFileType = resolvedOptions["file-type"];
+  const fileTypes: FileType[] = Array.isArray(rawFileType)
+    ? rawFileType
+    : [rawFileType ?? findFileTypeFromFilename(resolvedOptions["output-file"])];
 
   const outputFile =
-    resolvedOptions["output-file"] ?? `openapi.{service-name-if-multiple}.{version}.${fileType}`;
+    resolvedOptions["output-file"] ??
+    (fileTypes.length > 1
+      ? `openapi.{service-name-if-multiple}.{version}.{file-type}`
+      : `openapi.{service-name-if-multiple}.{version}.${fileTypes[0]}`);
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
   return {
-    fileType,
+    fileTypes,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
@@ -257,7 +262,7 @@ function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrateg
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
-  fileType: FileType;
+  fileTypes: FileType[];
   outputFile: string;
   openapiVersions: OpenAPIVersion[];
   newLine: NewLine;
@@ -366,20 +371,27 @@ function createOAPIEmitter(
     const multipleService = services.length > 1;
     const writeTimer = perf.startTimer();
     for (const serviceRecord of services) {
-      if (serviceRecord.versioned) {
-        for (const documentRecord of serviceRecord.versions) {
+      for (const fileType of options.fileTypes) {
+        if (serviceRecord.versioned) {
+          for (const documentRecord of serviceRecord.versions) {
+            await emitFile(program, {
+              path: resolveOutputFile(
+                serviceRecord.service,
+                multipleService,
+                fileType,
+                documentRecord.version,
+              ),
+              content: serializeDocument(documentRecord.document, fileType),
+              newLine: options.newLine,
+            });
+          }
+        } else {
           await emitFile(program, {
-            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
-            content: serializeDocument(documentRecord.document, options.fileType),
+            path: resolveOutputFile(serviceRecord.service, multipleService, fileType),
+            content: serializeDocument(serviceRecord.document, fileType),
             newLine: options.newLine,
           });
         }
-      } else {
-        await emitFile(program, {
-          path: resolveOutputFile(serviceRecord.service, multipleService),
-          content: serializeDocument(serviceRecord.document, options.fileType),
-          newLine: options.newLine,
-        });
       }
     }
     const writeTime = writeTimer.end();
@@ -598,11 +610,17 @@ function createOAPIEmitter(
     return document;
   }
 
-  function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
+  function resolveOutputFile(
+    service: Service,
+    multipleService: boolean,
+    fileType: FileType,
+    version?: string,
+  ): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
       "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
       "service-name": getNamespaceFullName(service.type),
+      "file-type": fileType,
       version,
     });
   }
@@ -1798,7 +1816,12 @@ function createOAPIEmitter(
     }
 
     for (const [name, tag] of Object.entries(metadata || {})) {
-      tags.push({ name: name, ...tag });
+      const tagData: OpenAPI3Tag = { name: name, ...tag };
+      // For OpenAPI 3.0 and 3.1, drop the 'parent' field (only supported in 3.2)
+      if (specVersion !== "3.2.0" && tag.parent) {
+        delete (tagData as { parent?: string }).parent;
+      }
+      tags.push(tagData);
     }
 
     return tags;

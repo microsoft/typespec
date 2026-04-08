@@ -1,33 +1,25 @@
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model, StringTemplate } from "../../src/index.js";
+import { describe, it } from "vitest";
+import { StringTemplate } from "../../src/index.js";
 import {
-  BasicTestRunner,
-  createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractSquiggles,
+  t,
 } from "../../src/testing/index.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createTestRunner();
-});
+import { Tester } from "../tester.js";
 
 async function compileStringTemplate(
   templateString: string,
   other?: string,
 ): Promise<StringTemplate> {
-  const { Test } = (await runner.compile(
-    `
-      @test model Test {
+  const { Test } = await Tester.compile(t.code`
+      model ${t.model("Test")} {
         test: ${templateString};
       }
 
       ${other ?? ""}
-      `,
-  )) as { Test: Model };
+      `);
 
   const prop = Test.properties.get("test")!.type;
 
@@ -79,7 +71,7 @@ it("can interpolate a model", async () => {
 
 // Regression test for https://github.com/microsoft/typespec/issues/7401
 it("can use empty string to interpolate in tempalates", async () => {
-  const diagnostics = await runner.diagnose(
+  const diagnostics = await Tester.diagnose(
     `
     @doc("\${T} strange")
     model Test<T extends valueof string> {}
@@ -90,7 +82,7 @@ it("can use empty string to interpolate in tempalates", async () => {
 });
 
 it("emit error if interpolating value and types", async () => {
-  const diagnostics = await runner.diagnose(
+  const diagnostics = await Tester.diagnose(
     `
     const str1 = "hi";
     alias str2 = "\${str1} and \${string}";
@@ -112,7 +104,7 @@ describe("emit error if interpolating value in a context where template is used 
       const str1 = "hi";
       ${code}
     `;
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "value-in-type",
       message: "A value cannot be used as a type.",
@@ -126,7 +118,7 @@ it("emit error if interpolating template parameter that can be a type or value",
         a: ~~~"\${T}"~~~;
       };
     `);
-  const diagnostics = await runner.diagnose(source);
+  const diagnostics = await Tester.diagnose(source);
   expectDiagnostics(diagnostics, {
     code: "mixed-string-template",
     message:
@@ -142,7 +134,7 @@ it("emit error if interpolating template parameter that is a value but using tem
         a: ~~~"\${T}"~~~;
       };
     `);
-  const diagnostics = await runner.diagnose(source);
+  const diagnostics = await Tester.diagnose(source);
   expectDiagnostics(diagnostics, {
     code: "value-in-type",
     message: "A value cannot be used as a type.",

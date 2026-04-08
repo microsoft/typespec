@@ -31,3 +31,15 @@ Options:
              s easier to read.                         [boolean] [default: true]
   --version  Show version number                                       [boolean]
 ```
+
+## Environment Variables
+
+### `TYPESPEC_NPM_REGISTRY`
+
+Set the npm registry URL used by `tsp init` and `tsp install` when downloading the package manager and resolving package manifests. This is useful in corporate environments where a private npm registry is required.
+
+```bash
+TYPESPEC_NPM_REGISTRY=https://my-corp-registry.example.com tsp init
+```
+
+If this variable is not set, TypeSpec defaults to `https://registry.npmjs.org`.

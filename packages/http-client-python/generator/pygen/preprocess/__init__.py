@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 """The preprocessing autorest plugin."""
+
 import copy
 from typing import Callable, Any, Optional
 
@@ -21,7 +22,6 @@ from ..utils import (
     get_body_type_for_description,
     JSON_REGEXP,
     KNOWN_TYPES,
-    update_enum_value,
 )
 
 
@@ -267,30 +267,18 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
-                name = self.pad_reserved_words(type["name"], pad_type, type)
-                type["name"] = name[0].upper() + name[1:]
+                if type["type"] != "enumvalue":
+                    name = self.pad_reserved_words(type["name"], pad_type, type)
+                    type["name"] = name[0].upper() + name[1:]
                 type["description"] = update_description(type.get("description", ""), type["name"])
                 type["snakeCaseName"] = to_snake_case(type["name"])
             if type.get("values"):
-                # we're enums
-                values_to_add = []
+                # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
                 for value in type["values"]:
-                    padded_name = self.pad_reserved_words(value["name"].lower(), PadType.ENUM_VALUE, value).upper()
-                    if self.version_tolerant:
-                        if padded_name[0] in "0123456789":
-                            padded_name = "ENUM_" + padded_name
-                            value["name"] = padded_name
-                    else:
-                        if value["name"] != padded_name:
-                            values_to_add.append(
-                                update_enum_value(
-                                    name=padded_name,
-                                    value=value["value"],
-                                    description=value["description"],
-                                    enum_type=value["enumType"],
-                                )
-                            )
-                type["values"].extend(values_to_add)
+                    upper_name = value["name"].upper()
+                    if upper_name[0] in "0123456789":
+                        upper_name = "ENUM_" + upper_name
+                        value["name"] = upper_name
 
         # add type for reference
         for v in HEADERS_CONVERT_IN_METHOD.values():

@@ -1,4 +1,3 @@
-import type { PlaygroundLinks } from "../react/playground.js";
 import type { PlaygroundSampleConfig } from "../tooling/types.js";
 import type { PlaygroundSample } from "../types.js";
 
@@ -14,5 +13,4 @@ export interface PlaygroundConfig {
   readonly defaultEmitter: string;
   readonly libraries: readonly string[];
   readonly samples: Record<string, PlaygroundSample>;
-  readonly links?: PlaygroundLinks;
 }

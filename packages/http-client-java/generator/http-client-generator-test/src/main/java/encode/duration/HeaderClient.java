@@ -185,7 +185,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsWithResponse(int duration, RequestOptions requestOptions) {
+    public Response<Void> int32MillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.int32MillisecondsWithResponse(duration, requestOptions);
     }
 
@@ -202,7 +202,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestOptions requestOptions) {
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.int32MillisecondsLargerUnitWithResponse(duration, requestOptions);
     }
 
@@ -219,7 +219,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsWithResponse(double duration, RequestOptions requestOptions) {
+    public Response<Void> floatMillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.floatMillisecondsWithResponse(duration, requestOptions);
     }
 
@@ -236,7 +236,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestOptions requestOptions) {
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.floatMillisecondsLargerUnitWithResponse(duration, requestOptions);
     }
 
@@ -253,7 +253,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> float64MillisecondsWithResponse(double duration, RequestOptions requestOptions) {
+    public Response<Void> float64MillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.float64MillisecondsWithResponse(duration, requestOptions);
     }
 
@@ -270,7 +270,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestOptions requestOptions) {
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Duration> duration, RequestOptions requestOptions) {
         return this.serviceClient.int32MillisecondsArrayWithResponse(duration, requestOptions);
     }
 
@@ -439,7 +439,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Milliseconds(int duration) {
+    public void int32Milliseconds(Duration duration) {
         // Generated convenience method for int32MillisecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         int32MillisecondsWithResponse(duration, requestOptions).getValue();
@@ -458,7 +458,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32MillisecondsLargerUnit(int duration) {
+    public void int32MillisecondsLargerUnit(Duration duration) {
         // Generated convenience method for int32MillisecondsLargerUnitWithResponse
         RequestOptions requestOptions = new RequestOptions();
         int32MillisecondsLargerUnitWithResponse(duration, requestOptions).getValue();
@@ -477,7 +477,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMilliseconds(double duration) {
+    public void floatMilliseconds(Duration duration) {
         // Generated convenience method for floatMillisecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         floatMillisecondsWithResponse(duration, requestOptions).getValue();
@@ -496,7 +496,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMillisecondsLargerUnit(double duration) {
+    public void floatMillisecondsLargerUnit(Duration duration) {
         // Generated convenience method for floatMillisecondsLargerUnitWithResponse
         RequestOptions requestOptions = new RequestOptions();
         floatMillisecondsLargerUnitWithResponse(duration, requestOptions).getValue();
@@ -515,7 +515,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Milliseconds(double duration) {
+    public void float64Milliseconds(Duration duration) {
         // Generated convenience method for float64MillisecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         float64MillisecondsWithResponse(duration, requestOptions).getValue();
@@ -534,7 +534,7 @@ public final class HeaderClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32MillisecondsArray(List<Integer> duration) {
+    public void int32MillisecondsArray(List<Duration> duration) {
         // Generated convenience method for int32MillisecondsArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         int32MillisecondsArrayWithResponse(duration, requestOptions).getValue();

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Versioning {
@@ -19,7 +18,7 @@ public class Versioning {
     }
 
     public static class Builder {
-        private List<String> added = Collections.emptyList();
+        private List<String> added = List.of();
 
         public Builder() {
         }

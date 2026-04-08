@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains an array of models.
+ * §4.1 — Contains an array of models.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithArrayOfModel implements XmlSerializable<ModelWithArrayOfModel> {

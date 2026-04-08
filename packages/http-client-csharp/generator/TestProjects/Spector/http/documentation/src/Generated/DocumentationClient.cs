@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Documentation._Lists;
 using Documentation._TextFormatting;
 
@@ -13,7 +14,12 @@ namespace Documentation
     {
         public DocumentationClient() : this(new Uri("http://localhost:3000"), new DocumentationClientOptions()) => throw null;
 
-        public DocumentationClient(Uri endpoint, DocumentationClientOptions options) => throw null;
+        internal DocumentationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DocumentationClientOptions options) => throw null;
+
+        public DocumentationClient(Uri endpoint, DocumentationClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public DocumentationClient(DocumentationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -1,5 +1,27 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.25
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+### Bug Fixes
+
+- [#10259](https://github.com/microsoft/typespec/pull/10259) Fix query parameter matcher handling: use `resolveMatchers: false` so matcher objects (e.g. `match.dateTime`) are checked semantically instead of being serialized to plain strings before comparison.
+
+
+## 0.1.0-alpha.24
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9752](https://github.com/microsoft/typespec/pull/9752) Update to how coverage manifest are managed. The manifest upload each individual one as a single file
+
+
 ## 0.1.0-alpha.23
 
 ### Bump dependencies

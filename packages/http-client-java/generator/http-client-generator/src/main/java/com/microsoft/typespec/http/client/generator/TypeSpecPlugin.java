@@ -25,7 +25,6 @@ import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMap
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
-import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
@@ -33,7 +32,7 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -59,13 +58,9 @@ public class TypeSpecPlugin extends Javagen {
         JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
-            TypeSpecMetadata metadata
-                = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
-                    emitterOptions.getApiVersion() == null
-                        ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-                        : emitterOptions.getApiVersion(),
-                    collectCrossLanguageDefinitions(client),
-                    FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+            TypeSpecMetadata metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(),
+                emitterOptions.getFlavor(), codeModel.getApiVersionMap(), collectCrossLanguageDefinitions(client),
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata, null);
         }
 
@@ -154,7 +149,7 @@ public class TypeSpecPlugin extends Javagen {
         LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
-    private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
+    private static final Map<String, Object> SETTINGS_MAP = new LinkedHashMap<>();
 
     static {
         SETTINGS_MAP.put("data-plane", true);
@@ -171,7 +166,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
+        SETTINGS_MAP.put("polling", new LinkedHashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
         SETTINGS_MAP.put("required-fields-as-ctor-args", true);

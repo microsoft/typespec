@@ -4,41 +4,62 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceAVersion LatestServiceAVersion = global::Sample.TestClientOptions.ServiceAVersion.V2_0;
-        private const global::Sample.TestClientOptions.ServiceBVersion LatestServiceBVersion = global::Sample.TestClientOptions.ServiceBVersion.V4_0;
+        private const global::Sample.TestClientOptions.ServiceAServiceVersion LatestServiceAVersion = global::Sample.TestClientOptions.ServiceAServiceVersion.V2_0;
+        private const global::Sample.TestClientOptions.ServiceBServiceVersion LatestServiceBVersion = global::Sample.TestClientOptions.ServiceBServiceVersion.V4_0;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceAVersion serviceAVersion = LatestServiceAVersion, global::Sample.TestClientOptions.ServiceBVersion serviceBVersion = LatestServiceBVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.ServiceAServiceVersion serviceAServiceVersion = LatestServiceAVersion, global::Sample.TestClientOptions.ServiceBServiceVersion serviceBServiceVersion = LatestServiceBVersion)
         {
-            ServiceAApiVersion = serviceAVersion switch
+            ServiceAApiVersion = serviceAServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceAVersion.V1_0 => "1.0",
-                global::Sample.TestClientOptions.ServiceAVersion.V2_0 => "2.0",
+                global::Sample.TestClientOptions.ServiceAServiceVersion.V1_0 => "1.0",
+                global::Sample.TestClientOptions.ServiceAServiceVersion.V2_0 => "2.0",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceBApiVersion = serviceBVersion switch
+            ServiceBApiVersion = serviceBServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceBVersion.V3_0 => "3.0",
-                global::Sample.TestClientOptions.ServiceBVersion.V4_0 => "4.0",
+                global::Sample.TestClientOptions.ServiceBServiceVersion.V3_0 => "3.0",
+                global::Sample.TestClientOptions.ServiceBServiceVersion.V4_0 => "4.0",
                 _ => throw new global::System.NotSupportedException()
             };
+        }
+
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        {
+            ServiceAApiVersion = "2.0";
+            ServiceBApiVersion = "4.0";
+            if (((section is null) || !section.Exists()))
+            {
+                return;
+            }
+            if ((section["ServiceAApiVersion"] is string serviceAApiVersion))
+            {
+                this.ServiceAApiVersion = serviceAApiVersion;
+            }
+            if ((section["ServiceBApiVersion"] is string serviceBApiVersion))
+            {
+                this.ServiceBApiVersion = serviceBApiVersion;
+            }
         }
 
         internal string ServiceAApiVersion { get; }
 
         internal string ServiceBApiVersion { get; }
 
-        public enum ServiceAVersion
+        public enum ServiceAServiceVersion
         {
             V1_0 = 1,
             V2_0 = 2
         }
 
-        public enum ServiceBVersion
+        public enum ServiceBServiceVersion
         {
             V3_0 = 1,
             V4_0 = 2

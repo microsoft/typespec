@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Response.StatusCodeRange
 {
     public partial class StatusCodeRangeClientOptions : ClientPipelineOptions
     {
+        public StatusCodeRangeClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal StatusCodeRangeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

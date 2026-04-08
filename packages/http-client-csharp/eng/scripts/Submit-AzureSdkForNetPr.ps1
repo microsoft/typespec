@@ -2,7 +2,7 @@
 
 <#
 .DESCRIPTION
-Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json.
+Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/centralpackagemanagement/Directory.Generation.Packages.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json.
 .PARAMETER PackageVersion
 The version of the Microsoft.TypeSpec.Generator.ClientModel package to update to.
 .PARAMETER TypeSpecPRUrl
@@ -73,7 +73,7 @@ if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
     $PRTitle += " (Azure mgmt)"
 }
 $PRBody = @"
-This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
+This PR updates the UnbrandedGeneratorVersion property in eng/centralpackagemanagement/Directory.Generation.Packages.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
 
 ## Details
 
@@ -81,7 +81,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Changes
 
-- Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
+- Updated eng/centralpackagemanagement/Directory.Generation.Packages.props UnbrandedGeneratorVersion property
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
@@ -130,6 +130,15 @@ try {
     }
     
     Push-Location $tempDir
+
+    # Set the authentication token for gh CLI early so that scripts invoked
+    # during the build (e.g. Emitter_Version_Dashboard.ps1) can call the
+    # GitHub API to resolve commit hashes in shallow clones.
+    $env:GH_TOKEN = $AuthToken
+
+    # Configure git user for commits in this repository
+    git config user.name "azure-sdk"
+    git config user.email "azuresdk@microsoft.com"
     
     # Add the remote
     git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
@@ -145,7 +154,8 @@ try {
     
     # Set the sparse checkout patterns - only the directories we need
     # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
-    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
+    # Note: 'doc/GeneratorVersions' is needed for regenerating the emitter version dashboard
+    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src doc/GeneratorVersions
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to set sparse checkout patterns"
     }
@@ -170,12 +180,12 @@ try {
         throw "Failed to create branch"
     }
 
-    # Update the dependency in eng/Packages.Data.props
-    Write-Host "Updating dependency version in eng/Packages.Data.props..."
-    $propsFilePath = Join-Path $tempDir "eng/Packages.Data.props"
+    # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
+    Write-Host "Updating dependency version in eng/centralpackagemanagement/Directory.Generation.Packages.props..."
+    $propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
     
     if (-not (Test-Path $propsFilePath)) {
-        throw "eng/Packages.Data.props not found in the repository"
+        throw "eng/centralpackagemanagement/Directory.Generation.Packages.props not found in the repository"
     }
 
     $propsFileContent = Get-Content $propsFilePath -Raw
@@ -188,7 +198,7 @@ try {
     
     $propsFileUpdated = $false
     if ($updatedContent -eq $propsFileContent) {
-        Write-Warning "No changes were made to eng/Packages.Data.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
+        Write-Warning "No changes were made to eng/centralpackagemanagement/Directory.Generation.Packages.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
         Write-Host "Current content around UnbrandedGeneratorVersion:"
         $propsFileContent | Select-String -Pattern "UnbrandedGeneratorVersion" -Context 2, 2
     } else {
@@ -416,7 +426,7 @@ try {
                 
                 # Build and package Azure generator (needed for both Azure data plane and mgmt)
                 $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
-                $packagesDataPropsPath = Join-Path $tempDir "eng" "Packages.Data.props"
+                $packagesDataPropsPath = Join-Path $tempDir "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
                 
                 Write-Host "##[section]Building Azure generator..."
                 $previousErrorAction = $ErrorActionPreference
@@ -549,6 +559,11 @@ try {
         }
     }
 
+    # Regenerate the emitter version dashboard
+    Write-Host "Regenerating emitter version dashboard..."
+    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+    & $dashboardScript -RepoRoot $tempDir
+
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -590,7 +605,7 @@ try {
         $azureEmitterFiles = @(
             "eng/azure-typespec-http-client-csharp-emitter-package.json",
             "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
-            "eng/Packages.Data.props",
+            "eng/centralpackagemanagement/Directory.Generation.Packages.props",
             "NuGet.Config"
         )
         if ($RegenerateMgmtLibraries) {
@@ -611,6 +626,12 @@ try {
     $sdkPath = Join-Path $tempDir "sdk"
     if (Test-Path $sdkPath) {
         git add $sdkPath
+    }
+
+    # Add the regenerated dashboard
+    $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
+    if (Test-Path $dashboardPath) {
+        git add $dashboardPath
     }
     
     if ($LASTEXITCODE -ne 0) {
@@ -642,9 +663,6 @@ try {
 
     # Create PR using GitHub CLI
     Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
-    
-    # Set the authentication token for gh CLI
-    $env:GH_TOKEN = $AuthToken
     
     # Create the PR using gh CLI
     $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)

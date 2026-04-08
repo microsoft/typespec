@@ -34,7 +34,7 @@ import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 
-export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds"];
+export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds", "milliseconds"];
 export const DATETIME_KNOWN_ENCODING = ["rfc3339", "rfc7231", "unixTimestamp"];
 export const BYTES_KNOWN_ENCODING = ["base64", "base64url"];
 
@@ -137,6 +137,16 @@ export function getDurationFormat(type: SdkDurationType): DurationSchema["format
     } else {
       throw new Error(
         `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`,
+      );
+    }
+  } else if (type.encode === "milliseconds") {
+    if (isSdkIntKind(type.wireType.kind)) {
+      format = "milliseconds-integer";
+    } else if (isSdkFloatKind(type.wireType.kind)) {
+      format = "milliseconds-number";
+    } else {
+      throw new Error(
+        `Unrecognized scalar type used by duration encoded as milliseconds: '${type.kind}'.`,
       );
     }
   }
@@ -393,6 +403,9 @@ export function getXmlSerializationFormat(
     attribute: type.serializationOptions.xml.attribute ?? false,
     wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
     text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
+    itemsName: type.serializationOptions.xml.itemsName ?? undefined,
+    itemsNamespace: type.serializationOptions.xml.itemsNs?.namespace ?? undefined,
+    itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix ?? undefined,
   };
 }
 

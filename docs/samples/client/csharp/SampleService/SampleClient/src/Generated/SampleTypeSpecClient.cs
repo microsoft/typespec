@@ -36,7 +36,6 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
-        private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -3315,9 +3314,13 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>
-        public virtual Metrics GetMetricsClient()
+        /// <param name="metricsNamespace"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="metricsNamespace"/> is null. </exception>
+        public virtual Metrics GetMetricsClient(string metricsNamespace)
         {
-            return Volatile.Read(ref _cachedMetrics) ?? Interlocked.CompareExchange(ref _cachedMetrics, new Metrics(Pipeline, _endpoint), null) ?? _cachedMetrics;
+            Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
+
+            return new Metrics(Pipeline, _endpoint, metricsNamespace);
         }
     }
 }

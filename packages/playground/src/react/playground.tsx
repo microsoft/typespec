@@ -16,18 +16,21 @@ import {
 import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
-import { getMonacoRange } from "../services.js";
+import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
+import { EditorPanel } from "./editor-panel/editor-panel.js";
 import { useMonacoModel, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
+import type { CommandBarItem } from "./responsive-command-bar/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
-import { TypeSpecEditor } from "./typespec-editor.js";
+import { useIsMobile } from "./use-mobile.js";
 import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
+import { ViewToggle, type ViewMode } from "./view-toggle.js";
 
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
@@ -59,11 +62,8 @@ export interface PlaygroundProps {
 
   onFileBug?: () => void;
 
-  /** Additional buttons to show up in the command bar */
-  commandBarButtons?: ReactNode;
-
-  /** Playground links */
-  links?: PlaygroundLinks;
+  /** Additional items to show in the command bar. */
+  commandBarItems?: CommandBarItem[];
 
   /** Custom viewers to view the typespec program */
   viewers?: ProgramViewer[];
@@ -91,11 +91,6 @@ export interface PlaygroundSaveData extends PlaygroundState {
 
   /** Emitter name. */
   emitter: string;
-}
-
-export interface PlaygroundLinks {
-  /** Link to documentation */
-  documentationUrl?: string;
 }
 
 /**
@@ -224,12 +219,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
       }));
 
+      // Update code action provider with current diagnostics (for codefix support).
+      updateDiagnosticsForCodeFixes(typespecCompiler, state.program.diagnostics);
+
       // Set the program on the window.
       debugGlobals().program = state.program;
       debugGlobals().$$ = $(state.program);
 
       editor.setModelMarkers(typespecModel, "owner", markers ?? []);
     } else {
+      updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
@@ -326,51 +325,81 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     };
   }, [host, typespecModel, onContentChange]);
 
+  const isMobile = useIsMobile();
+  const [viewMode, setViewMode] = useState<ViewMode>("editor");
+
+  // Reset to "editor" when entering mobile, force "both" on desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setViewMode("both");
+    } else {
+      setViewMode("editor");
+    }
+  }, [isMobile]);
+
+  const commandBar = (
+    <EditorCommandBar
+      host={host}
+      selectedEmitter={selectedEmitter}
+      onSelectedEmitterChange={onSelectedEmitterChange}
+      samples={props.samples}
+      selectedSampleName={selectedSampleName}
+      onSelectedSampleNameChange={onSelectedSampleNameChange}
+      saveCode={saveCode}
+      formatCode={formatCode}
+      fileBug={props.onFileBug ? fileBug : undefined}
+      commandBarItems={props.commandBarItems}
+    />
+  );
+
+  const editorPanel = (
+    <EditorPanel
+      host={host}
+      model={typespecModel}
+      actions={typespecEditorActions}
+      editorOptions={props.editorOptions}
+      onMount={onTypeSpecEditorMount}
+      selectedEmitter={selectedEmitter}
+      compilerOptions={compilerOptions}
+      onCompilerOptionsChange={onCompilerOptionsChange}
+      onSelectedEmitterChange={onSelectedEmitterChange}
+      commandBar={isMobile ? undefined : commandBar}
+    />
+  );
+
+  const outputPanel = (
+    <OutputView
+      compilationState={compilationState}
+      editorOptions={props.editorOptions}
+      viewers={props.viewers}
+      fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
+      selectedViewer={selectedViewer}
+      onViewerChange={onSelectedViewerChange}
+      viewerState={viewerState}
+      onViewerStateChange={onViewerStateChange}
+    />
+  );
+
+  const mainContent =
+    viewMode === "both" ? (
+      <SplitPane initialSizes={["50%", "50%"]}>
+        <Pane className={style["edit-pane"]}>{editorPanel}</Pane>
+        <Pane>{outputPanel}</Pane>
+      </SplitPane>
+    ) : viewMode === "editor" ? (
+      <div className={style["single-pane"]}>{editorPanel}</div>
+    ) : (
+      <div className={style["single-pane"]}>{outputPanel}</div>
+    );
+
   return (
     <PlaygroundContextProvider value={playgroundContext}>
       <div className={style["layout"]}>
+        {isMobile && (
+          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} actions={commandBar} />
+        )}
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
-          <Pane>
-            <SplitPane initialSizes={["50%", "50%"]}>
-              <Pane className={style["edit-pane"]}>
-                <EditorCommandBar
-                  host={host}
-                  selectedEmitter={selectedEmitter}
-                  onSelectedEmitterChange={onSelectedEmitterChange}
-                  compilerOptions={compilerOptions}
-                  onCompilerOptionsChange={onCompilerOptionsChange}
-                  samples={props.samples}
-                  selectedSampleName={selectedSampleName}
-                  onSelectedSampleNameChange={onSelectedSampleNameChange}
-                  saveCode={saveCode}
-                  formatCode={formatCode}
-                  fileBug={props.onFileBug ? fileBug : undefined}
-                  commandBarButtons={props.commandBarButtons}
-                  documentationUrl={props.links?.documentationUrl}
-                />
-                <TypeSpecEditor
-                  model={typespecModel}
-                  actions={typespecEditorActions}
-                  options={props.editorOptions}
-                  onMount={onTypeSpecEditorMount}
-                />
-              </Pane>
-              <Pane>
-                <OutputView
-                  compilationState={compilationState}
-                  editorOptions={props.editorOptions}
-                  viewers={props.viewers}
-                  fileViewers={
-                    selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined
-                  }
-                  selectedViewer={selectedViewer}
-                  onViewerChange={onSelectedViewerChange}
-                  viewerState={viewerState}
-                  onViewerStateChange={onViewerStateChange}
-                />
-              </Pane>
-            </SplitPane>
-          </Pane>
+          <Pane>{mainContent}</Pane>
           <Pane minSize={30}>
             <ProblemPane
               collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}

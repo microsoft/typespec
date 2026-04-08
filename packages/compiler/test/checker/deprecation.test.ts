@@ -1,27 +1,18 @@
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import {
-  BasicTestRunner,
   DiagnosticMatch,
-  TestHost,
-  createTestHost,
-  createTestRunner,
-  createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
+  mockFile,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: checker: deprecation", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   async function expectDeprecations(
     source: string,
     deprecations: string[],
-    testRunner: BasicTestRunner = runner,
+    tester: typeof Tester = Tester,
   ) {
     const expectedDiagnostics: DiagnosticMatch[] = [];
     for (const deprecation of deprecations) {
@@ -37,7 +28,7 @@ describe("compiler: checker: deprecation", () => {
       source = newSource;
     }
 
-    expectDiagnostics(await testRunner.diagnose(source), expectedDiagnostics);
+    expectDiagnostics(await tester.diagnose(source), expectedDiagnostics);
   }
 
   describe("#deprecated directive", () => {
@@ -190,9 +181,7 @@ describe("compiler: checker: deprecation", () => {
     });
 
     it("emits deprecation for use of deprecated decorator signatures", async () => {
-      const testHost: TestHost = await createTestHost();
-      testHost.addJsFile("test.js", { $testDec: () => {} });
-      const runner = createTestWrapper(testHost);
+      const tester = Tester.files({ "test.js": mockFile.js({ $testDec: () => {} }) });
 
       await expectDeprecations(
         `
@@ -206,12 +195,12 @@ describe("compiler: checker: deprecation", () => {
         model Foo {}
         `,
         ["testDec is deprecated"],
-        runner,
+        tester,
       );
     });
 
     it("emits diagnostic when multiple #deprecated directives are used on a node", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
           #deprecated "Foo is deprecated"
           #deprecated "Foo is deprecated again"
           model Foo {}
@@ -249,7 +238,7 @@ describe("compiler: checker: deprecation", () => {
       });
 
       it("can suppress", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
           
@@ -277,7 +266,7 @@ describe("compiler: checker: deprecation", () => {
       });
 
       it("can suppress", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
           
@@ -293,7 +282,7 @@ describe("compiler: checker: deprecation", () => {
 
     it("can have its diagnostics suppressed", async () => {
       // cspell:ignore Morp
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         #deprecated "Foo is deprecated"
         model Foo {
           #deprecated "Name is deprecated"
@@ -385,7 +374,7 @@ describe("compiler: checker: deprecation", () => {
 
   describe("--ignore-deprecated flag", () => {
     it("suppresses deprecation warnings", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
@@ -397,7 +386,9 @@ describe("compiler: checker: deprecation", () => {
           }
       `,
         {
-          ignoreDeprecated: true,
+          compilerOptions: {
+            ignoreDeprecated: true,
+          },
         },
       );
 

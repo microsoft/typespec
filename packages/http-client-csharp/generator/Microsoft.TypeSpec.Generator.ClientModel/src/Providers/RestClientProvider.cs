@@ -201,6 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 paramMap[param.Name] = param;
             }
 
+            // Register client parameters under their paramAlias names so that operation parameters
+            // (which use the original name) can find the corresponding client parameter.
+            foreach (var inputParam in _inputClient.Parameters)
+            {
+                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                {
+                    paramMap[alias] = aliasedParam;
+                }
+            }
+
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var uriBuilderType =
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
@@ -417,29 +428,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (type?.IsCollection == true)
                 {
-                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetFormatEnumValue(serializationFormat));
+                    if (!string.IsNullOrEmpty(inputHeaderParameter.CollectionHeaderPrefix) && type.IsDictionary)
+                    {
+                        statement = request.AddCollectionHeaders(Literal(inputHeaderParameter.CollectionHeaderPrefix), valueExpression);
+                    }
+                    else
+                    {
+                        statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetFormatEnumValue(serializationFormat));
+                    }
                 }
                 else
                 {
                     statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), toStringExpression.As<string>()]);
                 }
 
-                if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
+                if (inputHeaderParameter.IsContentType && contentParam != null &&
+                    operation.Parameters.Any(p => p is InputBodyParameter bodyParam && !bodyParam.IsRequired))
+                {
+                    statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                }
+                else if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
-                }
-                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
-                else if (inputHeaderParameter.IsContentType && contentParam != null)
-                {
-                    // Check if any body parameter in the operation is optional
-                    var hasOptionalBody = operation.Parameters.Any(p =>
-                        p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
-
-                    if (hasOptionalBody)
-                    {
-                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
-                    }
                 }
 
                 statements.Add(statement);
@@ -696,19 +708,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var paramIndex = pathSpan.IndexOf('{');
                 if (paramIndex < 0)
                 {
-                    statements.Add(uri.AppendPath(Literal(pathSpan.ToString()), false).Terminate());
+                    AppendLiteralSegment(uri, pathSpan.ToString(), statements);
                     break;
                 }
 
                 var path = pathSpan.Slice(0, paramIndex);
-                statements.Add(uri.AppendPath(Literal(path.ToString()), false).Terminate());
+                AppendLiteralSegment(uri, path.ToString(), statements);
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
+                    || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -766,6 +779,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
+            }
+        }
+
+        private static void AppendLiteralSegment(ScopedApi uri, string literal, List<MethodBodyStatement> statements)
+        {
+            var queryIndex = literal.IndexOf('?');
+            if (queryIndex < 0)
+            {
+                // No query string, just append as path
+                if (literal.Length > 0)
+                {
+                    statements.Add(uri.AppendPath(Literal(literal), false).Terminate());
+                }
+                return;
+            }
+
+            // Append the path portion (before ?)
+            var pathPart = literal.Substring(0, queryIndex);
+            if (pathPart.Length > 0)
+            {
+                statements.Add(uri.AppendPath(Literal(pathPart), false).Terminate());
+            }
+
+            // Parse and append query parameters (after ?)
+            var queryPart = literal.Substring(queryIndex + 1);
+            if (queryPart.Length > 0)
+            {
+                var queryParams = queryPart.Split('&');
+                foreach (var param in queryParams)
+                {
+                    var eqIndex = param.IndexOf('=');
+                    if (eqIndex > 0)
+                    {
+                        var name = param.Substring(0, eqIndex);
+                        var value = param.Substring(eqIndex + 1);
+                        statements.Add(uri.AppendQuery(Literal(name), Literal(value), true).Terminate());
+                    }
+                }
             }
         }
 
@@ -875,12 +926,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, ClientProvider client)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider)
         {
-            // Check if the original parameter name exists in LastContractView for backward compatibility
-            var existingParam = client.LastContractView?.Methods
+            // Check if the original wire name exists in LastContractView for backward compatibility.
+            var existingParam = backCompatProvider.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.Name, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
@@ -906,7 +957,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Check if this is a max page size parameter
             var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-            if (pageSizeParameterName != null && inputParameter.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            if (pageSizeParameterName != null && string.Equals(inputParameter.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -1012,21 +1063,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For paging operations, handle parameter name corrections with backward compatibility
                 if (serviceMethod is InputPagingServiceMethod)
                 {
-                    // Rename "top" parameter to "maxCount" (with backward compatibility)
-                    if (string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    var backCompatProvider = client.BackCompatProvider;
+
+                    // Rename "top" parameter to "maxCount" (with backward compatibility).
+                    if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatProvider);
                     }
                 }
 

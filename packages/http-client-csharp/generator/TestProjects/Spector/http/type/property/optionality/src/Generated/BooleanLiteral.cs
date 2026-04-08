@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace _Type.Property.Optional
     public partial class BooleanLiteral
     {
         protected BooleanLiteral() => throw null;
+
+        internal BooleanLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

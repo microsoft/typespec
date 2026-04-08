@@ -1,10 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Model } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper } from "../../src/testing/test-utils.js";
-import { BasicTestRunner } from "../../src/testing/types.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
+import { Tester } from "../tester.js";
 import { getAssignables } from "./utils.js";
 
 describe("$.entity.isAssignableTo", () => {
@@ -50,7 +48,7 @@ describe("$.entity.isAssignableTo", () => {
       target: "string",
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     expect(sourceProp.entityKind).toBe("MixedParameterConstraint");
@@ -69,7 +67,7 @@ describe("$.entity.isAssignableTo", () => {
     } = await getAssignables({
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -87,7 +85,7 @@ describe("$.entity.isAssignableTo", () => {
     } = await getAssignables({
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -109,7 +107,7 @@ describe("$.entity.isAssignableTo", () => {
       source: "int8",
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -128,7 +126,7 @@ describe("$.entity.isAssignableTo", () => {
       target: "valueof string",
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -159,14 +157,9 @@ describe("$.entity.isAssignableTo", () => {
 });
 
 describe("$.entity.resolve", () => {
-  let runner: BasicTestRunner;
-  beforeEach(async () => {
-    runner = createTestWrapper(await createTestHost());
-  });
-
   it("resolve resolves existing types", async () => {
-    await runner.compile("");
-    const tk = $(runner.program);
+    const { program } = await Tester.compile("");
+    const tk = $(program);
     const stringType = tk.entity.resolve("TypeSpec.string");
     expect(stringType).toBeDefined();
     expect(tk.builtin.string).toBe(stringType);
@@ -177,8 +170,8 @@ describe("$.entity.resolve", () => {
   });
 
   it("resolve resolves existing values", async () => {
-    await runner.compile(`const stringValue = "test";`);
-    const tk = $(runner.program);
+    const { program } = await Tester.compile(`const stringValue = "test";`);
+    const tk = $(program);
     const stringValue = tk.entity.resolve("stringValue");
     expect(stringValue).toBeDefined();
     expect(tk.value.is(stringValue!)).toBe(true);
@@ -189,13 +182,12 @@ describe("$.entity.resolve", () => {
   });
 
   it("resolve returns undefined and diagnostics for invalid references", async () => {
-    await runner.compile("");
-    const unknownType = $(runner.program).entity.resolve("UnknownModel");
+    const { program } = await Tester.compile("");
+    const unknownType = $(program).entity.resolve("UnknownModel");
     expect(unknownType).toBeUndefined();
 
-    const [unknownTypeDiag, diagnostics] = $(runner.program).entity.resolve.withDiagnostics(
-      "UnknownModel",
-    );
+    const [unknownTypeDiag, diagnostics] =
+      $(program).entity.resolve.withDiagnostics("UnknownModel");
     expect(unknownTypeDiag).toBeUndefined();
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].code).toBe("invalid-ref");

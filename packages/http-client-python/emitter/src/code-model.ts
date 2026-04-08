@@ -25,21 +25,14 @@ import {
   emitPagingHttpMethod,
 } from "./http.js";
 import { PythonSdkContext } from "./lib.js";
-import {
-  KnownTypes,
-  disableGenerationMap,
-  emitEndpointType,
-  getType,
-  simpleTypesMap,
-  typesMap,
-} from "./types.js";
+import { KnownTypes, emitEndpointType, getType } from "./types.js";
 import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -50,7 +43,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -62,14 +55,20 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroHttpMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitLroHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroup.name,
+        serviceApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -79,7 +78,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -90,7 +89,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -102,7 +101,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -113,7 +112,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -183,25 +182,19 @@ function emitMethodParameter(
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
+  operationGroup: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
-  operationGroupName: string,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
-      return emitBasicMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitBasicMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     case "lro":
-      return emitLroMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitLroMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     case "paging":
-      return emitPagingMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitPagingMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     default:
-      return emitLroPagingMethod(
-        context,
-        rootClient,
-        method,
-        operationGroupName,
-        serviceApiVersions,
-      );
+      return emitLroPagingMethod(context, rootClient, method, operationGroup, serviceApiVersions);
   }
 }
 
@@ -218,11 +211,17 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 
   for (const operationGroup of client.children ?? []) {
     const name = `${prefix}${operationGroup.name}`;
+    const operationGroupWithPrefixedName = {
+      ...operationGroup,
+      name,
+    } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
-      operations = operations.concat(emitMethod(context, rootClient, method, name, apiVersions));
+      operations = operations.concat(
+        emitMethod(context, rootClient, operationGroupWithPrefixedName, method, apiVersions),
+      );
     }
     operationGroups.push({
       name: name,
@@ -236,10 +235,11 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 
   // root client should deal with mixin operation group
   if (prefix === "") {
+    const mixinGroup = { ...client, name: "" } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
       operations = operations.concat(
-        emitMethod(context, rootClient, method, "", serviceApiVersions),
+        emitMethod(context, rootClient, mixinGroup, method, serviceApiVersions),
       );
     }
     if (operations.length > 0) {
@@ -256,7 +256,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   // operation has same clientNamespace as the operation group
   for (const og of operationGroups) {
     for (const op of og.operations) {
-      op.clientNamespace = getClientNamespace(context, og.clientNamespace);
+      op.clientNamespace = og.clientNamespace;
     }
   }
 
@@ -359,7 +359,7 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
       continue;
     }
     // filter out specific models not used in python, e.g., pageable models
-    if (disableGenerationMap.has(model)) {
+    if (sdkContext.__disableGenerationMap.has(model)) {
       continue;
     }
     // filter out core models
@@ -384,19 +384,20 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   }
 
   // clear usage when a model is only used by paging
-  for (const type of typesMap.values()) {
+  for (const type of sdkContext.__typesMap.values()) {
     if (
       type["type"] === "model" &&
-      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly &&
+      (type["usage"] & UsageFlags.Input) === 0
     ) {
       type["usage"] = UsageFlags.None;
     }
   }
 
   codeModel["types"] = [
-    ...typesMap.values(),
+    ...sdkContext.__typesMap.values(),
     ...Object.values(KnownTypes),
-    ...simpleTypesMap.values(),
+    ...sdkContext.__simpleTypesMap.values(),
   ];
   codeModel["crossLanguagePackageId"] = ignoreDiagnostics(getCrossLanguagePackageId(sdkContext));
   if ((sdkContext.emitContext.options as any).flavor === "azure") {

@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.xmlmodel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,9 +27,7 @@ public class XmlFileContents {
     public XmlFileContents(String fileContents, XmlFile.Options options) {
         if (options != null) {
             if (options.getIndent() > 0) {
-                char[] chars = new char[options.getIndent()];
-                Arrays.fill(chars, ' ');
-                singleIndent = String.valueOf(chars);
+                singleIndent = " ".repeat(options.getIndent());
             }
         }
 

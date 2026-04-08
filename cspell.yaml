@@ -144,6 +144,9 @@ words:
   - lropaging
   - lstrip
   - lzutf
+  - MACVMIMAGE
+  - MACVMIMAGEM
+  - marshal
   - mday
   - methodsubscriptionid
   - mgmt
@@ -244,6 +247,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -251,8 +255,8 @@ words:
   - ssvs
   - statment
   - strs
+  - stubbed
   - swaggerui
-  - syncpack
   - TCGC
   - terlson
   - timegm
@@ -273,6 +277,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -280,11 +285,13 @@ words:
   - unioned
   - unionified
   - unionify
+  - unmarshal
   - unparented
   - unprefixed
   - unprojected
   - unrepresentable
   - unsourced
+  - unstubbed
   - unversioned
   - venv
   - venvtools
@@ -302,6 +309,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
@@ -331,6 +340,8 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - pnpm-workspace.yaml
+  - "**/dependabot.yml"
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
@@ -351,6 +362,10 @@ patterns:
   - name: Authorization_Basic
     description: Ignore Base64 authorization tokens
     pattern: "/Authorization: Basic\\s+\\S+/g"
+  - name: Todo
+    description: Ignore TODO comments with usernames
+    pattern: "/TODO[\\/\\s\\(][a-zA-Z0-9_-]+/g"
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic
+  - Todo

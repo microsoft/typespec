@@ -2,10 +2,12 @@ import { isArray, mutate } from "../utils/misc.js";
 import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
   isKeyword,
+  isModifier,
   isPunctuation,
   isReservedKeyword,
   isStatementKeyword,
@@ -27,6 +29,7 @@ import {
   CallExpressionNode,
   Comment,
   ConstStatementNode,
+  Declaration,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
@@ -52,11 +55,13 @@ import {
   ExternKeywordNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  FunctionTypeExpressionNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
   ImportStatementNode,
   InterfaceStatementNode,
+  InternalKeywordNode,
   InvalidStatementNode,
   LineComment,
   MemberExpressionNode,
@@ -76,6 +81,7 @@ import {
   ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
+  ParenthesizedExpression,
   ParseOptions,
   PositionDetail,
   ScalarConstructorNode,
@@ -435,35 +441,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "import statement");
           item = parseImportStatement();
           break;
-        case Token.ModelKeyword:
-          item = parseModelStatement(pos, decorators);
-          break;
-        case Token.ScalarKeyword:
-          item = parseScalarStatement(pos, decorators);
-          break;
-        case Token.NamespaceKeyword:
-          item = parseNamespaceStatement(pos, decorators, docs, directives);
-          break;
-        case Token.InterfaceKeyword:
-          item = parseInterfaceStatement(pos, decorators);
-          break;
-        case Token.UnionKeyword:
-          item = parseUnionStatement(pos, decorators);
-          break;
-        case Token.OpKeyword:
-          item = parseOperationStatement(pos, decorators);
-          break;
-        case Token.EnumKeyword:
-          item = parseEnumStatement(pos, decorators);
-          break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
-          break;
-        case Token.ConstKeyword:
-          reportInvalidDecorators(decorators, "const statement");
-          item = parseConstStatement(pos);
-          break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
@@ -473,10 +450,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseEmptyStatement(pos);
           break;
         // Start of declaration with modifiers
+        case Token.NamespaceKeyword:
+        case Token.ModelKeyword:
+        case Token.ScalarKeyword:
+        case Token.InterfaceKeyword:
+        case Token.UnionKeyword:
+        case Token.OpKeyword:
+        case Token.EnumKeyword:
+        case Token.AliasKeyword:
+        case Token.ConstKeyword:
         case Token.ExternKeyword:
+        case Token.InternalKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos);
+          item = parseDeclaration(pos, decorators, docs, directives);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -530,48 +517,24 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseImportStatement();
           error({ code: "import-first", messageId: "topLevel", target: item });
           break;
-        case Token.ModelKeyword:
-          item = parseModelStatement(pos, decorators);
-          break;
-        case Token.ScalarKeyword:
-          item = parseScalarStatement(pos, decorators);
-          break;
-        case Token.NamespaceKeyword:
-          const ns = parseNamespaceStatement(pos, decorators, docs, directives);
-
-          if (isBlocklessNamespace(ns)) {
-            error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
-          }
-          item = ns;
-          break;
-        case Token.InterfaceKeyword:
-          item = parseInterfaceStatement(pos, decorators);
-          break;
-        case Token.UnionKeyword:
-          item = parseUnionStatement(pos, decorators);
-          break;
-        case Token.OpKeyword:
-          item = parseOperationStatement(pos, decorators);
-          break;
-        case Token.EnumKeyword:
-          item = parseEnumStatement(pos, decorators);
-          break;
-        case Token.AliasKeyword:
-          reportInvalidDecorators(decorators, "alias statement");
-          item = parseAliasStatement(pos);
-          break;
-        case Token.ConstKeyword:
-          reportInvalidDecorators(decorators, "const statement");
-          item = parseConstStatement(pos);
-          break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
           break;
+        case Token.ModelKeyword:
+        case Token.ScalarKeyword:
+        case Token.NamespaceKeyword:
+        case Token.InterfaceKeyword:
+        case Token.UnionKeyword:
+        case Token.OpKeyword:
+        case Token.EnumKeyword:
+        case Token.AliasKeyword:
+        case Token.ConstKeyword:
         case Token.ExternKeyword:
+        case Token.InternalKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos);
+          item = parseDeclaration(pos, decorators, docs, directives);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -584,6 +547,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseInvalidStatement(pos, decorators);
           break;
       }
+
+      if (isBlocklessNamespace(item)) {
+        error({ code: "blockless-namespace-first", messageId: "topLevel", target: item });
+      }
+
       mutate(item).directives = directives;
       if (tok !== Token.NamespaceKeyword) {
         mutate(item).docs = docs;
@@ -617,6 +585,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseNamespaceStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
     docs: DocNode[],
     directives: DirectiveExpressionNode[],
   ): NamespaceStatementNode {
@@ -645,6 +614,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       locals: undefined!,
       statements,
       directives: directives,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
 
@@ -656,6 +627,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         id: nsSegments[i],
         statements: outerNs,
         locals: undefined!,
+        modifiers: [],
+        modifierFlags: ModifierFlags.None,
         ...finishNode(pos),
       };
     }
@@ -666,6 +639,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseInterfaceStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
   ): InterfaceStatementNode {
     parseExpected(Token.InterfaceKeyword);
     const id = parseIdentifier();
@@ -683,7 +657,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     const { items: operations, range: bodyRange } = parseList(
       ListKind.InterfaceMembers,
-      (pos, decorators) => parseOperationStatement(pos, decorators, true),
+      (pos, decorators) =>
+        parseOperationStatement(pos, decorators, /* modifiers */ undefined, true),
     );
 
     return {
@@ -695,6 +670,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       bodyRange,
       extends: extendList.items,
       decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
@@ -719,6 +696,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseUnionStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
   ): UnionStatementNode {
     parseExpected(Token.UnionKeyword);
     const id = parseIdentifier();
@@ -733,6 +711,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParameters,
       templateParametersRange,
       decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       options,
       ...finishNode(pos),
     };
@@ -742,11 +722,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const nextToken = token();
 
     let id: IdentifierNode | undefined;
-    if (isReservedKeyword(nextToken)) {
+    if (isReservedKeyword(nextToken) || isModifier(nextToken)) {
       id = parseIdentifier({ allowReservedIdentifier: true });
       // If the next token is not a colon this means we tried to use the reserved keyword as a type reference
       if (token() !== Token.Colon) {
-        error({ code: "reserved-identifier", messageId: "future", format: { name: id.sv } });
+        if (isReservedKeyword(nextToken)) {
+          error({ code: "reserved-identifier", messageId: "future", format: { name: id.sv } });
+        } else {
+          error({ code: "reserved-identifier" });
+        }
       }
       return {
         kind: SyntaxKind.TypeReference,
@@ -820,11 +804,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseOperationStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
+    inInterface?: undefined | false,
+  ): OperationStatementNode;
+  function parseOperationStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[],
+    modifiers: undefined,
+    inInterface: true,
+  ): OperationStatementNode;
+  function parseOperationStatement(
+    pos: number,
+    decorators: DecoratorExpressionNode[],
+    _modifiers: Modifier[] | undefined,
     inInterface?: boolean,
   ): OperationStatementNode {
+    let modifiers: Modifier[];
     if (inInterface) {
+      modifiers = parseModifiers();
       parseOptional(Token.OpKeyword);
     } else {
+      modifiers = _modifiers as Modifier[];
       parseExpected(Token.OpKeyword);
     }
 
@@ -872,6 +872,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParametersRange,
       signature,
       decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
@@ -894,6 +896,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseModelStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
   ): ModelStatementNode {
     parseExpected(Token.ModelKeyword);
     const id = parseIdentifier();
@@ -929,6 +932,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       decorators,
       properties: propDetail.items,
       bodyRange: propDetail.range,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
@@ -952,7 +957,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseMixedParameterConstraint();
+      constraint = parseMixedConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -971,7 +976,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.ValueOfKeyword) {
       return parseValueOfExpression();
     } else if (parseOptional(Token.OpenParen)) {
-      const expr = parseMixedParameterConstraint();
+      const expr = parseMixedConstraint();
       parseExpected(Token.CloseParen);
       return expr;
     }
@@ -979,7 +984,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return parseIntersectionExpressionOrHigher();
   }
 
-  function parseMixedParameterConstraint(): Expression | ValueOfExpressionNode {
+  function parseMixedConstraint(): Expression | ValueOfExpressionNode {
     const pos = tokenPos();
     parseOptional(Token.Bar);
     const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
@@ -1096,6 +1101,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseScalarStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
   ): ScalarStatementNode {
     parseExpected(Token.ScalarKeyword);
     const id = parseIdentifier();
@@ -1114,6 +1120,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       members,
       bodyRange,
       decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
@@ -1154,6 +1162,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseEnumStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
+    modifiers: Modifier[],
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
@@ -1162,6 +1171,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       members,
       ...finishNode(pos),
     };
@@ -1222,12 +1233,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseAliasStatement(pos: number): AliasStatementNode {
+  function parseAliasStatement(pos: number, modifiers: Modifier[]): AliasStatementNode {
     parseExpected(Token.AliasKeyword);
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+
     parseExpected(Token.Equals);
+
     const value = parseExpression();
     parseExpected(Token.Semicolon);
     return {
@@ -1236,11 +1249,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParameters,
       templateParametersRange,
       value,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
 
-  function parseConstStatement(pos: number): ConstStatementNode {
+  function parseConstStatement(pos: number, modifiers: Modifier[]): ConstStatementNode {
     parseExpected(Token.ConstKeyword);
     const id = parseIdentifier();
     const type = parseOptionalTypeAnnotation();
@@ -1252,6 +1267,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       value,
       type,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
     };
   }
@@ -1280,6 +1297,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     while (parseOptional(Token.Bar)) {
       const expr = parseIntersectionExpressionOrHigher();
       options.push(expr);
+    }
+
+    for (const fnVariant of options.filter((n) => n.kind === SyntaxKind.FunctionTypeExpression)) {
+      if (!(fnVariant as ParenthesizedExpression).parenthesized) {
+        error({
+          code: "fn-in-union-expression",
+          target: fnVariant,
+        });
+      }
     }
 
     return {
@@ -1385,6 +1411,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseReferenceExpression("typeofTarget");
       }
     }
+  }
+
+  function parseFunctionTypeExpression(): FunctionTypeExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.FnKeyword);
+    const { items: parameters } = parseFunctionParameters();
+
+    const optionalReturnType = parseOptional(Token.EqualsGreaterThan);
+
+    const returnType = optionalReturnType ? parseMixedConstraint() : undefined;
+
+    return {
+      kind: SyntaxKind.FunctionTypeExpression,
+      parameters,
+      returnType,
+      ...finishNode(pos),
+    };
   }
 
   function parseReferenceExpression(
@@ -1666,6 +1709,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       switch (token()) {
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
+        case Token.FnKeyword:
+          return parseFunctionTypeExpression();
         case Token.Identifier:
           return parseCallOrReferenceExpression();
         case Token.StringLiteral:
@@ -1716,6 +1761,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseInternalKeyword(): InternalKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.InternalKeyword);
+    return {
+      kind: SyntaxKind.InternalKeyword,
+      ...finishNode(pos),
+    };
+  }
+
   function parseVoidKeyword(): VoidKeywordNode {
     const pos = tokenPos();
     parseExpected(Token.VoidKeyword);
@@ -1743,12 +1797,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseParenthesizedExpression(): Expression {
+  function parseParenthesizedExpression(): ParenthesizedExpression {
     const pos = tokenPos();
     parseExpected(Token.OpenParen);
     const expr = parseExpression();
     parseExpected(Token.CloseParen);
-    return { ...expr, ...finishNode(pos) };
+    return { parenthesized: true, ...expr, ...finishNode(pos) };
   }
 
   function parseTupleExpression(): TupleExpressionNode {
@@ -1956,8 +2010,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
     if (isKeyword(token())) {
-      error({ code: "reserved-identifier" });
-      return createMissingIdentifier();
+      if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
+        error({ code: "reserved-identifier" });
+        return createMissingIdentifier();
+      }
     } else if (isReservedKeyword(token())) {
       if (!options?.allowReservedIdentifier) {
         error({ code: "reserved-identifier", messageId: "future", format: { name: tokenValue() } });
@@ -1985,9 +2041,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseDeclaration(
     pos: number,
-  ): DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode | InvalidStatementNode {
+    decorators: DecoratorExpressionNode[],
+    docs: DocNode[],
+    directives: DirectiveExpressionNode[],
+  ): Declaration | InvalidStatementNode {
     const modifiers = parseModifiers();
     switch (token()) {
+      case Token.ModelKeyword:
+        return parseModelStatement(pos, decorators, modifiers);
+      case Token.ScalarKeyword:
+        return parseScalarStatement(pos, decorators, modifiers);
+      case Token.NamespaceKeyword:
+        return parseNamespaceStatement(pos, decorators, modifiers, docs, directives);
+      case Token.InterfaceKeyword:
+        return parseInterfaceStatement(pos, decorators, modifiers);
+      case Token.UnionKeyword:
+        return parseUnionStatement(pos, decorators, modifiers);
+      case Token.OpKeyword:
+        return parseOperationStatement(pos, decorators, modifiers);
+      case Token.EnumKeyword:
+        return parseEnumStatement(pos, decorators, modifiers);
+      case Token.AliasKeyword:
+        reportInvalidDecorators(decorators, "alias statement");
+        return parseAliasStatement(pos, modifiers);
+      case Token.ConstKeyword:
+        reportInvalidDecorators(decorators, "const statement");
+        return parseConstStatement(pos, modifiers);
       case Token.DecKeyword:
         return parseDecoratorDeclarationStatement(pos, modifiers);
       case Token.FnKeyword:
@@ -2009,6 +2088,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     switch (token()) {
       case Token.ExternKeyword:
         return parseExternKeyword();
+      case Token.InternalKeyword:
+        return parseInternalKeyword();
       default:
         return undefined;
     }
@@ -2059,7 +2140,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: parameters } = parseFunctionParameters();
     let returnType;
     if (parseOptional(Token.Colon)) {
-      returnType = parseExpression();
+      returnType = parseMixedConstraint();
     }
     parseExpected(Token.Semicolon);
     return {
@@ -2108,7 +2189,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseMixedParameterConstraint();
+      type = parseMixedConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,
@@ -2118,18 +2199,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       rest,
       ...finishNode(pos),
     };
-  }
-
-  function modifiersToFlags(modifiers: Modifier[]): ModifierFlags {
-    let flags = ModifierFlags.None;
-    for (const modifier of modifiers) {
-      switch (modifier.kind) {
-        case SyntaxKind.ExternKeyword:
-          flags |= ModifierFlags.Extern;
-          break;
-      }
-    }
-    return flags;
   }
 
   function parseRange<T>(mode: ParseMode, range: TextRange, callback: () => T): T {
@@ -2920,6 +2989,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.path);
     case SyntaxKind.OperationStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2931,12 +3001,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.baseOperation);
     case SyntaxKind.NamespaceStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         (isArray(node.statements) ? visitEach(cb, node.statements) : visitNode(cb, node.statements))
       );
     case SyntaxKind.InterfaceStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2963,6 +3035,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
 
     case SyntaxKind.ModelStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2972,6 +3045,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ScalarStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2982,6 +3056,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitEach(cb, node.parameters);
     case SyntaxKind.UnionStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2991,7 +3066,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.EnumStatement:
       return (
-        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
+        visitEach(cb, node.modifiers) ||
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.members)
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
@@ -2999,12 +3077,18 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
     case SyntaxKind.ConstStatement:
-      return visitNode(cb, node.id) || visitNode(cb, node.value) || visitNode(cb, node.type);
+      return (
+        visitEach(cb, node.modifiers) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.value) ||
+        visitNode(cb, node.type)
+      );
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
         visitEach(cb, node.modifiers) ||
@@ -3019,6 +3103,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
+    case SyntaxKind.FunctionTypeExpression:
+      return visitEach(cb, node.parameters) || visitNode(cb, node.returnType);
     case SyntaxKind.FunctionParameter:
       return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:
@@ -3080,6 +3166,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:
+    case SyntaxKind.InternalKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:
@@ -3307,6 +3394,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.AugmentDecoratorStatement:
     case SyntaxKind.DecoratorExpression:
       kind = IdentifierKind.Decorator;
+      break;
+    case SyntaxKind.CallExpression:
+      kind = IdentifierKind.Function;
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace Routes._PathParameters.ReservedExpansion
     public partial class PathParametersReservedExpansion
     {
         protected PathParametersReservedExpansion() => throw null;
+
+        internal PathParametersReservedExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -48,7 +48,7 @@ namespace SampleTypeSpec
                     {
                         using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            Write(writer, options, "AdvancedXmlModel");
+                            WriteXml(writer, options, "AdvancedXmlModel");
                         }
                         if (stream.Position > int.MaxValue)
                         {
@@ -100,7 +100,7 @@ namespace SampleTypeSpec
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if (nameHint != null)
             {
@@ -117,7 +117,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -159,7 +159,7 @@ namespace SampleTypeSpec
             if (Optional.IsDefined(OptionalInt))
             {
                 writer.WriteStartElement("optionalInt");
-                writer.WriteValue(OptionalInt);
+                writer.WriteValue(OptionalInt.Value);
                 writer.WriteEndElement();
             }
             if (Optional.IsDefined(NullableString))
@@ -379,9 +379,9 @@ namespace SampleTypeSpec
             string originalName = default;
             string xmlIdentifier = default;
             string content = default;
-            IList<string> unwrappedStrings = default;
-            IList<int> unwrappedCounts = default;
-            IList<XmlItem> unwrappedItems = default;
+            IList<string> unwrappedStrings = new List<string>();
+            IList<int> unwrappedCounts = new List<int>();
+            IList<XmlItem> unwrappedItems = new List<XmlItem>();
             IList<string> wrappedColors = default;
             IList<XmlItem> items = default;
             XmlNestedModel nestedModel = default;
@@ -400,7 +400,7 @@ namespace SampleTypeSpec
             IList<string> fooItems = default;
             XmlNestedModel anotherModel = default;
             IList<XmlModelWithNamespace> modelsWithNamespaces = default;
-            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
             IList<IList<XmlItem>> listOfListFoo = default;
             IDictionary<string, XmlItem> dictionaryFoo = default;
             IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default;
@@ -487,28 +487,16 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedStrings")
                 {
-                    if (unwrappedStrings == null)
-                    {
-                        unwrappedStrings = new List<string>();
-                    }
                     unwrappedStrings.Add((string)child);
                     continue;
                 }
                 if (localName == "unwrappedCounts")
                 {
-                    if (unwrappedCounts == null)
-                    {
-                        unwrappedCounts = new List<int>();
-                    }
                     unwrappedCounts.Add((int)child);
                     continue;
                 }
                 if (localName == "unwrappedItems")
                 {
-                    if (unwrappedItems == null)
-                    {
-                        unwrappedItems = new List<XmlItem>();
-                    }
                     unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
@@ -629,10 +617,6 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    if (unwrappedModelsWithNamespaces == null)
-                    {
-                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
-                    }
                     unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }

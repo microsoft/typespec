@@ -85,8 +85,9 @@ model TypeSpec.OpenAPI.TagMetadata
 
 #### Properties
 
-| Name          | Type                                                            | Description                              |
-| ------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| description?  | `string`                                                        | A description of the API.                |
-| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API. |
-|               | `unknown`                                                       | Additional properties                    |
+| Name          | Type                                                            | Description                                                                                                                            |
+| ------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| description?  | `string`                                                        | A description of the API.                                                                                                              |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API.                                                                                               |
+| parent?       | `string`                                                        | The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`. |
+|               | `unknown`                                                       | Additional properties                                                                                                                  |

@@ -4,8 +4,10 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Payload.Pageable._PageSize;
 using Payload.Pageable._ServerDrivenPagination;
+using Payload.Pageable._XmlPagination;
 
 namespace Payload.Pageable
 {
@@ -13,12 +15,19 @@ namespace Payload.Pageable
     {
         public PageableClient() : this(new Uri("http://localhost:3000"), new PageableClientOptions()) => throw null;
 
-        public PageableClient(Uri endpoint, PageableClientOptions options) => throw null;
+        internal PageableClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, PageableClientOptions options) => throw null;
+
+        public PageableClient(Uri endpoint, PageableClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public PageableClient(PageableClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
 
         public virtual PageSize GetPageSizeClient() => throw null;
+
+        public virtual XmlPagination GetXmlPaginationClient() => throw null;
     }
 }

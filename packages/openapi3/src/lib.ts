@@ -5,11 +5,12 @@ export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
-   * If the content should be serialized as YAML or JSON.
+   * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
+   * When an array is provided, the `{file-type}` variable can be used in `output-file` to produce distinct filenames.
    * @default yaml, it not specified infer from the `output-file` extension
    */
 
-  "file-type"?: FileType;
+  "file-type"?: FileType | FileType[];
 
   /**
    * Name of the output file.
@@ -18,7 +19,7 @@ export interface OpenAPI3EmitterOptions {
    *  - service-name-if-multiple: Name of the service if multiple
    *  - version: Version of the service if multiple
    *
-   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`. When `file-type` is an array, uses `{file-type}` variable.
    *
    * @example Single service no versioning
    *  - `openapi.yaml`
@@ -129,11 +130,25 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   additionalProperties: false,
   properties: {
     "file-type": {
-      type: "string",
-      enum: ["yaml", "json"],
+      type: ["string", "array"],
       nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          enum: ["yaml", "json"],
+        },
+        {
+          type: "array",
+          items: {
+            type: "string",
+            enum: ["yaml", "json"],
+          },
+          uniqueItems: true,
+          minItems: 1,
+        },
+      ],
       description:
-        "If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension",
+        "If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple formats. Default 'yaml', if not specified infer from the `output-file` extension",
     },
     "output-file": {
       type: "string",
@@ -144,8 +159,10 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - service-name: Name of the service",
         "  - service-name-if-multiple: Name of the service if multiple",
         "  - version: Version of the service if multiple",
+        "  - file-type: The file type being emitted (json or yaml). Useful when `file-type` is an array.",
         "",
         ' Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
+        " When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`",
         "",
         " Example Single service no versioning",
         "  - `openapi.yaml`",

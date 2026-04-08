@@ -26,7 +26,7 @@ import io.clientcore.core.serialization.ObjectSerializer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,7 +61,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             serviceClientClassDeclaration += String.format(" implements %1$s", serviceClient.getInterfaceName());
         }
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.add(Objects.class.getName());
         if (settings.isUseClientLogger()) {
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);

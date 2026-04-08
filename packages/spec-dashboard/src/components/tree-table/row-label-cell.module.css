@@ -1,0 +1,22 @@
+.cell {
+  min-width: 260px;
+  padding: 0 5px;
+}
+
+.cell-expandable {
+  cursor: pointer;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+}
+
+.caret {
+  transition: transform 0.2s linear;
+}
+
+.label {
+  margin-left: 10px;
+  flex: 1;
+}

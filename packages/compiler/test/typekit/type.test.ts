@@ -1,9 +1,10 @@
 import { assert, describe, expect, it } from "vitest";
 import { Enum, Model, Namespace, Scalar, Union } from "../../src/core/types.js";
 import { isTemplateInstance } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
-import { getAssignables, getTypes } from "./utils.js";
+import { Tester } from "../tester.js";
+import { getAssignables } from "./utils.js";
 
 describe("is", () => {
   it("checks if an entity is a type", async () => {
@@ -22,17 +23,11 @@ describe("is", () => {
 });
 
 it("should clone a model", async () => {
-  const {
-    Foo,
-    context: { program },
-  } = await getTypes(
-    `
-      model Foo {
-        props: string;
-      }
-      `,
-    ["Foo"],
-  );
+  const { Foo, program } = await Tester.compile(t.code`
+    model ${t.model("Foo")} {
+      props: string;
+    }
+  `);
 
   const clone = $(program).type.clone(Foo) as Model;
   clone.properties.get("props")!.name = "props";
@@ -40,31 +35,22 @@ it("should clone a model", async () => {
 
 describe("getPlausibleName", () => {
   it("returns the original name if exists", async () => {
-    const {
-      Foo,
-      Bar,
-      Baz,
-      Qux,
-      context: { program },
-    } = await getTypes(
-      `
-      model Foo {
+    const { Foo, Bar, Baz, Qux, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         props: string;
       }
-  
-      union Bar {
+
+      union ${t.union("Bar")} {
         "hi";
         "bye";
       }
 
-      enum Baz {
+      enum ${t.enum("Baz")} {
         Baz: "baz";
       };
 
-      scalar Qux extends string;
-      `,
-      ["Foo", "Bar", "Baz", "Qux"],
-    );
+      scalar ${t.scalar("Qux")} extends string;
+    `);
 
     expect($(program).type.getPlausibleName(Foo as Model)).toBe("Foo");
     expect($(program).type.getPlausibleName(Bar as Union)).toBe("Bar");
@@ -73,25 +59,18 @@ describe("getPlausibleName", () => {
   });
 
   it("returns a generated name for anonymous model", async () => {
-    const {
-      Bar,
-      Test,
-      context: { program },
-    } = await getTypes(
-      `
-     model Foo<T, K> {t: T, k: K};
+    const { Bar, Test, program } = await Tester.compile(t.code`
+      model Foo<T, K> {t: T, k: K};
 
-      @test model Bar {
+      model ${t.model("Bar")} {
         foo: Foo<Baz, Qux> 
       }
-      @test model Test {
+      model ${t.model("Test")} {
         foo: Foo<Qux, Baz> 
       }
       model Baz {}
       model Qux {}
-      `,
-      ["Bar", "Test"],
-    );
+    `);
 
     const Foo = (Bar as Model).properties.get("foo")!.type as Model;
     const Foo2 = (Test as Model).properties.get("foo")!.type as Model;
@@ -103,19 +82,13 @@ describe("getPlausibleName", () => {
   });
 
   it("handles scalars correctly", async () => {
-    const {
-      Bar,
-      context: { program },
-    } = await getTypes(
-      `
+    const { Bar, program } = await Tester.compile(t.code`
       scalar myInt extends int32;
-      @test model Bar {
+      model ${t.model("Bar")} {
         myIntArray: Array<myInt>;
         myInt: myInt;
       }
-      `,
-      ["Bar"],
-    );
+    `);
 
     const myIntArray = (Bar as Model).properties.get("myIntArray")!.type as Model;
     expect(isTemplateInstance(myIntArray)).toBe(true);
@@ -127,21 +100,15 @@ describe("getPlausibleName", () => {
   });
 
   it("returns a generated name for various nesting levels", async () => {
-    const {
-      Bar,
-      context: { program },
-    } = await getTypes(
-      `
+    const { Bar, program } = await Tester.compile(t.code`
       model Foo<T> {t: T};
       model Box<T> {t: T};
-      @test model Bar {
+      model ${t.model("Bar")} {
         stringArrayArray: Array<Array<string>>;
         stringFoo: Foo<string>;
         boxFoo: Box<Foo<string>>;
       }
-      `,
-      ["Bar"],
-    );
+    `);
 
     const stringArrayArray = (Bar as Model).properties.get("stringArrayArray")!.type as Model;
     const stringFoo = (Bar as Model).properties.get("stringFoo")!.type as Model;
@@ -157,17 +124,11 @@ describe("getPlausibleName", () => {
 
 describe("minValue and maxValue", () => {
   it("can get the min and max values from number", async () => {
-    const {
-      myNumber,
-      context: { program },
-    } = await getTypes(
-      `
-    @minValue(1)
-    @maxValue(10)
-    scalar myNumber extends numeric;
-    `,
-      ["myNumber"],
-    );
+    const { myNumber, program } = await Tester.compile(t.code`
+      @minValue(1)
+      @maxValue(10)
+      scalar ${t.scalar("myNumber")} extends numeric;
+    `);
 
     const max = $(program).type.maxValue(myNumber);
     const min = $(program).type.minValue(myNumber);
@@ -177,19 +138,13 @@ describe("minValue and maxValue", () => {
   });
 
   it("can get the min and max values from modelProperty", async () => {
-    const {
-      A,
-      context: { program },
-    } = await getTypes(
-      `
-    model A {
-      @minValue(15)
-      @maxValue(55)
-      foo: int32;
-    }
-    `,
-      ["A"],
-    );
+    const { A, program } = await Tester.compile(t.code`
+      model ${t.model("A")} {
+        @minValue(15)
+        @maxValue(55)
+        foo: int32;
+      }
+    `);
 
     const max = $(program).type.maxValue((A as Model).properties.get("foo")!);
     const min = $(program).type.minValue((A as Model).properties.get("foo")!);
@@ -201,17 +156,11 @@ describe("minValue and maxValue", () => {
 
 describe("minLength and maxLength", () => {
   it("can get the min and max length from string", async () => {
-    const {
-      myString,
-      context: { program },
-    } = await getTypes(
-      `
-    @minLength(1)
-    @maxLength(10)
-    scalar myString extends string;
-    `,
-      ["myString"],
-    );
+    const { myString, program } = await Tester.compile(t.code`
+      @minLength(1)
+      @maxLength(10)
+      scalar ${t.scalar("myString")} extends string;
+    `);
 
     const max = $(program).type.maxLength(myString);
     const min = $(program).type.minLength(myString);
@@ -221,19 +170,13 @@ describe("minLength and maxLength", () => {
   });
 
   it("can get the min and max length from modelProperty", async () => {
-    const {
-      A,
-      context: { program },
-    } = await getTypes(
-      `
-    model A {
-      @minLength(15)
-      @maxLength(55)
-      foo: string;
-    }
-    `,
-      ["A"],
-    );
+    const { A, program } = await Tester.compile(t.code`
+      model ${t.model("A")} {
+        @minLength(15)
+        @maxLength(55)
+        foo: string;
+      }
+    `);
 
     const max = $(program).type.maxLength((A as Model).properties.get("foo")!);
     const min = $(program).type.minLength((A as Model).properties.get("foo")!);
@@ -245,17 +188,11 @@ describe("minLength and maxLength", () => {
 
 describe("minItems and maxItems", () => {
   it("can get the min and max items from array", async () => {
-    const {
-      myArray,
-      context: { program },
-    } = await getTypes(
-      `
-    @minItems(1)
-    @maxItems(10)
-    model myArray is Array<string>;
-    `,
-      ["myArray"],
-    );
+    const { myArray, program } = await Tester.compile(t.code`
+      @minItems(1)
+      @maxItems(10)
+      model ${t.model("myArray")} is Array<string>;
+    `);
 
     const max = $(program).type.maxItems(myArray);
     const min = $(program).type.minItems(myArray);
@@ -265,19 +202,13 @@ describe("minItems and maxItems", () => {
   });
 
   it("can get the min and max items from modelProperty", async () => {
-    const {
-      A,
-      context: { program },
-    } = await getTypes(
-      `
-    model A {
-      @minItems(15)
-      @maxItems(55)
-      foo: string[];
-    }
-    `,
-      ["A"],
-    );
+    const { A, program } = await Tester.compile(t.code`
+      model ${t.model("A")} {
+        @minItems(15)
+        @maxItems(55)
+        foo: string[];
+      }
+    `);
 
     const max = $(program).type.maxItems((A as Model).properties.get("foo")!);
     const min = $(program).type.minItems((A as Model).properties.get("foo")!);
@@ -289,17 +220,11 @@ describe("minItems and maxItems", () => {
 
 describe("minValueExclusive and maxValueExclusive", () => {
   it("can get the min and max values from number", async () => {
-    const {
-      myNumber,
-      context: { program },
-    } = await getTypes(
-      `
-    @minValueExclusive(1)
-    @maxValueExclusive(10)
-    scalar myNumber extends numeric;
-    `,
-      ["myNumber"],
-    );
+    const { myNumber, program } = await Tester.compile(t.code`
+      @minValueExclusive(1)
+      @maxValueExclusive(10)
+      scalar ${t.scalar("myNumber")} extends numeric;
+    `);
 
     const max = $(program).type.maxValueExclusive(myNumber);
     const min = $(program).type.minValueExclusive(myNumber);
@@ -309,19 +234,13 @@ describe("minValueExclusive and maxValueExclusive", () => {
   });
 
   it("can get the min and max values from modelProperty", async () => {
-    const {
-      A,
-      context: { program },
-    } = await getTypes(
-      `
-    model A {
-      @minValueExclusive(15)
-      @maxValueExclusive(55)
-      foo: int32;
-    }
-    `,
-      ["A"],
-    );
+    const { A, program } = await Tester.compile(t.code`
+      model ${t.model("A")} {
+        @minValueExclusive(15)
+        @maxValueExclusive(55)
+        foo: int32;
+      }
+    `);
 
     const max = $(program).type.maxValueExclusive((A as Model).properties.get("foo")!);
     const min = $(program).type.minValueExclusive((A as Model).properties.get("foo")!);
@@ -332,20 +251,13 @@ describe("minValueExclusive and maxValueExclusive", () => {
 });
 
 it("isError can check if a type is an error model", async () => {
-  const {
-    Foo,
-    Error,
-    context: { program },
-  } = await getTypes(
-    `
-      @error
-      model Error {
-        props: string;
-      }
-      model Foo {}
-      `,
-    ["Foo", "Error"],
-  );
+  const { Foo, Error, program } = await Tester.compile(t.code`
+    @error
+    model ${t.model("Error")} {
+      props: string;
+    }
+    model ${t.model("Foo")} {}
+  `);
 
   expect($(program).type.isError(Error)).toBe(true);
   expect($(program).type.isError(Foo)).toBe(false);
@@ -353,32 +265,20 @@ it("isError can check if a type is an error model", async () => {
 
 describe("inNamespace", () => {
   it("checks that a namespace belongs to itself", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {}
-      `,
-      ["Root"],
-    );
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {}
+    `);
     expect($(program).type.inNamespace(Root, Root as Namespace)).toBe(true);
   });
 
   it("checks direct namespace membership", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         namespace Child1 {
           namespace Child2 {}
         }
       }
-      `,
-      ["Root"],
-    );
+    `);
 
     const child1 = (Root as Namespace).namespaces.get("Child1");
     expect(child1).toBeDefined();
@@ -390,24 +290,17 @@ describe("inNamespace", () => {
   });
 
   it("checks model property namespace membership", async () => {
-    const {
-      Root,
-      Outside,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, Outside, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         model Inside {
           prop: string;
         }
       }
 
-      model Outside {
+      model ${t.model("Outside")} {
         prop: string;
       }
-      `,
-      ["Root", "Inside", "Outside"],
-    );
+    `);
 
     const model1 = (Root as Namespace).models.get("Inside");
     expect(model1).toBeDefined();
@@ -422,20 +315,14 @@ describe("inNamespace", () => {
   });
 
   it("checks enum member namespace membership", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         enum Test {
           A,
           B
         }
       }
-      `,
-      ["Root"],
-    );
+    `);
 
     const enum1 = (Root as Namespace).enums.get("Test");
     const enumMember = enum1?.members.get("A");
@@ -445,20 +332,14 @@ describe("inNamespace", () => {
   });
 
   it("checks union variant namespace membership", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         union Test {
           A: string,
           B: int32
         }
       }
-      `,
-      ["Root"],
-    );
+    `);
 
     const union = (Root as Namespace).unions.get("Test");
     const variant = union?.variants.get("A");
@@ -468,19 +349,13 @@ describe("inNamespace", () => {
   });
 
   it("checks interface operation namespace membership", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         interface Test {
           op myOp(): void;
         }
       }
-      `,
-      ["Root"],
-    );
+    `);
 
     const test = (Root as Namespace).interfaces.get("Test");
     const operation = test?.operations.get("myOp");
@@ -490,17 +365,11 @@ describe("inNamespace", () => {
   });
 
   it("checks operations namespace membership", async () => {
-    const {
-      Root,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         op myOp(): void;
       }
-      `,
-      ["Root"],
-    );
+    `);
     const operation = (Root as Namespace).operations.get("myOp");
     expect(operation).toBeDefined();
 
@@ -508,19 +377,12 @@ describe("inNamespace", () => {
   });
 
   it("returns false for types outside the namespace", async () => {
-    const {
-      Root,
-      Outside,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
+    const { Root, Outside, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("Root")} {
         namespace Child1 {}
       }
-      namespace Outside {}
-      `,
-      ["Root", "Outside"],
-    );
+      namespace ${t.namespace("Outside")} {}
+    `);
     const child1 = (Root as Namespace).namespaces.get("Child1");
     expect(child1).toBeDefined();
 
@@ -528,15 +390,9 @@ describe("inNamespace", () => {
   });
 
   it("returns false for types without namespace", async () => {
-    const {
-      MyNamespace,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace MyNamespace { }
-      `,
-      ["MyNamespace"],
-    );
+    const { MyNamespace, program } = await Tester.compile(t.code`
+      namespace ${t.namespace("MyNamespace")} { }
+    `);
 
     const stringLiteral = $(program).literal.create("test");
     expect($(program).type.inNamespace(stringLiteral, MyNamespace as Namespace)).toBe(false);
@@ -577,7 +433,7 @@ describe("isAssignableTo", () => {
     } = await getAssignables({
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -610,17 +466,12 @@ describe("isAssignableTo", () => {
 
 describe("resolve", () => {
   it("resolves to the value type", async () => {
-    const {
-      context: { program },
-    } = await getTypes(
-      `
-        alias stringLiteral = "hello";
-        alias aliasedLiteral = stringLiteral;
-        enum Foo { one: 1, two: 2 }
-        const aValue = "value";
-      `,
-      [],
-    );
+    const { program } = await Tester.compile(`
+      alias stringLiteral = "hello";
+      alias aliasedLiteral = stringLiteral;
+      enum Foo { one: 1, two: 2 }
+      const aValue = "value";
+    `);
 
     const tk = $(program);
     const stringLiteral = tk.type.resolve("stringLiteral");
@@ -639,14 +490,9 @@ describe("resolve", () => {
   });
 
   it("throws an error for incorrect kind assertion", async () => {
-    const {
-      context: { program },
-    } = await getTypes(
-      `
-        alias stringLiteral = "hello";
-      `,
-      [],
-    );
+    const { program } = await Tester.compile(`
+      alias stringLiteral = "hello";
+    `);
 
     const tk = $(program);
     expect(() => tk.type.resolve("stringLiteral", "Boolean")).toThrow(
@@ -655,9 +501,7 @@ describe("resolve", () => {
   });
 
   it("returns undefined and diagnostics for invalid references", async () => {
-    const {
-      context: { program },
-    } = await getTypes(``, []);
+    const { program } = await Tester.compile(``);
 
     const tk = $(program);
     const [unknownType, diagnostics] = tk.type.resolve.withDiagnostics("unknownType");

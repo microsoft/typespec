@@ -1,5 +1,20 @@
 # Change Log - @typespec/versioning
 
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9932](https://github.com/microsoft/typespec/pull/9932) [API] Fix running multiple versioning mutators together
+
+
 ## 0.79.0
 
 ### Bug Fixes

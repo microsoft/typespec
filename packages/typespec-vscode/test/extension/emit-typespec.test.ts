@@ -104,6 +104,5 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     }
     const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
     await expectFilesInDir(expectedResults, resultFilePath);
-    app.close();
   });
 });

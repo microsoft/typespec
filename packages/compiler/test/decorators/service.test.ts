@@ -1,65 +1,60 @@
 import { deepStrictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Namespace, getService, listServices } from "../../src/index.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import { describe, it } from "vitest";
+import { getService, listServices } from "../../src/index.js";
+import { expectDiagnostics, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: service", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   it("allows no services", async () => {
-    await runner.compile(`
+    const { program } = await Tester.compile(t.code`
       op test(): string;
     `);
 
-    deepStrictEqual(listServices(runner.program), []);
+    deepStrictEqual(listServices(program), []);
   });
 
   it("allows a single service", async () => {
-    const { S } = await runner.compile(`
-      @test @service namespace S {}
+    const { S, program } = await Tester.compile(t.code`
+      @service namespace ${t.namespace("S")} {}
 
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ type: S }]);
+    deepStrictEqual(listServices(program), [{ type: S }]);
   });
 
   it("get a service", async () => {
-    const { S1, S2 } = (await runner.compile(`
-    @test @service namespace S1 {}
+    const { S1, S2, program } = await Tester.compile(t.code`
+    @service namespace ${t.namespace("S1")} {}
 
-    @test @service namespace S2 {}
-  `)) as { S1: Namespace; S2: Namespace };
+    @service namespace ${t.namespace("S2")} {}
+  `);
 
-    deepStrictEqual(getService(runner.program, S1), { type: S1 });
-    deepStrictEqual(getService(runner.program, S2), { type: S2 });
+    deepStrictEqual(getService(program, S1), { type: S1 });
+    deepStrictEqual(getService(program, S2), { type: S2 });
   });
 
   it("allows multiple services", async () => {
-    const { S1, S2 } = await runner.compile(`
-      @test @service namespace S1 {}
+    const { S1, S2, program } = await Tester.compile(t.code`
+      @service namespace ${t.namespace("S1")} {}
 
-      @test @service namespace S2 {}
+      @service namespace ${t.namespace("S2")} {}
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ type: S1 }, { type: S2 }]);
+    deepStrictEqual(listServices(program), [{ type: S1 }, { type: S2 }]);
   });
 
   it("customize service title", async () => {
-    const { S } = await runner.compile(`
-      @test @service(#{title: "My Service"}) namespace S {}
+    const { S, program } = await Tester.compile(t.code`
+      @service(#{title: "My Service"}) namespace ${t.namespace("S")} {}
 
     `);
 
-    deepStrictEqual(listServices(runner.program), [{ type: S, title: "My Service" }]);
+    deepStrictEqual(listServices(program), [{ type: S, title: "My Service" }]);
   });
 
   it("emit diagnostic if service title is not a string", async () => {
-    const diagnostics = await runner.diagnose(`
-      @test @service(#{title: 123}) namespace S {}
+    const diagnostics = await Tester.diagnose(`
+      @service(#{title: 123}) namespace S {}
     `);
 
     expectDiagnostics(diagnostics, {
@@ -70,7 +65,7 @@ describe("compiler: service", () => {
   });
 
   it("emit diagnostic if service is used on a non namespace", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await Tester.diagnose(`
       @service model S {}
     `);
 

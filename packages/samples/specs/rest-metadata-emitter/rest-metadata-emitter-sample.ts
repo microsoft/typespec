@@ -206,7 +206,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
             getTypeReference(type.indexer.value, visibility);
             break;
           }
-          let isNew = false;
+          let isNew;
           const seen = models.get(type);
           if (seen) {
             isNew = !seen.has(visibility);

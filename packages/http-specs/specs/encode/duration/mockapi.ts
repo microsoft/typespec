@@ -4,6 +4,7 @@ import {
   MockRequest,
   passOnSuccess,
   ScenarioMockApi,
+  ValidationError,
 } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -146,6 +147,34 @@ function createQueryServerTests(
     kind: "MockApiDefinition",
   });
 }
+
+function createQueryFloatServerTests(uri: string, paramData: any, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: paramData,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      const actualNum = parseFloat(actual);
+      if (isNaN(actualNum) || actualNum !== value) {
+        throw new ValidationError(
+          `Expected query param input=${value} but got ${actual}`,
+          String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Query_default = createQueryServerTests(
   "/encode/duration/query/default",
   {
@@ -197,19 +226,19 @@ Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryFloatServerTests(
   "/encode/duration/query/float-milliseconds",
   {
     input: 35625,
   },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryFloatServerTests(
   "/encode/duration/query/float64-milliseconds",
   {
     input: 35625,
   },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsArray = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-array",
@@ -226,12 +255,12 @@ Scenarios.Encode_Duration_Query_int32SecondsLargerUnit = createQueryServerTests(
   },
   "120",
 );
-Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryFloatServerTests(
   "/encode/duration/query/float-seconds-larger-unit",
   {
     input: 150,
   },
-  "150",
+  150,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-larger-unit",
@@ -240,12 +269,12 @@ Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerT
   },
   "180000",
 );
-Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryFloatServerTests(
   "/encode/duration/query/float-milliseconds-larger-unit",
   {
     input: 210000,
   },
-  "210000",
+  210000,
 );
 
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
@@ -257,6 +286,36 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
     },
     response: {
       status: 204,
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+function createHeaderFloatServerTests(uri: string, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      headers: {
+        duration: String(value),
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.headers["duration"];
+      const actualNum = parseFloat(actual);
+      if (isNaN(actualNum) || actualNum !== value) {
+        throw new ValidationError(
+          `Expected header duration=${value} but got ${actual}`,
+          String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -312,19 +371,13 @@ Scenarios.Encode_Duration_Header_int32Milliseconds = createHeaderServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderFloatServerTests(
   "/encode/duration/header/float64-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsArray = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-array",
@@ -340,12 +393,9 @@ Scenarios.Encode_Duration_Header_int32SecondsLargerUnit = createHeaderServerTest
   },
   "120",
 );
-Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-seconds-larger-unit",
-  {
-    duration: "150",
-  },
-  "150",
+  150,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-larger-unit",
@@ -354,10 +404,7 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
   },
   "180000",
 );
-Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
-  {
-    duration: "210000",
-  },
-  "210000",
+  210000,
 );

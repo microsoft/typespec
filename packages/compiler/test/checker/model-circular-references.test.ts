@@ -1,129 +1,100 @@
 import assert, { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { Model, Type } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 function assertModel(type?: Type): asserts type is Model {
   assert(type?.kind === "Model");
 }
 
 describe("compiler: model circular references", () => {
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   it("model can reference itself", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `@test model M {
+    const { M } = await Tester.compile(t.code`model ${t.model("M")} {
         self: M;
       }
-      `,
-    );
-    const records = await testHost.compile("./");
+      `);
 
-    const m = records["M"];
-    assertModel(m);
-    assert(m.properties.get("self")?.type === m);
+    assertModel(M);
+    assert(M.properties.get("self")?.type === M);
   });
 
   it("model can reference itself in an array", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `@test model M {
+    const { M } = await Tester.compile(t.code`model ${t.model("M")} {
         selfs: M[];
       }
-      `,
-    );
-    const records = await testHost.compile("./");
+      `);
 
-    const m = records["M"];
-    assertModel(m);
-    const propType = m.properties.get("selfs")!.type;
+    assertModel(M);
+    const propType = M.properties.get("selfs")!.type;
     assertModel(propType);
-    assert(propType.indexer!.value === m);
+    assert(propType.indexer!.value === M);
   });
 
   it("models can reference each other", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Parent {
+    const { Parent, Child } = await Tester.compile(t.code`
+      model ${t.model("Parent")} {
         child: Child;
       }
 
-      @test model Child {
+      model ${t.model("Child")} {
         parent: Parent;
       }
-      `,
-    );
-    const records = await testHost.compile("./");
+      `);
 
-    const parent = records["Parent"];
-    const child = records["Child"];
-    assertModel(parent);
-    assertModel(child);
-    assert(parent.properties.get("child")?.type === child);
-    assert(child.properties.get("parent")?.type === parent);
+    assertModel(Parent);
+    assertModel(Child);
+    assert(Parent.properties.get("child")?.type === Child);
+    assert(Child.properties.get("parent")?.type === Parent);
   });
 
   it("template model can reference itself", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Templated<T> {
+    const { test } = await Tester.compile(t.code`
+      model Templated<T> {
         value: T;
         parent?: Templated<T>;
         parents: Templated<T>[];
       }
 
-      op test(): Templated<string>;
-      `,
-    );
-    const records = await testHost.compile("./");
-    const model = records["Templated"];
-    assertModel(model);
-    const parentType = model.properties.get("parent")?.type;
+      op ${t.op("test")}(): Templated<string>;
+      `);
+
+    const Templated = test.returnType;
+    assertModel(Templated);
+    const parentType = Templated.properties.get("parent")?.type;
     assertModel(parentType);
-    strictEqual(parentType, model);
+    strictEqual(parentType, Templated);
   });
 
   it("template model can reference each other", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model A<T> {
+    const { test } = await Tester.compile(t.code`
+      model A<T> {
         value: T;
         b?: B<T>;
       }
-      @test model B<T> {
+      model B<T> {
         value: T;
         a?: A<T>;
       }
 
-      op test(): A<string>;
-      `,
-    );
-    const records = await testHost.compile("./");
-    const model = records["A"];
-    assertModel(model);
-    const bType = model.properties.get("b")?.type;
+      op ${t.op("test")}(): A<string>;
+      `);
+
+    const A = test.returnType;
+    assertModel(A);
+    const bType = A.properties.get("b")?.type;
     assertModel(bType);
     const aTypeViaB = bType.properties.get("a")?.type;
     assertModel(aTypeViaB);
 
-    strictEqual(model, aTypeViaB);
+    strictEqual(A, aTypeViaB);
   });
 
   it("models can reference each other in different namespace with the same name", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Some: fooSome } = await Tester.compile(t.code`
       namespace Foo {
         namespace Nested {
-          @test model Some {
+          model ${t.model("Some")} {
             self: Some;
             related: Bar.Nested.Some;
           }
@@ -138,12 +109,8 @@ describe("compiler: model circular references", () => {
           }
         }
       }
-      `,
-    );
+      `);
 
-    const records = await testHost.compile("./");
-
-    const fooSome = records["Some"];
     assertModel(fooSome);
     assert(fooSome.properties.get("self")?.type === fooSome);
 

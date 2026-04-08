@@ -1,7 +1,7 @@
 import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Method } from "@alloy-js/csharp";
-import { isVoidType, type Interface, type Model } from "@typespec/compiler";
+import type { Interface, Model } from "@typespec/compiler";
+import { isVoidType } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";
@@ -77,7 +77,7 @@ function ClassMethods(props: ClassMethodsProps): Children {
   const abstractMethods: Children = [];
   for (const [name, method] of props.type.operations) {
     abstractMethods.push(
-      <Method
+      <cs.Method
         name={namePolicy.getName(name, "class-method")}
         abstract
         parameters={[...method.parameters.properties.entries()].map(([name, prop]) => {

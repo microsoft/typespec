@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,7 @@ public class PropertyTypeConversionTemplate implements ImmutableMethod {
     private final MethodTemplate conversionMethodTemplate;
 
     public PropertyTypeConversionTemplate(FluentModelProperty fluentProperty, ModelProperty property) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         fluentProperty.getFluentType().addImportsTo(imports, false);
         // Type inner = ...
         property.getClientType().addImportsTo(imports, false);

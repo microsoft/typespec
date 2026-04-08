@@ -1,7 +1,6 @@
-import { SerializedStyles, css } from "@emotion/react";
-import { tokens } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { GroupRatioColors, GroupRatios } from "../constants.js";
+import style from "./scenario-group-status.module.css";
 
 export interface ScenarioGroupStatusRatioBoxProps {
   readonly ratio: number;
@@ -10,36 +9,17 @@ export interface ScenarioGroupStatusRatioBoxProps {
 export const ScenarioGroupRatioStatusBox: FunctionComponent<ScenarioGroupStatusRatioBoxProps> = ({
   ratio,
 }) => {
-  let css = groupRatioStyles.bad;
+  let backgroundColor = GroupRatioColors.bad;
 
   for (const [key, expectedRatio] of Object.entries(GroupRatios)) {
     if (ratio >= expectedRatio) {
-      css = groupRatioStyles[key as keyof typeof GroupRatios];
+      backgroundColor = GroupRatioColors[key as keyof typeof GroupRatios];
       break;
     }
   }
   return (
-    <div
-      title="Pass"
-      css={[
-        {
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          color: tokens.colorNeutralForegroundOnBrand,
-          alignItems: "center",
-          justifyContent: "center",
-        },
-        css,
-      ]}
-    >
+    <div title="Pass" className={style["ratio-box"]} style={{ backgroundColor }}>
       {Math.floor(ratio * 100)}%
     </div>
   );
 };
-
-const groupRatioStyles: Record<keyof typeof GroupRatios, SerializedStyles> = Object.fromEntries(
-  Object.entries(GroupRatioColors).map(([key, value]) => {
-    return [key, css({ backgroundColor: value })];
-  }),
-) as any;

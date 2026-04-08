@@ -1,37 +1,22 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTestHost, type TypeSpecTestLibrary } from "@typespec/compiler/testing";
-import { fileURLToPath } from "url";
+import { createTester, mockFile } from "@typespec/compiler/testing";
 import { expect, type MockInstance, vi } from "vitest";
 import { createAssetEmitter, TypeEmitter } from "../src/index.js";
 
-export const lib: TypeSpecTestLibrary = {
-  name: "typespec-ts-interface-emitter",
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../"),
-  files: [
-    {
-      realDir: "",
-      pattern: "package.json",
-      virtualPath: "./node_modules/typespec-ts-interface-emitter",
-    },
-    {
-      realDir: "dist/src",
-      pattern: "*.js",
-      virtualPath: "./node_modules/typespec-ts-interface-emitter/dist/src",
-    },
-  ],
-};
+const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: [],
+});
 
 export async function getHostForTypeSpecFile(contents: string, decorators?: Record<string, any>) {
-  const host = await createTestHost();
+  let tester = Tester;
   if (decorators) {
-    await host.addJsFile("dec.js", decorators);
+    tester = tester.files({ "dec.js": mockFile.js(decorators) });
     contents = `import "./dec.js";\n` + contents;
   }
-  await host.addTypeSpecFile("main.tsp", contents);
-  await host.compile("main.tsp", {
-    outputDir: "tsp-output",
+  const [result] = await tester.compileAndDiagnose(contents, {
+    compilerOptions: { outputDir: "tsp-output" },
   });
-  return host;
+  return { program: result.program, compilerHost: result.fs.compilerHost };
 }
 
 export async function emitTypeSpec(

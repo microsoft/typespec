@@ -14,8 +14,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -35,7 +35,7 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
         MethodTemplate getValueFromIdByNameMethod = MethodTemplate.builder()
             .imports(List.of(Arrays.class.getName(), Iterator.class.getName()))
             .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(Collections.singletonList(JavaModifier.Static))
+            .modifiers(List.of(JavaModifier.Static))
             .methodSignature("String getValueFromIdByName(String id, String name)")
             .method(
                 block -> block.line(FluentUtils.loadTextFromResource("ResourceManagerUtils_getValueFromIdByName.txt")))
@@ -46,7 +46,7 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
             .imports(List.of(Arrays.class.getName(), Iterator.class.getName(), List.class.getName(),
                 ArrayList.class.getName(), ClassType.CORE_UTILS.getFullName(), Collections.class.getName()))
             .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(Collections.singletonList(JavaModifier.Static))
+            .modifiers(List.of(JavaModifier.Static))
             .methodSignature(
                 "String getValueFromIdByParameterName(String id, String pathTemplate, String parameterName)")
             .method(block -> block
@@ -66,12 +66,12 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
 
     @Override
     public void write(Void ignored, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         METHOD_TEMPLATES.forEach(mt -> mt.addImportsTo(imports));
         imports.addAll(IMPORTS_UTILS_PAGED_ITERABLE);
         javaFile.declareImport(imports);
 
-        javaFile.classBlock(JavaVisibility.PackagePrivate, Collections.singletonList(JavaModifier.Final),
+        javaFile.classBlock(JavaVisibility.PackagePrivate, List.of(JavaModifier.Final),
             ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, classBlock -> {
                 classBlock.constructor(JavaVisibility.Private, ModelNaming.CLASS_RESOURCE_MANAGER_UTILS + "()",
                     constructorBlock -> {

@@ -38,7 +38,7 @@ namespace Sample.Models
                     {
                         using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.Write(writer, options, "MockInputModel");
+                            this.WriteXml(writer, options, "MockInputModel");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
@@ -60,7 +60,7 @@ namespace Sample.Models
 
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "X";
 
-        private void Write(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
             if ((nameHint != null))
             {
@@ -75,7 +75,7 @@ namespace Sample.Models
             }
         }
 
-        protected virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))

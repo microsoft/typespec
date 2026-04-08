@@ -114,6 +114,7 @@ describe("arrays", () => {
       "Test.json": Test,
       "Person.json": Person,
       "Friend.json": Friend,
+      "CreatePerson.json": CreatePerson,
       "CreateFriend.json": CreateFriend,
     } = await emitSchema(`
       model Friend {
@@ -141,15 +142,17 @@ describe("arrays", () => {
       name: { type: "string" },
     });
 
+    assert.deepStrictEqual(CreatePerson.properties, {
+      friends: { type: "array", items: { $ref: "CreateFriend.json" } },
+    });
+
     assert.deepStrictEqual(Person.properties, {
       friends: { type: "array", items: { $ref: "Friend.json" } },
     });
 
     assert.deepStrictEqual(Test.properties, {
       a: {
-        type: "object",
-        properties: { friends: { type: "array", items: { $ref: "CreateFriend.json" } } },
-        required: ["friends"],
+        $ref: "CreatePerson.json",
       },
     });
   });

@@ -1,5 +1,5 @@
 import { CharCode, isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
-import { Keywords, ReservedKeywords } from "../scanner.js";
+import { isModifier, Keywords, ReservedKeywords } from "../scanner.js";
 import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
 
 /**
@@ -34,8 +34,16 @@ function needBacktick(sv: string, context: "allow-reserved" | "disallow-reserved
   if (sv.length === 0) {
     return false;
   }
-  if (context === "allow-reserved" && ReservedKeywords.has(sv)) {
-    return false;
+  if (context === "allow-reserved") {
+    if (ReservedKeywords.has(sv)) {
+      return false;
+    }
+    // Modifier keywords (e.g. "internal", "extern") are contextual and can be
+    // used as identifiers without escaping in non-modifier positions.
+    const kwToken = Keywords.get(sv);
+    if (kwToken !== undefined && isModifier(kwToken)) {
+      return false;
+    }
   }
   if (Keywords.has(sv)) {
     return true;

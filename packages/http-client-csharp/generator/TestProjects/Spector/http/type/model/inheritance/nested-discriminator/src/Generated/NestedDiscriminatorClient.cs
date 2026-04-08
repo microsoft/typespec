@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +15,12 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     {
         public NestedDiscriminatorClient() : this(new Uri("http://localhost:3000"), new NestedDiscriminatorClientOptions()) => throw null;
 
-        public NestedDiscriminatorClient(Uri endpoint, NestedDiscriminatorClientOptions options) => throw null;
+        internal NestedDiscriminatorClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NestedDiscriminatorClientOptions options) => throw null;
+
+        public NestedDiscriminatorClient(Uri endpoint, NestedDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public NestedDiscriminatorClient(NestedDiscriminatorClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

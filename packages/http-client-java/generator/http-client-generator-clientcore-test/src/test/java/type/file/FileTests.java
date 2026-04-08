@@ -19,7 +19,7 @@ public class FileTests {
     @Test
     public void testUploadFileSpecificContentType() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileSpecificContentType("image/png", fileData, fileData.getLength());
+        client.uploadFileSpecificContentType(fileData, fileData.getLength());
     }
 
     @Disabled("possible bug in clientcore")
@@ -46,12 +46,14 @@ public class FileTests {
     @Test
     public void testUploadFileMultipleContentTypes() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileMultipleContentTypes("image/png", fileData, fileData.getLength());
+        client.uploadFileMultipleContentTypes(UploadFileMultipleContentTypesContentType.IMAGE_PNG, fileData,
+            fileData.getLength());
     }
 
     @Test
     public void testDownloadFileMultipleContentTypes() {
-        BinaryData response = client.downloadFileMultipleContentTypes("image/png");
+        BinaryData response
+            = client.downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType.IMAGE_PNG);
         Assertions.assertNotNull(response);
     }
 
@@ -63,7 +65,7 @@ public class FileTests {
 
     @Test
     public void testDownloadFileDefaultContentType() {
-        BinaryData response = client.downloadFileDefaultContentType();
+        BinaryData response = client.downloadFileDefaultContentType("image/png");
         Assertions.assertNotNull(response);
     }
 }

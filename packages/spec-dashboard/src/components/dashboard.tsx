@@ -3,18 +3,26 @@ import { FunctionComponent, useState } from "react";
 import { CoverageSummary } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
+import { CoverageOverview } from "./coverage-overview.js";
 import { DashboardTable } from "./dashboard-table.js";
+import style from "./dashboard.module.css";
 import { InfoEntry, InfoReport } from "./info-table.js";
-import { TierFilterDropdown } from "./tier-filter.js";
+import { TierFilterTabs } from "./tier-filter.js";
 
 export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
   scenarioTierConfig?: TierConfig;
+  /** Show coverage overview cards at the top of the dashboard */
+  showOverview?: boolean;
+  /** Optional friendly display names for emitters. Key is the emitter package name. */
+  emitterDisplayNames?: Record<string, string>;
 }
 
 export const Dashboard: FunctionComponent<DashboardProps> = ({
   coverageSummaries,
   scenarioTierConfig,
+  showOverview,
+  emitterDisplayNames,
 }) => {
   const [selectedTier, setSelectedTier] = useState<string | undefined>(undefined);
 
@@ -24,27 +32,38 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
     selectedTier,
   );
 
-  const summaryTables = filteredSummaries.map((coverageSummary, i) => (
-    <div key={i} css={{ margin: 5 }}>
-      <DashboardTable coverageSummary={coverageSummary} />
-    </div>
-  ));
+  const summaryTables = filteredSummaries
+    .filter((s) => !selectedTier || s.manifest.scenarios.length > 0)
+    .map((coverageSummary, i) => (
+      <div key={i} className={style["summary-table"]}>
+        <DashboardTable
+          coverageSummary={coverageSummary}
+          emitterDisplayNames={emitterDisplayNames}
+        />
+      </div>
+    ));
 
   const specsCardTable = coverageSummaries.map((coverageSummary, i) => (
-    <div key={i} css={{ margin: 5, flex: 0 }}>
+    <div key={i} className={style["specs-card"]}>
       <CadlRanchSpecsCard coverageSummary={coverageSummary} />
     </div>
   ));
 
   return (
     <div>
-      <TierFilterDropdown
+      <TierFilterTabs
         allTiers={allTiers}
         selectedTier={selectedTier}
         setSelectedTier={setSelectedTier}
       />
-      <div css={{ display: "flex" }}>{specsCardTable}</div>
-      <div css={{ height: 30 }}></div>
+      {showOverview && (
+        <CoverageOverview
+          coverageSummaries={filteredSummaries}
+          emitterDisplayNames={emitterDisplayNames}
+        />
+      )}
+      <div className={style["specs-row"]}>{specsCardTable}</div>
+      <div className={style["spacer"]}></div>
       {summaryTables}
     </div>
   );
@@ -58,7 +77,7 @@ const CadlRanchSpecsCard: FunctionComponent<{
   const packageName = coverageSummary.manifest.packageName;
 
   return (
-    <Card css={{ width: 500 }}>
+    <Card className={style["card"]}>
       <CardHeader header={<Text weight="bold">{heading}</Text>} />
       <InfoReport>
         <InfoEntry

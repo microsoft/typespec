@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,7 @@ public class CollectionMethodTypeConversionTemplate implements ImmutableMethod {
     private final MethodTemplate conversionMethodTemplate;
 
     public CollectionMethodTypeConversionTemplate(FluentCollectionMethod fluentMethod, IType innerType) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         fluentMethod.addImportsTo(imports, false);
         // Type inner = ...
         innerType.addImportsTo(imports, false);
@@ -48,7 +48,7 @@ public class CollectionMethodTypeConversionTemplate implements ImmutableMethod {
                 block.line(
                     String.format("%1$s %2$s = this.%3$s().%4$s;", innerType, TypeConversionUtils.tempVariableName(),
                         ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation()));
-                if (TypeConversionUtils.isPagedIterable(innerType)) {
+                if (TypeConversionUtils.isPagedIterable(innerType) || TypeConversionUtils.isResponse(innerType)) {
                     block.methodReturn(
                         TypeConversionUtils.conversionExpression(innerType, TypeConversionUtils.tempVariableName()));
                 } else {

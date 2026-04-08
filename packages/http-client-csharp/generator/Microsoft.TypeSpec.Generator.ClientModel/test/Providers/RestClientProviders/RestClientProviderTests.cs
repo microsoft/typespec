@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Tests.Common;
-using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -533,7 +533,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             try
             {
-                var methods  = restClientProvider.Methods;
+                var methods = restClientProvider.Methods;
             }
             catch (InvalidOperationException e)
             {
@@ -612,6 +612,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "sampleOp",
                 parameters: parameters,
                 uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithSlashQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "/?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithMixedPathAndQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                path: "/items/{p1}?comp=copy&restype=container",
+                httpMethod: "PUT");
 
             var client = InputFactory.Client(
                 "TestClient",
@@ -1069,6 +1145,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestCollectionHeaderPrefix_UsesAddWithPrefixCall(bool hasPrefix)
+        {
+            var metadataHeaderParam = hasPrefix
+                ? InputFactory.HeaderParameter(
+                    "metadata",
+                    InputFactory.Dictionary(InputPrimitiveType.String),
+                    isRequired: true,
+                    serializedName: "x-ms-meta",
+                    collectionHeaderPrefix: "x-ms-meta-")
+                : InputFactory.HeaderParameter(
+                    "metadata",
+                    InputFactory.Dictionary(InputPrimitiveType.String),
+                    isRequired: true,
+                    serializedName: "x-ms-meta");
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters: [metadataHeaderParam]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("metadata", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true, location: InputRequestLocation.Header)
+                ]);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: hasPrefix.ToString()), file.Content);
         }
 
 
@@ -1544,8 +1655,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ContentTypeHeaderWrappedInNullCheckWhenContentIsOptional()
         {
-            // Test that when there's an optional body parameter with a Content-Type header,
-            // the Content-Type header setting is wrapped in a null check for the content parameter
             var contentTypeParam = InputFactory.HeaderParameter(
                 "Content-Type",
                 InputFactory.Literal.String("application/json"),
@@ -1560,37 +1669,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestOperation",
                 requestMediaTypes: ["application/json"],
                 parameters: [contentTypeParam, bodyParam]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            var restClient = client!.RestClient;
-            Assert.IsNotNull(restClient);
-
-            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
-
-            var statements = createMethod!.BodyStatements as MethodBodyStatements;
-            Assert.IsNotNull(statements);
-
-            var expectedStatement = @"if ((content != null))
-{
-    request.Headers.Set(""Content-Type"", ""application/json"");
-}
-";
-            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
-                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
         public void ContentTypeHeaderNotWrappedInNullCheckWhenContentIsRequired()
         {
-            // Test that when there's a required body parameter with a Content-Type header,
-            // the Content-Type header setting is NOT wrapped in a null check
             var contentTypeParam = InputFactory.HeaderParameter(
                 "Content-Type",
                 InputFactory.Literal.String("application/json"),
@@ -1605,32 +1698,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestOperation",
                 requestMediaTypes: ["application/json"],
                 parameters: [contentTypeParam, bodyParam]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            var restClient = client!.RestClient;
-            Assert.IsNotNull(restClient);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
 
-            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+        [Test]
+        public void ContentTypeHeaderWrappedInNullCheckWhenContentTypeIsOptional()
+        {
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/xml"),
+                isRequired: false,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/xml"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var statements = createMethod!.BodyStatements as MethodBodyStatements;
-            Assert.IsNotNull(statements);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            // Verify there's no if statement wrapping the Content-Type header
-            var wrappedStatement = @"if ((content != null))
-{
-    request.Headers.Set(""Content-Type"", ""application/json"");
-}
-";
-            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
-            var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
-            Assert.IsFalse(hasIfWrappedContentType,
-                $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

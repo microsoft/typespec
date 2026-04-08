@@ -1,8 +1,9 @@
 import { assert, describe, expect, it } from "vitest";
 import { Model } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
-import { getAssignables, getTypes } from "./utils.js";
+import { Tester } from "../tester.js";
+import { getAssignables } from "./utils.js";
 
 describe("isAssignableTo", () => {
   it("validates against Type", async () => {
@@ -39,7 +40,7 @@ describe("isAssignableTo", () => {
     } = await getAssignables({
       code: `
         model Template<A extends string> { field: A }
-        @test model Instance is Template<"foo">;
+        model Instance is Template<"foo">;
       `,
     });
     const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
@@ -84,18 +85,13 @@ describe("isOfType", () => {
 
 describe("resolve", () => {
   it("resolves to the value type", async () => {
-    const {
-      context: { program },
-    } = await getTypes(
-      `
-        const stringConstant = "hello";
-        const aliasedConstant = stringConstant;
-        enum Foo { one: 1, two: 2 }
-        const fooOne = Foo.one;
-        alias confused = "what am I?";
-      `,
-      [],
-    );
+    const { program } = await Tester.compile(`
+      const stringConstant = "hello";
+      const aliasedConstant = stringConstant;
+      enum Foo { one: 1, two: 2 }
+      const fooOne = Foo.one;
+      alias confused = "what am I?";
+    `);
 
     const tk = $(program);
     const stringConstant = tk.value.resolve("stringConstant");
@@ -115,14 +111,9 @@ describe("resolve", () => {
   });
 
   it("throws an error for incorrect kind assertion", async () => {
-    const {
-      context: { program },
-    } = await getTypes(
-      `
-        const stringConstant = "hello";
-      `,
-      [],
-    );
+    const { program } = await Tester.compile(`
+      const stringConstant = "hello";
+    `);
 
     const tk = $(program);
     expect(() => tk.value.resolve("stringConstant", "BooleanValue")).toThrow(
@@ -131,9 +122,7 @@ describe("resolve", () => {
   });
 
   it("returns undefined and diagnostics for invalid references", async () => {
-    const {
-      context: { program },
-    } = await getTypes(``, []);
+    const { program } = await Tester.compile(``);
 
     const tk = $(program);
     const [unknownValue, diagnostics] = tk.value.resolve.withDiagnostics("unknownValue");

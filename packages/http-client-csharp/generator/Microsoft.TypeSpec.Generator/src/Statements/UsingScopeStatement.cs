@@ -31,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
 
+        public void AddRange(IEnumerable<MethodBodyStatement> statements) => _body.AddRange(statements);
+
         internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())

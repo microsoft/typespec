@@ -1,5 +1,6 @@
 import { Caption1, Text } from "@fluentui/react-components";
 import { FunctionComponent, ReactElement } from "react";
+import style from "./info-table.module.css";
 
 export const InfoReport = ({ children }: { children: ReactElement<InfoEntryProps>[] }) => {
   return (
@@ -22,7 +23,7 @@ export const InfoEntry: FunctionComponent<InfoEntryProps> = ({
   valueTitle,
 }) => {
   return (
-    <tr css={{ margin: "10px 0" }}>
+    <tr className={style["row"]}>
       <td>
         <label>
           <Text block weight="semibold">
@@ -32,7 +33,7 @@ export const InfoEntry: FunctionComponent<InfoEntryProps> = ({
           <Caption1 block>{caption}</Caption1>
         </label>
       </td>
-      <td css={{ paddingLeft: 20, textAlign: "right" }}>
+      <td className={style["value-cell"]}>
         <Text title={valueTitle}>{value}</Text>
       </td>
     </tr>

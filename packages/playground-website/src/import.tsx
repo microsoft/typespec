@@ -7,13 +7,6 @@ import {
   DialogTitle,
   Input,
   Label,
-  Menu,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
-  ToolbarButton,
-  Tooltip,
 } from "@fluentui/react-components";
 import { ArrowUploadFilled } from "@fluentui/react-icons";
 import { combineProjectIntoFile, createRemoteHost } from "@typespec/pack";
@@ -22,46 +15,51 @@ import {
   Editor,
   useMonacoModel,
   usePlaygroundContext,
+  type CommandBarItem,
 } from "@typespec/playground/react";
-import { ReactNode, useState } from "react";
+import { useState, type FunctionComponent, type ReactNode } from "react";
 import { parse } from "yaml";
 import style from "./import.module.css";
 
-export const ImportToolbarButton = () => {
-  const [open, setOpen] = useState<"openapi3" | "tsp" | undefined>();
+type ImportType = "openapi3" | "tsp";
 
+/** Hook that creates a CommandBarItem for the Import action with sub-menu items. */
+export function useImportCommandBarItem(): CommandBarItem {
+  const [open, setOpen] = useState<ImportType>();
+
+  return {
+    id: "import",
+    label: "Import",
+    icon: <ArrowUploadFilled />,
+    align: "right",
+    children: [
+      { id: "import-tsp", label: "Remote TypeSpec", onClick: () => setOpen("tsp") },
+      {
+        id: "import-openapi3",
+        label: "From OpenAPI 3 spec",
+        onClick: () => setOpen("openapi3"),
+      },
+    ],
+    content: <ImportDialog open={open} onClose={() => setOpen(undefined)} />,
+  };
+}
+
+const ImportDialog: FunctionComponent<{
+  open: "openapi3" | "tsp" | undefined;
+  onClose: () => void;
+}> = ({ open, onClose }) => {
   return (
-    <>
-      <Menu>
-        <MenuTrigger disableButtonEnhancement>
-          <Tooltip content="Import" relationship="description" withArrow>
-            <ToolbarButton
-              appearance="subtle"
-              aria-label="File Bug Report"
-              icon={<ArrowUploadFilled />}
-            />
-          </Tooltip>
-        </MenuTrigger>
-        <MenuPopover>
-          <MenuList>
-            <MenuItem onClick={() => setOpen("tsp")}>Remote TypeSpec</MenuItem>
-            <MenuItem onClick={() => setOpen("openapi3")}>From OpenAPI 3 spec</MenuItem>
-          </MenuList>
-        </MenuPopover>
-      </Menu>
-
-      <Dialog open={open !== undefined} onOpenChange={(event, data) => setOpen(undefined)}>
-        <DialogSurface>
-          <DialogBody>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogContent>
-              {open === "openapi3" && <ImportOpenAPI3 onImport={() => setOpen(undefined)} />}
-              {open === "tsp" && <ImportTsp onImport={() => setOpen(undefined)} />}
-            </DialogContent>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
-    </>
+    <Dialog open={open !== undefined} onOpenChange={() => onClose()}>
+      <DialogSurface>
+        <DialogBody>
+          <DialogTitle>Settings</DialogTitle>
+          <DialogContent>
+            {open === "openapi3" && <ImportOpenAPI3 onImport={onClose} />}
+            {open === "tsp" && <ImportTsp onImport={onClose} />}
+          </DialogContent>
+        </DialogBody>
+      </DialogSurface>
+    </Dialog>
   );
 };
 

@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,11 @@ public class SealedChoiceMapper implements IMapper<SealedChoiceSchema, IType> {
     }
 
     private IType createSealedChoiceType(SealedChoiceSchema enumType) {
+        EnumType result = MapperUtils.mapExternalModel(enumType, false);
+        if (result != null) {
+            return result;
+        }
+
         return MapperUtils.createEnumType(enumType, false, useCodeModelNameForEnumMember());
     }
 }

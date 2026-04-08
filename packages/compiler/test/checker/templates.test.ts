@@ -1,29 +1,20 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import { Diagnostic, Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
+import { DecoratorContext, Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
 import { isUnknownType } from "../../src/index.js";
 import {
-  BasicTestRunner,
-  TestHost,
-  createTestHost,
-  createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
   expectTypeEquals,
   extractCursor,
   extractSquiggles,
+  mockFile,
   t,
 } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: templates", () => {
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   function getLineAndCharOfDiagnostic(diagnostic: Diagnostic) {
     const source = getSourceLocation(diagnostic.target);
     if (source === undefined) {
@@ -33,16 +24,12 @@ describe("compiler: templates", () => {
   }
 
   it("emit diagnostics when using template params on non templated model", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
         model A {}
         model B { 
           foo: A<string>
         };
-      `,
-    );
-    const diagnostics = await testHost.diagnose("main.tsp");
+      `);
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Can't pass template arguments to non-templated type");
@@ -54,16 +41,12 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics when using template without passing any arguments", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
         model A<T> {}
         model B { 
           foo: A
         };
-      `,
-    );
-    const diagnostics = await testHost.diagnose("main.tsp");
+      `);
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Template argument 'T' is required and not specified.");
@@ -75,16 +58,12 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics when using template with too many arguments", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
         model A<T> {}
         model B { 
           foo: A<string, string>
         };
-      `,
-    );
-    const diagnostics = await testHost.diagnose("main.tsp");
+      `);
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Too many template arguments provided.");
@@ -97,17 +76,14 @@ describe("compiler: templates", () => {
   });
 
   it("allows default template parameters", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T, U = "hi"> { a: T, b: U }
-        model B { 
+    const { B } = await Tester.compile(t.code`
+        model A<T, U = "hi"> { a: T, b: U }
+        model ${t.model("B")} { 
           foo: A<"bye">
         };
-      `,
-    );
+      `);
 
-    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+    const A = B.properties.get("foo")!.type as Model;
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
@@ -117,68 +93,53 @@ describe("compiler: templates", () => {
   });
 
   it("indeterminate defaults", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
         model B<T extends valueof string> {}
-        @test model A<T extends valueof string = ""> {
+        model A<T extends valueof string = ""> {
           b: B<T>
         }
         alias Test = A;
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
   });
 
   it("cache indeterminate types", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Test } = await Tester.compile(t.code`
         model Template<T> {t: T}
-        @test model Test {
+        model ${t.model("Test")} {
           a: Template<"a">;
           b: Template<"a">;
         }
-      `,
-    );
+      `);
 
-    const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
     expectTypeEquals(Test.properties.get("a")!.type, Test.properties.get("b")!.type);
   });
 
   it("allows default template parameters that are models", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = string> { a: T }
-        model B { 
+    const { B } = await Tester.compile(t.code`
+        model A<T = string> { a: T }
+        model ${t.model("B")} { 
           foo: A
         };
-      `,
-    );
+      `);
 
-    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+    const A = B.properties.get("foo")!.type as Model;
     const a = A.properties.get("a")!;
     strictEqual(a.type.kind, "Scalar");
     strictEqual(a.type.name, "string");
   });
 
   it("template instance should be the exact same when passing value that is the same as the default", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Test } = await Tester.compile(t.code`
         model Foo<A = string, B=string> { a: A, b: B }
-        @test model Test { 
+        model ${t.model("Test")} { 
           a: Foo;
           b: Foo<string>;
           c: Foo<string, string>;
         };
-      `,
-    );
+      `);
 
-    const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
     const a = Test.properties.get("a")!;
     const b = Test.properties.get("b")!;
     const c = Test.properties.get("c")!;
@@ -187,43 +148,31 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics when using too few template parameters", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T, U, V = "hi"> { a: T, b: U, c: V }
+    const diagnostics = await Tester.diagnose(`
+        model A<T, U, V = "hi"> { a: T, b: U, c: V }
         model B { 
           foo: A<"bye">
         };
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
     strictEqual(diagnostics[0].message, "Template argument 'U' is required and not specified.");
   });
 
   it("emits diagnostics when non-defaulted template parameter comes after defaulted one", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = "hi", U> { a: T, b: U }
-      `,
-    );
+    const diagnostics = await Tester.diagnose(`
+        model A<T = "hi", U> { a: T, b: U }
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, { code: "default-required" });
   });
 
   it("emits diagnostics when defaulted template use later template parameter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<A = B, B = "hi"> { a: A, b: B }
-      `,
-    );
+    const diagnostics = await Tester.diagnose(`
+        model A<A = B, B = "hi"> { a: A, b: B }
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -232,14 +181,10 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics when defaulted template use later template parameter in complex type", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<A = "one" | B, B = "hi"> { a: A, b: B }
-      `,
-    );
+    const diagnostics = await Tester.diagnose(`
+        model A<A = "one" | B, B = "hi"> { a: A, b: B }
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -248,14 +193,10 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics for template parameter defaults that are incorrect", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = Record> { a: T }
-      `,
-    );
+    const diagnostics = await Tester.diagnose(`
+        model A<T = Record> { a: T }
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-args",
       message: "Template argument 'Element' is required and not specified.",
@@ -263,16 +204,12 @@ describe("compiler: templates", () => {
   });
 
   it("emits diagnostics when passing value to template parameter without constraint", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
         model A<T> { }
         const a = "abc";
         alias B = A<a>;
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "value-in-type",
       message:
@@ -289,8 +226,7 @@ describe("compiler: templates", () => {
     
     alias NoConstaint<T> = Bar<┆T>;
   `);
-      testHost.addTypeSpecFile("main.tsp", source);
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(source);
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
@@ -300,24 +236,23 @@ describe("compiler: templates", () => {
     });
 
     it("an error type should revert to unknown", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const [{ Bar }, diagnostics] = await Tester.compileAndDiagnose(t.code`
           model Test<T> {
-            @test prop: T;
+            prop: T;
           }
           
-          model Bar {
+          model ${t.model("Bar")} {
             a: Test<notExists>;
           }
-        `,
-      );
-      const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
+        `);
       // Only one error
       expectDiagnostics(diagnostics, {
         code: "invalid-ref",
         message: "Unknown identifier notExists",
       });
+
+      const testInstance = Bar.properties.get("a")!.type as Model;
+      const prop = testInstance.properties.get("prop")!;
 
       strictEqual(prop.kind, "ModelProperty");
       ok(isUnknownType(prop.type), "Prop type should be unknown");
@@ -329,8 +264,7 @@ describe("compiler: templates", () => {
 
     op foo is Action<┆"abc">;
   `);
-      testHost.addTypeSpecFile("main.tsp", source);
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(source);
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
@@ -341,17 +275,14 @@ describe("compiler: templates", () => {
   });
 
   it("can reference other parameters", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T, X = T> { a: T, b: X }
-        model B { 
+    const { B } = await Tester.compile(t.code`
+        model A<T, X = T> { a: T, b: X }
+        model ${t.model("B")} { 
           foo: A<"bye">
         };
-      `,
-    );
+      `);
 
-    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+    const A = B.properties.get("foo")!.type as Model;
     const a = A.properties.get("a")!;
     const b = A.properties.get("b")!;
     strictEqual(a.type.kind, "String");
@@ -361,59 +292,49 @@ describe("compiler: templates", () => {
   });
 
   it("can reference other parameters in default in a model expression", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T, X = {t: T}> { b: X }
-        model B { 
+    const { B } = await Tester.compile(t.code`
+        model A<T, X = {t: T}> { b: X }
+        model ${t.model("B")} { 
           foo: A<"bye">
         };
-      `,
-    );
+      `);
 
-    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+    const A = B.properties.get("foo")!.type as Model;
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
-    const t = b.type.properties.get("t")!.type;
-    strictEqual(t.kind, "String" as const);
-    strictEqual(t.value, "bye");
+    const tp = (b.type as Model).properties.get("t")!.type;
+    strictEqual(tp.kind, "String" as const);
+    strictEqual((tp as StringLiteral).value, "bye");
   });
 
   it("can reference other parameters in default via another template", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T, X = Foo<T>> { b: X }
-        model B {
+    const { B } = await Tester.compile(t.code`
+        model A<T, X = Foo<T>> { b: X }
+        model ${t.model("B")} {
           foo: A<"bye">
         };
 
         model Foo<T> {
           t: T;
         }
-      `,
-    );
+      `);
 
-    const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+    const A = B.properties.get("foo")!.type as Model;
     const b = A.properties.get("b")!;
     strictEqual(b.type.kind, "Model" as const);
-    const t = b.type.properties.get("t")!.type;
-    strictEqual(t.kind, "String" as const);
-    strictEqual(t.value, "bye");
+    const tp = (b.type as Model).properties.get("t")!.type;
+    strictEqual(tp.kind, "String" as const);
+    strictEqual((tp as StringLiteral).value, "bye");
   });
 
   it("can reference parent parameters in default", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test interface A<T> {
+    const { MyOp } = await Tester.compile(t.code`
+        interface A<T> {
           op foo<R = T, P = R>(params: P): R;
         }
         alias B = A<string>;
-        @test op MyOp is B.foo;
-      `,
-    );
-    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+        op ${t.op("MyOp")} is B.foo;
+      `);
     const params = MyOp.parameters.properties.get("params");
     ok(params, "Expected params to be defined");
     strictEqual(params.type.kind, "Scalar");
@@ -423,17 +344,13 @@ describe("compiler: templates", () => {
   });
 
   it("can use parent parameters default in default", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test interface MyInterface<A, B = string> {
+    const { MyOp } = await Tester.compile(t.code`
+        interface MyInterface<A, B = string> {
           op foo<R = B, P = R>(params: P): R;
         }
         alias AliasedInterface = MyInterface<string>;
-        @test op MyOp is AliasedInterface.foo;
-      `,
-    );
-    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+        op ${t.op("MyOp")} is AliasedInterface.foo;
+      `);
     const params = MyOp.parameters.properties.get("params");
     ok(params, "Expected params to be defined");
     strictEqual(params.type.kind, "Scalar");
@@ -443,33 +360,25 @@ describe("compiler: templates", () => {
   });
 
   it("can override default provided by parent parameters", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test interface A<T> {
+    const { MyOp } = await Tester.compile(t.code`
+        interface A<T> {
           op foo<U = T>(): U;
         }
         alias B = A<string>;
-        @test op MyOp is B.foo<bytes>;
-      `,
-    );
-    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+        op ${t.op("MyOp")} is B.foo<bytes>;
+      `);
     strictEqual(MyOp.returnType.kind, "Scalar");
     strictEqual(MyOp.returnType.name, "bytes");
   });
 
   it("emit diagnostics if referencing itself", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = T> { a: T }
+    const diagnostics = await Tester.diagnose(`
+        model A<T = T> { a: T }
         model B { 
           foo: A
         };
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -478,17 +387,13 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics if args reference each other", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = K, K = T> { a: T }
+    const diagnostics = await Tester.diagnose(`
+        model A<T = K, K = T> { a: T }
         model B { 
           foo: A
         };
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -497,17 +402,13 @@ describe("compiler: templates", () => {
   });
 
   it("emit diagnostics if referencing itself nested", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-        @test model A<T = {foo: T}> { a: T }
+    const diagnostics = await Tester.diagnose(`
+        model A<T = {foo: T}> { a: T }
         model B { 
           foo: A
         };
-      `,
-    );
+      `);
 
-    const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-default",
       message:
@@ -516,20 +417,14 @@ describe("compiler: templates", () => {
   });
 
   describe("constraints", () => {
-    let runner: BasicTestRunner;
-
-    beforeEach(async () => {
-      runner = await createTestRunner();
-    });
-
     it("compile when the constrain is satisfied in the default value", async () => {
-      await runner.compile(`
+      await Tester.compile(`
         model A<T extends string = "abc"> { a: T }
       `);
     });
 
     it("compile when the constrain is satisfied in template arg", async () => {
-      await runner.compile(`
+      await Tester.compile(`
         model A<T extends string> { a: T }
 
         model B {
@@ -539,9 +434,7 @@ describe("compiler: templates", () => {
     });
 
     it("emits diagnostic when constraint reference itself", async () => {
-      testHost.addTypeSpecFile("main.tsp", `model Test<A extends A> {}`);
-
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(`model Test<A extends A> {}`);
       expectDiagnostics(diagnostics, {
         code: "circular-constraint",
         message: "Type parameter 'A' has a circular constraint.",
@@ -549,9 +442,7 @@ describe("compiler: templates", () => {
     });
 
     it("emits diagnostic when constraint reference other parameter in circular constraint", async () => {
-      testHost.addTypeSpecFile("main.tsp", `model Test<A extends B, B extends A> {}`);
-
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(`model Test<A extends B, B extends A> {}`);
       expectDiagnostics(diagnostics, {
         code: "circular-constraint",
         message: "Type parameter 'A' has a circular constraint.",
@@ -559,9 +450,7 @@ describe("compiler: templates", () => {
     });
 
     it("emits diagnostic when constraint reference itself inside an expression", async () => {
-      testHost.addTypeSpecFile("main.tsp", `model Test<A extends {name: A}> {}`);
-
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(`model Test<A extends {name: A}> {}`);
       expectDiagnostics(diagnostics, {
         code: "circular-constraint",
         message: "Type parameter 'A' has a circular constraint.",
@@ -572,7 +461,7 @@ describe("compiler: templates", () => {
       const { source, pos, end } = extractSquiggles(`
         model A<T extends string = ~~~123~~~> { a: T }
       `);
-      const diagnostics = await runner.diagnose(source);
+      const diagnostics = await Tester.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
         message: "Type '123' is not assignable to type 'string'",
@@ -589,7 +478,7 @@ describe("compiler: templates", () => {
           a: A<~~~456~~~>
         }
       `);
-      const diagnostics = await runner.diagnose(source);
+      const diagnostics = await Tester.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message: "Argument of type '456' is not assignable to parameter of type 'string'",
@@ -599,14 +488,14 @@ describe("compiler: templates", () => {
     });
 
     it("use constrain as type when referencing another template", async () => {
-      await runner.compile(`
+      await Tester.compile(`
         model A<T extends string> { b: B<T> }
         model B<T extends string> {}
       `);
     });
 
     it("use constrain as type when referencing another template parameter", async () => {
-      await runner.compile(`
+      await Tester.compile(`
         model Foo<A extends string, B extends string = A> { b: B }
       `);
     });
@@ -616,7 +505,7 @@ describe("compiler: templates", () => {
         model A<T> { b: B<~~~T~~~> }
         model B<T extends string> {}
       `);
-      const diagnostics = await runner.diagnose(source);
+      const diagnostics = await Tester.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message: "Argument of type 'T' is not assignable to parameter of type 'string'",
@@ -628,21 +517,15 @@ describe("compiler: templates", () => {
 
   describe("doesn't run decorators when checking template declarations", () => {
     async function expectMarkDecoratorNotCalled(code: string) {
-      testHost.addJsFile("mark.js", {
-        $mark: () => {
-          fail("Should not have called decorator");
-        },
-      });
-
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-      import "./mark.js";
-      ${code}
-     `,
-      );
-
-      await testHost.compile("main.tsp");
+      await Tester.files({
+        "mark.js": mockFile.js({
+          $mark: () => {
+            fail("Should not have called decorator");
+          },
+        }),
+      })
+        .import("./mark.js")
+        .compile(code);
     }
 
     it("on model", async () => {
@@ -766,17 +649,13 @@ describe("compiler: templates", () => {
 
   describe("named template argument instantiations", () => {
     it("with named arguments", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { B } = await Tester.compile(t.code`
           model A<T> { a: T }
-          @test model B {
+          model ${t.model("B")} {
             foo: A<T = string>
           };
-        `,
-      );
+        `);
 
-      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
       const a = foo.properties.get("a")!;
@@ -785,17 +664,13 @@ describe("compiler: templates", () => {
     });
 
     it("with named arguments out of order", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { B } = await Tester.compile(t.code`
           model A<T, U> { a: T, b: U }
-          @test model B {
+          model ${t.model("B")} {
             foo: A<U = int32, T = string>
           };
-        `,
-      );
+        `);
 
-      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
       const a = foo.properties.get("a")!;
@@ -807,17 +682,13 @@ describe("compiler: templates", () => {
     });
 
     it("with named arguments and defaults", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { B } = await Tester.compile(t.code`
           model A<T = int32, U = string> { a: T, b: U }
-          @test model B {
+          model ${t.model("B")} {
             foo: A<U = "bar">
           };
-        `,
-      );
+        `);
 
-      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
       const a = foo.properties.get("a")!;
@@ -829,17 +700,13 @@ describe("compiler: templates", () => {
     });
 
     it("with named arguments and defaults bound to other parameters", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { B } = await Tester.compile(t.code`
           model A<T, U = T> { a: T, b: U }
-          @test model B {
+          model ${t.model("B")} {
             foo: A<T = string>
           };
-        `,
-      );
+        `);
 
-      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
       const a = foo.properties.get("a")!;
@@ -851,22 +718,17 @@ describe("compiler: templates", () => {
     });
 
     it("with named and positional arguments", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { B, C } = await Tester.compile(t.code`
           model A<T, U = int32, V extends string = string> { a: T, b: U, c: V }
 
-          @test model B {
+          model ${t.model("B")} {
             foo: A<boolean, V = "bar">
           }
 
-          @test model C {
+          model ${t.model("C")} {
             foo: A<T = boolean, V = "bar">
           }
-        `,
-      );
-
-      const { B, C } = (await testHost.compile("main.tsp")) as { B: Model; C: Model };
+        `);
 
       for (const M of [B, C]) {
         const foo = M.properties.get("foo")!.type;
@@ -887,17 +749,13 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T> { a: T }
 
-      @test model B {
+      model B {
         foo: A<string, ~~~U = "bar"~~~>
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const [{ program }, diagnostics] = await Tester.compileAndDiagnose(source);
+      const B = program.getGlobalNamespaceType().models.get("B")!;
 
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
@@ -917,17 +775,13 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T> { a: T }
 
-      @test model B {
+      model B {
         foo: A<string, ~~~T = "bar"~~~>
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const [{ program }, diagnostics] = await Tester.compileAndDiagnose(source);
+      const B = program.getGlobalNamespaceType().models.get("B")!;
 
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
@@ -947,17 +801,13 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T> { a: T }
 
-      @test model B {
+      model B {
         foo: A<T = string, ~~~T = "bar"~~~>
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const [{ program }, diagnostics] = await Tester.compileAndDiagnose(source);
+      const B = program.getGlobalNamespaceType().models.get("B")!;
 
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
@@ -977,17 +827,13 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T, U, V extends string = string> { a: T, b: U, c: V }
 
-      @test model B {
+      model B {
         foo: ~~~A<boolean, V = "bar", string>~~~
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const [{ program }, diagnostics] = await Tester.compileAndDiagnose(source);
+      const B = program.getGlobalNamespaceType().models.get("B")!;
 
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
@@ -1022,17 +868,13 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T, U = int32, V extends string = string> { a: T, b: U, c: V }
 
-      @test model B {
+      model B {
         foo: A<boolean, V = "bar", ~~~string~~~>
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const [{ program }, diagnostics] = await Tester.compileAndDiagnose(source);
+      const B = program.getGlobalNamespaceType().models.get("B")!;
 
       const foo = B.properties.get("foo")!.type;
       strictEqual(foo.kind, "Model");
@@ -1059,14 +901,12 @@ describe("compiler: templates", () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T> { a: T }
 
-      @test model B {
+      model B {
         foo: A<~~~T<string>~~~ = string>
       }
     `);
 
-      testHost.addTypeSpecFile("main.tsp", source);
-
-      const diagnostics = await testHost.diagnose("main.tsp");
+      const diagnostics = await Tester.diagnose(source);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-template-argument-name",
@@ -1079,29 +919,23 @@ describe("compiler: templates", () => {
     it("template arguments are evaluated in the correct order", async () => {
       const members: [Type, Type][] = [];
 
-      testHost.addJsFile("effect.js", {
-        $effect: (_: DecoratorContext, target: Type, value: Type) => {
-          members.push([target, value]);
-        },
-      });
+      const { B } = await Tester.files({
+        "effect.js": mockFile.js({
+          $effect: (_: DecoratorContext, target: Type, value: Type) => {
+            members.push([target, value]);
+          },
+        }),
+      }).import("./effect.js").compile(t.code`
+          @effect(T)
+          model Dec<T> { t: T }
 
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        import "./effect.js";
+          model A<T, U> { a: T, b: U }
 
-        @effect(T)
-        model Dec<T> { t: T }
+          model ${t.model("B")} {
+            bar: A<U = Dec<string>, T = Dec<int32>>
+          }
+        `);
 
-        model A<T, U> { a: T, b: U }
-
-        @test model B {
-          bar: A<U = Dec<string>, T = Dec<int32>>
-        }
-        `,
-      );
-
-      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
       const bar = B.properties.get("bar")!.type;
       strictEqual(bar.kind, "Model");
       const a = bar.properties.get("a")!;
@@ -1125,53 +959,38 @@ describe("compiler: templates", () => {
 
   describe("template declaration passing values", () => {
     it("allows passing to a decorator expecting that value", async () => {
-      testHost.addJsFile("effect.js", {
-        $call: () => null,
-      });
-
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        import "./effect.js";
+      const diagnostics = await Tester.files({
+        "effect.js": mockFile.js({
+          $call: () => null,
+        }),
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof string);
         @call(T) model Dec<T extends valueof string> {}
-        `,
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
+        `);
       expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows passing to a decorator expecting a composed value", async () => {
-      testHost.addJsFile("effect.js", {
-        $call: () => null,
-      });
-
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        import "./effect.js";
+      const diagnostics = await Tester.files({
+        "effect.js": mockFile.js({
+          $call: () => null,
+        }),
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof unknown);
         @call(#{foo: T}) model Dec<T extends valueof string> {}
-        `,
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
+        `);
       expectDiagnosticEmpty(diagnostics);
     });
 
     it("validate incompatible composed values", async () => {
-      testHost.addJsFile("effect.js", {
-        $call: () => null,
-      });
-
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        import "./effect.js";
+      const diagnostics = await Tester.files({
+        "effect.js": mockFile.js({
+          $call: () => null,
+        }),
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof {foo: int32});
         @call(#{foo: T}) model Dec<T extends valueof string> {}
-        `,
-      );
-      const diagnostics = await testHost.diagnose("main.tsp");
+        `);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message:

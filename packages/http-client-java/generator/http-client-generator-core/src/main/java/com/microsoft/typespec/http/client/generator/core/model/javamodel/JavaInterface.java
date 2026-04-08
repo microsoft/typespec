@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -55,7 +54,7 @@ public class JavaInterface implements JavaType {
 
     public final void staticMethod(JavaVisibility visibility, String methodSignature, Consumer<JavaBlock> method) {
         Objects.requireNonNull(visibility, "'visibility' cannot be null.");
-        method(visibility, Collections.singletonList(JavaModifier.Static), methodSignature, method);
+        method(visibility, List.of(JavaModifier.Static), methodSignature, method);
     }
 
     public final void interfaceBlock(String interfaceName, Consumer<JavaInterface> interfaceAction) {

@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "server.versions.notversioned.NotVersionedClient": "Server.Versions.NotVersioned",
-    "server.versions.notversioned.NotVersionedClientBuilder": "Server.Versions.NotVersioned"
-  }
-}

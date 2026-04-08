@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Routes._PathParameters;
@@ -16,7 +17,12 @@ namespace Routes
     {
         public RoutesClient() : this(new Uri("http://localhost:3000"), new RoutesClientOptions()) => throw null;
 
-        public RoutesClient(Uri endpoint, RoutesClientOptions options) => throw null;
+        internal RoutesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RoutesClientOptions options) => throw null;
+
+        public RoutesClient(Uri endpoint, RoutesClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public RoutesClient(RoutesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

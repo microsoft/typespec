@@ -1,6 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
+import { openApiForVersions } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ openApiFor }) => {
@@ -126,5 +127,75 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       @overload(someThing)
       op someNumberThing(param: false): int32;
     `);
+  });
+});
+
+describe("overloads in versioned namespace", () => {
+  it("overloads work inside an interface in a versioned namespace", async () => {
+    const result = await openApiForVersions(
+      `
+      @versioned(Versions)
+      @service(#{ title: "Widget Service" })
+      namespace DemoService;
+
+      enum Versions {
+        v1,
+      }
+
+      interface Widgets {
+        op create(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+
+        @overload(Widgets.create)
+        op createString(data: string, @header contentType: "text/plain"): void;
+
+        @overload(Widgets.create)
+        op createBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+      }
+      `,
+      ["v1"],
+    );
+
+    ok(result.v1);
+    const operation = result.v1.paths["/"].post;
+    ok(operation);
+    strictEqual(operation.operationId, "Widgets_create");
+    deepStrictEqual(Object.keys((operation.requestBody as OpenAPI3RequestBody).content), [
+      "text/plain",
+      "application/octet-stream",
+    ]);
+  });
+
+  it("overloads work in a versioned namespace", async () => {
+    const result = await openApiForVersions(
+      `
+      @versioned(Versions)
+      @service(#{ title: "Widget Service" })
+      namespace DemoService;
+
+      enum Versions {
+        v1,
+      }
+
+      @route("/upload")
+      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+
+      @overload(upload)
+      op uploadString(data: string, @header contentType: "text/plain"): void;
+
+      @overload(upload)
+      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+      `,
+      ["v1"],
+    );
+
+    ok(result.v1);
+    strictEqual(Object.keys(result.v1.paths).length, 1);
+    const operation = result.v1.paths["/upload"].post;
+    ok(operation);
+    strictEqual(operation.operationId, "upload");
+    deepStrictEqual(Object.keys((operation.requestBody as OpenAPI3RequestBody).content), [
+      "text/plain",
+      "application/octet-stream",
+    ]);
   });
 });

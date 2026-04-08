@@ -116,6 +116,12 @@ public class PrimitiveMapper implements IMapper<PrimitiveSchema, IType> {
 
                         case SECONDS_NUMBER:
                             return PrimitiveType.DURATION_DOUBLE;
+
+                        case MILLISECONDS_INTEGER:
+                            return PrimitiveType.DURATION_MILLISECONDS_LONG;
+
+                        case MILLISECONDS_NUMBER:
+                            return PrimitiveType.DURATION_MILLISECONDS_DOUBLE;
                     }
                 }
                 return durationType;

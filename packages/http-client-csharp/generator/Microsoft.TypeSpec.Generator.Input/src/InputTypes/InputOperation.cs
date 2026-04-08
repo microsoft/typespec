@@ -73,6 +73,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         { }
 
         public string Name { get; internal set; }
+
+        /// <summary>
+        /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
+        /// </summary>
+        public string? OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }

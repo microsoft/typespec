@@ -19,8 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "latest",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
+    "typescript-eslint": "^8.49.0",
     "@typespec/compiler": "latest",
     "@typespec/library-linter": "latest",
     "eslint": "^9.15.0",

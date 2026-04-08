@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -71,7 +71,7 @@ public class MethodTemplate {
     }
 
     public static final class Builder {
-        private final Set<String> imports = new HashSet<>();
+        private final Set<String> imports = new LinkedHashSet<>();
         private JavaVisibility visibility = JavaVisibility.Public;
         private final List<JavaModifier> modifiers = new ArrayList<>();
         private String methodSignature;

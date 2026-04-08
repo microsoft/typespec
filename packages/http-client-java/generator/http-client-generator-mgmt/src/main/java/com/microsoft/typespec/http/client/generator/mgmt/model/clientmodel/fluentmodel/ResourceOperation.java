@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,7 +127,7 @@ public abstract class ResourceOperation {
 
     // method parameters
     private List<MethodParameter> getParametersByLocation(RequestParameterLocation parameterLocation) {
-        return getParametersByLocation(new HashSet<>(Collections.singletonList(parameterLocation)));
+        return getParametersByLocation(new LinkedHashSet<>(List.of(parameterLocation)));
     }
 
     private List<MethodParameter> getParametersByLocation(Set<RequestParameterLocation> parameterLocations) {
@@ -157,7 +157,7 @@ public abstract class ResourceOperation {
     public List<ClientMethodParameter> getMiscParameters() {
         // header or query
         return getParametersByLocation(
-            new HashSet<>(Arrays.asList(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY))).stream()
+            new LinkedHashSet<>(List.of(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY))).stream()
                 .map(MethodParameter::getClientMethodParameter)
                 .collect(Collectors.toList());
     }

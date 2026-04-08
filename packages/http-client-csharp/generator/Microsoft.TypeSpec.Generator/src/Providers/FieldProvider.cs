@@ -101,6 +101,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _variable?.Update(name: name);
                 _asMember?.Update(memberName: name);
                 _declaration = null;
+                if (_asMember != null)
+                {
+                    _asMember.Declaration = Declaration;
+                }
                 InitializeParameter();
             }
 
@@ -148,6 +152,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
-        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name);
+        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name) { Declaration = field.Declaration };
     }
 }

@@ -7,6 +7,7 @@ import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -27,8 +28,14 @@ public final class FloatMillisecondsDurationArrayProperty
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public FloatMillisecondsDurationArrayProperty(List<Double> value) {
-        this.value = value;
+    public FloatMillisecondsDurationArrayProperty(List<Duration> value) {
+        if (value == null) {
+            this.value = null;
+        } else {
+            this.value = value.stream()
+                .map(el -> (double) el.toNanos() / 1000_000L)
+                .collect(java.util.stream.Collectors.toList());
+        }
     }
 
     /**
@@ -37,8 +44,13 @@ public final class FloatMillisecondsDurationArrayProperty
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<Double> getValue() {
-        return this.value;
+    public List<Duration> getValue() {
+        if (this.value == null) {
+            return null;
+        }
+        return this.value.stream()
+            .map(el -> Duration.ofNanos((long) (el * 1000_000L)))
+            .collect(java.util.stream.Collectors.toList());
     }
 
     /**
@@ -64,13 +76,13 @@ public final class FloatMillisecondsDurationArrayProperty
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static FloatMillisecondsDurationArrayProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            List<Double> value = null;
+            List<Duration> value = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    value = reader.readArray(reader1 -> reader1.getDouble());
+                    value = reader.readArray(reader1 -> Duration.ofNanos((long) (reader1.getDouble() * 1000_000L)));
                 } else {
                     reader.skipChildren();
                 }

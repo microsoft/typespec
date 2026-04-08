@@ -6,7 +6,7 @@ export {
 export { expectCodeFixOnAst } from "./code-fix-testing.js";
 export { expectDiagnosticEmpty, expectDiagnostics, type DiagnosticMatch } from "./expect.js";
 export { createTestFileSystem, mockFile } from "./fs.js";
-export { t } from "./marked-template.js";
+export { t, type TemplateWithMarkers } from "./marked-template.js";
 export {
   createLinterRuleTester,
   type ApplyCodeFixExpect,

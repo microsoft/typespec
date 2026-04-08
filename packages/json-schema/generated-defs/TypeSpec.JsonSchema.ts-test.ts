@@ -7,4 +7,4 @@ import type { TypeSpecJsonSchemaDecorators } from "./TypeSpec.JsonSchema.js";
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: TypeSpecJsonSchemaDecorators = $decorators["TypeSpec.JsonSchema"];
+const _decs: TypeSpecJsonSchemaDecorators = $decorators["TypeSpec.JsonSchema"];

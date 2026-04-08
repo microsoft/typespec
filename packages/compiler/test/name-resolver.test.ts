@@ -11,6 +11,7 @@ import {
   IdentifierNode,
   JsSourceFileNode,
   MemberExpressionNode,
+  ModifierFlags,
   Node,
   NodeFlags,
   ResolutionResult,
@@ -1251,6 +1252,28 @@ describe("aliases", () => {
   });
 });
 
+describe("functions", () => {
+  it("resolves function return types", () => {
+    const { Baz: returnType } = getResolutions(
+      [
+        `
+          extern fn f(): { a: string };
+          alias Baz = f();
+        `,
+      ],
+      "Baz",
+    );
+
+    assertSymbol(returnType, {
+      members: {
+        a: {
+          flags: SymbolFlags.Member,
+        },
+      },
+    });
+  });
+});
+
 describe("usings", () => {
   describe("binding", () => {
     it("binds usings to locals", () => {
@@ -1520,5 +1543,7 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
 }

@@ -38,6 +38,7 @@ except (ImportError, ModuleNotFoundError):
 
 from pathlib import Path
 
+# eng/scripts/setup/install.py -> need to go up 4 levels to get to package root
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 

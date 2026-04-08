@@ -60,13 +60,13 @@
     "@typespec/versioning": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
+    "@types/node": "catalog:",
     "@typespec/internal-build-utils": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.15",
-    "@vitest/ui": "^4.0.15",
-    "cross-env": "~10.1.0",
-    "rimraf": "~6.1.2",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.15"
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "cross-env": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -6,6 +6,7 @@ import {
   ContainerClient,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
+import { eq as semverEq, gt as semverGt, valid as semverValid } from "semver";
 import {
   CoverageReport,
   GeneratorMetadata,
@@ -42,26 +43,82 @@ export class SpecCoverageClient {
 }
 
 export class SpecManifestOperations {
-  #blob: BlockBlobClient;
   #container: ContainerClient;
 
   constructor(container: ContainerClient) {
     this.#container = container;
-    this.#blob = this.#container.getBlockBlobClient("manifest.json");
   }
 
-  public async upload(manifest: ScenarioManifest | ScenarioManifest[]): Promise<void> {
+  public async upload(name: string, manifest: ScenarioManifest): Promise<void> {
+    await this.#upload(name, "latest", manifest);
+    await this.#upload(name, manifest.version, manifest);
+  }
+
+  async #upload(name: string, version: string, manifest: ScenarioManifest): Promise<void> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name, version));
     const content = JSON.stringify(manifest, null, 2);
-    await this.#blob.upload(content, content.length, {
+    await blob.upload(content, content.length, {
       blobHTTPHeaders: {
         blobContentType: "application/json; charset=utf-8",
       },
     });
   }
 
-  public async get(): Promise<ScenarioManifest[]> {
-    return readJsonBlob<ScenarioManifest[]>(this.#blob);
+  public async uploadIfVersionNew(
+    name: string,
+    manifest: ScenarioManifest,
+  ): Promise<"uploaded" | "skipped"> {
+    const existingVersion = await this.tryGet(name, manifest.version);
+    if (existingVersion) {
+      return "skipped";
+    }
+    const existingLatest = await this.tryGet(name);
+    if (existingLatest && !isVersionNewer(manifest.version, existingLatest.version)) {
+      return "skipped";
+    }
+
+    await this.upload(name, manifest);
+    return "uploaded";
   }
+
+  public async get(name: string, version?: string): Promise<ScenarioManifest> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name, version));
+    return readJsonBlob<ScenarioManifest>(blob);
+  }
+
+  public async tryGet(name: string, version?: string): Promise<ScenarioManifest | undefined> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name, version));
+    try {
+      return await readJsonBlob<ScenarioManifest>(blob);
+    } catch (e: any) {
+      if ("code" in e && e.code === "BlobNotFound") {
+        return undefined;
+      }
+      throw e;
+    }
+  }
+
+  #blobName(name: string, version?: string) {
+    return `manifests/${name}/${version ?? "latest"}.json`;
+  }
+}
+
+function areVersionsEquivalent(left: string, right: string): boolean {
+  const leftValid = semverValid(left);
+  const rightValid = semverValid(right);
+  if (leftValid && rightValid) {
+    return semverEq(leftValid, rightValid);
+  }
+  return left === right;
+}
+
+function isVersionNewer(candidate: string, existing: string): boolean {
+  const candidateValid = semverValid(candidate);
+  const existingValid = semverValid(existing);
+  if (candidateValid && existingValid) {
+    return semverGt(candidateValid, existingValid);
+  }
+  return !areVersionsEquivalent(candidate, existing);
 }
 
 export class SpecCoverageOperations {
@@ -168,7 +225,18 @@ function getCoverageContainer(
 
 async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
   const blob = await blobClient.download();
-  const body = await blob.blobBody;
-  const content = await body!.text();
-  return JSON.parse(content);
+  if (blob.blobBody) {
+    const body = await blob.blobBody;
+    const content = await body!.text();
+    return JSON.parse(content);
+  } else if (blob.readableStreamBody) {
+    const stream = blob.readableStreamBody;
+    let content = "";
+    for await (const chunk of stream) {
+      content += chunk;
+    }
+    return JSON.parse(content);
+  } else {
+    throw new Error("Blob has no body");
+  }
 }

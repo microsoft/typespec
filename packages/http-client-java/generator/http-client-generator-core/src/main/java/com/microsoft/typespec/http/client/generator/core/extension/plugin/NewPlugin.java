@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +191,7 @@ public abstract class NewPlugin {
         Message message = new Message();
         message.setChannel(channel);
         message.setKey(keys);
-        message.setSource(Collections.emptyList());
+        message.setSource(List.of());
         if (error != null) {
             text += "\n" + formatThrowableMessage(error);
         }
