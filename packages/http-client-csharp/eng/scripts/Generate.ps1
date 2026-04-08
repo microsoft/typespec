@@ -19,16 +19,16 @@ if (-not $LaunchOnly) {
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-       # TODO: Re-enable SampleService generation once a compatible emitter version is published
+       # TODO: Re-enable SampleService plugin generation once a compatible emitter version is published
        # Write-Host "Building logging plugin" -ForegroundColor Cyan
        # $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
        # Invoke "dotnet build" $pluginDir
 
-       # $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-       # Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+       Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-       # Invoke "npm install --no-package-lock" $sampleDir
+       Invoke "npm install --no-package-lock" $sampleDir
 
        # Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
@@ -47,27 +47,26 @@ if (-not $LaunchOnly) {
        #   exit $LASTEXITCODE
        # }
 
-        # TODO: Re-enable Sample-TypeSpec generation once SampleService is re-enabled (Sample-TypeSpec imports SampleService/main.tsp)
-        # Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
-        # $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
+        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
+        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-        # $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
-        # $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
+        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        # Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
 
-        # # exit if the generation failed
-        # if ($LASTEXITCODE -ne 0) {
-        #     exit $LASTEXITCODE
-        # }
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
 
-        # Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
-        # Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
+        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
 
-        # # exit if the generation failed
-        # if ($LASTEXITCODE -ne 0) {
-        #     exit $LASTEXITCODE
-        # }
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
     }
 }
 
