@@ -24,11 +24,11 @@ if (-not $LaunchOnly) {
        # $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
        # Invoke "dotnet build" $pluginDir
 
-       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+      #  $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-       Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+      #  Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-       Invoke "npm install --no-package-lock" $sampleDir
+      #  Invoke "npm install --no-package-lock" $sampleDir
 
        # Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
