@@ -12,27 +12,27 @@
     "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@typespec/spector": "0.1.0-alpha.24",
-    "@typespec/spec-api": "0.1.0-alpha.13",
-    "@typespec/http-specs": "0.1.0-alpha.35",
-    "@typespec/json-schema": "1.10.0",
+    "@typespec/spector": "0.1.0-alpha.25",
+    "@typespec/spec-api": "0.1.0-alpha.14",
+    "@typespec/http-specs": "0.1.0-alpha.36",
+    "@typespec/json-schema": "1.11.0",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.7.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
-    "@typespec/compiler": "1.10.0",
-    "@typespec/http": "1.10.0",
-    "@typespec/rest": "0.80.0",
-    "@typespec/versioning": "0.80.0",
-    "@typespec/openapi": "1.10.0",
-    "@typespec/xml": "0.80.0",
-    "@typespec/events": "0.80.0",
-    "@typespec/sse": "0.80.0",
-    "@typespec/streams": "0.80.0",
-    "@azure-tools/typespec-azure-core": "0.66.1",
-    "@azure-tools/typespec-client-generator-core": "0.66.4",
-    "@azure-tools/typespec-azure-resource-manager": "0.66.1",
-    "@azure-tools/typespec-autorest": "0.66.2"
+    "@typespec/compiler": "1.11.0",
+    "@typespec/http": "1.11.0",
+    "@typespec/rest": "0.81.0",
+    "@typespec/versioning": "0.81.0",
+    "@typespec/openapi": "1.11.0",
+    "@typespec/xml": "0.81.0",
+    "@typespec/events": "0.81.0",
+    "@typespec/sse": "0.81.0",
+    "@typespec/streams": "0.81.0",
+    "@azure-tools/typespec-azure-core": "0.67.0",
+    "@azure-tools/typespec-client-generator-core": "0.67.0",
+    "@azure-tools/typespec-azure-resource-manager": "0.67.0",
+    "@azure-tools/typespec-autorest": "0.67.0"
   },
   "private": true
 }
