@@ -851,7 +851,6 @@ interface Metrics {
   };
 }
 
-
 // E2E example demonstrating @paramAlias with @clientInitialization.
 // The client parameter "notebook" is aliased to the operation's "notebookName" path parameter,
 // allowing a different parameter name in client initialization while mapping to the original
