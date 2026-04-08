@@ -8,9 +8,11 @@ package client.naming.generated;
 // If you wish to modify these files, please copy them out of the 'generated' package, and modify there.
 // See https://aka.ms/azsdk/dpg/java/tests for guide on adding a test.
 
+import client.naming.HeaderClient;
 import client.naming.ModelClient;
 import client.naming.NamingClient;
 import client.naming.NamingClientBuilder;
+import client.naming.PropertyClient;
 import client.naming.UnionEnumClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
@@ -20,6 +22,10 @@ import com.azure.core.util.Configuration;
 
 class NamingClientTestBase extends TestProxyTestBase {
     protected NamingClient namingClient;
+
+    protected PropertyClient propertyClient;
+
+    protected HeaderClient headerClient;
 
     protected ModelClient modelClient;
 
@@ -35,6 +41,24 @@ class NamingClientTestBase extends TestProxyTestBase {
             namingClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         namingClient = namingClientbuilder.buildClient();
+
+        NamingClientBuilder propertyClientbuilder = new NamingClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            propertyClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        propertyClient = propertyClientbuilder.buildPropertyClient();
+
+        NamingClientBuilder headerClientbuilder = new NamingClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            headerClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        headerClient = headerClientbuilder.buildHeaderClient();
 
         NamingClientBuilder modelClientbuilder = new NamingClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))

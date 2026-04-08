@@ -3,8 +3,6 @@
 # Licensed under the MIT License.
 # ------------------------------------
 import os
-import re
-from subprocess import getoutput
 from pathlib import Path
 import traceback
 from importlib import import_module
@@ -33,21 +31,25 @@ def test_track_back(client: ScalarClient):
         assert "microsoft" not in track_back
 
 
-def check_sensitive_word(folder: Path, word: str) -> str:
-    special_folders = ["__pycache__", "pytest_cache"]
-    if os.name == "nt":
-        skip_folders = "|".join(special_folders)
-        output = getoutput(
-            f"powershell \"ls -r -Path {folder} | where fullname -notmatch '{skip_folders}' | Select-String -Pattern '{word}'\""
-        ).replace("\\", "/")
-    else:
-        skip_folders = "{" + ",".join(special_folders) + "}"
-        output = getoutput(f"grep -ri --exclude-dir={skip_folders} {word} {folder}")
+_SKIP_DIRS = {"__pycache__", "pytest_cache", ".pytest_cache"}
 
+
+def check_sensitive_word(folder: Path, word: str) -> list[str]:
+    """Search for a word in all files under folder, return top-level subfolder names that contain it."""
     result = set()
-    for item in re.findall(f"{folder.as_posix()}[^:]+", output.replace("\n", "")):
-        result.add(Path(item).relative_to(folder).parts[0])
-    return sorted(list(result))
+    for path in folder.rglob("*"):
+        if not path.is_file():
+            continue
+        # Skip special directories
+        if _SKIP_DIRS & set(path.relative_to(folder).parts):
+            continue
+        try:
+            content = path.read_text(encoding="utf-8", errors="ignore")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if word.lower() in content.lower():
+            result.add(path.relative_to(folder).parts[0])
+    return sorted(result)
 
 
 def test_sensitive_word():
