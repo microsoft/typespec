@@ -71,6 +71,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
 
         [Test]
+        public async Task Execute_SlnxUsesForwardSlashes()
+        {
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+
+            var slnxPath = Path.Combine(_outputDir, "TestPackage.slnx");
+            var content = await File.ReadAllTextAsync(slnxPath);
+            Assert.That(content, Does.Contain("src/TestPackage.csproj"));
+            Assert.That(content, Does.Not.Contain("src\\TestPackage.csproj"));
+        }
+
+        [Test]
         public async Task Execute_CallsWriteAdditionalFiles()
         {
             var scaffolding = new TestScaffolding();
