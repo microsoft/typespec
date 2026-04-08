@@ -47,8 +47,6 @@ public final class FormDataHttpPartsNonStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatMethodWithResponse(FloatRequest body, RequestContext requestContext) {
-        // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
         return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.HttpParts.NonString.float",
             requestContext, updatedContext -> this.serviceClient.floatMethodWithResponse(body, updatedContext));
     }
