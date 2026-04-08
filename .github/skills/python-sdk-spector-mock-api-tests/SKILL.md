@@ -228,7 +228,7 @@ Format any python files you changed using Black with the project's shared config
 
 ```bash
 cd packages/http-client-python
-python -m black <paths> --config ./eng/scripts/ci/config/pyproject.toml
+python -m black ./eng/scripts/ci/config/pyproject.toml < paths > --config
 ```
 
 Replace `<paths>` with the specific files and/or folders you modified (relative to the `http-client-python` root).
