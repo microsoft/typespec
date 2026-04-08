@@ -108,10 +108,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "package-name": "typetest-array",
     namespace: "typetest.array",
   },
-  "type/model/inheritance/recursive": {
-    "package-name": "typetest-model-recursive",
-    namespace: "typetest.model.recursive",
-  },
 };
 
 interface CompileTask {

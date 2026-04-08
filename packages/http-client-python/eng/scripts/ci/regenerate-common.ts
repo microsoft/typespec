@@ -208,10 +208,19 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "typetest-model-singlediscriminator",
     namespace: "typetest.model.singlediscriminator",
   },
-  "type/model/inheritance/recursive": {
-    "package-name": "typetest-model-recursive",
-    namespace: "typetest.model.recursive",
-  },
+  "type/model/inheritance/recursive": [
+    {
+      "package-name": "typetest-model-recursive",
+      namespace: "typetest.model.recursive",
+    },
+    {
+      // basic test for configuration "generation-subdir"
+      "package-name": "generation-subdir",
+      namespace: "generation.subdir",
+      "generation-subdir": "_generated",
+      "clear-output-folder": "true",
+    },
+  ],
   "type/model/usage": {
     "package-name": "typetest-model-usage",
     namespace: "typetest.model.usage",
@@ -268,6 +277,18 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "specs-documentation",
     namespace: "specs.documentation",
   },
+  "versioning/added": [
+    {
+      "package-name": "versioning-added",
+      namespace: "versioning.added",
+    },
+    // check whether import of _validation.py/_types.py works when "generation-subdir" is configured
+    {
+      "package-name": "generation-subdir2",
+      namespace: "generation.subdir2",
+      "generation-subdir": "_generated",
+    },
+  ],
 };
 
 // ---- Shared interfaces ----
