@@ -941,7 +941,7 @@ export class CodeModelBuilder {
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
     let diagnostic = undefined;
-    if (generateConvenienceApi) {
+    if (generateConvenienceApi && this.isAzureV1()) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData

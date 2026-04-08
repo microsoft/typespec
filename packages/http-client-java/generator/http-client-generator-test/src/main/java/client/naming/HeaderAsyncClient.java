@@ -4,7 +4,7 @@
 
 package client.naming;
 
-import client.naming.implementation.NamingClientImpl;
+import client.naming.implementation.HeadersImpl;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -22,38 +22,22 @@ import reactor.core.publisher.Mono;
  * Initializes a new instance of the asynchronous NamingClient type.
  */
 @ServiceClient(builder = NamingClientBuilder.class, isAsync = true)
-public final class NamingAsyncClient {
+public final class HeaderAsyncClient {
     @Generated
-    private final NamingClientImpl serviceClient;
+    private final HeadersImpl serviceClient;
 
     /**
-     * Initializes an instance of NamingAsyncClient class.
+     * Initializes an instance of HeaderAsyncClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    NamingAsyncClient(NamingClientImpl serviceClient) {
+    HeaderAsyncClient(HeadersImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * The clientName operation.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> clientNameWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.clientNameWithResponseAsync(requestOptions);
-    }
-
-    /**
-     * The parameter operation.
+     * The request operation.
      * 
      * @param clientName The clientName parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -65,30 +49,28 @@ public final class NamingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> parameterWithResponse(String clientName, RequestOptions requestOptions) {
-        return this.serviceClient.parameterWithResponseAsync(clientName, requestOptions);
+    public Mono<Response<Void>> requestWithResponse(String clientName, RequestOptions requestOptions) {
+        return this.serviceClient.requestWithResponseAsync(clientName, requestOptions);
     }
 
     /**
-     * The clientName operation.
+     * The response operation.
      * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> clientName() {
-        // Generated convenience method for clientNameWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return clientNameWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+    public Mono<Response<Void>> responseWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.responseWithResponseAsync(requestOptions);
     }
 
     /**
-     * The parameter operation.
+     * The request operation.
      * 
      * @param clientName The clientName parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -101,9 +83,27 @@ public final class NamingAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> parameter(String clientName) {
-        // Generated convenience method for parameterWithResponse
+    public Mono<Void> request(String clientName) {
+        // Generated convenience method for requestWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return parameterWithResponse(clientName, requestOptions).flatMap(FluxUtil::toMono);
+        return requestWithResponse(clientName, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The response operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> response() {
+        // Generated convenience method for responseWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return responseWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }
