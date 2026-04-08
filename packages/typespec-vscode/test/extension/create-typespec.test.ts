@@ -31,14 +31,7 @@ const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecPro
 const createCase = "CreateTypespecProject";
 const templateName = "Generic Rest API";
 const templateNameDescription = "Create a project representing a generic REST API service.";
-const expectedResults = [
-  ".gitignore",
-  "main.tsp",
-  "node_modules",
-  "package-lock.json",
-  "package.json",
-  "tspconfig.yaml",
-];
+const expectedResults = [".gitignore", "main.tsp", "package.json", "tspconfig.yaml"];
 
 const CreateCasesConfigList: CreateConfigType[] = [
   {

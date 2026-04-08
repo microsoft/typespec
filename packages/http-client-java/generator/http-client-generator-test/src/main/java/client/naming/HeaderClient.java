@@ -4,7 +4,7 @@
 
 package client.naming;
 
-import client.naming.implementation.NamingClientImpl;
+import client.naming.implementation.HeadersImpl;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -15,45 +15,27 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.FluxUtil;
-import reactor.core.publisher.Mono;
 
 /**
- * Initializes a new instance of the asynchronous NamingClient type.
+ * Initializes a new instance of the synchronous NamingClient type.
  */
-@ServiceClient(builder = NamingClientBuilder.class, isAsync = true)
-public final class NamingAsyncClient {
+@ServiceClient(builder = NamingClientBuilder.class)
+public final class HeaderClient {
     @Generated
-    private final NamingClientImpl serviceClient;
+    private final HeadersImpl serviceClient;
 
     /**
-     * Initializes an instance of NamingAsyncClient class.
+     * Initializes an instance of HeaderClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    NamingAsyncClient(NamingClientImpl serviceClient) {
+    HeaderClient(HeadersImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * The clientName operation.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> clientNameWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.clientNameWithResponseAsync(requestOptions);
-    }
-
-    /**
-     * The parameter operation.
+     * The request operation.
      * 
      * @param clientName The clientName parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -61,34 +43,32 @@ public final class NamingAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> parameterWithResponse(String clientName, RequestOptions requestOptions) {
-        return this.serviceClient.parameterWithResponseAsync(clientName, requestOptions);
+    public Response<Void> requestWithResponse(String clientName, RequestOptions requestOptions) {
+        return this.serviceClient.requestWithResponse(clientName, requestOptions);
     }
 
     /**
-     * The clientName operation.
+     * The response operation.
      * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> clientName() {
-        // Generated convenience method for clientNameWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return clientNameWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+    public Response<Void> responseWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.responseWithResponse(requestOptions);
     }
 
     /**
-     * The parameter operation.
+     * The request operation.
      * 
      * @param clientName The clientName parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -97,13 +77,29 @@ public final class NamingAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> parameter(String clientName) {
-        // Generated convenience method for parameterWithResponse
+    public void request(String clientName) {
+        // Generated convenience method for requestWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return parameterWithResponse(clientName, requestOptions).flatMap(FluxUtil::toMono);
+        requestWithResponse(clientName, requestOptions).getValue();
+    }
+
+    /**
+     * The response operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void response() {
+        // Generated convenience method for responseWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        responseWithResponse(requestOptions).getValue();
     }
 }

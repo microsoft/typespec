@@ -47,8 +47,6 @@ public final class FormDataHttpPartsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> jsonArrayAndFileArrayWithResponse(ComplexHttpPartsModelRequest body,
         RequestContext requestContext) {
-        // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
         return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.HttpParts.jsonArrayAndFileArray",
             requestContext,
             updatedContext -> this.serviceClient.jsonArrayAndFileArrayWithResponse(body, updatedContext));
