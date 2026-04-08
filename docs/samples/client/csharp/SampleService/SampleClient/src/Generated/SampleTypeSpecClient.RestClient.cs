@@ -216,14 +216,14 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
+        internal PipelineMessage CreateGetUnknownValueRequest(string accept, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/unknown-value", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
-            request.Headers.Set("Accept", "text/plain");
+            request.Headers.Set("Accept", accept);
             message.Apply(options);
             return message;
         }

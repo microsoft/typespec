@@ -5,8 +5,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,17 +14,6 @@ namespace SampleTypeSpec
     public partial class Metrics
     {
         private readonly Uri _endpoint;
-        private const string AuthorizationHeader = "my-api-key";
-        /// <summary> The OAuth2 flows supported by the service. </summary>
-        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
-        {
-            new Dictionary<string, object>
-            {
-                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
-                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
-                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
-            }
-        };
         private readonly string _metricsNamespace;
 
         /// <summary> Initializes a new instance of Metrics for mocking. </summary>
@@ -48,29 +35,19 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of Metrics. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="metricsNamespace"></param>
-        /// <param name="credential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="metricsNamespace"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, ApiKeyCredential credential) : this(endpoint, metricsNamespace, credential, new SampleTypeSpecClientOptions())
+        public Metrics(Uri endpoint, string metricsNamespace) : this(endpoint, metricsNamespace, new SampleTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
-        /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider) : this(endpoint, metricsNamespace, tokenProvider, new SampleTypeSpecClientOptions())
-        {
-        }
-
-        /// <summary> Initializes a new instance of Metrics. </summary>
-        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="metricsNamespace"></param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal Metrics(AuthenticationPolicy authenticationPolicy, Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="metricsNamespace"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
+        public Metrics(Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
@@ -79,43 +56,7 @@ namespace SampleTypeSpec
 
             _endpoint = endpoint;
             _metricsNamespace = metricsNamespace;
-            if (authenticationPolicy != null)
-            {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
-            }
-            else
-            {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
-            }
-        }
-
-        /// <summary> Initializes a new instance of Metrics. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
-        /// <param name="credential"> A credential used to authenticate to the service. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, metricsNamespace, options)
-        {
-        }
-
-        /// <summary> Initializes a new instance of Metrics. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
-        /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, metricsNamespace, options)
-        {
-        }
-
-        /// <summary> Initializes a new instance of Metrics from a <see cref="MetricsSettings"/>. </summary>
-        /// <param name="settings"> The settings for Metrics. </param>
-        [Experimental("SCME0002")]
-        public Metrics(MetricsSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.MetricsNamespace, settings?.Options)
-        {
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -135,8 +76,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetWidgetMetrics(string day, RequestOptions options = null)
         {
-            using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method GetWidgetMetrics.");
+                using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetrics: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWidgetMetrics.");
+            }
         }
 
         /// <summary>
@@ -153,8 +107,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetWidgetMetricsAsync(string day, RequestOptions options = null)
         {
-            using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method GetWidgetMetricsAsync.");
+                using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetricsAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWidgetMetricsAsync.");
+            }
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -163,8 +130,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetWidgetMetrics.");
+                ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetrics: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWidgetMetrics.");
+            }
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -173,8 +153,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetWidgetMetricsAsync.");
+                ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetricsAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWidgetMetricsAsync.");
+            }
         }
     }
 }
