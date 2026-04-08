@@ -47,28 +47,26 @@ if (-not $LaunchOnly) {
        #   exit $LASTEXITCODE
        # }
 
-        # TODO: Re-enable Sample-TypeSpec generation once SampleService deps can be installed
-        # (Sample-TypeSpec.tsp imports SampleService/main.tsp which needs SampleService's node_modules)
-        # Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
-        # $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
+        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
+        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-        # $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
-        # $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
+        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        # Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject)
 
-        # # exit if the generation failed
-        # if ($LASTEXITCODE -ne 0) {
-        #     exit $LASTEXITCODE
-        # }
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
 
-        # Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
-        # Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
+        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
 
-        # # exit if the generation failed
-        # if ($LASTEXITCODE -ne 0) {
-        #     exit $LASTEXITCODE
-        # }
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
     }
 }
 
