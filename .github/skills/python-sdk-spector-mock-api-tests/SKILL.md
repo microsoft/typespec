@@ -150,12 +150,13 @@ Generated code is gitignored (`packages/http-client-python/tests/generated/`). Y
 
 ```bash
 cd packages/http-client-python
-npm run regenerate -- --flavor azure --name azure/core/page
+npx tsx ./eng/scripts/ci/regenerate.ts --flavor azure --name azure/core/page
 ```
 
 The `--flavor` flag selects `azure` or `unbranded`. The `--name` flag is a case-insensitive substring match on the package name.
 
-> ⚠️ Do NOT run `npm run regenerate` without `--name` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+> ⚠️ Do NOT run `npx tsx ./eng/scripts/ci/regenerate.ts` without `--name` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+> ⚠️ Do NOT use `npm run regenerate -- --flavor ...` — npm may strip the flags. Use `npx tsx` directly.
 
 **Verify** the generated client has the expected method:
 
@@ -227,7 +228,7 @@ Format any python files you changed using Black with the project's shared config
 
 ```bash
 cd packages/http-client-python
-python -m black ./eng/scripts/ci/config/pyproject.toml < paths > --config
+python -m black <paths> --config ./eng/scripts/ci/config/pyproject.toml
 ```
 
 Replace `<paths>` with the specific files and/or folders you modified (relative to the `http-client-python` root).
@@ -250,7 +251,7 @@ Before opening a PR, run your new or updated test. You will need two terminals: 
 
    ```bash
    cd packages/http-client-python
-   npm run regenerate -- --flavor <azure|unbranded> --name <spec-name>
+   npx tsx ./eng/scripts/ci/regenerate.ts --flavor <azure|unbranded> --name <spec-name>
    ```
 
 3. **Create and activate a virtual environment** (if one does not already exist):
