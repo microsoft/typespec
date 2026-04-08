@@ -4,26 +4,6 @@
     "Clients": {
       "type": "object",
       "properties": {
-        "Notebooks": {
-          "type": "object",
-          "description": "Configuration for Notebooks.",
-          "properties": {
-            "SampleTypeSpecUrl": {
-              "type": "string",
-              "format": "uri",
-              "description": "Gets or sets the SampleTypeSpecUrl."
-            },
-            "Notebook": {
-              "type": "string"
-            },
-            "Credential": {
-              "$ref": "#/definitions/credential"
-            },
-            "Options": {
-              "$ref": "#/definitions/sampleTypeSpecClientOptions"
-            }
-          }
-        },
         "Metrics": {
           "type": "object",
           "description": "Configuration for Metrics.",
@@ -34,6 +14,26 @@
               "description": "Gets or sets the SampleTypeSpecUrl."
             },
             "MetricsNamespace": {
+              "type": "string"
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/sampleTypeSpecClientOptions"
+            }
+          }
+        },
+        "Notebooks": {
+          "type": "object",
+          "description": "Configuration for Notebooks.",
+          "properties": {
+            "SampleTypeSpecUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the SampleTypeSpecUrl."
+            },
+            "Notebook": {
               "type": "string"
             },
             "Credential": {
