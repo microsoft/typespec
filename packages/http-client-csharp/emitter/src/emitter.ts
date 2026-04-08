@@ -13,7 +13,7 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import fs, { statSync } from "fs";
-import { dirname } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 import {
@@ -83,6 +83,11 @@ export async function emitCodeModel(
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = context.emitterOutputDir;
+
+  // Resolve plugin paths to absolute if specified
+  if (options["plugins"]) {
+    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
+  }
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);

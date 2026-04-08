@@ -1120,5 +1120,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsFalse(bodyString.Contains("new ClientMode"),
                 "IConfigurationSection constructor should NOT use new for fixed enum property binding");
         }
+
+        [Test]
+        public async Task TestConfigurationSectionConstructorBody_BindsCustomCodeProperties()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+            Assert.IsNotNull(clientOptionsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var configSectionCtor = clientOptionsProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Audience"),
+                "IConfigurationSection constructor should bind the custom code 'Audience' property from configuration");
+        }
     }
 }

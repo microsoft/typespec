@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -43,6 +44,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var output = new TestOutputLibrary([]);
             var result = ConfigurationSchemaGenerator.Generate(output);
             Assert.IsNull(result);
+        }
+
+        [Test]
+        public void Generate_ReturnsNull_WhenClientMadeInternalAfterConstruction()
+        {
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.ClientSettings, "ClientSettings should not be null for individually-initialized client");
+
+            // Simulate a visitor changing the client from public to internal (e.g., management RestClientVisitor)
+            var modifiers = clientProvider.DeclarationModifiers;
+            modifiers &= ~TypeSignatureModifiers.Public;
+            modifiers |= TypeSignatureModifiers.Internal;
+            clientProvider.Update(modifiers: modifiers);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+            Assert.IsNull(result, "Schema should not be generated for internal clients");
         }
 
         [Test]
@@ -837,6 +857,173 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.AreEqual("Clients", options.SectionName);
             Assert.AreEqual("options", options.OptionsRef);
             Assert.IsTrue(options.GenerateNuGetTargets);
+        }
+
+        [Test]
+        public async Task Generate_IncludesCustomCodeOptionsProperties()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestServiceOptions with an "Audience" property.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.ClientOptions, "ClientOptions should not be null");
+            Assert.IsNotNull(clientProvider.ClientOptions!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Find the options definition
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should reference a local definition");
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef, $"Options definition '{defName}' should exist");
+
+            var allOf = optionsDef!["allOf"]!.AsArray();
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension with custom properties");
+
+            // Verify the custom "Audience" property from the partial class is included
+            var extensionProperties = allOf[1]?["properties"];
+            Assert.IsNotNull(extensionProperties, "Extension properties should exist");
+            var audienceProp = extensionProperties!["Audience"];
+            Assert.IsNotNull(audienceProp, "Custom code 'Audience' property should be included in the schema");
+            Assert.AreEqual("string", audienceProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
+        public async Task Generate_IncludesCustomConstructorParameters()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestService with a constructor that takes a "connectionString" parameter.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify the custom "ConnectionString" constructor parameter appears as a client-level property
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry, "TestService client entry should exist");
+
+            var connectionStringProp = clientEntry!["properties"]?["ConnectionString"];
+            Assert.IsNotNull(connectionStringProp,
+                "Custom constructor parameter 'connectionString' should appear as 'ConnectionString' in the schema");
+            Assert.AreEqual("string", connectionStringProp!["type"]?.GetValue<string>());
+        }
+
+        [Test]
+        public async Task Generate_ExcludesInternalConstructorParameters()
+        {
+            // Reset singleton before loading async mock
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
+            // Load mock generator with a compilation that contains a custom partial class
+            // for TestService with a public constructor (connectionString) and an internal
+            // constructor (internalParam, anotherInternalParam).
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestService");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry, "TestService client entry should exist");
+
+            // Public constructor param should be included
+            var connectionStringProp = clientEntry!["properties"]?["ConnectionString"];
+            Assert.IsNotNull(connectionStringProp,
+                "Public constructor parameter 'connectionString' should appear in schema");
+
+            // Internal constructor params should NOT be included
+            var internalParamProp = clientEntry["properties"]?["InternalParam"];
+            Assert.IsNull(internalParamProp,
+                "Internal constructor parameter 'internalParam' should NOT appear in schema");
+
+            var anotherInternalProp = clientEntry["properties"]?["AnotherInternalParam"];
+            Assert.IsNull(anotherInternalProp,
+                "Internal constructor parameter 'anotherInternalParam' should NOT appear in schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsStringSchema_ForCustomStringStruct()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+            Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("string", schema["type"]?.GetValue<string>(),
+                "Custom struct with string constructor should produce string schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsIntegerSchema_ForCustomIntStruct()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+            Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("integer", schema["type"]?.GetValue<string>(),
+                "Custom struct with int constructor should produce integer schema");
+        }
+
+        [Test]
+        public async Task GetJsonSchemaForType_ReturnsObjectSchema_ForCustomStructWithNoValidConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+            Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
+
+            var schema = ConfigurationSchemaGenerator.GetJsonSchemaForType(typeProvider!.Type);
+            Assert.AreEqual("object", schema["type"]?.GetValue<string>(),
+                "Custom struct with no single-parameter framework-type constructor should fall back to object");
         }
 
         /// <summary>

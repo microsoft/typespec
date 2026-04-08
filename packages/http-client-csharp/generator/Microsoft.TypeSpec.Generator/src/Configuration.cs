@@ -35,7 +35,8 @@ namespace Microsoft.TypeSpec.Generator
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
-            LicenseInfo? licenseInfo)
+            LicenseInfo? licenseInfo,
+            IReadOnlyList<string>? pluginPaths = null)
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
@@ -43,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
+            PluginPaths = pluginPaths;
         }
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
+            public const string Plugins = "plugins";
         }
 
         /// <summary>
@@ -85,6 +88,13 @@ namespace Microsoft.TypeSpec.Generator
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         public string PackageName { get; }
+
+        /// <summary>
+        /// Gets the paths to plugin assemblies (DLLs) or directories containing plugin assemblies.
+        /// When specified, the generator loads plugins from these paths in addition to any
+        /// plugins discovered via node_modules.
+        /// </summary>
+        public IReadOnlyList<string>? PluginPaths { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -123,7 +133,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
-                ReadLicenseInfo(root));
+                ReadLicenseInfo(root),
+                ReadStringArrayOption(root, Options.Plugins));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -164,6 +175,7 @@ namespace Microsoft.TypeSpec.Generator
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
+            Options.Plugins,
         };
 
         private static bool ReadOption(JsonElement root, string option)
@@ -187,6 +199,25 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (root.TryGetProperty(option, out JsonElement value))
                 return value.GetString();
+
+            return null;
+        }
+
+        private static IReadOnlyList<string>? ReadStringArrayOption(JsonElement root, string option)
+        {
+            if (root.TryGetProperty(option, out JsonElement value) && value.ValueKind == JsonValueKind.Array)
+            {
+                var list = new List<string>();
+                foreach (var item in value.EnumerateArray())
+                {
+                    var str = item.GetString();
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        list.Add(str);
+                    }
+                }
+                return list.Count > 0 ? list : null;
+            }
 
             return null;
         }
