@@ -1,13 +1,6 @@
 {
   "dependencies": {
-    "@typespec/compiler": "file:../../../../../packages/http-client-csharp/node_modules/@typespec/compiler",
-    "@typespec/http": "file:../../../../../packages/http-client-csharp/node_modules/@typespec/http",
-    "@typespec/http-client-csharp": "file:../../../../../packages/http-client-csharp",
-    "@typespec/rest": "file:../../../../../packages/http-client-csharp/node_modules/@typespec/rest",
-    "@typespec/versioning": "file:../../../../../packages/http-client-csharp/node_modules/@typespec/versioning",
-    "@typespec/xml": "file:../../../../../packages/http-client-csharp/node_modules/@typespec/xml",
-    "@azure-tools/typespec-azure-core": "file:../../../../../packages/http-client-csharp/node_modules/@azure-tools/typespec-azure-core",
-    "@azure-tools/typespec-client-generator-core": "file:../../../../../packages/http-client-csharp/node_modules/@azure-tools/typespec-client-generator-core",
+    "@typespec/http-client-csharp": "1.0.0-alpha.20260310.2",
     "logging-plugin": "file:../plugins/logging"
   }
 }
