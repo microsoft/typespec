@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             return string.Format(
                 @"<Solution>
-  <Project Path=""src\{0}.csproj"" />
+  <Project Path=""src/{0}.csproj"" />
 </Solution>
 ", CodeModelGenerator.Instance.Configuration.PackageName);
         }
