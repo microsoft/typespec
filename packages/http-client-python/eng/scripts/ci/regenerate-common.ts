@@ -516,7 +516,7 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
         content: DELETE_CONTENT,
       },
       {
-        folder: ["generation-subdir", "generation_tests"],
+        folder: ["generation-subdir", "generated_tests"],
         file: DELETE_FILE,
         content: DELETE_CONTENT,
       },
