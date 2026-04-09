@@ -109,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal virtual void Configure()
         {
-            if (Configuration.PackageName == Configuration.DefaultPackageName)
+            if (string.IsNullOrEmpty(Configuration.PackageName))
             {
                 Configuration.PackageName = TypeFactory.PrimaryNamespace;
                 Emitter.Info($"'package-name' was not specified. Defaulting to namespace '{Configuration.PackageName}'.");

@@ -66,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         // Validates that the LibraryName field is parsed correctly from the configuration
         [TestCaseSource("ParseConfigLibraryNameTestCases")]
-        public void TestParseConfig_LibraryName(string mockJson, string expected)
+        public void TestParseConfig_LibraryName(string mockJson, string? expected)
         {
             MockHelpers.LoadMockGenerator(configuration: mockJson);
 
@@ -85,8 +85,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             MockHelpers.LoadMockGenerator(configuration: mockJson, inputNamespaceName: "My.Custom.Namespace");
 
-            // Before Configure, package name should be the default
-            Assert.AreEqual(Configuration.DefaultPackageName, CodeModelGenerator.Instance.Configuration.PackageName);
+            // Before Configure, package name should be null
+            Assert.IsNull(CodeModelGenerator.Instance.Configuration.PackageName);
 
             // After Configure, package name should be resolved from the namespace
             CodeModelGenerator.Instance.Configure();
@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 }", "libraryName");
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder""
-                }", Configuration.DefaultPackageName);
+                }", (string?)null);
             }
         }
 

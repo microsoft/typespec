@@ -22,7 +22,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
-        internal const string DefaultPackageName = "GeneratedClient";
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Configuration()
@@ -33,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator
         public Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigurationOptions,
-            string packageName,
+            string? packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo,
@@ -41,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
-            PackageName = packageName;
+            PackageName = packageName!;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
@@ -131,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadStringOption(root, Options.PackageName) ?? DefaultPackageName,
+                ReadStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
