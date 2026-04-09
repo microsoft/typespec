@@ -263,22 +263,6 @@ async def test_spread_model_array(client: AdditionalPropertiesClient):
     await client.spread_model_array.put(body)
 
 
-@pytest.mark.skip(reason="https://github.com/microsoft/typespec/pull/6425")
-@pytest.mark.asyncio
-async def test_spread_record_discriminated_union(client: AdditionalPropertiesClient):
-    body = {
-        "name": "abc",
-        "prop1": {"fooProp": "abc", "kind": "kind0"},
-        "prop2": {
-            "end": "2021-01-02T00:00:00Z",
-            "kind": "kind1",
-            "start": "2021-01-01T00:00:00Z",
-        },
-    }
-    assert await client.spread_record_discriminated_union.get() == body
-    await client.spread_record_discriminated_union.put(body)
-
-
 @pytest.mark.asyncio
 async def test_spread_record_non_discriminated_union(
     client: AdditionalPropertiesClient,

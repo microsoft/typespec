@@ -154,8 +154,14 @@ export async function emitCodeModel(
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
-            throw new Error(
-              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+            diagnostics.add(
+              createDiagnostic({
+                code: "general-error",
+                format: {
+                  message: `Failed to generate the library. Exit code: ${result.exitCode}.\n${result.stderr}`,
+                },
+                target: NoTarget,
+              }),
             );
           }
         }
@@ -164,7 +170,17 @@ export async function emitCodeModel(
           await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
         );
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error, { cause: error });
+        if (isValid) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "general-error",
+              format: {
+                message: `Failed to generate the library. Error: ${error.message ?? error}`,
+              },
+              target: NoTarget,
+            }),
+          );
+        }
       }
       if (!options["save-inputs"]) {
         // delete
