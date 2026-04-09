@@ -8,7 +8,7 @@
 # This script is used to execute sphinx documentation build within a tox environment.
 # It uses a central sphinx configuration and validates docstrings by running sphinx-build.
 
-from subprocess import check_call, CalledProcessError
+from subprocess import run, TimeoutExpired
 import os
 import logging
 import sys
@@ -19,6 +19,9 @@ logging.getLogger().setLevel(logging.INFO)
 
 # Get the central Sphinx config directory
 SPHINX_CONF_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Timeout for each sphinx build (seconds)
+SPHINX_TIMEOUT = 120
 
 
 def _create_minimal_index_rst(docs_dir, package_name, module_names):
@@ -85,7 +88,7 @@ def _single_dir_sphinx(mod):
     sys.path.insert(0, str(mod.absolute()))
 
     try:
-        result = check_call(
+        result = run(
             [
                 sys.executable,
                 "-m",
@@ -100,12 +103,19 @@ def _single_dir_sphinx(mod):
                 "-q",  # Quiet mode (only show warnings/errors)
                 str(docs_dir.absolute()),  # Source directory
                 str(output_dir.absolute()),  # Output directory
-            ]
+            ],
+            capture_output=True,
+            timeout=SPHINX_TIMEOUT,
         )
-        logging.info(f"Sphinx build completed successfully for {mod.stem}")
-        return True
-    except CalledProcessError as e:
-        logging.error(f"{mod.stem} exited with sphinx build error {e.returncode}")
+        if result.returncode == 0:
+            return True
+        logging.error(f"{mod.stem} sphinx error: {result.stderr.decode()[:500]}")
+        return False
+    except TimeoutExpired:
+        logging.error(f"{mod.stem} timed out after {SPHINX_TIMEOUT}s")
+        return False
+    except Exception as e:
+        logging.error(f"{mod.stem} sphinx error: {e}")
         return False
     finally:
         # Remove from sys.path

@@ -8,7 +8,7 @@ import os
 import logging
 from pathlib import Path
 import argparse
-from multiprocessing import Pool
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -44,6 +44,15 @@ def run_check(name, call_back, log_info):
         required=False,
         default="generated",
     )
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        dest="jobs",
+        help="Number of parallel jobs (default: CPU count / 2)",
+        type=int,
+        required=False,
+        default=max(1, os.cpu_count() // 2),
+    )
 
     args = parser.parse_args()
 
@@ -52,12 +61,31 @@ def run_check(name, call_back, log_info):
     dirs = [d for d in pkg_dir.iterdir() if d.is_dir() and not d.stem.startswith("_") and d.stem not in IGNORE_FOLDER]
     if args.file_name:
         dirs = [d for d in dirs if args.file_name.lower() in d.stem.lower()]
-    if len(dirs) > 1:
-        with Pool() as pool:
-            result = pool.map(call_back, dirs)
-        response = all(result)
-    else:
-        response = call_back(dirs[0])
-    if not response:
-        logging.error("%s fails", log_info)
+
+    if not dirs:
+        logging.info("No directories to process")
+        return
+
+    logging.info(f"Processing {len(dirs)} packages with {args.jobs} parallel jobs...")
+
+    failed = []
+    succeeded = 0
+
+    with ProcessPoolExecutor(max_workers=args.jobs) as executor:
+        futures = {executor.submit(call_back, d): d for d in dirs}
+        for future in as_completed(futures):
+            pkg = futures[future]
+            try:
+                if future.result():
+                    succeeded += 1
+                else:
+                    failed.append(pkg.stem)
+            except Exception as e:
+                logging.error(f"{pkg.stem} raised exception: {e}")
+                failed.append(pkg.stem)
+
+    logging.info(f"{log_info}: {succeeded} succeeded, {len(failed)} failed")
+
+    if failed:
+        logging.error(f"{log_info} failed for: {', '.join(failed)}")
         exit(1)
