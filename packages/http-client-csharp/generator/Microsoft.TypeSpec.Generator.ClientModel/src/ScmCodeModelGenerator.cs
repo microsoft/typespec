@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 ConfigurationSchema.OptionsRef);
             if (schemaContent != null)
             {
-                var schemaPath = Path.Combine(outputPath, "Generated", "schema", "ConfigurationSchema.json");
+                var schemaPath = Path.Combine(outputPath, "src", "Generated", "schema", "ConfigurationSchema.json");
                 var schemaDir = Path.GetDirectoryName(schemaPath);
                 if (schemaDir != null)
                 {

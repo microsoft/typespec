@@ -75,6 +75,21 @@
     "@typespec/streams": ">=0.81.0 <1.0.0",
     "@typespec/xml": ">=0.81.0 <1.0.0"
   },
+  "playgroundConfig": {
+    "assets": [
+      {
+        "path": "generator/dist/pygen-*.whl",
+        "contentType": "application/zip"
+      }
+    ],
+    "bundlePeerDependencies": [
+      "@azure-tools/typespec-client-generator-core",
+      "@azure-tools/typespec-azure-core",
+      "@azure-tools/typespec-autorest",
+      "@azure-tools/typespec-azure-resource-manager",
+      "@azure-tools/typespec-azure-rulesets"
+    ]
+  },
   "dependencies": {
     "js-yaml": "~4.1.0",
     "marked": "^15.0.6",

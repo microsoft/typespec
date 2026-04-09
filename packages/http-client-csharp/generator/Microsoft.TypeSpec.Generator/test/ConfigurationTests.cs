@@ -66,18 +66,46 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         // Validates that the LibraryName field is parsed correctly from the configuration
         [TestCaseSource("ParseConfigLibraryNameTestCases")]
-        public void TestParseConfig_LibraryName(string mockJson, bool throwsError)
+        public void TestParseConfig_LibraryName(string mockJson, string? expected)
         {
-            if (throwsError)
-            {
-                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockGenerator(configuration: mockJson));
-                return;
-            }
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
             var library = CodeModelGenerator.Instance.Configuration.PackageName;
-            var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
+        }
+
+        // Validates that when package-name is not specified, Configure() defaults to the PrimaryNamespace
+        [Test]
+        public void TestParseConfig_PackageNameDefaultsToPrimaryNamespace()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson, inputNamespaceName: "My.Custom.Namespace");
+
+            // Before Configure, package name should be null
+            Assert.IsNull(CodeModelGenerator.Instance.Configuration.PackageName);
+
+            // After Configure, package name should be resolved from the namespace
+            CodeModelGenerator.Instance.Configure();
+            Assert.AreEqual("My.Custom.Namespace", CodeModelGenerator.Instance.Configuration.PackageName);
+        }
+
+        // Validates that when package-name is explicitly set, Configure() does not override it
+        [Test]
+        public void TestParseConfig_ExplicitPackageNameNotOverridden()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""ExplicitName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson, inputNamespaceName: "My.Custom.Namespace");
+
+            CodeModelGenerator.Instance.Configure();
+            Assert.AreEqual("ExplicitName", CodeModelGenerator.Instance.Configuration.PackageName);
         }
 
         // Validates that additional configuration options are parsed correctly
@@ -331,11 +359,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""package-name"": ""libraryName"",
-                }", false);
+                    ""package-name"": ""libraryName""
+                }", "libraryName");
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder""
-                }", true);
+                }", (string?)null);
             }
         }
 

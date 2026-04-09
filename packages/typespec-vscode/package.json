@@ -296,7 +296,6 @@
     "@vscode/test-web": "catalog:",
     "@vscode/vsce": "catalog:",
     "ajv": "catalog:",
-    "c8": "catalog:",
     "cross-spawn": "catalog:",
     "esbuild": "catalog:",
     "playwright": "catalog:",

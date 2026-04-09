@@ -1,5 +1,4 @@
 import { RequestExt } from "@typespec/spec-api";
-import bodyParser from "body-parser";
 import express, { ErrorRequestHandler, RequestHandler, Response } from "express";
 import { Server, ServerResponse } from "http";
 import morgan from "morgan";
@@ -56,20 +55,20 @@ export class MockApiServer {
   constructor(private config: MockApiServerConfig) {
     this.app = express();
     this.app.use(morgan("dev", { stream: loggerstream }));
-    this.app.use(bodyParser.json({ verify: rawBodySaver, strict: false }));
+    this.app.use(express.json({ verify: rawBodySaver, strict: false }));
     this.app.use(
-      bodyParser.json({
+      express.json({
         type: "application/merge-patch+json",
         verify: rawBodySaver,
         strict: false,
       }),
     );
-    this.app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
-    this.app.use(bodyParser.text({ type: "*/xml", verify: rawBodySaver }));
-    this.app.use(bodyParser.text({ type: "*/pdf", verify: rawBodySaver }));
-    this.app.use(bodyParser.text({ type: "text/plain" }));
+    this.app.use(express.urlencoded({ verify: rawBodySaver, extended: true }));
+    this.app.use(express.text({ type: "*/xml", verify: rawBodySaver }));
+    this.app.use(express.text({ type: "*/pdf", verify: rawBodySaver }));
+    this.app.use(express.text({ type: "text/plain" }));
     this.app.use(
-      bodyParser.raw({
+      express.raw({
         type: ["application/octet-stream", "image/png", "application/jsonl"],
         limit: "10mb",
         verify: rawBinaryBodySaver,
