@@ -12,7 +12,8 @@ from multiprocessing import Pool
 
 logging.getLogger().setLevel(logging.INFO)
 
-ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "generator"))
+# Root is the tests directory (4 levels up from this file: ci -> scripts -> eng -> package_root, then into tests)
+ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "tests"))
 
 IGNORE_FOLDER = []
 
@@ -25,15 +26,8 @@ def run_check(name, call_back, log_info):
         "-t",
         "--test-folder",
         dest="test_folder",
-        help="The test folder we're in. Can be 'azure' or 'vanilla'",
+        help="The test folder we're in. Can be 'azure' or 'unbranded'",
         required=True,
-    )
-    parser.add_argument(
-        "-g",
-        "--generator",
-        dest="generator",
-        help="The generator we're using. Can be 'legacy', 'version-tolerant'.",
-        required=False,
     )
     parser.add_argument(
         "-f",
@@ -46,18 +40,15 @@ def run_check(name, call_back, log_info):
         "-s",
         "--subfolder",
         dest="subfolder",
-        help="The specific sub folder to validate, default to Expected/AcceptanceTests. Optional.",
+        help="The subfolder containing generated code, default to 'generated'.",
         required=False,
-        default="Expected/AcceptanceTests",
+        default="generated",
     )
 
     args = parser.parse_args()
 
-    pkg_dir = Path(ROOT_FOLDER) / Path("test") / Path(args.test_folder)
-    if args.generator:
-        pkg_dir /= Path(args.generator)
-    if args.subfolder:
-        pkg_dir /= Path(args.subfolder)
+    # Path structure: tests/generated/{test_folder}/
+    pkg_dir = Path(ROOT_FOLDER) / Path(args.subfolder) / Path(args.test_folder)
     dirs = [d for d in pkg_dir.iterdir() if d.is_dir() and not d.stem.startswith("_") and d.stem not in IGNORE_FOLDER]
     if args.file_name:
         dirs = [d for d in dirs if args.file_name.lower() in d.stem.lower()]
