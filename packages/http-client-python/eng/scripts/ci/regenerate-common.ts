@@ -495,3 +495,50 @@ export async function regenerate(
     await runTaskPool(tasks, poolLimit);
   }
 }
+
+// Preprocess: create files that should be deleted after regeneration (for testing)
+export async function preprocess(flavor: string, generatedFolder: string): Promise<void> {
+  if (flavor === "azure") {
+    // Use tests/generated/<flavor>/<package> structure (same as output)
+    const testsGeneratedDir = resolve(generatedFolder, "../tests/generated/azure");
+
+    const DELETE_CONTENT = "# This file is to be deleted after regeneration";
+    const DELETE_FILE = "to_be_deleted.py";
+    const entries: { folder: string[]; file: string; content: string }[] = [
+      {
+        folder: ["authentication-api-key", "authentication", "apikey", "_operations"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generation", "subdir", "_generated"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generation_tests"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generation", "subdir"],
+        file: "to_be_kept.py",
+        content: "# This file is to be kept after regeneration",
+      },
+    ];
+
+    await Promise.all(
+      entries.map(async ({ folder, file, content }) => {
+        const targetFolder = join(testsGeneratedDir, ...folder);
+        const exists = await promises.stat(targetFolder).then(
+          () => true,
+          () => false,
+        );
+        if (!exists) {
+          await promises.mkdir(targetFolder, { recursive: true });
+        }
+        await promises.writeFile(join(targetFolder, file), content);
+      }),
+    );
+  }
+}
