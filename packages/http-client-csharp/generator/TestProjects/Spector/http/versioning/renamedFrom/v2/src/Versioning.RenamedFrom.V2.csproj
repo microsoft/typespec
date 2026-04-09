@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
     <None Include="..\Versioning.RenamedFrom.V2.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Versioning.RenamedFrom.V2.targets" />
   </ItemGroup>
 </Project>

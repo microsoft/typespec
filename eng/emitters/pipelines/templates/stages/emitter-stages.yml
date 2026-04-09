@@ -82,6 +82,11 @@ parameters:
     type: string
     default: "3.12"
 
+  # Whether to bundle and upload the emitter package to the playground package storage.
+  - name: UploadPlaygroundBundle
+    type: boolean
+    default: false
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -340,6 +345,29 @@ stages:
                   ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   ArtifactPath: $(buildArtifactsPath)
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+
+              - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - script: npm ci
+                    displayName: Install emitter dependencies for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run build
+                    displayName: Build emitter for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm install -g pnpm
+                    displayName: Install pnpm for playground bundle upload
+                  - script: pnpm install --filter "@typespec/bundle-uploader..."
+                    displayName: Install bundle-uploader dependencies
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - script: pnpm --filter "@typespec/bundle-uploader..." build
+                    displayName: Build bundle-uploader
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - task: AzureCLI@1
+                    displayName: Upload playground bundle
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
 
             templateContext:
               outputs:

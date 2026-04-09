@@ -1,6 +1,5 @@
-import { mkdir } from "fs/promises";
+import { mkdir, rm } from "fs/promises";
 import path from "node:path";
-import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
 import {
   expectFilesInDir,
@@ -47,7 +46,7 @@ const CreateCasesConfigList: CreateConfigType[] = [
 beforeEach(async () => {
   const dir = CreateTypespecProjectFolderPath;
   try {
-    await rimraf(dir);
+    await rm(dir, { recursive: true, force: true });
   } catch {}
   await mkdir(dir, { recursive: true });
 });

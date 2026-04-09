@@ -261,7 +261,6 @@ public final class BodiesImpl {
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -271,10 +270,11 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileDefaultContentType",
             requestContext, updatedContext -> {
+                final String contentType = "*/*";
                 return service.uploadFileDefaultContentType(this.client.getEndpoint(), contentType, file, contentLength,
                     updatedContext);
             });
@@ -283,7 +283,6 @@ public final class BodiesImpl {
     /**
      * The downloadFileDefaultContentType operation.
      * 
-     * @param accept The accept parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -291,10 +290,10 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileDefaultContentTypeWithResponse(String accept,
-        RequestContext requestContext) {
+    public Response<BinaryData> downloadFileDefaultContentTypeWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.downloadFileDefaultContentType",
             requestContext, updatedContext -> {
+                final String accept = "*/*";
                 return service.downloadFileDefaultContentType(this.client.getEndpoint(), accept, updatedContext);
             });
     }

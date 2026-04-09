@@ -31,7 +31,7 @@
   },
   "tspMain": "dist/src/index.js",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -56,7 +56,6 @@
     "@typespec/compiler": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

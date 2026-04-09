@@ -3,6 +3,8 @@
 
 package type.file;
 
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
@@ -60,12 +62,13 @@ public class FileTests {
     @Test
     public void testUploadFileDefaultContentType() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileDefaultContentType("image/png", fileData, fileData.getLength());
+        client.uploadFileDefaultContentTypeWithResponse(fileData, fileData.getLength(),
+            RequestContext.builder().setHeader(HttpHeaderName.CONTENT_TYPE, "image/png").build());
     }
 
     @Test
     public void testDownloadFileDefaultContentType() {
-        BinaryData response = client.downloadFileDefaultContentType("image/png");
+        BinaryData response = client.downloadFileDefaultContentType();
         Assertions.assertNotNull(response);
     }
 }

@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: ["20.x", "22.x", "24.x"]
+        node-version: ["22.x", "24.x"]
 
     env:
       TYPESPEC_VS_CI_BUILD: true

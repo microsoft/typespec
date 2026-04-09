@@ -73,9 +73,11 @@ def start_server_process():
     node_bin = str(ROOT / "node_modules" / ".bin")
     env["PATH"] = f"{node_bin}{os.pathsep}{env.get('PATH', '')}"
 
+    # Suppress server stdout/stderr to avoid confusing "Request validation failed" warnings
+    # in test output. Server readiness is validated via HTTP polling in wait_for_server().
     if os.name == "nt":
-        return subprocess.Popen(cmd, shell=True, cwd=str(cwd), env=env)
-    return subprocess.Popen(cmd, shell=True, cwd=str(cwd), env=env, preexec_fn=os.setsid)
+        return subprocess.Popen(cmd, shell=True, cwd=str(cwd), env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return subprocess.Popen(cmd, shell=True, cwd=str(cwd), env=env, preexec_fn=os.setsid, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def terminate_server_process(process):
