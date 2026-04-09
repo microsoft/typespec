@@ -109,6 +109,12 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal virtual void Configure()
         {
+            if (Configuration.PackageName == Configuration.DefaultPackageName)
+            {
+                Configuration.PackageName = TypeFactory.PrimaryNamespace;
+                Emitter.Info($"'package-name' was not specified. Defaulting to namespace '{Configuration.PackageName}'.");
+            }
+
             foreach (var type in CustomCodeAttributeProviders)
             {
                 AddTypeToKeep(type);

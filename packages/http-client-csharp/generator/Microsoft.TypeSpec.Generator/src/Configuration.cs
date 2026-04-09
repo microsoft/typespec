@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
+        internal const string DefaultPackageName = "GeneratedClient";
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Configuration()
@@ -87,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        public string PackageName { get; }
+        public string PackageName { get; internal set; }
 
         /// <summary>
         /// Gets the paths to plugin assemblies (DLLs) or directories containing plugin assemblies.
@@ -130,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadRequiredStringOption(root, Options.PackageName),
+                ReadStringOption(root, Options.PackageName) ?? DefaultPackageName,
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
@@ -188,11 +189,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return GetDefaultBoolOptionValue(option);
             }
-        }
-
-        private static string ReadRequiredStringOption(JsonElement root, string option)
-        {
-            return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
         }
 
         private static string? ReadStringOption(JsonElement root, string option)
