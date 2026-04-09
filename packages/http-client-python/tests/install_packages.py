@@ -42,19 +42,37 @@ def install_packages(flavor: str, tests_dir: str) -> None:
 
     # Install packages using uv pip
     # Use --no-deps to avoid dependency resolution overhead
-    cmd = ["uv", "pip", "install", "--no-deps"] + packages
+    # Install in batches to avoid command line length limits on Windows
+    batch_size = 20  # Conservative batch size for Windows command line limits
+    use_uv = True
 
-    try:
-        subprocess.run(cmd, check=True)
-        print(f"Successfully installed {len(packages)} packages")
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing packages: {e}")
-        sys.exit(1)
-    except FileNotFoundError:
-        # uv not found, try pip
-        print("uv not found, falling back to pip")
-        cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + packages
-        subprocess.run(cmd, check=True)
+    for i in range(0, len(packages), batch_size):
+        batch = packages[i:i + batch_size]
+        batch_num = i // batch_size + 1
+        total_batches = (len(packages) + batch_size - 1) // batch_size
+
+        if total_batches > 1:
+            print(f"  Batch {batch_num}/{total_batches}: {len(batch)} packages")
+
+        if use_uv:
+            cmd = ["uv", "pip", "install", "--no-deps"] + batch
+        else:
+            cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + batch
+
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error installing packages: {e}")
+            sys.exit(1)
+        except FileNotFoundError:
+            if use_uv:
+                # uv not found, fall back to pip for this and subsequent batches
+                print("uv not found, falling back to pip")
+                use_uv = False
+                cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + batch
+                subprocess.run(cmd, check=True)
+
+    print(f"Successfully installed {len(packages)} packages")
 
 
 def main():
