@@ -52,7 +52,7 @@
     "emitter/lib/*.tsp"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-client-generator-core": ">=0.67.0 <0.68.0 || ~0.68.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.67.1 <0.68.0 || ~0.68.0-0",
     "@typespec/compiler": "^1.11.0",
     "@typespec/http": "^1.11.0",
     "@typespec/openapi": "^1.11.0",
@@ -86,5 +86,8 @@
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
     "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.0"
   }
 }
