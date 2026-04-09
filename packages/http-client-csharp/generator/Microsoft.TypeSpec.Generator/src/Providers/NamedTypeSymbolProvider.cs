@@ -122,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Name,
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"),
-                        initializationValue: GetFieldInitializer(fieldSymbol))
+                        initializationValue: GetFieldInitializer(fieldSymbol),
+                        attributes: GetAttributes(fieldSymbol))
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -147,7 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         propertySymbol.SetMethod is not null,
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this,
-                    attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
+                    attributes: GetAttributes(propertySymbol))
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
@@ -219,6 +220,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return originalName;
+        }
+
+        private static AttributeStatement[] GetAttributes(ISymbol symbol)
+        {
+            return symbol.GetAttributes()
+                .Where(a => a.AttributeClass?.ContainingNamespace?.ToDisplayString() != CodeModelGenerator.CustomizationAttributeNamespace)
+                .Select(a => new AttributeStatement(a))
+                .ToArray();
         }
 
         protected internal override ConstructorProvider[] BuildConstructors()

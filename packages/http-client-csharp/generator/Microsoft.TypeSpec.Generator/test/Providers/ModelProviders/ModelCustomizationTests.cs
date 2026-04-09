@@ -1719,10 +1719,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var customProperty = customCodeView.Properties[0];
             Assert.AreEqual("Prop1", customProperty.Name);
 
-            // Verify that attributes from custom code are populated
-            Assert.AreEqual(2, customProperty.Attributes.Count);
-            Assert.IsTrue(customProperty.Attributes.Any(a => a.Type.Name == nameof(ObsoleteAttribute)));
-            Assert.IsTrue(customProperty.Attributes.Any(a => a.Type.Name == "EditorBrowsableAttribute"));
+            // Verify that attributes from custom code are populated, including a custom non-system attribute
+            Assert.AreEqual(3, customProperty.Attributes.Count);
+
+            // Validate [Obsolete("This property is now deprecated.")] - type and arguments
+            var obsoleteAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, obsoleteAttr.Arguments.Count);
+
+            // Validate [EditorBrowsable(EditorBrowsableState.Never)] - type and arguments
+            var editorBrowsableAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(System.ComponentModel.EditorBrowsableAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, editorBrowsableAttr.Arguments.Count);
+
+            // Validate [Custom("custom message")] - custom non-system attribute does not throw
+            var customAttr = customProperty.Attributes.Single(a => a.Type.Name == "CustomAttribute");
+            Assert.AreEqual(1, customAttr.Arguments.Count);
+
+            // Verify that field attributes from custom code are populated
+            var customField = customCodeView.Fields.Single(f => f.Name == "_customField");
+            Assert.AreEqual(1, customField.Attributes.Count);
+            var fieldObsoleteAttr = customField.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, fieldObsoleteAttr.Arguments.Count);
         }
 
         private class TestNameVisitor : NameVisitor
