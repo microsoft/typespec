@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models
 {
@@ -16,8 +15,7 @@ namespace Sample.Models
         {
         }
 
-        internal MockInputModel([global::Microsoft.TypeSpec.Generator.Customizations.CodeGenMemberAttribute("Prop1")]
-        string myField, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string myField, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             _myField = myField;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
