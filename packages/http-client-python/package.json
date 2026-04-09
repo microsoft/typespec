@@ -110,8 +110,5 @@
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15"
-  },
-  "overrides": {
-    "vite": "^7.3.2"
   }
 }
