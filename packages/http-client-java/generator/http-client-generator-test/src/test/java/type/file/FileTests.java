@@ -3,6 +3,8 @@
 
 package type.file;
 
+import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.util.BinaryData;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
@@ -54,7 +56,8 @@ public class FileTests {
 
     @Test
     public void testUploadFileDefaultContentType() {
-        client.uploadFileDefaultContentType(BinaryData.fromFile(PNG_FILE));
+        client.uploadFileDefaultContentTypeWithResponse(BinaryData.fromFile(PNG_FILE),
+            new RequestOptions().setHeader(HttpHeaderName.CONTENT_TYPE, "image/png"));
     }
 
     @Test
