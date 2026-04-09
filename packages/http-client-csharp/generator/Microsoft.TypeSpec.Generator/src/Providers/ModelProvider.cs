@@ -540,7 +540,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
                             out CSharpType? lastContractPropertyType) &&
-                        !outputProperty.Type.Equals(lastContractPropertyType))
+                        !outputProperty.Type.Equals(lastContractPropertyType) &&
+                        outputProperty.Type.Arguments.SequenceEqual(lastContractPropertyType.Arguments))
                     {
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
                         CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
