@@ -538,6 +538,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Targeted backcompat fix for the case where properties were previously generated as read-only collections
                 if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
                 {
+                    // We compare Arguments (not just ElementType) to cover both list element types and
+                    // dictionary key/value types. This ensures we only override the collection wrapper
+                    // (e.g. IReadOnlyList<T> → IList<T>) and not when the element type itself has changed.
                     if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
                             out CSharpType? lastContractPropertyType) &&
                         !outputProperty.Type.Equals(lastContractPropertyType) &&
