@@ -530,13 +530,7 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
     await Promise.all(
       entries.map(async ({ folder, file, content }) => {
         const targetFolder = join(testsGeneratedDir, ...folder);
-        const exists = await promises.stat(targetFolder).then(
-          () => true,
-          () => false,
-        );
-        if (!exists) {
-          await promises.mkdir(targetFolder, { recursive: true });
-        }
+        await promises.mkdir(targetFolder, { recursive: true });
         await promises.writeFile(join(targetFolder, file), content);
       }),
     );
