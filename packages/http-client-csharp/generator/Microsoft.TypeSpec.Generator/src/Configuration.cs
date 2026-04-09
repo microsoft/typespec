@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator
         public Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigurationOptions,
-            string packageName,
+            string? packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo,
@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
-            PackageName = packageName;
+            PackageName = packageName!;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        public string PackageName { get; }
+        public string PackageName { get; internal set; }
 
         /// <summary>
         /// Gets the paths to plugin assemblies (DLLs) or directories containing plugin assemblies.
@@ -130,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadRequiredStringOption(root, Options.PackageName),
+                ReadStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
@@ -188,11 +188,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return GetDefaultBoolOptionValue(option);
             }
-        }
-
-        private static string ReadRequiredStringOption(JsonElement root, string option)
-        {
-            return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
         }
 
         private static string? ReadStringOption(JsonElement root, string option)

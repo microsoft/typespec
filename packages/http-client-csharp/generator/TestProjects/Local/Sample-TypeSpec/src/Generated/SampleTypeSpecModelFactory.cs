@@ -377,15 +377,6 @@ namespace SampleTypeSpec
             return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The GetNotebookResponse. </summary>
-        /// <param name="name"></param>
-        /// <param name="content"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
-        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
-        {
-            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
-        }
-
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
@@ -447,6 +438,15 @@ namespace SampleTypeSpec
         public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
         {
             return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The GetNotebookResponse. </summary>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
+        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
+        {
+            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
         }
     }
 }

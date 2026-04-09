@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             var customSchemaPath = Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, "schema", "ConfigurationSchema.json");
             if (!File.Exists(customSchemaPath))
             {
-                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"..\Generated\schema\ConfigurationSchema.json", @"\"));
+                builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem(@"Generated\schema\ConfigurationSchema.json", @"\"));
                 builder.PackItems.Add(new CSharpProjectWriter.CSProjPackItem($@"..\{packageName}.NuGet.targets", @"buildTransitive\netstandard2.0\" + $"{packageName}.targets"));
             }
 
@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             return string.Format(
                 @"<Solution>
-  <Project Path=""src\{0}.csproj"" />
+  <Project Path=""src/{0}.csproj"" />
 </Solution>
 ", CodeModelGenerator.Instance.Configuration.PackageName);
         }

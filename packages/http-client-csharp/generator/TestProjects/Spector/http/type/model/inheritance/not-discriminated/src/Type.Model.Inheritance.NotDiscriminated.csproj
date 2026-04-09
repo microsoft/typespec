@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
     <None Include="..\Type.Model.Inheritance.NotDiscriminated.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\Type.Model.Inheritance.NotDiscriminated.targets" />
   </ItemGroup>
 </Project>
