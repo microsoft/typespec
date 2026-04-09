@@ -45,7 +45,7 @@ function deconstruct(
 
   return `${identifier}`
     .replace(/([a-z]+)([A-Z])/g, "$1 $2") // Add a space in between camelCase words(e.g. fooBar => foo Bar)
-    .replace(/(\d+)/g, " $1 ") // Adds a space after numbers(e.g. foo123 => foo123 bar)
+    .replace(/(\d{2,})/g, " $1 ") // Adds a space around multi-digit numbers (e.g. foo123 => foo 123), but not single digits to preserve acronyms like A2A
     .replace(/\b([A-Z]+)([A-Z])s([^a-z])(.*)/g, "$1$2« $3$4") // Add a space after a plural upper cased word(e.g. MBsFoo => MBs Foo)
     .replace(/\b([A-Z]+)([A-Z])([a-z]+)/g, "$1 $2$3") // Add a space between an upper case word(2 char+) and the last capital case.(e.g. SQLConnection -> SQL Connection)
     .replace(/«/g, "s")
@@ -102,9 +102,7 @@ function filterEmptyStrings(arr: string[]): string[] {
 export function camelToSnakeCase(name: string): string {
   if (!name) return name;
   const words = filterEmptyStrings(normalize(name, false, 6));
-  const result = words.join("_").toLowerCase();
-  const result_final = result.replace(/([^\d])_(\d+)/g, "$1$2");
-  return result_final;
+  return words.join("_").toLowerCase();
 }
 
 export function getImplementation(
