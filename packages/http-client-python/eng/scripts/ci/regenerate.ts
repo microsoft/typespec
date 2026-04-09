@@ -7,8 +7,9 @@
  */
 
 import { compile, NodeHost } from "@typespec/compiler";
-import { rmSync } from "fs";
-import { platform } from "os";
+import { execSync } from "child_process";
+import { existsSync, readdirSync, rmSync } from "fs";
+import { cpus, platform } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
@@ -171,6 +172,9 @@ function buildTaskGroups(specs: string[], flags: RegenerateFlags): TaskGroup[] {
       // Examples directory
       options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
 
+      // Emit YAML only - Python processing is batched after all specs compile
+      options["emit-yaml-only"] = true;
+
       tasks.push({ spec, outputDir, options });
     }
 
@@ -230,17 +234,12 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
       let groupSuccess = true;
       for (const task of group.tasks) {
         const packageName = (task.options["package-name"] as string) || shortName;
-        console.log(pc.blue(`[${completed + 1}/${totalTasks}] Compiling ${packageName}...`));
 
         const result = await compileSpec(task);
         completed++;
 
-        if (result.success) {
-          console.log(pc.green(`[${completed}/${totalTasks}] ${packageName} succeeded`));
-        } else {
-          console.log(
-            pc.red(`[${completed}/${totalTasks}] ${packageName} failed: ${result.error}`),
-          );
+        if (!result.success) {
+          console.log(pc.red(`[${completed}/${totalTasks}] ${packageName} failed: ${result.error}`));
           groupSuccess = false;
         }
       }
@@ -258,6 +257,55 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
 
   await Promise.all(executing);
   return results;
+}
+
+function collectConfigFiles(generatedDir: string, flavor: string): string[] {
+  const flavorDir = join(generatedDir, "..", "tests", "generated", flavor);
+  if (!existsSync(flavorDir)) return [];
+
+  const configFiles: string[] = [];
+  for (const pkg of readdirSync(flavorDir, { withFileTypes: true })) {
+    if (pkg.isDirectory()) {
+      const pkgDir = join(flavorDir, pkg.name);
+      // Find all .tsp-codegen-*.json files (supports multiple configs per output dir)
+      for (const file of readdirSync(pkgDir)) {
+        if (file.startsWith(".tsp-codegen-") && file.endsWith(".json")) {
+          configFiles.push(join(pkgDir, file));
+        }
+      }
+    }
+  }
+  return configFiles;
+}
+
+function runBatchPythonProcessing(configFiles: string[], jobs: number): boolean {
+  if (configFiles.length === 0) return true;
+
+  console.log(pc.cyan(`\nRunning batch Python processing on ${configFiles.length} specs...`));
+
+  // Find Python venv
+  let venvPath = join(PLUGIN_DIR, "venv");
+  if (existsSync(join(venvPath, "bin"))) {
+    venvPath = join(venvPath, "bin", "python");
+  } else if (existsSync(join(venvPath, "Scripts"))) {
+    venvPath = join(venvPath, "Scripts", "python.exe");
+  } else {
+    console.error(pc.red("Python venv not found"));
+    return false;
+  }
+
+  const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
+  const configArgs = configFiles.map((f) => `"${f}"`).join(" ");
+
+  try {
+    execSync(`${venvPath} ${batchScript} --config-files ${configArgs} --jobs ${jobs}`, {
+      stdio: "inherit",
+      cwd: PLUGIN_DIR,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function regenerateFlavor(
@@ -287,21 +335,38 @@ async function regenerateFlavor(
   console.log(pc.cyan(`Found ${allSpecs.length} specs (${totalTasks} total tasks) to compile`));
   console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
 
-  // Run compilation
+  // Run compilation (emits YAML only)
   const startTime = performance.now();
   const results = await runParallel(groups, jobs);
-  const duration = (performance.now() - startTime) / 1000;
+  const compileTime = (performance.now() - startTime) / 1000;
 
-  // Summary
+  // Summary for TypeSpec compilation
   const succeeded = Array.from(results.values()).filter((v) => v).length;
-  const failed = results.size - succeeded;
+  const compileFailed = results.size - succeeded;
+
+  console.log(pc.cyan(`\nTypeSpec compilation: ${succeeded} succeeded, ${compileFailed} failed (${compileTime.toFixed(1)}s)`));
+
+  if (compileFailed > 0) {
+    console.log(pc.red(`Skipping Python processing due to compilation failures`));
+    return false;
+  }
+
+  // Batch process all specs with Python
+  const pyStartTime = performance.now();
+  const configFiles = collectConfigFiles(GENERATED_FOLDER, flavor);
+  // Use fewer Python jobs since Python processing is heavier
+  const pyJobs = Math.max(4, Math.floor(jobs / 2));
+  const pySuccess = runBatchPythonProcessing(configFiles, pyJobs);
+  const pyTime = (performance.now() - pyStartTime) / 1000;
+
+  const totalTime = (performance.now() - startTime) / 1000;
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
-  console.log(pc.cyan(`Results: ${succeeded} succeeded, ${failed} failed`));
-  console.log(pc.cyan(`Time: ${duration.toFixed(1)}s`));
+  console.log(pc.cyan(`Results: ${succeeded} specs processed`));
+  console.log(pc.cyan(`  TypeSpec: ${compileTime.toFixed(1)}s | Python: ${pyTime.toFixed(1)}s | Total: ${totalTime.toFixed(1)}s`));
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
-  return failed === 0;
+  return pySuccess;
 }
 
 async function main() {

@@ -25,6 +25,7 @@ export interface PythonEmitterOptions {
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
   "clear-output-folder"?: boolean;
+  "emit-yaml-only"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -109,6 +110,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to clear the output folder before generating the code. Defaults to `false`.",
+    },
+    "emit-yaml-only": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Emit YAML code model only, without running Python generator. For batch processing.",
     },
   },
   required: [],

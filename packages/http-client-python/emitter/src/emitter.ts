@@ -156,6 +156,22 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
+    // If emit-yaml-only mode, just copy YAML to output dir for batch processing
+    if (resolvedOptions["emit-yaml-only"]) {
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      // Copy YAML to output dir with command args embedded
+      // Use unique filename to avoid conflicts when multiple specs share output dir
+      const configId = path.basename(yamlPath, ".yaml");
+      const batchConfig = { yamlPath, commandArgs, outputDir };
+      fs.writeFileSync(
+        path.join(outputDir, `.tsp-codegen-${configId}.json`),
+        JSON.stringify(batchConfig, null, 2),
+      );
+      return;
+    }
+
     // if not using pyodide and there's no venv, we try to create venv
     if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
       try {
