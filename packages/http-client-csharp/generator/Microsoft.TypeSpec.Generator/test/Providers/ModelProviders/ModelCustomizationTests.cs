@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1696,6 +1697,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
             Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
                 "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
+        }
+
+        [Test]
+        public async Task CanReadPropertyAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+
+            var customProperty = customCodeView.Properties[0];
+            Assert.AreEqual("Prop1", customProperty.Name);
+
+            // Verify that attributes from custom code are populated
+            Assert.AreEqual(2, customProperty.Attributes.Count);
+            Assert.IsTrue(customProperty.Attributes.Any(a => a.Type.Name == nameof(ObsoleteAttribute)));
+            Assert.IsTrue(customProperty.Attributes.Any(a => a.Type.Name == "EditorBrowsableAttribute"));
         }
 
         private class TestNameVisitor : NameVisitor
