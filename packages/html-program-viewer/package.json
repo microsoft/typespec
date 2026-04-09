@@ -29,7 +29,7 @@
     "./style.css": "./dist/style.css"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",

@@ -15,8 +15,6 @@ stages:
 
         strategy:
           matrix:
-            "Node 20.x":
-              nodeVersion: 20.x
             "Node 22.x":
               nodeVersion: 22.x
             "Node 24.x":
@@ -42,8 +40,6 @@ stages:
 
         strategy:
           matrix:
-            "Node 20.x":
-              nodeVersion: 20.x
             "Node 22.x":
               nodeVersion: 22.x
             "Node 24.x":

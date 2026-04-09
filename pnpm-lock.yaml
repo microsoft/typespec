@@ -758,6 +758,9 @@ importers:
       '@typespec/bundler':
         specifier: workspace:^
         version: link:../bundler
+      globby:
+        specifier: 'catalog:'
+        version: 16.1.1
       json5:
         specifier: 'catalog:'
         version: 2.2.3
