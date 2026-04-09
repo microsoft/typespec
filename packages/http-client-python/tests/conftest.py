@@ -50,23 +50,20 @@ def wait_for_server(url: str, timeout: int = 60, interval: float = 0.5) -> bool:
 
 
 def start_server_process():
-    """Start the tsp-spector mock API server."""
+    """Start the tsp-spector mock API server.
+
+    Always serves both azure-http-specs and http-specs regardless of flavor.
+    This allows azure and unbranded tests to run in parallel using the same server.
+    """
     azure_http_path = ROOT / "node_modules/@azure-tools/azure-http-specs"
     http_path = ROOT / "node_modules/@typespec/http-specs"
 
-    # Determine flavor from environment or current directory
-    flavor = os.environ.get("FLAVOR", "azure")
-
+    # Always serve both spec sets so azure and unbranded tests can run in parallel
     # Use absolute paths with forward slashes (works on all platforms including Windows)
-    if flavor == "unbranded":
-        cwd = http_path.resolve()
-        specs_path = str(cwd / "specs").replace("\\", "/")
-        cmd = f"npx tsp-spector serve {specs_path}"
-    else:
-        cwd = azure_http_path.resolve()
-        azure_specs = str(cwd / "specs").replace("\\", "/")
-        http_specs = str((http_path / "specs").resolve()).replace("\\", "/")
-        cmd = f"npx tsp-spector serve {azure_specs} {http_specs}"
+    cwd = azure_http_path.resolve()
+    azure_specs = str(cwd / "specs").replace("\\", "/")
+    http_specs = str((http_path / "specs").resolve()).replace("\\", "/")
+    cmd = f"npx tsp-spector serve {azure_specs} {http_specs}"
 
     # Add node_modules/.bin to PATH
     env = os.environ.copy()

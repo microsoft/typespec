@@ -348,37 +348,23 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    // Separate test environments from other environments
-    // Test environments must run sequentially (they share port 3000)
-    // Other environments (lint, mypy, pyright, docs) can run in parallel
-    const testEnvs = envs.filter((e) => e.startsWith("test-") || e === "unittest");
-    const otherEnvs = envs.filter((e) => !e.startsWith("test-") && e !== "unittest");
-
     const maxJobs = argv.values.jobs
       ? parseInt(argv.values.jobs, 10)
       : Math.max(2, cpus().length - 2);
 
     console.log(`  Flavors:      ${flavors.join(", ")}`);
     console.log(`  Environments: ${envs.join(", ")}`);
-    console.log(`  Jobs:         ${maxJobs} (test envs run sequentially, others in parallel)`);
+    console.log(`  Jobs:         ${maxJobs}`);
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
     }
     console.log();
 
-    // Run test environments first (sequentially)
+    // Run all environments in parallel
+    // The mock server serves both azure and unbranded specs, so all tests can run together
     let results: ToxResult[] = [];
-    if (testEnvs.length > 0) {
-      console.log(pc.cyan("Running test environments (sequential)..."));
-      results = await runParallel(testEnvs, pythonPath, 1, argv.values.name);
-    }
-
-    // Run other environments in parallel
-    if (otherEnvs.length > 0) {
-      console.log(pc.cyan("\nRunning lint/typecheck environments (parallel)..."));
-      const otherResults = await runParallel(otherEnvs, pythonPath, maxJobs, argv.values.name);
-      results = results.concat(otherResults);
-    }
+    console.log(pc.cyan("Running all environments in parallel..."));
+    results = await runParallel(envs, pythonPath, maxJobs, argv.values.name);
 
     allResults.push(...results);
   }
