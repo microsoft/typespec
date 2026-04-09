@@ -328,10 +328,10 @@ function collectConfigFiles(generatedDir: string, flavor: string): string[] {
   return configFiles;
 }
 
-function runBatchPythonProcessing(configFiles: string[], jobs: number): boolean {
-  if (configFiles.length === 0) return true;
+function runBatchPythonProcessing(flavor: string, configCount: number, jobs: number): boolean {
+  if (configCount === 0) return true;
 
-  console.log(pc.cyan(`\nRunning batch Python processing on ${configFiles.length} specs...`));
+  console.log(pc.cyan(`\nRunning batch Python processing on ${configCount} specs...`));
 
   // Find Python venv
   let venvPath = join(PLUGIN_DIR, "venv");
@@ -345,13 +345,16 @@ function runBatchPythonProcessing(configFiles: string[], jobs: number): boolean 
   }
 
   const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
-  const configArgs = configFiles.map((f) => `"${f}"`).join(" ");
 
   try {
-    execSync(`${venvPath} ${batchScript} --config-files ${configArgs} --jobs ${jobs}`, {
-      stdio: "inherit",
-      cwd: PLUGIN_DIR,
-    });
+    // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
+    execSync(
+      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
+      {
+        stdio: "inherit",
+        cwd: PLUGIN_DIR,
+      },
+    );
     return true;
   } catch {
     return false;
@@ -407,10 +410,10 @@ async function regenerateFlavor(
 
   // Batch process all specs with Python
   const pyStartTime = performance.now();
-  const configFiles = collectConfigFiles(GENERATED_FOLDER, flavor);
+  const configCount = collectConfigFiles(GENERATED_FOLDER, flavor).length;
   // Use fewer Python jobs since Python processing is heavier
   const pyJobs = Math.max(4, Math.floor(jobs / 2));
-  const pySuccess = runBatchPythonProcessing(configFiles, pyJobs);
+  const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
   const pyTime = (performance.now() - pyStartTime) / 1000;
 
   const totalTime = (performance.now() - startTime) / 1000;

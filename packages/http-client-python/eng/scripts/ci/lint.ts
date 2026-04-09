@@ -139,7 +139,13 @@ async function lintEmitter(): Promise<boolean> {
   // Lint both emitter/ and eng/scripts/ directories
   return runCommand(
     "eslint",
-    ["emitter/", "eng/scripts/", "--config", "eng/scripts/ci/config/eslint-ci.config.mjs", "--max-warnings=0"],
+    [
+      "emitter/",
+      "eng/scripts/",
+      "--config",
+      "eng/scripts/ci/config/eslint-ci.config.mjs",
+      "--max-warnings=0",
+    ],
     root,
     "eslint emitter/ eng/scripts/ --max-warnings=0",
   );

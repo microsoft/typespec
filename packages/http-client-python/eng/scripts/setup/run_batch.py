@@ -37,9 +37,9 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         command_args = config["commandArgs"]
         output_dir = config["outputDir"]
 
-        # Convert command args to the format expected by pygen
+        # Pass command args directly to pygen - pygen expects hyphenated keys
         # Remove keys that shouldn't be passed to pygen
-        pygen_args = {k.replace("-", "_"): v for k, v in command_args.items() if k not in ["emit-yaml-only"]}
+        pygen_args = {k: v for k, v in command_args.items() if k not in ["emit-yaml-only"]}
 
         # Run preprocess and codegen
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
@@ -79,13 +79,32 @@ def render_progress_bar(completed: int, failed: int, total: int, width: int = 40
     return f"{success_bar}{fail_bar}{empty_bar} {cyan}{percent}%{reset} ({completed}/{total})"
 
 
+def collect_config_files(generated_dir: str, flavor: str) -> list[str]:
+    """Collect all .tsp-codegen-*.json config files from the generated directory."""
+    flavor_dir = Path(generated_dir) / "tests" / "generated" / flavor
+    if not flavor_dir.exists():
+        return []
+
+    config_files = []
+    for pkg_dir in flavor_dir.iterdir():
+        if pkg_dir.is_dir():
+            for f in pkg_dir.iterdir():
+                if f.name.startswith(".tsp-codegen-") and f.name.endswith(".json"):
+                    config_files.append(str(f))
+    return config_files
+
+
 def main():
     parser = argparse.ArgumentParser(description="Batch process TypeSpec YAML files")
     parser.add_argument(
-        "--config-files",
-        nargs="+",
+        "--generated-dir",
         required=True,
-        help="Paths to .tsp-codegen.json config files",
+        help="Path to the generator directory (config files are in ../tests/generated/<flavor>/)",
+    )
+    parser.add_argument(
+        "--flavor",
+        required=True,
+        help="Flavor to process (azure or unbranded)",
     )
     parser.add_argument(
         "--jobs",
@@ -95,9 +114,13 @@ def main():
     )
     args = parser.parse_args()
 
-    # Use strings for multiprocessing compatibility
-    config_files = args.config_files
+    # Discover config files from the generated directory
+    config_files = collect_config_files(args.generated_dir, args.flavor)
     total = len(config_files)
+
+    if total == 0:
+        print("No config files found, nothing to process")
+        return
 
     print(f"Processing {total} specs with {args.jobs} parallel jobs...")
 
