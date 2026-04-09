@@ -43,9 +43,13 @@ import java.util.Objects;
 @ServiceClientBuilder(
     serviceClients = {
         NamingClient.class,
+        PropertyClient.class,
+        HeaderClient.class,
         ModelClient.class,
         UnionEnumClient.class,
         NamingAsyncClient.class,
+        PropertyAsyncClient.class,
+        HeaderAsyncClient.class,
         ModelAsyncClient.class,
         UnionEnumAsyncClient.class })
 public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>,
@@ -281,6 +285,26 @@ public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>
     }
 
     /**
+     * Builds an instance of PropertyAsyncClient class.
+     * 
+     * @return an instance of PropertyAsyncClient.
+     */
+    @Generated
+    public PropertyAsyncClient buildPropertyAsyncClient() {
+        return new PropertyAsyncClient(buildInnerClient().getProperties());
+    }
+
+    /**
+     * Builds an instance of HeaderAsyncClient class.
+     * 
+     * @return an instance of HeaderAsyncClient.
+     */
+    @Generated
+    public HeaderAsyncClient buildHeaderAsyncClient() {
+        return new HeaderAsyncClient(buildInnerClient().getHeaders());
+    }
+
+    /**
      * Builds an instance of ModelAsyncClient class.
      * 
      * @return an instance of ModelAsyncClient.
@@ -308,6 +332,26 @@ public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>
     @Generated
     public NamingClient buildClient() {
         return new NamingClient(buildInnerClient());
+    }
+
+    /**
+     * Builds an instance of PropertyClient class.
+     * 
+     * @return an instance of PropertyClient.
+     */
+    @Generated
+    public PropertyClient buildPropertyClient() {
+        return new PropertyClient(buildInnerClient().getProperties());
+    }
+
+    /**
+     * Builds an instance of HeaderClient class.
+     * 
+     * @return an instance of HeaderClient.
+     */
+    @Generated
+    public HeaderClient buildHeaderClient() {
+        return new HeaderClient(buildInnerClient().getHeaders());
     }
 
     /**

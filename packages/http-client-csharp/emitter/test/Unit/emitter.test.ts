@@ -99,6 +99,26 @@ describe("$onEmit tests", () => {
     expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
+  it("should report diagnostic instead of throwing when generator fails", async () => {
+    vi.mocked(execCSharpGenerator).mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "Unable to parse required option package-name from configuration.",
+    } as any);
+    vi.mocked(execAsync).mockResolvedValueOnce({
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+    } as any);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    // should not throw
+    await $onEmit(context);
+    expect(program.reportDiagnostics).toHaveBeenCalled();
+  });
+
   it("should apply sdk-context-options", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     const additionalDecorators = ["Decorator1", "Decorator2"];
