@@ -211,10 +211,19 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "typetest-model-singlediscriminator",
     namespace: "typetest.model.singlediscriminator",
   },
-  "type/model/inheritance/recursive": {
-    "package-name": "typetest-model-recursive",
-    namespace: "typetest.model.recursive",
-  },
+  "type/model/inheritance/recursive": [
+    {
+      "package-name": "typetest-model-recursive",
+      namespace: "typetest.model.recursive",
+    },
+    {
+      // basic test for configuration "generation-subdir"
+      "package-name": "generation-subdir",
+      namespace: "generation.subdir",
+      "generation-subdir": "_generated",
+      "clear-output-folder": "true",
+    },
+  ],
   "type/model/usage": {
     "package-name": "typetest-model-usage",
     namespace: "typetest.model.usage",
@@ -271,6 +280,18 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "specs-documentation",
     namespace: "specs.documentation",
   },
+  "versioning/added": [
+    {
+      "package-name": "versioning-added",
+      namespace: "versioning.added",
+    },
+    // check whether import of _validation.py/_types.py works when "generation-subdir" is configured
+    {
+      "package-name": "generation-subdir2",
+      namespace: "generation.subdir2",
+      "generation-subdir": "_generated",
+    },
+  ],
 };
 
 // ---- Shared interfaces ----
@@ -475,5 +496,46 @@ export async function regenerate(
     // Default: 30 jobs, or use provided value
     const poolLimit = flags.jobs ?? 30;
     await runTaskPool(tasks, poolLimit);
+  }
+}
+
+// Preprocess: create files that should be deleted after regeneration (for testing)
+export async function preprocess(flavor: string, generatedFolder: string): Promise<void> {
+  if (flavor === "azure") {
+    // Use tests/generated/<flavor>/<package> structure (same as output)
+    const testsGeneratedDir = resolve(generatedFolder, "../tests/generated/azure");
+
+    const DELETE_CONTENT = "# This file is to be deleted after regeneration";
+    const DELETE_FILE = "to_be_deleted.py";
+    const entries: { folder: string[]; file: string; content: string }[] = [
+      {
+        folder: ["authentication-api-key", "authentication", "apikey", "_operations"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generation", "subdir", "_generated"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generated_tests"],
+        file: DELETE_FILE,
+        content: DELETE_CONTENT,
+      },
+      {
+        folder: ["generation-subdir", "generation", "subdir"],
+        file: "to_be_kept.py",
+        content: "# This file is to be kept after regeneration",
+      },
+    ];
+
+    await Promise.all(
+      entries.map(async ({ folder, file, content }) => {
+        const targetFolder = join(testsGeneratedDir, ...folder);
+        await promises.mkdir(targetFolder, { recursive: true });
+        await promises.writeFile(join(targetFolder, file), content);
+      }),
+    );
   }
 }

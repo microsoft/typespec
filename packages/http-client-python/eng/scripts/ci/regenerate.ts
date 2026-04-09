@@ -7,7 +7,7 @@
  */
 
 import { compile, NodeHost } from "@typespec/compiler";
-import { promises, rmSync } from "fs";
+import { rmSync } from "fs";
 import { platform } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
@@ -17,6 +17,7 @@ import {
   BASE_AZURE_EMITTER_OPTIONS,
   BASE_EMITTER_OPTIONS,
   getSubdirectories,
+  preprocess,
   SpecialFlags,
   toPosix,
   type RegenerateFlags,
@@ -107,10 +108,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/array": {
     "package-name": "typetest-array",
     namespace: "typetest.array",
-  },
-  "type/model/inheritance/recursive": {
-    "package-name": "typetest-model-recursive",
-    namespace: "typetest.model.recursive",
   },
 };
 
@@ -263,26 +260,6 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   return results;
 }
 
-// Preprocess: create files that should be deleted after regeneration (for testing)
-async function preprocess(flavor: string): Promise<void> {
-  if (flavor === "azure") {
-    // Use tests/generated/<flavor>/<package> structure (same as output)
-    const testsGeneratedDir = resolve(GENERATED_FOLDER, "../tests/generated");
-    const folderParts = [
-      "azure",
-      "authentication-api-key",
-      "authentication",
-      "apikey",
-      "_operations",
-    ];
-    await promises.mkdir(join(testsGeneratedDir, ...folderParts), { recursive: true });
-    await promises.writeFile(
-      join(testsGeneratedDir, ...folderParts, "to_be_deleted.py"),
-      "# This file is to be deleted after regeneration",
-    );
-  }
-}
-
 async function regenerateFlavor(
   flavor: string,
   name: string | undefined,
@@ -296,7 +273,7 @@ async function regenerateFlavor(
   const flags: RegenerateFlags = { flavor, debug, name };
 
   // Preprocess
-  await preprocess(flavor);
+  await preprocess(flavor, GENERATED_FOLDER);
 
   // Collect specs
   const azureSpecs = flavor === "azure" ? await getSubdirectories(AZURE_HTTP_SPECS, flags) : [];
