@@ -12,7 +12,7 @@ namespace Sample.Models
 
     public partial class MockInputModel
     {
-        [Obsolete("This property is now deprecated.")]
+        [Obsolete("This property is now deprecated.", DiagnosticId = "OBS001")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Custom("custom message")]
         public string Prop1 { get; set; }

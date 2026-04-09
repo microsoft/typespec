@@ -1722,9 +1722,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Verify that attributes from custom code are populated, including a custom non-system attribute
             Assert.AreEqual(3, customProperty.Attributes.Count);
 
-            // Validate [Obsolete("This property is now deprecated.")] - type and arguments
+            // Validate [Obsolete("This property is now deprecated.", DiagnosticId = "OBS001")] - type, arguments, and positional arguments
             var obsoleteAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
             Assert.AreEqual(1, obsoleteAttr.Arguments.Count);
+            Assert.AreEqual(1, obsoleteAttr.PositionalArguments.Count);
+            Assert.AreEqual("DiagnosticId", obsoleteAttr.PositionalArguments[0].Key);
 
             // Validate [EditorBrowsable(EditorBrowsableState.Never)] - type and arguments
             var editorBrowsableAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(System.ComponentModel.EditorBrowsableAttribute)).Equals(a.Type));
