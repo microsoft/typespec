@@ -362,9 +362,8 @@ async function main(): Promise<void> {
 
     // Run all environments in parallel
     // The mock server serves both azure and unbranded specs, so all tests can run together
-    let results: ToxResult[] = [];
     console.log(pc.cyan("Running all environments in parallel..."));
-    results = await runParallel(envs, pythonPath, maxJobs, argv.values.name);
+    const results = await runParallel(envs, pythonPath, maxJobs, argv.values.name);
 
     allResults.push(...results);
   }

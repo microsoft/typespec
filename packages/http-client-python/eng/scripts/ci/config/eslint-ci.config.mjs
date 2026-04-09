@@ -40,6 +40,7 @@ export default [
       "no-case-declarations": "off",
       "no-ex-assign": "off",
       "no-undef": "off",
+      "no-useless-assignment": "error",
       "prefer-const": [
         "warn",
         {
