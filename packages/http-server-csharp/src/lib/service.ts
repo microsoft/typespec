@@ -213,13 +213,13 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #getDefaultNamespace(): string {
       return "TypeSpec.Service";
     }
-    
+
     arrayDeclarationContext(array: Model, name: string, elementType: Type) {
-        const arrayName = ensureCSharpIdentifier(this.emitter.getProgram(), array, name);
-        const arrayFile = this.emitter.createSourceFile(`generated/models/${arrayName}.cs`);
-        arrayFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-        const arrayNamespace = this.#getOrAddNamespace(array.namespace);
-        return this.#createModelContext(arrayNamespace, arrayFile, arrayName);
+      const arrayName = ensureCSharpIdentifier(this.emitter.getProgram(), array, name);
+      const arrayFile = this.emitter.createSourceFile(`generated/models/${arrayName}.cs`);
+      arrayFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
+      const arrayNamespace = this.#getOrAddNamespace(array.namespace);
+      return this.#createModelContext(arrayNamespace, arrayFile, arrayName);
     }
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
