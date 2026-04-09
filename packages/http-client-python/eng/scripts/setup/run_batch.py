@@ -39,27 +39,15 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
 
         # Convert command args to the format expected by pygen
         # Remove keys that shouldn't be passed to pygen
-        pygen_args = {k.replace("-", "_"): v for k, v in command_args.items()
-                      if k not in ["emit-yaml-only"]}
+        pygen_args = {k.replace("-", "_"): v for k, v in command_args.items() if k not in ["emit-yaml-only"]}
 
         # Run preprocess and codegen
-        preprocess.PreProcessPlugin(
-            output_folder=output_dir,
-            tsp_file=yaml_path,
-            **pygen_args
-        ).process()
+        preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
-        codegen.CodeGenerator(
-            output_folder=output_dir,
-            tsp_file=yaml_path,
-            **pygen_args
-        ).process()
+        codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
         # Run black
-        black.BlackScriptPlugin(
-            output_folder=output_dir,
-            **pygen_args
-        ).process()
+        black.BlackScriptPlugin(output_folder=output_dir, **pygen_args).process()
 
         # Clean up the config file
         config_path.unlink()
@@ -67,6 +55,28 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         return (output_dir, True, "")
     except Exception as e:
         return (str(config_path), False, str(e))
+
+
+def render_progress_bar(completed: int, failed: int, total: int, width: int = 40) -> str:
+    """Render a progress bar with green for success and red for failures."""
+    success_count = completed - failed
+    success_width = round((success_count / total) * width) if total > 0 else 0
+    fail_width = round((failed / total) * width) if total > 0 else 0
+    empty_width = width - success_width - fail_width
+
+    # ANSI color codes
+    green_bg = "\033[42m"
+    red_bg = "\033[41m"
+    reset = "\033[0m"
+    dim = "\033[2m"
+    cyan = "\033[36m"
+
+    success_bar = f"{green_bg}{' ' * success_width}{reset}"
+    fail_bar = f"{red_bg}{' ' * fail_width}{reset}" if failed > 0 else ""
+    empty_bar = f"{dim}{'░' * max(0, empty_width)}{reset}"
+
+    percent = round((completed / total) * 100) if total > 0 else 0
+    return f"{success_bar}{fail_bar}{empty_bar} {cyan}{percent}%{reset} ({completed}/{total})"
 
 
 def main():
@@ -87,11 +97,22 @@ def main():
 
     # Use strings for multiprocessing compatibility
     config_files = args.config_files
+    total = len(config_files)
 
-    print(f"Processing {len(config_files)} specs with {args.jobs} parallel jobs...")
+    print(f"Processing {total} specs with {args.jobs} parallel jobs...")
 
     succeeded = 0
     failed = 0
+    failed_specs = []
+    is_tty = sys.stdout.isatty()
+
+    def update_progress():
+        if is_tty:
+            sys.stdout.write(f"\r{render_progress_bar(succeeded + failed, failed, total)}")
+            sys.stdout.flush()
+
+    # Initial progress bar
+    update_progress()
 
     # Use ProcessPoolExecutor for true parallelism (bypasses GIL)
     with ProcessPoolExecutor(max_workers=args.jobs) as executor:
@@ -103,7 +124,19 @@ def main():
                 succeeded += 1
             else:
                 failed += 1
-                print(f"  ✗ {output_dir}: {error}")
+                failed_specs.append(f"{output_dir}: {error}")
+            update_progress()
+
+    # Clear progress bar line
+    if is_tty:
+        sys.stdout.write("\r" + " " * 60 + "\r")
+        sys.stdout.flush()
+
+    # Print failures at the end
+    if failed_specs:
+        print("\n\033[31mFailed specs:\033[0m")
+        for spec in failed_specs:
+            print(f"  \033[31m•\033[0m {spec}")
 
     print(f"\nBatch processing complete: {succeeded} succeeded, {failed} failed")
 

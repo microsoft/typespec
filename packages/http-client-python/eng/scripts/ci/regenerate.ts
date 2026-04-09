@@ -9,7 +9,7 @@
 import { compile, NodeHost } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, readdirSync, rmSync } from "fs";
-import { cpus, platform } from "os";
+import { platform } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
@@ -215,6 +215,25 @@ async function compileSpec(task: CompileTask): Promise<{ success: boolean; error
   }
 }
 
+function renderProgressBar(
+  completed: number,
+  failed: number,
+  total: number,
+  width: number = 40,
+): string {
+  const successCount = completed - failed;
+  const successWidth = Math.round((successCount / total) * width);
+  const failWidth = Math.round((failed / total) * width);
+  const emptyWidth = width - successWidth - failWidth;
+
+  const successBar = pc.bgGreen(" ".repeat(successWidth));
+  const failBar = failed > 0 ? pc.bgRed(" ".repeat(failWidth)) : "";
+  const emptyBar = pc.dim("░".repeat(Math.max(0, emptyWidth)));
+
+  const percent = Math.round((completed / total) * 100);
+  return `${successBar}${failBar}${emptyBar} ${pc.cyan(`${percent}%`)} (${completed}/${total})`;
+}
+
 async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<string, boolean>> {
   const results = new Map<string, boolean>();
   const executing: Set<Promise<void>> = new Set();
@@ -222,6 +241,20 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   // Count total tasks for progress
   const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
   let completed = 0;
+  let failed = 0;
+  const failedSpecs: string[] = [];
+
+  // Check if we're in a TTY for progress bar updates
+  const isTTY = process.stdout.isTTY;
+
+  const updateProgress = () => {
+    if (isTTY) {
+      process.stdout.write(`\r${renderProgressBar(completed, failed, totalTasks)}`);
+    }
+  };
+
+  // Initial progress bar
+  updateProgress();
 
   for (const group of groups) {
     // Each group runs as a unit - tasks within a group run sequentially
@@ -239,9 +272,12 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
         completed++;
 
         if (!result.success) {
-          console.log(pc.red(`[${completed}/${totalTasks}] ${packageName} failed: ${result.error}`));
+          failed++;
+          failedSpecs.push(`${packageName}: ${result.error}`);
           groupSuccess = false;
         }
+
+        updateProgress();
       }
 
       results.set(group.spec, groupSuccess);
@@ -256,6 +292,20 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   }
 
   await Promise.all(executing);
+
+  // Clear progress bar line and print final status
+  if (isTTY) {
+    process.stdout.write("\r" + " ".repeat(60) + "\r");
+  }
+
+  // Print failures at the end
+  if (failedSpecs.length > 0) {
+    console.log(pc.red(`\nFailed specs:`));
+    for (const spec of failedSpecs) {
+      console.log(pc.red(`  • ${spec}`));
+    }
+  }
+
   return results;
 }
 
@@ -344,7 +394,11 @@ async function regenerateFlavor(
   const succeeded = Array.from(results.values()).filter((v) => v).length;
   const compileFailed = results.size - succeeded;
 
-  console.log(pc.cyan(`\nTypeSpec compilation: ${succeeded} succeeded, ${compileFailed} failed (${compileTime.toFixed(1)}s)`));
+  console.log(
+    pc.cyan(
+      `\nTypeSpec compilation: ${succeeded} succeeded, ${compileFailed} failed (${compileTime.toFixed(1)}s)`,
+    ),
+  );
 
   if (compileFailed > 0) {
     console.log(pc.red(`Skipping Python processing due to compilation failures`));
@@ -363,7 +417,11 @@ async function regenerateFlavor(
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
   console.log(pc.cyan(`Results: ${succeeded} specs processed`));
-  console.log(pc.cyan(`  TypeSpec: ${compileTime.toFixed(1)}s | Python: ${pyTime.toFixed(1)}s | Total: ${totalTime.toFixed(1)}s`));
+  console.log(
+    pc.cyan(
+      `  TypeSpec: ${compileTime.toFixed(1)}s | Python: ${pyTime.toFixed(1)}s | Total: ${totalTime.toFixed(1)}s`,
+    ),
+  );
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
   return pySuccess;

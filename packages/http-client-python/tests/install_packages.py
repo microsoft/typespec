@@ -19,9 +19,20 @@ def install_packages(flavor: str, tests_dir: str) -> None:
         print(f"Warning: Generated directory does not exist: {generated_dir}")
         return
 
-    # Find all package directories
-    packages = glob.glob(os.path.join(generated_dir, "*"))
-    packages = [p for p in packages if os.path.isdir(p)]
+    # Find all package directories that have pyproject.toml or setup.py
+    all_dirs = glob.glob(os.path.join(generated_dir, "*"))
+    packages = [
+        p for p in all_dirs
+        if os.path.isdir(p) and (
+            os.path.exists(os.path.join(p, "pyproject.toml")) or
+            os.path.exists(os.path.join(p, "setup.py"))
+        )
+    ]
+
+    # Log skipped directories for debugging
+    skipped = [os.path.basename(p) for p in all_dirs if os.path.isdir(p) and p not in packages]
+    if skipped:
+        print(f"Skipping {len(skipped)} directories without packaging files: {', '.join(skipped[:5])}{'...' if len(skipped) > 5 else ''}")
 
     if not packages:
         print(f"Warning: No packages found in {generated_dir}")
