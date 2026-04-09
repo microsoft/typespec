@@ -1,6 +1,6 @@
 ---
 name: writing-python-sdk-spector-mock-api-tests
-description: Writes TypeSpec http-client-python generator mock API tests (azure/unbranded/generic) from a Spector case. Use when given a Spector case link or a PR link that modifies Spector cases under http-specs/azure-http-specs.
+description: Writes TypeSpec http-client-python generator mock API tests (azure/unbranded/shared) from a Spector case. Use when given a Spector case link or a PR link that modifies Spector cases under http-specs/azure-http-specs.
 ---
 
 # Writing python SDK tests from a Spector case
@@ -20,15 +20,15 @@ Spector cases define the **expected request + response**. The goal is to add/ext
 
 A python pytest test (sync) added to one of:
 
-- `packages/http-client-python/generator/test/azure/mock_api_tests`
-- `packages/http-client-python/generator/test/unbranded/mock_api_tests`
-- `packages/http-client-python/generator/test/generic_mock_api_tests`
+- `packages/http-client-python/tests/mock_api/azure`
+- `packages/http-client-python/tests/mock_api/unbranded`
+- `packages/http-client-python/tests/mock_api/shared`
 
 And a corresponding async pytest test added under the matching `asynctests/` folder:
 
-- `packages/http-client-python/generator/test/azure/mock_api_tests/asynctests`
-- `packages/http-client-python/generator/test/unbranded/mock_api_tests/asynctests`
-- `packages/http-client-python/generator/test/generic_mock_api_tests/asynctests`
+- `packages/http-client-python/tests/mock_api/azure/asynctests`
+- `packages/http-client-python/tests/mock_api/unbranded/asynctests`
+- `packages/http-client-python/tests/mock_api/shared/asynctests`
 
 ## Workflow (copy as checklist)
 
@@ -37,12 +37,12 @@ Test-writing progress:
 - [ ] Ensure prerequisites are met (pnpm install, package build)
 - [ ] Identify the Spector case link (directly, or extracted from PR)
 - [ ] Update spec dependency version if the case is from an unreleased PR
-- [ ] Decide the destination folder(s): azure vs unbranded vs generic
+- [ ] Decide the destination folder(s): azure vs unbranded vs shared
 - [ ] Regenerate the specific generated client (do NOT run full regeneration)
 - [ ] Find existing test file to extend (or create a new one)
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
-- [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
+- [ ] Format changed python files with Black (`python -m black <paths> --config ./eng/scripts/ci/config/pyproject.toml`)
 - [ ] Validate test locally (start Spector mock server + run pytest)
 - [ ] Add a changelog entry under `.chronus/changes`
 
@@ -123,42 +123,45 @@ After bumping, run `npm run install` under `packages/http-client-python` to upda
 
 Write the python test in:
 
-- `packages/http-client-python/generator/test/azure/mock_api_tests`
+- `packages/http-client-python/tests/mock_api/azure`
 
 ### Rule B: Spector in microsoft/typespec
 
 You may need either:
 
-- **Option (a) generic only**: `.../generic_mock_api_tests`
-- **Option (b) both flavors**: `.../azure/mock_api_tests` AND `.../unbranded/mock_api_tests`
+- **Option (a) shared only**: `.../mock_api/shared`
+- **Option (b) both flavors**: `.../mock_api/azure` AND `.../mock_api/unbranded`
 
 Decide with this concrete check:
 
 1. Locate the generated python package/module for the scenario in BOTH:
-   - `packages/http-client-python/generator/test/azure/generated`
-   - `packages/http-client-python/generator/test/unbranded/generated`
-2. If the import root and client/model API surface you need are the same (same module path + same client entrypoint), write ONE shared test in `generic_mock_api_tests`.
-3. If import paths differ (or one flavor lacks the needed client), write separate tests under both `azure/mock_api_tests` and `unbranded/mock_api_tests`.
+   - `packages/http-client-python/tests/generated/azure`
+   - `packages/http-client-python/tests/generated/unbranded`
+2. If the import root and client/model API surface you need are the same (same module path + same client entrypoint), write ONE shared test in `mock_api/shared`.
+3. If import paths differ (or one flavor lacks the needed client), write separate tests under both `mock_api/azure` and `mock_api/unbranded`.
 
-Why: both azure and unbranded tox runs include `../generic_mock_api_tests`, so shared tests are preferred when they can import the same generated package.
+Why: both azure and unbranded tox runs include `mock_api/shared`, so shared tests are preferred when they can import the same generated package.
 
 ## Step 4 — Regenerate the specific generated client
 
-Generated code is gitignored (`packages/http-client-python/generator/test/**/generated/`). You must regenerate the specific spec before writing tests.
+Generated code is gitignored (`packages/http-client-python/tests/generated/`). You must regenerate the specific spec before writing tests.
 
 **Compile only the single spec you need** (example for azure-core-page):
 
 ```bash
 cd packages/http-client-python
-npm run regenerate -- --name=azure/core/page
+npx tsx ./eng/scripts/ci/regenerate.ts --flavor azure --name azure/core/page
 ```
 
-> ⚠️ Do NOT run `npm run regenerate` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+The `--flavor` flag selects `azure` or `unbranded`. The `--name` flag is a case-insensitive substring match on the package name.
+
+> ⚠️ Do NOT run `npx tsx ./eng/scripts/ci/regenerate.ts` without `--name` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+> ⚠️ Do NOT use `npm run regenerate -- --flavor ...` — npm may strip the flags. Use `npx tsx` directly.
 
 **Verify** the generated client has the expected method:
 
 ```bash
-grep -r "method_name" generator/test/azure/generated/ < name > /
+grep -r "method_name" tests/generated/azure/ < package-name > /
 ```
 
 ## Step 5 — Find existing test file (or create one)
@@ -167,8 +170,9 @@ grep -r "method_name" generator/test/azure/generated/ < name > /
    - Prefer extending an existing `test_*.py` when it already imports the same generated module.
 2. In parallel, find the matching async test in `asynctests/`.
 
-- If you extend `mock_api_tests/test_<area>.py`, also extend `mock_api_tests/asynctests/test_<area>_async.py` (or create it if missing).
-- If you extend `generic_mock_api_tests/test_<area>.py`, also extend `generic_mock_api_tests/asynctests/test_<area>_async.py`.
+- If you extend `mock_api/azure/test_<area>.py`, also extend `mock_api/azure/asynctests/test_<area>_async.py` (or create it if missing).
+- If you extend `mock_api/shared/test_<area>.py`, also extend `mock_api/shared/asynctests/test_<area>_async.py`.
+- If you extend `mock_api/unbranded/test_<area>.py`, also extend `mock_api/unbranded/asynctests/test_<area>_async.py`.
 
 3. If no sync test exists, create a new `test_<area>.py` and also create the async counterpart under `asynctests/`.
 
@@ -203,7 +207,7 @@ Practical guidance:
 Async client import patterns (match the folder you’re writing to):
 
 - Azure: import `aio` submodule alongside models, e.g. `from specs.<...> import models, aio`, then `async with aio.<Client>()` and `await client.<op>(...)`.
-- Generic/unbranded generated clients often expose `.aio` modules, e.g. `from <pkg>.aio import <Client>`.
+- Shared/unbranded generated clients often expose `.aio` modules, e.g. `from <pkg>.aio import <Client>`.
 
 ## Step 7 — Dependencies (only when needed)
 
@@ -211,76 +215,85 @@ Default: do NOT add new dependencies.
 
 Only if your new/extended test imports a package not already available:
 
-- Add it to the appropriate requirements file:
-  - `packages/http-client-python/generator/test/azure/requirements.txt`
-  - `packages/http-client-python/generator/test/unbranded/requirements.txt`
+- Add it to the appropriate requirements file under `packages/http-client-python/tests/requirements/`:
+  - `base.txt` — shared dependencies (pytest, pytest-asyncio, etc.)
+  - `azure.txt` — Azure-specific dependencies (azure-core, azure-mgmt-core)
+  - `unbranded.txt` — unbranded-specific dependencies (corehttp)
 
 Avoid adding dependencies unless strictly required by the test.
 
 ## Step 8 — Format changed files
 
-Install Black if not already available, then format any python files you changed with a 120 character line length:
+Format any python files you changed using Black with the project's shared config:
 
 ```bash
-pip install black # if not already installed
-python -m black 120 < paths > -l
+cd packages/http-client-python
+python -m black ./eng/scripts/ci/config/pyproject.toml < paths > --config
 ```
 
-Replace `<paths>` with the specific files and/or folders you modified.
+Replace `<paths>` with the specific files and/or folders you modified (relative to the `http-client-python` root).
+
+Alternatively, you can format all test files via the npm script:
+
+```bash
+npm run format -- --generator
+```
 
 ## Step 9 — Validate your test locally
 
-Before opening a PR, run your new or updated test inside a virtual environment with the Spector mock API server running.
+Before opening a PR, run your new or updated test. You will need two terminals: one to run the Spector mock API server, and another to run pytest.
 
-1. **Determine the test root.** Pick the directory that matches the test you changed:
-   - Azure tests → `packages/http-client-python/generator/test/azure`
-   - Unbranded tests → `packages/http-client-python/generator/test/unbranded`
+1. **Determine the test flavor.** Pick the flavor that matches the test you changed:
+   - Azure tests → `azure`
+   - Unbranded tests → `unbranded`
 
-2. **Create and activate a virtual environment** (if one does not already exist):
+2. **Regenerate and install packages** (if not already done):
 
    ```bash
-   cd packages/http-client-python/generator/test/<azure|unbranded>
+   cd packages/http-client-python
+   npx tsx ./eng/scripts/ci/regenerate.ts --flavor <azure|unbranded> --name <spec-name>
+   ```
+
+3. **Create and activate a virtual environment** (if one does not already exist):
+
+   ```bash
+   cd packages/http-client-python/tests
    python -m venv .venv
+   # Windows:
+   .venv\Scripts\activate
+   # Linux/Mac:
    source .venv/bin/activate
    ```
 
-3. **Install only the dependencies you need.**
-   Installing the full `requirements.txt` is slow because it includes every generated SDK. Instead, extract and install only the non-editable dependencies, then install the specific SDK(s) you need:
+4. **Install dependencies and the generated SDK:**
 
    ```bash
-   # Install dependencies from requirements.txt, excluding generated SDKs:
-   grep -v '^-e ./generated/' requirements.txt > _requirements.txt
-   pip install -r _requirements.txt
-   rm _requirements.txt
+   pip install -r requirements/base.txt
+   pip install -r requirements/<azure|unbranded>.txt
 
-   # Install the specific generated SDK(s) your test imports:
-   pip install -e ./generated/<sdk-folder-name>
+   # install only a single generated SDK:
+   pip install --no-deps -e generated/<flavor>/<sdk-folder-name>
    ```
 
-   Replace `<sdk-folder-name>` with the folder that matches the SDK under test (e.g., `azure-encode-duration`, `encode-duration`).
-
-4. **Start the Spector mock API server.**
-   The mock API tests make real HTTP requests, so the Spector server must be running before you execute pytest. Create another terminal, step into the spec package directory, and run the serve command (it runs in the foreground):
+5. **Start the Spector mock API server** in a separate terminal:
 
    ```bash
-   # For azure-http-specs scenarios:
-   cd packages/http-client-python/node_modules/@azure-tools/azure-http-specs/
-   npm run serve
-   
-   # For http-specs (microsoft/typespec) scenarios:
-   cd packages/http-client-python/node_modules/@typespec/http-specs/
-   npm run serve
+   cd packages/http-client-python
+   npx tsp-spector serve node_modules/@azure-tools/azure-http-specs/specs/ node_modules/@typespec/http-specs/specs/
    ```
 
    Wait until you see the server listening message before running tests.
 
-5. **Run the test:**
+6. **Run the test** in the original terminal (with venv activated):
 
    ```bash
-   pytest mock_api_tests/ -v < test_file > .py
+   cd packages/http-client-python/tests
+   pytest mock_api/ < azure | unbranded | shared > / < test_file > .py -v
    ```
 
-   Replace `<test_file>` with the file you added or modified. Verify that all tests pass before proceeding.
+   Verify that all tests pass before proceeding.
+
+   > **Important:** If you only added or changed test files, confirming the changed test passes is sufficient. However, if you modified emitter source code (under `generator/` or `emitter/`), you **must** run the full test suite for the affected flavor(s) to catch regressions before proceeding.
 
 ## Step 10 — Add a changelog entry
 
