@@ -54,12 +54,12 @@ public class FileTests {
 
     @Test
     public void testUploadFileDefaultContentType() {
-        client.uploadFileDefaultContentType("image/png", BinaryData.fromFile(PNG_FILE));
+        client.uploadFileDefaultContentType(BinaryData.fromFile(PNG_FILE));
     }
 
     @Test
     public void testDownloadFileDefaultContentType() {
-        BinaryData response = client.downloadFileDefaultContentType("image/png");
+        BinaryData response = client.downloadFileDefaultContentType();
         Assertions.assertNotNull(response);
     }
 }
