@@ -55,6 +55,29 @@ def test_reorder_parameters_unit_async(client: OverrideClient):
     assert param_names == ["param1", "param2"], f"Expected parameter names ['param1', 'param2'], but got {param_names}"
 
 
+def test_group_parameters_signature(client: OverrideClient):
+    """Test that group_parameters.group method signature has param1 and param2 as keyword-only parameters.
+
+    The @override decorator applies groupCustomized (with GroupParametersOptions) to the group operation,
+    resulting in param1 and param2 being exposed as keyword-only arguments.
+    """
+    group_method = client.group_parameters.group
+
+    sig = inspect.signature(group_method)
+    params = sig.parameters
+
+    assert "param1" in params, "param1 should be present in signature"
+    assert "param2" in params, "param2 should be present in signature"
+
+    # Both params should be keyword-only (result of parameter grouping override)
+    assert params["param1"].kind == params["param1"].KEYWORD_ONLY, "param1 should be keyword-only"
+    assert params["param2"].kind == params["param2"].KEYWORD_ONLY, "param2 should be keyword-only"
+
+    # Both params should be required
+    assert params["param1"].default == params["param1"].empty, "param1 should have no default value"
+    assert params["param2"].default == params["param2"].empty, "param2 should have no default value"
+
+
 def test_require_optional_parameter_signature(client: OverrideClient):
     # Get the require_optional method
     require_optional_method = client.require_optional_parameter.require_optional
