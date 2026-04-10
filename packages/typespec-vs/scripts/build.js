@@ -7,8 +7,13 @@ import {
   runDotnet,
 } from "@typespec/internal-build-utils";
 import { readFile } from "fs/promises";
+import { mkdtempSync } from "fs";
 import { dirname, join, resolve } from "path";
+import { tmpdir } from "os";
 import { fileURLToPath } from "url";
+
+// Use a unique NuGet scratch directory to avoid lock contention during parallel builds
+process.env.NUGET_SCRATCH = mkdtempSync(join(tmpdir(), "nuget-scratch-"));
 
 main().catch((e) => {
   console.error(e);
