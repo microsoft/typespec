@@ -218,6 +218,7 @@ export const BASE_EMITTER_OPTIONS: Record<
       "package-name": "generation-subdir",
       namespace: "generation.subdir",
       "generation-subdir": "_generated",
+      "generate-test": "false",
       "clear-output-folder": "true",
     },
   ],
@@ -286,6 +287,7 @@ export const BASE_EMITTER_OPTIONS: Record<
     {
       "package-name": "generation-subdir2",
       namespace: "generation.subdir2",
+      "generate-test": "false",
       "generation-subdir": "_generated",
     },
   ],
