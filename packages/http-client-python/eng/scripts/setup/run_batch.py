@@ -148,6 +148,11 @@ def main():
             else:
                 failed += 1
                 failed_specs.append(f"{output_dir}: {error}")
+                # Fail-fast: cancel pending futures on first failure
+                print(f"\n\033[31m[FAIL-FAST] Cancelling remaining tasks after failure...\033[0m")
+                for f in futures:
+                    f.cancel()
+                break
             update_progress()
 
     # Clear progress bar line

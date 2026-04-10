@@ -145,13 +145,26 @@ async function runParallel(
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
   const running: Map<string, Promise<ToxResult>> = new Map();
+  let hasFailed = false;
 
   for (const env of envs) {
+    // Stop starting new tasks if we've had a failure
+    if (hasFailed) {
+      break;
+    }
+
     // Wait if we're at max capacity
     if (running.size >= maxJobs) {
       const completed = await Promise.race(running.values());
       results.push(completed);
       running.delete(completed.env);
+
+      // Check for failure - stop early
+      if (!completed.success) {
+        hasFailed = true;
+        console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, stopping further tasks...`));
+        break;
+      }
     }
 
     // Start new task
@@ -159,9 +172,11 @@ async function runParallel(
     running.set(env, task);
   }
 
-  // Wait for remaining tasks
-  const remaining = await Promise.all(running.values());
-  results.push(...remaining);
+  // Wait for remaining running tasks (but don't start new ones)
+  if (running.size > 0) {
+    const remaining = await Promise.all(running.values());
+    results.push(...remaining);
+  }
 
   return results;
 }
