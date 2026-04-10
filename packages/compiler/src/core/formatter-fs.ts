@@ -1,4 +1,4 @@
-import { glob, readFile, writeFile } from "fs/promises";
+import { glob, readFile, stat, writeFile } from "fs/promises";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
@@ -176,11 +176,33 @@ export async function checkFileFormat(filename: string): Promise<CheckFormatResu
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
+  const expandedPatterns = await expandDirectoryPatterns(include);
   const results: string[] = [];
-  for await (const file of glob(include.map(normalizePath), {
+  for await (const file of glob(expandedPatterns, {
     exclude: ["**/node_modules", ...ignore.map(normalizePath)],
   })) {
     results.push(file);
   }
   return results;
+}
+
+/** Expand bare directory paths to glob patterns. */
+async function expandDirectoryPatterns(patterns: string[]): Promise<string[]> {
+  const expanded: string[] = [];
+  for (const pattern of patterns) {
+    if (/[*?{[]/.test(pattern)) {
+      expanded.push(normalizePath(pattern));
+    } else {
+      try {
+        if ((await stat(pattern)).isDirectory()) {
+          expanded.push(normalizePath(`${pattern}/**/*`));
+          continue;
+        }
+      } catch {
+        // not a valid path — treat as glob pattern
+      }
+      expanded.push(normalizePath(pattern));
+    }
+  }
+  return expanded;
 }
