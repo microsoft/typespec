@@ -33,7 +33,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "onigasm": "catalog:",
+    "vscode-oniguruma": "catalog:",
     "plist": "catalog:"
   },
   "devDependencies": {

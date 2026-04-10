@@ -1,3 +1,4 @@
+import { DecoratedType, getClientOptions } from "@azure-tools/typespec-client-generator-core";
 import { Diagnostic, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 
@@ -206,3 +207,8 @@ const JAVA_KEYWORDS: Set<string> = new Set<string>([
   "volatile",
   "while",
 ]);
+
+export function isPropertyRequired(property: { optional: boolean } & DecoratedType): boolean {
+  const clientRequired = getClientOptions(property, "clientRequired") as boolean;
+  return clientRequired ?? !property.optional;
+}

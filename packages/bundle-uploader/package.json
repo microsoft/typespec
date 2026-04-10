@@ -42,7 +42,6 @@
     "@pnpm/workspace.find-packages": "catalog:",
     "@typespec/bundler": "workspace:^",
     "globby": "catalog:",
-    "json5": "catalog:",
     "picocolors": "catalog:",
     "semver": "catalog:"
   },
@@ -51,7 +50,6 @@
     "@types/semver": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
