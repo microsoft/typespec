@@ -27,7 +27,11 @@ def get_rfc_file_location():
 
 
 def _single_dir_pylint(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    # Exclude "build" directories created by pip install / setup.py build.
+    # Without this, "build" may be picked first alphabetically and pylint would
+    # lint stale build artifacts instead of the actual source, causing false
+    # positives (e.g. modules named "json", "xml", "datetime" shadow the stdlib).
+    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.name != "build")
     try:
         check_call(
             [
