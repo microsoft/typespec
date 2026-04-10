@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Fix bug that Caches singular be Cach
+Fix bug that singular form of "Caches" is incorrect
