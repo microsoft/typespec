@@ -313,11 +313,6 @@ export interface RegenerateFlags {
   pyodide?: boolean;
 }
 
-export interface ProcessedEmitterOption {
-  options: Record<string, string>;
-  outputDir: string;
-}
-
 export interface RegenerateConfig {
   azureHttpSpecs: string;
   httpSpecs: string;
@@ -398,50 +393,6 @@ export async function getSubdirectories(
 
   await searchDir(baseDir);
   return subdirectories;
-}
-
-export function defaultPackageName(spec: string, config: RegenerateConfig): string {
-  const specDir = spec.includes("azure") ? config.azureHttpSpecs : config.httpSpecs;
-  return toPosix(relative(specDir, dirname(spec)))
-    .replace(/\//g, "-")
-    .toLowerCase();
-}
-
-export function buildOptions(
-  spec: string,
-  generatedFolder: string,
-  flags: RegenerateFlags,
-  config: RegenerateConfig,
-): ProcessedEmitterOption[] {
-  const results: ProcessedEmitterOption[] = [];
-  for (const emitterConfig of getEmitterOption(spec, flags.flavor, config)) {
-    // Apply flavor defaults first, then per-spec options so they can override (e.g., "generate-test": "false")
-    const options: Record<string, string> = {};
-    for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
-      options[k] = v;
-    }
-    Object.assign(options, emitterConfig);
-    if (flags.pyodide) {
-      options["use-pyodide"] = "true";
-    }
-    options["flavor"] = flags.flavor;
-    if (options["emitter-output-dir"] === undefined) {
-      const packageName = options["package-name"] || defaultPackageName(spec, config);
-      // Output to new tests/generated/<flavor>/<package> structure
-      options["emitter-output-dir"] = toPosix(
-        `${generatedFolder}/../tests/generated/${flags.flavor}/${packageName}`,
-      );
-    }
-    if (flags.debug) {
-      options["debug"] = "true";
-    }
-    options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
-    results.push({
-      options,
-      outputDir: options["emitter-output-dir"],
-    });
-  }
-  return results;
 }
 
 export async function runTaskPool(
