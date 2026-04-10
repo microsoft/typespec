@@ -242,7 +242,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = _PACKAGE_FILES
+            package_files = list(_PACKAGE_FILES)  # Copy to avoid modifying global
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():
