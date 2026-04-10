@@ -80,7 +80,13 @@ interface ToxResult {
   error?: string;
 }
 
-async function runToxEnv(env: string, pythonPath: string, name?: string): Promise<ToxResult> {
+interface RunningTask {
+  env: string;
+  proc: ChildProcess;
+  promise: Promise<ToxResult>;
+}
+
+function startToxEnv(env: string, pythonPath: string, name?: string): RunningTask {
   const startTime = Date.now();
   const toxIniPath = join(testsDir, "tox.ini");
 
@@ -92,20 +98,20 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
 
   console.log(`${pc.blue("[START]")} ${env}`);
 
-  return new Promise((resolve) => {
-    const proc: ChildProcess = spawn(pythonPath, args, {
-      cwd: testsDir,
-      stdio: !argv.values.quiet ? "inherit" : "pipe",
-      env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
+  const proc: ChildProcess = spawn(pythonPath, args, {
+    cwd: testsDir,
+    stdio: !argv.values.quiet ? "inherit" : "pipe",
+    env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
+  });
+
+  let stderr = "";
+  if (argv.values.quiet && proc.stderr) {
+    proc.stderr.on("data", (data) => {
+      stderr += data.toString();
     });
+  }
 
-    let stderr = "";
-    if (argv.values.quiet && proc.stderr) {
-      proc.stderr.on("data", (data) => {
-        stderr += data.toString();
-      });
-    }
-
+  const promise = new Promise<ToxResult>((resolve) => {
     proc.on("close", (code) => {
       const duration = (Date.now() - startTime) / 1000;
       const success = code === 0;
@@ -135,6 +141,16 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
       });
     });
   });
+
+  return { env, proc, promise };
+}
+
+function killTask(task: RunningTask): void {
+  try {
+    task.proc.kill("SIGTERM");
+  } catch {
+    // Process may have already exited
+  }
 }
 
 async function runParallel(
@@ -144,38 +160,50 @@ async function runParallel(
   name?: string,
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
-  const running: Map<string, Promise<ToxResult>> = new Map();
-  let hasFailed = false;
+  const running: Map<string, RunningTask> = new Map();
 
   for (const env of envs) {
-    // Stop starting new tasks if we've had a failure
-    if (hasFailed) {
-      break;
-    }
-
     // Wait if we're at max capacity
-    if (running.size >= maxJobs) {
-      const completed = await Promise.race(running.values());
+    while (running.size >= maxJobs) {
+      const promises = Array.from(running.values()).map((t) => t.promise);
+      const completed = await Promise.race(promises);
       results.push(completed);
       running.delete(completed.env);
 
-      // Check for failure - stop early
+      // Fail-fast: kill all running tasks and exit
       if (!completed.success) {
-        hasFailed = true;
-        console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, stopping further tasks...`));
-        break;
+        console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, killing remaining tasks...`));
+        for (const task of running.values()) {
+          killTask(task);
+        }
+        // Wait briefly for processes to terminate
+        await Promise.all(Array.from(running.values()).map((t) => t.promise));
+        return results;
       }
     }
 
     // Start new task
-    const task = runToxEnv(env, pythonPath, name);
+    const task = startToxEnv(env, pythonPath, name);
     running.set(env, task);
   }
 
-  // Wait for remaining running tasks (but don't start new ones)
-  if (running.size > 0) {
-    const remaining = await Promise.all(running.values());
-    results.push(...remaining);
+  // Wait for remaining tasks, checking for failures
+  while (running.size > 0) {
+    const promises = Array.from(running.values()).map((t) => t.promise);
+    const completed = await Promise.race(promises);
+    results.push(completed);
+    running.delete(completed.env);
+
+    // Fail-fast: kill all running tasks and exit
+    if (!completed.success) {
+      console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, killing remaining tasks...`));
+      for (const task of running.values()) {
+        killTask(task);
+      }
+      // Wait briefly for processes to terminate
+      await Promise.all(Array.from(running.values()).map((t) => t.promise));
+      return results;
+    }
   }
 
   return results;
