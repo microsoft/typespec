@@ -97,7 +97,7 @@ public class FluentUtilsTests {
         // irregular (children → child)
         Assertions.assertEquals("child", FluentUtils.getSingular("children"));
 
-        // irregular (children → child)
+        // require addSingularRule
         Assertions.assertEquals("Cache", FluentUtils.getSingular("Caches"));
 
         // Azure resource style names
