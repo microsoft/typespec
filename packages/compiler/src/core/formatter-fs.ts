@@ -1,4 +1,5 @@
 import { glob, readFile, stat, writeFile } from "fs/promises";
+import { join } from "path";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
@@ -176,25 +177,41 @@ export async function checkFileFormat(filename: string): Promise<CheckFormatResu
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
-  const expandedPatterns = await expandDirectoryPatterns(include);
+  const expandedInclude = await expandDirectoryPatterns(include);
   const results: string[] = [];
-  for await (const file of glob(expandedPatterns, {
-    exclude: ["**/node_modules", ...ignore.map(normalizePath)],
+  for await (const entry of glob(expandedInclude, {
+    withFileTypes: true,
+    exclude: ["**/node_modules", ...ignore],
   })) {
-    results.push(file);
+    if (entry.isFile()) {
+      results.push(join(entry.parentPath, entry.name));
+    }
   }
   return results;
 }
 
-/** Expand bare directory paths to glob patterns. */
+/**
+ * Expand bare directory paths to glob patterns.
+ * A directory "src" becomes both "src" and "src/**\/*" so it matches the
+ * directory entry itself (for exclude short-circuiting) and its contents.
+ * Glob patterns ending in "/**" also get the bare directory form added.
+ */
 async function expandDirectoryPatterns(patterns: string[]): Promise<string[]> {
   const expanded: string[] = [];
   for (const pattern of patterns) {
     if (/[*?{[]/.test(pattern)) {
       expanded.push(normalizePath(pattern));
+      // Also match the directory itself so exclude can short-circuit traversal
+      const normalized = normalizePath(pattern);
+      if (normalized.endsWith("/**/*")) {
+        expanded.push(normalized.slice(0, -4));
+      } else if (normalized.endsWith("/**")) {
+        expanded.push(normalized.slice(0, -3));
+      }
     } else {
       try {
         if ((await stat(pattern)).isDirectory()) {
+          expanded.push(normalizePath(pattern));
           expanded.push(normalizePath(`${pattern}/**/*`));
           continue;
         }
