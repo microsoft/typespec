@@ -42,12 +42,12 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     const packageName = namespace.replace(/\./g, "-");
     options["package-name"] = packageName;
   }
-  if ((options as any).flavor !== "azure") {
-    // if they pass in a flavor other than azure, we want to ignore the value
-    (options as any).flavor = undefined;
-  }
+  // Set flavor based on namespace or passed option
   if (getRootNamespace(sdkContext).toLowerCase().includes("azure")) {
     (options as any).flavor = "azure";
+  } else if ((options as any).flavor !== "azure") {
+    // Explicitly set unbranded flavor when not azure
+    (options as any).flavor = "unbranded";
   }
 
   if (
