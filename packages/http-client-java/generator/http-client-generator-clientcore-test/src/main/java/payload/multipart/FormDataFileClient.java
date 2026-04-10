@@ -50,8 +50,6 @@ public final class FormDataFileClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
         RequestContext requestContext) {
-        // Operation 'uploadFileSpecificContentType' is of content-type 'multipart/form-data'. Protocol API is not
-        // usable and hence not generated.
         return this.instrumentation.instrumentWithResponse(
             "Payload.MultiPart.FormData.File.uploadFileSpecificContentType", requestContext,
             updatedContext -> this.serviceClient.uploadFileSpecificContentTypeWithResponse(body, updatedContext));
@@ -85,8 +83,6 @@ public final class FormDataFileClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
         RequestContext requestContext) {
-        // Operation 'uploadFileRequiredFilename' is of content-type 'multipart/form-data'. Protocol API is not usable
-        // and hence not generated.
         return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileRequiredFilename",
             requestContext,
             updatedContext -> this.serviceClient.uploadFileRequiredFilenameWithResponse(body, updatedContext));
@@ -119,8 +115,6 @@ public final class FormDataFileClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestContext requestContext) {
-        // Operation 'uploadFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
         return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.File.uploadFileArray",
             requestContext, updatedContext -> this.serviceClient.uploadFileArrayWithResponse(body, updatedContext));
     }

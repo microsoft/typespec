@@ -362,11 +362,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
             )
         if yaml_data.get("propertyToParameterName"):
-            # need to create a new one with padded keys and values
+            # need to create a new one with padded values (but NOT keys, since keys are wire names)
             yaml_data["propertyToParameterName"] = {
-                self.pad_reserved_words(prop, PadType.PROPERTY, yaml_data): self.pad_reserved_words(
-                    param_name, PadType.PARAMETER, yaml_data
-                ).lower()
+                prop: self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
                 for prop, param_name in yaml_data["propertyToParameterName"].items()
             }
         wire_name_lower = (yaml_data.get("wireName") or "").lower()

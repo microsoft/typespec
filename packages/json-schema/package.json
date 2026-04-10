@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -32,7 +32,7 @@
   },
   "tspMain": "lib/main.tsp",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -66,7 +66,6 @@
     "@vitest/ui": "catalog:",
     "ajv": "catalog:",
     "ajv-formats": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

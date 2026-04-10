@@ -18,11 +18,12 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_rfc_file_location():
-    rfc_file_location = os.path.join(os.getcwd(), "../../../eng/scripts/ci/pylintrc")
+    # When running from tests/ directory via tox
+    rfc_file_location = os.path.join(os.getcwd(), "../eng/scripts/ci/config/pylintrc")
     if os.path.exists(rfc_file_location):
         return rfc_file_location
-    else:
-        return os.path.join(os.getcwd(), "../../../../eng/scripts/ci/pylintrc")
+    # Fallback for running from different directories
+    return os.path.join(os.path.dirname(__file__), "config/pylintrc")
 
 
 def _single_dir_pylint(mod):

@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.file.implementation.BodiesImpl;
+import type.file.models.DownloadFileMultipleContentTypesContentType;
 
 /**
  * Initializes a new instance of the asynchronous FileClient type.
@@ -47,7 +48,6 @@ public final class FileAsyncClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -58,9 +58,9 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponse(String contentType, BinaryData file,
+    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponse(BinaryData file,
         RequestOptions requestOptions) {
-        return this.serviceClient.uploadFileSpecificContentTypeWithResponseAsync(contentType, file, requestOptions);
+        return this.serviceClient.uploadFileSpecificContentTypeWithResponseAsync(file, requestOptions);
     }
 
     /**
@@ -143,7 +143,8 @@ public final class FileAsyncClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
+     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg. Allowed values:
+     * "image/png", "image/jpeg".
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -156,6 +157,8 @@ public final class FileAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> uploadFileMultipleContentTypesWithResponse(String contentType, BinaryData file,
         RequestOptions requestOptions) {
+        // Operation 'uploadFileMultipleContentTypes' can be invoked with multiple content-type. It is difficult to form
+        // a correct method signature for convenience API, and hence the convenience API is not generated.
         return this.serviceClient.uploadFileMultipleContentTypesWithResponseAsync(contentType, file, requestOptions);
     }
 
@@ -169,7 +172,7 @@ public final class FileAsyncClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
+     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -194,7 +197,6 @@ public final class FileAsyncClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -205,9 +207,9 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
+    public Mono<Response<Void>> uploadFileDefaultContentTypeWithResponse(BinaryData file,
         RequestOptions requestOptions) {
-        return this.serviceClient.uploadFileDefaultContentTypeWithResponseAsync(contentType, file, requestOptions);
+        return this.serviceClient.uploadFileDefaultContentTypeWithResponseAsync(file, requestOptions);
     }
 
     /**
@@ -236,7 +238,6 @@ public final class FileAsyncClient {
     /**
      * The uploadFileSpecificContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -248,10 +249,10 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> uploadFileSpecificContentType(String contentType, BinaryData file) {
+    public Mono<Void> uploadFileSpecificContentType(BinaryData file) {
         // Generated convenience method for uploadFileSpecificContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return uploadFileSpecificContentTypeWithResponse(contentType, file, requestOptions).flatMap(FluxUtil::toMono);
+        return uploadFileSpecificContentTypeWithResponse(file, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -311,27 +312,6 @@ public final class FileAsyncClient {
     }
 
     /**
-     * The uploadFileMultipleContentTypes operation.
-     * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
-     * @param file The file parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> uploadFileMultipleContentTypes(String contentType, BinaryData file) {
-        // Generated convenience method for uploadFileMultipleContentTypesWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return uploadFileMultipleContentTypesWithResponse(contentType, file, requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
      * The downloadFileMultipleContentTypes operation.
      * 
      * @param accept The accept parameter.
@@ -345,16 +325,16 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> downloadFileMultipleContentTypes(String accept) {
+    public Mono<BinaryData> downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType accept) {
         // Generated convenience method for downloadFileMultipleContentTypesWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return downloadFileMultipleContentTypesWithResponse(accept, requestOptions).flatMap(FluxUtil::toMono);
+        return downloadFileMultipleContentTypesWithResponse(accept.toString(), requestOptions)
+            .flatMap(FluxUtil::toMono);
     }
 
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -366,10 +346,10 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> uploadFileDefaultContentType(String contentType, BinaryData file) {
+    public Mono<Void> uploadFileDefaultContentType(BinaryData file) {
         // Generated convenience method for uploadFileDefaultContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return uploadFileDefaultContentTypeWithResponse(contentType, file, requestOptions).flatMap(FluxUtil::toMono);
+        return uploadFileDefaultContentTypeWithResponse(file, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

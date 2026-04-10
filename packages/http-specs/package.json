@@ -1,7 +1,7 @@
 {
   "name": "@typespec/http-specs",
   "displayName": "Http Specs",
-  "version": "0.1.0-alpha.35",
+  "version": "0.1.0-alpha.36",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -27,7 +27,7 @@
     "test": "echo \"Error: no test specified\""
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -44,11 +44,9 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:^",
-    "@typespec/spector": "workspace:^",
-    "deep-equal": "catalog:"
+    "@typespec/spector": "workspace:^"
   },
   "devDependencies": {
-    "@types/deep-equal": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
     "@typespec/json-schema": "workspace:^",

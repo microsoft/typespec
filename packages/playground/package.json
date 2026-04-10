@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -51,7 +51,7 @@
     "./styles.css": "./dist/style.css"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
@@ -111,7 +111,6 @@
     "@typespec/bundler": "workspace:^",
     "@typespec/react-components": "workspace:^",
     "@vitejs/plugin-react": "catalog:",
-    "c8": "catalog:",
     "cross-env": "catalog:",
     "es-module-shims": "catalog:",
     "rimraf": "catalog:",

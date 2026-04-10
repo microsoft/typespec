@@ -8,8 +8,8 @@ import { writeSeaConfig } from "./sea-config.js";
 // cspell:ignore postject
 
 const [major, minor, patch] = process.versions.node.split(".").map(Number);
-if (major < 20) {
-  console.error("Cannot build standalone cli on node under 20");
+if (major < 22) {
+  console.error("Cannot build standalone cli on node under 22");
   process.exit(0);
 }
 

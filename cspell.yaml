@@ -129,6 +129,7 @@ words:
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -247,6 +248,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -276,6 +278,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -307,6 +310,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge

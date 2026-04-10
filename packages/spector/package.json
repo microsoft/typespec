@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.24",
+  "version": "0.1.0-alpha.25",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -22,7 +22,7 @@
     "test:ui": "vitest --ui"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -43,8 +43,6 @@
     "@typespec/spec-coverage-sdk": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "ajv": "catalog:",
-    "body-parser": "catalog:",
-    "deep-equal": "catalog:",
     "express": "catalog:",
     "globby": "catalog:",
     "micromatch": "catalog:",
@@ -52,19 +50,15 @@
     "multer": "catalog:",
     "picocolors": "catalog:",
     "source-map-support": "catalog:",
-    "xml2js": "catalog:",
     "yaml": "catalog:",
     "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/body-parser": "catalog:",
-    "@types/deep-equal": "catalog:",
     "@types/express": "catalog:",
     "@types/micromatch": "catalog:",
     "@types/morgan": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
-    "@types/xml2js": "catalog:",
     "@types/yargs": "catalog:",
     "@typespec/tspd": "workspace:^",
     "rimraf": "catalog:",

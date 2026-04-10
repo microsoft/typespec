@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.80.0",
+  "version": "0.81.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
@@ -29,7 +29,7 @@
     "./style.css": "./dist/style.css"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -71,7 +71,6 @@
     "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

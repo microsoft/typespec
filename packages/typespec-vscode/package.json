@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -283,7 +283,6 @@
   },
   "devDependencies": {
     "@types/cross-spawn": "catalog:",
-    "@types/mocha": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "@types/vscode": "~1.110.0",
@@ -297,10 +296,8 @@
     "@vscode/test-web": "catalog:",
     "@vscode/vsce": "catalog:",
     "ajv": "catalog:",
-    "c8": "catalog:",
     "cross-spawn": "catalog:",
     "esbuild": "catalog:",
-    "mocha": "catalog:",
     "playwright": "catalog:",
     "rimraf": "catalog:",
     "semver": "catalog:",
