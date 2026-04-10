@@ -21,7 +21,7 @@ parameters:
   # Node version
   - name: NodeVersion
     type: string
-    default: "20.x"
+    default: "24.x"
 
   # Operation system to use
   - name: Os

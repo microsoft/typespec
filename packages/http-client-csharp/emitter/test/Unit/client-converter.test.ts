@@ -72,8 +72,8 @@ describe("isMultiServiceClient", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
-        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv2)
         namespace Service.MultiService {}
       `,
       runner,
@@ -210,6 +210,7 @@ describe("isMultiServiceClient", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
 
         namespace Service.MultiService {}
@@ -426,8 +427,8 @@ describe("client name suffix", () => {
         @client({
           name: "Combined",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
-        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv1)
         namespace Service.MultiService {}
       `,
       runner,
