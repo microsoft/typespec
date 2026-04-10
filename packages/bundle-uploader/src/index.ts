@@ -1,8 +1,7 @@
 import { AzureCliCredential } from "@azure/identity";
 import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
-import { readFile } from "fs/promises";
-import { globby } from "globby";
+import { glob, readFile } from "fs/promises";
 import { relative, resolve } from "path";
 import { join as joinUnix } from "path/posix";
 import pc from "picocolors";
@@ -99,7 +98,10 @@ async function uploadPlaygroundAssets(
   // Upload static assets (e.g. .whl files)
   if (config.assets) {
     for (const asset of config.assets) {
-      const matchedFiles = await globby(asset.path, { cwd: packagePath, absolute: true });
+      const matchedFiles: string[] = [];
+      for await (const file of glob(asset.path, { cwd: packagePath })) {
+        matchedFiles.push(resolve(packagePath, file));
+      }
       if (matchedFiles.length === 0) {
         logInfo(pc.yellow(`⚠ No files matched asset pattern: ${asset.path}`));
         continue;

@@ -110,7 +110,6 @@
     "ajv": "catalog:",
     "change-case": "catalog:",
     "env-paths": "catalog:",
-    "globby": "catalog:",
     "is-unicode-supported": "catalog:",
     "mustache": "catalog:",
     "picocolors": "catalog:",

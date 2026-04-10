@@ -44,7 +44,6 @@
     "@typespec/versioning": "workspace:^",
     "ajv": "catalog:",
     "express": "catalog:",
-    "globby": "catalog:",
     "micromatch": "catalog:",
     "morgan": "catalog:",
     "multer": "catalog:",

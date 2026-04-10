@@ -74,7 +74,6 @@
     "concurrently": "catalog:",
     "cross-env": "catalog:",
     "execa": "catalog:",
-    "globby": "catalog:",
     "@inquirer/prompts": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",

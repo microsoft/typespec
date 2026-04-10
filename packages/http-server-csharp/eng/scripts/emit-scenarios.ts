@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
-import { access, copyFile, mkdir, readFile, rm, writeFile } from "fs/promises";
-import { globby } from "globby";
+import { access, copyFile, glob, mkdir, readFile, rm, writeFile } from "fs/promises";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "pathe";
@@ -80,7 +79,10 @@ async function copySelectiveFiles(
   sourceDir: string,
   targetDir: string,
 ): Promise<void> {
-  const files = await globby(extension, { cwd: sourceDir });
+  const files: string[] = [];
+  for await (const file of glob(extension, { cwd: sourceDir })) {
+    files.push(file);
+  }
   for (const file of files) {
     const src = join(sourceDir, file);
     const dest = join(targetDir, file);
@@ -291,7 +293,10 @@ async function main(): Promise<void> {
     const ignoreList = await getIgnoreList();
 
     const patterns = ["**/main.tsp"];
-    const specsList = await globby(patterns, { cwd: specDir });
+    const specsList: string[] = [];
+    for await (const spec of glob(patterns, { cwd: specDir })) {
+      specsList.push(spec);
+    }
 
     const paths = specsList.filter((item) => !ignoreList.includes(item));
 

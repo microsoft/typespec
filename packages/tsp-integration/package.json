@@ -27,7 +27,6 @@
   "dependencies": {
     "@pnpm/workspace.find-packages": "catalog:",
     "execa": "catalog:",
-    "globby": "catalog:",
     "log-symbols": "catalog:",
     "ora": "catalog:",
     "pathe": "catalog:",

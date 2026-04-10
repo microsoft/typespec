@@ -2,8 +2,7 @@
 /* eslint-disable no-console */
 import { select } from "@inquirer/prompts";
 import { execa } from "execa";
-import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
-import { globby } from "globby";
+import { access, copyFile, glob, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "path";
@@ -93,7 +92,10 @@ async function processPaths(paths, ignoreList, mainOnly) {
       results.push({ fullPath, relativePath });
     } else if (stats.isDirectory()) {
       const patterns = mainOnly ? ["**/main.tsp"] : ["**/client.tsp", "**/main.tsp"];
-      const discoveredPaths = await globby(patterns, { cwd: fullPath });
+      const discoveredPaths = [];
+      for await (const p of glob(patterns, { cwd: fullPath })) {
+        discoveredPaths.push(p);
+      }
       const validFiles = discoveredPaths
         .map((p) => ({
           fullPath: join(fullPath, p),

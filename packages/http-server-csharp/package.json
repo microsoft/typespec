@@ -87,7 +87,6 @@
     "@typespec/versioning": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "globby": "catalog:",
     "@inquirer/prompts": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",

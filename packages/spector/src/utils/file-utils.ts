@@ -1,8 +1,11 @@
-import { mkdir } from "fs/promises";
-import { globby } from "globby";
+import { glob, mkdir } from "fs/promises";
 
 export async function findFilesFromPattern(pattern: string | string[]): Promise<string[]> {
-  return await globby(pattern);
+  const results: string[] = [];
+  for await (const file of glob(pattern)) {
+    results.push(file);
+  }
+  return results;
 }
 
 /**

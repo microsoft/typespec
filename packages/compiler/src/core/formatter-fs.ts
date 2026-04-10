@@ -1,5 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
-import { globby } from "globby";
+import { glob, readFile, writeFile } from "fs/promises";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
@@ -177,10 +176,11 @@ export async function checkFileFormat(filename: string): Promise<CheckFormatResu
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
-  const patterns = [
-    ...include.map(normalizePath),
-    "!**/node_modules",
-    ...ignore.map((x) => `!${normalizePath(x)}`),
-  ];
-  return globby(patterns);
+  const results: string[] = [];
+  for await (const file of glob(include.map(normalizePath), {
+    exclude: ["**/node_modules", ...ignore.map(normalizePath)],
+  })) {
+    results.push(file);
+  }
+  return results;
 }
