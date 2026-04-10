@@ -6,10 +6,10 @@ import {
   run,
   runDotnet,
 } from "@typespec/internal-build-utils";
-import { readFile } from "fs/promises";
 import { mkdtempSync } from "fs";
-import { dirname, join, resolve } from "path";
+import { readFile } from "fs/promises";
 import { tmpdir } from "os";
+import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
 // Use a unique NuGet scratch directory to avoid lock contention during parallel builds
