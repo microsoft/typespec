@@ -63,7 +63,7 @@ public class SmartLocation implements JsonSerializable<SourceLocation> {
                 if ("path".equals(fieldName)) {
                     smartLocation.path = reader.readArray(JsonReader::readUntyped);
                 } else {
-                    reader.skipChildren();;
+                    reader.skipChildren();
                 }
             }
 
