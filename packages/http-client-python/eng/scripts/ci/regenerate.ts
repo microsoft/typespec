@@ -148,13 +148,15 @@ function buildTaskGroups(specs: string[], flags: RegenerateFlags): TaskGroup[] {
     const tasks: CompileTask[] = [];
 
     for (const emitterConfig of getEmitterOptions(spec, flags.flavor)) {
-      const options: Record<string, unknown> = { ...emitterConfig };
-
-      // Add flavor-specific options
-      options["flavor"] = flags.flavor;
+      // Apply flavor defaults first, then per-spec options so they can override (e.g., "generate-test": "false")
+      const options: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
         options[k] = v;
       }
+      Object.assign(options, emitterConfig);
+
+      // Add flavor
+      options["flavor"] = flags.flavor;
 
       // Set output directory - use tests/generated/<flavor>/<package> structure
       const packageName = (options["package-name"] as string) || defaultPackageName(spec);

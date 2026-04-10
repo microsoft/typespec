@@ -415,14 +415,16 @@ export function buildOptions(
 ): ProcessedEmitterOption[] {
   const results: ProcessedEmitterOption[] = [];
   for (const emitterConfig of getEmitterOption(spec, flags.flavor, config)) {
-    const options: Record<string, string> = { ...emitterConfig };
+    // Apply flavor defaults first, then per-spec options so they can override (e.g., "generate-test": "false")
+    const options: Record<string, string> = {};
+    for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
+      options[k] = v;
+    }
+    Object.assign(options, emitterConfig);
     if (flags.pyodide) {
       options["use-pyodide"] = "true";
     }
     options["flavor"] = flags.flavor;
-    for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
-      options[k] = v;
-    }
     if (options["emitter-output-dir"] === undefined) {
       const packageName = options["package-name"] || defaultPackageName(spec, config);
       // Output to new tests/generated/<flavor>/<package> structure
