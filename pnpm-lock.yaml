@@ -609,7 +609,7 @@ importers:
         specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: 'catalog:'
+        specifier: 6.0.2
         version: 6.0.2
       typescript-eslint:
         specifier: 'catalog:'
