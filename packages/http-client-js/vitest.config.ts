@@ -10,10 +10,6 @@ export default mergeConfig(
       exclude: ["test/e2e/**/*"],
       passWithNoTests: true,
     },
-    esbuild: {
-      jsx: "preserve",
-      sourcemap: "both",
-    },
     plugins: [alloyPlugin()],
   }),
 );
