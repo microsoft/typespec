@@ -20,7 +20,6 @@ export async function writeCodeModel(
   codeModel: CodeModel,
   outputFolder: string,
 ) {
-  await context.program.host.mkdirp(outputFolder);
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
     prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
@@ -105,7 +104,6 @@ export async function writeConfiguration(
   configurations: Configuration,
   outputFolder: string,
 ) {
-  await context.program.host.mkdirp(outputFolder);
   await context.program.host.writeFile(
     resolvePath(outputFolder, configurationFileName),
     prettierOutput(JSON.stringify(configurations, null, 2)),

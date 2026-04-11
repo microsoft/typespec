@@ -66,7 +66,6 @@ describe("$onEmit tests", () => {
       hasError: () => false,
       host: {
         writeFile: vi.fn(),
-        mkdirp: vi.fn(),
         rm: vi.fn(),
       },
       tracer: {
@@ -83,13 +82,6 @@ describe("$onEmit tests", () => {
     // dynamically import the module to get the $onEmit function
     // we avoid importing it at the top to allow mocking of dependencies
     $onEmit = (await import("../../src/emitter.js")).$onEmit;
-  });
-
-  it("should ensure output folder exists before writing files", async () => {
-    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
-    await $onEmit(context);
-    // writeCodeModel and writeConfiguration each call mkdirp with the output folder
-    expect(program.host.mkdirp).toHaveBeenCalledWith(context.emitterOutputDir);
   });
 
   it("should apply the update-code-model callback just once", async () => {
