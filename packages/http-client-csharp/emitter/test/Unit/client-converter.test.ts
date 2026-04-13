@@ -458,3 +458,77 @@ describe("client name suffix", () => {
     }
   });
 });
+
+describe("client children deduplication", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should not have duplicate children in the code model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{
+          title: "Test Service",
+        })
+        @server(
+          "{endpoint}/client/structure/{client}",
+          "",
+          {
+            endpoint: url,
+            client: string,
+          }
+        )
+        namespace TestService {
+          @route("/one")
+          @post
+          op one(): void;
+
+          @route("/two")
+          @post
+          op two(): void;
+
+          interface Foo {
+            @route("/three")
+            @post
+            three(): void;
+          }
+        }
+
+        @client({
+          name: "FirstClient",
+          service: TestService,
+        })
+        namespace TestClientNs {
+          op one is TestService.one;
+
+          @client
+          interface Group3 {
+            two is TestService.two;
+            three is TestService.Foo.three;
+          }
+        }
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+
+    if (client.children && client.children.length > 0) {
+      // Verify no duplicates by checking unique crossLanguageDefinitionIds
+      const childIds = client.children.map((c) => c.crossLanguageDefinitionId);
+      const uniqueIds = new Set(childIds);
+      strictEqual(
+        childIds.length,
+        uniqueIds.size,
+        `Client children should have no duplicates. Found: [${childIds.join(", ")}]`,
+      );
+    }
+  });
+});

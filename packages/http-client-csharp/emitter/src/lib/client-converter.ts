@@ -106,11 +106,16 @@ function fromSdkClient(
       fromSdkClient(sdkContext, client.parent, rootApiVersions),
     );
   }
-  // fill children
+  // fill children, deduplicating to avoid duplicate entries in the code model
   if (client.children) {
-    inputClient.children = client.children.map((c) =>
-      diagnostics.pipe(fromSdkClient(sdkContext, c, rootApiVersions)),
-    );
+    const seen = new Set<InputClient>();
+    inputClient.children = client.children
+      .map((c) => diagnostics.pipe(fromSdkClient(sdkContext, c, rootApiVersions)))
+      .filter((c) => {
+        if (seen.has(c)) return false;
+        seen.add(c);
+        return true;
+      });
   }
 
   return diagnostics.wrap(inputClient);
