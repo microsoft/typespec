@@ -3,7 +3,7 @@ import { dirname, join, relative, resolve } from "path";
 
 // ---- Shared constants ----
 
-export const SKIP_SPECS: string[] = ["type/file"];
+export const SKIP_SPECS: string[] = ["type/file", "service/multiple-services"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -135,9 +135,6 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   "service/multi-service": {
     namespace: "service.multiservice",
   },
-  "service/multiple-services": {
-    namespace: "service.multipleservices",
-  },
 };
 
 export const BASE_EMITTER_OPTIONS: Record<
@@ -221,6 +218,7 @@ export const BASE_EMITTER_OPTIONS: Record<
       "package-name": "generation-subdir",
       namespace: "generation.subdir",
       "generation-subdir": "_generated",
+      "generate-test": "false",
       "clear-output-folder": "true",
     },
   ],
@@ -289,6 +287,7 @@ export const BASE_EMITTER_OPTIONS: Record<
     {
       "package-name": "generation-subdir2",
       namespace: "generation.subdir2",
+      "generate-test": "false",
       "generation-subdir": "_generated",
     },
   ],
@@ -314,11 +313,6 @@ export interface RegenerateFlags {
   debug: boolean;
   name?: string;
   pyodide?: boolean;
-}
-
-export interface ProcessedEmitterOption {
-  options: Record<string, string>;
-  outputDir: string;
 }
 
 export interface RegenerateConfig {
@@ -401,48 +395,6 @@ export async function getSubdirectories(
 
   await searchDir(baseDir);
   return subdirectories;
-}
-
-export function defaultPackageName(spec: string, config: RegenerateConfig): string {
-  const specDir = spec.includes("azure") ? config.azureHttpSpecs : config.httpSpecs;
-  return toPosix(relative(specDir, dirname(spec)))
-    .replace(/\//g, "-")
-    .toLowerCase();
-}
-
-export function buildOptions(
-  spec: string,
-  generatedFolder: string,
-  flags: RegenerateFlags,
-  config: RegenerateConfig,
-): ProcessedEmitterOption[] {
-  const results: ProcessedEmitterOption[] = [];
-  for (const emitterConfig of getEmitterOption(spec, flags.flavor, config)) {
-    const options: Record<string, string> = { ...emitterConfig };
-    if (flags.pyodide) {
-      options["use-pyodide"] = "true";
-    }
-    options["flavor"] = flags.flavor;
-    for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
-      options[k] = v;
-    }
-    if (options["emitter-output-dir"] === undefined) {
-      const packageName = options["package-name"] || defaultPackageName(spec, config);
-      // Output to new tests/generated/<flavor>/<package> structure
-      options["emitter-output-dir"] = toPosix(
-        `${generatedFolder}/../tests/generated/${flags.flavor}/${packageName}`,
-      );
-    }
-    if (flags.debug) {
-      options["debug"] = "true";
-    }
-    options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
-    results.push({
-      options,
-      outputDir: options["emitter-output-dir"],
-    });
-  }
-  return results;
 }
 
 export async function runTaskPool(

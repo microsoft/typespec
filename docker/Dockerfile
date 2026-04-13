@@ -28,4 +28,4 @@ COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
 RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 
-ENTRYPOINT [ "tsp" ]
+ENTRYPOINT ["tsp"]

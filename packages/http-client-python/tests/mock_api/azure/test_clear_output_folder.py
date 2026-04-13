@@ -14,7 +14,6 @@ def test_clear_output_folder():
     assert not (folder / "to_be_deleted.py").exists(), "File to_be_deleted.py should be deleted after regeneration"
 
     if (GENERATED_PATH / "generation-subdir").exists():
-        assert (GENERATED_PATH / "generation-subdir/generated_tests").exists()
         assert not (GENERATED_PATH / "generation-subdir/generated_tests/to_be_deleted.py").exists()
 
         assert (GENERATED_PATH / "generation-subdir/generation/subdir/_generated").exists()

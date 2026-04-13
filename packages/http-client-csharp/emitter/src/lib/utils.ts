@@ -234,5 +234,5 @@ export function containsMultiServiceClient(
  * @beta
  */
 export function isMultiServiceClient(client: SdkClientType<SdkHttpOperation>): boolean {
-  return Array.isArray(client.__raw.service) && client.__raw.service.length > 1;
+  return client.__raw.services.length > 1;
 }
