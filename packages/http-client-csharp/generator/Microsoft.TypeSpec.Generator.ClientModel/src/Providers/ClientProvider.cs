@@ -1501,12 +1501,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
+            var seen = new HashSet<ClientProvider>();
             var subClients = new List<ClientProvider>(_inputClient.Children.Count);
 
             foreach (var client in _inputClient.Children)
             {
                 var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
-                if (subClient != null && !subClients.Contains(subClient))
+                if (subClient != null && seen.Add(subClient))
                 {
                     subClients.Add(subClient);
                 }
