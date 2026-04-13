@@ -972,7 +972,10 @@ export function printModelExpression(
     const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
     if (node.properties.length === 0) {
       if (nodeHasComments) {
-        return group([indent(printDanglingComments(path, options, { sameIndent: true })), softline]);
+        return group([
+          indent(printDanglingComments(path, options, { sameIndent: true })),
+          softline,
+        ]);
       }
       return group(["", softline]);
     }
