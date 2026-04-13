@@ -218,6 +218,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const arrayName = ensureCSharpIdentifier(this.emitter.getProgram(), array, name);
       const arrayFile = this.emitter.createSourceFile(`generated/models/${arrayName}.cs`);
       arrayFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
+      arrayFile.meta["skipEmit"] = true;
       const arrayNamespace = this.#getOrAddNamespace(array.namespace);
       return this.#createModelContext(arrayNamespace, arrayFile, arrayName);
     }
@@ -1273,6 +1274,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         return sourceFile.meta.emitted;
       }
 
+      if (sourceFile.meta["skipEmit"]) {
+        return { path: sourceFile.path, contents: "" };
+      }
+
       const emittedSourceFile: EmittedSourceFile = {
         path: sourceFile.path,
         contents: "",
@@ -1434,7 +1439,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             break;
         }
       }
-      return super.writeOutput(emittedSourceFiles);
+      // return super.writeOutput(emittedSourceFiles);
+      return super.writeOutput(emittedSourceFiles.filter((f) => !f.meta["skipEmit"]));
     }
   }
 
