@@ -494,6 +494,12 @@ describe("client children deduplication", () => {
             @post
             three(): void;
           }
+
+          interface Bar {
+            @route("/four")
+            @post
+            four(): void;
+          }
         }
 
         @client({
@@ -507,6 +513,11 @@ describe("client children deduplication", () => {
           interface Group3 {
             two is TestService.two;
             three is TestService.Foo.three;
+          }
+
+          @client
+          interface Group4 {
+            four is TestService.Bar.four;
           }
         }
       `,
