@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
-import pkg from "fs-extra";
-import { copyFile, mkdir, rm } from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { globby } from "globby";
-import inquirer from "inquirer";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "path";
@@ -13,10 +12,15 @@ import { fileURLToPath } from "url";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 
-const { pathExists, stat, readFile, writeFile } = pkg;
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+async function pathExists(path) {
+  return access(path).then(
+    () => true,
+    () => false,
+  );
+}
 
 const projectRoot = join(__dirname, "../..");
 const tspConfig = join(__dirname, "tspconfig.yaml");
@@ -181,18 +185,14 @@ async function processFile(file, options) {
     await writeFile(logFilePath, errorDetails, "utf8");
 
     if (interactive) {
-      const { action } = await inquirer.prompt([
-        {
-          type: "list",
-          name: "action",
-          message: `Processing failed for ${relativePath}. What would you like to do?`,
-          choices: [
-            { name: "Retry", value: "retry" },
-            { name: "Skip to next file", value: "next" },
-            { name: "Abort processing", value: "abort" },
-          ],
-        },
-      ]);
+      const action = await select({
+        message: `Processing failed for ${relativePath}. What would you like to do?`,
+        choices: [
+          { name: "Retry", value: "retry" },
+          { name: "Skip to next file", value: "next" },
+          { name: "Abort processing", value: "abort" },
+        ],
+      });
 
       if (action === "retry") {
         if (spinner) spinner.start(`Retrying: ${relativePath}`);

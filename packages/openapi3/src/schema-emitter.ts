@@ -720,7 +720,13 @@ export class OpenAPI3SchemaEmitterBase<
     for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
-      mapping[key] = (ref.value as any).$ref;
+      if (ref.value instanceof Placeholder) {
+        ref.value.onValue((resolvedValue) => {
+          mapping[key] = (resolvedValue as any).$ref;
+        });
+      } else {
+        mapping[key] = (ref.value as any).$ref;
+      }
     }
     return mapping;
   }

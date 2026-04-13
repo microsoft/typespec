@@ -2,9 +2,7 @@
 #  Build compiler
 # --------------------------------
 # cspell:ignore tdnf
-# mcr doesn't provide any update to date images for nodejs... so we use the devcontainers image for building.
-# FROM mcr.microsoft.com/azurelinux/base/nodejs:20.14 AS builder
-FROM mcr.microsoft.com/devcontainers/javascript-node:22 AS builder
+FROM mcr.microsoft.com/devcontainers/javascript-node:24 AS builder
 COPY . /app
 
 # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
@@ -24,10 +22,10 @@ RUN pnpm pack
 # --------------------------------
 #  Setup final image
 # --------------------------------
-FROM mcr.microsoft.com/azurelinux/base/nodejs:20.14
+FROM mcr.microsoft.com/azurelinux/base/nodejs:24
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
 RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 
-ENTRYPOINT [ "tsp" ]
+ENTRYPOINT ["tsp"]

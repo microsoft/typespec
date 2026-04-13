@@ -9,7 +9,7 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @m-nash @iscai-msft
+/eng/emitters/                               @JoshLove-msft @iscai-msft @srnagar @timotheeguerin
 /docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
 
 ######################

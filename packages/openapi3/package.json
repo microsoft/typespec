@@ -37,7 +37,7 @@
     "#test/*": "./test/*"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -116,7 +116,6 @@
     "@typespec/xml": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "cross-env": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",

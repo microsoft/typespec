@@ -15,7 +15,7 @@
   },
   "repository": "https://github.com/microsoft/typespec.git",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",

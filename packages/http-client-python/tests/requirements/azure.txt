@@ -1,6 +1,5 @@
-# === common azure dependencies across repos ===
 # Azure SDK dependencies
 -r base.txt
 azure-core>=1.37.0
 azure-mgmt-core==1.6.0
-# === end common azure dependencies across repos ===
+geojson>=3.0.0
