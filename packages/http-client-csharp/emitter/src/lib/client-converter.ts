@@ -106,16 +106,17 @@ function fromSdkClient(
       fromSdkClient(sdkContext, client.parent, rootApiVersions),
     );
   }
-  // fill children, deduplicating to avoid duplicate entries in the code model
+  // fill children
+  // TODO: remove deduplication once https://github.com/Azure/typespec-azure/issues/4251 is fixed
   if (client.children) {
-    const seen = new Set<InputClient>();
-    inputClient.children = client.children
-      .map((c) => diagnostics.pipe(fromSdkClient(sdkContext, c, rootApiVersions)))
-      .filter((c) => {
-        if (seen.has(c)) return false;
-        seen.add(c);
-        return true;
-      });
+    const seen = new Set<SdkClientType>();
+    const children: InputClient[] = [];
+    for (const child of client.children) {
+      if (seen.has(child)) continue;
+      seen.add(child);
+      children.push(diagnostics.pipe(fromSdkClient(sdkContext, child, rootApiVersions)));
+    }
+    inputClient.children = children;
   }
 
   return diagnostics.wrap(inputClient);
