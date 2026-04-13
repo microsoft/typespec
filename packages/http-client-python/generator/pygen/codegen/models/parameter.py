@@ -109,29 +109,28 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         if type_description:
             base_description = add_to_description(base_description, type_description)
         if self.optional and isinstance(self.type, ConstantType):
-            if self.is_api_version:
-                base_description = add_to_description(
-                    base_description,
-                    f"Known values are {self.get_declaration()}.",
-                )
-            else:
-                base_description = add_to_description(
-                    base_description,
-                    f"Known values are {self.get_declaration()} and None.",
-                )
+            base_description = add_to_description(
+                base_description,
+                f"Known values are {self.get_declaration()} and None.",
+            )
         if not (self.optional or self.client_default_value):
             base_description = add_to_description(base_description, "Required.")
-        if self.client_default_value is not None:
+        if self.is_api_version and self.optional:
+            base_description = add_to_description(
+                base_description,
+                "Default value is None. If not set, the operation's default API version will be used.",
+            )
+        elif self.client_default_value is not None:
             base_description = add_to_description(
                 base_description,
                 f"Default value is {self.client_default_value_declaration}.",
             )
-        if self.optional and self.client_default_value is None:
+        elif self.optional:
             base_description = add_to_description(
                 base_description,
                 f"Default value is {self.client_default_value_declaration}.",
             )
-        if self.constant:
+        if self.constant and not self.is_api_version:
             base_description = add_to_description(
                 base_description,
                 "Note that overriding this default value may result in unsupported behavior.",
