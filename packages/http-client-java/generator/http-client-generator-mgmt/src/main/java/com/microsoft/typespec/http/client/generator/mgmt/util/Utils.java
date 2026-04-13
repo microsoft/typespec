@@ -44,6 +44,10 @@ public class Utils {
         return nameForUngroupOperations;
     }
 
+    static {
+        Pluralize.addSingularRule("caches", "cache");
+    }
+
     public static String getSingular(String name) {
         if (name == null) {
             return null;

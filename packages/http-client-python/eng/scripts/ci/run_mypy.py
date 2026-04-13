@@ -27,7 +27,9 @@ def get_config_file_location():
 
 
 def _single_dir_mypy(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    # Exclude "build" directories to avoid mypy "Duplicate module" errors caused by
+    # stale build/lib/ artifacts from previous setup.py builds.
+    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.stem != "build")
     try:
         check_call(
             [

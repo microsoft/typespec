@@ -3,6 +3,7 @@ import {
   AssetEmitter,
   createAssetEmitter,
   ObjectBuilder,
+  Placeholder,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import { compilerAssert, DiscriminatedUnion, Type } from "@typespec/compiler";
@@ -98,7 +99,13 @@ export class OpenAPI32SchemaEmitter extends OpenAPI31SchemaEmitter {
     for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
-      mapping[key] = (ref.value as any).$ref;
+      if (ref.value instanceof Placeholder) {
+        ref.value.onValue((resolvedValue: any) => {
+          mapping[key] = (resolvedValue as any).$ref;
+        });
+      } else {
+        mapping[key] = (ref.value as any).$ref;
+      }
     }
     return mapping;
   }
