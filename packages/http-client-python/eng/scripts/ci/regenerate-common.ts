@@ -3,7 +3,7 @@ import { dirname, join, relative, resolve } from "path";
 
 // ---- Shared constants ----
 
-export const SKIP_SPECS: string[] = ["type/file", "service/multiple-services"];
+export const SKIP_SPECS: string[] = ["type/file"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -134,6 +134,10 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   },
   "service/multi-service": {
     namespace: "service.multiservice",
+  },
+  "service/multiple-services": {
+    "package-name": "service-multiple-services",
+    namespace: "service.multipleservices",
   },
 };
 

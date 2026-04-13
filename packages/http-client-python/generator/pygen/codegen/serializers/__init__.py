@@ -353,11 +353,27 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         operations_folder_name = self.code_model.operations_folder_name(namespace)
         generation_path = self.code_model.get_generation_dir(namespace)
+
+        # Deduplicate operation groups with the same class_name by merging their operations.
+        # This handles the case where multiple clients share operation group names in the same namespace
+        # (e.g., both ServiceA and ServiceB have an "Operations" interface).
+        seen_class_names: dict[str, OperationGroup] = {}
+        class_operation_groups: list[OperationGroup] = []
+        for og in operation_groups:
+            if og.class_name in seen_class_names:
+                seen_class_names[og.class_name].operations.extend(og.operations)
+            else:
+                seen_class_names[og.class_name] = og
+                class_operation_groups.append(og)
+
         for async_mode, async_path in self.serialize_loop:
             prefix_path = f"{async_path}{operations_folder_name}"
-            # write init file
+            # write init file (use deduplicated list to avoid duplicate imports)
             operations_init_serializer = OperationsInitSerializer(
-                code_model=self.code_model, operation_groups=operation_groups, env=env, async_mode=async_mode
+                code_model=self.code_model,
+                operation_groups=class_operation_groups,
+                env=env,
+                async_mode=async_mode,
             )
             self.write_file(
                 generation_path / Path(f"{prefix_path}/__init__.py"),
@@ -367,9 +383,11 @@ class JinjaSerializer(ReaderAndWriter):
             # write operations file
             OgLoop = namedtuple("OgLoop", ["operation_groups", "filename"])
             if self.code_model.options["combine-operation-files"]:
+                # Pass all operation_groups for request builder generation, but class_operation_groups
+                # for class definitions to avoid duplicate class names in the output.
                 loops = [OgLoop(operation_groups, "_operations")]
             else:
-                loops = [OgLoop([og], og.filename) for og in operation_groups]
+                loops = [OgLoop([og], og.filename) for og in class_operation_groups]
             for ogs, filename in loops:
                 operation_group_serializer = OperationGroupsSerializer(
                     code_model=self.code_model,
@@ -377,6 +395,9 @@ class JinjaSerializer(ReaderAndWriter):
                     env=env,
                     async_mode=async_mode,
                     client_namespace=namespace,
+                    class_operation_groups=class_operation_groups
+                    if self.code_model.options["combine-operation-files"]
+                    else None,
                 )
                 self.write_file(
                     generation_path / Path(f"{prefix_path}/{filename}.py"),

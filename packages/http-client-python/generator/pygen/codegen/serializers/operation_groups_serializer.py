@@ -32,9 +32,11 @@ class OperationGroupsSerializer(BaseSerializer):
         async_mode: bool,
         *,
         client_namespace: Optional[str] = None,
+        class_operation_groups: Optional[list[OperationGroup]] = None,
     ):
         super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.operation_groups = operation_groups
+        self.class_operation_groups = class_operation_groups if class_operation_groups is not None else operation_groups
         self.async_mode = async_mode
 
     def _get_request_builders(
@@ -77,6 +79,7 @@ class OperationGroupsSerializer(BaseSerializer):
         return template.render(
             code_model=self.code_model,
             operation_groups=self.operation_groups,
+            class_operation_groups=self.class_operation_groups,
             imports=FileImportSerializer(
                 imports,
                 async_mode=self.async_mode,
