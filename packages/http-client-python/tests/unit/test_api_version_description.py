@@ -70,7 +70,7 @@ def test_api_version_parameter_description():
     assert "Default value is None." in desc
     assert "If not set, the operation's default API version will be used." in desc
     assert 'Known values are "2025-11-01" and None.' in desc
-    assert "Note that overriding this default value may result in unsupported behavior" not in desc
+    assert "Note that overriding this default value may result in unsupported behavior" in desc
 
 
 def test_non_api_version_constant_parameter_description():
@@ -122,5 +122,5 @@ def test_required_api_version_parameter_description():
         type=constant_type,
     )
     desc = param.description
-    # Required api_version is constant - should not have the override note
-    assert "Note that overriding this default value may result in unsupported behavior" not in desc
+    # Required api_version is constant - should have the override note
+    assert "Note that overriding this default value may result in unsupported behavior" in desc

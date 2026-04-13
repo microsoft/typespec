@@ -130,7 +130,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
                 base_description,
                 f"Default value is {self.client_default_value_declaration}.",
             )
-        if self.constant and not self.is_api_version:
+        if self.constant:
             base_description = add_to_description(
                 base_description,
                 "Note that overriding this default value may result in unsupported behavior.",
