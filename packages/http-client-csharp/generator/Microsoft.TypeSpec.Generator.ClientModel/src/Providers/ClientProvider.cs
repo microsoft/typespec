@@ -1506,7 +1506,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var client in _inputClient.Children)
             {
                 var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
-                if (subClient != null)
+                if (subClient != null && !subClients.Contains(subClient))
                 {
                     subClients.Add(subClient);
                 }

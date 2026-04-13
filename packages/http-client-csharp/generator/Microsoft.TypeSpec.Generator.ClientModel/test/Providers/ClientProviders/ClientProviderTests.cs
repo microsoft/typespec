@@ -1084,6 +1084,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNull(cachingField, "Parent should not have caching field for subclient that has subclient-specific parameters in its accessor");
         }
 
+        [Test]
+        public void TestBuildMethods_ForParent_DuplicateChildrenDoesNotCrash()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Parent);
+
+            // Simulate duplicate children (same InputClient appearing multiple times in children list)
+            parentClient.Update(children: [subClient, subClient]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // Accessing Methods should not throw due to duplicate children
+            Assert.DoesNotThrow(() => { var _ = parentProvider.Methods; });
+
+            // The parent should have only one factory method for the subclient (not duplicated)
+            var factoryMethods = parentProvider.Methods.Where(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient").ToList();
+            Assert.AreEqual(1, factoryMethods.Count, "Parent should have exactly one factory method for the subclient despite duplicate children");
+
+            // The parent should have only one caching field (not duplicated)
+            var cachingFields = parentProvider.Fields.Where(f => f.Name == "_cachedSubClient").ToList();
+            Assert.AreEqual(1, cachingFields.Count, "Parent should have exactly one caching field despite duplicate children");
+        }
+
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters,
