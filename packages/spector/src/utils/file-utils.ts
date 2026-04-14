@@ -1,9 +1,10 @@
 import { glob, mkdir } from "fs/promises";
+import { normalizePath } from "./path-utils.js";
 
 export async function findFilesFromPattern(pattern: string | string[]): Promise<string[]> {
   const results: string[] = [];
   for await (const file of glob(pattern)) {
-    results.push(file);
+    results.push(normalizePath(file));
   }
   return results;
 }
