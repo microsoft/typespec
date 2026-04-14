@@ -3402,7 +3402,7 @@ describe("collection type: defined as emitter option", () => {
 });
 
 describe("arrayDeclarationContext", () => {
-  it("does not emit a file for array model declarations", async () => {
+  it("emits correct types for array model declarations", async () => {
     const fs = await compileAndValidateMultiple(
       tester,
       `
@@ -3414,7 +3414,7 @@ describe("arrayDeclarationContext", () => {
     assertFileNotEmitted(fs, "Tags.cs");
   });
 
-  it("does not emit a file for array model with custom namespace", async () => {
+  it("emits correct types for array model with custom namespace", async () => {
     const fs = await compileAndValidateMultiple(
       tester,
       [
@@ -3429,7 +3429,7 @@ describe("arrayDeclarationContext", () => {
     assertFileNotEmitted(fs, "Items.cs");
   });
 
-  it("does not emit a file for array model with complex element type", async () => {
+  it("emits correct types for array model with complex element type", async () => {
     const fs = await compileAndValidateMultiple(
       tester,
       `
