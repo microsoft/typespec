@@ -135,7 +135,7 @@ export const $lib = createTypeSpecLibrary({
     "client-required-false": {
       severity: "error",
       messages: {
-        default: "clientRequired cannot be set to false.",
+        default: "Client option 'clientRequired' can only be set to 'true'.",
       },
     },
   },
