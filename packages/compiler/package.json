@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -69,7 +69,7 @@
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -132,8 +132,6 @@
     "@typespec/internal-build-utils": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
-    "grammarkdown": "catalog:",
     "pathe": "catalog:",
     "rimraf": "catalog:",
     "source-map-support": "catalog:",

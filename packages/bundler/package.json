@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://typespec.io",
@@ -23,7 +23,7 @@
     "./vite": "./dist/src/vite/index.js"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "bundle": "node ./dist/src/cli.js",
@@ -53,7 +53,6 @@
     "@types/yargs": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

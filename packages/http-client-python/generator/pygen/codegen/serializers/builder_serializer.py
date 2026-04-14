@@ -1353,7 +1353,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         except StopIteration:
             pass
 
-        retval.append(f'_request = HttpRequest("{builder.next_link_verb}", {next_link_str}{query_str})')
+        header_str = ", headers=_headers"
+        retval.append(f'_request = HttpRequest("{builder.next_link_verb}", {next_link_str}{header_str}{query_str})')
         retval.extend(self._postprocess_http_request(builder, "_request.url"))
 
         return retval

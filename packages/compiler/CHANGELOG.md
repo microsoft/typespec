@@ -1,5 +1,24 @@
 # Change Log - @typespec/compiler
 
+## 1.11.0
+
+### Features
+
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Added a new template `FilterVisibility` to support more accurate visibility transforms. This replaces the `@withVisibilityFilter` decorator, which is now deprecated and slated for removal in a future version of TypeSpec.
+
+### Bug Fixes
+
+- [#10196](https://github.com/microsoft/typespec/pull/10196) Include model name in `duplicate-property` error message
+- [#10199](https://github.com/microsoft/typespec/pull/10199) [invalid-discriminated-union-variant] `duplicateDefaultVariant` diagnostic now includes the union type name
+- [#10183](https://github.com/microsoft/typespec/pull/10183) Do not interpolate non primitive values in config automatically
+    ```yaml
+        file-type: ["json", "yaml"]
+        output-file: "openapi.{file-type}"
+    ```
+    Will not be interpolated as `openapi.json,yaml` but keep the placeholder `{file-type}` intact for the emitter to handle.
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Fixed a bug that would prevent template parameters from assigning to values in some cases.
+
+
 ## 1.10.0
 
 ### Features

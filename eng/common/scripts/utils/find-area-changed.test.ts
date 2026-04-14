@@ -38,17 +38,6 @@ describe("paths that should trigger python CI", () => {
   });
 });
 
-describe("paths that should trigger Core CI", () => {
-  it.each([
-    "packages/compiler/package.json",
-    "packages/http/package.json",
-    "packages/openapi3/package.json",
-  ])("%s", (path) => {
-    const areas = findAreasChanged([path]);
-    expect(areas).toEqual(["Core"]);
-  });
-});
-
 describe("paths that should trigger all isolated packages", () => {
   it.each([
     "eng/emitters/pipelines/templates/jobs/detect-api-changes.yml",
@@ -59,22 +48,22 @@ describe("paths that should trigger all isolated packages", () => {
   });
 });
 
-it("Should return a combination of core and isolated packages", () => {
+it("Should return a combination of isolated packages", () => {
   const areas = findAreasChanged([
     "packages/http-client-csharp/src/constants.ts",
     "packages/http-client-java/src/emitter.ts",
     "packages/http-client-python/src/emitter.ts",
     "packages/compiler/package.json",
   ]);
-  expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python"]);
 });
 
-it("Should return CSharp, Core and Java if .editorconfig is changed", () => {
+it("Should return CSharp, Java and Python if .editorconfig is changed", () => {
   const areas = findAreasChanged([".editorconfig"]);
-  expect(areas).toEqual(["CSharp", "Java", "Python", "Core"]);
+  expect(areas).toEqual(["CSharp", "Java", "Python"]);
 });
 
-it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, eslint.config.json", () => {
+it("Should not trigger CI for .prettierignore, .prettierrc.json, cspell.yaml, eslint.config.json alone", () => {
   const areas = findAreasChanged([
     ".prettierignore",
     ".prettierrc.json",
@@ -87,7 +76,7 @@ it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, e
   expect(areas).toEqual(["CSharp", "Java", "Python"]);
 });
 
-it("should return Core for random files at the root", () => {
+it("should not trigger any CI for random files at the root", () => {
   const areas = findAreasChanged(["some.file", "file/in/deep/directory"]);
-  expect(areas).toEqual(["Core"]);
+  expect(areas).toEqual([]);
 });

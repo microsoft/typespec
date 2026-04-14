@@ -131,6 +131,19 @@ const libDef = {
           "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
       },
     },
+    "no-sdk-clients": {
+      severity: "error",
+      messages: {
+        default:
+          "The Python emitter did not find any SDK clients in this TypeSpec program. The current Python generator expects at least one client/service to generate code.",
+      },
+    },
+    "browser-runtime-load-failed": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Failed to initialize the browser Python runtime.${"details"}`,
+      },
+    },
     "invalid-paging-items": {
       severity: "warning",
       messages: {

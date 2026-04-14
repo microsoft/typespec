@@ -1,7 +1,7 @@
 {
   "name": "@typespec/standalone-cli",
   "private": true,
-  "version": "0.80.0",
+  "version": "0.81.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Standalone CLI",
   "homepage": "https://typespec.io",
@@ -19,7 +19,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -42,7 +42,6 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "esbuild": "catalog:",
     "execa": "catalog:",
     "ora": "catalog:",

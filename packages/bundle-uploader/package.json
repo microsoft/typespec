@@ -20,7 +20,7 @@
   "type": "module",
   "main": "dist/src/index.js",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -41,7 +41,7 @@
     "@azure/storage-blob": "catalog:",
     "@pnpm/workspace.find-packages": "catalog:",
     "@typespec/bundler": "workspace:^",
-    "json5": "catalog:",
+    "globby": "catalog:",
     "picocolors": "catalog:",
     "semver": "catalog:"
   },
@@ -50,7 +50,6 @@
     "@types/semver": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

@@ -1,5 +1,5 @@
-import deepEqual from "deep-equal";
-import { parseString } from "xml2js";
+import { XMLParser } from "fast-xml-parser";
+import { isDeepStrictEqual } from "node:util";
 import { matchValues, type MockValueMatcher } from "./match-engine.js";
 import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
@@ -21,7 +21,7 @@ export const validateRawBodyEquals = (
     return;
   }
 
-  if (!deepEqual(actualRawBody, expectedRawBody, { strict: true })) {
+  if (!isDeepStrictEqual(actualRawBody, expectedRawBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedRawBody, actualRawBody);
   }
 };
@@ -64,17 +64,9 @@ export const validateXmlBodyEquals = (
     throw new ValidationError(BODY_EMPTY_ERROR_MESSAGE, expectedXml, request.rawBody);
   }
 
-  let actualParsed: unknown;
-  parseString(request.rawBody, (err: Error | null, result: any): void => {
-    if (err !== null) throw err;
-    actualParsed = result;
-  });
-
-  let expectedParsed: unknown;
-  parseString(expectedXml, (err: Error | null, result: any): void => {
-    if (err !== null) throw err;
-    expectedParsed = result;
-  });
+  const parser = new XMLParser({ parseTagValue: false });
+  const actualParsed: unknown = parser.parse(request.rawBody);
+  let expectedParsed: unknown = parser.parse(expectedXml);
 
   // If the expected body is a DynValue with matchers, use matcher-aware comparison
   const matchers =
@@ -98,7 +90,7 @@ export const validateXmlBodyEquals = (
       );
     }
   } else {
-    if (!deepEqual(actualParsed, expectedParsed, { strict: true })) {
+    if (!isDeepStrictEqual(actualParsed, expectedParsed)) {
       throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedXml, request.rawBody);
     }
   }
@@ -204,7 +196,7 @@ export const validateQueryParam = (
   if (collectionFormat && Array.isArray(expected)) {
     // verify query parameter as collection
     if (collectionFormat === "multi" && Array.isArray(actual)) {
-      isExpected = deepEqual(actual, expected);
+      isExpected = isDeepStrictEqual(actual, expected);
     } else if (collectionFormat !== "multi" && typeof actual === "string") {
       const expectedString = expected.join(splitterMap[collectionFormat]);
       isExpected = expectedString === decodeURIComponent(actual);

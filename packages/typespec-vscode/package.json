@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -26,7 +26,7 @@
   "main": "./dist/src/extension.cjs",
   "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.110.0"
+    "vscode": "^1.115.0"
   },
   "exports": {
     ".": {
@@ -285,7 +285,7 @@
     "@types/cross-spawn": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
-    "@types/vscode": "~1.110.0",
+    "@types/vscode": "~1.115.0",
     "@types/which": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
@@ -296,7 +296,6 @@
     "@vscode/test-web": "catalog:",
     "@vscode/vsce": "catalog:",
     "ajv": "catalog:",
-    "c8": "catalog:",
     "cross-spawn": "catalog:",
     "esbuild": "catalog:",
     "playwright": "catalog:",

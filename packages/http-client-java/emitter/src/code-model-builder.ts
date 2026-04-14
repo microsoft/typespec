@@ -159,6 +159,7 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
+  isPropertyRequired,
   optionBoolean,
   pascalCase,
   removeClientSuffix,
@@ -941,7 +942,7 @@ export class CodeModelBuilder {
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
     let diagnostic = undefined;
-    if (generateConvenienceApi) {
+    if (generateConvenienceApi && this.isAzureV1()) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
@@ -1527,7 +1528,7 @@ export class CodeModelBuilder {
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: !param.optional,
+        required: isPropertyRequired(param),
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
@@ -1698,7 +1699,7 @@ export class CodeModelBuilder {
             {
               summary: sdkMethodParameter.summary,
               implementation: ImplementationLocation.Method,
-              required: !sdkMethodParameter.optional,
+              required: isPropertyRequired(sdkMethodParameter),
               nullable: false,
             },
           );
@@ -2046,7 +2047,7 @@ export class CodeModelBuilder {
     const parameter = new Parameter(parameterName, sdkBody.doc ?? "", schema, {
       summary: sdkBody.summary,
       implementation: ImplementationLocation.Method,
-      required: !sdkBody.optional,
+      required: isPropertyRequired(sdkBody),
       protocol: {
         http: new HttpParameter(ParameterLocation.Body),
       },
@@ -2975,7 +2976,7 @@ export class CodeModelBuilder {
 
     const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
       summary: modelProperty.summary,
-      required: !modelProperty.optional,
+      required: isPropertyRequired(modelProperty),
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
       serializedName: getPropertySerializedName(modelProperty),

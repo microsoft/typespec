@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
+import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
-import { copy, pathExists } from "fs-extra";
-import { mkdir, readFile, rm, writeFile } from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, writeFile } from "fs/promises";
 import { globby } from "globby";
-import inquirer from "inquirer";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "pathe";
@@ -39,6 +38,13 @@ interface CommandLineArgs {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const tspConfig = join(__dirname, "tspconfig.yaml");
+
+async function pathExists(path: string): Promise<boolean> {
+  return access(path).then(
+    () => true,
+    () => false,
+  );
+}
 
 const basePath = join(__dirname, "../..");
 const logDirRoot = join(basePath, "temp", "emit-scenarios-logs");
@@ -78,7 +84,8 @@ async function copySelectiveFiles(
   for (const file of files) {
     const src = join(sourceDir, file);
     const dest = join(targetDir, file);
-    await copy(src, dest);
+    await mkdir(dirname(dest), { recursive: true });
+    await copyFile(src, dest);
   }
 }
 
@@ -165,18 +172,14 @@ async function compileSpec(file: string, options: CompileOptions): Promise<Compi
     await writeFile(logFilePath, errorDetails, "utf8");
 
     if (interactive) {
-      const { action } = await inquirer.prompt([
-        {
-          type: "list",
-          name: "action",
-          message: `Processing failed for ${relativePath}. What would you like to do?`,
-          choices: [
-            { name: "Retry", value: "retry" },
-            { name: "Skip to next file", value: "next" },
-            { name: "Abort processing", value: "abort" },
-          ],
-        },
-      ]);
+      const action = await select({
+        message: `Processing failed for ${relativePath}. What would you like to do?`,
+        choices: [
+          { name: "Retry", value: "retry" },
+          { name: "Skip to next file", value: "next" },
+          { name: "Abort processing", value: "abort" },
+        ],
+      });
 
       if (action === "retry") {
         if (spinner) spinner.start(`Retrying: ${relativePath}`);

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-js",
-  "version": "0.58.0-alpha.25",
+  "version": "0.58.0-alpha.26",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -78,9 +78,8 @@
     "@vitest/ui": "catalog:",
     "decimal.js": "catalog:",
     "express": "catalog:",
-    "fs-extra": "catalog:",
     "globby": "catalog:",
-    "inquirer": "catalog:",
+    "@inquirer/prompts": "catalog:",
     "morgan": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",

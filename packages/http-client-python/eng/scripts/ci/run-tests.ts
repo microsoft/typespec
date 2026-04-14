@@ -316,9 +316,20 @@ async function main(): Promise<void> {
       baseEnvs = ["test"];
     }
 
+    // Expand 'ci' into its component environments for parallel execution
+    const expandedEnvs: string[] = [];
+    for (const env of baseEnvs) {
+      if (env === "ci") {
+        // Run test first (sequential), then lint/mypy/pyright/docs in parallel
+        expandedEnvs.push("test", "lint", "mypy", "pyright", "docs");
+      } else {
+        expandedEnvs.push(env);
+      }
+    }
+
     // Build full environment list
     const envs: string[] = [];
-    for (const env of baseEnvs) {
+    for (const env of expandedEnvs) {
       if (env === "unittest") {
         envs.push("unittest");
       } else {
@@ -337,27 +348,37 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    // Determine parallelism
-    // Test environments must run sequentially because they each start a mock server on port 3000
-    const hasTestEnvs = envs.some((e) => e.startsWith("test-"));
+    // Separate test environments from other environments
+    // Test environments must run sequentially (they share port 3000)
+    // Other environments (lint, mypy, pyright, docs) can run in parallel
+    const testEnvs = envs.filter((e) => e.startsWith("test-") || e === "unittest");
+    const otherEnvs = envs.filter((e) => !e.startsWith("test-") && e !== "unittest");
+
     const maxJobs = argv.values.jobs
       ? parseInt(argv.values.jobs, 10)
-      : hasTestEnvs
-        ? 1
-        : Math.max(2, cpus().length - 2);
+      : Math.max(2, cpus().length - 2);
 
     console.log(`  Flavors:      ${flavors.join(", ")}`);
     console.log(`  Environments: ${envs.join(", ")}`);
-    console.log(
-      `  Jobs:         ${maxJobs}${hasTestEnvs && !argv.values.jobs ? " (sequential for test envs)" : ""}`,
-    );
+    console.log(`  Jobs:         ${maxJobs} (test envs run sequentially, others in parallel)`);
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
     }
     console.log();
 
-    // Run tests in parallel
-    const results = await runParallel(envs, pythonPath, maxJobs, argv.values.name);
+    // Run test environments first (sequentially)
+    let results: ToxResult[] = [];
+    if (testEnvs.length > 0) {
+      console.log(pc.cyan("Running test environments (sequential)..."));
+      results = await runParallel(testEnvs, pythonPath, 1, argv.values.name);
+    }
+
+    // Run other environments in parallel
+    if (otherEnvs.length > 0) {
+      console.log(pc.cyan("\nRunning lint/typecheck environments (parallel)..."));
+      const otherResults = await runParallel(otherEnvs, pythonPath, maxJobs, argv.values.name);
+      results = results.concat(otherResults);
+    }
 
     allResults.push(...results);
   }

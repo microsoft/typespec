@@ -3,6 +3,8 @@
 
 package type.file;
 
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +21,7 @@ public class FileTests {
     @Test
     public void testUploadFileSpecificContentType() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileSpecificContentType("image/png", fileData, fileData.getLength());
+        client.uploadFileSpecificContentType(fileData, fileData.getLength());
     }
 
     @Disabled("possible bug in clientcore")
@@ -46,19 +48,22 @@ public class FileTests {
     @Test
     public void testUploadFileMultipleContentTypes() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileMultipleContentTypes("image/png", fileData, fileData.getLength());
+        client.uploadFileMultipleContentTypes(UploadFileMultipleContentTypesContentType.IMAGE_PNG, fileData,
+            fileData.getLength());
     }
 
     @Test
     public void testDownloadFileMultipleContentTypes() {
-        BinaryData response = client.downloadFileMultipleContentTypes("image/png");
+        BinaryData response
+            = client.downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType.IMAGE_PNG);
         Assertions.assertNotNull(response);
     }
 
     @Test
     public void testUploadFileDefaultContentType() {
         BinaryData fileData = BinaryData.fromFile(PNG_FILE);
-        client.uploadFileDefaultContentType("image/png", fileData, fileData.getLength());
+        client.uploadFileDefaultContentTypeWithResponse(fileData, fileData.getLength(),
+            RequestContext.builder().setHeader(HttpHeaderName.CONTENT_TYPE, "image/png").build());
     }
 
     @Test

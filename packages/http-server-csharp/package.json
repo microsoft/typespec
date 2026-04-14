@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-csharp",
-  "version": "0.58.0-alpha.26",
+  "version": "0.58.0-alpha.27",
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
@@ -34,7 +34,7 @@
     }
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -87,9 +87,8 @@
     "@typespec/versioning": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "fs-extra": "catalog:",
     "globby": "catalog:",
-    "inquirer": "catalog:",
+    "@inquirer/prompts": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",
     "pathe": "catalog:",
