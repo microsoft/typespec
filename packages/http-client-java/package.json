@@ -31,7 +31,7 @@
     "clean": "rimraf ./dist ./temp ./emitter/temp ./generator/target/emitter.jar",
     "build": "npm run build:generator && npm run build:emitter",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
-    "build:generator": "mvn clean install --no-transfer-progress -T 1C -f ./generator/pom.xml",
+    "build:generator": "mvn clean install -Dspotless:skip --no-transfer-progress -T 1C -f ./generator/pom.xml",
     "test": "npm run test:emitter",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "format": "pnpm -w format:dir packages/http-client-java && mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml",
