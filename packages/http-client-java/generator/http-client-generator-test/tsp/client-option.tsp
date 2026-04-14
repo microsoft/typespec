@@ -26,5 +26,4 @@ interface ClientRequired {
 }
 
 @@clientOption(ClientRequiredParameters.accept, "clientRequired", true, "java");
-@@clientOption(ClientRequiredParameters.filter, "clientRequired", false, "java");
 @@clientOption(ClientRequiredRequest.timespan, "clientRequired", true, "java");

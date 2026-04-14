@@ -10,6 +10,7 @@ import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.Post;
+import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -65,8 +66,8 @@ public final class ClientRequiredsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> post(@HostParam("endpoint") String endpoint, @HeaderParam("accept") String accept,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("filter") String filter, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/client-required")
         @ExpectedResponses({ 200 })
@@ -75,19 +76,12 @@ public final class ClientRequiredsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> postSync(@HostParam("endpoint") String endpoint, @HeaderParam("accept") String accept,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("filter") String filter, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
 
     /**
      * The post operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -99,6 +93,7 @@ public final class ClientRequiredsImpl {
      * }
      * </pre>
      * 
+     * @param filter The filter parameter.
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -108,22 +103,15 @@ public final class ClientRequiredsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> postWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> postWithResponseAsync(String filter, BinaryData body, RequestOptions requestOptions) {
         final String accept = "application/json;odata.metadata=minimal";
         final String contentType = "application/json";
-        return FluxUtil.withContext(
-            context -> service.post(this.client.getEndpoint(), accept, contentType, body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.post(this.client.getEndpoint(), accept, filter, contentType,
+            body, requestOptions, context));
     }
 
     /**
      * The post operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -135,6 +123,7 @@ public final class ClientRequiredsImpl {
      * }
      * </pre>
      * 
+     * @param filter The filter parameter.
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -144,9 +133,10 @@ public final class ClientRequiredsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> postWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> postWithResponse(String filter, BinaryData body, RequestOptions requestOptions) {
         final String accept = "application/json;odata.metadata=minimal";
         final String contentType = "application/json";
-        return service.postSync(this.client.getEndpoint(), accept, contentType, body, requestOptions, Context.NONE);
+        return service.postSync(this.client.getEndpoint(), accept, filter, contentType, body, requestOptions,
+            Context.NONE);
     }
 }
