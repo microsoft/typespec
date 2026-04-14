@@ -45,6 +45,7 @@ import {
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
   CreateSdkContextOptions,
+  DecoratedType,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -73,6 +74,7 @@ import {
   createSdkContext,
   getAllModels,
   getClientNameOverride,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   isSdkBuiltInKind,
@@ -159,7 +161,6 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
-  isPropertyRequired,
   optionBoolean,
   pascalCase,
   removeClientSuffix,
@@ -1528,7 +1529,7 @@ export class CodeModelBuilder {
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: isPropertyRequired(param),
+        required: this.isPropertyRequired(param),
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
@@ -1699,7 +1700,7 @@ export class CodeModelBuilder {
             {
               summary: sdkMethodParameter.summary,
               implementation: ImplementationLocation.Method,
-              required: isPropertyRequired(sdkMethodParameter),
+              required: this.isPropertyRequired(sdkMethodParameter),
               nullable: false,
             },
           );
@@ -2047,7 +2048,7 @@ export class CodeModelBuilder {
     const parameter = new Parameter(parameterName, sdkBody.doc ?? "", schema, {
       summary: sdkBody.summary,
       implementation: ImplementationLocation.Method,
-      required: isPropertyRequired(sdkBody),
+      required: this.isPropertyRequired(sdkBody),
       protocol: {
         http: new HttpParameter(ParameterLocation.Body),
       },
@@ -2976,7 +2977,7 @@ export class CodeModelBuilder {
 
     const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
       summary: modelProperty.summary,
-      required: isPropertyRequired(modelProperty),
+      required: this.isPropertyRequired(modelProperty),
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
       serializedName: getPropertySerializedName(modelProperty),
@@ -3639,5 +3640,16 @@ export class CodeModelBuilder {
 
   private isArm(): boolean {
     return Boolean(this.codeModel.arm);
+  }
+
+  private isPropertyRequired(property: { optional: boolean } & DecoratedType): boolean {
+    const clientRequired = getClientOptions(property, "clientRequired") as boolean;
+    if (clientRequired === false) {
+      reportDiagnostic(this.program, {
+        code: "client-required-false",
+        target: (property as any).__raw ?? NoTarget,
+      });
+    }
+    return clientRequired ?? !property.optional;
   }
 }

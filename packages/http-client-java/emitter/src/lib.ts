@@ -132,6 +132,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Complex SDK type is not supported for "text/plain" content-type. Emitter would use string type on '${"operationName"}' ${"payloadKind"}.`,
       },
     },
+    "client-required-false": {
+      severity: "error",
+      messages: {
+        default: "clientRequired cannot be set to false.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,
