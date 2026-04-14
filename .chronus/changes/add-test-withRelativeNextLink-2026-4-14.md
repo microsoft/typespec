@@ -1,6 +1,6 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: feature
+changeKind: internal
 packages:
   - "@typespec/http-client-java"
 ---
