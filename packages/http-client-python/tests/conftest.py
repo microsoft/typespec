@@ -101,10 +101,10 @@ def testserver():
     """Start the mock API server, coordinated across xdist workers via file lock.
 
     The first process to acquire the lock starts the server; others wait for it.
+    The server is intentionally NOT killed in teardown — with xdist, the owning
+    worker may finish before others, killing the server prematurely. The server
+    is cleaned up when the tox/parent process exits.
     """
-    server = None
-    owns_server = False
-
     # Check if server is already running
     if not wait_for_server(SERVER_URL, timeout=1, interval=0.1):
         lock = FileLock(str(LOCK_FILE), timeout=120)
@@ -113,7 +113,6 @@ def testserver():
                 # Double-check after acquiring lock
                 if not wait_for_server(SERVER_URL, timeout=1, interval=0.1):
                     server = start_server_process()
-                    owns_server = True
                     PID_FILE.write_text(str(server.pid))
                     if not wait_for_server(SERVER_URL, timeout=60):
                         terminate_server_process(server)
@@ -127,13 +126,6 @@ def testserver():
         pytest.fail(f"Mock API server not available at {SERVER_URL}")
 
     yield
-
-    if owns_server:
-        terminate_server_process(server)
-        try:
-            PID_FILE.unlink(missing_ok=True)
-        except Exception:
-            pass
 
 
 @pytest.fixture
