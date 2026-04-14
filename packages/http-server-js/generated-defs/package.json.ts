@@ -19,7 +19,6 @@ export const hsjsDependencies: Record<string, string> = {
   "@vitest/ui": "^4.1.3",
   "decimal.js": "^10.6.0",
   "express": "^5.2.1",
-  "globby": "^16.2.0",
   "@inquirer/prompts": "^8.4.1",
   "morgan": "^1.10.1",
   "ora": "^9.3.0",
