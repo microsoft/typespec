@@ -31,7 +31,7 @@ def test_track_back(client: ScalarClient):
         assert "microsoft" not in track_back
 
 
-_SKIP_DIRS = {"__pycache__", "pytest_cache", ".pytest_cache"}
+_SKIP_DIRS = {"__pycache__", "pytest_cache", ".pytest_cache", "generated_tests"}
 
 
 def check_sensitive_word(folder: Path, word: str) -> list[str]:
