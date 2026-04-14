@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Add test case for `withRelativeNextLink` paging scenario.
+Add test case for `withRelativeNextLink`, `FlattenUnknownModel`, `FlattenReadOnlyModel` scenario.
