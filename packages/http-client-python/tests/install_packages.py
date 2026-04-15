@@ -55,7 +55,10 @@ def install_packages(flavor: str, tests_dir: str) -> None:
             print(f"  Batch {batch_num}/{total_batches}: {len(batch)} packages")
 
         if use_uv:
-            cmd = ["uv", "pip", "install", "--no-deps"] + batch
+            # --no-cache prevents cross-flavor contamination when azure and unbranded
+            # tox envs run in parallel: both build e.g. typetest-array==1.0.0b1 but from
+            # different source dirs with different imports (azure.core vs corehttp).
+            cmd = ["uv", "pip", "install", "--no-deps", "--no-cache"] + batch
         else:
             cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + batch
 
