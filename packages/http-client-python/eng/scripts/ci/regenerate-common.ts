@@ -153,10 +153,6 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven2",
   },
-  // IMPORTANT: authentication-api-key has custom _patch.py files (checked into git
-  // via `git add -f`) that add patch_added_operation. The code generator preserves
-  // _patch.py by design, but be careful not to delete the package directory manually.
-  // Custom files: {azure,unbranded}/authentication-api-key/.../_{operations,aio/_operations}/_patch.py
   "authentication/api-key": {
     "clear-output-folder": "true",
   },
