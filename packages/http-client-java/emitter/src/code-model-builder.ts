@@ -2273,7 +2273,12 @@ export class CodeModelBuilder {
       }
     }
 
-    const bodyType: SdkType | undefined = sdkResponse.type;
+    let bodyType: SdkType | undefined = sdkResponse.type;
+    if ((op.requests?.[0]?.protocol.http?.method as string).toUpperCase() === "HEAD") {
+      // for HEAD method, the response body should be empty
+      // currently TCGC would return constent boolean value in responses, for "@responseAsBool" decorator, erase the body type
+      bodyType = undefined;
+    }
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
     let responseBodyIsFile: boolean = false;
