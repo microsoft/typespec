@@ -1,5 +1,4 @@
 # Linting dependencies
 -r base.txt
-pip
 pylint==4.0.4
 black==24.8.0
