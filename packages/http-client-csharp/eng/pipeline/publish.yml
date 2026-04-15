@@ -42,7 +42,7 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          UseTypeSpecNext: ${{ or(parameters.UseTypeSpecNext, eq(variables['Build.Reason'], 'Schedule')) }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
