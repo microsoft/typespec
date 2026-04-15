@@ -414,7 +414,7 @@ async function regenerateFlavor(
   const pyStartTime = performance.now();
   const configCount = collectConfigFiles(GENERATED_FOLDER, flavor).length;
   // Use fewer Python jobs since Python processing is heavier
-  const pyJobs = Math.max(4, Math.floor(jobs / 2));
+  const pyJobs = Math.max(4, jobs);
   const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
   const pyTime = (performance.now() - pyStartTime) / 1000;
 

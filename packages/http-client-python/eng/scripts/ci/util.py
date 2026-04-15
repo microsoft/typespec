@@ -65,10 +65,10 @@ def run_check(name, call_back, log_info):
         "-j",
         "--jobs",
         dest="jobs",
-        help="Number of parallel jobs (default: CPU count / 2)",
+        help="Number of parallel jobs (default: CPU count)",
         type=int,
         required=False,
-        default=max(1, os.cpu_count() // 2),
+        default=max(1, os.cpu_count()),
     )
 
     args = parser.parse_args()
