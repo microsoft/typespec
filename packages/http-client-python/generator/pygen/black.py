@@ -69,9 +69,9 @@ class BlackScriptPlugin(Plugin):
                 pylint_disables.append("too-many-lines")
             if pylint_disables:
                 file_content = (
-                    os.linesep.join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:])
+                    "\n".join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:]) + "\n"
                     if "pylint: disable=" in lines[0]
-                    else f"# pylint: disable={','.join(pylint_disables)}{os.linesep}" + file_content
+                    else f"# pylint: disable={','.join(pylint_disables)}\n" + file_content
                 )
         self.write_file(file, file_content)
 
