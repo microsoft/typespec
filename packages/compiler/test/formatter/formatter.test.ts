@@ -737,6 +737,21 @@ op foo(
         });
       });
 
+      it("keeps block comment in empty parameter list", async () => {
+        await assertFormat({
+          code: `
+namespace MyApp;
+
+op find( /* conditions */) : unknown;
+`,
+          expected: `
+namespace MyApp;
+
+op find(/* conditions */): unknown;
+`,
+        });
+      });
+
       it("wrap in new lines parameters with block comments", async () => {
         await assertFormat({
           code: `

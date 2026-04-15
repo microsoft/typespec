@@ -78,7 +78,6 @@
     "@vitest/ui": "catalog:",
     "decimal.js": "catalog:",
     "express": "catalog:",
-    "globby": "catalog:",
     "@inquirer/prompts": "catalog:",
     "morgan": "catalog:",
     "ora": "catalog:",
