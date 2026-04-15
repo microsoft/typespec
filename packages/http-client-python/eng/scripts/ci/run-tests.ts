@@ -35,7 +35,7 @@ Options:
   -f, --flavor <azure|unbranded>  SDK flavor to test (only applies to --generator)
                                   If not specified, tests both flavors
   --env <env1,env2,...>           Specific tox environments to run
-                                  Available: test, check, docs, ci, unittest
+                                  Available: test, check, apiview, sphinx, docs, ci, unittest
   -j, --jobs <n>                  Number of parallel jobs (default: CPU cores - 2)
   -n, --name <pattern>            Filter tests by name pattern
   -q, --quiet                     Suppress test output (only show pass/fail summary)
@@ -44,8 +44,10 @@ Options:
 Environments (for --generator):
   test       Run pytest tests for generated packages
   check      Run lint + mypy + pyright on generated packages
-  docs       Run documentation validation (apiview, sphinx)
-  ci         Run all checks (test + check + docs)
+  apiview    Run apiview validation on generated packages
+  sphinx     Run sphinx docstring validation on generated packages
+  docs       Run apiview + sphinx (split into parallel envs)
+  ci         Run all checks (test + check + apiview + sphinx)
   unittest   Run unit tests for pygen internals
 
 Examples:
@@ -357,12 +359,15 @@ async function main(): Promise<void> {
       baseEnvs = ["test"];
     }
 
-    // Expand 'ci' into its component environments for parallel execution
+    // Expand 'ci' and 'docs' into component environments for parallel execution
     const expandedEnvs: string[] = [];
     for (const env of baseEnvs) {
       if (env === "ci") {
-        // test + check (lint+mypy+pyright combined) + docs in parallel
-        expandedEnvs.push("test", "check", "docs");
+        // test + check (lint+mypy+pyright) + apiview + sphinx — all in parallel
+        expandedEnvs.push("test", "check", "apiview", "sphinx");
+      } else if (env === "docs") {
+        // Split docs into apiview + sphinx for parallelism
+        expandedEnvs.push("apiview", "sphinx");
       } else {
         expandedEnvs.push(env);
       }
@@ -398,6 +403,32 @@ async function main(): Promise<void> {
     console.log(`  Jobs:         ${maxJobs}`);
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
+    }
+    console.log();
+
+    // Pre-build wheels for each flavor so tox envs install from pre-built
+    // wheels instead of rebuilding from source (~2min build once vs ~2min × N envs)
+    console.log(pc.cyan("Pre-building wheels for all flavors..."));
+    const installScript = join(testsDir, "install_packages.py");
+    for (const flavor of flavors) {
+      const startTime = Date.now();
+      const proc = spawn(pythonPath, [installScript, "build", flavor, testsDir], {
+        cwd: testsDir,
+        stdio: "inherit",
+      });
+      await new Promise<void>((resolve) => {
+        proc.on("close", (code) => {
+          const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+          if (code === 0) {
+            console.log(`${pc.green("[PASS]")} wheel build ${flavor} (${duration}s)`);
+          } else {
+            console.log(
+              `${pc.yellow("[WARN]")} wheel build ${flavor} failed (${duration}s), tox envs will build from source`,
+            );
+          }
+          resolve();
+        });
+      });
     }
     console.log();
 
