@@ -43,7 +43,7 @@ def install_packages(flavor: str, tests_dir: str) -> None:
     # Install packages using uv pip
     # Use --no-deps to avoid dependency resolution overhead
     # Install in batches to avoid command line length limits on Windows
-    batch_size = 20  # Conservative batch size for Windows command line limits
+    batch_size = 50  # Safe for Windows (paths ~60 chars each, well under 32KB limit)
     use_uv = True
 
     for i in range(0, len(packages), batch_size):

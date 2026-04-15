@@ -26,7 +26,7 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
     Returns: (output_dir, success, error_message)
     """
     # Import inside function for multiprocessing compatibility
-    from pygen import preprocess, codegen, black
+    from pygen import preprocess, codegen
 
     config_path = Path(config_path_str)
     try:
@@ -41,13 +41,10 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         # Remove keys that shouldn't be passed to pygen
         pygen_args = {k: v for k, v in command_args.items() if k not in ["emit-yaml-only"]}
 
-        # Run preprocess and codegen
+        # Run preprocess and codegen (black is batched at the end for performance)
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
         codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
-
-        # Run black
-        black.BlackScriptPlugin(output_folder=output_dir, **pygen_args).process()
 
         # Clean up the config file
         config_path.unlink()
@@ -127,6 +124,7 @@ def main():
     succeeded = 0
     failed = 0
     failed_specs = []
+    output_dirs = []
     is_tty = sys.stdout.isatty()
 
     def update_progress():
@@ -145,6 +143,7 @@ def main():
             output_dir, success, error = future.result()
             if success:
                 succeeded += 1
+                output_dirs.append(output_dir)
             else:
                 failed += 1
                 failed_specs.append(f"{output_dir}: {error}")
@@ -170,6 +169,15 @@ def main():
 
     if failed > 0:
         sys.exit(1)
+
+    # Run black formatting after all codegen completes. Running black separately
+    # avoids duplicating black's import/startup cost in each worker process.
+    if output_dirs:
+        from pygen.black import BlackScriptPlugin
+
+        print(f"Formatting {len(output_dirs)} packages with black...")
+        for d in output_dirs:
+            BlackScriptPlugin(output_folder=d).process()
 
 
 if __name__ == "__main__":
