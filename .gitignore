@@ -227,8 +227,7 @@ BenchmarkDotnet.Artifacts/
 # java emitter
 !packages/http-client-java/package-lock.json
 
-# python emitter — generated SDKs are regenerated in CI, only custom _patch.py
-# files are checked in (force-added with git add -f)
+# python emitter
 packages/http-client-python/tests/**/generated/
 packages/http-client-python/tests/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
