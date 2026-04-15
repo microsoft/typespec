@@ -1,8 +1,7 @@
 import { execa } from "execa";
-import { readdir } from "fs/promises";
-import { globby } from "globby";
+import { glob, readdir } from "fs/promises";
 import { cpus } from "os";
-import { dirname, join, relative } from "pathe";
+import { dirname, join, relative, resolve } from "pathe";
 import pc from "picocolors";
 import type { Entrypoint, IntegrationTestSuite } from "./config/types.js";
 import { registerConsoleShortcuts } from "./keyboard-api.js";
@@ -193,11 +192,11 @@ async function runValidation(
 }
 
 async function findTspProjects(wd: string, pattern: string): Promise<string[]> {
-  const result = await globby(pattern, {
-    cwd: wd,
-    absolute: true,
-  });
-  return result.map((x) => dirname(x));
+  const result: string[] = [];
+  for await (const file of glob(pattern, { cwd: wd })) {
+    result.push(dirname(resolve(wd, file)));
+  }
+  return result;
 }
 
 /** Find which entrypoints are available */

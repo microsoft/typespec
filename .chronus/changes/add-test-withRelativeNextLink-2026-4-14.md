@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
   - "@typespec/http-client-java"
 ---
 
-Use `LinkedHashMap` and `LinkedHashSet` to ensure consistent iterating order.
+Add test case for `withRelativeNextLink`, `FlattenUnknownModel`, `FlattenReadOnlyModel` scenario.

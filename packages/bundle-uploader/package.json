@@ -41,7 +41,6 @@
     "@azure/storage-blob": "catalog:",
     "@pnpm/workspace.find-packages": "catalog:",
     "@typespec/bundler": "workspace:^",
-    "globby": "catalog:",
     "picocolors": "catalog:",
     "semver": "catalog:"
   },

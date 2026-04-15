@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-mgmt, use separate entry points for premium samples
+Report an error when `clientRequired` is set to `false` on a property.
