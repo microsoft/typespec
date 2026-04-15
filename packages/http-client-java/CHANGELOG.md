@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client-java
 
+## 0.8.1
+
+### Bug Fixes
+
+- [#10365](https://github.com/microsoft/typespec/pull/10365) Report an error when `clientRequired` is set to `false` on a property.
+
+
 ## 0.8.0
 
 ### Features
