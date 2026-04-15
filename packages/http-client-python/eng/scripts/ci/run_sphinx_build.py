@@ -53,7 +53,12 @@ def _single_dir_sphinx(mod):
 
     # Find the actual Python package directories
     package_dirs = [
-        d for d in mod.iterdir() if d.is_dir() and not d.name.startswith("_") and d.name not in SKIP_PACKAGE_DIRS and (d / "__init__.py").exists()
+        d
+        for d in mod.iterdir()
+        if d.is_dir()
+        and not d.name.startswith("_")
+        and d.name not in SKIP_PACKAGE_DIRS
+        and (d / "__init__.py").exists()
     ]
 
     if not package_dirs:

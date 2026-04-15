@@ -25,7 +25,12 @@ SKIP_PACKAGE_DIRS = {"generated_tests", "generated_samples", "build", "__pycache
 def get_package_namespace_dir(mod):
     """Find the actual namespace directory inside a generated package, skipping non-SDK dirs."""
     for d in mod.iterdir():
-        if d.is_dir() and not d.name.startswith("_") and not d.name.endswith("egg-info") and d.name not in SKIP_PACKAGE_DIRS:
+        if (
+            d.is_dir()
+            and not d.name.startswith("_")
+            and not d.name.endswith("egg-info")
+            and d.name not in SKIP_PACKAGE_DIRS
+        ):
             return d
     return None
 
