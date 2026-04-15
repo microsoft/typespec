@@ -29,6 +29,11 @@ parameters:
     type: boolean
     default: true
 
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec Next (update dependencies to @next versions)
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -37,7 +42,7 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: false
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
@@ -154,6 +159,13 @@ extends:
               - pwsh: |
                   npm install -g semver
                 displayName: Install semver
+
+              - ${{ if parameters.UseTypeSpecNext }}:
+                  - pwsh: |
+                      Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                      Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+                      Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                    displayName: Configure npm for TypeSpec Next
 
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies

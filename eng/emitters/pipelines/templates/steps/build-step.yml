@@ -72,6 +72,11 @@ steps:
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
+  - ${{ if parameters.UseTypeSpecNext }}:
+      - script: npx -y @azure-tools/typespec-bump-deps@latest --use-peer-ranges package.json
+        displayName: "Update TypeSpec dependencies to @next"
+        workingDirectory: $(selfRepositoryPath)${{ parameters.PackagePath }}
+
   - task: PowerShell@2
     displayName: "Run initialize script"
     inputs:

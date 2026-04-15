@@ -1,12 +1,12 @@
-pyright==1.1.407
-pylint==4.0.4
+pyright==1.1.408
+pylint==4.0.5
 tox==4.16.0
 tox-uv
-mypy==1.19.1
+mypy==1.20.1
 colorama==0.4.6
 debugpy==1.8.2
 pytest==8.3.2
 coverage==7.6.1
-black==24.8.0
+black==26.3.1
 ptvsd==4.3.2
 types-PyYAML==6.0.12.8
