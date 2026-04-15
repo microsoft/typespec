@@ -107,7 +107,7 @@ def _serialize_grouped_body(builder: BuilderType) -> list[str]:
     groupers = [p for p in builder.parameters if p.grouper]
     for grouper in groupers:
         retval.append(f"if {grouper.client_name} is not None:")
-        # Keys in property_to_parameter_name are unpadded client names (e.g. "from", "custom_header").
+        # Keys in property_to_parameter_name are original client names (e.g. "from", "custom_header").
         # Attribute access needs the padded client_name from the model property (e.g. "from_property").
         # Build lookup from both wire_name and client_name to handle all cases.
         grouper_model = cast(ModelType, grouper.type)
