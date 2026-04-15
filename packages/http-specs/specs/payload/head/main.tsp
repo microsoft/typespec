@@ -26,7 +26,6 @@ alias MetadataHeaders = {
 @route("/properties")
 op getProperties(): {
   /** Content-type. */
-  #suppress "@typespec/http/content-type-ignored" "This is a HEAD operation, so content-type header can be returned."
   @header("Content-Type")
   contentType?: string;
 
