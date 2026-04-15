@@ -1,0 +1,4 @@
+/* Monaco decorations require global class names */
+:global(.playground-changed-line) {
+  background-color: rgba(0, 180, 0, 0.15);
+}
