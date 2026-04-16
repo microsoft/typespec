@@ -731,7 +731,7 @@ export class ModelInfo {
     for (const prop of model.properties.values()) props.push(prop);
     if (model.baseModel) {
       const additional = this.getAllProperties(program, model.baseModel);
-      if (additional !== undefined) props.concat(additional);
+      if (additional !== undefined) props.push(...additional);
     }
 
     return props;

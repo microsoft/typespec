@@ -3422,3 +3422,35 @@ it("emits class for model extending another model with no additional properties"
     ],
   );
 });
+
+it("includes optional properties from generic base model when using 'is'", async () => {
+  await compileAndValidateSingleModel(
+    tester,
+    `
+      model Message<TData> {
+        source: string;
+        msgType: string;
+        reference?: string;
+        timestamp?: offsetDateTime;
+        data: TData;
+      }
+
+      model Report {
+        value: string;
+      }
+
+      model ReportMessage is Message<Report>;
+
+      @route("/report") @get op getReport(): ReportMessage;
+      `,
+    "ReportMessage.cs",
+    [
+      "public partial class ReportMessage",
+      "public string Source { get; set; }",
+      "public string MsgType { get; set; }",
+      "public string Reference { get; set; }",
+      "public DateTimeOffset? Timestamp { get; set; }",
+      "public Report Data { get; set; }",
+    ],
+  );
+});
