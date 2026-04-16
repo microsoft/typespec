@@ -2,8 +2,8 @@
 // Standalone eslint config for http-client-python package
 // This config is used in CI where monorepo dependencies may not be available
 import eslint from "@eslint/js";
-import tsEslint from "typescript-eslint";
 import { dirname } from "path";
+import tsEslint from "typescript-eslint";
 import { fileURLToPath } from "url";
 
 const root = dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))));

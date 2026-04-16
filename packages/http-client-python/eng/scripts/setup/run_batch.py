@@ -7,6 +7,7 @@
 Batch process multiple TypeSpec YAML files in a single Python process.
 This avoids the overhead of spawning a new Python process for each spec.
 """
+
 import argparse
 import json
 import sys

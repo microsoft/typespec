@@ -10,7 +10,6 @@ from .imports import FileImport, ImportType, TypingSection
 from .utils import NamespaceType, add_to_pylint_disable
 from ...utils import NAME_LENGTH_LIMIT
 
-
 if TYPE_CHECKING:
     from .code_model import CodeModel
 
