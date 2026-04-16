@@ -67,7 +67,7 @@ function Get-PackageDependencyVersion {
     $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0 -and $result) {
-        $dependencyVersion = $result.Trim()
+        $dependencyVersion = ($result | Out-String).Trim()
         $dependencyVersion = $dependencyVersion -replace '^[\^~]', ''
         Write-Host "Found $DependencyName version: $dependencyVersion"
         return $dependencyVersion
@@ -87,7 +87,7 @@ function Get-LatestGAVersion {
     $result = & npm view $PackageName dist-tags.latest --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0 -and $result) {
-        $latestVersion = $result.Trim()
+        $latestVersion = ($result | Out-String).Trim()
         Write-Host "Found latest GA version for ${PackageName}: $latestVersion"
         return $latestVersion
     } else {

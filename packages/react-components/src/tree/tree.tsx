@@ -21,6 +21,7 @@ export interface TreeProps<T extends TreeNode> {
   readonly selectionMode?: "none" | "single";
   readonly tree: T;
   readonly nodeIcon?: FC<{ node: T }>;
+  readonly nodeLabel?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
   readonly expanded?: Set<string>;
@@ -33,6 +34,7 @@ export function Tree<T extends TreeNode>({
   onSelect,
   onSetExpanded,
   nodeIcon,
+  nodeLabel,
   selectionMode = "none",
 }: TreeProps<T>) {
   const id = useId();
@@ -130,6 +132,7 @@ export function Tree<T extends TreeNode>({
           <TreeViewRow
             id={`${id}-${row.index}`}
             icon={nodeIcon as any}
+            label={nodeLabel as any}
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}

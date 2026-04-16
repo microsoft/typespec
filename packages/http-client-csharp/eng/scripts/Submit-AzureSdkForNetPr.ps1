@@ -47,7 +47,10 @@ param(
   [switch]$RegenerateMgmtLibraries,
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildArtifactsPath
+  [string]$BuildArtifactsPath,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$UseTypeSpecNext
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -241,6 +244,18 @@ try {
         # Run npm install in the http-client-csharp directory
         Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+
+        # Update TypeSpec dependencies to @next versions in the Azure emitter package.json
+        if ($UseTypeSpecNext) {
+            Write-Host "##[section]Updating Azure emitter TypeSpec dependencies to @next versions..."
+            $azurePackageJsonPath = Join-Path $httpClientDir "package.json"
+            Invoke "npx -y @azure-tools/typespec-bump-deps@latest --use-peer-ranges `"$azurePackageJsonPath`"" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "typespec-bump-deps failed with exit code $LASTEXITCODE"
+            } else {
+                Write-Host "Azure emitter TypeSpec dependencies updated to @next versions"
+            }
+        }
         
         # Copy .npmrc file from source directory if it exists (for internal builds)
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
