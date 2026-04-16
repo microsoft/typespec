@@ -9,12 +9,6 @@ pr:
       - main
       - release/*
 
-parameters:
-  - name: UseTypeSpecNext
-    displayName: Use TypeSpec Next (update dependencies to @next versions)
-    type: boolean
-    default: false
-
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
@@ -53,7 +47,6 @@ extends:
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
-          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
 
       # Run java stages if RunJava == true
       - template: /packages/http-client-java/eng/pipeline/templates/ci-stages.yml
