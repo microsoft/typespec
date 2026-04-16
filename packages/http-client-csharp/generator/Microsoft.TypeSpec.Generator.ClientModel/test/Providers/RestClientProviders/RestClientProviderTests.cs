@@ -237,9 +237,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public void TestGetMethodParameters_ContentTypeAfterBody()
         {
             // Create an operation with a required content-type header (union), body, and other params
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
             var contentTypeHeader = InputFactory.HeaderParameter(
                 "contentType",
-                InputPrimitiveType.String,
+                contentTypeEnum,
                 isRequired: true,
                 isContentType: true,
                 serializedName: "Content-Type");
@@ -270,9 +273,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public void TestGetMethodParameters_OptionalContentTypeAfterBody()
         {
             // Create an operation with an optional content-type header (union), body, and other params
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
             var contentTypeHeader = InputFactory.HeaderParameter(
                 "contentType",
-                InputPrimitiveType.String,
+                contentTypeEnum,
                 isRequired: false,
                 isContentType: true,
                 serializedName: "Content-Type",
@@ -309,9 +315,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public async Task ContentTypeOrderPreservedFromLastContractView()
         {
             // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
             var contentTypeHeader = InputFactory.HeaderParameter(
                 "contentType",
-                InputPrimitiveType.String,
+                contentTypeEnum,
                 isRequired: true,
                 isContentType: true,
                 serializedName: "Content-Type");
@@ -350,9 +359,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public async Task ContentTypeAfterBodyInLastContractView()
         {
             // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
             var contentTypeHeader = InputFactory.HeaderParameter(
                 "contentType",
-                InputPrimitiveType.String,
+                contentTypeEnum,
                 isRequired: true,
                 isContentType: true,
                 serializedName: "Content-Type");
