@@ -286,7 +286,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
                 else
                 {
-                    arguments.Add(previousParameter);
+                    // Use named argument to ensure correct mapping even when parameter order differs
+                    // between the previous and current method signatures
+                    arguments.Add(Snippet.PositionalReference(parameter.Name, previousParameter));
                 }
             }
 
