@@ -51,10 +51,10 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
     super.mutate();
 
     if (isInlineNullable) {
-      setNullable(this.engine.$.program, this.mutatedType);
+      setNullable(this.mutatedType);
     }
     if (isArrayWithNullableElements) {
-      setNullableElements(this.engine.$.program, this.mutatedType);
+      setNullableElements(this.mutatedType);
     }
   }
 }

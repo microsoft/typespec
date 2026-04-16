@@ -1,4 +1,4 @@
-import { isArrayModelType, type ModelProperty, type Program } from "@typespec/compiler";
+import { isArrayModelType, type ModelProperty } from "@typespec/compiler";
 import { resolveGraphQLTypeName } from "../lib/graphql-type-name.js";
 import { hasNullableElements, isNullable } from "../lib/nullable.js";
 
@@ -13,9 +13,9 @@ import { hasNullableElements, isNullable } from "../lib/nullable.js";
  *   required string[] property   → "[String!]!"
  *   optional (string | null)[]   → "[String]"
  */
-export function printMutatedType(program: Program, prop: ModelProperty): string {
-  const propNullable = isNullable(program, prop) || prop.optional;
-  const elementsNullable = hasNullableElements(program, prop);
+export function printMutatedType(prop: ModelProperty): string {
+  const propNullable = isNullable(prop) || prop.optional;
+  const elementsNullable = hasNullableElements(prop);
 
   const type = prop.type;
 

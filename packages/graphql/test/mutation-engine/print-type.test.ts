@@ -19,7 +19,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("name")!;
-    expect(printMutatedType(tester.program, prop)).toBe("String!");
+    expect(printMutatedType(prop)).toBe("String!");
   });
 
   it("optional string → String", async () => {
@@ -27,7 +27,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("name")!;
-    expect(printMutatedType(tester.program, prop)).toBe("String");
+    expect(printMutatedType(prop)).toBe("String");
   });
 
   it("string | null → String", async () => {
@@ -35,7 +35,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("name")!;
-    expect(printMutatedType(tester.program, prop)).toBe("String");
+    expect(printMutatedType(prop)).toBe("String");
   });
 
   it("required string[] → [String!]!", async () => {
@@ -43,7 +43,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tester.program, prop)).toBe("[String!]!");
+    expect(printMutatedType(prop)).toBe("[String!]!");
   });
 
   it("optional string[] → [String!]", async () => {
@@ -51,7 +51,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tester.program, prop)).toBe("[String!]");
+    expect(printMutatedType(prop)).toBe("[String!]");
   });
 
   it("(string | null)[] → [String]!", async () => {
@@ -61,7 +61,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tester.program, prop)).toBe("[String]!");
+    expect(printMutatedType(prop)).toBe("[String]!");
   });
 
   it("string[] | null → [String!]", async () => {
@@ -71,7 +71,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tester.program, prop)).toBe("[String!]");
+    expect(printMutatedType(prop)).toBe("[String!]");
   });
 
   it("(string | null)[] | null → [String]", async () => {
@@ -81,7 +81,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tester.program, prop)).toBe("[String]");
+    expect(printMutatedType(prop)).toBe("[String]");
   });
 
   it("required model type → ModelName!", async () => {
@@ -94,7 +94,7 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("bar")!;
-    expect(printMutatedType(tester.program, prop)).toBe("Bar!");
+    expect(printMutatedType(prop)).toBe("Bar!");
   });
 
   it("required int32 → Int!", async () => {
@@ -102,6 +102,6 @@ describe("printMutatedType", () => {
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateModel(Foo, GraphQLTypeContext.Output);
     const prop = mutated.mutatedType.properties.get("count")!;
-    expect(printMutatedType(tester.program, prop)).toBe("Int!");
+    expect(printMutatedType(prop)).toBe("Int!");
   });
 });
