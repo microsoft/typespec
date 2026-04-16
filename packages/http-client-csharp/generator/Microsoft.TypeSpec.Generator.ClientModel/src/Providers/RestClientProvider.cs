@@ -1125,9 +1125,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (inputParam is InputHeaderParameter { IsContentType: true })
+                        if (inputParam is InputHeaderParameter { IsContentType: true }
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
                         {
-                            // Per .NET SDK guideline, content-type goes after body but before optional params
                             sortedParams.Add(contentTypeAfterBody++, parameter);
                         }
                         else if (parameter.DefaultValue == null)
@@ -1163,6 +1163,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
+        }
+
+        /// <summary>
+        /// Checks if the last contract view contains a method matching the given name where
+        /// a "contentType" parameter appears before the body ("content") parameter.
+        /// If so, we should preserve that ordering for backward compatibility.
+        /// </summary>
+        private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
+        {
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+            if (lastContractMethods == null || lastContractMethods.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var method in lastContractMethods)
+            {
+                if (!string.Equals(method.Signature.Name, methodName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(method.Signature.Name, methodName + "Async", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                int contentTypeIndex = -1;
+                int bodyIndex = -1;
+                for (int i = 0; i < method.Signature.Parameters.Count; i++)
+                {
+                    var param = method.Signature.Parameters[i];
+                    if (string.Equals(param.Name, "contentType", StringComparison.OrdinalIgnoreCase))
+                    {
+                        contentTypeIndex = i;
+                    }
+                    else if (string.Equals(param.Name, "content", StringComparison.OrdinalIgnoreCase))
+                    {
+                        bodyIndex = i;
+                    }
+                }
+
+                if (contentTypeIndex >= 0 && bodyIndex >= 0 && contentTypeIndex < bodyIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)

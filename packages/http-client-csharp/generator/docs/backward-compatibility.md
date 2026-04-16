@@ -14,6 +14,8 @@
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
+  - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
+    - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
 
 ## Overview
 
@@ -590,3 +592,82 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, Cancellat
 - This conversion is specific to paging operations only
 - Existing client code with `top` continues to compile without changes
 - New code benefits from the standardized `maxCount` naming convention
+
+### Content-Type Parameter Ordering
+
+The generator places the `contentType` parameter after the body (`content`) parameter in method signatures for non-multipart operations with a union content type. However, backward compatibility is maintained when the last contract had a different ordering.
+
+#### Scenario: Content-Type Before Body Preserved from Last Contract
+
+**Description:** When a non-multipart operation has a union content-type header, the generator now places `contentType` after the `content` (body) parameter. However, if the last contract had `contentType` before `content`, the generator preserves that ordering to avoid breaking existing code.
+
+This commonly occurs when:
+
+- A library was previously generated with contentType before body and has already been released (GA'd)
+- The generator is updated to place contentType after body per .NET SDK guidelines
+- Regenerating the library should not break existing callers
+
+**Example:**
+
+**Case 1: contentType before body exists in LastContractView - preserved for backward compatibility**
+
+Previous version had `contentType` before `content`:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // ...
+}
+```
+
+Current TypeSpec defines a union content type:
+
+```typespec
+op UpdateSkillDefaultVersion(
+  @path skill_id: string,
+  @header contentType: "application/json" | "application/x-www-form-urlencoded",
+  @body body: SetDefaultSkillVersionBody,
+): SkillResource;
+```
+
+**Generated Compatibility Result:**
+
+The generator detects that the previous contract had `contentType` before `content` and preserves that ordering:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // contentType stays before content for backward compatibility
+}
+```
+
+**Case 2: No previous contract or contentType was already after body - uses new ordering**
+
+New operation with union content type (no previous version):
+
+```typespec
+op UpdateSkillDefaultVersion(
+  @path skill_id: string,
+  @header contentType: "application/json" | "application/x-www-form-urlencoded",
+  @body body: SetDefaultSkillVersionBody,
+): SkillResource;
+```
+
+**Generated Result:**
+
+The generator places `contentType` after `content`:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, BinaryContent content, string contentType, RequestOptions options = null)
+{
+    // contentType after content for new libraries
+}
+```
+
+**Key Points:**
+
+- **Case 1 (Backward compatibility)**: If the last contract had `contentType` before `content` (body), that ordering is preserved
+- **Case 2 (New ordering)**: If there is no last contract, or the last contract already had `contentType` after `content`, the new ordering (body before contentType) is used
+- This applies only to non-multipart operations with a union content-type header
+- Multipart operations always place contentType after body regardless of back-compat
+- Existing client code continues to compile without changes

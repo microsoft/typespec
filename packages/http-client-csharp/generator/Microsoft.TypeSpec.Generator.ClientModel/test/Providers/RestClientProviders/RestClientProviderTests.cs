@@ -260,7 +260,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
 
-            // Per .NET SDK guideline: Required Path, Required Query/Header, Body, ContentType, Optional, Options
             Assert.AreEqual(3, methodParameters.Count);
             Assert.AreEqual("skillId", methodParameters[0].Name);
             Assert.AreEqual("content", methodParameters[1].Name); // body becomes "content" in protocol methods
@@ -299,12 +298,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
 
-            // Per .NET SDK guideline: Required Path, Required Query/Header, Body, ContentType, Optional, Options
             Assert.AreEqual(4, methodParameters.Count);
             Assert.AreEqual("skillId", methodParameters[0].Name);
             Assert.AreEqual("content", methodParameters[1].Name); // body becomes "content" in protocol methods
             Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
             Assert.AreEqual("optionalQuery", methodParameters[3].Name); // optional query after contentType
+        }
+
+        [Test]
+        public async Task ContentTypeOrderPreservedFromLastContractView()
+        {
+            // Create an operation with a content-type header (union) and body
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            // Load with a last contract that has contentType before body
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // When the last contract had contentType before body, the ordering should be preserved
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("contentType", methodParameters[1].Name); // contentType stays before body for back-compat
+            Assert.AreEqual("content", methodParameters[2].Name);
         }
 
         [TestCase(true, true)]
