@@ -1007,7 +1007,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
-            int contentTypeAfterBody = 350;
+            int contentType = 350;
             int optional = 400;
 
             var operation = serviceMethod.Operation;
@@ -1128,7 +1128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (inputParam is InputHeaderParameter { IsContentType: true }
                             && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
                         {
-                            sortedParams.Add(contentTypeAfterBody++, parameter);
+                            sortedParams.Add(contentType++, parameter);
                         }
                         else if (parameter.DefaultValue == null)
                         {
@@ -1150,7 +1150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (operation.IsMultipartFormData)
             {
-                sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
+                sortedParams.Add(contentType++, ScmKnownParameters.ContentType);
             }
 
             if (methodType == ScmMethodKind.CreateRequest)
@@ -1172,16 +1172,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
         {
+            const string contentTypeParamName = "contentType";
+            const string contentParamName = "content";
+
             var lastContractMethods = backCompatProvider.LastContractView?.Methods;
             if (lastContractMethods == null || lastContractMethods.Count == 0)
             {
                 return false;
             }
 
+            var syncMethodName = methodName;
+            var asyncMethodName = methodName + "Async";
+
             foreach (var method in lastContractMethods)
             {
-                if (!string.Equals(method.Signature.Name, methodName, StringComparison.OrdinalIgnoreCase)
-                    && !string.Equals(method.Signature.Name, methodName + "Async", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(method.Signature.Name, syncMethodName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(method.Signature.Name, asyncMethodName, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -1191,13 +1197,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 for (int i = 0; i < method.Signature.Parameters.Count; i++)
                 {
                     var param = method.Signature.Parameters[i];
-                    if (string.Equals(param.Name, "contentType", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(param.Name, contentTypeParamName, StringComparison.OrdinalIgnoreCase))
                     {
                         contentTypeIndex = i;
                     }
-                    else if (string.Equals(param.Name, "content", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(param.Name, contentParamName, StringComparison.OrdinalIgnoreCase))
                     {
                         bodyIndex = i;
+                    }
+
+                    if (contentTypeIndex >= 0 && bodyIndex >= 0)
+                    {
+                        break;
                     }
                 }
 
