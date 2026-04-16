@@ -85,9 +85,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines if a client has only standard parameters (ApiVersion, Endpoint, and required non-optional parameters).
-        /// Only optional parameters with default values that would become properties on the options class
-        /// should trigger a separate client-specific options type.
+        /// Determines if a client has only standard parameters (ApiVersion, Endpoint) and/or
+        /// required method parameters from @@clientInitialization that are inlined as constructor parameters.
+        /// Only parameters that would become properties on the options class should trigger
+        /// a separate client-specific options type.
         /// </summary>
         /// <param name="inputClient">The input client to check.</param>
         /// <returns>True if the client has only standard parameters, false otherwise.</returns>
@@ -113,15 +114,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             return false; // Found a non-standard endpoint parameter
                         }
                     }
-                    else if (parameter.DefaultValue != null)
+                    else if (parameter is InputMethodParameter && parameter.DefaultValue == null)
                     {
-                        // Found a non-ApiVersion, non-Endpoint optional parameter that will become
-                        // a property on the options class — requires a separate client-specific options type.
+                        // Required method parameters (from @@clientInitialization) are inlined as
+                        // constructor parameters on the client and do not become properties on
+                        // the options class, so they should not trigger a separate options type.
+                    }
+                    else
+                    {
+                        // Found a non-ApiVersion, non-Endpoint parameter that may require
+                        // a separate client-specific options type.
                         return false;
                     }
-                    // Required parameters (DefaultValue == null) are inlined as constructor parameters
-                    // on the client and do not become properties on the options class,
-                    // so they should not trigger a separate client-specific options type.
                 }
             }
             return true;
