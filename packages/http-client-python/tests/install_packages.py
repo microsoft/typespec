@@ -78,19 +78,22 @@ def install_packages(flavor, tests_dir):
     use_uv = True
 
     if use_wheels:
-        # Install from pre-built wheels (instant, no compilation)
-        print(f"  Using pre-built wheels from .wheels/{flavor}/")
+        # Install from pre-built wheels (instant, no compilation).
+        # Use wheel filenames to derive package specs since --no-index
+        # won't resolve source directory paths.
+        wheel_files = glob.glob(os.path.join(wheel_dir, "*.whl"))
+        print(f"  Using {len(wheel_files)} pre-built wheels from .wheels/{flavor}/")
         try:
-            cmd = ["uv", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + packages
+            cmd = ["uv", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
             subprocess.run(cmd, check=True)
-            print(f"Successfully installed {len(packages)} packages")
+            print(f"Successfully installed {len(wheel_files)} packages")
             return
         except FileNotFoundError:
             use_uv = False
             try:
-                cmd = [sys.executable, "-m", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + packages
+                cmd = [sys.executable, "-m", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
                 subprocess.run(cmd, check=True)
-                print(f"Successfully installed {len(packages)} packages")
+                print(f"Successfully installed {len(wheel_files)} packages")
                 return
             except subprocess.CalledProcessError:
                 print("  Wheel install failed, falling back to source install")
