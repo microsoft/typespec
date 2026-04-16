@@ -14,10 +14,9 @@ describe("typespec-python: utils", () => {
       pointInTimeUTC: "point_in_time_utc",
       diskSizeGB: "disk_size_gb",
       lastModifiedTS: "last_modified_ts",
-      "EAP-TLS": "eap_tls",
-      "EAP-TTLS": "eap_ttls",
-      "EAP-FAST": "eap_fast",
-      PEAP: "peap",
+      "FOO-BAR": "foo_bar",
+      "FOO-BAR-BAZ": "foo_bar_baz",
+      "A-B": "a_b",
     };
     for (const [input, expected] of Object.entries(cases)) {
       strictEqual(camelToSnakeCase(input), expected);
