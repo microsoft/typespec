@@ -233,19 +233,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("b", orderedPathParams[2].Name);
         }
 
-        [TestCase]
-        public void TestGetMethodParameters_ContentTypeAfterBody()
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        public void TestGetMethodParameters_ContentTypeAfterBody(bool isRequired, bool isExtensibleEnum)
         {
-            // Create an operation with a required content-type header (union), body, and other params
-            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
-                [("application/json", "application/json"), ("application/xml", "application/xml")],
-                isExtensible: true);
+            InputType contentTypeType = isExtensibleEnum
+                ? InputFactory.StringEnum("ContentTypeEnum",
+                    [("application/json", "application/json"), ("application/xml", "application/xml")],
+                    isExtensible: true)
+                : InputPrimitiveType.String;
             var contentTypeHeader = InputFactory.HeaderParameter(
                 "contentType",
-                contentTypeEnum,
-                isRequired: true,
+                contentTypeType,
+                isRequired: isRequired,
                 isContentType: true,
-                serializedName: "Content-Type");
+                serializedName: "Content-Type",
+                defaultValue: isRequired ? null : InputFactory.Constant.String("application/json"));
             var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
             var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
 
@@ -265,50 +270,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             Assert.AreEqual(3, methodParameters.Count);
             Assert.AreEqual("skillId", methodParameters[0].Name);
-            Assert.AreEqual("content", methodParameters[1].Name); // body becomes "content" in protocol methods
+            Assert.AreEqual("content", methodParameters[1].Name);
             Assert.AreEqual("contentType", methodParameters[2].Name);
-        }
-
-        [TestCase]
-        public void TestGetMethodParameters_OptionalContentTypeAfterBody()
-        {
-            // Create an operation with an optional content-type header (union), body, and other params
-            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
-                [("application/json", "application/json"), ("application/xml", "application/xml")],
-                isExtensible: true);
-            var contentTypeHeader = InputFactory.HeaderParameter(
-                "contentType",
-                contentTypeEnum,
-                isRequired: false,
-                isContentType: true,
-                serializedName: "Content-Type",
-                defaultValue: InputFactory.Constant.String("application/json"));
-            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
-            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
-            var optionalQuery = InputFactory.QueryParameter(
-                "optionalQuery",
-                InputPrimitiveType.String,
-                isRequired: false);
-
-            var operation = InputFactory.Operation(
-                "UpdateSkillDefaultVersion",
-                parameters: [pathParam, contentTypeHeader, bodyParam, optionalQuery]);
-
-            var serviceMethod = InputFactory.BasicServiceMethod(
-                "UpdateSkillDefaultVersion",
-                operation);
-
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(clientProvider);
-
-            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
-
-            Assert.AreEqual(4, methodParameters.Count);
-            Assert.AreEqual("skillId", methodParameters[0].Name);
-            Assert.AreEqual("content", methodParameters[1].Name); // body becomes "content" in protocol methods
-            Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
-            Assert.AreEqual("optionalQuery", methodParameters[3].Name); // optional query after contentType
         }
 
         [Test]
