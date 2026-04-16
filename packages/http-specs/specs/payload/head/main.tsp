@@ -23,8 +23,8 @@ alias MetadataHeaders = {
   - x-ms-meta: hello
   """)
 @head
-@route("/properties")
-op getProperties(): {
+@route("/content-type-header-in-response")
+op contentTypeHeaderInResponse(): {
   /** Content-type. */
   @header("Content-Type")
   contentType?: string;
