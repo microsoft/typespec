@@ -31,6 +31,7 @@ from ..models import (
     DPGModelType,
     ParameterListType,
     ByteArraySchema,
+    ConstantType,
 )
 from ..models.utils import NamespaceType
 from .parameter_serializer import ParameterSerializer, PopKwargType, check_body_optional
@@ -1000,6 +1001,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
+                elif isinstance(response.type, ConstantType) and response.type._is_literal:
+                    deserialize_code.append(f"deserialized = {response.type.get_declaration()}")
                 else:
                     format_filed = (
                         f', format="{response.type.encode}"'
