@@ -5,16 +5,13 @@ parameters:
   - name: DependsOn
     type: object
     default: []
-  - name: UseTypeSpecNext
-    type: boolean
-    default: false
 
 stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
     parameters:
       StagePrefix: CSharp
       BuildPrereleaseVersion: true
-      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+      UseTypeSpecNext: false
       Publish: "none"
       PackagePath: /packages/http-client-csharp
       EmitterPackageJsonPath: packages/http-client-csharp/package.json
