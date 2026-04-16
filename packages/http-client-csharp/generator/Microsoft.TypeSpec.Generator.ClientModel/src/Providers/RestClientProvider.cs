@@ -1007,6 +1007,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
+            int contentTypeAfterBody = 350;
             int optional = 400;
 
             var operation = serviceMethod.Operation;
@@ -1124,7 +1125,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (parameter.DefaultValue == null)
+                        if (inputParam is InputHeaderParameter { IsContentType: true })
+                        {
+                            // Per .NET SDK guideline, content-type goes after body but before optional params
+                            sortedParams.Add(contentTypeAfterBody++, parameter);
+                        }
+                        else if (parameter.DefaultValue == null)
                         {
                             sortedParams.Add(required++, parameter);
                         }
