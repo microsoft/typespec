@@ -681,7 +681,7 @@ try {
     
     # Create the PR using gh CLI
     $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)
-    if ($Internal) {
+    if ($Internal -or $UseTypeSpecNext) {
         $ghArgs += @("--label", "Do Not Merge")
     }
     $ghOutput = & gh @ghArgs 2>&1

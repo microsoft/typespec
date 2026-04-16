@@ -42,7 +42,7 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          UseTypeSpecNext: ${{ or(parameters.UseTypeSpecNext, eq(variables['Build.Reason'], 'Schedule')) }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
@@ -96,13 +96,9 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
-          ${{ if parameters.UseTypeSpecNext }}:
-            UseTypeSpecNext: true
-          ${{ else }}:
-            UseTypeSpecNext: $[eq(variables['Build.Reason'], 'Schedule')]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -179,7 +175,7 @@ extends:
                   Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
                   Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
                 displayName: Configure npm for TypeSpec Next
-                condition: eq(variables['UseTypeSpecNext'], 'true')
+                condition: ${{ parameters.UseTypeSpecNext }}
 
               - task: UseDotNet@2
                 inputs:
@@ -218,7 +214,7 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                    -UseTypeSpecNext:$$(UseTypeSpecNext)
+                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
