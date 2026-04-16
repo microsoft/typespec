@@ -79,6 +79,7 @@ async function createTesterFs(base: string, options: TesterOptions) {
   } catch (e) {
     throw new Error(
       `createTester failed to read '${packageJsonPath}'. The first argument to createTester must be the library root directory containing a package.json. Got: '${base}'`,
+      { cause: e },
     );
   }
   const selfName = JSON.parse(packageJsonContent).name;
