@@ -35,7 +35,7 @@ Options:
   -f, --flavor <azure|unbranded>  SDK flavor to test (only applies to --generator)
                                   If not specified, tests both flavors
   --env <env1,env2,...>           Specific tox environments to run
-                                  Available: test, check, apiview, sphinx, docs, ci, unittest
+                                  Available: test, lint, mypy, pyright, apiview, sphinx, docs, ci, unittest
   -j, --jobs <n>                  Number of parallel jobs (default: CPU cores - 2)
   -n, --name <pattern>            Filter tests by name pattern
   -q, --quiet                     Suppress test output (only show pass/fail summary)
@@ -43,11 +43,13 @@ Options:
 
 Environments (for --generator):
   test       Run pytest tests for generated packages
-  check      Run lint + mypy + pyright on generated packages
+  lint       Run pylint on generated packages
+  mypy       Run mypy type checking on generated packages
+  pyright    Run pyright type checking on generated packages
   apiview    Run apiview validation on generated packages
   sphinx     Run sphinx docstring validation on generated packages
   docs       Run apiview + sphinx (split into parallel envs)
-  ci         Run all checks (test + check + apiview + sphinx)
+  ci         Run all checks (test + lint + mypy + pyright + apiview + sphinx)
   unittest   Run unit tests for pygen internals
 
 Examples:
@@ -56,8 +58,8 @@ Examples:
   run-tests.ts --generator                     # Run generator tests for all flavors
   run-tests.ts --generator --flavor=azure      # Run generator tests for azure only
   run-tests.ts -g -f azure --env=test          # Run pytest for azure only
-  run-tests.ts -g --env=check                  # Run lint+mypy+pyright for all flavors
-  run-tests.ts -g -f unbranded --env=check     # Run lint+mypy+pyright for unbranded only
+  run-tests.ts -g --env=lint                   # Run pylint for all flavors
+  run-tests.ts -g -f unbranded --env=mypy      # Run mypy for unbranded only
 `);
   process.exit(0);
 }
@@ -363,8 +365,8 @@ async function main(): Promise<void> {
     const expandedEnvs: string[] = [];
     for (const env of baseEnvs) {
       if (env === "ci") {
-        // test + check (lint+mypy+pyright) + apiview + sphinx — all in parallel
-        expandedEnvs.push("test", "check", "apiview", "sphinx");
+        // All envs run in parallel — pre-built wheels make installs cheap
+        expandedEnvs.push("test", "lint", "mypy", "pyright", "apiview", "sphinx");
       } else if (env === "docs") {
         // Split docs into apiview + sphinx for parallelism
         expandedEnvs.push("apiview", "sphinx");

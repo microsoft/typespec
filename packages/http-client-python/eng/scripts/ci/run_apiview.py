@@ -17,11 +17,11 @@ from util import run_check
 logging.getLogger().setLevel(logging.INFO)
 
 # Timeout for each apiview generation (seconds)
-APIVIEW_TIMEOUT = 60
+APIVIEW_TIMEOUT = 30
 
 
 def _single_dir_apiview(mod):
-    for attempt in range(3):
+    for attempt in range(2):
         try:
             result = run(
                 ["apistubgen", "--pkg-path", str(mod.absolute())],
@@ -30,15 +30,15 @@ def _single_dir_apiview(mod):
             )
             if result.returncode == 0:
                 return True
-            if attempt == 2:
+            if attempt == 1:
                 logging.error(f"{mod.stem} failed: {result.stderr.decode()[:200]}")
                 return False
         except TimeoutExpired:
-            if attempt == 2:
+            if attempt == 1:
                 logging.error(f"{mod.stem} timed out after {APIVIEW_TIMEOUT}s")
                 return False
         except Exception as e:
-            if attempt == 2:
+            if attempt == 1:
                 logging.error(f"{mod.stem} error: {e}")
                 return False
     return False
