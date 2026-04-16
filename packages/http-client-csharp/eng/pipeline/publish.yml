@@ -164,13 +164,6 @@ extends:
                   npm install -g semver
                 displayName: Install semver
 
-              - pwsh: |
-                  Write-Host "##vso[task.setvariable variable=npm_config_force]true"
-                  Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
-                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
-                displayName: Configure npm for TypeSpec Next
-                condition: eq(variables['UseTypeSpecNext'], 'true')
-
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies
                 inputs:
@@ -180,6 +173,13 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - pwsh: |
+                  Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                  Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                displayName: Configure npm for TypeSpec Next
+                condition: eq(variables['UseTypeSpecNext'], 'true')
 
               - task: UseDotNet@2
                 inputs:
