@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -535,24 +536,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
-                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+                // Backcompat fix for property types: if a property existed in the last contract
+                // with a compatible but non-identical type, retain the previous type to avoid
+                // breaking consumers of the library.
+                if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
                 {
-                    // We compare Arguments by name (not just ElementType) to cover both list element types
-                    // and dictionary key/value types. This ensures we only override the collection wrapper
-                    // (e.g. IReadOnlyList<T> → IList<T>) and not when the element type itself has changed.
-                    // We use AreNamesEqual rather than Equals because the argument types may come from
-                    // different sources (TypeProvider vs compiled assembly) but represent the same logical type.
-                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
-                            out CSharpType? lastContractPropertyType) &&
-                        !outputProperty.Type.Equals(lastContractPropertyType) &&
-                        outputProperty.Type.Arguments.Count == lastContractPropertyType.Arguments.Count &&
-                        outputProperty.Type.Arguments.Zip(lastContractPropertyType.Arguments).All(
-                            pair => pair.First.AreNamesEqual(pair.Second)))
-                    {
-                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
-                    }
+                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                    CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
                 }
 
                 if (!isDiscriminator)
@@ -1274,6 +1264,89 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
                 _ => CSharpType.FromUnion([type])
             };
+        }
+
+        /// <summary>
+        /// Determines whether the type of a generated property should be replaced with the type
+        /// of the matching property in the last contract to preserve backward compatibility.
+        /// </summary>
+        /// <remarks>
+        /// The override is applied when the generated and last-contract property types differ but
+        /// are logically compatible. Two categories are supported:
+        /// <list type="bullet">
+        /// <item>
+        /// <description>
+        /// Read-write collection properties (<see cref="CSharpType.IsReadWriteList"/> or
+        /// <see cref="CSharpType.IsReadWriteDictionary"/>) whose element/key/value type names
+        /// match the last contract. This handles cases such as <c>IReadOnlyList&lt;T&gt;</c>
+        /// being regenerated as <c>IList&lt;T&gt;</c>.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// All other public properties whose top-level type name (including any generic
+        /// argument names) matches the last contract. This handles cases such as a property
+        /// previously generated as a nullable scalar being regenerated as non-nullable, or a
+        /// property whose type is sourced from a different assembly but represents the same
+        /// logical type.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <param name="outputProperty">The property generated from the current input spec.</param>
+        /// <param name="lastContractPropertyType">
+        /// When the method returns <c>true</c>, the type from the last contract that should be
+        /// used to override the generated property type.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the generated property type should be replaced with the last contract's
+        /// type; otherwise <c>false</c>.
+        /// </returns>
+        private bool TryGetLastContractPropertyTypeOverride(
+            PropertyProvider outputProperty,
+            [NotNullWhen(true)] out CSharpType? lastContractPropertyType)
+        {
+            lastContractPropertyType = null;
+            if (!LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var candidate))
+            {
+                return false;
+            }
+
+            if (outputProperty.Type.Equals(candidate))
+            {
+                return false;
+            }
+
+            // Read-write collections: allow the wrapper (e.g. IList<T> vs IReadOnlyList<T>) to
+            // change as long as the element/key/value type names still match. We compare
+            // Arguments by name (not just ElementType) so this covers both list element types
+            // and dictionary key/value types. AreNamesEqual is used rather than Equals because
+            // the argument types may come from different sources (TypeProvider vs compiled
+            // assembly) but represent the same logical type.
+            if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+            {
+                if (outputProperty.Type.Arguments.Count == candidate.Arguments.Count &&
+                    outputProperty.Type.Arguments.Zip(candidate.Arguments).All(
+                        pair => pair.First.AreNamesEqual(pair.Second)))
+                {
+                    lastContractPropertyType = candidate;
+                    return true;
+                }
+
+                return false;
+            }
+
+            // Other properties: require the entire type name (top-level plus any generic
+            // argument names) to match. This ensures we only override when the types are
+            // logically the same (e.g. differ only in nullability) and never when the
+            // underlying type has genuinely changed (e.g. string to int).
+            if (outputProperty.Type.AreNamesEqual(candidate))
+            {
+                lastContractPropertyType = candidate;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
