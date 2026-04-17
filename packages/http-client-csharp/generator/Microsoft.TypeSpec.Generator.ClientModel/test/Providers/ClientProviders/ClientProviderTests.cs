@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -69,6 +70,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [SetUp]
         public void SetUp()
         {
+            // Reset the singleton instance before each test to prevent state leaking
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             _containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
             _hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;

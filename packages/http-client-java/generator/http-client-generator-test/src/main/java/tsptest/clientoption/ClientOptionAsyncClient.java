@@ -40,13 +40,6 @@ public final class ClientOptionAsyncClient {
 
     /**
      * The post operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -58,6 +51,7 @@ public final class ClientOptionAsyncClient {
      * }
      * </pre>
      * 
+     * @param filter The filter parameter.
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -68,37 +62,14 @@ public final class ClientOptionAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> postWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.postWithResponseAsync(body, requestOptions);
+    public Mono<Response<Void>> postWithResponse(String filter, BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.postWithResponseAsync(filter, body, requestOptions);
     }
 
     /**
      * The post operation.
      * 
-     * @param body The body parameter.
      * @param filter The filter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> post(ClientRequiredRequest body, String filter) {
-        // Generated convenience method for postWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (filter != null) {
-            requestOptions.addQueryParam("filter", filter, false);
-        }
-        return postWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The post operation.
-     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -110,9 +81,9 @@ public final class ClientOptionAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> post(ClientRequiredRequest body) {
+    public Mono<Void> post(String filter, ClientRequiredRequest body) {
         // Generated convenience method for postWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return postWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return postWithResponse(filter, BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

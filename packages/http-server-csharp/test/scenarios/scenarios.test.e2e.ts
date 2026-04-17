@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { readFileSync } from "fs";
-import { globby } from "globby";
+import { glob } from "fs/promises";
 import { dirname, join, resolve } from "pathe";
 import { describe, expect, it } from "vitest";
 import { Server, getIgnoreList } from "./helpers.js"; // Import the custom Server class
@@ -11,13 +11,11 @@ const generatedRoot = join(testRoot, "generated"); // Root folder for generated 
 const ignoreList = await getIgnoreList(join(testRoot, ".testignore"));
 
 // Get all unique service directories
-const allGeneratedServices = Array.from(
-  new Set(
-    (await globby("**/ServiceProject.csproj", { cwd: generatedRoot })).map((service) =>
-      dirname(service),
-    ),
-  ),
-);
+const allGeneratedServicesList: string[] = [];
+for await (const service of glob("**/ServiceProject.csproj", { cwd: generatedRoot })) {
+  allGeneratedServicesList.push(dirname(service));
+}
+const allGeneratedServices = Array.from(new Set(allGeneratedServicesList));
 
 // Filter out ignored services
 const services = allGeneratedServices.filter((item) => !ignoreList.includes(`${item}/main.tsp`));

@@ -210,6 +210,7 @@ stages:
                   CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
                   EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -220,6 +221,7 @@ stages:
                   NodeVersion: 22.x
                   Os: linux
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -230,6 +232,7 @@ stages:
                   NodeVersion: 20.x
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -240,6 +243,7 @@ stages:
                   NodeVersion: 22.x
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
 
   # Regen Test stage
   # Responsible for running any regen tests needed to validate no manual changes were done.
@@ -264,6 +268,7 @@ stages:
               Os: windows
               TestMatrix: ${{ parameters.TestMatrix }}
               PythonVersion: ${{ parameters.PythonVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
           - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
             parameters:
               AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -273,6 +278,7 @@ stages:
               Os: linux
               TestMatrix: ${{ parameters.TestMatrix }}
               PythonVersion: ${{ parameters.PythonVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
 
   # Publish stage
   # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`

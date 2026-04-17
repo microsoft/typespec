@@ -48,6 +48,11 @@ function assertFileDoesNotContain(
   );
 }
 
+function assertFileNotEmitted(fs: TestFileSystem, fileName: string): void {
+  const result = [...fs.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
+  assert.strictEqual(result.length, 0, `Expected ${fileName} to not be emitted, but it was`);
+}
+
 async function compileAndValidateSingleModel(
   tester: TesterInstance,
   code: string,
@@ -3393,6 +3398,61 @@ describe("collection type: defined as emitter option", () => {
         "collection-type": "array",
       },
     );
+  });
+});
+
+describe("arrayDeclarationContext", () => {
+  it("emits correct types for array model declarations", async () => {
+    const fs = await compileAndValidateMultiple(
+      tester,
+      `
+        model Tags is Array<string>;
+        @route("/tags") @get op getTags(): Tags;
+        `,
+      [["IContosoOperations.cs", ["Task<string[]> GetTagsAsync( )"]]],
+    );
+    assertFileNotEmitted(fs, "Tags.cs");
+  });
+
+  it("emits correct types for array model with custom namespace", async () => {
+    const fs = await compileAndValidateMultiple(
+      tester,
+      [
+        `
+        model Items is Array<int32>;
+        @route("/items") @get op getItems(): Items;
+        `,
+        "My.Custom.Ns",
+      ],
+      [["INsOperations.cs", ["Task<int[]> GetItemsAsync( )"]]],
+    );
+    assertFileNotEmitted(fs, "Items.cs");
+  });
+
+  it("emits correct types for array model with complex element type", async () => {
+    const fs = await compileAndValidateMultiple(
+      tester,
+      `
+        model Widget {
+          id: int32;
+          name: string;
+        }
+        model WidgetList is Array<Widget>;
+        @route("/widgets") @get op getWidgets(): WidgetList;
+        `,
+      [
+        [
+          "Widget.cs",
+          [
+            "public partial class Widget",
+            "public int Id { get; set; }",
+            "public string Name { get; set; }",
+          ],
+        ],
+        ["IContosoOperations.cs", ["Task<Widget[]> GetWidgetsAsync( )"]],
+      ],
+    );
+    assertFileNotEmitted(fs, "WidgetList.cs");
   });
 });
 

@@ -112,7 +112,6 @@ catalog:
   execa: ^9.6.1
   express: ^5.2.1
   fast-xml-parser: ^5.5.9
-  globby: ^16.2.0
   happy-dom: ^20.8.9
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
@@ -135,8 +134,8 @@ catalog:
   prettier-plugin-organize-imports: ^4.3.0
   prettier-plugin-sh: ^0.18.1
   prism-react-renderer: ^2.4.1
-  react: ^19.2.4
-  react-dom: ^19.2.4
+  react: ^19.2.5
+  react-dom: ^19.2.5
   react-error-boundary: ^6.1.1
   react-hotkeys-hook: ^5.2.4
   react-markdown: ^10.1.0
@@ -160,12 +159,12 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  typedoc: ^0.28.18
+  typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
   typescript-eslint: ^8.58.1
   uri-template: ^2.0.0
-  vite: ^8.0.7
+  vite: ^8.0.8
   vite-plugin-checker: ^0.12.0
   vite-plugin-dts: 4.5.4
   vitest: ^4.1.3

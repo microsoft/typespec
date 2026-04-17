@@ -36,6 +36,10 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       {...TypeSpecPlaygroundConfig}
       libraries={imports}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
+      emitterOptions={{
+        "@typespec/http-client-python": { debounce: 500, newChangeDiff: true },
+        "@typespec/http-client-csharp": { debounce: 500, newChangeDiff: true },
+      }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
       footer={<PlaygroundFooter versionData={versionData} />}

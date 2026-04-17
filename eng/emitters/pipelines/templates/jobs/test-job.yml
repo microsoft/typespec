@@ -52,6 +52,10 @@ parameters:
     type: string
     default: "3.12"
 
+  - name: UseTypeSpecNext
+    type: boolean
+    default: false
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -83,6 +87,7 @@ jobs:
           CadlRanchName: ${{ parameters.CadlRanchName }}
           EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
           PythonVersion: ${{ parameters.PythonVersion }}
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:
