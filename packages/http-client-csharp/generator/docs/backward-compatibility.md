@@ -14,6 +14,8 @@
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
+  - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
+    - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
 
 ## Overview
 
@@ -110,15 +112,7 @@ public static PublicModel1 PublicModel1(
 
 ### Model Properties
 
-The generator attempts to maintain backward compatibility for all public model property types by preserving the previous property type when it differs from the type that would be generated from the current spec but is still logically compatible.
-
-The following scenarios are supported for any public model property:
-
-- **Collection wrapper change:** A property previously generated as a read-only collection (e.g. `IReadOnlyList<T>` / `IReadOnlyDictionary<TKey, TValue>`) that is now produced as a read-write collection (e.g. `IList<T>` / `IDictionary<TKey, TValue>`), or vice versa. The collection element/key/value type names must still match – the wrapper is preserved but genuine element-type changes are honoured.
-- **Nullability change:** A scalar, enum, or model property that was previously generated as nullable (e.g. `int?`, `StatusEnum?`) and is now produced as non-nullable (or vice versa). The last contract's nullability is preserved when the top-level type name (and any generic argument names) still matches.
-- **Same-name types from different sources:** Properties whose generated type is logically the same as the last contract's type, but sourced from different assemblies (e.g. a `TypeProvider`-produced type vs. a compiled-assembly type). Equality is evaluated by name rather than identity so these are treated as the same type.
-
-The override is **not** applied when the top-level property type names differ (for example a property that changed from `string` to `int`) – such changes are passed through so that the new spec is honoured.
+The generator attempts to maintain backward compatibility for model property types by preserving the previous property type whenever it differs from the type produced by the current spec but is still logically compatible. This applies to all public model properties (scalars, enums, models, and collections).
 
 #### Scenario: Collection Property Type Changed
 
@@ -171,8 +165,8 @@ public int? Count { get; set; }
 **Implementation Details:**
 
 - The generator compares property types against the `LastContractView`.
-- For read-write lists and dictionaries, if the previous type was different but the element/key/value type names match, the previous type is retained.
-- For all other properties, if the previous type's top-level name (including any generic argument names) matches the new type's top-level name, the previous type is retained – this covers nullability changes and same-name types sourced from different assemblies.
+- If the previous type is logically compatible with the new type (same top-level name, with matching generic argument names), the previous type is retained. This covers read-write collection wrapper changes (e.g. `IList<T>` ↔ `IReadOnlyList<T>`) as well as nullability changes on scalars, enums, and models.
+- If the top-level property type names differ entirely (for example `string` → `int`), the new spec is honoured and no override is applied.
 - A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation
@@ -623,3 +617,47 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, Cancellat
 - This conversion is specific to paging operations only
 - Existing client code with `top` continues to compile without changes
 - New code benefits from the standardized `maxCount` naming convention
+
+### Content-Type Parameter Ordering
+
+The generator places the `contentType` parameter after the body (`content`) parameter in method signatures. However, backward compatibility is maintained when the last contract had a different ordering.
+
+#### Scenario: Content-Type Before Body Preserved from Last Contract
+
+**Description:** The generator places `contentType` after the `content` (body) parameter. However, if the last contract had `contentType` before `content`, the generator preserves that ordering to avoid breaking existing code.
+
+This commonly occurs when a library was previously generated with contentType before body and has already been released (GA'd).
+
+**Example:**
+
+**contentType before body exists in LastContractView - preserved for backward compatibility**
+
+Previous version had `contentType` before `content`:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // ...
+}
+```
+
+Current TypeSpec defines a content type:
+
+```typespec
+op UpdateSkillDefaultVersion(
+  @path skill_id: string,
+  @header contentType: string,
+  @body body: SetDefaultSkillVersionBody,
+): SkillResource;
+```
+
+**Generated Compatibility Result:**
+
+The generator detects that the previous contract had `contentType` before `content` and preserves that ordering:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // contentType stays before content for backward compatibility
+}
+```

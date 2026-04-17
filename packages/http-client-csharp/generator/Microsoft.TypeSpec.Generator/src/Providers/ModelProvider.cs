@@ -536,15 +536,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Backcompat fix for property types: if a property existed in the last contract
-                // with a compatible but non-identical type, retain the previous type to avoid
-                // breaking consumers of the library.
-                if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
-                {
-                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                    CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
-                }
-
                 if (!isDiscriminator)
                 {
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
@@ -582,7 +573,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 properties.AddRange(AdditionalPropertyProperties);
             }
 
-            return [.. properties];
+            return [.. BuildPropertiesForBackCompatibility(properties)];
         }
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
@@ -1267,8 +1258,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Determines whether the type of a generated property should be replaced with the type
-        /// of the matching property in the last contract to preserve backward compatibility.
+        /// Rewrites property types so that, when a property exists in the last contract with a
+        /// compatible but non-identical type, the previous type is preserved. This avoids
+        /// source-breaking changes for consumers of the library.
         /// </summary>
         /// <remarks>
         /// The override is applied when the generated and last-contract property types differ but
@@ -1286,22 +1278,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <description>
         /// All other public properties whose top-level type name (including any generic
         /// argument names) matches the last contract. This handles cases such as a property
-        /// previously generated as a nullable scalar being regenerated as non-nullable, or a
-        /// property whose type is sourced from a different assembly but represents the same
-        /// logical type.
+        /// previously generated as a nullable scalar being regenerated as non-nullable.
         /// </description>
         /// </item>
         /// </list>
         /// </remarks>
-        /// <param name="outputProperty">The property generated from the current input spec.</param>
-        /// <param name="lastContractPropertyType">
-        /// When the method returns <c>true</c>, the type from the last contract that should be
-        /// used to override the generated property type.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the generated property type should be replaced with the last contract's
-        /// type; otherwise <c>false</c>.
-        /// </returns>
+        protected internal override IReadOnlyList<PropertyProvider> BuildPropertiesForBackCompatibility(IEnumerable<PropertyProvider> originalProperties)
+        {
+            var properties = originalProperties as IReadOnlyList<PropertyProvider> ?? [.. originalProperties];
+            if (LastContractPropertiesMap.Count == 0)
+            {
+                return properties;
+            }
+
+            foreach (var outputProperty in properties)
+            {
+                if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
+                {
+                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
+                    CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                }
+            }
+
+            return properties;
+        }
+
         private bool TryGetLastContractPropertyTypeOverride(
             PropertyProvider outputProperty,
             [NotNullWhen(true)] out CSharpType? lastContractPropertyType)
