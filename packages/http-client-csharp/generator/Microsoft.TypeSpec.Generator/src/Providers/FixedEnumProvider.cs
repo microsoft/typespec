@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Reordered members of enum '{Name}' to match last contract.",
-                    LogCategory.EnumMemberReordering);
+                    BackCompatibilityChangeCategory.EnumMemberReordering);
             }
 
             return allMembers;

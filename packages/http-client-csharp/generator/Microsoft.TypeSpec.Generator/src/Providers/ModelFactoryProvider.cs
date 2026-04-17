@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                         CodeModelGenerator.Instance.Emitter.Debug(
                             $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
-                            LogCategory.ModelFactoryMethodReplaced);
+                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
 
                         foundCompatibleOverload = true;
                         break;
@@ -161,7 +161,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         factoryMethods.Add(replacedMethod);
                         CodeModelGenerator.Instance.Emitter.Debug(
                             $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
-                            LogCategory.ModelFactoryMethodAdded);
+                            BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -178,13 +178,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     factoryMethods.Add(builtMethod);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.",
-                        LogCategory.ModelFactoryMethodAdded);
+                        BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
                 }
                 else
                 {
                     CodeModelGenerator.Instance.Emitter.Info(
                         $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.",
-                        LogCategory.ModelFactoryMethodSkipped);
+                        BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                 }
             }
 

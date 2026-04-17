@@ -1279,7 +1279,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     methodsWithReorderedParams.Add(methodToUpdate);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.",
-                        LogCategory.MethodParameterReordering);
+                        BackCompatibilityChangeCategory.MethodParameterReordering);
                 }
             }
 

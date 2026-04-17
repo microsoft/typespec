@@ -4,11 +4,11 @@
 namespace Microsoft.TypeSpec.Generator.EmitterRpc
 {
     /// <summary>
-    /// High-level category used to group buffered log messages so that the
-    /// <see cref="Emitter"/> can emit a single summary trace per level grouped
-    /// by category at the end of the run.
+    /// High-level category of a back-compatibility change applied due to a
+    /// library's last contract. Used by <see cref="Emitter"/>'s buffered logging
+    /// overloads to group entries when emitting the end-of-run summary.
     /// </summary>
-    public enum LogCategory
+    public enum BackCompatibilityChangeCategory
     {
         /// <summary>The order of parameters of a client method was changed to match the last contract.</summary>
         MethodParameterReordering,

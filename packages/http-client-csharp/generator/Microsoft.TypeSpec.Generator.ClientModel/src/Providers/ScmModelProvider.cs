@@ -398,7 +398,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract.",
-                    LogCategory.AdditionalPropertiesShapePreserved);
+                    BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved);
             }
 
             return needsBackCompat;

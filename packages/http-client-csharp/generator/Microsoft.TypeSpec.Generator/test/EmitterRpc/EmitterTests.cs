@@ -78,9 +78,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         [TestCase]
         public void BufferedDebug_GroupsMessagesByCategory()
         {
-            _emitter?.Debug("Reordered parameters of ClientA.DoThing.", LogCategory.MethodParameterReordering);
-            _emitter?.Debug("Reordered parameters of ClientB.DoOther.", LogCategory.MethodParameterReordering);
-            _emitter?.Debug("Preserved parameter name top on ClientA.", LogCategory.ParameterNamePreserved);
+            _emitter?.Debug("Reordered parameters of ClientA.DoThing.", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug("Reordered parameters of ClientB.DoOther.", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug("Preserved parameter name top on ClientA.", BackCompatibilityChangeCategory.ParameterNamePreserved);
 
             // Nothing should be written until WriteBufferedMessages is called.
             Assert.AreEqual(0, _stream!.Length);
@@ -99,9 +99,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         [TestCase]
         public void BufferedDebug_DeduplicatesIdenticalEntries()
         {
-            _emitter?.Debug("same", LogCategory.MethodParameterReordering);
-            _emitter?.Debug("same", LogCategory.MethodParameterReordering);
-            _emitter?.Debug("same", LogCategory.MethodParameterReordering);
+            _emitter?.Debug("same", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug("same", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug("same", BackCompatibilityChangeCategory.MethodParameterReordering);
 
             _emitter?.WriteBufferedMessages();
             var result = GetResult();
@@ -112,8 +112,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         [TestCase]
         public void BufferedDebug_IgnoresNullOrEmptyMessage()
         {
-            _emitter?.Debug("", LogCategory.MethodParameterReordering);
-            _emitter?.Debug(null!, LogCategory.MethodParameterReordering);
+            _emitter?.Debug("", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug(null!, BackCompatibilityChangeCategory.MethodParameterReordering);
             _emitter?.WriteBufferedMessages();
 
             Assert.AreEqual(string.Empty, GetResult());
@@ -122,8 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         [TestCase]
         public void BufferedMessages_DifferentLevelsEmittedSeparately()
         {
-            _emitter?.Info("info-msg", LogCategory.MethodParameterReordering);
-            _emitter?.Debug("debug-msg", LogCategory.MethodParameterReordering);
+            _emitter?.Info("info-msg", BackCompatibilityChangeCategory.MethodParameterReordering);
+            _emitter?.Debug("debug-msg", BackCompatibilityChangeCategory.MethodParameterReordering);
 
             _emitter?.WriteBufferedMessages();
             var result = GetResult();
@@ -136,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.EmitterRpc
         [TestCase]
         public void WriteBufferedMessages_ClearsBuffer()
         {
-            _emitter?.Debug("once", LogCategory.MethodParameterReordering);
+            _emitter?.Debug("once", BackCompatibilityChangeCategory.MethodParameterReordering);
             _emitter?.WriteBufferedMessages();
 
             _stream?.SetLength(0);

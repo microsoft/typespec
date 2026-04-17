@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     addedPreviousApiVersion = true;
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Added previous API version '{field.Name}' to enum '{Name}' to preserve members from last contract.",
-                        LogCategory.ApiVersionEnumMemberAdded);
+                        BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded);
                 }
             }
 

@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         private readonly StreamWriter _writer;
 
         private readonly object _bufferLock = new();
-        private readonly Dictionary<string, Dictionary<LogCategory, SortedSet<string>>> _bufferedMessages =
+        private readonly Dictionary<string, Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>> _bufferedMessages =
             new(StringComparer.Ordinal);
 
         internal Emitter(Stream stream)
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// grouped summary trace when <see cref="WriteBufferedMessages"/> is called or
         /// when the emitter is disposed.
         /// </summary>
-        public void Info(string message, LogCategory category) => Buffer(InfoLevel, category, message);
+        public void Info(string message, BackCompatibilityChangeCategory category) => Buffer(InfoLevel, category, message);
 
         /// <summary>
         /// Buffers a debug-level message under the given <paramref name="category"/>.
@@ -82,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// grouped summary trace when <see cref="WriteBufferedMessages"/> is called or
         /// when the emitter is disposed.
         /// </summary>
-        public void Debug(string message, LogCategory category) => Buffer(DebugLevel, category, message);
+        public void Debug(string message, BackCompatibilityChangeCategory category) => Buffer(DebugLevel, category, message);
 
         /// <summary>
         /// Buffers a verbose-level message under the given <paramref name="category"/>.
@@ -90,9 +90,9 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// grouped summary trace when <see cref="WriteBufferedMessages"/> is called or
         /// when the emitter is disposed.
         /// </summary>
-        public void Verbose(string message, LogCategory category) => Buffer(VerboseLevel, category, message);
+        public void Verbose(string message, BackCompatibilityChangeCategory category) => Buffer(VerboseLevel, category, message);
 
-        private void Buffer(string level, LogCategory category, string message)
+        private void Buffer(string level, BackCompatibilityChangeCategory category, string message)
         {
             if (string.IsNullOrEmpty(message))
             {
@@ -103,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             {
                 if (!_bufferedMessages.TryGetValue(level, out var perCategory))
                 {
-                    perCategory = new Dictionary<LogCategory, SortedSet<string>>();
+                    perCategory = new Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>();
                     _bufferedMessages[level] = perCategory;
                 }
 
@@ -124,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// </summary>
         public void WriteBufferedMessages()
         {
-            Dictionary<string, Dictionary<LogCategory, SortedSet<string>>> snapshot;
+            Dictionary<string, Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>> snapshot;
             lock (_bufferLock)
             {
                 if (_bufferedMessages.Count == 0)
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                     return;
                 }
 
-                snapshot = new Dictionary<string, Dictionary<LogCategory, SortedSet<string>>>(_bufferedMessages, StringComparer.Ordinal);
+                snapshot = new Dictionary<string, Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>>(_bufferedMessages, StringComparer.Ordinal);
                 _bufferedMessages.Clear();
             }
 
@@ -170,18 +170,18 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             }
         }
 
-        private static string GetCategoryDisplayName(LogCategory category) => category switch
+        private static string GetCategoryDisplayName(BackCompatibilityChangeCategory category) => category switch
         {
-            LogCategory.MethodParameterReordering => "Method Parameter Reordering",
-            LogCategory.ParameterNamePreserved => "Parameter Name Preserved",
-            LogCategory.AdditionalPropertiesShapePreserved => "AdditionalProperties Shape Preserved",
-            LogCategory.CollectionPropertyTypePreserved => "Collection Property Type Preserved",
-            LogCategory.ConstructorModifierPreserved => "Constructor Modifier Preserved",
-            LogCategory.EnumMemberReordering => "Enum Member Reordering",
-            LogCategory.ApiVersionEnumMemberAdded => "Api Version Enum Member Added From Last Contract",
-            LogCategory.ModelFactoryMethodReplaced => "Model Factory Method Replaced For Back-Compat",
-            LogCategory.ModelFactoryMethodAdded => "Model Factory Method Added For Back-Compat",
-            LogCategory.ModelFactoryMethodSkipped => "Model Factory Method Back-Compat Skipped",
+            BackCompatibilityChangeCategory.MethodParameterReordering => "Method Parameter Reordering",
+            BackCompatibilityChangeCategory.ParameterNamePreserved => "Parameter Name Preserved",
+            BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved => "AdditionalProperties Shape Preserved",
+            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved => "Collection Property Type Preserved",
+            BackCompatibilityChangeCategory.ConstructorModifierPreserved => "Constructor Modifier Preserved",
+            BackCompatibilityChangeCategory.EnumMemberReordering => "Enum Member Reordering",
+            BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded => "Api Version Enum Member Added From Last Contract",
+            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced => "Model Factory Method Replaced For Back-Compat",
+            BackCompatibilityChangeCategory.ModelFactoryMethodAdded => "Model Factory Method Added For Back-Compat",
+            BackCompatibilityChangeCategory.ModelFactoryMethodSkipped => "Model Factory Method Back-Compat Skipped",
             _ => category.ToString(),
         };
 

@@ -943,7 +943,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').",
-                        LogCategory.ParameterNamePreserved);
+                        BackCompatibilityChangeCategory.ParameterNamePreserved);
                 }
                 proposedName = existingParam;
             }
