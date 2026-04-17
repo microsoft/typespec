@@ -1278,6 +1278,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     methodsWithReorderedParams.Add(methodToUpdate);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
+                    BackCompatibilityLogger.LogChange(
+                        "Method Parameter Reordering",
+                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.");
                 }
             }
 

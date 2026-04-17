@@ -125,7 +125,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
+            // Report a summary-level change only if the relative order of shared members
+            // was actually altered to match the last contract.
+            if (!EnumMemberOrderMatches(currentValues, allMembers))
+            {
+                BackCompatibilityLogger.LogChange(
+                    "Enum Member Reordering",
+                    $"Reordered members of enum '{Name}' to match last contract.");
+            }
+
             return allMembers;
+        }
+
+        private static bool EnumMemberOrderMatches(
+            IReadOnlyList<EnumTypeMember> left,
+            IReadOnlyList<EnumTypeMember> right)
+        {
+            if (left.Count != right.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < left.Count; i++)
+            {
+                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         protected internal override FieldProvider[] BuildFields()

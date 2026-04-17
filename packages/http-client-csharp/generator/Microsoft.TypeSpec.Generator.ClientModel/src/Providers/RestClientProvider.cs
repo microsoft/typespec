@@ -15,6 +15,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -937,6 +938,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (existingParam != null)
             {
                 // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
+                {
+                    BackCompatibilityLogger.LogChange(
+                        "Parameter Name Preserved",
+                        $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').");
+                }
                 proposedName = existingParam;
             }
 
