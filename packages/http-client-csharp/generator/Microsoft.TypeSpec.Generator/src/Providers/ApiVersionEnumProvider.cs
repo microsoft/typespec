@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -156,9 +157,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     string enumValue = field.Name.ToApiVersionValue(versionPrefix, versionSeparator);
                     allMembers.Add(new EnumTypeMember(field.Name, field, enumValue));
                     addedPreviousApiVersion = true;
-                    BackCompatibilityLogger.LogChange(
-                        BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded,
-                        $"Added previous API version '{field.Name}' to enum '{Name}' to preserve members from last contract.");
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added previous API version '{field.Name}' to enum '{Name}' to preserve members from last contract.",
+                        LogCategory.ApiVersionEnumMemberAdded);
                 }
             }
 

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -940,9 +941,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Preserve the exact name (including casing) from the previous contract for backward compatibility
                 if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
                 {
-                    BackCompatibilityLogger.LogChange(
-                        BackCompatibilityChangeCategory.ParameterNamePreserved,
-                        $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').");
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').",
+                        LogCategory.ParameterNamePreserved);
                 }
                 proposedName = existingParam;
             }

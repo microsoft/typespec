@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -129,9 +130,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // was actually altered to match the last contract.
             if (!EnumMemberOrderMatches(currentValues, allMembers))
             {
-                BackCompatibilityLogger.LogChange(
-                    BackCompatibilityChangeCategory.EnumMemberReordering,
-                    $"Reordered members of enum '{Name}' to match last contract.");
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Reordered members of enum '{Name}' to match last contract.",
+                    LogCategory.EnumMemberReordering);
             }
 
             return allMembers;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -147,9 +148,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             factoryMethods.Remove(factoryMethodToRemove);
                         }
 
-                        BackCompatibilityLogger.LogChange(
-                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced,
-                            $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.");
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
+                            LogCategory.ModelFactoryMethodReplaced);
 
                         foundCompatibleOverload = true;
                         break;
@@ -158,9 +159,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
-                        BackCompatibilityLogger.LogChange(
-                            BackCompatibilityChangeCategory.ModelFactoryMethodAdded,
-                            $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.");
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
+                            LogCategory.ModelFactoryMethodAdded);
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -175,16 +176,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
-                    BackCompatibilityLogger.LogChange(
-                        BackCompatibilityChangeCategory.ModelFactoryMethodAdded,
-                        $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.");
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.",
+                        LogCategory.ModelFactoryMethodAdded);
                 }
                 else
                 {
-                    CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
-                    BackCompatibilityLogger.LogChange(
-                        BackCompatibilityChangeCategory.ModelFactoryMethodSkipped,
-                        $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.");
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.",
+                        LogCategory.ModelFactoryMethodSkipped);
                 }
             }
 

@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -395,9 +396,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (needsBackCompat)
             {
-                BackCompatibilityLogger.LogChange(
-                    BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved,
-                    $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract.");
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract.",
+                    LogCategory.AdditionalPropertiesShapePreserved);
             }
 
             return needsBackCompat;

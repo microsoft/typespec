@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -1277,10 +1278,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     methodsWithReorderedParams.Add(methodToUpdate);
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
-                    BackCompatibilityLogger.LogChange(
-                        BackCompatibilityChangeCategory.MethodParameterReordering,
-                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.");
+                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.",
+                        LogCategory.MethodParameterReordering);
                 }
             }
 

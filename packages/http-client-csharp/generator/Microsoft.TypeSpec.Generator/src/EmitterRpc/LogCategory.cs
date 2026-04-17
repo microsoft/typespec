@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-namespace Microsoft.TypeSpec.Generator.Utilities
+namespace Microsoft.TypeSpec.Generator.EmitterRpc
 {
     /// <summary>
-    /// High-level categories of back-compatibility changes that the generator may
-    /// apply when a library's last contract differs from what the current TypeSpec
-    /// would otherwise produce. Used by <see cref="BackCompatibilityLogger"/> to
-    /// group the human-readable summary entries.
+    /// High-level category used to group buffered log messages so that the
+    /// <see cref="Emitter"/> can emit a single summary trace per level grouped
+    /// by category at the end of the run.
     /// </summary>
-    public enum BackCompatibilityChangeCategory
+    public enum LogCategory
     {
         /// <summary>The order of parameters of a client method was changed to match the last contract.</summary>
         MethodParameterReordering,
