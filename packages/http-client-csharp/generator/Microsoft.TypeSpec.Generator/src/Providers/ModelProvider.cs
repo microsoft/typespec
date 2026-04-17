@@ -553,7 +553,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
                         CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
                         BackCompatibilityLogger.LogChange(
-                            "Property Collection Type Preserved",
+                            "Collection Property Type Preserved",
                             $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.");
                     }
                 }

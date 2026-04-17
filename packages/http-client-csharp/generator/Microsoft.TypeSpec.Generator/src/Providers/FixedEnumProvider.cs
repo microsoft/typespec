@@ -147,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             for (int i = 0; i < left.Count; i++)
             {
-                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.Ordinal))
                 {
                     return false;
                 }

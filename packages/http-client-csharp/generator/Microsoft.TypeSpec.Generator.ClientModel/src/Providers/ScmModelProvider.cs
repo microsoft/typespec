@@ -396,8 +396,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (needsBackCompat)
             {
                 BackCompatibilityLogger.LogChange(
-                    "AdditionalProperties Type Preserved",
-                    $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract (kept object-based instead of BinaryData).");
+                    "AdditionalProperties Shape Preserved",
+                    $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract.");
             }
 
             return needsBackCompat;
