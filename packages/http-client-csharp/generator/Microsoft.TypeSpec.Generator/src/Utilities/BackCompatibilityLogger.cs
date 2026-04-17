@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                   .Append(total)
                   .Append(" change(s) across ")
                   .Append(_changes.Count)
-                  .AppendLine(" categor(y/ies).");
+                  .AppendLine(" categories.");
 
                 foreach (var kvp in _changes)
                 {

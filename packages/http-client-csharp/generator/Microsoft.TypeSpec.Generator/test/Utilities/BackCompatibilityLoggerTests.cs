@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             var summary = BackCompatibilityLogger.BuildSummary();
             Assert.IsNotNull(summary);
-            StringAssert.Contains("3 change(s) across 2 categor", summary);
+            StringAssert.Contains("3 change(s) across 2 categories", summary);
             StringAssert.Contains("Method Parameter Reordering (2):", summary);
             StringAssert.Contains("Parameter Name Preserved (1):", summary);
             StringAssert.Contains("- Reordered parameters of 'ClientA.DoThing'.", summary);
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             var summary = BackCompatibilityLogger.BuildSummary();
             Assert.IsNotNull(summary);
-            StringAssert.Contains("1 change(s) across 1 categor", summary);
+            StringAssert.Contains("1 change(s) across 1 categories", summary);
             StringAssert.Contains("Method Parameter Reordering (1):", summary);
         }
 
