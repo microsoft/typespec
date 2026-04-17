@@ -30,9 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void LogChange_GroupsMessagesByCategory()
         {
-            BackCompatibilityLogger.LogChange("Method Parameter Reordering", "Reordered parameters of 'ClientA.DoThing'.");
-            BackCompatibilityLogger.LogChange("Method Parameter Reordering", "Reordered parameters of 'ClientB.DoOther'.");
-            BackCompatibilityLogger.LogChange("Parameter Name Preserved", "Preserved parameter name 'top' on 'ClientA'.");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "Reordered parameters of 'ClientA.DoThing'.");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "Reordered parameters of 'ClientB.DoOther'.");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.ParameterNamePreserved, "Preserved parameter name 'top' on 'ClientA'.");
 
             Assert.IsTrue(BackCompatibilityLogger.HasChanges);
 
@@ -49,22 +49,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void LogChange_DeduplicatesIdenticalEntries()
         {
-            BackCompatibilityLogger.LogChange("Cat", "same");
-            BackCompatibilityLogger.LogChange("Cat", "same");
-            BackCompatibilityLogger.LogChange("Cat", "same");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "same");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "same");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "same");
 
             var summary = BackCompatibilityLogger.BuildSummary();
             Assert.IsNotNull(summary);
             StringAssert.Contains("1 change(s) across 1 categor", summary);
-            StringAssert.Contains("Cat (1):", summary);
+            StringAssert.Contains("Method Parameter Reordering (1):", summary);
         }
 
         [Test]
-        public void LogChange_IgnoresNullOrEmptyInputs()
+        public void LogChange_IgnoresNullOrEmptyMessage()
         {
-            BackCompatibilityLogger.LogChange("", "something");
-            BackCompatibilityLogger.LogChange("Cat", "");
-            BackCompatibilityLogger.LogChange(null!, null!);
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, null!);
 
             Assert.IsFalse(BackCompatibilityLogger.HasChanges);
             Assert.IsNull(BackCompatibilityLogger.BuildSummary());
@@ -73,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void Reset_ClearsRecordedChanges()
         {
-            BackCompatibilityLogger.LogChange("Cat", "message");
+            BackCompatibilityLogger.LogChange(BackCompatibilityChangeCategory.MethodParameterReordering, "message");
             Assert.IsTrue(BackCompatibilityLogger.HasChanges);
 
             BackCompatibilityLogger.Reset();

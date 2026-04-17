@@ -157,7 +157,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     allMembers.Add(new EnumTypeMember(field.Name, field, enumValue));
                     addedPreviousApiVersion = true;
                     BackCompatibilityLogger.LogChange(
-                        "Api Version Enum Member Added From Last Contract",
+                        BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded,
                         $"Added previous API version '{field.Name}' to enum '{Name}' to preserve members from last contract.");
                 }
             }

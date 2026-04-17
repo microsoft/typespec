@@ -553,7 +553,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
                         CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
                         BackCompatibilityLogger.LogChange(
-                            "Collection Property Type Preserved",
+                            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved,
                             $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.");
                     }
                 }
@@ -780,7 +780,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
                             BackCompatibilityLogger.LogChange(
-                                "Constructor Modifier Preserved",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved,
                                 $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.");
                         }
                     }

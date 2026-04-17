@@ -130,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!EnumMemberOrderMatches(currentValues, allMembers))
             {
                 BackCompatibilityLogger.LogChange(
-                    "Enum Member Reordering",
+                    BackCompatibilityChangeCategory.EnumMemberReordering,
                     $"Reordered members of enum '{Name}' to match last contract.");
             }
 

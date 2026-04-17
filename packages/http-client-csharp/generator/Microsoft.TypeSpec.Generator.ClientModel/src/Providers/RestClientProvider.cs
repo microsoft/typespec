@@ -941,7 +941,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
                 {
                     BackCompatibilityLogger.LogChange(
-                        "Parameter Name Preserved",
+                        BackCompatibilityChangeCategory.ParameterNamePreserved,
                         $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').");
                 }
                 proposedName = existingParam;

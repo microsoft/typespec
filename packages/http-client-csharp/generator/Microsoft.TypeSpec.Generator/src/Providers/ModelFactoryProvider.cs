@@ -148,7 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
 
                         BackCompatibilityLogger.LogChange(
-                            "Model Factory Method Replaced For Back-Compat",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced,
                             $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.");
 
                         foundCompatibleOverload = true;
@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         factoryMethods.Add(replacedMethod);
                         BackCompatibilityLogger.LogChange(
-                            "Model Factory Method Added For Back-Compat",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodAdded,
                             $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.");
                         foundCompatibleOverload = true;
                         break;
@@ -176,14 +176,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     factoryMethods.Add(builtMethod);
                     BackCompatibilityLogger.LogChange(
-                        "Model Factory Method Added For Back-Compat",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodAdded,
                         $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.");
                 }
                 else
                 {
                     CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
                     BackCompatibilityLogger.LogChange(
-                        "Model Factory Method Back-Compat Skipped",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodSkipped,
                         $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.");
                 }
             }

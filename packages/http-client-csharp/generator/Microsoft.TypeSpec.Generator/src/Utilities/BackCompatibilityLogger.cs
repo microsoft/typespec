@@ -25,25 +25,41 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// Records a back-compatibility change. Duplicate entries for the same
         /// <paramref name="category"/> and <paramref name="message"/> are collapsed.
         /// </summary>
-        /// <param name="category">High-level grouping (e.g. "Method Parameter Reordering").</param>
+        /// <param name="category">High-level grouping for the change.</param>
         /// <param name="message">Specific human-readable description of the change.</param>
-        public static void LogChange(string category, string message)
+        public static void LogChange(BackCompatibilityChangeCategory category, string message)
         {
-            if (string.IsNullOrEmpty(category) || string.IsNullOrEmpty(message))
+            if (string.IsNullOrEmpty(message))
             {
                 return;
             }
 
+            string categoryName = GetCategoryDisplayName(category);
             lock (_lock)
             {
-                if (!_changes.TryGetValue(category, out var set))
+                if (!_changes.TryGetValue(categoryName, out var set))
                 {
                     set = new SortedSet<string>(StringComparer.Ordinal);
-                    _changes[category] = set;
+                    _changes[categoryName] = set;
                 }
                 set.Add(message);
             }
         }
+
+        private static string GetCategoryDisplayName(BackCompatibilityChangeCategory category) => category switch
+        {
+            BackCompatibilityChangeCategory.MethodParameterReordering => "Method Parameter Reordering",
+            BackCompatibilityChangeCategory.ParameterNamePreserved => "Parameter Name Preserved",
+            BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved => "AdditionalProperties Shape Preserved",
+            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved => "Collection Property Type Preserved",
+            BackCompatibilityChangeCategory.ConstructorModifierPreserved => "Constructor Modifier Preserved",
+            BackCompatibilityChangeCategory.EnumMemberReordering => "Enum Member Reordering",
+            BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded => "Api Version Enum Member Added From Last Contract",
+            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced => "Model Factory Method Replaced For Back-Compat",
+            BackCompatibilityChangeCategory.ModelFactoryMethodAdded => "Model Factory Method Added For Back-Compat",
+            BackCompatibilityChangeCategory.ModelFactoryMethodSkipped => "Model Factory Method Back-Compat Skipped",
+            _ => category.ToString(),
+        };
 
         /// <summary>
         /// Indicates whether any back-compatibility change has been recorded.
