@@ -1117,11 +1117,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_ScalarPropertyTypeNotOverriddenWhenTypeNameDiffers()
+        public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
         {
-            // When the top-level property type name differs between the last contract and the
-            // current spec (e.g. string vs int), the generator must not silently replace the
-            // spec-defined type with the last contract's type.
+            // When the property type differs between the last contract and the current spec
+            // (including a top-level type name change like string vs int), the generator
+            // preserves the last contract's type to avoid a source-breaking change. Users
+            // can override this behavior with custom code if needed.
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 properties:
@@ -1138,9 +1139,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
             Assert.IsNotNull(countProperty);
-            // Last contract has `string Count { get; set; }` but the new spec says int – the
-            // generator must not override the new type since the names differ entirely.
-            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            // Last contract has `string Count { get; set; }` and the new spec says int – the
+            // generator preserves the last contract's type for backwards compatibility.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(string)));
         }
 
         [Test]

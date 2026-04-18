@@ -1317,26 +1317,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            // Read-write collections: preserve the previous type whenever it differs (e.g.
-            // IReadOnlyList<T> regenerated as IList<T>). This matches the long-standing
-            // behavior in the inline back-compat block.
-            if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
-            {
-                lastContractPropertyType = candidate;
-                return true;
-            }
-
-            // Other properties: require the entire type name (top-level plus any generic
-            // argument names) to match. This ensures we only override when the types are
-            // logically the same (e.g. differ only in nullability) and never when the
-            // underlying type has genuinely changed (e.g. string to int).
-            if (outputProperty.Type.AreNamesEqual(candidate))
-            {
-                lastContractPropertyType = candidate;
-                return true;
-            }
-
-            return false;
+            // Always preserve the last contract's property type when it differs from the
+            // type produced by the current spec. This prevents source-breaking changes
+            // for any kind of property change (collection wrapper, nullability, underlying
+            // type, etc.). Users can override this behavior with custom code if needed.
+            lastContractPropertyType = candidate;
+            return true;
         }
 
         /// <summary>

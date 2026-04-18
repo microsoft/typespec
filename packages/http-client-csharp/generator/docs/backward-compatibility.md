@@ -112,11 +112,11 @@ public static PublicModel1 PublicModel1(
 
 ### Model Properties
 
-The generator attempts to maintain backward compatibility for model property types by preserving the previous property type whenever it differs from the type produced by the current spec but is still logically compatible. This applies to all public model properties (scalars, enums, models, and collections).
+The generator preserves the previous property type whenever it differs from the type produced by the current spec. This applies to all public model properties (scalars, enums, models, and collections), so any property type change is non-source-breaking by default. Users who want the new spec's type to take effect can override this behavior with custom code.
 
 #### Scenario: Collection Property Type Changed
 
-**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
+**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator preserves the previous property type to avoid breaking changes.
 
 **Example:**
 
@@ -138,9 +138,9 @@ public IList<string> Items { get; set; }
 public IReadOnlyList<string> Items { get; }
 ```
 
-#### Scenario: Scalar/Model Property Nullability Changed
+#### Scenario: Scalar/Model Property Type Changed
 
-**Description:** When the nullability of a scalar, enum, or model property differs between the last contract and the current spec, the generator preserves the last contract's nullability to avoid a source-breaking change.
+**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec — whether the change is in nullability, the underlying type, or anything else — the generator preserves the last contract's type.
 
 **Example:**
 
@@ -156,18 +156,13 @@ Current TypeSpec would generate:
 public int Count { get; set; }
 ```
 
-**Result:** The generator detects the nullability mismatch and preserves the previous nullable type:
+**Result:** The generator detects the type mismatch and preserves the previous nullable type:
 
 ```csharp
 public int? Count { get; set; }
 ```
 
-**Implementation Details:**
-
-- The generator compares property types against the `LastContractView`.
-- For read-write lists and dictionaries, if the previous type was different, the previous type is retained.
-- For other public properties (scalars, enums, models), the previous type is retained when it differs from the new type only at the top level — for example when nullability changes (`int?` → `int`). If the top-level property type names differ entirely (for example `string` → `int`), the new spec is honoured and no override is applied.
-- A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
+A diagnostic message is logged for every overridden property: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation
 
