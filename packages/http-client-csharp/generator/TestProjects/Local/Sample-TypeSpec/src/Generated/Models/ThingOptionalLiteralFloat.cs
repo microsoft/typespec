@@ -43,10 +43,10 @@ namespace SampleTypeSpec
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is ThingOptionalLiteralFloat other && Equals(other);
+        public override bool Equals(object obj) => obj is ThingOptionalLiteralFloat other && this.Equals(other);
 
         /// <inheritdoc/>
-        public bool Equals(ThingOptionalLiteralFloat other) => Equals(_value, other._value);
+        public bool Equals(ThingOptionalLiteralFloat other) => float.Equals(_value, other._value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
