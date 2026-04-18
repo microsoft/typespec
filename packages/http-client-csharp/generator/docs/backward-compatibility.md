@@ -165,8 +165,8 @@ public int? Count { get; set; }
 **Implementation Details:**
 
 - The generator compares property types against the `LastContractView`.
-- If the previous type is logically compatible with the new type (same top-level name, with matching generic argument names), the previous type is retained. This covers read-write collection wrapper changes (e.g. `IList<T>` ↔ `IReadOnlyList<T>`) as well as nullability changes on scalars, enums, and models.
-- If the top-level property type names differ entirely (for example `string` → `int`), the new spec is honoured and no override is applied.
+- For read-write lists and dictionaries, if the previous type was different, the previous type is retained.
+- For other public properties (scalars, enums, models), the previous type is retained when it differs from the new type only at the top level — for example when nullability changes (`int?` → `int`). If the top-level property type names differ entirely (for example `string` → `int`), the new spec is honoured and no override is applied.
 - A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation

@@ -106,6 +106,12 @@ extends:
         jobs:
           - job: CreatePR
             timeoutInMinutes: 90
+            variables:
+              # Redirect temp and cache directories to Agent.TempDirectory (a separate, larger partition)
+              # to avoid running out of disk space on the root partition during generation
+              TMPDIR: $(Agent.TempDirectory)
+              NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
+              npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
               - checkout: self
               - pwsh: |
@@ -150,6 +156,7 @@ extends:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
               - download: current
+                artifact: build_artifacts_csharp
                 displayName: Download pipeline artifacts
 
               - pwsh: |

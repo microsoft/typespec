@@ -1263,15 +1263,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// source-breaking changes for consumers of the library.
         /// </summary>
         /// <remarks>
-        /// The override is applied when the generated and last-contract property types differ but
-        /// are logically compatible. Two categories are supported:
+        /// The override is applied when the generated and last-contract property types differ.
+        /// Two categories are supported:
         /// <list type="bullet">
         /// <item>
         /// <description>
         /// Read-write collection properties (<see cref="CSharpType.IsReadWriteList"/> or
-        /// <see cref="CSharpType.IsReadWriteDictionary"/>) whose element/key/value type names
-        /// match the last contract. This handles cases such as <c>IReadOnlyList&lt;T&gt;</c>
-        /// being regenerated as <c>IList&lt;T&gt;</c>.
+        /// <see cref="CSharpType.IsReadWriteDictionary"/>). This handles cases such as
+        /// <c>IReadOnlyList&lt;T&gt;</c> being regenerated as <c>IList&lt;T&gt;</c>.
         /// </description>
         /// </item>
         /// <item>
@@ -1318,23 +1317,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            // Read-write collections: allow the wrapper (e.g. IList<T> vs IReadOnlyList<T>) to
-            // change as long as the element/key/value type names still match. We compare
-            // Arguments by name (not just ElementType) so this covers both list element types
-            // and dictionary key/value types. AreNamesEqual is used rather than Equals because
-            // the argument types may come from different sources (TypeProvider vs compiled
-            // assembly) but represent the same logical type.
+            // Read-write collections: preserve the previous type whenever it differs (e.g.
+            // IReadOnlyList<T> regenerated as IList<T>). This matches the long-standing
+            // behavior in the inline back-compat block.
             if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
             {
-                if (outputProperty.Type.Arguments.Count == candidate.Arguments.Count &&
-                    outputProperty.Type.Arguments.Zip(candidate.Arguments).All(
-                        pair => pair.First.AreNamesEqual(pair.Second)))
-                {
-                    lastContractPropertyType = candidate;
-                    return true;
-                }
-
-                return false;
+                lastContractPropertyType = candidate;
+                return true;
             }
 
             // Other properties: require the entire type name (top-level plus any generic

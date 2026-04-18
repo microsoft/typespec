@@ -193,7 +193,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "return PublicModel1(stringProp, modelProp, listProp, dictProp: default);\n",
+                "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
+                result);
+        }
+
+        // This test validates that when a new property is added AND the previous contract had a different
+        // parameter ordering, the backward-compat overload uses named arguments to correctly call the current method.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithDifferentParamOrder()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count() + 1, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // validate the signature of the backward compatibility method preserves the previous parameter order
+            var parameters = backwardCompatibilityMethod!.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("modelProp", parameters[0].Name);
+            Assert.AreEqual("stringProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+
+            // validate the previous method body uses named arguments to ensure correct mapping
+            // even though the parameter order differs between the previous and current methods
+            var body = backwardCompatibilityMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
                 result);
         }
 
