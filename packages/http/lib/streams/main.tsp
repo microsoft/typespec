@@ -20,7 +20,7 @@ namespace TypeSpec.Http.Streams;
 model HttpStream<Type, ContentType extends valueof string, BodyType extends bytes | string = string>
   is Stream<Type> {
   @header contentType: typeof ContentType;
-  @body body: BodyType;
+  @bodyRoot body: BodyType;
 }
 
 /**
