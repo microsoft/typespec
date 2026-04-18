@@ -42,15 +42,20 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
   diagnostics.pipe(navigateModels(sdkContext));
 
+  const rootClients = sdkPackage.clients;
+  const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
+  // Process clients first so that any types reachable only via operations (e.g.,
+  // anonymous response models for protocol-only paging operations where TCGC does
+  // not include the response model in sdkPackage.models) are added to the type
+  // cache before we snapshot it for the code model. See
+  // https://github.com/microsoft/typespec/issues/9391.
+  const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
+
   const types = Array.from(sdkContext.__typeCache.types.values());
   const [models, enums] = [
     types.filter((type) => type.kind === "model") as InputModelType[],
     types.filter((type) => type.kind === "enum") as InputEnumType[],
   ];
-
-  const rootClients = sdkPackage.clients;
-  const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
-  const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
