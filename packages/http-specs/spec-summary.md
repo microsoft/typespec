@@ -1776,6 +1776,17 @@ Scenario that returns a different file encoding depending on the accept header.
 - image/png return a png image
 - image/jpeg return a jpeg image
 
+### Payload_Head_contentTypeHeaderInResponse
+
+- Endpoint: `head /payload/head/content-type-header-in-response`
+
+A HEAD operation that returns response headers including Content-Type and x-ms-meta.
+
+Expected response headers:
+
+- Content-Type: text/plain; charset=utf-8
+- x-ms-meta: hello
+
 ### Payload_JsonMergePatch_createResource
 
 - Endpoint: `put /json-merge-patch/create/resource`

@@ -42,15 +42,38 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
   diagnostics.pipe(navigateModels(sdkContext));
 
-  const types = Array.from(sdkContext.__typeCache.types.values());
-  const [models, enums] = [
-    types.filter((type) => type.kind === "model") as InputModelType[],
-    types.filter((type) => type.kind === "enum") as InputEnumType[],
-  ];
+  // Snapshot the set of type identities discovered during model/enum navigation before
+  // processing clients. This lets us identify any *new* types added during operation
+  // processing without duplicating types that were already captured.
+  const typesBeforeClients = new Set(sdkContext.__typeCache.types.values());
 
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
   const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
+
+  const models: InputModelType[] = [];
+  const enums: InputEnumType[] = [];
+  const existingModelNames = new Set<string>();
+  for (const type of typesBeforeClients) {
+    if (type.kind === "model") {
+      models.push(type as InputModelType);
+      existingModelNames.add((type as InputModelType).name);
+    } else if (type.kind === "enum") {
+      enums.push(type as InputEnumType);
+    }
+  }
+  // Include models discovered only via operation processing (e.g., anonymous response models
+  // for protocol-only paging operations where TCGC does not include the response model in
+  // sdkPackage.models). See https://github.com/microsoft/typespec/issues/9391. Dedupe by
+  // name to avoid duplicates when TCGC produces a different reference for the same model.
+  for (const type of sdkContext.__typeCache.types.values()) {
+    if (typesBeforeClients.has(type)) continue;
+    if (type.kind !== "model") continue;
+    const model = type as InputModelType;
+    if (existingModelNames.has(model.name)) continue;
+    models.push(model);
+    existingModelNames.add(model.name);
+  }
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());

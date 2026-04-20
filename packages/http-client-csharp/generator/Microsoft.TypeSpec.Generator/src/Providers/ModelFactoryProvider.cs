@@ -286,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
                 else
                 {
-                    arguments.Add(previousParameter);
+                    arguments.Add(parameter.PositionalReference(previousParameter));
                 }
             }
 

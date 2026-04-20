@@ -47,7 +47,7 @@ setup(
         ]
     ),
     install_requires=[
-        "black==26.3.1",
+        "black==24.8.0",
         "docutils>=0.20.1",
         "Jinja2==3.1.6",
         "PyYAML==6.0.1",

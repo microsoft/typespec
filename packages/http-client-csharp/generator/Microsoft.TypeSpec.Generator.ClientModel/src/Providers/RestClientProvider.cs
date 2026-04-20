@@ -1007,6 +1007,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
+            int contentType = 350;
             int optional = 400;
 
             var operation = serviceMethod.Operation;
@@ -1124,7 +1125,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (parameter.DefaultValue == null)
+                        if (inputParam is InputHeaderParameter { IsContentType: true }
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
+                        {
+                            sortedParams.Add(contentType++, parameter);
+                        }
+                        else if (parameter.DefaultValue == null)
                         {
                             sortedParams.Add(required++, parameter);
                         }
@@ -1144,7 +1150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (operation.IsMultipartFormData)
             {
-                sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
+                sortedParams.Add(contentType++, ScmKnownParameters.ContentType);
             }
 
             if (methodType == ScmMethodKind.CreateRequest)
@@ -1157,6 +1163,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
+        }
+
+        /// <summary>
+        /// Checks if the last contract view contains a method matching the given name where
+        /// a "contentType" parameter appears before the body ("content") parameter.
+        /// If so, we should preserve that ordering for backward compatibility.
+        /// </summary>
+        private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
+        {
+            const string contentTypeParamName = "contentType";
+            const string contentParamName = "content";
+
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+            if (lastContractMethods == null || lastContractMethods.Count == 0)
+            {
+                return false;
+            }
+
+            var syncMethodName = methodName;
+            var asyncMethodName = methodName + "Async";
+
+            foreach (var method in lastContractMethods)
+            {
+                if (!string.Equals(method.Signature.Name, syncMethodName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(method.Signature.Name, asyncMethodName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                int contentTypeIndex = -1;
+                int bodyIndex = -1;
+                for (int i = 0; i < method.Signature.Parameters.Count; i++)
+                {
+                    var param = method.Signature.Parameters[i];
+                    if (string.Equals(param.Name, contentTypeParamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        contentTypeIndex = i;
+                    }
+                    else if (string.Equals(param.Name, contentParamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        bodyIndex = i;
+                    }
+
+                    if (contentTypeIndex >= 0 && bodyIndex >= 0)
+                    {
+                        break;
+                    }
+                }
+
+                if (contentTypeIndex >= 0 && bodyIndex >= 0 && contentTypeIndex < bodyIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)

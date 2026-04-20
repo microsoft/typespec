@@ -538,17 +538,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Targeted backcompat fix for the case where properties were previously generated as read-only collections
                 if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
                 {
-                    // We compare Arguments by name (not just ElementType) to cover both list element types
-                    // and dictionary key/value types. This ensures we only override the collection wrapper
-                    // (e.g. IReadOnlyList<T> → IList<T>) and not when the element type itself has changed.
-                    // We use AreNamesEqual rather than Equals because the argument types may come from
-                    // different sources (TypeProvider vs compiled assembly) but represent the same logical type.
                     if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
                             out CSharpType? lastContractPropertyType) &&
-                        !outputProperty.Type.Equals(lastContractPropertyType) &&
-                        outputProperty.Type.Arguments.Count == lastContractPropertyType.Arguments.Count &&
-                        outputProperty.Type.Arguments.Zip(lastContractPropertyType.Arguments).All(
-                            pair => pair.First.AreNamesEqual(pair.Second)))
+                        !outputProperty.Type.Equals(lastContractPropertyType))
                     {
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
                         CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
