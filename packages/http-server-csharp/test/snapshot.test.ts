@@ -1,13 +1,18 @@
 import { readFile } from "fs/promises";
 import { existsSync, readdirSync, statSync } from "fs";
-import { join, relative } from "path";
+import { join, relative, sep } from "path";
 import { expect, it } from "vitest";
 import { EmitterTester } from "./test-host.js";
 
 const libraryName = "@typespec/http-server-csharp";
 const snapshotDir = join(import.meta.dirname, "snapshots/sample-service");
 
-/** Recursively collect all file paths relative to `root`. */
+/** Normalize path separators to forward slashes for cross-platform consistency. */
+function normalizePath(p: string): string {
+  return sep === "\\" ? p.replaceAll("\\", "/") : p;
+}
+
+/** Recursively collect all file paths relative to `root`, using forward slashes. */
 function listFilesRecursive(root: string, dir: string = root): string[] {
   const results: string[] = [];
   if (!existsSync(dir)) return results;
@@ -16,7 +21,7 @@ function listFilesRecursive(root: string, dir: string = root): string[] {
     if (statSync(full).isDirectory()) {
       results.push(...listFilesRecursive(root, full));
     } else {
-      results.push(relative(root, full));
+      results.push(normalizePath(relative(root, full)));
     }
   }
   return results;
