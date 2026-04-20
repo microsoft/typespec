@@ -233,6 +233,135 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("b", orderedPathParams[2].Name);
         }
 
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        public void TestGetMethodParameters_ContentTypeAfterBody(bool isRequired, bool isExtensibleEnum)
+        {
+            InputType contentTypeType = isExtensibleEnum
+                ? InputFactory.StringEnum("ContentTypeEnum",
+                    [("application/json", "application/json"), ("application/xml", "application/xml")],
+                    isExtensible: true)
+                : InputPrimitiveType.String;
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeType,
+                isRequired: isRequired,
+                isContentType: true,
+                serializedName: "Content-Type",
+                defaultValue: isRequired ? null : InputFactory.Constant.String("application/json"));
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("content", methodParameters[1].Name);
+            Assert.AreEqual("contentType", methodParameters[2].Name);
+        }
+
+        [Test]
+        public async Task ContentTypeOrderPreservedFromLastContractView()
+        {
+            // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            // Load with a last contract that has contentType before body
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // When the last contract had contentType before body, the ordering should be preserved
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("contentType", methodParameters[1].Name); // contentType stays before body for back-compat
+            Assert.AreEqual("content", methodParameters[2].Name);
+        }
+
+        [Test]
+        public async Task ContentTypeAfterBodyInLastContractView()
+        {
+            // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            // Load with a last contract that already has contentType after body
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // When the last contract already had contentType after body, the new ordering is used
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("content", methodParameters[1].Name);
+            Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
+        }
+
         [TestCase(true, true)]
         [TestCase(true, false)]
         [TestCase(false, true)]

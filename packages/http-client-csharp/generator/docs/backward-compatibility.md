@@ -14,6 +14,8 @@
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
+  - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
+    - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
 
 ## Overview
 
@@ -590,3 +592,47 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, Cancellat
 - This conversion is specific to paging operations only
 - Existing client code with `top` continues to compile without changes
 - New code benefits from the standardized `maxCount` naming convention
+
+### Content-Type Parameter Ordering
+
+The generator places the `contentType` parameter after the body (`content`) parameter in method signatures. However, backward compatibility is maintained when the last contract had a different ordering.
+
+#### Scenario: Content-Type Before Body Preserved from Last Contract
+
+**Description:** The generator places `contentType` after the `content` (body) parameter. However, if the last contract had `contentType` before `content`, the generator preserves that ordering to avoid breaking existing code.
+
+This commonly occurs when a library was previously generated with contentType before body and has already been released (GA'd).
+
+**Example:**
+
+**contentType before body exists in LastContractView - preserved for backward compatibility**
+
+Previous version had `contentType` before `content`:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // ...
+}
+```
+
+Current TypeSpec defines a content type:
+
+```typespec
+op UpdateSkillDefaultVersion(
+  @path skill_id: string,
+  @header contentType: string,
+  @body body: SetDefaultSkillVersionBody,
+): SkillResource;
+```
+
+**Generated Compatibility Result:**
+
+The generator detects that the previous contract had `contentType` before `content` and preserves that ordering:
+
+```csharp
+public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string contentType, BinaryContent content, RequestOptions options = null)
+{
+    // contentType stays before content for backward compatibility
+}
+```
