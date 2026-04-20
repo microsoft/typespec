@@ -1306,23 +1306,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PropertyProvider outputProperty,
             [NotNullWhen(true)] out CSharpType? lastContractPropertyType)
         {
-            lastContractPropertyType = null;
-            if (!LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var candidate))
-            {
-                return false;
-            }
-
-            if (outputProperty.Type.Equals(candidate))
-            {
-                return false;
-            }
-
             // Always preserve the last contract's property type when it differs from the
             // type produced by the current spec. This prevents source-breaking changes
             // for any kind of property change (collection wrapper, nullability, underlying
             // type, etc.). Users can override this behavior with custom code if needed.
-            lastContractPropertyType = candidate;
-            return true;
+            lastContractPropertyType = null;
+            if (LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var candidate) &&
+                !candidate.Equals(outputProperty.Type))
+            {
+                lastContractPropertyType = candidate;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
