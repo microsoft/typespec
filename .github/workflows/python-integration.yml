@@ -1,0 +1,267 @@
+name: Python Integration
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "packages/http-client-python/**"
+      - ".github/workflows/python-integration.yml"
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: "Build & Regenerate"
+    runs-on: ubuntu-latest
+    if: |
+      !startsWith(github.head_ref, 'dependabot/') &&
+      !startsWith(github.head_ref, 'publish/') &&
+      !startsWith(github.head_ref, 'backmerge/') &&
+      !startsWith(github.head_ref, 'revert-')
+    steps:
+      - name: Checkout Azure/typespec-azure repo
+        uses: actions/checkout@v6
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to PR commit
+        if: github.event_name == 'pull_request'
+        run: |
+          cd core
+          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Build and pack http-client-python from PR
+        run: |
+          cd core/packages/http-client-python
+          npm install --ignore-scripts
+          npm run build
+          npm pack
+
+      - name: Override http-client-python with PR version
+        run: |
+          HCP_TGZ=$(ls core/packages/http-client-python/typespec-http-client-python-*.tgz)
+          node -e '
+            const pkg = require("./packages/typespec-python/package.json");
+            const fs = require("fs");
+            pkg.dependencies["@typespec/http-client-python"] = "file:../../" + process.argv[1];
+            fs.writeFileSync("./packages/typespec-python/package.json", JSON.stringify(pkg, null, 2) + "\n");
+          ' "$HCP_TGZ"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm turbo run --filter "@azure-tools/typespec-python..." build
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: Regenerate
+        run: pnpm run regenerate
+        working-directory: packages/typespec-python
+
+      - name: Pre-build wheels
+        working-directory: packages/typespec-python
+        run: |
+          venv/bin/python tests/install_packages.py build azure tests
+          venv/bin/python tests/install_packages.py build unbranded tests
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-generated
+          path: |
+            packages/typespec-python/tests/generated
+            packages/typespec-python/tests/.wheels
+            packages/typespec-python/dist
+            packages/typespec-python/package.json
+            core/packages/http-client-python/typespec-http-client-python-*.tgz
+            core/packages/spector/dist
+            core/packages/http-specs/dist
+            packages/azure-http-specs/dist
+          retention-days: 1
+
+  test:
+    name: "Mock API Tests"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to PR commit
+        if: github.event_name == 'pull_request'
+        run: |
+          cd core
+          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build spector and specs
+        run: |
+          pnpm turbo run --filter "@typespec/spector..." build
+          pnpm --filter "@typespec/http-specs" exec tsc -p ./tsconfig.build.json
+          pnpm --filter "@azure-tools/azure-http-specs" exec tsc -p ./tsconfig.build.json
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: Test
+        run: pnpm run test:python:e2e
+        working-directory: packages/typespec-python
+
+  typecheck:
+    name: "Type Checking"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to PR commit
+        if: github.event_name == 'pull_request'
+        run: |
+          cd core
+          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --filter "@azure-tools/typespec-python..."
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: Mypy & Pyright
+        run: pnpm run test:python:e2e --env mypy,pyright
+        working-directory: packages/typespec-python
+
+  lint:
+    name: "Lint & Format"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to PR commit
+        if: github.event_name == 'pull_request'
+        run: |
+          cd core
+          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --filter "@azure-tools/typespec-python..."
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: Pylint
+        run: pnpm run test:python:e2e --env lint
+        working-directory: packages/typespec-python
+
+      - name: Lint (extra)
+        run: pnpm run lint:extra
+        working-directory: packages/typespec-python
+
+      - name: Format check (extra)
+        run: pnpm run format:extra:check
+        working-directory: packages/typespec-python
+
+  docs:
+    name: "Docs Validation"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to PR commit
+        if: github.event_name == 'pull_request'
+        run: |
+          cd core
+          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --filter "@azure-tools/typespec-python..."
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: API View & Sphinx
+        run: pnpm run test:python:e2e --env apiview,sphinx
+        working-directory: packages/typespec-python
