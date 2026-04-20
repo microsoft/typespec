@@ -1,5 +1,5 @@
-import { readFile } from "fs/promises";
 import { existsSync, readdirSync, statSync } from "fs";
+import { readFile } from "fs/promises";
 import { join, relative, sep } from "path";
 import { expect, it } from "vitest";
 import { EmitterTester } from "./test-host.js";
