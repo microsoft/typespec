@@ -96,7 +96,7 @@ Related PRs:
 
 ### Spector matchers make scenario tests less brittle
 
-Spector now includes semantic matchers for values like datetimes, and query/header matching now preserves matcher objects instead of stringifying them before comparison. That makes cross-language scenario tests less sensitive to formatting differences in timestamps and similar values.
+Spector now includes semantic matchers for values like datetimes, and query/header matching now preserves matcher objects instead of comparing their string representations. That makes cross-language scenario tests less sensitive to formatting differences in timestamps and similar values.
 
 Use semantic matchers when scenarios need to compare equivalent values rather than exact string formatting.
 
@@ -115,7 +115,7 @@ Related PRs:
 
 ### Emitter config interpolation no longer flattens arrays and objects
 
-When one config option references another, the compiler now leaves non-primitive values untouched instead of stringifying arrays or objects into unexpected values. This makes advanced emitter configuration more predictable when emitters need to resolve structured options themselves.
+When one config option references another, the compiler now leaves non-primitive values untouched instead of interpolating the default JS string representations of arrays or objects. This makes advanced emitter configuration more predictable when emitters need to resolve structured options themselves.
 
 Keep placeholders that refer to array- or object-valued options in config and let the emitter resolve them instead of relying on automatic string interpolation.
 
