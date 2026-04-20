@@ -48,6 +48,9 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
   },
+  "azure/client-generator-core/client-doc": {
+    namespace: "specs.azure.clientgenerator.core.clientdoc",
+  },
   "azure/client-generator-core/override": {
     namespace: "specs.azure.clientgenerator.core.override",
   },

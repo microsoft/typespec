@@ -532,10 +532,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenCredentialType != null)
             {
-                if (effectiveType.Equals(tokenCredentialType) ||
-                    effectiveType.Name == tokenCredentialType.Name)
+                var currentType = effectiveType;
+                while (currentType != null)
                 {
-                    return true;
+                    if (currentType.Equals(tokenCredentialType) ||
+                    currentType.Name == tokenCredentialType.Name)
+                    {
+                        return true;
+                    }
+                    currentType = currentType.BaseType;
                 }
             }
 
