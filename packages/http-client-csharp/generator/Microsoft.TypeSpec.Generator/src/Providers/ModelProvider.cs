@@ -1258,30 +1258,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Rewrites property types so that, when a property exists in the last contract with a
-        /// compatible but non-identical type, the previous type is preserved. This avoids
-        /// source-breaking changes for consumers of the library.
+        /// Rewrites property types so that, whenever a property exists in the last contract
+        /// with a different type than the one produced by the current spec, the previous
+        /// contract's type is preserved. This avoids source-breaking changes for consumers
+        /// of the library for any kind of property change (collection wrapper, nullability,
+        /// underlying type, etc.). Users can override this behavior with custom code if they
+        /// want the new spec's type instead.
         /// </summary>
-        /// <remarks>
-        /// The override is applied when the generated and last-contract property types differ.
-        /// Two categories are supported:
-        /// <list type="bullet">
-        /// <item>
-        /// <description>
-        /// Read-write collection properties (<see cref="CSharpType.IsReadWriteList"/> or
-        /// <see cref="CSharpType.IsReadWriteDictionary"/>). This handles cases such as
-        /// <c>IReadOnlyList&lt;T&gt;</c> being regenerated as <c>IList&lt;T&gt;</c>.
-        /// </description>
-        /// </item>
-        /// <item>
-        /// <description>
-        /// All other public properties whose top-level type name (including any generic
-        /// argument names) matches the last contract. This handles cases such as a property
-        /// previously generated as a nullable scalar being regenerated as non-nullable.
-        /// </description>
-        /// </item>
-        /// </list>
-        /// </remarks>
         protected internal override IReadOnlyList<PropertyProvider> BuildPropertiesForBackCompatibility(IEnumerable<PropertyProvider> originalProperties)
         {
             var properties = originalProperties as IReadOnlyList<PropertyProvider> ?? [.. originalProperties];
