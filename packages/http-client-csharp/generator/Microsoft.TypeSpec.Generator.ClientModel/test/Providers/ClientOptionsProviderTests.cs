@@ -467,6 +467,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void MultipleClientsWithRequiredCustomParametersShareSingletonOptions()
+        {
+            // Required parameters (no DefaultValue) should NOT trigger a separate client-specific options type.
+            // They are inlined as constructor parameters on the client, not as properties on ClientOptions.
+            var requiredParam = InputFactory.MethodParameter(
+                "knowledgeBaseName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var client1 = InputFactory.Client("KnowledgeBaseRetrievalClient", clientNamespace: "TestNamespace", parameters: [requiredParam]);
+            var client2 = InputFactory.Client("SearchClient", clientNamespace: "TestNamespace");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
+
+            Assert.IsNotNull(clientProvider1);
+            Assert.IsNotNull(clientProvider2);
+
+            var options1 = clientProvider1!.ClientOptions;
+            var options2 = clientProvider2!.ClientOptions;
+
+            Assert.IsNotNull(options1);
+            Assert.IsNotNull(options2);
+
+            // Both clients should share the same singleton ClientOptions instance
+            // because the required parameter does not become a property on the options class
+            Assert.AreSame(options1, options2);
+
+            // The name should be based on the InputNamespace (singleton naming)
+            Assert.AreEqual("SampleClientOptions", options1!.Name);
+        }
+
+        [Test]
         public void NamespaceLastSegmentIsUsedForSingletonName()
         {
             var client1 = InputFactory.Client("ClientA", clientNamespace: "Company.Service.Api");

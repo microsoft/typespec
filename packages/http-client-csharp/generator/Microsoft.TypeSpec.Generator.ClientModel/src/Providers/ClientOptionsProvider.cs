@@ -85,16 +85,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines if a client has only standard parameters (ApiVersion and Endpoint).
+        /// Determines if a client can share the singleton options instance.
+        /// Multi-service clients always need their own options type for service-specific API version properties.
+        /// Only optional parameters with default values that become properties on the options class
+        /// should trigger a separate client-specific options type.
         /// </summary>
         /// <param name="inputClient">The input client to check.</param>
-        /// <returns>True if the client has only standard parameters, false otherwise.</returns>
+        /// <returns>True if the client can share the singleton options instance, false otherwise.</returns>
         private static bool UseSingletonInstance(InputClient inputClient)
         {
             var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
             if (rootClients.Count <= 1)
             {
                 // Only one root client, no need for singleton
+                return false;
+            }
+
+            // Multi-service clients need their own options type for service-specific API version properties
+            if (inputClient.IsMultiServiceClient)
+            {
                 return false;
             }
 
@@ -111,11 +120,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             return false; // Found a non-standard endpoint parameter
                         }
                     }
-                    else
+                    else if (parameter.DefaultValue != null)
                     {
-                        // Found a non-ApiVersion, non-Endpoint parameter
+                        // Found a non-ApiVersion, non-Endpoint optional parameter that will become
+                        // a property on the options class — requires a separate client-specific options type.
                         return false;
                     }
+                    // Required parameters (DefaultValue == null) are inlined as constructor parameters
+                    // on the client and do not become properties on the options class,
+                    // so they should not trigger a separate client-specific options type.
                 }
             }
             return true;

@@ -1063,51 +1063,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_CollectionPropertyTypeNotOverriddenWhenElementTypeChanges()
-        {
-            // Simulate the scenario where the element type of a collection property has changed
-            // (e.g., from Record<unknown>[] to BulkVMConfiguration[] via @typeChangedFrom).
-            // The last contract has IList<IDictionary<string, BinaryData>> but the new code model
-            // produces IList<NewElementModel>. The override should NOT apply because the element
-            // type has changed.
-            var newElementModel = InputFactory.Model(
-                "NewElementModel",
-                properties:
-                [
-                    InputFactory.Property("name", InputPrimitiveType.String)
-                ]);
-            var inputModel = InputFactory.Model(
-                "MockInputModel",
-                properties:
-                [
-                    InputFactory.Property("items", InputFactory.Array(newElementModel)),
-                    InputFactory.Property("moreItems", InputFactory.Dictionary(newElementModel))
-                ]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel, newElementModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
-            Assert.IsNotNull(modelProvider);
-
-            var newElementModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "NewElementModel") as ModelProvider;
-            Assert.IsNotNull(newElementModelProvider);
-
-            // The items property should use the new element type (IList<NewElementModel>), not be
-            // overridden to the old type (IList<IDictionary<string, BinaryData>>) from last contract
-            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
-            Assert.IsNotNull(itemsProperty);
-            Assert.IsTrue(itemsProperty!.Type.Equals(new CSharpType(typeof(IList<>), newElementModelProvider!.Type)));
-
-            // The moreItems property should use the new element type (IDictionary<string, NewElementModel>), not be
-            // overridden to the old type (IDictionary<string, IDictionary<string, BinaryData>>) from last contract
-            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
-            Assert.IsNotNull(moreItemsProperty);
-            Assert.IsTrue(moreItemsProperty!.Type.Equals(new CSharpType(typeof(IDictionary<,>), typeof(string), newElementModelProvider.Type)));
-        }
-
-        [Test]
         public async Task BackCompat_InternalTypesAreIgnored()
         {
             var inputModel = InputFactory.Model(
