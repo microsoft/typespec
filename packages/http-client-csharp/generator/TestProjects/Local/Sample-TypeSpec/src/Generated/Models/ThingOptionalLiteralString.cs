@@ -49,7 +49,7 @@ namespace SampleTypeSpec
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && this.Equals(other);
+        public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && Equals(other);
 
         /// <inheritdoc/>
         public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
