@@ -488,6 +488,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 childMethod!.BodyStatements!.ToDisplayString());
         }
 
+        // This test validates that when a model has a property whose name is a C# keyword (e.g. "Object"),
+        // the backward-compat overload correctly escapes the named argument identifier with '@'.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithKeywordPropertyName()
+        {
+            InputModelProperty[] keywordProperties =
+            [
+                InputFactory.Property("StringProp", InputPrimitiveType.String),
+                InputFactory.Property("Object", InputPrimitiveType.String),
+                InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
+                InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),
+            ];
+            var keywordModelList = new[]
+            {
+                InputFactory.Model("PublicModel1", properties: keywordProperties),
+            };
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: keywordModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility
+            Assert.AreEqual(2, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // validate the signature of the backward compatibility method
+            var parameters = backwardCompatibilityMethod!.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("stringProp", parameters[0].Name);
+            Assert.AreEqual("object", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+
+            // validate the previous method body uses @object for the named argument
+            var body = backwardCompatibilityMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return PublicModel1(stringProp: stringProp, @object: @object, listProp: listProp, dictProp: default);\n",
+                result);
+        }
+
         [Test]
         public void RequiredConstantPropertiesAreNotExposedAsParameters()
         {
