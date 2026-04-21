@@ -30,7 +30,7 @@ namespace Sample.Models
                 }
                 // customization: remove Prop2 deserialization
             }
-            return new MockInputModel(prop1, prop2, additionalBinaryDataProperties);
+            return new MockInputModel(prop1, prop2, default);
         }
     }
 }
