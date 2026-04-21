@@ -4,7 +4,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { containsMultiServiceClient } from "../../src/lib/utils.js";
 import { InputClient } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
@@ -361,12 +360,15 @@ describe("multiple services without @client decorator", () => {
     assertSubClients("ServiceAClient", serviceAClient!.children!);
     assertSubClients("ServiceBClient", serviceBClient!.children!);
 
-    // The library should be recognized as a multi-service library, even though
-    // none of the individual root clients are combined multi-service clients.
-    ok(
-      containsMultiServiceClient(sdkContext.sdkPackage.clients),
-      "Library with multiple per-service root clients should be a multi-service library",
-    );
+    // Library spans multiple distinct @service namespaces, even though none of
+    // the individual root clients are themselves combined multi-service clients.
+    const services = new Set<unknown>();
+    for (const client of sdkContext.sdkPackage.clients) {
+      for (const service of client.__raw.services) {
+        services.add(service);
+      }
+    }
+    ok(services.size > 1, "Library should span multiple distinct services");
   });
 
   it("uses each service's own api version enum on the corresponding root client", async () => {

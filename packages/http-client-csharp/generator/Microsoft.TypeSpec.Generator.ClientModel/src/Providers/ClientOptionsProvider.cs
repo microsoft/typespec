@@ -107,6 +107,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
+            // Library spans multiple services (e.g. multiple @service-decorated namespaces without
+            // an explicit @client decorator, producing one single-service root client per service).
+            // Each root client needs its own options type for its service-specific API version.
+            int apiVersionEnumCount = 0;
+            foreach (var inputEnum in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums)
+            {
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    apiVersionEnumCount++;
+                    if (apiVersionEnumCount > 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             foreach (var parameter in inputClient.Parameters)
             {
                 // Check if parameter is NOT an ApiVersion or Endpoint parameter
