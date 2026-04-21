@@ -444,11 +444,11 @@ class TypedDictModelSerializer(_ModelSerializer):
                         parent.name,
                         ImportType.LOCAL,
                     )
-        file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        file_import.add_submodule_import("typing_extensions", "TypedDict", ImportType.STDLIB)
         if has_optional:
-            file_import.add_submodule_import("typing", "NotRequired", ImportType.STDLIB)
+            file_import.add_submodule_import("typing_extensions", "NotRequired", ImportType.STDLIB)
         if has_required:
-            file_import.add_submodule_import("typing", "Required", ImportType.STDLIB)
+            file_import.add_submodule_import("typing_extensions", "Required", ImportType.STDLIB)
         if has_discriminated_union:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
         return file_import

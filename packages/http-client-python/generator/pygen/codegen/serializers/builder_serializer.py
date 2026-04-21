@@ -793,7 +793,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         all_dpg_model_overloads = False
         if self.code_model.options["models-mode"] in ("dpg", "typeddict") and builder.overloads:
             all_dpg_model_overloads = all(
-                isinstance(o.parameters.body_parameter.type, (DPGModelType, TypedDictModelType)) for o in builder.overloads
+                isinstance(o.parameters.body_parameter.type, (DPGModelType, TypedDictModelType))
+                for o in builder.overloads
             )
         if not all_dpg_model_overloads:
             for v in sorted(set(client_names), key=client_names.index):
