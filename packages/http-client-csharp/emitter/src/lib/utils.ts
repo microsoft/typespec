@@ -152,39 +152,24 @@ export function getClientNamespaceString(context: CSharpEmitterContext): string 
   }
 
   if (containsMultiServiceClient(context.sdkPackage.clients)) {
-    // For a combined multi-service client (single root with multiple services, e.g. via
-    // `@client({ service: [...] })`), use the root client's namespace. For multiple root
-    // clients that each represent a distinct service (no `@client` decorator), use the
-    // longest common namespace prefix so generated library-level artifacts are grouped
-    // under the shared parent namespace.
-    const clients = context.sdkPackage.clients;
-    const multiServiceNamespace = isMultiServiceClient(clients[0])
-      ? clients[0].namespace
-      : (getCommonNamespacePrefix(clients.map((c) => c.namespace)) ?? clients[0].namespace);
-    return getClientNamespaceStringHelper(namespaceOverride, multiServiceNamespace);
+    // Multiple root clients (one per @service namespace): use their common parent
+    // namespace so shared library artifacts are grouped together. Otherwise (a single
+    // combined multi-service root, e.g. via `@client({ service: [...] })`), use the
+    // root client's namespace.
+    if (serviceNamespaces.length > 1) {
+      return getClientNamespaceStringHelper(
+        namespaceOverride,
+        undefined,
+        firstNamespace?.namespace,
+      );
+    }
+    return getClientNamespaceStringHelper(
+      namespaceOverride,
+      context.sdkPackage.clients[0].namespace,
+    );
   }
 
   return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace);
-}
-
-/**
- * Computes the longest common dot-separated namespace prefix shared by all input
- * namespaces. Returns undefined if there is no common prefix.
- */
-function getCommonNamespacePrefix(namespaces: string[]): string | undefined {
-  if (namespaces.length === 0) return undefined;
-  const split = namespaces.map((n) => (n ? n.split(".") : []));
-  const minLen = Math.min(...split.map((s) => s.length));
-  const common: string[] = [];
-  for (let i = 0; i < minLen; i++) {
-    const segment = split[0][i];
-    if (split.every((s) => s[i] === segment)) {
-      common.push(segment);
-    } else {
-      break;
-    }
-  }
-  return common.length > 0 ? common.join(".") : undefined;
 }
 
 export function getClientNamespaceStringHelper(

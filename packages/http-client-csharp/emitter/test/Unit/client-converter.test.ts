@@ -262,10 +262,6 @@ describe("multiple services without @client decorator", () => {
     runner = await createEmitterTestHost();
   });
 
-  // Simulates the azure-http-specs `service/multiple-services` spector scenario:
-  // two @service-decorated namespaces without an explicit @client decorator.
-  // TCGC produces a separate root client per service, and the emitter should
-  // treat the library as a multi-service library.
   it("produces a separate root client per service with expected names, namespaces, and sub-clients", async () => {
     const program = await typeSpecCompile(
       `
