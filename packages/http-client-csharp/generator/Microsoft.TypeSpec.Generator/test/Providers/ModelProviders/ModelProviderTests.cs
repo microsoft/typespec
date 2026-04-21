@@ -981,6 +981,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
             Assert.IsNotNull(itemsProperty);
@@ -1016,6 +1017,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var elementModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementModel") as ModelProvider;
 
@@ -1050,6 +1052,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var elementEnumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementEnum") as EnumProvider;
 
@@ -1079,6 +1082,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
             Assert.IsNotNull(itemsProperty);
@@ -1108,6 +1112,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
             Assert.IsNotNull(countProperty);
@@ -1136,6 +1141,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
             Assert.IsNotNull(countProperty);
@@ -1167,6 +1173,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
 
             var statusProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Status");
             Assert.IsNotNull(statusProperty);

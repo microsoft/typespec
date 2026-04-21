@@ -579,6 +579,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+            var hasProperties = LastContractView?.Properties != null && LastContractView.Properties.Count > 0;
 
             IEnumerable<FieldProvider>? newFields = null;
             if (this is EnumProvider)
@@ -597,10 +598,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
+            var newProperties = hasProperties ? BuildPropertiesForBackCompatibility(Properties) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            if (newFields != null || newMethods != null || newConstructors != null || newProperties != null)
             {
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                Update(fields: newFields, methods: newMethods, constructors: newConstructors, properties: newProperties);
             }
         }
 
@@ -614,8 +616,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => [.. originalConstructors];
 
         /// <summary>
-        /// Called from <see cref="BuildProperties"/> to apply backward-compatibility adjustments
-        /// to the set of properties produced for this type. Overrides can replace, reorder, or
+        /// Called from <see cref="ProcessTypeForBackCompatibility"/> to apply backward-compatibility
+        /// adjustments to the set of properties produced for this type. Runs after all visitors so
+        /// adjustments reflect the final state of the library. Overrides can replace, reorder, or
         /// otherwise rewrite properties based on the <see cref="LastContractView"/>.
         /// </summary>
         /// <param name="originalProperties">The properties as produced from the current input spec.</param>

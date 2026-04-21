@@ -573,7 +573,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 properties.AddRange(AdditionalPropertyProperties);
             }
 
-            return [.. BuildPropertiesForBackCompatibility(properties)];
+            return [.. properties];
         }
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
