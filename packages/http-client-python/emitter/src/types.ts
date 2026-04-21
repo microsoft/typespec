@@ -289,7 +289,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     discriminatedSubtypes: {} as Record<string, Record<string, any>>,
     properties: new Array<Record<string, any>>(),
     snakeCaseName: camelToSnakeCase(type.name),
-    base: "dpg",
+    base: (context.emitContext.options as any)["models-mode"] === "typeddict" ? "typeddict" : "dpg",
     internal: type.access === "internal",
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     usage: type.usage,

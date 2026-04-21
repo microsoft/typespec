@@ -125,7 +125,7 @@ class LROOperationBase(OperationBase[LROResponseType]):
                 ImportType.SDKCORE,
             )
         if (
-            self.code_model.options["models-mode"] == "dpg"
+            self.code_model.options["models-mode"] in ("dpg", "typeddict")
             and self.lro_response
             and self.lro_response.type
             and self.lro_response.type.type == "model"

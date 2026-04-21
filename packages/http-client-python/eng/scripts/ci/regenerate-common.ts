@@ -203,14 +203,30 @@ export const BASE_EMITTER_OPTIONS: Record<
     "package-name": "typetest-model-nesteddiscriminator",
     namespace: "typetest.model.nesteddiscriminator",
   },
-  "type/model/inheritance/not-discriminated": {
-    "package-name": "typetest-model-notdiscriminated",
-    namespace: "typetest.model.notdiscriminated",
-  },
-  "type/model/inheritance/single-discriminator": {
-    "package-name": "typetest-model-singlediscriminator",
-    namespace: "typetest.model.singlediscriminator",
-  },
+  "type/model/inheritance/not-discriminated": [
+    {
+      "package-name": "typetest-model-notdiscriminated",
+      namespace: "typetest.model.notdiscriminated",
+    },
+    {
+      "package-name": "typetest-model-notdiscriminated-typeddict",
+      namespace: "typetest.model.notdiscriminated.typeddict",
+      "models-mode": "typeddict",
+      "generate-test": "false",
+    },
+  ],
+  "type/model/inheritance/single-discriminator": [
+    {
+      "package-name": "typetest-model-singlediscriminator",
+      namespace: "typetest.model.singlediscriminator",
+    },
+    {
+      "package-name": "typetest-model-singlediscriminator-typeddict",
+      namespace: "typetest.model.singlediscriminator.typeddict",
+      "models-mode": "typeddict",
+      "generate-test": "false",
+    },
+  ],
   "type/model/inheritance/recursive": [
     {
       "package-name": "typetest-model-recursive",

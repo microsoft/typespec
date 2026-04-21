@@ -382,3 +382,125 @@ class DpgModelSerializer(_ModelSerializer):
         if final_result:
             return "# pylint: disable=" + ", ".join(final_result)
         return ""
+
+
+class TypedDictModelSerializer(_ModelSerializer):
+    def _is_parent_discriminated_base(self, model: ModelType) -> bool:
+        """Check if any parent of this model is a discriminated base (has discriminated_subtypes)."""
+        return any(p.discriminated_subtypes for p in model.parents)
+
+    def _reorder_models(self, models: list[ModelType]) -> list[ModelType]:
+        """Reorder so discriminated base Union aliases come after all their subtypes."""
+        bases = [m for m in models if m.discriminated_subtypes]
+        non_bases = [m for m in models if not m.discriminated_subtypes]
+        return non_bases + bases
+
+    def serialize(self) -> str:
+        template = self.env.get_template("model_container.py.jinja2")
+        return template.render(
+            code_model=self.code_model,
+            imports=FileImportSerializer(self.imports()),
+            str=str,
+            serializer=self,
+            models=self._reorder_models(self.models),
+        )
+
+    def imports(self) -> FileImport:
+        file_import = FileImport(self.code_model)
+        has_required = False
+        has_optional = False
+        has_discriminated_union = False
+        for model in self.models:
+            if model.base == "json":
+                continue
+            if model.discriminated_subtypes:
+                has_discriminated_union = True
+            file_import.merge(
+                model.imports(
+                    is_operation_file=False,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.MODEL,
+                )
+            )
+            for prop in model.properties:
+                file_import.merge(
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
+                if prop.optional or prop.client_default_value is not None:
+                    has_optional = True
+                else:
+                    has_required = True
+            for parent in model.parents:
+                if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            self.serialize_namespace,
+                            self.code_model.get_imported_namespace_for_model(parent.client_namespace),
+                        ),
+                        parent.name,
+                        ImportType.LOCAL,
+                    )
+        file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        if has_optional:
+            file_import.add_submodule_import("typing", "NotRequired", ImportType.STDLIB)
+        if has_required:
+            file_import.add_submodule_import("typing", "Required", ImportType.STDLIB)
+        if has_discriminated_union:
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
+        return file_import
+
+    def declare_model(self, model: ModelType) -> str:
+        # If the model's parent is a discriminated base, don't inherit from it
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if non_discriminated_parents:
+            basename = ", ".join([m.name for m in non_discriminated_parents])
+            return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
+
+    @staticmethod
+    def get_properties_to_declare(model: ModelType) -> list[Property]:
+        # Only exclude inherited properties from non-discriminated parents
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if non_discriminated_parents:
+            parent_properties = [p for bm in non_discriminated_parents for p in bm.properties]
+            properties_to_declare = [
+                p
+                for p in model.properties
+                if not any(
+                    p.client_name == pp.client_name
+                    and p.type_annotation() == pp.type_annotation()
+                    and not p.is_base_discriminator
+                    for pp in parent_properties
+                )
+            ]
+        else:
+            properties_to_declare = model.properties
+        return properties_to_declare
+
+    def declare_property(self, prop: Property) -> str:
+        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        is_optional = prop.optional or prop.client_default_value is not None
+        if is_optional:
+            return f"{prop.wire_name}: NotRequired[{type_annotation}]"
+        return f"{prop.wire_name}: Required[{type_annotation}]"
+
+    def initialize_properties(self, model: ModelType) -> list[str]:
+        return []
+
+    def need_init(self, model: ModelType) -> bool:
+        return False
+
+    def discriminated_subtypes_union(self, model: ModelType) -> str:
+        subtypes = list(model.discriminated_subtypes.values())
+        subtype_names = [s.name for s in subtypes]
+        return f"{model.name} = Union[{', '.join(subtype_names)}]"
+
+    def is_discriminated_base(self, model: ModelType) -> bool:
+        return bool(model.discriminated_subtypes)
+
+    def global_pylint_disables(self) -> str:
+        return ""

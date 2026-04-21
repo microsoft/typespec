@@ -26,7 +26,7 @@ class RequestBuilderBodyParameter(BodyParameter):
         if (
             isinstance(self.type, (BinaryType, StringType))
             or any("xml" in ct for ct in self.content_types)
-            or self.code_model.options["models-mode"] == "dpg"
+            or self.code_model.options["models-mode"] in ("dpg", "typeddict")
         ):
             self.client_name = "content"
         else:
@@ -40,7 +40,7 @@ class RequestBuilderBodyParameter(BodyParameter):
     @property
     def in_method_signature(self) -> bool:
         return (
-            super().in_method_signature and not self.is_partial_body and self.code_model.options["models-mode"] != "dpg"
+            super().in_method_signature and not self.is_partial_body and self.code_model.options["models-mode"] not in ("dpg", "typeddict")
         )
 
     @property

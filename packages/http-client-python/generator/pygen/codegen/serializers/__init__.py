@@ -25,7 +25,7 @@ from ..models import (
 from .enum_serializer import EnumSerializer
 from .general_serializer import GeneralSerializer
 from .model_init_serializer import ModelInitSerializer
-from .model_serializer import DpgModelSerializer, MsrestModelSerializer
+from .model_serializer import DpgModelSerializer, MsrestModelSerializer, TypedDictModelSerializer
 from .operations_init_serializer import OperationsInitSerializer
 from .operation_groups_serializer import OperationGroupsSerializer
 from .request_builders_serializer import RequestBuildersSerializer
@@ -285,7 +285,13 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
-        serializer = DpgModelSerializer if self.code_model.options["models-mode"] == "dpg" else MsrestModelSerializer
+        models_mode = self.code_model.options["models-mode"]
+        if models_mode == "dpg":
+            serializer = DpgModelSerializer
+        elif models_mode == "typeddict":
+            serializer = TypedDictModelSerializer
+        else:
+            serializer = MsrestModelSerializer
         if self.code_model.has_non_json_models(models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
@@ -474,7 +480,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
         # write _model_base.py
-        if self.code_model.options["models-mode"] == "dpg":
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
             self.write_file(
                 utils_folder_path / Path("model_base.py"),
                 general_serializer.serialize_model_base_file(),

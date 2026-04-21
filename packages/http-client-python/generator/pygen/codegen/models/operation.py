@@ -51,7 +51,7 @@ ResponseType = TypeVar(
 
 
 def is_internal(target: Optional[BaseType]) -> bool:
-    return isinstance(target, ModelType) and target.base == "dpg" and target.internal
+    return isinstance(target, ModelType) and target.base in ("dpg", "typeddict") and target.internal
 
 
 class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instance-attributes
@@ -176,7 +176,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         retval = self._response_docstring_helper("docstring_text", **kwargs)
         if not self.code_model.options["version-tolerant"]:
             retval += " or the result of cls(response)"
-        if self.code_model.options["models-mode"] == "dpg" and any(
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and any(
             isinstance(r.type, ModelType) for r in self.responses
         ):
             r = next(r for r in self.responses if isinstance(r.type, ModelType))
@@ -209,7 +209,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 f"{exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)},"
                 f"{pylint_disable}"
             )
-        return None if self.code_model.options["models-mode"] == "dpg" else "'object',"
+        return None if self.code_model.options["models-mode"] in ("dpg", "typeddict") else "'object',"
 
     @property
     def non_default_errors(self) -> list[Response]:
@@ -421,7 +421,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             for overload in self.overloads:
                 if overload.parameters.has_body:
                     file_import.merge(overload.parameters.body_parameter.type.imports(**kwargs))
-        if self.code_model.options["models-mode"] == "dpg":
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
             )

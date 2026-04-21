@@ -181,7 +181,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 "case_insensitive_dict",
                 ImportType.SDKCORE,
             )
-        if self.code_model.options["models-mode"] == "dpg":
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
             )

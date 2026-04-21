@@ -216,7 +216,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             model_type = (
                 body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
             )
-            is_dpg_model = model_type.get("base") == "dpg"
+            is_dpg_model = model_type.get("base") in ("dpg", "typeddict")
             body_parameter["type"] = {
                 "type": "combined",
                 "types": [body_parameter["type"]],
@@ -225,7 +225,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
-            if self.options["models-mode"] == "dpg" and is_dpg_model:
+            if self.options["models-mode"] in ("dpg", "typeddict") and is_dpg_model:
                 if origin_type == "model":
                     body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
                 else:
