@@ -124,7 +124,6 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// </summary>
         public void WriteBufferedMessages()
         {
-            Dictionary<string, Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>> snapshot;
             lock (_bufferLock)
             {
                 if (_bufferedMessages.Count == 0)
@@ -132,41 +131,40 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                     return;
                 }
 
-                snapshot = new Dictionary<string, Dictionary<BackCompatibilityChangeCategory, SortedSet<string>>>(_bufferedMessages, StringComparer.Ordinal);
-                _bufferedMessages.Clear();
-            }
-
-            foreach (var levelPair in snapshot)
-            {
-                int total = 0;
-                foreach (var set in levelPair.Value.Values)
+                foreach (var levelPair in _bufferedMessages)
                 {
-                    total += set.Count;
-                }
-
-                int categoryCount = levelPair.Value.Count;
-                var sb = new StringBuilder();
-                sb.Append("Summary of grouped '").Append(levelPair.Key).Append("' messages: ")
-                  .Append(total).Append(total == 1 ? " message across " : " messages across ")
-                  .Append(categoryCount).AppendLine(categoryCount == 1 ? " category." : " categories.");
-
-                var orderedCategories = levelPair.Value
-                    .Select(kvp => (Display: GetCategoryDisplayName(kvp.Key), Messages: kvp.Value))
-                    .OrderBy(x => x.Display, StringComparer.Ordinal);
-                foreach (var (display, messages) in orderedCategories)
-                {
-                    sb.Append("  ").Append(display).Append(" (").Append(messages.Count).AppendLine("):");
-                    foreach (var msg in messages)
+                    int total = 0;
+                    foreach (var set in levelPair.Value.Values)
                     {
-                        sb.Append("    - ").AppendLine(msg);
+                        total += set.Count;
                     }
+
+                    int categoryCount = levelPair.Value.Count;
+                    var sb = new StringBuilder();
+                    sb.Append("Summary of grouped '").Append(levelPair.Key).Append("' messages: ")
+                      .Append(total).Append(total == 1 ? " message across " : " messages across ")
+                      .Append(categoryCount).AppendLine(categoryCount == 1 ? " category." : " categories.");
+
+                    var orderedCategories = levelPair.Value
+                        .Select(kvp => (Display: GetCategoryDisplayName(kvp.Key), Messages: kvp.Value))
+                        .OrderBy(x => x.Display, StringComparer.Ordinal);
+                    foreach (var (display, messages) in orderedCategories)
+                    {
+                        sb.Append("  ").Append(display).Append(" (").Append(messages.Count).AppendLine("):");
+                        foreach (var msg in messages)
+                        {
+                            sb.Append("    - ").AppendLine(msg);
+                        }
+                    }
+
+                    SendNotification(Trace, new
+                    {
+                        level = levelPair.Key,
+                        message = sb.ToString().TrimEnd(),
+                    });
                 }
 
-                SendNotification(Trace, new
-                {
-                    level = levelPair.Key,
-                    message = sb.ToString().TrimEnd(),
-                });
+                _bufferedMessages.Clear();
             }
         }
 

@@ -91,11 +91,6 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            // Emit any buffered, category-grouped log messages (e.g. back-compatibility
-            // change summaries) as a single trace per level so they are easy to spot in
-            // generator logs.
-            CodeModelGenerator.Instance.Emitter.WriteBufferedMessages();
-
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
