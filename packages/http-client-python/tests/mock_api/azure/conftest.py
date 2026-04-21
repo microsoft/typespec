@@ -3,44 +3,12 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-import os
-import subprocess
-import signal
 import pytest
 import re
 from typing import Literal
 from pathlib import Path
 
 FILE_FOLDER = Path(__file__).parent
-
-
-def start_server_process():
-    azure_http_path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@azure-tools/azure-http-specs")
-    http_path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@typespec/http-specs")
-    os.chdir(azure_http_path.resolve())
-    cmd = f"npx tsp-spector serve ./specs  {(http_path / 'specs').resolve()}"
-    if os.name == "nt":
-        return subprocess.Popen(cmd, shell=True)
-    return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
-
-
-def terminate_server_process(process):
-    try:
-        if os.name == "nt":
-            process.kill()
-        else:
-            os.killpg(os.getpgid(process.pid), signal.SIGTERM)  # Send the signal to all the process groups
-    except ProcessLookupError:
-        # Process already terminated, which is fine
-        pass
-
-
-@pytest.fixture(scope="session", autouse=True)
-def testserver():
-    """Start spector ranch mock api tests"""
-    server = start_server_process()
-    yield
-    terminate_server_process(server)
 
 
 _VALID_UUID = re.compile(r"^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$")

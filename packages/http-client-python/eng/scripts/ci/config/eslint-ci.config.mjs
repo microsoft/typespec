@@ -2,7 +2,11 @@
 // Standalone eslint config for http-client-python package
 // This config is used in CI where monorepo dependencies may not be available
 import eslint from "@eslint/js";
+import { dirname } from "path";
 import tsEslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+const root = dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))));
 
 export default [
   {
@@ -11,6 +15,11 @@ export default [
   eslint.configs.recommended,
   ...tsEslint.configs.recommended,
   {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: root,
+      },
+    },
     rules: {
       // TypeScript plugin overrides
       "@typescript-eslint/no-non-null-assertion": "off",
@@ -40,6 +49,7 @@ export default [
       "no-case-declarations": "off",
       "no-ex-assign": "off",
       "no-undef": "off",
+      "no-useless-assignment": "error",
       "prefer-const": [
         "warn",
         {
