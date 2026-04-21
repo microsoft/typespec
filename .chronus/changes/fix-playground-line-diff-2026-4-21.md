@@ -4,4 +4,4 @@ packages:
   - "@typespec/playground"
 ---
 
-Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompiles triggered while a compile is already running.
+Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompilations triggered while a compile is already running.
