@@ -183,6 +183,16 @@ minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - "@alloy-js/*"
 
+packageExtensions:
+  # https://github.com/microsoft/vscode-extension-telemetry/issues/244
+  # @vscode/extension-telemetry@1.5.1 implicitly depends on @microsoft/applicationinsights-common
+  # via transitive deps, but @microsoft/applicationinsights-channel-js@3.4.x dropped it.
+  # Fixed in https://github.com/microsoft/vscode-extension-telemetry/pull/245 (v1.5.2) but not yet released.
+  "@vscode/extension-telemetry@<=1.5.1":
+    dependencies:
+      "@microsoft/applicationinsights-common": "^3.3.10"
+      "@microsoft/applicationinsights-core-js": "^3.3.10"
+
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
   diff@>=6.0.0 <8.0.3: ">=8.0.3"

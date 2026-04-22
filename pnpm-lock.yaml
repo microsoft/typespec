@@ -523,6 +523,8 @@ overrides:
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
 
+packageExtensionsChecksum: sha256-2Nsi3gmCn4LIIwcRp67Tvld3wa+mwr01RKKkSWhNuQg=
+
 importers:
 
   .:
@@ -19271,6 +19273,8 @@ snapshots:
     dependencies:
       '@microsoft/1ds-core-js': 4.3.11(tslib@2.8.1)
       '@microsoft/1ds-post-js': 4.3.11(tslib@2.8.1)
+      '@microsoft/applicationinsights-common': 3.3.11(tslib@2.8.1)
+      '@microsoft/applicationinsights-core-js': 3.3.11(tslib@2.8.1)
       '@microsoft/applicationinsights-web-basic': 3.3.11(tslib@2.8.1)
     transitivePeerDependencies:
       - tslib
