@@ -225,6 +225,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 },
                 new MethodBodyStatement[]
                 {
+                    writer.WriteAttributes(readerTyped, True),
                     readerTyped.ReadStartElement(),
                     new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
                     {
