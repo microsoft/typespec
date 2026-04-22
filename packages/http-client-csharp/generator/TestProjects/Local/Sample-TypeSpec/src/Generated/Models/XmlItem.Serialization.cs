@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -104,9 +103,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{format}' format.");
             }
 
-            writer.WriteStartAttribute("itemId");
-            writer.WriteValue(ItemId);
-            writer.WriteEndAttribute();
+            if (Optional.IsDefined(ItemId))
+            {
+                writer.WriteStartAttribute("itemId");
+                writer.WriteValue(ItemId);
+                writer.WriteEndAttribute();
+            }
             writer.WriteStartElement("itemName");
             writer.WriteValue(ItemName);
             writer.WriteEndElement();
@@ -127,7 +129,6 @@ namespace SampleTypeSpec
             string itemName = default;
             int itemValue = default;
             string itemId = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -153,7 +154,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties);
+            return new XmlItem(itemName, itemValue, itemId);
         }
     }
 }
