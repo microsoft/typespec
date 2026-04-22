@@ -1218,6 +1218,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
+            // The raw/additional binary data field is not applicable for models that only support XML serialization.
+            // Input models still require it as a distinguishing parameter between the public (validating) initialization
+            // constructor and the internal (non-validating) serialization constructor.
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml)
+                && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)
+                && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)
