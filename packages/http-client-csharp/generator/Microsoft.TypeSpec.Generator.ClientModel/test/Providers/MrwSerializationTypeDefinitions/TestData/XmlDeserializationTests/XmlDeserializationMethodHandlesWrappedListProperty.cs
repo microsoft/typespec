@@ -54,7 +54,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(counts, default);
+            return new global::Sample.Models.TestXmlModel(counts);
         }
     }
 }

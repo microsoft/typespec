@@ -28,7 +28,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(name, default);
+            return new global::Sample.Models.TestXmlModel(name);
         }
     }
 }

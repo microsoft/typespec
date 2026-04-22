@@ -33,7 +33,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel((colors ?? new global::Sample.ChangeTrackingList<string>()), default);
+            return new global::Sample.Models.TestXmlModel((colors ?? new global::Sample.ChangeTrackingList<string>()));
         }
     }
 }

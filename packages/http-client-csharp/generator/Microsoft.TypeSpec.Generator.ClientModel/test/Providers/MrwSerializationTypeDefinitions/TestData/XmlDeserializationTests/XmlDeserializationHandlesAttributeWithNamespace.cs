@@ -51,7 +51,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(id, label, name, default);
+            return new global::Sample.Models.TestXmlModel(id, label, name);
         }
     }
 }

@@ -128,7 +128,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlModelWithNamespace(foo, default);
+            return new XmlModelWithNamespace(foo);
         }
     }
 }

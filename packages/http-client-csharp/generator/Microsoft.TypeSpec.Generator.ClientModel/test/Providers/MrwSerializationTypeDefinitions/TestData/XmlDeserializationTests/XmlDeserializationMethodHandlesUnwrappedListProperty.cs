@@ -49,7 +49,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(colors, default);
+            return new global::Sample.Models.TestXmlModel(colors);
         }
     }
 }

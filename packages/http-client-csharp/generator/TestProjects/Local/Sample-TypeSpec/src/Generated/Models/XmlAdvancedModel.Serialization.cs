@@ -735,8 +735,7 @@ namespace SampleTypeSpec
                 dictionaryFoo,
                 dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
-                listOfDictionaryFoo,
-                default);
+                listOfDictionaryFoo);
         }
     }
 }

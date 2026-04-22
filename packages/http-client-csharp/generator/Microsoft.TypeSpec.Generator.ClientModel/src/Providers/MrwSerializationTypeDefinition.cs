@@ -830,7 +830,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement GetPropertyVariableDeclarations(bool isXmlDeserialization = false)
+        private MethodBodyStatement GetPropertyVariableDeclarations()
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
@@ -892,12 +892,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var fieldRef = field.AsVariableExpression;
                     if (field.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName)
                     {
-                        // additionalBinaryDataProperties is not applicable for XML deserialization.
-                        // Skip its local declaration; `default` will be passed to the serialization constructor instead.
-                        if (isXmlDeserialization)
-                        {
-                            continue;
-                        }
                         // the raw data is kind of different because we assign it with an instance, not like others properties/fields
                         // IDictionary<string, BinaryData> additionalBinaryDataProperties = new Dictionary<string, BinaryData>();
                         propertyDeclarationStatements.Add(Declare(fieldRef, new DictionaryExpression(field.Type, New.Instance(field.Type.PropertyInitializationType))));
@@ -1001,7 +995,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Builds the values for the serialization constructor parameters.
         /// </summary>
-        private ValueExpression[] GetSerializationCtorParameterValues(bool isXmlDeserialization = false)
+        private ValueExpression[] GetSerializationCtorParameterValues()
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
@@ -1019,15 +1013,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var field = parameter.Field;
                     Debug.Assert(field != null);
-                    // additionalBinaryDataProperties is not applicable for XML deserialization; pass default.
-                    if (isXmlDeserialization && field.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName)
-                    {
-                        serializationCtorParameters[i] = Default;
-                    }
-                    else
-                    {
-                        serializationCtorParameters[i] = field.AsVariableExpression;
-                    }
+                    serializationCtorParameters[i] = field.AsVariableExpression;
                 }
             }
 

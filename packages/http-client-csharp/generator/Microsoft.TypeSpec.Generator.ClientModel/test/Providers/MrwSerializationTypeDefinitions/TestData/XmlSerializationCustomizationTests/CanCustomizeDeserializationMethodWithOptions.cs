@@ -34,7 +34,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop1, prop2, default);
+            return new global::Sample.Models.MockInputModel(prop1, prop2);
         }
     }
 }

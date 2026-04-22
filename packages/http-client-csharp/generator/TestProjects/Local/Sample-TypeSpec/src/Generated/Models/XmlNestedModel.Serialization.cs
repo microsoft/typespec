@@ -142,7 +142,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlNestedModel(value, nestedId, default);
+            return new XmlNestedModel(value, nestedId);
         }
     }
 }

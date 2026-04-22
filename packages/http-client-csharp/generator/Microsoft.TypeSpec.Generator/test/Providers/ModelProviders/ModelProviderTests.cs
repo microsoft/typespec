@@ -1839,5 +1839,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
             Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
         }
+
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_OutputOnly_NoField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_Input_NoField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_InputAndOutput_NoField")]
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml, true, TestName = "JsonAndXml_Output_HasField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml, true, TestName = "JsonAndXml_InputAndOutput_HasField")]
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Json, true, TestName = "JsonOnly_Output_HasField")]
+        public void TestBuildRawDataField_BasedOnUsage(InputModelTypeUsage usage, bool shouldHaveField)
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: usage,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            var rawDataField = modelProvider.Fields.FirstOrDefault(f => f.Name == "_additionalBinaryDataProperties");
+            if (shouldHaveField)
+            {
+                Assert.IsNotNull(rawDataField, "Expected _additionalBinaryDataProperties field to be generated");
+            }
+            else
+            {
+                Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
     }
 }

@@ -39,7 +39,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.MockInputModel(id, name, default);
+            return new global::Sample.Models.MockInputModel(id, name);
         }
     }
 }

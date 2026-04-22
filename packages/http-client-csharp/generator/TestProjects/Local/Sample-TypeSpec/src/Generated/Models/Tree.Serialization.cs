@@ -252,6 +252,7 @@ namespace SampleTypeSpec
             string species = "tree";
             string id = default;
             int height = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             int age = default;
 
             foreach (var child in element.Elements())
@@ -278,7 +279,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new Tree(species, id, height, default, age);
+            return new Tree(species, id, height, additionalBinaryDataProperties, age);
         }
     }
 }

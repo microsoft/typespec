@@ -38,7 +38,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(id, category, default);
+            return new global::Sample.Models.TestXmlModel(id, category);
         }
     }
 }

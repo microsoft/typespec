@@ -40,7 +40,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.Cat(kind, name, default, meows);
+            return new global::Sample.Models.Cat(kind, name, meows);
         }
     }
 }

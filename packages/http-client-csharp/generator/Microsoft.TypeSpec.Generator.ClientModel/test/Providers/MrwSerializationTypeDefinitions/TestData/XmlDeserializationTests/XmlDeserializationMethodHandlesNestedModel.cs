@@ -44,7 +44,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.OuterModel(inner, default);
+            return new global::Sample.Models.OuterModel(inner);
         }
     }
 }

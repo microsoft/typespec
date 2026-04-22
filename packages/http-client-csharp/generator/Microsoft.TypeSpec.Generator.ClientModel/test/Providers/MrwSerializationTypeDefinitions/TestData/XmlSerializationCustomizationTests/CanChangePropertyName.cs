@@ -46,7 +46,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.Model(prop2, default);
+            return new global::Sample.Models.Model(prop2);
         }
     }
 }

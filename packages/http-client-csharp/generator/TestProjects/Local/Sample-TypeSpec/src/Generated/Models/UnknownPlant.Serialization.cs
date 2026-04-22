@@ -201,6 +201,7 @@ namespace SampleTypeSpec
             string species = "unknown";
             string id = default;
             int height = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -221,7 +222,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new UnknownPlant(species, id, height, default);
+            return new UnknownPlant(species, id, height, additionalBinaryDataProperties);
         }
     }
 }

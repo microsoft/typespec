@@ -574,7 +574,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
                 GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
-                GetPropertyVariableDeclarations(isXmlDeserialization: true),
+                GetPropertyVariableDeclarations(),
                 MethodBodyStatement.EmptyLine
             };
 
@@ -603,7 +603,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(isXmlDeserialization: true))));
+            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
 
             return [.. statements];
         }

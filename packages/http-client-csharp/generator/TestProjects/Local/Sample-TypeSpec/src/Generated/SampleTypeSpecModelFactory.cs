@@ -346,8 +346,7 @@ namespace SampleTypeSpec
                 dictionaryFoo,
                 dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
-                listOfDictionaryFoo.ToList(),
-                additionalBinaryDataProperties: null);
+                listOfDictionaryFoo.ToList());
         }
 
         /// <summary> An item model for XML array testing. </summary>
@@ -357,7 +356,7 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.XmlItem"/> instance for mocking. </returns>
         public static XmlItem XmlItem(string itemName = default, int itemValue = default, string itemId = default)
         {
-            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties: null);
+            return new XmlItem(itemName, itemValue, itemId);
         }
 
         /// <summary> A nested model for XML testing. </summary>
@@ -366,7 +365,7 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.XmlNestedModel"/> instance for mocking. </returns>
         public static XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
         {
-            return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties: null);
+            return new XmlNestedModel(value, nestedId);
         }
 
         /// <summary> The XmlModelWithNamespace. </summary>
@@ -374,7 +373,7 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
         public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
         {
-            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
+            return new XmlModelWithNamespace(foo);
         }
 
         /// <summary>
