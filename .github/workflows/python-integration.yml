@@ -82,7 +82,7 @@ jobs:
           venv/bin/python tests/install_packages.py build unbranded tests
 
       - name: Upload generated artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-generated
           path: |
@@ -119,7 +119,7 @@ jobs:
       - uses: ./.github/actions/setup-python
 
       - name: Download generated artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-generated
           path: .
@@ -164,7 +164,7 @@ jobs:
       - uses: ./.github/actions/setup-python
 
       - name: Download generated artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-generated
           path: .
@@ -203,7 +203,7 @@ jobs:
       - uses: ./.github/actions/setup-python
 
       - name: Download generated artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-generated
           path: .
@@ -250,7 +250,7 @@ jobs:
       - uses: ./.github/actions/setup-python
 
       - name: Download generated artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-generated
           path: .
