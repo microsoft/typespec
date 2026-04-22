@@ -198,7 +198,7 @@ export function createStandalonePlaygroundStateStorage(): UrlStateStorage<Playgr
     save(data: PlaygroundSaveData) {
       stateStorage.save(
         data.sampleName
-          ? { ...data, content: undefined, emitter: undefined, sampleName: data.sampleName }
+          ? { ...data, content: undefined, sampleName: data.sampleName }
           : data,
       );
     },
