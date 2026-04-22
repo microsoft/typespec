@@ -85,8 +85,8 @@ catalogs:
       specifier: ^7.58.1
       version: 7.58.1
     '@microsoft/api-extractor-model':
-      specifier: ^7.33.5
-      version: 7.33.5
+      specifier: ^7.33.8
+      version: 7.33.8
     '@microsoft/tsdoc':
       specifier: ^0.16.0
       version: 0.16.0
@@ -2690,7 +2690,7 @@ importers:
         version: 7.58.1(@types/node@25.5.2)
       '@microsoft/api-extractor-model':
         specifier: 'catalog:'
-        version: 7.33.5(@types/node@25.5.2)
+        version: 7.33.8(@types/node@25.5.2)
       '@microsoft/tsdoc':
         specifier: 'catalog:'
         version: 0.16.0
@@ -5182,6 +5182,9 @@ packages:
   '@microsoft/api-extractor-model@7.33.5':
     resolution: {integrity: sha512-Xh4dXuusndVQqVz4nEN9xOp0DyzsKxeD2FFJkSPg4arAjDSKPcy6cAc7CaeBPA7kF2wV1fuDlo2p/bNMpVr8yg==}
 
+  '@microsoft/api-extractor-model@7.33.8':
+    resolution: {integrity: sha512-aIcoQggPyer3B6Ze3usz0YWC/oBwUHfRH5ETUsr+oT2BRA6SfTJl7IKPcPZkX4UR+PohowzW4uMxsvjrn8vm+w==}
+
   '@microsoft/api-extractor@7.57.7':
     resolution: {integrity: sha512-kmnmVs32MFWbV5X6BInC1/TfCs7y1ugwxv1xHsAIj/DyUfoe7vtO0alRUgbQa57+yRGHBBjlNcEk33SCAt5/dA==}
     hasBin: true
@@ -6312,6 +6315,14 @@ packages:
       '@types/node':
         optional: true
 
+  '@rushstack/node-core-library@5.23.1':
+    resolution: {integrity: sha512-wlKmIKIYCKuCASbITvOxLZXepPbwXvrv7S6ig6XNWFchSyhL/E2txmVXspHY49Wu2dzf7nI27a2k/yV5BA3EiA==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   '@rushstack/problem-matcher@0.2.1':
     resolution: {integrity: sha512-gulfhBs6n+I5b7DvjKRfhMGyUejtSgOHTclF/eONr8hcgF1APEDjhxIsfdUYYMzC3rvLwGluqLjbwCFZ8nxrog==}
     peerDependencies:
@@ -7345,19 +7356,19 @@ packages:
       '@yarnpkg/cli': ^4.9.2
       '@yarnpkg/core': ^4.4.2
 
-  '@yarnpkg/plugin-essentials@4.4.5':
-    resolution: {integrity: sha512-vRQ7UoMK0okr+IVXkLu6JrpANYvmsZ8ljGQhNDI6XhOIU0pSPWD3I0JRh1449SMdQQtn8q8n0uwrzzUcvmQdFA==}
+  '@yarnpkg/plugin-essentials@4.5.0':
+    resolution: {integrity: sha512-LGQYbgPpeorHAJtscrGOLdNCaSyqee3wo4NnkfJmeGWvlPZyG6eRguthY1AXixo2ZxdN/YkeoI/GAhZH5bRvZA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/cli': ^4.13.0
-      '@yarnpkg/core': ^4.6.0
-      '@yarnpkg/plugin-git': ^3.1.4
+      '@yarnpkg/cli': ^4.14.0
+      '@yarnpkg/core': ^4.7.0
+      '@yarnpkg/plugin-git': ^3.2.0
 
-  '@yarnpkg/plugin-exec@3.0.2':
-    resolution: {integrity: sha512-lvBq0tc/k4CyvxFEhohiw/5rUi0kRWuFnAUnoXn6c0GJaldfK8gCyYhKfxwFZmcDOfM8h2JrDtzZdWqVk5D7lw==}
+  '@yarnpkg/plugin-exec@3.1.0':
+    resolution: {integrity: sha512-c0PInm8BbyNwGorVJPZyvt2L03OsccLdtmuwtl4sCxSYQjrJ3fwKVhOstL9KaxpUBQ+I9tVzoJzzpe8SzySZ0A==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/core': ^4.4.2
+      '@yarnpkg/core': ^4.7.0
 
   '@yarnpkg/plugin-file@3.0.2':
     resolution: {integrity: sha512-sL47+nbBs5yC2MQS8ihKm1PzeVLPuZihWQRw0UCu1+2H5qgHV8hA/4kCvMSx98amksq4UjP8ybeBFrRvsdhAHA==}
@@ -7365,11 +7376,11 @@ packages:
     peerDependencies:
       '@yarnpkg/core': ^4.4.2
 
-  '@yarnpkg/plugin-git@3.1.4':
-    resolution: {integrity: sha512-kopHiWTx4ANTk32i+rG/45oUtpK0l/MklQ2ZmIINete+4ZcTvB0cVr4vOw1+0owJ+s4iZMMpeu4RO/wz19BeHQ==}
+  '@yarnpkg/plugin-git@3.2.0':
+    resolution: {integrity: sha512-i/+3fJ7UYqAwmnfKYEc6Yrs9Y2mDVeCIWGXSpyQSZXokDYG0+YSf0ZSqlij4sFs5zSEOCkY0pK3wj6d4NcvhkQ==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/core': ^4.5.0
+      '@yarnpkg/core': ^4.7.0
 
   '@yarnpkg/plugin-github@3.0.2':
     resolution: {integrity: sha512-NHEaxJkzBC59Z97I30fleJlm6jE7CVY7cXaDD+kYwzIp/qKCb7IaJBp3MqUhCRyvyerNYRf08nIO+PXJ9odMtg==}
@@ -7434,6 +7445,13 @@ packages:
       '@yarnpkg/core': ^4.6.0
       '@yarnpkg/plugin-pack': ^4.0.4
 
+  '@yarnpkg/plugin-npm@3.5.0':
+    resolution: {integrity: sha512-Bs0timHs48gAu8IBCHsevRq8BqZNAnNCXgdnHEeKJE97H9gds0+tY7BsBzSYCtCdVVmsDB+l0Ia38QZAG8RMMw==}
+    engines: {node: '>=18.12.0'}
+    peerDependencies:
+      '@yarnpkg/core': ^4.7.0
+      '@yarnpkg/plugin-pack': ^4.0.4
+
   '@yarnpkg/plugin-pack@4.0.4':
     resolution: {integrity: sha512-P+lLCMUsvAr8AXWzrgPYqUtZsBl7nhv7zM/x6jV06czyEcApRKWWJw42ekiFa6+xBlwU4ddvHZK4eWKYf27TIw==}
     engines: {node: '>=18.12.0'}
@@ -7454,6 +7472,13 @@ packages:
     peerDependencies:
       '@yarnpkg/cli': ^4.11.0
       '@yarnpkg/core': ^4.5.0
+
+  '@yarnpkg/plugin-pnp@4.1.5':
+    resolution: {integrity: sha512-KdrC2/kcr2WSD7yehBQPXCVIZSk7Cf3V6TUxnlUrdqC4T65XrJH423f77GtUJnsG36BE0aPYDUKIcIliPBcq6g==}
+    engines: {node: '>=18.12.0'}
+    peerDependencies:
+      '@yarnpkg/cli': ^4.14.1
+      '@yarnpkg/core': ^4.7.0
 
   '@yarnpkg/plugin-pnpm@2.1.2':
     resolution: {integrity: sha512-6lR84Gu0LnS2MUKu3dFxyGTXmHbODVghHH0x9OyCsdMwWQp2GHJIsuda1dF+lbJdVZJleGbAUSchnqIFx8QY9A==}
@@ -7495,6 +7520,10 @@ packages:
 
   '@yarnpkg/pnp@4.1.3':
     resolution: {integrity: sha512-PsRujup+6DpgXexQe0Wh4h+syQhdruhounJjqbBMXV3meOzqr7k0Nj9+jwQ4t16EZJrhVxH7vRvjZ+VitH5aWQ==}
+    engines: {node: '>=18.12.0'}
+
+  '@yarnpkg/pnp@4.1.5':
+    resolution: {integrity: sha512-hDqB3Kke873wdx3rip1zlblfBIx2sGJH0BoNPh435A5rSEVT1sDKuCykLxNlLUnGhIZc83FXLGDGZJn23ggAQg==}
     engines: {node: '>=18.12.0'}
 
   '@yarnpkg/shell@4.0.0':
@@ -16539,6 +16568,14 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@microsoft/api-extractor-model@7.33.8(@types/node@25.5.2)':
+    dependencies:
+      '@microsoft/tsdoc': 0.16.0
+      '@microsoft/tsdoc-config': 0.18.1
+      '@rushstack/node-core-library': 5.23.1(@types/node@25.5.2)
+    transitivePeerDependencies:
+      - '@types/node'
+
   '@microsoft/api-extractor@7.57.7(@types/node@25.5.2)':
     dependencies:
       '@microsoft/api-extractor-model': 7.33.4(@types/node@25.5.2)
@@ -18134,6 +18171,19 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.5.2
 
+  '@rushstack/node-core-library@5.23.1(@types/node@25.5.2)':
+    dependencies:
+      ajv: 8.18.0
+      ajv-draft-04: 1.0.0(ajv@8.18.0)
+      ajv-formats: 3.0.1(ajv@8.18.0)
+      fs-extra: 11.3.4
+      import-lazy: 4.0.0
+      jju: 1.4.0
+      resolve: 1.22.11
+      semver: 7.7.4
+    optionalDependencies:
+      '@types/node': 25.5.2
+
   '@rushstack/problem-matcher@0.2.1(@types/node@25.5.2)':
     optionalDependencies:
       '@types/node': 25.5.2
@@ -19436,27 +19486,27 @@ snapshots:
       '@yarnpkg/plugin-compat': 4.0.12(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-patch@4.0.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-constraints': 4.0.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-dlx': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
-      '@yarnpkg/plugin-exec': 3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))
+      '@yarnpkg/plugin-essentials': 4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-exec': 3.1.0(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/plugin-file': 3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))
-      '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-github': 3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-github': 3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-http': 3.0.3(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/plugin-init': 4.1.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-interactive-tools': 4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))
+      '@yarnpkg/plugin-interactive-tools': 4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))
       '@yarnpkg/plugin-jsr': 1.1.1(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/plugin-link': 3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/plugin-nm': 4.0.8(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-npm': 3.4.1(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
-      '@yarnpkg/plugin-npm-cli': 4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-npm': 3.5.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-npm-cli': 4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.5.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-patch': 4.0.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-pnp': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-pnp': 4.1.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-pnpm': 2.1.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-typescript': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)
-      '@yarnpkg/plugin-version': 4.2.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-workspace-tools': 4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-typescript': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)
+      '@yarnpkg/plugin-version': 4.2.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-workspace-tools': 4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/shell': 4.1.3(typanion@3.14.0)
       ci-info: 4.4.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19568,13 +19618,13 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-essentials@4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/parsers': 3.0.3
-      '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       ci-info: 4.4.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
@@ -19584,7 +19634,7 @@ snapshots:
       tslib: 2.8.1
       typanion: 3.14.0
 
-  '@yarnpkg/plugin-exec@3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))':
+  '@yarnpkg/plugin-exec@3.1.0(@yarnpkg/core@4.6.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
@@ -19597,7 +19647,7 @@ snapshots:
       '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       tslib: 2.8.1
 
-  '@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)':
+  '@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)':
     dependencies:
       '@types/semver': 7.7.1
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
@@ -19610,11 +19660,11 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-github@3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-github@3.0.2(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
-      '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       tslib: 2.8.1
 
   '@yarnpkg/plugin-http@3.0.3(@yarnpkg/core@4.6.0(typanion@3.14.0))':
@@ -19632,12 +19682,12 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-interactive-tools@4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))':
+  '@yarnpkg/plugin-interactive-tools@4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/libui': 3.1.0(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
-      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-essentials': 4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
@@ -19680,12 +19730,12 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-npm-cli@4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-npm-cli@4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.5.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
-      '@yarnpkg/plugin-npm': 3.4.1(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-npm': 3.5.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
@@ -19695,6 +19745,21 @@ snapshots:
       typanion: 3.14.0
 
   '@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
+    dependencies:
+      '@yarnpkg/core': 4.6.0(typanion@3.14.0)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      enquirer: 2.4.1
+      es-toolkit: 1.45.1
+      micromatch: 4.0.8
+      semver: 7.7.4
+      sigstore: 3.1.0
+      ssri: 12.0.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@yarnpkg/plugin-npm@3.5.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
@@ -19745,12 +19810,25 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
+  '@yarnpkg/plugin-pnp@4.1.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)':
+    dependencies:
+      '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
+      '@yarnpkg/core': 4.6.0(typanion@3.14.0)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/pnp': 4.1.5
+      clipanion: 4.0.0-rc.4(typanion@3.14.0)
+      micromatch: 4.0.8
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - typanion
+
   '@yarnpkg/plugin-pnpm@2.1.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
-      '@yarnpkg/plugin-pnp': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-pnp': 4.1.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       p-limit: 2.3.0
@@ -19768,12 +19846,12 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-typescript@4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)':
+  '@yarnpkg/plugin-typescript@4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
-      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-essentials': 4.5.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       algoliasearch: 4.27.0
       semver: 7.7.4
@@ -19781,14 +19859,14 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-version@4.2.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)':
+  '@yarnpkg/plugin-version@4.2.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/libui': 3.1.0(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
       '@yarnpkg/parsers': 3.0.3
-      '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.45.1
       ink: 3.2.0(@types/react@19.2.14)(react@17.0.2)
@@ -19801,12 +19879,12 @@ snapshots:
       - typanion
       - utf-8-validate
 
-  '@yarnpkg/plugin-workspace-tools@4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-workspace-tools@4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0)))(@yarnpkg/core@4.6.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.6.0(typanion@3.14.0))
       '@yarnpkg/core': 4.6.0(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.5
-      '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
+      '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.6.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.45.1
       micromatch: 4.0.8
@@ -19815,6 +19893,11 @@ snapshots:
       typanion: 3.14.0
 
   '@yarnpkg/pnp@4.1.3':
+    dependencies:
+      '@types/node': 18.19.130
+      '@yarnpkg/fslib': 3.1.5
+
+  '@yarnpkg/pnp@4.1.5':
     dependencies:
       '@types/node': 18.19.130
       '@yarnpkg/fslib': 3.1.5

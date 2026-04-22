@@ -33,7 +33,7 @@ catalog:
   "@fluentui/react-list": ^9.6.13
   "@inquirer/prompts": ^8.4.1
   "@microsoft/api-extractor": ^7.58.1
-  "@microsoft/api-extractor-model": ^7.33.5
+  "@microsoft/api-extractor-model": ^7.33.8
   "@microsoft/tsdoc": ^0.16.0
   "@microsoft/tsdoc-config": ^0.18.1
   "@octokit/core": ^7.0.6
