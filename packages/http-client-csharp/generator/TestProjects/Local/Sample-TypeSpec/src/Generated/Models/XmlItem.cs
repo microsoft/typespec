@@ -15,21 +15,13 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of <see cref="XmlItem"/>. </summary>
         /// <param name="itemName"> The item name. </param>
         /// <param name="itemValue"> The item value. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="itemName"/> is null. </exception>
-        public XmlItem(string itemName, int itemValue)
+        /// <param name="itemId"> Item ID as attribute. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="itemName"/> or <paramref name="itemId"/> is null. </exception>
+        public XmlItem(string itemName, int itemValue, string itemId)
         {
             Argument.AssertNotNull(itemName, nameof(itemName));
+            Argument.AssertNotNull(itemId, nameof(itemId));
 
-            ItemName = itemName;
-            ItemValue = itemValue;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="XmlItem"/>. </summary>
-        /// <param name="itemName"> The item name. </param>
-        /// <param name="itemValue"> The item value. </param>
-        /// <param name="itemId"> Item ID as attribute. </param>
-        internal XmlItem(string itemName, int itemValue, string itemId)
-        {
             ItemName = itemName;
             ItemValue = itemValue;
             ItemId = itemId;

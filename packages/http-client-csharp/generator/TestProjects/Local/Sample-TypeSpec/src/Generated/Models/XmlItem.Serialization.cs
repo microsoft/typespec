@@ -103,12 +103,9 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{format}' format.");
             }
 
-            if (Optional.IsDefined(ItemId))
-            {
-                writer.WriteStartAttribute("itemId");
-                writer.WriteValue(ItemId);
-                writer.WriteEndAttribute();
-            }
+            writer.WriteStartAttribute("itemId");
+            writer.WriteValue(ItemId);
+            writer.WriteEndAttribute();
             writer.WriteStartElement("itemName");
             writer.WriteValue(ItemName);
             writer.WriteEndElement();

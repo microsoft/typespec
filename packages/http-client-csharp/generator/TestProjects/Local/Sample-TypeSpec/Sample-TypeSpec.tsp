@@ -464,7 +464,7 @@ model XmlItem {
 
   @doc("Item ID as attribute")
   @attribute
-  itemId?: string;
+  itemId: string;
 }
 
 @ns("http://www.example.com/namespace", "ns1")
