@@ -395,7 +395,4 @@ class TypedDictModelType(DPGModelType):
         return super().docstring_text(**kwargs)
 
     def imports(self, **kwargs: Any) -> FileImport:
-        file_import = super().imports(**kwargs)
-        file_import.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
-        return file_import
+        return super().imports(**kwargs)
