@@ -48,9 +48,7 @@ def _single_dir_mypy(mod, retries=2):
         except CalledProcessError as e:
             if attempt <= retries:
                 logging.warning(
-                    "{} mypy attempt {} failed (exit {}), retrying...".format(
-                        inner_class.stem, attempt, e.returncode
-                    )
+                    "{} mypy attempt {} failed (exit {}), retrying...".format(inner_class.stem, attempt, e.returncode)
                 )
             else:
                 logging.error("{} exited with mypy error {}".format(inner_class.stem, e.returncode))

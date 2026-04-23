@@ -145,7 +145,7 @@ Once a new version of the branded emitter (`@azure-tools/typespec-python`) is re
 
    ```bash
    tsp-client generate-config-files \
-     --package-json=<path-to-local-typespec-azure>/packages/typespec-python/package.json
+     --package-json= < path-to-local-typespec-azure > /packages/typespec-python/package.json
    ```
 
    This updates the `devDependencies` in `eng/emitter-package.json` to match the branded emitter's peer dependencies.
