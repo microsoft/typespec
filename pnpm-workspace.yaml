@@ -111,7 +111,7 @@ catalog:
   eslint-plugin-unicorn: ^64.0.0
   execa: ^9.6.1
   express: ^5.2.1
-  fast-xml-parser: ^5.5.9
+  fast-xml-parser: ^5.7.0
   happy-dom: ^20.9.0
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
