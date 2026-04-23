@@ -6,6 +6,9 @@
 - [How It Works](#how-it-works)
 - [Supported Scenarios](#supported-scenarios)
   - [Model Factory Methods](#model-factory-methods)
+    - [New Model Property Added](#scenario-new-model-property-added)
+    - [Parameter Ordering Changed](#scenario-parameter-ordering-changed)
+    - [Property Renamed](#scenario-property-renamed)
   - [Model Properties](#model-properties)
   - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
   - [API Version Enum](#api-version-enum)
@@ -109,6 +112,55 @@ public static PublicModel1 PublicModel1(
 ```
 
 **Result:** The generator keeps the previous parameter ordering to maintain compatibility.
+
+#### Scenario: Property Renamed
+
+**Description:** When a model property is renamed (via `@@clientName`, a spec rename, a generator naming-rule change, etc.), the generated factory parameter would normally change name to follow the new property name. Renaming a parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator preserves the previous parameter name on the current factory method whenever the only difference between the previous and current method is one or more parameter names (same method name, same parameter types in the same order, same parameter count).
+
+**Example:**
+
+Previous version exposed `stringProp` and `modelProp`:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+Current TypeSpec renames the underlying properties to `CertificateStringProp` and `CertificateModelProp`, which would normally produce:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string certificateStringProp = default,
+    Thing certificateModelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+**Generated Compatibility Result:**
+
+The generator detects that previous and current methods differ only in parameter names and preserves the previous names on the current method:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+{
+    // body uses the preserved names when constructing the model
+    return new PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);
+}
+```
+
+**Key Points:**
+
+- Only one method is generated — no additional `[EditorBrowsable(EditorBrowsableState.Never)]` overload is needed
+- Existing source code using named arguments (e.g. `PublicModel1(stringProp: "x")`) continues to compile
+- The matching is by method name plus parameter types in the same order; the parameter count must also match. If a parameter is added or removed in addition to a rename, the standard "new property added" overload is generated instead
+- The XML doc `<param>` entries on the method are updated to reference the preserved names
 
 ### Model Properties
 

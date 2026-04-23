@@ -97,7 +97,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             List<MethodProvider> factoryMethods = [.. originalMethods];
-            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. originalMethods, .. CustomCodeView?.Methods ?? []])
+
+            // Preserve the original parameter names on current factory methods when the only
+            // change between the previous and current contract is a parameter rename. This
+            // avoids source-breaking changes for callers using named arguments (e.g. when a
+            // property is renamed via @@clientName, spec rename, or naming-rule change).
+            PreservePreviousParameterNames(factoryMethods);
+
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
@@ -175,6 +182,56 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
+        }
+
+        // Preserve original parameter names from the previous contract when a current factory
+        // method matches a previous one by name + parameter types/order but differs only in
+        // parameter names. The rename is applied in-place via ParameterProvider.Update which
+        // also updates the cached variable/argument expressions used by the method body and
+        // XML docs, so the body and docs serialize with the preserved names automatically.
+        private void PreservePreviousParameterNames(List<MethodProvider> currentFactoryMethods)
+        {
+            if (LastContractView?.Methods == null)
+            {
+                return;
+            }
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                MethodProvider? matchingCurrent = null;
+                foreach (var current in currentFactoryMethods)
+                {
+                    if (MethodSignature.MethodSignatureComparer.Equals(current.Signature, previousMethod.Signature))
+                    {
+                        matchingCurrent = current;
+                        break;
+                    }
+                }
+
+                if (matchingCurrent is null)
+                {
+                    continue;
+                }
+
+                var previousParameters = previousMethod.Signature.Parameters;
+                var currentParameters = matchingCurrent.Signature.Parameters;
+                if (previousParameters.Count != currentParameters.Count)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < previousParameters.Count; i++)
+                {
+                    var previousName = previousParameters[i].Name;
+                    var currentParam = currentParameters[i];
+                    if (string.IsNullOrEmpty(previousName) || currentParam.Name == previousName)
+                    {
+                        continue;
+                    }
+
+                    currentParam.Update(name: previousName);
+                }
+            }
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(

@@ -440,6 +440,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_OnlyParamNameChanged()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // No additional overload should be added — the rename is absorbed into the current method.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
+
+            var publicModel1Methods = methods.Where(m => m.Signature.Name == "PublicModel1").ToList();
+            Assert.AreEqual(1, publicModel1Methods.Count);
+
+            var publicModel1Method = publicModel1Methods[0];
+            // Previous parameter names should be preserved on the current method.
+            var parameters = publicModel1Method.Signature.Parameters;
+            Assert.AreEqual(4, parameters.Count);
+            Assert.AreEqual("oldStringProp", parameters[0].Name);
+            Assert.AreEqual("oldModelProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            Assert.AreEqual("dictProp", parameters[3].Name);
+
+            // No EditorBrowsable hidden overload — there's a single visible method.
+            Assert.AreEqual(0, publicModel1Method.Signature.Attributes.Count);
+
+            // The body should reference the renamed parameters when constructing the model.
+            var body = publicModel1Method.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
+                "return new global::Sample.Models.PublicModel1(oldStringProp, oldModelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
+                result);
+
+            // The XML doc <param> entries should also use the preserved names.
+            var docParams = publicModel1Method.XmlDocs!.Parameters;
+            Assert.AreEqual(parameters.Count, docParams.Count);
+            Assert.AreEqual("oldStringProp", docParams[0].Parameter.Name);
+            Assert.AreEqual("oldModelProp", docParams[1].Parameter.Name);
+        }
+
+        [Test]
         public void ModelWithNestedDiscriminators()
         {
             var discriminatorProperty =
