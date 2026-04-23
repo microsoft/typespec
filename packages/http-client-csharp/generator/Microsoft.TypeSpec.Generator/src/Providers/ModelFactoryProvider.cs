@@ -247,6 +247,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved parameter name '{previousName}' on '{Name}.{matchingCurrent.Signature.Name}' from last contract (instead of '{currentParam.Name}').",
+                        BackCompatibilityChangeCategory.ParameterNamePreserved);
+
                     currentParam.Update(name: previousName);
                 }
             }
