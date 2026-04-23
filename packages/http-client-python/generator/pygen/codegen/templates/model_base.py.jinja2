@@ -609,19 +609,17 @@ def _create_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typin
 
 class Model(_MyMutableMapping):
     _is_model = True
-    # label whether current class's _attr_to_rest_field has been calculated
-    # could not see _attr_to_rest_field directly because subclass inherits it from parent class
-    _calculated: set[str] = set()
+    # _attr_to_rest_field, _defaults, and the per-class "calculation done" marker are
+    # populated by __new__ on first instantiation; declared here so subclasses inherit
+    # the descriptor protocol contract.
 
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         class_name = self.__class__.__name__
         if len(args) > 1:
             raise TypeError(f"{class_name}.__init__() takes 2 positional arguments but {len(args) + 1} were given")
-        dict_to_pass = {
-            rest_field._rest_name: rest_field._default
-            for rest_field in self._attr_to_rest_field.values()
-            if rest_field._default is not _UNSET
-        }
+        # _defaults is precomputed once per class in __new__; copy per instance so callers
+        # can mutate the resulting dict freely.
+        dict_to_pass = dict(self._defaults)
         if args:
             if isinstance(args[0], ET.Element):
                 dict_to_pass.update(self._init_from_xml(args[0]))
@@ -710,7 +708,10 @@ class Model(_MyMutableMapping):
         return Model(self.__dict__)
 
     def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> Self:
-        if f"{cls.__module__}.{cls.__qualname__}" not in cls._calculated:
+        # Use a per-class boolean marker stored in cls.__dict__ to avoid the cost of
+        # formatting and looking up a qualname string on every instantiation. __dict__
+        # access ensures we re-run for each subclass (the marker is not inherited).
+        if not cls.__dict__.get("_calculated_done", False):
             # we know the last nine classes in mro are going to be 'Model', '_MyMutableMapping', 'MutableMapping',
             # 'Mapping', 'Collection', 'Sized', 'Iterable', 'Container' and 'object'
             mros = cls.__mro__[:-9][::-1]  # ignore parents, and reverse the mro order
@@ -727,16 +728,23 @@ class Model(_MyMutableMapping):
                 rf._module = cls.__module__
                 if not rf._type:
                     rf._type = rf._get_deserialize_callable_from_annotation(annotations.get(attr, None))
-                if not rf._rest_name_input:
-                    rf._rest_name_input = attr
+                if not rf._rest_name:
+                    rf._rest_name = attr
             cls._attr_to_rest_field: dict[str, _RestField] = dict(attr_to_rest_field.items())
+            # Precompute the default-value dict once per class. Model.__init__ copies this
+            # per instance instead of rebuilding it from _attr_to_rest_field every call.
+            cls._defaults: dict[str, typing.Any] = {
+                rf._rest_name: rf._default
+                for rf in cls._attr_to_rest_field.values()
+                if rf._default is not _UNSET
+            }
             {% if code_model.has_padded_model_property %}
             cls._backcompat_attr_to_rest_field: dict[str, _RestField] = {
                 Model._get_backcompat_attribute_name(cls._attr_to_rest_field, attr): rf for attr, rf in cls
                 ._attr_to_rest_field.items()
             }
             {% endif %}
-            cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
+            cls._calculated_done = True
 
         return super().__new__(cls)
 
@@ -1016,7 +1024,10 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
             return obj
         try:
             return _deserialize_with_callable(deserializer, obj)
-        except Exception:
+        except DeserializationError:
+            # _deserialize_with_callable wraps any inner failure as DeserializationError;
+            # narrowing the except keeps real bugs (like AttributeError on a malformed
+            # template binding) visible instead of silently returning the raw value.
             pass
         return obj
 
@@ -1128,7 +1139,10 @@ class _RestField:
         {% endif %}
     ):
         self._type = type
-        self._rest_name_input = name
+        # _rest_name was previously a @property reading _rest_name_input; collapsed to
+        # a plain attribute since it is read on every field deserialize (146 times per
+        # blob in storage list-blobs profiles) and the property dispatch was a hot spot.
+        self._rest_name: typing.Optional[str] = name
         self._module: typing.Optional[str] = None
         self._is_discriminator = is_discriminator
         self._visibility = visibility
@@ -1149,12 +1163,6 @@ class _RestField:
         if isinstance(result, functools.partial):
             return getattr(result, "args", [None])[0]
         return result
-
-    @property
-    def _rest_name(self) -> str:
-        if self._rest_name_input is None:
-            raise ValueError("Rest name was never set")
-        return self._rest_name_input
 
     def __get__(self, obj: Model, type=None):  # pylint: disable=redefined-builtin
         # by this point, type and rest_name will have a value bc we default
