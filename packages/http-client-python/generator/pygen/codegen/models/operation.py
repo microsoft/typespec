@@ -449,11 +449,14 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     file_import.add_import("json", ImportType.STDLIB)
             if self.enable_import_deserialize_xml:
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
-            if any(
-                r.type
-                and not isinstance(r.type, BinaryIteratorType)
-                and not xml_serializable(str(r.default_content_type))
-                for r in self.responses
+            if (
+                self.code_model.options["models-mode"] != "typeddict"
+                and any(
+                    r.type
+                    and not isinstance(r.type, BinaryIteratorType)
+                    and not xml_serializable(str(r.default_content_type))
+                    for r in self.responses
+                )
             ):
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization(serialize_namespace) or self.non_default_errors:
