@@ -225,7 +225,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
-            if self.options["models-mode"] in ("dpg", "typeddict") and is_dpg_model:
+            if self.options["models-mode"] == "dpg" and is_dpg_model:
                 if origin_type == "model":
                     body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
                 else:
