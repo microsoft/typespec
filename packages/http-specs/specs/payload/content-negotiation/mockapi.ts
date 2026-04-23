@@ -186,3 +186,18 @@ Scenarios.Payload_ContentNegotiation_DifferentBody = withServiceKeys([
     kind: "MockApiDefinition",
   },
 ]);
+
+Scenarios.Payload_ContentNegotiation_SameBodySingleOperation = withServiceKeys(["png"]).pass([
+  {
+    uri: "/content-negotiation/same-body-single-operation/png",
+    method: "get",
+    response: {
+      body: {
+        contentType: "image/png",
+        rawContent: pngFile,
+      },
+      status: 200,
+    },
+    kind: "MockApiDefinition",
+  },
+]);

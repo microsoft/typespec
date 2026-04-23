@@ -59,3 +59,24 @@ namespace DifferentBody {
   @sharedRoute
   op getAvatarAsJson(@header accept: "application/json"): PngImageAsJson;
 }
+
+@scenario
+@scenarioDoc("""
+  Scenario that returns a different file encoding with one operation.
+
+  Mock API currently accepts `format=png` and returns `PngImage` at runtime.
+  """)
+@route("same-body-single-operation")
+namespace SameBodySingleOperation {
+  model PngImage {
+    @header contentType: "image/png";
+    @body image: bytes;
+  }
+
+  model JpegImage {
+    @header contentType: "image/jpeg";
+    @body image: bytes;
+  }
+
+  op getAvatar(@path format: string): PngImage | JpegImage;
+}
