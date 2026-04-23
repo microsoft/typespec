@@ -117,7 +117,7 @@ public static PublicModel1 PublicModel1(
 
 #### Scenario: Property Renamed
 
-**Description:** When a model property is renamed (via `@@clientName`, a spec rename, a generator naming-rule change, etc.), the generated factory parameter would normally change name to follow the new property name. Renaming a parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator preserves the previous parameter name on the current factory method whenever the only difference between the previous and current method is one or more parameter names (same method name, same parameter types in the same order, same parameter count).
+**Description:** When a model property is renamed (via `@@clientName`, a spec rename, a generator naming-rule change, etc.), the generated factory parameter would normally change its name to follow the new property name. Renaming a parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator preserves the previous parameter name on the current factory method whenever the only difference between the previous and current method is one or more parameter names (same method name, same parameter types in the same order, same parameter count).
 
 **Example:**
 
