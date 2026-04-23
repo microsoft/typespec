@@ -105,9 +105,17 @@ export const BASE_AZURE_EMITTER_OPTIONS: Record<
     "package-name": "client-structure-twooperationgroup",
     namespace: "client.structure.twooperationgroup",
   },
-  "client/naming": {
-    namespace: "client.naming.main",
-  },
+  "client/naming": [
+    {
+      namespace: "client.naming.main",
+    },
+    {
+      "package-name": "client-naming-typeddict",
+      namespace: "client.naming.typeddict",
+      "models-mode": "typeddict",
+      "generate-test": "false",
+    },
+  ],
   "client/overload": {
     namespace: "client.overload",
   },
