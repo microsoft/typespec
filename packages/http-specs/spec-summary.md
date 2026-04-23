@@ -1776,6 +1776,14 @@ Scenario that returns a different file encoding depending on the accept header.
 - image/png return a png image
 - image/jpeg return a jpeg image
 
+### Payload_ContentNegotiation_SameBodySingleOperation
+
+- Endpoint: `get /content-negotiation/same-body-single-operation`
+
+Scenario that returns a different file encoding with one operation.
+
+Mock API currently accepts `format=png` and returns `PngImage` at runtime.
+
 ### Payload_Head_contentTypeHeaderInResponse
 
 - Endpoint: `head /payload/head/content-type-header-in-response`
