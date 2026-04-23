@@ -928,10 +928,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider, InputServiceMethod? serviceMethod = null)
         {
+            // Look up the parameter's original (spec) name in the previous contract.
+            // When a service method is supplied, scope the search to methods whose name matches
+            // the current service method (allowing for sync/async pairing) so that a common
+            // parameter name (e.g. "id") on multiple methods can't cross-match.
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods;
+            if (lastContractMethods != null && serviceMethod != null)
+            {
+                var serviceMethodName = serviceMethod.Name;
+                scopedMethods = lastContractMethods.Where(m =>
+                    string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
+            }
+
             // Check if the original wire name exists in LastContractView for backward compatibility.
-            var existingParam = backCompatProvider.LastContractView?.Methods
+            var existingParam = scopedMethods
                 ?.SelectMany(method => method.Signature.Parameters)
                 .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
@@ -1072,12 +1086,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For paging operations, handle parameter name corrections with backward compatibility
                 if (serviceMethod is InputPagingServiceMethod)
                 {
-                    var backCompatProvider = client.BackCompatProvider;
-
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
                     if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, serviceMethod);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
@@ -1088,9 +1100,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatProvider);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client.BackCompatProvider, serviceMethod);
                     }
                 }
+
+                // For every parameter, preserve a previously-published parameter name when the
+                // last contract has a matching parameter (matched by spec/original name). This
+                // generalizes back-compat name preservation beyond the paging-specific renames
+                // above so that any rename emitted by the generator falls back to the prior name
+                // when one was already published.
+                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
