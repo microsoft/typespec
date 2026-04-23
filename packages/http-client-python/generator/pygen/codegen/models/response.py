@@ -95,6 +95,7 @@ class Response(BaseModel):
     def type_annotation(self, **kwargs: Any) -> str:
         if self.type:
             kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
             type_annotation = self.type.type_annotation(**kwargs)
             if self.nullable:
                 return f"Optional[{type_annotation}]"
@@ -102,11 +103,13 @@ class Response(BaseModel):
         return "None"
 
     def docstring_text(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
 
     def docstring_type(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"

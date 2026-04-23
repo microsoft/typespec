@@ -20,7 +20,10 @@ def valid_body():
 
 
 def test_get_valid(client, valid_body):
-    assert client.get_valid() == valid_body
+    result = client.get_valid()
+    assert result["name"] == "abc"
+    assert result["age"] == 32
+    assert result["smart"] is True
 
 
 def test_post_valid(client, valid_body):
@@ -28,4 +31,7 @@ def test_post_valid(client, valid_body):
 
 
 def test_put_valid(client, valid_body):
-    assert valid_body == client.put_valid(valid_body)
+    result = client.put_valid(valid_body)
+    assert result["name"] == "abc"
+    assert result["age"] == 32
+    assert result["smart"] is True

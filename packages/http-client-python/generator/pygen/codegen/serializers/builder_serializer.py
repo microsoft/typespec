@@ -999,6 +999,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
+            elif self.code_model.options["models-mode"] == "typeddict":
+                if builder.has_stream_response:
+                    deserialize_code.append("deserialized = response.content")
+                else:
+                    response_attr = "json" if json_serializable(str(response.default_content_type)) else "text"
+                    deserialize_code.append(f"deserialized = response.{response_attr}()")
             elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")

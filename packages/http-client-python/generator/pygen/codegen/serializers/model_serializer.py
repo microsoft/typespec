@@ -408,7 +408,6 @@ class TypedDictModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         has_required = False
-        has_optional = False
         has_discriminated_union = False
         for model in self.models:
             if model.base == "json":
@@ -430,9 +429,7 @@ class TypedDictModelSerializer(_ModelSerializer):
                         called_by_property=True,
                     )
                 )
-                if prop.optional or prop.client_default_value is not None:
-                    has_optional = True
-                else:
+                if not (prop.optional or prop.client_default_value is not None):
                     has_required = True
             for parent in model.parents:
                 if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
@@ -445,8 +442,6 @@ class TypedDictModelSerializer(_ModelSerializer):
                         ImportType.LOCAL,
                     )
         file_import.add_submodule_import("typing_extensions", "TypedDict", ImportType.STDLIB)
-        if has_optional:
-            file_import.add_submodule_import("typing_extensions", "NotRequired", ImportType.STDLIB)
         if has_required:
             file_import.add_submodule_import("typing_extensions", "Required", ImportType.STDLIB)
         if has_discriminated_union:
@@ -485,7 +480,7 @@ class TypedDictModelSerializer(_ModelSerializer):
         type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
         is_optional = prop.optional or prop.client_default_value is not None
         if is_optional:
-            return f"{prop.wire_name}: NotRequired[{type_annotation}]"
+            return f"{prop.wire_name}: {type_annotation}"
         return f"{prop.wire_name}: Required[{type_annotation}]"
 
     def initialize_properties(self, model: ModelType) -> list[str]:

@@ -376,16 +376,26 @@ class DPGModelType(GeneratedModelType):
         return file_import
 
 
-class TypedDictModelType(GeneratedModelType):
+class TypedDictModelType(DPGModelType):
     base = "typeddict"
 
-    def serialization_type(self, **kwargs: Any) -> str:
-        return self.type_annotation(skip_quote=True, **kwargs)
+    def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.pop("is_response", False):
+            return "JSON"
+        return super().type_annotation(**kwargs)
 
-    @property
-    def instance_check_template(self) -> str:
-        return "isinstance({}, dict)"
+    def docstring_type(self, **kwargs: Any) -> str:
+        if kwargs.pop("is_response", False):
+            return "JSON"
+        return super().docstring_type(**kwargs)
+
+    def docstring_text(self, **kwargs: Any) -> str:
+        if kwargs.pop("is_response", False):
+            return "JSON"
+        return super().docstring_text(**kwargs)
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
+        file_import.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
         return file_import

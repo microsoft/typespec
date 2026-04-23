@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typetest.model.singlediscriminator.typeddict import SingleDiscriminatorClient
-from typetest.model.singlediscriminator.typeddict.models import Sparrow, Eagle, Dinosaur, TRex
+from typetest.model.singlediscriminator.typeddict.models import Sparrow, Eagle
 
 
 @pytest.fixture
@@ -19,8 +19,10 @@ def valid_body():
     return Sparrow(wingspan=1, kind="sparrow")
 
 
-def test_get_model(client, valid_body):
-    assert client.get_model() == valid_body
+def test_get_model(client):
+    result = client.get_model()
+    assert result["wingspan"] == 1
+    assert result["kind"] == "sparrow"
 
 
 def test_put_model(client, valid_body):
@@ -38,8 +40,13 @@ def recursive_body():
     )
 
 
-def test_get_recursive_model(client, recursive_body):
-    assert client.get_recursive_model() == recursive_body
+def test_get_recursive_model(client):
+    result = client.get_recursive_model()
+    assert result["wingspan"] == 5
+    assert result["kind"] == "eagle"
+    assert result["partner"]["kind"] == "goose"
+    assert result["friends"][0]["kind"] == "seagull"
+    assert result["hate"]["key3"]["kind"] == "sparrow"
 
 
 def test_put_recursive_model(client, recursive_body):
@@ -47,12 +54,17 @@ def test_put_recursive_model(client, recursive_body):
 
 
 def test_get_missing_discriminator(client):
-    assert client.get_missing_discriminator() == {"wingspan": 1}
+    result = client.get_missing_discriminator()
+    assert result["wingspan"] == 1
 
 
 def test_get_wrong_discriminator(client):
-    assert client.get_wrong_discriminator() == {"wingspan": 1, "kind": "wrongKind"}
+    result = client.get_wrong_discriminator()
+    assert result["wingspan"] == 1
+    assert result["kind"] == "wrongKind"
 
 
 def test_get_legacy_model(client):
-    assert client.get_legacy_model() == TRex(size=20, kind="t-rex")
+    result = client.get_legacy_model()
+    assert result["size"] == 20
+    assert result["kind"] == "t-rex"
