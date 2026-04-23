@@ -539,6 +539,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
         }
 
+        // Validates that when a new property is added AND the previous contract used different
+        // names for some of the surviving parameters, the rename-only fast path does NOT apply
+        // (parameter counts differ). Instead the standard "new property added" backcompat overload
+        // is generated using the previously-published parameter names.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithRenamedParam()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count() + 1, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // The current method keeps the new property-derived names (no rename absorbed) since
+            // the parameter count differs between the current and previous methods.
+            var currentParameters = currentOverloadMethod!.Signature.Parameters;
+            Assert.AreEqual(4, currentParameters.Count);
+            Assert.AreEqual("stringProp", currentParameters[0].Name);
+            Assert.AreEqual("modelProp", currentParameters[1].Name);
+            Assert.AreEqual("listProp", currentParameters[2].Name);
+            Assert.AreEqual("dictProp", currentParameters[3].Name);
+
+            // The backcompat overload preserves the previously-published parameter names.
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                attributes[0].ToDisplayString());
+
+            var parameters = backwardCompatibilityMethod.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("oldStringProp", parameters[0].Name);
+            Assert.AreEqual("oldModelProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+
+            // The backcompat overload's body instantiates the model directly because the previous
+            // parameter names (oldStringProp, oldModelProp) do not match any current property name.
+            // For unmatched parameters the generator falls back to passing `default` to the
+            // constructor; matched names (listProp) are threaded through.
+            var body = backwardCompatibilityMethod.BodyStatements;
+            Assert.IsNotNull(body);
+            var bodyString = body!.ToDisplayString();
+            StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
+            StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
         [Test]
         public void ModelWithNestedDiscriminators()
         {
