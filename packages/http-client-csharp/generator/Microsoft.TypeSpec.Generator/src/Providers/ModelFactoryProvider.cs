@@ -201,6 +201,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 MethodProvider? matchingCurrent = null;
                 foreach (var current in currentFactoryMethods)
                 {
+                    // MethodSignatureComparer matches on method name + parameter count + parameter
+                    // types (positional); it does not consider parameter names. So a previous
+                    // method whose only difference from a current method is parameter names will
+                    // still match here.
                     if (MethodSignature.MethodSignatureComparer.Equals(current.Signature, previousMethod.Signature))
                     {
                         matchingCurrent = current;
