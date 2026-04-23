@@ -63,7 +63,7 @@ namespace DifferentBody {
 @scenario
 @scenarioDoc("""
   Scenario that returns a different file encoding with one operation.
-
+  
   Mock API currently accepts `format=png` and returns `PngImage` at runtime.
   """)
 @route("same-body-single-operation")

@@ -67,6 +67,22 @@ function differentBodyHandler(req: MockRequest) {
   }
 }
 
+function sameBodySingleOperationHandler(req: MockRequest) {
+  switch (req.params["format"]) {
+    case "png":
+      return {
+        pass: "png",
+        status: 200,
+        body: {
+          contentType: "image/png",
+          rawContent: pngFile,
+        },
+      } as const;
+    default:
+      throw new ValidationError("Unsupported format", `"png"`, req.params["format"]);
+  }
+}
+
 Scenarios.Payload_ContentNegotiation_SameBody = withServiceKeys(["image/png", "image/jpeg"]).pass([
   {
     uri: "/content-negotiation/same-body",
@@ -198,6 +214,7 @@ Scenarios.Payload_ContentNegotiation_SameBodySingleOperation = withServiceKeys([
       },
       status: 200,
     },
+    handler: sameBodySingleOperationHandler,
     kind: "MockApiDefinition",
   },
 ]);
