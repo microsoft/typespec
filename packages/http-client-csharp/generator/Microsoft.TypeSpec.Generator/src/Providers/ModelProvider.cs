@@ -1288,13 +1288,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     var newType = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
                     outputProperty.Type = newType;
-                    // Keep any cached parameters in sync with the overridden property type.
-                    var parameter = outputProperty.AsParameter;
-                    parameter.Update(type: newType);
-                    parameter.ToPublicInputParameter().Update(type: newType.InputType);
                     CodeModelGenerator.Instance.Emitter.Info(
                         $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
                         BackCompatibilityChangeCategory.PropertyTypePreserved);
+                }
+
+                // Keep any cached parameters in sync with the property type so that
+                // constructors/methods built before this pass (or by visitors that mutate
+                // Property.Type without updating the cached ParameterProvider) do not end up
+                // with a stale parameter type.
+                var parameter = outputProperty.AsParameter;
+                if (!parameter.Type.Equals(outputProperty.Type))
+                {
+                    parameter.Update(type: outputProperty.Type);
+                }
+                var publicInputParameter = parameter.ToPublicInputParameter();
+                if (!publicInputParameter.Type.Equals(outputProperty.Type.InputType))
+                {
+                    publicInputParameter.Update(type: outputProperty.Type.InputType);
                 }
             }
 
