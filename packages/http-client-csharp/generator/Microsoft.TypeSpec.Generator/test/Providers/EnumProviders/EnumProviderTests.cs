@@ -498,6 +498,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Default", fields[1].Name);
         }
 
+        // Validates that underscores in the middle of enum member names are preserved for fixed enums
+        [TestCase]
+        public void BuildEnumType_FixedEnum_PreservesUnderscoresInMemberNames()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Tls_1_0", 1),
+                ("Tls_1_1", 2),
+                ("hello_world", 3)
+            ]);
+            var enumType = EnumProvider.Create(input);
+            var fields = enumType.Fields;
+
+            Assert.AreEqual(3, fields.Count);
+            Assert.AreEqual("Tls_1_0", fields[0].Name);
+            Assert.AreEqual("Tls_1_1", fields[1].Name);
+            Assert.AreEqual("Hello_world", fields[2].Name);
+        }
+
+        // Validates that underscores in the middle of enum member names are preserved for extensible enums
+        [TestCase]
+        public void BuildEnumType_ExtensibleEnum_PreservesUnderscoresInMemberNames()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Tls_1_0", "TLS 1.0"),
+                ("Tls_1_1", "TLS 1.1"),
+                ("hello_world", "hello world")
+            ], isExtensible: true);
+            var enumType = EnumProvider.Create(input);
+            var fields = enumType.Fields;
+            var properties = enumType.Properties;
+
+            // a private field + three values
+            Assert.AreEqual(4, fields.Count);
+            Assert.AreEqual("_value", fields[0].Name);
+            Assert.AreEqual("Tls_1_0Value", fields[1].Name);
+            Assert.AreEqual("Tls_1_1Value", fields[2].Name);
+            Assert.AreEqual("Hello_worldValue", fields[3].Name);
+
+            // three properties
+            Assert.AreEqual(3, properties.Count);
+            Assert.AreEqual("Tls_1_0", properties[0].Name);
+            Assert.AreEqual("Tls_1_1", properties[1].Name);
+            Assert.AreEqual("Hello_world", properties[2].Name);
+        }
+
+        // Validates that leading and trailing underscores are preserved when preserveUnderscores is true
+        [TestCase]
+        public void BuildEnumType_FixedEnum_PreservesLeadingTrailingUnderscores()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("_leading", 1),
+                ("trailing_", 2)
+            ]);
+            var enumType = EnumProvider.Create(input);
+            var fields = enumType.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            // Leading underscores are preserved with preserveUnderscores
+            Assert.AreEqual("_leading", fields[0].Name);
+            // Trailing underscores are preserved with preserveUnderscores
+            Assert.AreEqual("Trailing_", fields[1].Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");

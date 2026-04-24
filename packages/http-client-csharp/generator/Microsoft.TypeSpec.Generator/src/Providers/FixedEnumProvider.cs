@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = inputValue.Name.ToIdentifierName();
+                var name = inputValue.Name.ToIdentifierName(preserveUnderscores: true);
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
