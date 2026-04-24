@@ -419,6 +419,68 @@ describe("multiple services without @client decorator", () => {
     strictEqual(serviceBClient.apiVersions[0], "bv1");
     strictEqual(serviceBClient.apiVersions[1], "bv2");
   });
+
+  it("uses the combined @client namespace when services are merged via @client({ service: [...] })", async () => {
+    const program = await typeSpecCompile(
+      `
+        namespace Service.MultiService;
+
+        @service(#{ title: "Service A" })
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+
+          @route("a-test")
+          op opA(@query("api-version") apiVersion: VersionsA): void;
+        }
+
+        @service(#{ title: "Service B" })
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+          }
+
+          @route("b-test")
+          op opB(@query("api-version") apiVersion: VersionsB): void;
+        }
+
+        @client({
+          service: [ServiceA, ServiceB],
+          autoMergeService: true,
+        })
+        namespace Combined {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The root namespace should be the combined @client namespace, not the
+    // shared parent of the @service-decorated namespaces.
+    strictEqual(
+      root.name,
+      "Service.MultiService.Combined",
+      "Root namespace should match the combined @client namespace",
+    );
+
+    strictEqual(root.clients.length, 1, "There should be a single combined root client");
+    const client = root.clients[0];
+    strictEqual(client.namespace, "Service.MultiService.Combined");
+    strictEqual(
+      client.isMultiServiceClient,
+      true,
+      "Combined client should be a multi-service client",
+    );
+    ok(
+      containsMultiServiceClient(sdkContext.sdkPackage.clients),
+      "Library should contain a multi-service client",
+    );
+  });
 });
 
 describe("client name suffix", () => {

@@ -34,8 +34,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            List<InputEnumType> inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
-                    .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            List<InputEnumType> inputEnums = [.. _inputClient.Parameters
+                    .Where(p => p.IsApiVersion && p.Type is InputEnumType)
+                    .Select(p => (InputEnumType)p.Type)
+                    .Distinct()];
+            if (inputEnums.Count == 0)
+            {
+                inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                        .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            }
 
             if (inputEnums.Count > 0)
             {

@@ -151,15 +151,15 @@ export function getClientNamespaceString(context: CSharpEmitterContext): string 
     return getClientNamespaceStringHelper(namespaceOverride, packageName, firstNamespace);
   }
 
-  if (serviceNamespaces.length > 1) {
-    return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace?.namespace);
-  }
-
   if (containsMultiServiceClient(context.sdkPackage.clients)) {
     return getClientNamespaceStringHelper(
       namespaceOverride,
       context.sdkPackage.clients[0].namespace,
     );
+  }
+
+  if (serviceNamespaces.length > 1) {
+    return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace?.namespace);
   }
 
   return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace);
