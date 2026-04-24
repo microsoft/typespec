@@ -1293,23 +1293,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         BackCompatibilityChangeCategory.PropertyTypePreserved);
                 }
 
-                // Keep any cached parameters in sync with the property type so that
-                // constructors/methods built before this pass (or by visitors that mutate
-                // Property.Type without updating the cached ParameterProvider) do not end up
-                // with a stale parameter type.
-                var parameter = outputProperty.AsParameter;
-                if (!parameter.Type.Equals(outputProperty.Type))
-                {
-                    parameter.Update(type: outputProperty.Type);
-                }
-                var publicInputParameter = parameter.ToPublicInputParameter();
-                if (!publicInputParameter.Type.Equals(outputProperty.Type.InputType))
-                {
-                    publicInputParameter.Update(type: outputProperty.Type.InputType);
-                }
+                SyncCachedParametersWithPropertyType(outputProperty);
             }
 
             return properties;
+        }
+
+        // Keep any cached parameters in sync with the property type so that
+        // constructors/methods built before this pass (or by visitors that mutate
+        // Property.Type without updating the cached ParameterProvider) do not end up
+        // with a stale parameter type.
+        private static void SyncCachedParametersWithPropertyType(PropertyProvider outputProperty)
+        {
+            var parameter = outputProperty.AsParameter;
+            if (!parameter.Type.Equals(outputProperty.Type))
+            {
+                parameter.Update(type: outputProperty.Type);
+            }
+            var publicInputParameter = parameter.ToPublicInputParameter();
+            if (!publicInputParameter.Type.Equals(outputProperty.Type.InputType))
+            {
+                publicInputParameter.Update(type: outputProperty.Type.InputType);
+            }
         }
 
         private bool TryGetLastContractPropertyTypeOverride(
