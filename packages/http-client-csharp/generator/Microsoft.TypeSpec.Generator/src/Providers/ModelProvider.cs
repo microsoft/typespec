@@ -1277,7 +1277,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
                 {
-                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
+                    var newType = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
+                    outputProperty.Type = newType;
+                    // PropertyProvider.AsParameter is lazily materialized and shared with any constructor
+                    // or method signatures that were built before this back-compat pass runs (e.g. by
+                    // visitors). Cascade the type override onto the cached parameter (and its public
+                    // input variant) so those signatures stay consistent with the overridden property type.
+                    var parameter = outputProperty.AsParameter;
+                    parameter.Update(type: newType);
+                    parameter.ToPublicInputParameter().Update(type: newType.InputType);
                     CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
                 }
             }

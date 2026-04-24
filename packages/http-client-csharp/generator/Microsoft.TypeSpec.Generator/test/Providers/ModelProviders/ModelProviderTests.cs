@@ -1122,6 +1122,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConstructorParameterTypesMatchOverriddenProperty()
+        {
+            // Regression: constructor parameters are built from PropertyProvider.AsParameter, which
+            // lazily materializes a ParameterProvider capturing property.Type on first access. Visitors
+            // that inspect constructors/methods before ProcessTypeForBackCompatibility runs can
+            // materialize AsParameter with the pre-override type, so when back-compat later rewrites
+            // property.Type, the cached ctor/method signatures would go out of sync. Verify that the
+            // back-compat pass cascades the type override onto the shared ParameterProvider.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // Simulate a visitor materializing the constructor (and therefore the property's
+            // AsParameter) before the back-compat pass runs.
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            _ = countProperty!.AsParameter;
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // Property type was overridden from int to int? to match the last contract.
+            var expectedType = new CSharpType(typeof(int), isNullable: true);
+            Assert.IsTrue(countProperty.Type.Equals(expectedType));
+            // The shared ParameterProvider (used by any ctor/method signature built from this
+            // property) must reflect the overridden type too.
+            Assert.IsTrue(countProperty.AsParameter.Type.Equals(expectedType));
+            Assert.IsTrue(countProperty.AsParameter.ToPublicInputParameter().Type.Equals(expectedType.InputType));
+        }
+
+        [Test]
         public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
         {
             // When the property type differs between the last contract and the current spec
