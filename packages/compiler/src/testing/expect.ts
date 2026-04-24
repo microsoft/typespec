@@ -60,11 +60,40 @@ export interface DiagnosticMatch {
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
   match: DiagnosticMatch | DiagnosticMatch[],
-  options = {
+  options: {
+    /**
+     * When true, diagnostics are sorted before comparison so that order differences
+     * do not cause test failures.
+     */
+    strict?: boolean;
+    /**
+     * When true, diagnostics are sorted by code+message before comparison so that
+     * order does not matter.
+     */
+    fixedOrder?: boolean;
+  } = {
     strict: true,
   },
 ) {
   const array = isArray(match) ? match : [match];
+
+  // Sort both arrays if fixedOrder is requested so order doesn't matter
+  if (options.fixedOrder) {
+    const sortKey = (d: { code: string; message: string; severity: string }) =>
+      d.code + "|" + d.severity + "|" + d.message;
+    const keyed = (d: { code?: string; message?: string; severity?: string }) => ({
+      code: d.code ?? "",
+      message: d.message ?? "",
+      severity: d.severity ?? "",
+    });
+    diagnostics = [...diagnostics].sort((a, b) =>
+      sortKey(keyed(a)).localeCompare(sortKey(keyed(b))),
+    );
+    // Also sort the expected array so indices still align after sorting
+    array = [...array].sort((a, b) =>
+      sortKey(keyed(a)).localeCompare(sortKey(keyed(b))),
+    );
+  }
 
   if (options.strict && array.length !== diagnostics.length) {
     fail(
