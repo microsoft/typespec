@@ -362,8 +362,8 @@ describe("multiple services without @client decorator", () => {
     assertSubClients("ServiceBClient", serviceBClient!.children!);
 
     ok(
-      containsMultiServiceClient(sdkContext.sdkPackage.clients),
-      "Library should be detected as containing multiple services",
+      !containsMultiServiceClient(sdkContext.sdkPackage.clients),
+      "No individual root client should be a combined multi-service client",
     );
   });
 

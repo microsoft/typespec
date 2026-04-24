@@ -212,23 +212,18 @@ export function isReadOnly(
 }
 
 /**
- * Determines if the library contains multiple services, either via a single combined
- * multi-service client or via multiple root clients that collectively span more than one service.
+ * Determines if the library contains a multiservice client.
+ * Returns true if any of the given root clients is itself a multiservice client
+ * (i.e. {@link isMultiServiceClient} returns true).
  *
  * @param rootClients - Array of root clients from the SDK package
- * @returns True if the root clients collectively span more than one service, false otherwise
+ * @returns True if any root client is a multiservice client, false otherwise
  * @beta
  */
 export function containsMultiServiceClient(
   rootClients: SdkClientType<SdkHttpOperation>[],
 ): boolean {
-  const services = new Set<unknown>();
-  for (const client of rootClients) {
-    for (const service of client.__raw.services) {
-      services.add(service);
-    }
-  }
-  return services.size > 1;
+  return rootClients.some(isMultiServiceClient);
 }
 
 /**
