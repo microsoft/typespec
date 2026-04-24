@@ -38,8 +38,6 @@ export type { PlaygroundState };
 export interface PlaygroundEmitterOptions {
   /** Compile debounce delay in milliseconds. Default is 200. */
   debounce?: number;
-  /** When true, highlights changed files and lines after recompilation. */
-  newChangeDiff?: boolean;
 }
 
 export interface PlaygroundProps {
@@ -227,12 +225,23 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   }, [content, selectedSampleName, props.samples]);
 
   const compileIdRef = useRef(0);
+  const isCompilingRef = useRef(false);
+  const pendingRecompileRef = useRef(false);
+  const doCompileRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   const doCompile = useCallback(async () => {
+    // If a compile is already in progress, mark that a recompile is needed and
+    // bail out. The in-flight compile will re-trigger on completion. This avoids
+    // stacking up synchronous compiles that block the UI thread during typing.
+    if (isCompilingRef.current) {
+      pendingRecompileRef.current = true;
+      return;
+    }
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
     const compileId = ++compileIdRef.current;
 
+    isCompilingRef.current = true;
     setIsCompiling(true);
     let state: CompilationState;
     try {
@@ -240,10 +249,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Compilation failed", error);
-      return;
-    } finally {
+      isCompilingRef.current = false;
       setIsCompiling(false);
+      if (pendingRecompileRef.current) {
+        pendingRecompileRef.current = false;
+        void doCompileRef.current();
+      }
+      return;
     }
+    isCompilingRef.current = false;
+    setIsCompiling(false);
 
     // Discard stale results from an older compilation
     if (compileId !== compileIdRef.current) return;
@@ -289,7 +304,18 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
+
+    // If typing happened while this compile was running, trigger a trailing
+    // compile so the output stays in sync with the latest content.
+    if (pendingRecompileRef.current) {
+      pendingRecompileRef.current = false;
+      void doCompileRef.current();
+    }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
+
+  useEffect(() => {
+    doCompileRef.current = doCompile;
+  }, [doCompile]);
 
   const currentEmitterOptions = selectedEmitter
     ? props.emitterOptions?.[selectedEmitter]
@@ -438,7 +464,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={currentEmitterOptions?.newChangeDiff}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}

@@ -87,6 +87,24 @@ parameters:
     type: boolean
     default: false
 
+  # The npm script to run to build the emitter for playground bundling.
+  # Default is "build". C# uses "build:emitter" to skip the .NET generator build.
+  - name: PlaygroundBundleBuildScript
+    type: string
+    default: "build"
+
+  # Path to a Dockerfile (relative to PackagePath) for the playground server.
+  # When set alongside UploadPlaygroundBundle, the server container is built and
+  # deployed to Azure App Service after publishing.
+  - name: PlaygroundServerDockerfile
+    type: string
+    default: ""
+
+  # Azure App Service name for the playground server.
+  - name: PlaygroundServerAppName
+    type: string
+    default: ""
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -353,10 +371,30 @@ stages:
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
               - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - task: NodeTool@0
+                    displayName: Use Node 22.x for playground bundle
+                    inputs:
+                      versionSpec: "22.x"
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm run build
+                  - ${{ if parameters.BuildPrereleaseVersion }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-alpha.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ else }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm install -g pnpm
@@ -373,6 +411,38 @@ stages:
                       azureSubscription: "Azure SDK Engineering System"
                       scriptLocation: inlineScript
                       inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
+
+              - ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:
+                  - task: AzureCLI@1
+                    displayName: Build and deploy playground server
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: |
+                        set -e
+                        REGISTRY="typespecacr"
+                        RESOURCE_GROUP="typespec"
+                        APP_NAME="${{ parameters.PlaygroundServerAppName }}"
+                        IMAGE="$REGISTRY.azurecr.io/$APP_NAME:$(Build.BuildId)"
+
+                        # Build and push Docker image to ACR
+                        echo "Building Docker image: $IMAGE"
+                        CONTEXT="$(Build.SourcesDirectory)/${{ parameters.PackagePath }}"
+                        az acr build \
+                          --registry "$REGISTRY" \
+                          --image "$APP_NAME:$(Build.BuildId)" \
+                          --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
+                          "$CONTEXT"
+
+                        # Update App Service container image
+                        az webapp config container set \
+                          --name "$APP_NAME" \
+                          --resource-group "$RESOURCE_GROUP" \
+                          --container-image-name "$IMAGE" \
+                          --container-registry-url "https://$REGISTRY.azurecr.io"
+
+                        echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)
 
             templateContext:

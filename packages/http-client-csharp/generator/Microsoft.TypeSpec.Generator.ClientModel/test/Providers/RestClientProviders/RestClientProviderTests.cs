@@ -362,6 +362,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
         }
 
+        [Test]
+        public async Task ParameterNamePreservedFromLastContractView()
+        {
+            // A non-paging, non-special parameter that the generator renames from "oldParam" to
+            // "newParam". The previously-published contract (TestData/.../TestClient.cs) declares
+            // the parameter as "oldParam", so backcompat should restore that name.
+            var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(name: "newParam");
+            Assert.AreEqual("newParam", queryParam.Name);
+            Assert.AreEqual("oldParam", queryParam.OriginalName);
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.IsNotNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Protocol parameter should be restored to the previously-published 'oldParam' name.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
+        }
+
         [TestCase(true, true)]
         [TestCase(true, false)]
         [TestCase(false, true)]
