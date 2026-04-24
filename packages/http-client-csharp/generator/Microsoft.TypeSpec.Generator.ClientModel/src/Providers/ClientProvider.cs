@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -1112,16 +1113,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_backCompatProvider != backCompatProvider)
                 {
                     _backCompatProvider = backCompatProvider;
-                    // reset cache so methods are rebuilt with the new backcompat provider
-                    Reset();
+                    // Only reset the cached methods (and the underlying RestClient methods)
+                    // so they are rebuilt with the new backcompat provider. Do NOT call full
+                    // Reset() — that would discard properties/constructors/fields applied by
+                    // visitors that may have already run (e.g., Azure DistributedTracingVisitor's
+                    // ClientDiagnostics property).
+                    ResetMethods();
+                    _restClient?.ResetMethods();
                     _methodCache = null;
                 }
             }
             else if (_backCompatProvider != null)
             {
-                // backcompat provider was previously set but not requested now — reset to default
                 _backCompatProvider = null;
-                Reset();
+                ResetMethods();
+                _restClient?.ResetMethods();
                 _methodCache = null;
             }
             _ = Methods; // Ensure methods are built
@@ -1277,7 +1283,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     methodsWithReorderedParams.Add(methodToUpdate);
                     CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
+                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.",
+                        BackCompatibilityChangeCategory.MethodParameterReordering);
                 }
             }
 

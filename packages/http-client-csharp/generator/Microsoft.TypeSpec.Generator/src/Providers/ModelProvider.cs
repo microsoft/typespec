@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -543,7 +544,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         !outputProperty.Type.Equals(lastContractPropertyType))
                     {
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved);
                     }
                 }
 
@@ -768,6 +771,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                         }
                     }
                 }

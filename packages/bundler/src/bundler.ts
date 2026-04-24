@@ -26,6 +26,7 @@ export interface ExportData {
   default?: string;
   import?: string;
   types?: string;
+  typespec?: string;
 }
 
 export interface TypeSpecBundle {
@@ -60,7 +61,7 @@ interface PackageJson {
   tspMain?: string;
   peerDependencies: string[];
   dependencies: string[];
-  exports?: Record<string, string>;
+  exports?: Record<string, string | ExportData>;
 }
 
 export interface CreateTypeSpecBundleOptions {
@@ -181,6 +182,25 @@ async function createEsBuildContext(
 
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
+  }
+
+  // Also compile sub-exports with typespec entry points to include their source files
+  for (const [, value] of Object.entries(definition.exports)) {
+    const typespecEntry = typeof value === "object" ? value.typespec : undefined;
+    if (typespecEntry) {
+      const subEntryPoint = resolvePath(libraryPath, typespecEntry);
+      const subProgram = await compile(NodeHost, subEntryPoint, {
+        noEmit: true,
+      });
+      for (const file of subProgram.jsSourceFiles.keys()) {
+        if (file.startsWith(libraryPath)) {
+          jsFiles.add(file);
+        }
+      }
+      for (const [filename, sourceFile] of subProgram.sourceFiles) {
+        typespecFiles[filename] = sourceFile.file.text;
+      }
+    }
   }
 
   const content = createBundleEntrypoint({

@@ -38,8 +38,6 @@ export type { PlaygroundState };
 export interface PlaygroundEmitterOptions {
   /** Compile debounce delay in milliseconds. Default is 200. */
   debounce?: number;
-  /** When true, highlights changed files and lines after recompilation. */
-  newChangeDiff?: boolean;
 }
 
 export interface PlaygroundProps {
@@ -466,7 +464,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={currentEmitterOptions?.newChangeDiff ?? true}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}
