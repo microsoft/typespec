@@ -54,17 +54,51 @@ export interface DiagnosticMatch {
 }
 
 /**
+ * Options for {@link expectDiagnostics }.
+ */
+export interface ExpectDiagnosticsOptions {
+  /**
+   * When true (default), the number of diagnostics must match exactly.
+   * When false, only the presence of expected diagnostics is checked.
+   */
+  strict?: boolean;
+  /**
+   * When true, diagnostics are sorted before comparison so that the order
+   * of diagnostics in the array does not matter.
+   */
+  ignoreOrder?: boolean;
+}
+
+/**
  * Validate the diagnostic array contains exactly the given diagnostics.
  * @param diagnostics Array of the diagnostics
+ * @param match Expected diagnostic matchers
+ * @param options Comparison options
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
   match: DiagnosticMatch | DiagnosticMatch[],
-  options = {
-    strict: true,
-  },
+  options: ExpectDiagnosticsOptions = {},
 ) {
   const array = isArray(match) ? match : [match];
+
+  // Sort both arrays if ignoreOrder is requested so order doesn't matter
+  if (options.ignoreOrder) {
+    const sortKey = (d: { code: string; message: string; severity: string }) =>
+      d.code + "|" + d.severity + "|" + d.message;
+    const keyed = (d: { code?: string; message?: string; severity?: string }) => ({
+      code: d.code ?? "",
+      message: d.message ?? "",
+      severity: d.severity ?? "",
+    });
+    diagnostics = [...diagnostics].sort((a, b) =>
+      sortKey(keyed(a)).localeCompare(sortKey(keyed(b))),
+    );
+    // Also sort the expected array so indices still align after sorting
+    array = [...array].sort((a, b) =>
+      sortKey(keyed(a)).localeCompare(sortKey(keyed(b))),
+    );
+  }
 
   if (options.strict && array.length !== diagnostics.length) {
     fail(
