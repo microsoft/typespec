@@ -1109,16 +1109,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generalizes back-compat name preservation beyond the paging-specific renames
                 // above so that any rename emitted by the generator falls back to the prior name
                 // when one was already published.
-                //
-                // Only apply this generic preservation when the parameter has actually been renamed
-                // away from its spec/wire name (Name != OriginalName). When the current name matches
-                // the original spec name, there is no rename to revert, and applying back-compat
-                // would incorrectly resurrect a stale name from an older baseline whose casing has
-                // since been deliberately changed in a published version.
-                if (!string.Equals(inputParam.Name, inputParam.OriginalName, StringComparison.Ordinal))
-                {
-                    UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
-                }
+                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
