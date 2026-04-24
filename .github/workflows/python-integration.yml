@@ -69,7 +69,9 @@ jobs:
 
       - name: Use pinned http-specs versions
         run: |
+          rm -rf core/packages/http-specs/dist
           cp -r core/packages/http-client-python/node_modules/@typespec/http-specs/dist core/packages/http-specs/dist
+          rm -rf packages/azure-http-specs/dist
           cp -r core/packages/http-client-python/node_modules/@azure-tools/azure-http-specs/dist packages/azure-http-specs/dist
 
       - name: Prepare Python environment
