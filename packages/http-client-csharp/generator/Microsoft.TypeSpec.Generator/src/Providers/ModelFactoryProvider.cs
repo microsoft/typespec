@@ -247,6 +247,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
 
+                    // Skip the rename when applying it would create a name collision with another
+                    // current parameter (e.g. two same-typed parameters in swapped order between
+                    // the previous and current contracts). A positional rename in that case would
+                    // silently swap which parameter feeds which constructor field via name-based
+                    // lookup in GetCtorArgs, producing semantically wrong (and source-breaking) code.
+                    var previousNameToApply = previousName;
+                    bool wouldCollide = false;
+                    for (int j = 0; j < currentParameters.Count; j++)
+                    {
+                        if (j != i && string.Equals(currentParameters[j].Name, previousNameToApply, StringComparison.Ordinal))
+                        {
+                            wouldCollide = true;
+                            break;
+                        }
+                    }
+
+                    if (wouldCollide)
+                    {
+                        continue;
+                    }
+
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Preserved parameter name '{previousName}' on '{Name}.{matchingCurrent.Signature.Name}' from last contract (instead of '{currentParam.Name}').",
                         BackCompatibilityChangeCategory.ParameterNamePreserved);

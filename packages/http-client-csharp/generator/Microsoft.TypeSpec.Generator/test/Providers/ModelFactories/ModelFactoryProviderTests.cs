@@ -705,6 +705,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result);
         }
 
+        // Regression test for a model factory parameter SWAP bug: when the previous contract
+        // contained the same-typed parameters in a different order from the current contract,
+        // a naive positional rename would swap which parameter feeds which constructor field
+        // via name-based lookup in GetCtorArgs, producing semantically wrong (and
+        // source-breaking) generated code. Verify no rename occurs in this collision case.
+        [Test]
+        public async Task BackCompatibility_SwapTypeParamsDoesNotCorrupt()
+        {
+            var swapModelList = new[]
+            {
+                InputFactory.Model(
+                    "SwapModel",
+                    properties:
+                    [
+                        InputFactory.Property("EventId", InputPrimitiveType.String),
+                        InputFactory.Property("ItemId", InputPrimitiveType.String),
+                    ]),
+            };
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: swapModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var swapMethods = modelFactory.Methods.Where(m => m.Signature.Name == "SwapModel").ToList();
+            Assert.AreEqual(1, swapMethods.Count);
+
+            var method = swapMethods[0];
+            var parameters = method.Signature.Parameters;
+            // The current method should keep its parameters in the order/names derived from the
+            // current spec: eventId, itemId. A positional rename to the previous contract names
+            // (which were swapped: itemId, eventId) would corrupt the body, so we explicitly
+            // skip the rename when it would create a name collision with another parameter.
+            Assert.AreEqual(2, parameters.Count);
+            Assert.AreEqual("eventId", parameters[0].Name);
+            Assert.AreEqual("itemId", parameters[1].Name);
+
+            // No EditorBrowsable hidden overload — there's a single visible method.
+            Assert.AreEqual(0, method.Signature.Attributes.Count);
+
+            // The body must reference the parameters in their original positions so that
+            // eventId continues to feed the eventId constructor field and itemId continues
+            // to feed the itemId constructor field.
+            var body = method.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return new global::Sample.Models.SwapModel(eventId, itemId, additionalBinaryDataProperties: null);\n",
+                result);
+        }
+
         [Test]
         public void RequiredConstantPropertiesAreNotExposedAsParameters()
         {
