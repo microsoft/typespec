@@ -237,6 +237,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 "Parameter name should be 'top' (from backcompat provider's LastContractView), not 'maxCount'");
         }
 
+        [Test]
+        public async Task NonRenamedParameterNotChangedByStaleBackCompatBaseline()
+        {
+            // Regression test for https://github.com/microsoft/typespec/pull/10464 follow-up:
+            // When the spec parameter name (e.g. "metricname") matches the wire/serialized name and
+            // has NOT been renamed by the generator, an older back-compat baseline that happens to
+            // have a differently-cased identifier (e.g. "metricName") must NOT silently rewrite the
+            // current parameter back to that stale casing. Doing so would re-introduce a
+            // source-breaking rename for callers relying on the most recently published name.
+            var metricnameParameter = InputFactory.QueryParameter(
+                "metricname",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "metricname");
+
+            List<InputParameter> parameters = [metricnameParameter];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
+                    "metricname",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Query,
+                    serializedName: "metricname"),
+            ];
+
+            var responseModel = InputFactory.Model(
+                "MetricResponse",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getMetrics", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "getMetrics",
+                operation,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("metricsClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+
+            // Simulate a stale baseline (e.g., an older published version) whose method has the
+            // parameter spelled "metricName" with capital N.
+            var backCompatProvider = new BackCompatTypeProvider("StaleBaseline", "Sample");
+            Assert.IsNotNull(backCompatProvider.LastContractView);
+
+            var methods = clientProvider!.GetMethodCollectionByOperation(operation, backCompatProvider);
+            // protocol + convenience pairs (sync + async). Inspect all parameter names across all
+            // generated methods — none of them should have been silently renamed to "metricName".
+            foreach (var method in methods)
+            {
+                var renamed = method.Signature.Parameters.FirstOrDefault(p =>
+                    string.Equals(p.Name, "metricName", StringComparison.Ordinal));
+                Assert.IsNull(renamed,
+                    $"Parameter must not be renamed to 'metricName' on method '{method.Signature.Name}'. " +
+                    "Stale back-compat baselines must not rewrite parameters that were never renamed.");
+            }
+
+            // And the original spelling must be preserved on at least one method.
+            var preserved = methods
+                .SelectMany(m => m.Signature.Parameters)
+                .Any(p => string.Equals(p.Name, "metricname", StringComparison.Ordinal));
+            Assert.IsTrue(preserved, "Original spec parameter name 'metricname' should be preserved.");
+        }
+
         /// <summary>
         /// A simple TypeProvider used to simulate a backcompat provider (e.g., MockableResourceProvider)
         /// whose LastContractView contains previously published parameter names.
