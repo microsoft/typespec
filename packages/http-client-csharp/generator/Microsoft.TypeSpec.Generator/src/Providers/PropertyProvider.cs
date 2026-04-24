@@ -297,6 +297,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (type != null)
             {
                 Type = type;
+                if (_parameter.IsValueCreated && !_parameter.Value.Type.Equals(type))
+                {
+                    _parameter.Value.Update(type: type);
+                }
             }
             if (name != null)
             {

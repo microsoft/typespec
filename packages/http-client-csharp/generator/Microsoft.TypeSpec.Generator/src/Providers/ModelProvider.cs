@@ -1287,29 +1287,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
                 {
                     var newType = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
-                    outputProperty.Type = newType;
+                    outputProperty.Update(type: newType);
                     CodeModelGenerator.Instance.Emitter.Info(
                         $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
                         BackCompatibilityChangeCategory.PropertyTypePreserved);
-
-                    SyncCachedParametersWithPropertyType(outputProperty);
                 }
             }
 
             return properties;
-        }
-
-        // Keep any cached parameters in sync with the overridden property type so that
-        // constructors/methods built before this pass do not end up with a stale parameter
-        // type. Updating the parameter resets its cached public input variant, which will
-        // be recalculated from the new type on next access.
-        private static void SyncCachedParametersWithPropertyType(PropertyProvider outputProperty)
-        {
-            var parameter = outputProperty.AsParameter;
-            if (!parameter.Type.Equals(outputProperty.Type))
-            {
-                parameter.Update(type: outputProperty.Type);
-            }
         }
 
         private bool TryGetLastContractPropertyTypeOverride(
