@@ -423,6 +423,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void OverridingBuildBaseTypeKeepsBaseModelProviderConsistent()
+        {
+            // A derived ModelProvider that overrides BuildBaseType to point at an external
+            // (hand-written) base type — emulating what downstream emitters such as the Azure
+            // mgmt/provisioning generators do when they replace the spec inheritance with a
+            // hand-written base class. Before the fix, BaseType pointed at the override but
+            // BaseModelProvider was still computed from InputModelType.BaseModel, so visitors
+            // that walked BaseModelProvider saw a parent that wasn't actually in the C#
+            // inheritance chain.
+            var inputBase = InputFactory.Model(
+                "specBaseModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("baseProp", InputPrimitiveType.String)]);
+            var inputChild = InputFactory.Model(
+                "childModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: inputBase);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputBase, inputChild]);
+
+            var externalBase = new CSharpType(typeof(object));
+            var childProvider = new ModelProviderWithExternalBase(inputChild, externalBase);
+
+            // BaseType honors the override.
+            Assert.AreEqual(externalBase, childProvider.BaseType);
+
+            // BaseModelProvider is consistent with BaseType: since the external base is not a
+            // generated ModelProvider, BaseModelProvider must be null. Before the fix it was
+            // still resolving to the spec base ("SpecBaseModel"), causing properties to be
+            // double-counted by visitors that walked BaseModelProvider.
+            Assert.IsNull(childProvider.BaseModelProvider);
+        }
+
+        private class ModelProviderWithExternalBase : ModelProvider
+        {
+            private readonly CSharpType _externalBase;
+
+            public ModelProviderWithExternalBase(InputModelType inputModel, CSharpType externalBase)
+                : base(inputModel)
+            {
+                _externalBase = externalBase;
+            }
+
+            protected override CSharpType? BuildBaseType() => _externalBase;
+        }
+
+        [Test]
         public void BuildModelAsStruct()
         {
             var properties = new List<InputModelProperty>

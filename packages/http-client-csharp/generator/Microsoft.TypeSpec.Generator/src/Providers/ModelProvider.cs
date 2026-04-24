@@ -185,7 +185,53 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
-            return BaseModelProvider?.Type;
+            // BuildBaseType is the single source of truth for the model's base. Both BaseType
+            // (in TypeProvider) and BaseModelProvider read from it, so any subclass override
+            // automatically keeps the two in sync.
+            //
+            // Resolution order:
+            //   1. CustomCodeView (hand-written `partial class Foo : Bar` wins over spec).
+            //   2. _inputModel.BaseModel (spec-declared base).
+            //
+            // For the CustomCodeView path we may need to resolve a base type whose namespace
+            // Roslyn could not determine (because the parent is generated, not hand-written).
+            if (CustomCodeView?.BaseType is { } customBase)
+            {
+                if (string.IsNullOrEmpty(customBase.Namespace))
+                {
+                    // Cheap check: the base model may already be created and registered under the right name.
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out var resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedModel)
+                    {
+                        return resolvedModel.Type;
+                    }
+
+                    // Force-create all input models so that visitors run (which may rename models
+                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
+                    // This is a no-op for models that have already been created.
+                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                    }
+
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedAfterCreate)
+                    {
+                        return resolvedAfterCreate.Type;
+                    }
+                }
+
+                return customBase;
+            }
+
+            if (_inputModel.BaseModel == null)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -291,63 +337,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private ModelProvider? BuildBaseModelProvider()
         {
-            // consider models that have been customized to inherit from a different generated model
-            if (CustomCodeView?.BaseType != null)
-            {
-                var baseType = CustomCodeView.BaseType;
-
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
-                if (string.IsNullOrEmpty(baseType.Namespace))
-                {
-                    // Cheap check: the base model may already be created and registered under the right name.
-                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
-                            baseType.Name, out var resolvedProvider) &&
-                        resolvedProvider is ModelProvider resolvedModel)
-                    {
-                        return resolvedModel;
-                    }
-
-                    // Force-create all input models so that visitors run (which may rename models
-                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
-                    // This is a no-op for models that have already been created.
-                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
-                    {
-                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
-                    }
-
-                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
-                            baseType.Name, out resolvedProvider) &&
-                        resolvedProvider is ModelProvider resolvedAfterCreate)
-                    {
-                        return resolvedAfterCreate;
-                    }
-                }
-
-                // Try to find the base type in the CSharpTypeMap
-                if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                        baseType,
-                        out var customBaseType) &&
-                    customBaseType is ModelProvider customBaseModel)
-                {
-                    return customBaseModel;
-                }
-
-                // If the custom base type has a namespace (external type), we don't return it here
-                // as it's handled by BuildBaseTypeProvider() which returns a TypeProvider
-                if (!string.IsNullOrEmpty(baseType?.Namespace))
-                {
-                    return null;
-                }
-            }
-
-            if (_inputModel.BaseModel == null)
+            // Thin wrapper over BaseType. BaseType is the single source of truth (resolved in
+            // BuildBaseType), so BaseModelProvider always agrees with it. If BaseType points at
+            // a non-generated type (subclass override, hand-written external base, system type),
+            // the CSharpTypeMap lookup misses and BaseModelProvider is null - which is correct,
+            // because callers walk it to discover generated parent properties/fields/etc.
+            if (BaseType is not { } baseType)
             {
                 return null;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
+            return CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var baseProvider)
+                ? baseProvider as ModelProvider
+                : null;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
