@@ -36,8 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _clientProvider = clientProvider;
             List<InputEnumType> inputEnums = [.. _inputClient.Parameters
                     .Where(p => p.IsApiVersion && p.Type is InputEnumType)
-                    .Select(p => (InputEnumType)p.Type)
-                    .Distinct()];
+                    .Select(p => (InputEnumType)p.Type)];
             if (inputEnums.Count == 0)
             {
                 inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
