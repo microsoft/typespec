@@ -320,6 +320,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInformation? wireInfo = null,
             ParameterValidationType? validation = null)
         {
+            // Reset the cached input variant so that ToPublicInputParameter() recalculates it
+            // from the updated state rather than returning a stale instance.
+            _inputParameter = null;
+
             if (name is not null)
             {
                 Name = name;

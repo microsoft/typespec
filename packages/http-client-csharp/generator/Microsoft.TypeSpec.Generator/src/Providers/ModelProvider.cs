@@ -1291,29 +1291,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     CodeModelGenerator.Instance.Emitter.Info(
                         $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
                         BackCompatibilityChangeCategory.PropertyTypePreserved);
-                }
 
-                SyncCachedParametersWithPropertyType(outputProperty);
+                    SyncCachedParametersWithPropertyType(outputProperty);
+                }
             }
 
             return properties;
         }
 
-        // Keep any cached parameters in sync with the property type so that
-        // constructors/methods built before this pass (or by visitors that mutate
-        // Property.Type without updating the cached ParameterProvider) do not end up
-        // with a stale parameter type.
+        // Keep any cached parameters in sync with the overridden property type so that
+        // constructors/methods built before this pass do not end up with a stale parameter
+        // type. Updating the parameter resets its cached public input variant, which will
+        // be recalculated from the new type on next access.
         private static void SyncCachedParametersWithPropertyType(PropertyProvider outputProperty)
         {
             var parameter = outputProperty.AsParameter;
             if (!parameter.Type.Equals(outputProperty.Type))
             {
                 parameter.Update(type: outputProperty.Type);
-            }
-            var publicInputParameter = parameter.ToPublicInputParameter();
-            if (!publicInputParameter.Type.Equals(outputProperty.Type.InputType))
-            {
-                publicInputParameter.Update(type: outputProperty.Type.InputType);
             }
         }
 
