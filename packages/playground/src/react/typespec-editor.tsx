@@ -48,7 +48,11 @@ export const OutputEditor: FunctionComponent<{
     model.setValue(value);
   }, [filename, value, model]);
 
-  // Apply changed line decorations — they persist until the next compilation clears them
+  // Apply changed line decorations — they persist until the next compilation clears them.
+  // The deps include `filename` and `value` so that decorations are (re-)applied after the
+  // editor's model is swapped or its content is replaced via `setValue` (both of which can
+  // discard previously-applied decorations). This ensures highlighting shows whenever a
+  // changed file is navigated to, not only for the file that was open at compile time.
   useEffect(() => {
     if (!editorInstance || !decorationCollectionRef.current) return;
 
@@ -65,7 +69,7 @@ export const OutputEditor: FunctionComponent<{
     } else {
       decorationCollectionRef.current.clear();
     }
-  }, [changedLineNumbers, editorInstance]);
+  }, [changedLineNumbers, editorInstance, filename, value]);
 
   if (filename === "") {
     return null;
