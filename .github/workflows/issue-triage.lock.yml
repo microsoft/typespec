@@ -29,7 +29,7 @@
 #
 # Source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"e8f92fca0ba8c7c26ae4d31cb42d38344432f98c9b498307d4c1dae4c35c091b","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"f3414646cbbee1ca051a87fb8e9788cbac6662cdf37b204a2b76bbb06d263aed","compiler_version":"v0.57.2","strict":true}
 
 name: "Agentic Triage"
 "on":
@@ -680,7 +680,7 @@ jobs:
                 "env": {
                   "GITHUB_PERSONAL_ACCESS_TOKEN": "\${GITHUB_MCP_SERVER_TOKEN}",
                   "GITHUB_READ_ONLY": "1",
-                  "GITHUB_TOOLSETS": "issues"
+                  "GITHUB_TOOLSETS": "issues,repos"
                 }
               },
               "safeoutputs": {

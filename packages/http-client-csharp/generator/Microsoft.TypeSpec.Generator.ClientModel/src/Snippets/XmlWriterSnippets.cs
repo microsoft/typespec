@@ -56,6 +56,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement WriteNode(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
             => writer.Invoke(nameof(XmlWriter.WriteNode), [reader, defattr]).Terminate();
 
+        public static MethodBodyStatement WriteAttributes(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
+            => writer.Invoke(nameof(XmlWriter.WriteAttributes), [reader, defattr]).Terminate();
+
         public static MethodBodyStatement WriteObjectValue(this ScopedApi<XmlWriter> writer, ScopedApi value, ValueExpression options, ValueExpression? nameHint = null)
             => ModelSerializationExtensionsSnippets.WriteObjectValue(writer, value, options, nameHint);
 

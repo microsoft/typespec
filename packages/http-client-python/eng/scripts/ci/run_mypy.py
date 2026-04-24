@@ -12,7 +12,7 @@ from subprocess import check_call, CalledProcessError
 import os
 import logging
 import sys
-from util import run_check
+from util import run_check, get_package_namespace_dir
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -27,9 +27,10 @@ def get_config_file_location():
 
 
 def _single_dir_mypy(mod):
-    # Exclude "build" directories to avoid mypy "Duplicate module" errors caused by
-    # stale build/lib/ artifacts from previous setup.py builds.
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.stem != "build")
+    inner_class = get_package_namespace_dir(mod)
+    if not inner_class:
+        logging.info(f"No package directory found in {mod}, skipping")
+        return True
     try:
         check_call(
             [

@@ -3,7 +3,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { FluentLayout } from "../fluent/fluent-layout";
 import { loadImportMap, type VersionData } from "../playground-component/import-map";
 
-const additionalPlaygroundPackages = ["@typespec/http-client-python"];
+const additionalPlaygroundPackages = [
+  "@typespec/http-client-csharp",
+  "@typespec/http-client-python",
+];
 
 export const AsyncPlayground = ({
   latestVersion,

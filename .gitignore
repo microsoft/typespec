@@ -233,7 +233,10 @@ packages/http-client-python/tests/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
 packages/http-client-python/micropip.lock
 packages/http-client-python/venv_build_wheel/
+packages/http-client-python/tests/**.json
 
 # http-server-js emitter
 packages/http-server-js/test/e2e/generated
 .pnpm-store/
+packages/http-client-python/tests/.uv-cache/
+packages/http-client-python/tests/.wheels/

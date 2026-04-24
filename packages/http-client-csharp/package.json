@@ -25,11 +25,16 @@
       "default": "./dist/emitter/src/index.js"
     }
   },
+  "browser": {
+    "./dist/emitter/src/emit-generate.js": "./dist/emitter/src/emit-generate.browser.js",
+    "./emitter/src/emit-generate.ts": "./emitter/src/emit-generate.browser.ts"
+  },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
+    "dev:playground": "npm run build:emitter && cd ../../website && npm run dev",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",

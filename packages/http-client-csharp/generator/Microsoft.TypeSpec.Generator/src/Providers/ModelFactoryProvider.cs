@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -97,7 +99,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             List<MethodProvider> factoryMethods = [.. originalMethods];
-            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. originalMethods, .. CustomCodeView?.Methods ?? []])
+
+            // Preserve the original parameter names on current factory methods when the only
+            // change between the previous and current contract is a parameter rename. This
+            // avoids source-breaking changes for callers using named arguments (e.g. when a
+            // property is renamed via @@clientName, spec rename, or naming-rule change).
+            PreservePreviousParameterNames(factoryMethods);
+
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
@@ -146,6 +155,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             factoryMethods.Remove(factoryMethodToRemove);
                         }
 
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
+
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -153,6 +166,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -167,14 +183,77 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
                 }
                 else
                 {
-                    CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
                 }
             }
 
             return [.. factoryMethods];
+        }
+
+        // Preserve original parameter names from the previous contract when a current factory
+        // method matches a previous one by name + parameter types/order but differs only in
+        // parameter names. The rename is applied in-place via ParameterProvider.Update which
+        // also updates the cached variable/argument expressions used by the method body and
+        // XML docs, so the body and docs serialize with the preserved names automatically.
+        private void PreservePreviousParameterNames(List<MethodProvider> currentFactoryMethods)
+        {
+            if (LastContractView?.Methods == null)
+            {
+                return;
+            }
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                MethodProvider? matchingCurrent = null;
+                foreach (var current in currentFactoryMethods)
+                {
+                    // MethodSignatureComparer matches on method name + parameter count + parameter
+                    // types (positional); it does not consider parameter names. So a previous
+                    // method whose only difference from a current method is parameter names will
+                    // still match here.
+                    if (MethodSignature.MethodSignatureComparer.Equals(current.Signature, previousMethod.Signature))
+                    {
+                        matchingCurrent = current;
+                        break;
+                    }
+                }
+
+                if (matchingCurrent is null)
+                {
+                    continue;
+                }
+
+                var previousParameters = previousMethod.Signature.Parameters;
+                var currentParameters = matchingCurrent.Signature.Parameters;
+                if (previousParameters.Count != currentParameters.Count)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < previousParameters.Count; i++)
+                {
+                    var previousName = previousParameters[i].Name;
+                    var currentParam = currentParameters[i];
+                    if (string.IsNullOrEmpty(previousName) || currentParam.Name == previousName)
+                    {
+                        continue;
+                    }
+
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved parameter name '{previousName}' on '{Name}.{matchingCurrent.Signature.Name}' from last contract (instead of '{currentParam.Name}').",
+                        BackCompatibilityChangeCategory.ParameterNamePreserved);
+
+                    currentParam.Update(name: previousName);
+                }
+            }
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(
