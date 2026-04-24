@@ -62,23 +62,23 @@ export function expectDiagnostics(
   match: DiagnosticMatch | DiagnosticMatch[],
   options: {
     /**
-     * When true, diagnostics are sorted before comparison so that order differences
-     * do not cause test failures.
+     * When true, the number of diagnostics must match exactly.
+     * When false, only the presence of expected diagnostics is checked.
      */
     strict?: boolean;
     /**
      * When true, diagnostics are sorted by code+message before comparison so that
      * order does not matter.
      */
-    fixedOrder?: boolean;
+    ignoreOrder?: boolean;
   } = {
     strict: true,
   },
 ) {
   const array = isArray(match) ? match : [match];
 
-  // Sort both arrays if fixedOrder is requested so order doesn't matter
-  if (options.fixedOrder) {
+  // Sort both arrays if ignoreOrder is requested so order doesn't matter
+  if (options.ignoreOrder) {
     const sortKey = (d: { code: string; message: string; severity: string }) =>
       d.code + "|" + d.severity + "|" + d.message;
     const keyed = (d: { code?: string; message?: string; severity?: string }) => ({
