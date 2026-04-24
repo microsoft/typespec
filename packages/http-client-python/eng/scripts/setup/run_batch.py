@@ -174,15 +174,11 @@ def main():
     # Run black formatting after all codegen completes. Running black separately
     # avoids duplicating black's import/startup cost in each worker process.
     if output_dirs:
-        import subprocess
+        from pygen.black import BlackScriptPlugin
 
         print(f"Formatting {len(output_dirs)} packages with black...")
-        # Use black CLI with all directories at once — black handles parallelism internally.
-        # This is much faster than calling format_file_contents() per-file sequentially.
-        subprocess.run(
-            [sys.executable, "-m", "black", "--line-length", "120", "--fast", "--quiet"] + output_dirs,
-            check=True,
-        )
+        for d in output_dirs:
+            BlackScriptPlugin(output_folder=d).process()
 
 
 if __name__ == "__main__":
