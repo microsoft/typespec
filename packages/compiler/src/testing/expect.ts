@@ -54,26 +54,31 @@ export interface DiagnosticMatch {
 }
 
 /**
+ * Options for {@link expectDiagnostics }.
+ */
+export interface ExpectDiagnosticsOptions {
+  /**
+   * When true (default), the number of diagnostics must match exactly.
+   * When false, only the presence of expected diagnostics is checked.
+   */
+  strict?: boolean;
+  /**
+   * When true, diagnostics are sorted before comparison so that the order
+   * of diagnostics in the array does not matter.
+   */
+  ignoreOrder?: boolean;
+}
+
+/**
  * Validate the diagnostic array contains exactly the given diagnostics.
  * @param diagnostics Array of the diagnostics
+ * @param match Expected diagnostic matchers
+ * @param options Comparison options
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
   match: DiagnosticMatch | DiagnosticMatch[],
-  options: {
-    /**
-     * When true, the number of diagnostics must match exactly.
-     * When false, only the presence of expected diagnostics is checked.
-     */
-    strict?: boolean;
-    /**
-     * When true, diagnostics are sorted by code+message before comparison so that
-     * order does not matter.
-     */
-    ignoreOrder?: boolean;
-  } = {
-    strict: true,
-  },
+  options: ExpectDiagnosticsOptions = {},
 ) {
   const array = isArray(match) ? match : [match];
 
