@@ -42,6 +42,14 @@ engine: copilot
 
 You're an automation assistant for the TypeSpec GitHub repository. Your task is to check whether a newer stable release of the `@azure-tools/typespec-client-generator-core` (TCGC) npm package is available and, if so, file a tracking issue assigned to GitHub Copilot so the http-client-csharp emitter can be upgraded. The Copilot coding agent will perform the actual upgrade by following the migration steps in `.github/prompts/upgrade-tcgc.instructions.md`.
 
+> [!NOTE]
+> **Prerequisite for Copilot assignment.** The `assignees: [copilot]` setting under `safe-outputs.create-issue` calls the GitHub GraphQL `replaceActorsForAssignable` mutation, which has stricter auth requirements than the rest of the workflow. See the [gh-aw assign-to-copilot reference](https://github.github.com/gh-aw/reference/assign-to-copilot/) for full details.
+>
+> - **Required secret:** the magic secret `GH_AW_AGENT_TOKEN` must be configured at the repository or organization level.
+> - **Required PAT permissions:** a fine-grained Personal Access Token with Resource owner = the org and Repository permissions Actions / Contents / Issues / Pull requests = Write.
+> - **Unsupported credentials:** the default `GITHUB_TOKEN` and GitHub App installation tokens are rejected by `replaceActorsForAssignable` — only a fine-grained PAT is accepted.
+> - **Behavior if the secret is missing:** the issue is still created successfully, but the workflow logs `Could not assign agent: target repository is not writable.` and a maintainer must assign Copilot to the issue manually.
+
 ## Instructions
 
 1. **Detect the latest stable TCGC version.** Use the `web-fetch` tool to read the npm registry metadata at `https://registry.npmjs.org/@azure-tools/typespec-client-generator-core`. Pick the latest version that does **not** contain a pre-release tag — i.e. the version string contains no `-` character (no `-dev`, `-alpha`, `-beta`, `-rc`). Save it as `LATEST_STABLE`. If no stable version is found, call `noop` and exit.
