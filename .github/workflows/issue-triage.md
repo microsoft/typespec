@@ -31,7 +31,7 @@ safe-outputs:
 tools:
   web-fetch:
   github:
-    toolsets: [issues]
+    toolsets: [issues, repos]
     # If in a public repo, setting `lockdown: false` allows
     # reading issues, pull requests and comments from 3rd-parties
     # If in a private repo this has no particular effect.
