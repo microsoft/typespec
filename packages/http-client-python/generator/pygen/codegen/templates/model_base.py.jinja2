@@ -19,7 +19,12 @@ from datetime import datetime, date, time, timedelta, timezone
 from json import JSONEncoder
 import xml.etree.ElementTree as ET
 from collections.abc import MutableMapping
-from typing_extensions import Self
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 import isodate
 from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
@@ -617,7 +622,7 @@ class Model(_MyMutableMapping):
         class_name = self.__class__.__name__
         if len(args) > 1:
             raise TypeError(f"{class_name}.__init__() takes 2 positional arguments but {len(args) + 1} were given")
-        dict_to_pass: typing.Dict[str, typing.Any] = {}
+        dict_to_pass: dict[str, typing.Any] = {}
         if args:
             if isinstance(args[0], ET.Element):
                 dict_to_pass.update(self._init_from_xml(args[0]))

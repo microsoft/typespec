@@ -35,7 +35,11 @@ except ImportError:
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
-from typing_extensions import Self
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
