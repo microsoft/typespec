@@ -165,20 +165,8 @@ def get_wire_name_lower(parameter: dict[str, Any]) -> str:
 
 
 def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
-    """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter.
-
-    The emitter sets etagRole directly for TypeSpec inputs. For autorest/swagger
-    inputs we fall back to the wire name.
-    """
-    role = parameter.get("etagRole")
-    if role:
-        return role
-    wire = get_wire_name_lower(parameter)
-    if wire == "if-match":
-        return "ifMatch"
-    if wire == "if-none-match":
-        return "ifNoneMatch"
-    return None
+    """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter."""
+    return parameter.get("etagRole")
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
