@@ -57,14 +57,12 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
    ```
 
    (substitute the actual `LATEST_STABLE` version). Include both **open and closed** issues — do not filter by state. Treat an issue as a duplicate when **all** of the following are true:
-
    - It carries the `emitter:client:csharp` label.
    - Its title or body references upgrading TCGC to the same `LATEST_STABLE` version (e.g. `Bump TCGC to <LATEST_STABLE>`).
 
    If any duplicate exists in any state, call `noop` and exit — **no new issue should be created**.
 
 5. **Create the tracking issue.** Use the `create-issue` safe output to file exactly one new issue, modeled after [#10367](https://github.com/microsoft/typespec/issues/10367):
-
    - **Title** (after the configured `Bump TCGC to ` prefix): `<LATEST_STABLE>` — the final title is `Bump TCGC to <LATEST_STABLE>`.
    - **Body** (markdown):
 
@@ -73,6 +71,7 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
      ```
 
      Replace `<LATEST_STABLE>` with the actual version (e.g. `0.67.2`) and `<anchor>` with the GitHub-style heading anchor for that version on the CHANGELOG page (lowercased, dots removed — e.g. `0.67.2` → `0672`).
+
    - **Labels**: `emitter:client:csharp` is applied automatically via the workflow's `safe-outputs.create-issue.labels` configuration.
    - **Assignees**: `copilot` is assigned automatically via the `assignees: [copilot]` setting in the workflow's `create-issue` configuration. The `assign-to-agent` block sets `claude-opus-4.6` as the default model for the Copilot coding agent.
 
