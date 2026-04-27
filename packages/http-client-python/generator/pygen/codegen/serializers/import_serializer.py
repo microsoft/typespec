@@ -79,6 +79,13 @@ class FileImportSerializer:
         if any(self.file_import.get_imports_from_section(TypingSection.TYPING)):
             self.file_import.add_submodule_import("typing", "TYPE_CHECKING", ImportType.STDLIB)
 
+    def _add_sys_import_if_needed(self):
+        all_imports = list(self.file_import.get_imports_from_section(TypingSection.REGULAR)) + list(
+            self.file_import.get_imports_from_section(TypingSection.TYPING)
+        )
+        if any(i.version_modules for i in all_imports):
+            self.file_import.add_import("sys", ImportType.STDLIB)
+
     def get_typing_definitions(self) -> str:
         def declare_definition(type_name: str, type_definition: TypeDefinition) -> list[str]:
             ret: list[str] = []
@@ -95,6 +102,7 @@ class FileImportSerializer:
 
     def __str__(self) -> str:
         self._add_type_checking_import()
+        self._add_sys_import_if_needed()
         regular_imports = ""
         regular_imports_list = self._get_imports_list(TypingSection.REGULAR)
 
