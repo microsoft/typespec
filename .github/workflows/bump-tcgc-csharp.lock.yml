@@ -26,12 +26,13 @@
 # and, when a newer stable version is available and no equivalent issue already
 # exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 #
-# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"15e3d47ce2f4096d2e0b258f35db9594a58c6afd477225d9a2b03af083895dc7","compiler_version":"v0.50.1"}
+# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"689bfe9257d75fc4c386b0612bef9d4cd22c36c762e177a61dd8975ddc4ecb9f","compiler_version":"v0.50.1"}
 
 name: "Agentic TCGC Bump for http-client-csharp"
 "on":
   schedule:
-  - cron: "0 11 * * *"
+  - cron: "36 2 * * *"
+    # Friendly format: daily (scattered)
   workflow_dispatch:
 
 permissions: {}

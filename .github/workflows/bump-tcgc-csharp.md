@@ -6,8 +6,7 @@ description: |
   exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 
 on:
-  schedule:
-    - cron: "0 11 * * *" # 5am CST (UTC-6)
+  schedule: daily
   workflow_dispatch:
 
 permissions: read-all
