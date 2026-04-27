@@ -393,6 +393,3 @@ class TypedDictModelType(DPGModelType):
         if kwargs.pop("is_response", False):
             return "JSON"
         return super().docstring_text(**kwargs)
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        return super().imports(**kwargs)
