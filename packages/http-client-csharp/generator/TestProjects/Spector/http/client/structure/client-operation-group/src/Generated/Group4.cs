@@ -2,16 +2,20 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service;
 
 namespace Client.Structure.ClientOperationGroup
 {
     public partial class Group4
     {
         protected Group4() => throw null;
+
+        internal Group4(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

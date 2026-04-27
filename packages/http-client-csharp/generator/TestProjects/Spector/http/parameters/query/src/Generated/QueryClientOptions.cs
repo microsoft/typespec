@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Query
 {
     public partial class QueryClientOptions : ClientPipelineOptions
     {
+        public QueryClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal QueryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

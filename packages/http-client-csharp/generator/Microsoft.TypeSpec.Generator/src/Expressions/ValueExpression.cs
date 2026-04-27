@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -80,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             => new InvokeMethodExpression(this, methodName, arguments);
 
         public InvokeMethodExpression Invoke(MethodSignature methodSignature)
-            => new InvokeMethodExpression(this, methodSignature, [.. methodSignature.Parameters])
+            => new InvokeMethodExpression(this, methodSignature, [.. methodSignature.Parameters.Select(p => (ValueExpression)p)])
             {
                 CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async)
             };
@@ -125,6 +126,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ScopedApi<bool> NotEqual(ValueExpression other) => new BinaryOperatorExpression("!=", this, other).As<bool>();
 
         public ScopedApi<bool> Is(ValueExpression other) => new BinaryOperatorExpression("is", this, other).As<bool>();
+
+        public ScopedApi<bool> IsNot(ValueExpression other) => new BinaryOperatorExpression("is not", this, other).As<bool>();
 
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 

@@ -1,4 +1,21 @@
 #Requires -Version 7.0
+<#
+.SYNOPSIS
+    Initializes the repository by installing npm dependencies.
+
+.DESCRIPTION
+    This script is called by the CI pipeline to set up the repository.
+    It runs `npm ci` to install dependencies from package-lock.json.
+
+.PARAMETER BuildArtifactsPath
+    Optional path to build artifacts (used in CI for caching lock files).
+
+.PARAMETER UseTypeSpecNext
+    Optional switch for using TypeSpec next version (not currently used).
+
+.EXAMPLE
+    ./Initialize-Repository.ps1
+#>
 
 param(
     [string] $BuildArtifactsPath,
@@ -7,32 +24,33 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
+
+# Setup paths and helpers
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
 Push-Location "$packageRoot"
 try {
+    # Clean install of npm dependencies
     if (Test-Path "./node_modules") {
+        Write-Host "Removing existing node_modules..."
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    # install and list npm packages
-  
+    Write-Host "Installing npm dependencies..."
     Invoke-LoggedCommand "npm ci"
-
     Invoke-LoggedCommand "npm ls -a" -GroupOutput
 
-    Write-Host "artifactStagingDirectory: $env:BUILD_ARTIFACTSTAGINGDIRECTORY"
-    Write-Host "BuildArtifactsPath: $BuildArtifactsPath"
+    # Copy lock files to artifacts for CI caching (if running in Azure DevOps)
     $artifactStagingDirectory = $env:BUILD_ARTIFACTSTAGINGDIRECTORY
     if ($artifactStagingDirectory -and !$BuildArtifactsPath) {
-        $lockFilesPath = "$artifactStagingDirectory/lock-files"
-        New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
-        
-        Write-Host "Copying emitter/package.json and emitter/package-lock.json to $lockFilesPath"
-        Copy-Item './package.json' "$lockFilesPath/emitter/package.json" -Force
-        Copy-Item './package-lock.json' "$lockFilesPath/emitter/package-lock.json" -Force
+        $lockFilesPath = "$artifactStagingDirectory/lock-files/emitter"
+        New-Item -ItemType Directory -Path $lockFilesPath -Force | Out-Null
+
+        Write-Host "Copying lock files to $lockFilesPath"
+        Copy-Item './package.json' "$lockFilesPath/package.json" -Force
+        Copy-Item './package-lock.json' "$lockFilesPath/package-lock.json" -Force
     }
 }
 finally {

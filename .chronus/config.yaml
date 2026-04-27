@@ -12,7 +12,7 @@ changeKinds:
     description: Fixes to existing features
 
   dependencies:
-    versionType: patch
+    versionType: none
     title: Bump dependencies
     description: Bumps dependencies
 

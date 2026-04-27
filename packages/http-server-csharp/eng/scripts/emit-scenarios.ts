@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
+import { select } from "@inquirer/prompts";
 import { run } from "@typespec/internal-build-utils";
-import { copy, pathExists } from "fs-extra";
-import { mkdir, readFile, rm, writeFile } from "fs/promises";
-import { globby } from "globby";
-import inquirer from "inquirer";
+import { access, copyFile, glob, mkdir, readFile, rm, writeFile } from "fs/promises";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "pathe";
@@ -40,6 +38,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const tspConfig = join(__dirname, "tspconfig.yaml");
 
+async function pathExists(path: string): Promise<boolean> {
+  return access(path).then(
+    () => true,
+    () => false,
+  );
+}
+
 const basePath = join(__dirname, "../..");
 const logDirRoot = join(basePath, "temp", "emit-scenarios-logs");
 const reportFilePath = join(logDirRoot, "report.txt");
@@ -74,11 +79,15 @@ async function copySelectiveFiles(
   sourceDir: string,
   targetDir: string,
 ): Promise<void> {
-  const files = await globby(extension, { cwd: sourceDir });
+  const files: string[] = [];
+  for await (const file of glob(extension, { cwd: sourceDir })) {
+    files.push(file);
+  }
   for (const file of files) {
     const src = join(sourceDir, file);
     const dest = join(targetDir, file);
-    await copy(src, dest);
+    await mkdir(dirname(dest), { recursive: true });
+    await copyFile(src, dest);
   }
 }
 
@@ -165,18 +174,14 @@ async function compileSpec(file: string, options: CompileOptions): Promise<Compi
     await writeFile(logFilePath, errorDetails, "utf8");
 
     if (interactive) {
-      const { action } = await inquirer.prompt([
-        {
-          type: "list",
-          name: "action",
-          message: `Processing failed for ${relativePath}. What would you like to do?`,
-          choices: [
-            { name: "Retry", value: "retry" },
-            { name: "Skip to next file", value: "next" },
-            { name: "Abort processing", value: "abort" },
-          ],
-        },
-      ]);
+      const action = await select({
+        message: `Processing failed for ${relativePath}. What would you like to do?`,
+        choices: [
+          { name: "Retry", value: "retry" },
+          { name: "Skip to next file", value: "next" },
+          { name: "Abort processing", value: "abort" },
+        ],
+      });
 
       if (action === "retry") {
         if (spinner) spinner.start(`Retrying: ${relativePath}`);
@@ -288,7 +293,10 @@ async function main(): Promise<void> {
     const ignoreList = await getIgnoreList();
 
     const patterns = ["**/main.tsp"];
-    const specsList = await globby(patterns, { cwd: specDir });
+    const specsList: string[] = [];
+    for await (const spec of glob(patterns, { cwd: specDir })) {
+      specsList.push(spec);
+    }
 
     const paths = specsList.filter((item) => !ignoreList.includes(item));
 

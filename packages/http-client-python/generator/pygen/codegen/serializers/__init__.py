@@ -180,6 +180,15 @@ class JinjaSerializer(ReaderAndWriter):
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
+                # When generation-subdir is configured, generated code goes into a subdirectory
+                # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
+                # so that the package is discoverable by find_packages() / pip install.
+                if self.code_model.options.get("generation-subdir"):
+                    root_dir = self.code_model.get_root_dir()
+                    self.write_file(
+                        root_dir / Path("__init__.py"),
+                        general_serializer.serialize_pkgutil_init_file(),
+                    )
             else:
                 # add pkgutil init file if no clients in this namespace
                 self.write_file(
@@ -242,7 +251,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = _PACKAGE_FILES
+            package_files = list(_PACKAGE_FILES)  # Copy to avoid modifying global
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():
@@ -482,6 +491,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
+        generation_dir = self.code_model.get_generation_dir(namespace)
         # write _utils folder
         self._serialize_and_write_utils_folder(env, self.code_model.namespace)
 
@@ -498,16 +508,18 @@ class JinjaSerializer(ReaderAndWriter):
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
+        # Use generation_dir so that relative imports from operations/clients
+        # within a generation-subdir resolve correctly.
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
-                root_dir / Path("_validation.py"),
+                generation_dir / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
 
         # write _types.py
         if self.code_model.named_unions:
             self.write_file(
-                root_dir / Path("_types.py"),
+                generation_dir / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 

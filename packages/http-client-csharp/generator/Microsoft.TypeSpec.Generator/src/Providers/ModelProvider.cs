@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -543,7 +544,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         !outputProperty.Type.Equals(lastContractPropertyType))
                     {
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved);
                     }
                 }
 
@@ -768,6 +771,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                         }
                     }
                 }
@@ -1218,6 +1224,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)

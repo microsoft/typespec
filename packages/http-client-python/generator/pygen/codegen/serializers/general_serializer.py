@@ -155,7 +155,10 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
+            "ADDITIONAL_DEPENDENCIES": [
+                dep if dep.startswith('"') else f'"{dep}"'
+                for dep in (f"{item[0]}>={item[1]}" for item in additional_version_map.items())
+            ],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs

@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            TypeCache[inputType] = type;
             return type;
         }
 
@@ -384,6 +384,25 @@ namespace Microsoft.TypeSpec.Generator
             },
             _ => SerializationFormat.Default
         };
+
+        /// <summary>
+        /// Retrieves the serialization format for a given input property. For array-typed properties
+        /// this checks the property-level <see cref="InputModelProperty.Encode"/> before falling
+        /// back to <see cref="GetSerializationFormat(InputType)"/>.
+        /// </summary>
+        /// <param name="inputProperty">The <see cref="InputProperty"/> to retrieve the serialization format for.</param>
+        /// <returns>The <see cref="SerializationFormat"/> for the input property.</returns>
+        internal SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                modelProperty.Encode.HasValue)
+            {
+                return modelProperty.Encode.Value.ToSerializationFormat();
+            }
+
+            return GetSerializationFormat(inputProperty.Type);
+        }
 
         /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.

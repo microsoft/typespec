@@ -10,7 +10,7 @@
     "clean": "rimraf dist/ temp/"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -23,14 +23,14 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.13.0",
-    "@azure/storage-blob": "~12.31.0",
-    "@types/node": "~25.3.0",
-    "@types/semver": "^7.5.8",
-    "semver": "^7.7.1"
+    "@azure/identity": "catalog:",
+    "@azure/storage-blob": "catalog:",
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "semver": "catalog:"
   },
   "devDependencies": {
-    "rimraf": "~6.1.3",
-    "typescript": "~5.9.3"
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

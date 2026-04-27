@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
         public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
+        public static ScopedApi<bool> IsNot(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is not", parameter, other).As<bool>();
 
         public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
         public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();

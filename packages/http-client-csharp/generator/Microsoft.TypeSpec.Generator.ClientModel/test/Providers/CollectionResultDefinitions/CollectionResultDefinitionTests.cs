@@ -165,9 +165,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
             var file = writer.Write();
-            
+
             // Verify the generated code includes empty string check
-            Assert.IsTrue(file.Content.Contains("string.IsNullOrEmpty"), 
+            Assert.IsTrue(file.Content.Contains("string.IsNullOrEmpty"),
                 "Generated code should check for empty strings in continuation tokens");
         }
 
@@ -199,10 +199,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
             var file = writer.Write();
-            
+
             // Verify the generated code handles URI types correctly (null check is sufficient for Uri type)
-            Assert.IsTrue(file.Content.Contains("if ((nextPageUri == null))"), 
+            Assert.IsTrue(file.Content.Contains("if ((nextPageUri == null))"),
                 "Generated code should check for null URI");
+        }
+
+        [Test]
+        public void TestCollectionResultNamesDoNotCollideWhenOperationsAreRenamed()
+        {
+            // Two paging operations "list" and "listAll" both get renamed to "GetAll" by CleanOperationNames.
+            // The CollectionResult names should use OriginalName to avoid collision.
+            var thingModel = InputFactory.Model("thing", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var thingsProperty = InputFactory.Property("things", InputFactory.Array(thingModel));
+            var nextProperty = InputFactory.Property("next", InputPrimitiveType.Url);
+            var pageModel = InputFactory.Model("page", properties: [thingsProperty, nextProperty]);
+            var response = InputFactory.OperationResponse([200], pageModel);
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["things"], ["next"], InputResponseLocation.Body);
+
+            // "list" will be renamed to "GetAll", "listAll" will also be renamed to "GetAll"
+            var listOperation = InputFactory.Operation("list", responses: [response]);
+            var listAllOperation = InputFactory.Operation("listAll", responses: [response]);
+
+            var listServiceMethod = InputFactory.PagingServiceMethod("list", listOperation, pagingMetadata: pagingMetadata);
+            var listAllServiceMethod = InputFactory.PagingServiceMethod("listAll", listAllOperation, pagingMetadata: pagingMetadata);
+
+            var client = InputFactory.Client("FooClient", methods: [listServiceMethod, listAllServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
+
+            var collectionResults = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(t => t is CollectionResultDefinition)
+                .ToList();
+
+            // Should have 8 CollectionResult types (2 ops × 2 sync/async × 2 typed/untyped) and they should all have unique names
+            Assert.AreEqual(8, collectionResults.Count,
+                $"Expected 8 CollectionResult types but found {collectionResults.Count}");
+            var collectionResultNames = collectionResults.Select(t => t.Name).ToList();
+            Assert.AreEqual(collectionResultNames.Distinct().Count(), collectionResultNames.Count,
+                $"CollectionResult names should be unique but found duplicates: {string.Join(", ", collectionResultNames)}");
+
+            // Both should use the original names for disambiguation
+            Assert.IsTrue(collectionResultNames.Any(n => n == "FooClientListCollectionResult"),
+                $"Expected 'FooClientListCollectionResult' in [{string.Join(", ", collectionResultNames)}]");
+            Assert.IsTrue(collectionResultNames.Any(n => n == "FooClientListAllCollectionResult"),
+                $"Expected 'FooClientListAllCollectionResult' in [{string.Join(", ", collectionResultNames)}]");
+        }
+
+        [Test]
+        public void TestCollectionResultNameUsesCurrentNameWhenNoCollision()
+        {
+            // A single paging operation should use the current (cleaned) name, not the original name.
+            var thingModel = InputFactory.Model("thing", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var thingsProperty = InputFactory.Property("things", InputFactory.Array(thingModel));
+            var nextProperty = InputFactory.Property("next", InputPrimitiveType.Url);
+            var pageModel = InputFactory.Model("page", properties: [thingsProperty, nextProperty]);
+            var response = InputFactory.OperationResponse([200], pageModel);
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["things"], ["next"], InputResponseLocation.Body);
+
+            // "listAll" gets renamed to "GetAll" by CleanOperationNames, no collision
+            var listAllOperation = InputFactory.Operation("listAll", responses: [response]);
+            var listAllServiceMethod = InputFactory.PagingServiceMethod("listAll", listAllOperation, pagingMetadata: pagingMetadata);
+
+            var client = InputFactory.Client("FooClient", methods: [listAllServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
+
+            // When there's no collision, the cleaned name "GetAll" should be used
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "FooClientGetAllCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition,
+                "CollectionResult should use cleaned name 'GetAll' when there's no collision");
         }
 
         internal static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)

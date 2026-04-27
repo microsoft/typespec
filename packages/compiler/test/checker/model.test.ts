@@ -42,7 +42,7 @@ describe("compiler: models", () => {
       model A { x: int32; x: int32; }
       `);
     strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Model already has a property/);
+    match(diagnostics[0].message, /Model A already has a property/);
   });
 
   it("emit single error when there is an invalid ref in a templated type", async () => {
@@ -132,6 +132,19 @@ describe("compiler: models", () => {
         `);
         const foo = Test.properties.get("foo")!;
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
+      });
+
+      it(`set it with valid passthrough template constraint`, async () => {
+        const diagnostics = await Tester.diagnose(`
+          model X<V extends valueof uint32> {
+            i: uint32 = V;
+          }
+
+          model Y<V extends valueof uint32> {
+            x: X<V>;
+          }
+        `);
+        expectDiagnosticEmpty(diagnostics);
       });
 
       it(`error if constraint is not compatible with property type`, async () => {
@@ -697,7 +710,7 @@ describe("compiler: models", () => {
         model B is A { x: int32 };
         `);
       strictEqual(diagnostics.length, 1);
-      match(diagnostics[0].message, /Model already has a property/);
+      match(diagnostics[0].message, /Model B already has a property/);
     });
 
     it("emit error when is non model or array", async () => {

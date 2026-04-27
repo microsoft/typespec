@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
@@ -37,7 +37,7 @@
     "#test/*": "./test/*"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -63,11 +63,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@scalar/json-magic": "^0.11.5",
-    "@scalar/openapi-parser": "^0.24.1",
-    "@scalar/openapi-types": "^0.5.0",
+    "@scalar/json-magic": "catalog:",
+    "@scalar/openapi-parser": "catalog:",
+    "@scalar/openapi-types": "catalog:",
     "@typespec/asset-emitter": "workspace:^",
-    "yaml": "~2.8.2"
+    "yaml": "catalog:"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
@@ -100,8 +100,8 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~25.3.0",
-    "@types/yargs": "~17.0.33",
+    "@types/node": "catalog:",
+    "@types/yargs": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -114,12 +114,11 @@
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
-    "c8": "^11.0.0",
-    "cross-env": "~10.1.0",
-    "rimraf": "~6.1.3",
-    "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "cross-env": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

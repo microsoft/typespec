@@ -27,7 +27,7 @@ describe("Test string format", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "sourceUrl",
     );
@@ -51,7 +51,7 @@ describe("Test string format", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const foo = models.find((m) => m.name === "Foo");
     ok(foo);

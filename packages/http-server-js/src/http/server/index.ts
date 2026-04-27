@@ -580,6 +580,25 @@ function* emitResultProcessingForType(
     }
   }
 
+  if (target.kind === "Scalar" || isValueLiteralType(target)) {
+    const serializationRequired =
+      target.kind === "Scalar" && isSerializationRequired(ctx, module, target, "application/json");
+
+    if (target.kind === "Scalar") {
+      requireSerialization(ctx, target, "application/json");
+    }
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
+    }
+
+    return;
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }

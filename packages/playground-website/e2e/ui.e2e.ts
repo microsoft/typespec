@@ -25,7 +25,8 @@ test.describe("playground UI tests", () => {
     const typespecEditor = page.locator(".monaco-editor").first();
     await typespecEditor.click();
     await page.keyboard.type("invalid");
-    await expect(page.getByText(`No files emitted.`)).toBeVisible();
+    // When compilation errors occur, diagnostics are shown as error markers
+    await expect(page.locator(".squiggly-error")).toBeVisible();
   });
 
   test("shared link works", async ({ page }) => {

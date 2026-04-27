@@ -21,6 +21,7 @@ export interface TreeProps<T extends TreeNode> {
   readonly selectionMode?: "none" | "single";
   readonly tree: T;
   readonly nodeIcon?: FC<{ node: T }>;
+  readonly nodeLabel?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
   readonly expanded?: Set<string>;
@@ -33,6 +34,7 @@ export function Tree<T extends TreeNode>({
   onSelect,
   onSetExpanded,
   nodeIcon,
+  nodeLabel,
   selectionMode = "none",
 }: TreeProps<T>) {
   const id = useId();
@@ -60,7 +62,15 @@ export function Tree<T extends TreeNode>({
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
-      if (selectionMode === "none" || selectedKey === row.id) {
+      if (row.hasChildren) {
+        // Always toggle expand/collapse for parent nodes regardless of selection state.
+        // Note: the useEffect that auto-expands selectedKey only re-runs when selectedKey
+        // changes, so it won't interfere once a directory is already selected.
+        toggleExpand(row.id);
+        if (selectionMode === "single") {
+          setSelectedKey(row.id);
+        }
+      } else if (selectionMode === "none" || selectedKey === row.id) {
         toggleExpand(row.id);
       } else {
         expand(row.id);
@@ -122,6 +132,7 @@ export function Tree<T extends TreeNode>({
           <TreeViewRow
             id={`${id}-${row.index}`}
             icon={nodeIcon as any}
+            label={nodeLabel as any}
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { Tree } from "./tree.js";
 import type { TreeNode } from "./types.js";
 
@@ -109,4 +109,87 @@ it("use up down arrow to navigate", async () => {
   fireEvent.keyDown(treeNode, { key: "ArrowDown", code: "ArrowDown" });
   fireEvent.keyDown(treeNode, { key: "ArrowDown", code: "ArrowDown" });
   expect(treeNode).toHaveAttribute("aria-activedescendant", nodes[0].id);
+});
+
+it("collapse expanded directory by clicking in selectionMode=single", async () => {
+  render(<Tree tree={simpleTree} selectionMode="single" />);
+  const child1 = await screen.findByText("Child 1");
+
+  // Click to expand
+  fireEvent.click(child1);
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
+
+  // Click again to collapse
+  fireEvent.click(child1);
+  const nodes = await screen.findAllByRole("treeitem");
+  expect(nodes).toHaveLength(2);
+  expect(nodes[0]).toHaveAttribute("aria-expanded", "false");
+});
+
+it("collapse expanded directory by pressing space in selectionMode=single", async () => {
+  render(<Tree tree={simpleTree} selectionMode="single" />);
+  const treeNode = await screen.findByRole("tree");
+  fireEvent.focus(treeNode);
+
+  // Space to expand (focus defaults to first item: Child 1)
+  fireEvent.keyDown(treeNode, { key: "Space", code: "Space" });
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
+
+  // Space again to collapse (focus stays on Child 1)
+  fireEvent.keyDown(treeNode, { key: "Space", code: "Space" });
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(2);
+});
+
+it("collapse expanded directory by pressing enter in selectionMode=single", async () => {
+  render(<Tree tree={simpleTree} selectionMode="single" />);
+  const treeNode = await screen.findByRole("tree");
+  fireEvent.focus(treeNode);
+
+  // Enter to expand
+  fireEvent.keyDown(treeNode, { key: "Enter", code: "Enter" });
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
+
+  // Enter again to collapse
+  fireEvent.keyDown(treeNode, { key: "Enter", code: "Enter" });
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(2);
+});
+
+it("expand-collapse round trip by clicking in selectionMode=single", async () => {
+  render(<Tree tree={simpleTree} selectionMode="single" />);
+  const child1 = await screen.findByText("Child 1");
+
+  // Expand
+  fireEvent.click(child1);
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
+
+  // Collapse
+  fireEvent.click(child1);
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(2);
+
+  // Re-expand
+  fireEvent.click(child1);
+  expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
+});
+
+it("clicking a file in selectionMode=single still selects it", async () => {
+  const onSelect = vi.fn();
+  render(<Tree tree={simpleTree} selectionMode="single" onSelect={onSelect} />);
+
+  // Expand Child 1 first
+  const child1 = await screen.findByText("Child 1");
+  fireEvent.click(child1);
+
+  // Click a leaf node
+  const subChild = await screen.findByText("Sub child 1.2");
+  fireEvent.click(subChild);
+  expect(onSelect).toHaveBeenCalledWith("$.child1.2");
+});
+
+it("clicking a directory in selectionMode=single fires onSelect", async () => {
+  const onSelect = vi.fn();
+  render(<Tree tree={simpleTree} selectionMode="single" onSelect={onSelect} />);
+
+  const child1 = await screen.findByText("Child 1");
+  fireEvent.click(child1);
+  expect(onSelect).toHaveBeenCalledWith("$.child1");
 });

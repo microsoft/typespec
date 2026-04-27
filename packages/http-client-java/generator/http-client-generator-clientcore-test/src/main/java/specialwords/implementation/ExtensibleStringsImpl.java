@@ -15,6 +15,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
+import specialwords.extensiblestrings.ExtensibleString;
 
 /**
  * An instance of this class provides access to all the operations defined in ExtensibleStrings.
@@ -69,28 +70,29 @@ public final class ExtensibleStringsImpl {
             path = "/special-words/extensible-strings/string",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<String> putExtensibleStringValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") String body, RequestContext requestContext);
+        Response<ExtensibleString> putExtensibleStringValue(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") ExtensibleString body, RequestContext requestContext);
     }
 
     /**
      * The putExtensibleStringValue operation.
      * 
-     * @param accept The accept parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return verify enum member names that are special words using extensible enum (union) along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<String> putExtensibleStringValueWithResponse(String accept, String body,
+    public Response<ExtensibleString> putExtensibleStringValueWithResponse(ExtensibleString body,
         RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialWords.ExtensibleStrings.putExtensibleStringValue",
             requestContext, updatedContext -> {
-                final String contentType = "text/plain";
+                final String contentType = "application/json";
+                final String accept = "application/json";
                 return service.putExtensibleStringValue(this.client.getEndpoint(), contentType, accept, body,
                     updatedContext);
             });

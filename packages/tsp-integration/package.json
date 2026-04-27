@@ -15,7 +15,7 @@
   },
   "repository": "https://github.com/microsoft/typespec.git",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
@@ -25,20 +25,19 @@
     "test:watch": "vitest -w"
   },
   "dependencies": {
-    "@pnpm/workspace.find-packages": "^1000.0.24",
-    "execa": "^9.6.1",
-    "globby": "~16.1.0",
-    "log-symbols": "^7.0.1",
-    "ora": "^9.0.0",
-    "pathe": "^2.0.3",
-    "picocolors": "~1.1.1",
-    "simple-git": "^3.28.0",
-    "tar": "^7.5.2",
-    "yaml": "~2.8.2"
+    "@pnpm/workspace.find-packages": "catalog:",
+    "execa": "catalog:",
+    "log-symbols": "catalog:",
+    "ora": "catalog:",
+    "pathe": "catalog:",
+    "picocolors": "catalog:",
+    "simple-git": "catalog:",
+    "tar": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "bugs": "https://github.com/microsoft/typespec/issues"
 }

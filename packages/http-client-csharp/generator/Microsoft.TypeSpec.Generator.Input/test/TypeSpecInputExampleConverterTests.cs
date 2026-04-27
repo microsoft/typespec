@@ -103,6 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     { "location", "westus" },
                     { "properties.description", "My Storage task" },
                     { "properties.enabled", true },
+                    { "properties.$filter", "status eq 'Active'" },
                     { "properties.action.if.condition", "[[equals(AccessTier, 'Cool')]]" },
                     { "properties.action.if.operations[0].name", "SetBlobTier" },
                     { "properties.action.if.operations[0].onFailure", "break" },
