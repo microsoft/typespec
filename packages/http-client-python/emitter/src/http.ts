@@ -54,14 +54,17 @@ function isEtagType(type: SdkType): boolean {
 }
 
 function getEtagRole(parameter: SdkHeaderParameter): string | undefined {
-  if (!isEtagType(parameter.type)) return undefined;
   const name = parameter.name.toLowerCase();
   const wire = parameter.serializedName.toLowerCase();
-  // Check client name first, then wire name
+  // Standard If-Match / If-None-Match headers work with any type
+  if (wire === "if-match") return "ifMatch";
+  if (wire === "if-none-match") return "ifNoneMatch";
+  // Non-standard headers require Azure.Core.eTag type
+  if (!isEtagType(parameter.type)) return undefined;
   if (name.includes("nonematch") || name.includes("none_match")) return "ifNoneMatch";
   if (name.includes("match")) return "ifMatch";
-  if (wire.endsWith("if-none-match") || wire === "if-none-match") return "ifNoneMatch";
-  if (wire.endsWith("if-match") || wire === "if-match") return "ifMatch";
+  if (wire.endsWith("-if-none-match")) return "ifNoneMatch";
+  if (wire.endsWith("-if-match")) return "ifMatch";
   return undefined;
 }
 
