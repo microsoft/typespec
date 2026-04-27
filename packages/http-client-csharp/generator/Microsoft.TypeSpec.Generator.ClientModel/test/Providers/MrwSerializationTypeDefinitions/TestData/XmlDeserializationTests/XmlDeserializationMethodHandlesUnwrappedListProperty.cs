@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using Sample;
 
 namespace Sample.Models
 {
@@ -39,23 +38,18 @@ namespace Sample.Models
                 return null;
             }
 
-            global::System.Collections.Generic.IList<string> colors = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            global::System.Collections.Generic.IList<string> colors = new global::System.Collections.Generic.List<string>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
                 if ((localName == "colors"))
                 {
-                    if ((colors == null))
-                    {
-                        colors = new global::System.Collections.Generic.List<string>();
-                    }
                     colors.Add(((string)child));
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(colors, additionalBinaryDataProperties);
+            return new global::Sample.Models.TestXmlModel(colors);
         }
     }
 }

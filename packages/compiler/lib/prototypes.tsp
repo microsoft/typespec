@@ -1,6 +1,7 @@
 namespace TypeSpec.Prototypes;
 
-extern dec getter(target: unknown);
+#suppress "experimental-feature" "Compiler internal decorator."
+internal extern dec getter(target: unknown);
 
 namespace Types {
   interface ModelProperty {

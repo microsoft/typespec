@@ -7,6 +7,7 @@ import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * The FloatMillisecondsDurationProperty model.
@@ -25,8 +26,12 @@ public final class FloatMillisecondsDurationProperty implements JsonSerializable
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public FloatMillisecondsDurationProperty(double value) {
-        this.value = value;
+    public FloatMillisecondsDurationProperty(Duration value) {
+        if (value == null) {
+            this.value = 0.0;
+        } else {
+            this.value = (double) value.toNanos() / 1000_000L;
+        }
     }
 
     /**
@@ -35,8 +40,8 @@ public final class FloatMillisecondsDurationProperty implements JsonSerializable
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public double getValue() {
-        return this.value;
+    public Duration getValue() {
+        return Duration.ofNanos((long) (this.value * 1000_000L));
     }
 
     /**
@@ -62,13 +67,13 @@ public final class FloatMillisecondsDurationProperty implements JsonSerializable
     @Metadata(properties = { MetadataProperties.GENERATED })
     public static FloatMillisecondsDurationProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            double value = 0.0;
+            Duration value = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    value = reader.getDouble();
+                    value = Duration.ofNanos((long) (reader.getDouble() * 1000_000L));
                 } else {
                     reader.skipChildren();
                 }

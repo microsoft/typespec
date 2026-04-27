@@ -1,5 +1,47 @@
 # Change Log - @typespec/compiler
 
+## 1.11.0
+
+### Features
+
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Added a new template `FilterVisibility` to support more accurate visibility transforms. This replaces the `@withVisibilityFilter` decorator, which is now deprecated and slated for removal in a future version of TypeSpec.
+
+### Bug Fixes
+
+- [#10196](https://github.com/microsoft/typespec/pull/10196) Include model name in `duplicate-property` error message
+- [#10199](https://github.com/microsoft/typespec/pull/10199) [invalid-discriminated-union-variant] `duplicateDefaultVariant` diagnostic now includes the union type name
+- [#10183](https://github.com/microsoft/typespec/pull/10183) Do not interpolate non primitive values in config automatically
+    ```yaml
+        file-type: ["json", "yaml"]
+        output-file: "openapi.{file-type}"
+    ```
+    Will not be interpolated as `openapi.json,yaml` but keep the placeholder `{file-type}` intact for the emitter to handle.
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Fixed a bug that would prevent template parameters from assigning to values in some cases.
+
+
+## 1.10.0
+
+### Features
+
+- [#9819](https://github.com/microsoft/typespec/pull/9819) Export `resolveCodeFix` function to allow resolving a `CodeFix` into `CodeFixEdit[]` without the LSP layer.
+- [#9829](https://github.com/microsoft/typespec/pull/9829) `tsp info` now accepts an optional `<libName>` argument to display detailed information about a specific library or emitter, including all available options.
+- [#9060](https://github.com/microsoft/typespec/pull/9060) Added support for Functions, a new type graph entity and language feature. Functions enable library authors to provide input-output style transforms that operate on types and values. See [the Functions Documentation](https://typespec.io/docs/language-basics/functions/) for more information about the use and implementation of functions.
+- [#9762](https://github.com/microsoft/typespec/pull/9762) Added experimental support for `internal` modifiers on type declarations. Any type _except `namespace`_ can be declared `internal`. An `internal` symbol can only be accessed from within the same package where it was declared.
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9939](https://github.com/microsoft/typespec/pull/9939) Fix `@overload` interface validation failing when the enclosing namespace is versioned
+- [#9641](https://github.com/microsoft/typespec/pull/9641) Don't report `non-literal-string-template` diagnostic when interpolating an invalid reference
+- [#9803](https://github.com/microsoft/typespec/pull/9803) Support `TYPESPEC_NPM_REGISTRY` environment variable to configure the npm registry used by `tsp init` and `tsp install` when fetching package manifests and downloading packages.
+- [#9804](https://github.com/microsoft/typespec/pull/9804) Fix crash when using custom scalar initializer in examples or default values
+    [API] Fix crash in `serializeValueAsJson` when a custom scalar initializer has no recognized constructor (e.g. `S.i()` with no args). Now returns `undefined` instead of crashing.
+- [#9670](https://github.com/microsoft/typespec/pull/9670) Fixed an issue where referencing a member of a templated alias with defaultable parameters would fail to instantiate the alias, leaking template parameters.
+
+
 ## 1.9.0
 
 ### Deprecations

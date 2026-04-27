@@ -25,6 +25,9 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
+# Internal dev feed for npm package resolution
+$DevFeedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
     '@azure-tools/typespec-azure-core',
@@ -41,7 +44,7 @@ function Test-PackageVersion {
     )
     
     Write-Host "Checking if $PackageName@$Version exists..."
-    $checkResult = & npm view "$PackageName@$Version" version 2>&1
+    $checkResult = & npm view "$PackageName@$Version" version --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Found $PackageName@$Version"
@@ -61,10 +64,10 @@ function Get-PackageDependencyVersion {
     )
     
     Write-Host "Getting $DependencyName version from $PackageName@$PackageVersion..."
-    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName 2>&1
+    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0 -and $result) {
-        $dependencyVersion = $result.Trim()
+        $dependencyVersion = ($result | Out-String).Trim()
         $dependencyVersion = $dependencyVersion -replace '^[\^~]', ''
         Write-Host "Found $DependencyName version: $dependencyVersion"
         return $dependencyVersion
@@ -72,6 +75,90 @@ function Get-PackageDependencyVersion {
         Write-Warning "Could not find $DependencyName in dependencies of $PackageName@$PackageVersion"
         return $null
     }
+}
+
+# Function to get the latest GA (non-prerelease) version of a package
+function Get-LatestGAVersion {
+    param(
+        [string]$PackageName
+    )
+    
+    Write-Host "Getting latest GA version for $PackageName..."
+    $result = & npm view $PackageName dist-tags.latest --registry $DevFeedUrl 2>&1
+    
+    if ($LASTEXITCODE -eq 0 -and $result) {
+        $latestVersion = ($result | Out-String).Trim()
+        Write-Host "Found latest GA version for ${PackageName}: $latestVersion"
+        return $latestVersion
+    } else {
+        Write-Warning "Could not determine latest GA version for $PackageName"
+        return $null
+    }
+}
+
+# Function to check if a dependency version's peer dep on tcgc is satisfied by our tcgcVersion
+function Test-TcgcCompatibility {
+    param(
+        [string]$PackageName,
+        [string]$PackageVersion,
+        [string]$TcgcVersion
+    )
+    
+    Write-Host "Checking if $PackageName@$PackageVersion is compatible with tcgc@$TcgcVersion..."
+    $tcgcRange = & npm view "${PackageName}@${PackageVersion}" "peerDependencies.@azure-tools/typespec-client-generator-core" --registry $DevFeedUrl 2>&1
+    
+    if ($LASTEXITCODE -ne 0 -or -not $tcgcRange) {
+        Write-Host "  No tcgc peer dependency found, assuming compatible"
+        return $true
+    }
+    
+    $tcgcRange = ($tcgcRange | Out-String).Trim()
+    Write-Host "  Requires tcgc: $tcgcRange"
+    
+    $semverResult = & npx semver -r $tcgcRange $TcgcVersion 2>&1
+    
+    if ($LASTEXITCODE -eq 0 -and $semverResult) {
+        Write-Host "  ✓ Compatible"
+        return $true
+    } else {
+        Write-Host "  ✗ Not compatible"
+        return $false
+    }
+}
+
+# Function to get previous GA versions of a package sorted descending, before a given version
+function Get-PreviousGAVersions {
+    param(
+        [string]$PackageName,
+        [string]$BeforeVersion
+    )
+    
+    Write-Host "Getting previous GA versions of $PackageName (before $BeforeVersion)..."
+    $result = & npm view $PackageName versions --json --registry $DevFeedUrl 2>&1
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Could not retrieve versions for $PackageName"
+        return @()
+    }
+    
+    $allVersions = ($result | Out-String) | ConvertFrom-Json
+    
+    if ($allVersions -isnot [array]) {
+        $allVersions = @($allVersions)
+    }
+    
+    # Filter to GA only (no prerelease) and versions strictly less than BeforeVersion
+    $gaVersions = @($allVersions | Where-Object {
+        $_ -notmatch '-' -and ([version]$_ -lt [version]$BeforeVersion)
+    } | Sort-Object { [version]$_ } -Descending)
+    
+    if ($gaVersions.Count -gt 0) {
+        Write-Host "  Found $($gaVersions.Count) previous GA version(s), most recent: $($gaVersions[0])"
+    } else {
+        Write-Host "  No previous GA versions found"
+    }
+    
+    return $gaVersions
 }
 
 # Resolve paths
@@ -121,20 +208,51 @@ try {
     $dependencyVersions = @{}
     
     foreach ($dependency in $InjectedDependencies) {
-        $versionToUse = $tcgcVersion
+        $versionToUse = $null
         
-        # Check if the tcgc version exists for this dependency
-        if (-not (Test-PackageVersion -PackageName $dependency -Version $tcgcVersion)) {
-            Write-Warning "Version $tcgcVersion not found for $dependency"
-            
-            # Use the version from tcgc's @azure-tools/typespec-azure-core dependency as fallback
-            if ($fallbackVersion) {
-                Write-Host "Using fallback version $fallbackVersion for all injected dependencies"
-                $versionToUse = $fallbackVersion
-            } else {
-                Write-Error "Could not determine a valid version for $dependency (no fallback available)"
-                exit 1
+        # 1. Try the tcgc version if it exists and is compatible with our tcgc
+        if ((Test-PackageVersion -PackageName $dependency -Version $tcgcVersion) -and
+            (Test-TcgcCompatibility -PackageName $dependency -PackageVersion $tcgcVersion -TcgcVersion $tcgcVersion)) {
+            $versionToUse = $tcgcVersion
+        }
+        
+        # 2. Search up to 2 previous GA versions for one compatible with our tcgc
+        if (-not $versionToUse) {
+            Write-Host "Searching previous GA versions of $dependency compatible with tcgc@$tcgcVersion..."
+            $previousVersions = Get-PreviousGAVersions -PackageName $dependency -BeforeVersion $tcgcVersion
+            $attempts = 0
+            foreach ($prevVersion in $previousVersions) {
+                if ($attempts -ge 2) { break }
+                $attempts++
+                
+                if (Test-TcgcCompatibility -PackageName $dependency -PackageVersion $prevVersion -TcgcVersion $tcgcVersion) {
+                    $versionToUse = $prevVersion
+                    Write-Host "Found compatible previous version: $dependency@$prevVersion"
+                    break
+                }
             }
+        }
+        
+        # 3. Fallback: use the version from tcgc's azure-core dependency
+        if (-not $versionToUse -and $fallbackVersion) {
+            if (Test-PackageVersion -PackageName $dependency -Version $fallbackVersion) {
+                Write-Host "Using fallback version $fallbackVersion for $dependency"
+                $versionToUse = $fallbackVersion
+            }
+        }
+        
+        # 4. Final fallback: latest GA version
+        if (-not $versionToUse) {
+            $latestGA = Get-LatestGAVersion -PackageName $dependency
+            if ($latestGA) {
+                Write-Host "Using latest GA version $latestGA for $dependency"
+                $versionToUse = $latestGA
+            }
+        }
+        
+        if (-not $versionToUse) {
+            Write-Error "Could not determine a valid version for $dependency (no fallback available)"
+            exit 1
         }
         
         # Store the version to use for this dependency
@@ -168,7 +286,7 @@ try {
 
     # Validate dependencies by running npm install
     Write-Host "Validating dependencies with npm install..."
-    $npmInstallResult = & npm install 2>&1
+    $npmInstallResult = & npm install --registry $DevFeedUrl 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Error "npm install failed after injecting dependencies: $npmInstallResult"
         exit 1

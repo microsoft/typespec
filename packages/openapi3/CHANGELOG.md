@@ -1,5 +1,34 @@
 # Change Log - @typespec/openapi3
 
+## 1.11.0
+
+### Bug Fixes
+
+- [#10041](https://github.com/microsoft/typespec/pull/10041) [importer] Fix `anyOf` with `$ref` and inline object being incorrectly imported as a model instead of a union.
+- [#10046](https://github.com/microsoft/typespec/pull/10046) Fix OpenAPI emitter failing with "Duplicate type name" error when using a named union with a `bytes` variant in a multipart body (e.g. `HttpPart<MyUnion>` where `MyUnion` includes `bytes`).
+
+
+## 1.10.0
+
+### Features
+
+- [#9577](https://github.com/microsoft/typespec/pull/9577) Add support for OpenAPI 3.2 nested tags via `parent` field in `@tagMetadata` decorator
+- [#9890](https://github.com/microsoft/typespec/pull/9890) `file-type` can now receive an array to allow emitting both `json` and `yaml` output in the same run.
+- [#9742](https://github.com/microsoft/typespec/pull/9742) Import tool: Support importing `readOnly` and `writeOnly` properties from OpenAPI. 
+  - `readOnly: true` is converted to `@visibility(Lifecycle.Read)`
+  - `writeOnly: true` is converted to `@visibility(Lifecycle.Create)`
+  - Both properties are mutually exclusive, a warning is emitted if both are present and both are ignored
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9634](https://github.com/microsoft/typespec/pull/9634) importer - Fix OpenAPI3 import to support JSON Schema 2020-12 sibling keywords alongside $ref (default, constraints, deprecated, etc.)
+- [#9802](https://github.com/microsoft/typespec/pull/9802) openapi3 - Fix `tsp-openapi3` ignoring array constraints (`minItems`, `maxItems`) on nullable arrays defined with `anyOf` + `null`
+
+
 ## 1.9.0
 
 ### Features

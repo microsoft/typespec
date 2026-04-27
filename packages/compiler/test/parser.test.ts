@@ -51,6 +51,23 @@ describe("compiler: parser", () => {
     );
   });
 
+  describe("modifier keywords as identifiers", () => {
+    const modifiers = ["internal", "extern"];
+
+    // Allowed as members
+    parseEach(modifiers.map((x) => `model Foo { ${x}: string }`));
+    parseEach(modifiers.map((x) => `union Foo { ${x}: string }`));
+    parseEach(modifiers.map((x) => `const a = #{ ${x}: string };`));
+
+    // Error when used as declaration name
+    parseErrorEach(
+      modifiers.map((x) => [
+        `model ${x} {}`,
+        [{ message: /Keyword cannot be used as identifier/ }],
+      ]),
+    );
+  });
+
   describe("import statements", () => {
     parseEach(['import "x";']);
 

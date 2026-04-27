@@ -1,5 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { Type } from "../src/core/types.js";
 import {
   DecoratorContext,
@@ -8,36 +8,23 @@ import {
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
 } from "../src/index.js";
-import {
-  BasicTestRunner,
-  createTestHost,
-  createTestWrapper,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../src/testing/index.js";
+import { Tester } from "./tester.js";
 
 describe("compiler: decorator utils", () => {
   describe("typespecTypeToJson", () => {
     async function convertDecoratorDataToJson(code: string) {
-      const host = await createTestHost();
       let result: any;
 
-      // add test decorators
-      host.addJsFile("mapToJson.js", {
-        $jsonData(context: DecoratorContext, target: Type, value: TypeSpecValue) {
-          result = typespecTypeToJson(value, target);
-        },
-      });
-
-      host.addTypeSpecFile(
-        "main.tsp",
-        `
-        import "./mapToJson.js";
-
-        ${code};
-      `,
-      );
-      await host.compile("main.tsp");
+      await Tester.files({
+        "mapToJson.js": mockFile.js({
+          $jsonData(context: DecoratorContext, target: Type, value: TypeSpecValue) {
+            result = typespecTypeToJson(value, target);
+          },
+        }),
+      })
+        .import("./mapToJson.js")
+        .compile(`${code};`);
       return result;
     }
     it("can convert a string", async () => {
@@ -139,22 +126,18 @@ describe("compiler: decorator utils", () => {
   });
 
   describe("validateDecoratorUniqueOnNode", () => {
-    let runner: BasicTestRunner;
-    beforeEach(async () => {
-      const host = await createTestHost();
-      runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
+    function $bar(context: DecoratorContext, target: Type) {
+      validateDecoratorUniqueOnNode(context, target, $bar);
+    }
 
-      function $bar(context: DecoratorContext, target: Type) {
-        validateDecoratorUniqueOnNode(context, target, $bar);
-      }
-      // add test decorators
-      host.addJsFile("lib.js", {
+    const UniqueDecTester = Tester.files({
+      "lib.js": mockFile.js({
         $bar,
-      });
-    });
+      }),
+    }).import("./lib.js");
 
     it("emit diagnostics if using the same decorator on the same node", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await UniqueDecTester.diagnose(`
         @bar
         @bar
         model Foo {}
@@ -173,7 +156,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("shouldn't emit diagnostic if decorator is used once only", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await UniqueDecTester.diagnose(`
         @bar
         model Foo {}
       `);
@@ -182,7 +165,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("shouldn't emit diagnostic if decorator is defined twice via `model is`", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await UniqueDecTester.diagnose(`
         @bar
         model Bar {}
         @bar
@@ -193,7 +176,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("shouldn't emit diagnostic if decorator is used again as augment decorator", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await UniqueDecTester.diagnose(`
         @bar
         model Foo {}
 
@@ -205,27 +188,22 @@ describe("compiler: decorator utils", () => {
   });
 
   describe("validateDecoratorNotOnType", () => {
-    let runner: BasicTestRunner;
+    function $red(context: DecoratorContext, target: Type) {
+      validateDecoratorNotOnType(context, target, $blue, $red);
+    }
+    function $blue(context: DecoratorContext, target: Type) {
+      validateDecoratorNotOnType(context, target, $red, $blue);
+    }
 
-    beforeEach(async () => {
-      const host = await createTestHost();
-      runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
-
-      function $red(context: DecoratorContext, target: Type) {
-        validateDecoratorNotOnType(context, target, $blue, $red);
-      }
-      function $blue(context: DecoratorContext, target: Type) {
-        validateDecoratorNotOnType(context, target, $red, $blue);
-      }
-      // add test decorators
-      host.addJsFile("lib.js", {
+    const ConflictDecTester = Tester.files({
+      "lib.js": mockFile.js({
         $red,
         $blue,
-      });
-    });
+      }),
+    }).import("./lib.js");
 
     it("emit diagnostics if using the decorator has a conflict", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await ConflictDecTester.diagnose(`
         @red
         @blue
         model Foo {}
@@ -242,7 +220,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("emit diagnostics if using the decorator has a conflict with model is", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await ConflictDecTester.diagnose(`
         @red
         model Bar {}
         @blue
@@ -260,7 +238,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("emit diagnostics if using the decorator has a conflict with model extends", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await ConflictDecTester.diagnose(`
         @red
         model Bar {}
         @blue
@@ -275,7 +253,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("emit diagnostics if using the decorator has a conflict with scalar extends", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await ConflictDecTester.diagnose(`
         @red
         scalar foo extends int32;
         @blue
@@ -290,7 +268,7 @@ describe("compiler: decorator utils", () => {
     });
 
     it("should emit diagnostic if decorator conflict is created via augment decorator", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await ConflictDecTester.diagnose(`
         @red
         model Foo {}
 

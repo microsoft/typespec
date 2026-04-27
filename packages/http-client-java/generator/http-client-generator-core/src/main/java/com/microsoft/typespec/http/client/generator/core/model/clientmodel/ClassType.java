@@ -505,6 +505,11 @@ public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJson
     public static final ClassType DURATION_LONG = new ClassType.Builder(false).prototypeAsLong().build();
     // JSON type is NUMERIC, client type is Duration
     public static final ClassType DURATION_DOUBLE = new ClassType.Builder(false).prototypeAsDouble().build();
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final ClassType DURATION_MILLISECONDS_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final ClassType DURATION_MILLISECONDS_DOUBLE
+        = new ClassType.Builder(false).prototypeAsDouble().build();
 
     public static final ClassType URL = new Builder(false)
         .defaultValueExpressionConverter(defaultValueExpression -> "new URL(\"" + defaultValueExpression + "\")")
@@ -695,6 +700,10 @@ public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJson
         } else if (this == ClassType.DURATION_LONG) {
             clientType = ClassType.DURATION;
         } else if (this == ClassType.DURATION_DOUBLE) {
+            clientType = ClassType.DURATION;
+        } else if (this == ClassType.DURATION_MILLISECONDS_LONG) {
+            clientType = ClassType.DURATION;
+        } else if (this == ClassType.DURATION_MILLISECONDS_DOUBLE) {
             clientType = ClassType.DURATION;
         }
         return clientType;

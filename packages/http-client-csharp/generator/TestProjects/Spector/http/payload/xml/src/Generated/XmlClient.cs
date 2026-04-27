@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Payload.Xml
 {
@@ -11,33 +12,64 @@ namespace Payload.Xml
     {
         public XmlClient() : this(new Uri("http://localhost:3000"), new XmlClientOptions()) => throw null;
 
-        public XmlClient(Uri endpoint, XmlClientOptions options) => throw null;
+        internal XmlClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, XmlClientOptions options) => throw null;
+
+        public XmlClient(Uri endpoint, XmlClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public XmlClient(XmlClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual SimpleModelValue GetSimpleModelValueClient() => throw null;
 
+        public virtual ModelWithRenamedPropertyValue GetModelWithRenamedPropertyValueClient() => throw null;
+
+        public virtual ModelWithRenamedFieldsValue GetModelWithRenamedFieldsValueClient() => throw null;
+
+        public virtual ModelWithNestedModelValue GetModelWithNestedModelValueClient() => throw null;
+
+        public virtual ModelWithRenamedNestedModelValue GetModelWithRenamedNestedModelValueClient() => throw null;
+
         public virtual ModelWithSimpleArraysValue GetModelWithSimpleArraysValueClient() => throw null;
-
-        public virtual ModelWithArrayOfModelValue GetModelWithArrayOfModelValueClient() => throw null;
-
-        public virtual ModelWithOptionalFieldValue GetModelWithOptionalFieldValueClient() => throw null;
-
-        public virtual ModelWithAttributesValue GetModelWithAttributesValueClient() => throw null;
 
         public virtual ModelWithUnwrappedArrayValue GetModelWithUnwrappedArrayValueClient() => throw null;
 
         public virtual ModelWithRenamedArraysValue GetModelWithRenamedArraysValueClient() => throw null;
 
-        public virtual ModelWithRenamedFieldsValue GetModelWithRenamedFieldsValueClient() => throw null;
+        public virtual ModelWithWrappedPrimitiveCustomItemNamesValue GetModelWithWrappedPrimitiveCustomItemNamesValueClient() => throw null;
 
-        public virtual ModelWithEmptyArrayValue GetModelWithEmptyArrayValueClient() => throw null;
+        public virtual ModelWithArrayOfModelValue GetModelWithArrayOfModelValueClient() => throw null;
+
+        public virtual ModelWithUnwrappedModelArrayValue GetModelWithUnwrappedModelArrayValueClient() => throw null;
+
+        public virtual ModelWithRenamedWrappedModelArrayValue GetModelWithRenamedWrappedModelArrayValueClient() => throw null;
+
+        public virtual ModelWithRenamedUnwrappedModelArrayValue GetModelWithRenamedUnwrappedModelArrayValueClient() => throw null;
+
+        public virtual ModelWithRenamedWrappedAndItemModelArrayValue GetModelWithRenamedWrappedAndItemModelArrayValueClient() => throw null;
+
+        public virtual ModelWithAttributesValue GetModelWithAttributesValueClient() => throw null;
+
+        public virtual ModelWithRenamedAttributeValue GetModelWithRenamedAttributeValueClient() => throw null;
+
+        public virtual ModelWithNamespaceValue GetModelWithNamespaceValueClient() => throw null;
+
+        public virtual ModelWithNamespaceOnPropertiesValue GetModelWithNamespaceOnPropertiesValueClient() => throw null;
 
         public virtual ModelWithTextValue GetModelWithTextValueClient() => throw null;
+
+        public virtual ModelWithOptionalFieldValue GetModelWithOptionalFieldValueClient() => throw null;
+
+        public virtual ModelWithEmptyArrayValue GetModelWithEmptyArrayValueClient() => throw null;
 
         public virtual ModelWithDictionaryValue GetModelWithDictionaryValueClient() => throw null;
 
         public virtual ModelWithEncodedNamesValue GetModelWithEncodedNamesValueClient() => throw null;
+
+        public virtual ModelWithEnumValue GetModelWithEnumValueClient() => throw null;
+
+        public virtual ModelWithDatetimeValue GetModelWithDatetimeValueClient() => throw null;
 
         public virtual XmlErrorValue GetXmlErrorValueClient() => throw null;
     }

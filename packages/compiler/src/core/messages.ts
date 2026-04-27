@@ -255,6 +255,7 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
     },
   },
   "using-invalid-ref": {
@@ -333,12 +334,14 @@ const diagnostics = {
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
+      internal: paramMessage`Symbol '${"id"}' is internal and can only be accessed from within its declaring package.`,
     },
   },
   "duplicate-property": {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
@@ -545,16 +548,12 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
-  "decorator-extern": {
+  "invalid-modifier": {
     severity: "error",
     messages: {
-      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
-    },
-  },
-  "function-extern": {
-    severity: "error",
-    messages: {
-      default: "A function declaration must be prefixed with the 'extern' modifier.",
+      default: paramMessage`Modifier '${"modifier"}' is invalid.`,
+      "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
   "function-return": {
@@ -865,7 +864,7 @@ const diagnostics = {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
       noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
       discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
-      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
+      duplicateDefaultVariant: paramMessage`Discriminated union ${"unionName"} only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },

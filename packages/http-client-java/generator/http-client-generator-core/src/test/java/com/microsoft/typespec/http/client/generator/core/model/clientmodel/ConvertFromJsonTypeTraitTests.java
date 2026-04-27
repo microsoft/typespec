@@ -16,6 +16,8 @@ public class ConvertFromJsonTypeTraitTests {
             PrimitiveType.INT_AS_STRING.convertFromJsonType("var"));
         Assertions.assertEquals("Duration.ofNanos((long) (var * 1000_000_000L))",
             PrimitiveType.DURATION_DOUBLE.convertFromJsonType("var"));
+        Assertions.assertEquals("Duration.ofNanos((long) (var * 1000_000L))",
+            PrimitiveType.DURATION_MILLISECONDS_DOUBLE.convertFromJsonType("var"));
         Assertions.assertEquals("OffsetDateTime.ofInstant(Instant.ofEpochSecond(var), ZoneOffset.UTC)",
             PrimitiveType.UNIX_TIME_LONG.convertFromJsonType("var"));
     }
@@ -30,6 +32,8 @@ public class ConvertFromJsonTypeTraitTests {
         Assertions.assertEquals("var == null ? null : Duration.parse(var)",
             ClassType.DURATION.convertFromJsonType("var"));
         Assertions.assertEquals("Duration.ofSeconds(var)", ClassType.DURATION_LONG.convertFromJsonType("var"));
+        Assertions.assertEquals("Duration.ofMillis(var)",
+            ClassType.DURATION_MILLISECONDS_LONG.convertFromJsonType("var"));
     }
 
     @Test

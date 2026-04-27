@@ -1,5 +1,38 @@
 # Change Log - @typespec/playground
 
+## 0.14.0
+
+### Features
+
+- [#10024](https://github.com/microsoft/typespec/pull/10024) Add file tree view for output
+- [#10018](https://github.com/microsoft/typespec/pull/10018) Make UI more mobile friendly. 
+    - Add a new switch to toggle between TypeSpec and output panels
+    - Command bar hides less important tools behind `...`
+    - [API] Update custom toolbar to take a menu item instead of generic react node.
+- [#10256](https://github.com/microsoft/typespec/pull/10256) Add search and category grouping to samples
+
+### Bug Fixes
+
+- [#10212](https://github.com/microsoft/typespec/pull/10212) Don't show file tree view in output when there is only a single file
+
+
+## 0.13.0
+
+### Features
+
+- [#9819](https://github.com/microsoft/typespec/pull/9819) Add codefix support in the playground. Quick fixes are now surfaced as Monaco code actions when the cursor is on a diagnostic.
+- [#9890](https://github.com/microsoft/typespec/pull/9890) Add support for oneOf option schemas.
+- [#9843](https://github.com/microsoft/typespec/pull/9843) Redesigned emitter options dialog into a config panel allowing to edit the raw `tspconfig.yaml`
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9760](https://github.com/microsoft/typespec/pull/9760) Optimization: Fetch all libraries in parallel
+
+
 ## 0.12.0
 
 ### Features

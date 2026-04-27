@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -1571,6 +1573,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanCustomizeBaseModelToRenamedGeneratedModel()
+        {
+            // This test verifies that when a base model is renamed (e.g., by a library visitor),
+            // a child model whose custom code inherits from the renamed name correctly resolves the base type.
+            // The base model is NOT defined in custom code, so Roslyn cannot resolve the namespace.
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                properties: [InputFactory.Property("baseProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Simulate a visitor renaming the base model (e.g., adding a "Resource" suffix)
+            mockGenerator.Object.AddVisitor(new BaseModelRenameVisitor("BaseModel", "RenamedBaseModel"));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseModelProvider);
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual("RenamedBaseModel", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+            Assert.AreEqual(1, modelProvider.BaseModelProvider!.Properties.Count);
+            Assert.AreEqual("BaseProp", modelProvider.BaseModelProvider.Properties[0].Name);
+        }
+
+        private class BaseModelRenameVisitor : LibraryVisitor
+        {
+            private readonly string _originalName;
+            private readonly string _newName;
+
+            public BaseModelRenameVisitor(string originalName, string newName)
+            {
+                _originalName = originalName;
+                _newName = newName;
+            }
+
+            protected internal override ModelProvider? PreVisitModel(InputModelType model, ModelProvider? type)
+            {
+                if (type != null && model.Name.ToIdentifierName() == _originalName)
+                {
+                    type.Update(name: _newName);
+                }
+                return type;
+            }
+        }
+
+        [Test]
         public async Task CanCustomizeBaseModelToExternalType()
         {
             // This test verifies that a model can be customized to inherit from an external base type
@@ -1641,6 +1697,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
             Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
                 "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
+        }
+
+        [Test]
+        public async Task CanReadPropertyAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+
+            var customProperty = customCodeView.Properties[0];
+            Assert.AreEqual("Prop1", customProperty.Name);
+
+            // Verify that attributes from custom code are populated, including a custom non-system attribute
+            Assert.AreEqual(3, customProperty.Attributes.Count);
+
+            // Validate [Obsolete("This property is now deprecated.", DiagnosticId = "OBS001")] - type, arguments, and positional arguments
+            var obsoleteAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, obsoleteAttr.Arguments.Count);
+            Assert.AreEqual(1, obsoleteAttr.PositionalArguments.Count);
+            Assert.AreEqual("DiagnosticId", obsoleteAttr.PositionalArguments[0].Key);
+
+            // Validate [EditorBrowsable(EditorBrowsableState.Never)] - type and arguments
+            var editorBrowsableAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(System.ComponentModel.EditorBrowsableAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, editorBrowsableAttr.Arguments.Count);
+
+            // Validate [Custom("custom message")] - custom non-system attribute does not throw
+            var customAttr = customProperty.Attributes.Single(a => a.Type.Name == "CustomAttribute");
+            Assert.AreEqual(1, customAttr.Arguments.Count);
+
+            // Verify that field attributes from custom code are populated
+            var customField = customCodeView.Fields.Single(f => f.Name == "_customField");
+            Assert.AreEqual(1, customField.Attributes.Count);
+            var fieldObsoleteAttr = customField.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, fieldObsoleteAttr.Arguments.Count);
         }
 
         private class TestNameVisitor : NameVisitor

@@ -47,7 +47,10 @@ param(
   [switch]$RegenerateMgmtLibraries,
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildArtifactsPath
+  [string]$BuildArtifactsPath,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$UseTypeSpecNext
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -130,6 +133,15 @@ try {
     }
     
     Push-Location $tempDir
+
+    # Set the authentication token for gh CLI early so that scripts invoked
+    # during the build (e.g. Emitter_Version_Dashboard.ps1) can call the
+    # GitHub API to resolve commit hashes in shallow clones.
+    $env:GH_TOKEN = $AuthToken
+
+    # Configure git user for commits in this repository
+    git config user.name "azure-sdk"
+    git config user.email "azuresdk@microsoft.com"
     
     # Add the remote
     git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
@@ -145,7 +157,8 @@ try {
     
     # Set the sparse checkout patterns - only the directories we need
     # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
-    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
+    # Note: 'doc/GeneratorVersions' is needed for regenerating the emitter version dashboard
+    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src doc/GeneratorVersions
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to set sparse checkout patterns"
     }
@@ -231,6 +244,18 @@ try {
         # Run npm install in the http-client-csharp directory
         Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+
+        # Update TypeSpec dependencies to @next versions in the Azure emitter package.json
+        if ($UseTypeSpecNext) {
+            Write-Host "##[section]Updating Azure emitter TypeSpec dependencies to @next versions..."
+            $azurePackageJsonPath = Join-Path $httpClientDir "package.json"
+            Invoke "npx -y @azure-tools/typespec-bump-deps@latest --use-peer-ranges `"$azurePackageJsonPath`"" $httpClientDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "typespec-bump-deps failed with exit code $LASTEXITCODE"
+            } else {
+                Write-Host "Azure emitter TypeSpec dependencies updated to @next versions"
+            }
+        }
         
         # Copy .npmrc file from source directory if it exists (for internal builds)
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
@@ -549,6 +574,11 @@ try {
         }
     }
 
+    # Regenerate the emitter version dashboard
+    Write-Host "Regenerating emitter version dashboard..."
+    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+    & $dashboardScript -RepoRoot $tempDir
+
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -612,6 +642,12 @@ try {
     if (Test-Path $sdkPath) {
         git add $sdkPath
     }
+
+    # Add the regenerated dashboard
+    $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
+    if (Test-Path $dashboardPath) {
+        git add $dashboardPath
+    }
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
@@ -643,12 +679,9 @@ try {
     # Create PR using GitHub CLI
     Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
     
-    # Set the authentication token for gh CLI
-    $env:GH_TOKEN = $AuthToken
-    
     # Create the PR using gh CLI
     $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)
-    if ($Internal) {
+    if ($Internal -or $UseTypeSpecNext) {
         $ghArgs += @("--label", "Do Not Merge")
     }
     $ghOutput = & gh @ghArgs 2>&1

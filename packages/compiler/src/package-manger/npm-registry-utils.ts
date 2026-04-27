@@ -85,13 +85,22 @@ export interface NpmHuman {
   readonly url?: string | undefined;
 }
 
-const registry = `https://registry.npmjs.org`;
+const defaultRegistry = `https://registry.npmjs.org`;
+
+/**
+ * Returns the npm registry URL to use for fetching packages.
+ * Uses the `TYPESPEC_NPM_REGISTRY` environment variable if set,
+ * otherwise falls back to the default npm registry.
+ */
+function getNpmRegistry(): string {
+  return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
+}
 
 export async function fetchPackageManifest(
   packageName: string,
   version: string,
 ): Promise<NpmManifest> {
-  const url = `${registry}/${packageName}/${version}`;
+  const url = `${getNpmRegistry()}/${packageName}/${version}`;
   const res = await fetch(url);
   return await res.json();
 }

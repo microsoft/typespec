@@ -554,15 +554,24 @@ function Update-OpenAIGenerator {
         
         $packageJson | ConvertTo-Json -Depth 100 | Set-Content $codegenPackageJsonPath -Encoding UTF8
 
-        # Delete package-lock.json to force regeneration with new dependencies
+        # Remove stale node_modules and package-lock.json to ensure clean dependency resolution
+        Write-Host "Removing stale node_modules and package-lock.json..." -ForegroundColor Gray
+        $rootNodeModules = Join-Path $OpenAIRepoPath "node_modules"
+        if (Test-Path $rootNodeModules) {
+            Remove-Item $rootNodeModules -Recurse -Force
+        }
+        $codegenNodeModules = Join-Path $OpenAIRepoPath "codegen" "node_modules"
+        if (Test-Path $codegenNodeModules) {
+            Remove-Item $codegenNodeModules -Recurse -Force
+        }
         $packageLockPath = Join-Path $OpenAIRepoPath "package-lock.json"
         if (Test-Path $packageLockPath) {
             Write-Host "Deleting package-lock.json..." -ForegroundColor Gray
             Remove-Item $packageLockPath -Force
         }
 
-        # Run npm install to regenerate package-lock.json with local dependencies
-        Write-Host "Installing dependencies in openai directory..." -ForegroundColor Gray
+        # Install dependencies
+        Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
             $npmOutput = Invoke "npm install" $OpenAIRepoPath
@@ -576,25 +585,23 @@ function Update-OpenAIGenerator {
             Pop-Location
         }
 
-        # Update OpenAI.Library.Plugin.csproj
-        $pluginCsprojPath = Join-Path $OpenAIRepoPath "codegen" "generator" "src" "OpenAI.Library.Plugin.csproj"
-        if (-not (Test-Path $pluginCsprojPath)) {
-            throw "OpenAI.Library.Plugin.csproj not found: $pluginCsprojPath"
+        # Update Directory.Packages.props
+        $directoryPackagesPropsPath = Join-Path $OpenAIRepoPath "Directory.Packages.props"
+        if (-not (Test-Path $directoryPackagesPropsPath)) {
+            throw "Directory.Packages.props not found: $directoryPackagesPropsPath"
         }
 
-        Write-Host "Updating OpenAI.Library.Plugin.csproj..." -ForegroundColor Gray
-        [xml]$csproj = Get-Content $pluginCsprojPath
+        Write-Host "Updating Directory.Packages.props..." -ForegroundColor Gray
+        $propsContent = Get-Content $directoryPackagesPropsPath -Raw
+        $pattern = '(<PackageVersion\s+Include="Microsoft\.TypeSpec\.Generator\.ClientModel"\s+Version=")([^"]+)(")'
         
-        $packageReference = $csproj.Project.ItemGroup.PackageReference | 
-            Where-Object { $_.Include -eq "Microsoft.TypeSpec.Generator.ClientModel" } | 
-            Select-Object -First 1
-        
-        if ($packageReference) {
-            $packageReference.Version = $LocalVersion
-            $csproj.Save($pluginCsprojPath)
-            Write-Host "  Updated Microsoft.TypeSpec.Generator.ClientModel to $LocalVersion" -ForegroundColor Green
+        if ($propsContent -match $pattern) {
+            $oldVersion = $Matches[2]
+            $newContent = $propsContent -replace $pattern, "`${1}$LocalVersion`${3}"
+            Set-Content $directoryPackagesPropsPath -Value $newContent -Encoding utf8 -NoNewline
+            Write-Host "  Updated Microsoft.TypeSpec.Generator.ClientModel from $oldVersion to $LocalVersion" -ForegroundColor Green
         } else {
-            throw "Microsoft.TypeSpec.Generator.ClientModel package reference not found in csproj"
+            throw "Microsoft.TypeSpec.Generator.ClientModel PackageVersion not found in Directory.Packages.props"
         }
 
         # Invoke Invoke-CodeGen.ps1 with Clean option
@@ -628,7 +635,7 @@ function Update-OpenAIGenerator {
                 "codegen/package.json"
                 "package-lock.json"
                 "nuget.config"
-                "codegen/generator/src/OpenAI.Library.Plugin.csproj"
+                "Directory.Packages.props"
             )
             $restoreCmd = "git restore $($filesToRestore -join ' ')"
             Invoke $restoreCmd $OpenAIRepoPath

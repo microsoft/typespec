@@ -253,6 +253,7 @@ interface Functions {
 interface Priorities {
   @post
   setPriority(@query priority: Priority): {
+    @header("Content-Type") contentType: "application/json";
     @body body: Priority;
   };
 }
@@ -263,6 +264,33 @@ interface Items {
   @get
   @list
   list(): ListResult & ArmLroLocationHeader;
+
+  @get
+  @list
+  @route("summary")
+  summary(): ListResultSummary;
+
+  @get
+  @list
+  @route("list2")
+  list2(): ListResult2;
+
+  @get
+  @route("summary2")
+  summary2(): ListResultSummary2;
+
+  @get
+  @list
+  @route("list3")
+  list3(): ListResult3;
+
+  @post
+  post(@body body: ListResult3): void;
+}
+
+// model does not contain `@pageItems` property, but inherit them from parent
+model ListResultSummary extends ListResult {
+  summary?: string;
 }
 
 model ListResult {
@@ -271,6 +299,29 @@ model ListResult {
 
   @nextLink
   nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as its child ListResultSummary2 is public
+model ListResult2 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as it is referenced in public API or public model
+@access(Access.public)
+model ListResult3 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model ListResultSummary2 extends ListResult2 {
+  summary?: string;
 }
 
 model Result {

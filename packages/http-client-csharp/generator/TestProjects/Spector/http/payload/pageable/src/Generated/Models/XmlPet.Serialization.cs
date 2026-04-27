@@ -4,7 +4,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Xml;
 
 namespace Payload.Pageable
 {
@@ -21,7 +20,5 @@ namespace Payload.Pageable
         XmlPet IPersistableModel<XmlPet>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<XmlPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options) => throw null;
     }
 }

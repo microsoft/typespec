@@ -1,7 +1,6 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
-  getClientOptions,
   getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -379,19 +378,8 @@ function emitHttpOperation(
   for (const exception of operation.exceptions) {
     exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
-  // Walk up the client hierarchy to find the option, allowing sub-clients to
-  // override values set on the root client.
-  let includeRootSlashOption: unknown;
-  let current: SdkClientType<SdkHttpOperation> | undefined = rootClient;
-  while (current) {
-    includeRootSlashOption = getClientOptions(current, "includeRootSlash");
-    if (includeRootSlashOption !== undefined) break;
-    current = current.parent;
-  }
-  const includeRootSlash = includeRootSlashOption !== false;
-
   const result = {
-    url: includeRootSlash ? operation.path : operation.path.replace(/^\//, ""),
+    url: operation.path,
     method: operation.verb.toUpperCase(),
     parameters: emitHttpParameters(context, rootClient, operation, method, serviceApiVersions),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, serviceApiVersions),

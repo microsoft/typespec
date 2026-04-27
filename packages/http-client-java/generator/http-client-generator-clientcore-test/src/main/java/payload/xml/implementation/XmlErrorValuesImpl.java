@@ -79,7 +79,7 @@ public final class XmlErrorValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains fields of primitive types along with {@link Response}.
+     * @return §1.1 — Contains fields of primitive types along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SimpleModel> getWithResponse(RequestContext requestContext) {

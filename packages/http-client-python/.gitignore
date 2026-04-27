@@ -7,3 +7,10 @@ generator/test/.diff-summary.md
 
 # Regeneration marker (tracks when generated code was last regenerated)
 .last-regenerate
+
+# local folder for debug
+alpha
+
+# pip component detection reports (generated during build)
+component-detection-pip-report.json
+generator/component-detection-pip-report.json

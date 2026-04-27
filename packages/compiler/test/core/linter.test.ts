@@ -8,11 +8,8 @@ import {
   type LinterDefinition,
   type LinterRuleContext,
 } from "../../src/index.js";
-import {
-  createTestHost,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 const noModelFoo = createLinterRule({
   name: "no-model-foo",
@@ -98,13 +95,18 @@ describe("compiler: linter", () => {
     code: string | Record<string, string>,
     linterDef: LinterDefinition,
   ): Promise<Linter> {
-    const host = await createTestHost();
+    let result;
     if (typeof code === "string") {
-      host.addTypeSpecFile("main.tsp", code);
+      result = await Tester.compile(code);
     } else {
-      for (const [name, content] of Object.entries(code)) {
-        host.addTypeSpecFile(name, content);
-      }
+      const mainCode = code["main.tsp"];
+      const otherFiles = Object.fromEntries(
+        Object.entries(code).filter(([name]) => name !== "main.tsp"),
+      );
+      result =
+        Object.keys(otherFiles).length > 0
+          ? await Tester.files(otherFiles).compile(mainCode)
+          : await Tester.compile(mainCode);
     }
 
     const library: LibraryInstance = {
@@ -118,9 +120,7 @@ describe("compiler: linter", () => {
       linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
     };
 
-    await host.compile("main.tsp");
-
-    const linter = createLinter(host.program, (libName) =>
+    const linter = createLinter(result.program, (libName) =>
       Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
     );
     return linter;
@@ -351,23 +351,20 @@ describe("compiler: linter", () => {
 
   describe("(integration) loading in program", () => {
     async function diagnoseReal(code: string) {
-      const host = await createTestHost();
-      host.addTypeSpecFile("main.tsp", code);
-      host.addTypeSpecFile(
-        "node_modules/my-lib/package.json",
-        JSON.stringify({ name: "my-lib", main: "index.js" }),
-      );
-      host.addJsFile("node_modules/my-lib/index.js", {
-        $lib: createTypeSpecLibrary({
-          name: "my-lib",
-          diagnostics: {},
+      return await Tester.files({
+        "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", main: "index.js" }),
+        "node_modules/my-lib/index.js": mockFile.js({
+          $lib: createTypeSpecLibrary({
+            name: "my-lib",
+            diagnostics: {},
+          }),
+          $linter: { rules: [noModelFoo] },
         }),
-        $linter: { rules: [noModelFoo] },
-      });
-
-      return await host.diagnose("main.tsp", {
-        linterRuleSet: {
-          enable: { "my-lib/no-model-foo": true },
+      }).diagnose(code, {
+        compilerOptions: {
+          linterRuleSet: {
+            enable: { "my-lib/no-model-foo": true },
+          },
         },
       });
     }

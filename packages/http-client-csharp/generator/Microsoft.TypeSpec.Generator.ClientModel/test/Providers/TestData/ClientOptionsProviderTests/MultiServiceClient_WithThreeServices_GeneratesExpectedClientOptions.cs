@@ -4,58 +4,84 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceComputeVersion LatestServiceComputeVersion = global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01;
-        private const global::Sample.TestClientOptions.ServiceKeyVaultVersion LatestServiceKeyVaultVersion = global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5;
-        private const global::Sample.TestClientOptions.ServiceStorageVersion LatestServiceStorageVersion = global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01;
+        private const global::Sample.TestClientOptions.ComputeServiceVersion LatestComputeVersion = global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01;
+        private const global::Sample.TestClientOptions.KeyVaultServiceVersion LatestKeyVaultVersion = global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5;
+        private const global::Sample.TestClientOptions.StorageServiceVersion LatestStorageVersion = global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceKeyVaultVersion serviceKeyVaultVersion = LatestServiceKeyVaultVersion, global::Sample.TestClientOptions.ServiceStorageVersion serviceStorageVersion = LatestServiceStorageVersion, global::Sample.TestClientOptions.ServiceComputeVersion serviceComputeVersion = LatestServiceComputeVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.KeyVaultServiceVersion keyVaultServiceVersion = LatestKeyVaultVersion, global::Sample.TestClientOptions.StorageServiceVersion storageServiceVersion = LatestStorageVersion, global::Sample.TestClientOptions.ComputeServiceVersion computeServiceVersion = LatestComputeVersion)
         {
-            ServiceKeyVaultApiVersion = serviceKeyVaultVersion switch
+            KeyVaultApiVersion = keyVaultServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_4 => "7.4",
-                global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5 => "7.5",
+                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_4 => "7.4",
+                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5 => "7.5",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceStorageApiVersion = serviceStorageVersion switch
+            StorageApiVersion = storageServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceStorageVersion.V2023_01_01 => "2023-01-01",
-                global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01 => "2024-01-01",
+                global::Sample.TestClientOptions.StorageServiceVersion.V2023_01_01 => "2023-01-01",
+                global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01 => "2024-01-01",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceComputeApiVersion = serviceComputeVersion switch
+            ComputeApiVersion = computeServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2023_07_01 => "2023-07-01",
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2024_03_01 => "2024-03-01",
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01 => "2024-07-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2023_07_01 => "2023-07-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_03_01 => "2024-03-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01 => "2024-07-01",
                 _ => throw new global::System.NotSupportedException()
             };
         }
 
-        internal string ServiceComputeApiVersion { get; }
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        {
+            ComputeApiVersion = "2024-07-01";
+            KeyVaultApiVersion = "7.5";
+            StorageApiVersion = "2024-01-01";
+            if (((section is null) || !section.Exists()))
+            {
+                return;
+            }
+            if ((section["ComputeApiVersion"] is string computeApiVersion))
+            {
+                this.ComputeApiVersion = computeApiVersion;
+            }
+            if ((section["KeyVaultApiVersion"] is string keyVaultApiVersion))
+            {
+                this.KeyVaultApiVersion = keyVaultApiVersion;
+            }
+            if ((section["StorageApiVersion"] is string storageApiVersion))
+            {
+                this.StorageApiVersion = storageApiVersion;
+            }
+        }
 
-        internal string ServiceKeyVaultApiVersion { get; }
+        internal string ComputeApiVersion { get; }
 
-        internal string ServiceStorageApiVersion { get; }
+        internal string KeyVaultApiVersion { get; }
 
-        public enum ServiceComputeVersion
+        internal string StorageApiVersion { get; }
+
+        public enum ComputeServiceVersion
         {
             V2023_07_01 = 1,
             V2024_03_01 = 2,
             V2024_07_01 = 3
         }
 
-        public enum ServiceKeyVaultVersion
+        public enum KeyVaultServiceVersion
         {
             V7_4 = 1,
             V7_5 = 2
         }
 
-        public enum ServiceStorageVersion
+        public enum StorageServiceVersion
         {
             V2023_01_01 = 1,
             V2024_01_01 = 2

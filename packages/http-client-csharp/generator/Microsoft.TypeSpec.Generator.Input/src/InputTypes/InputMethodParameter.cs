@@ -24,5 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public InputRequestLocation Location { get; internal set; }
+
+        public string? ParamAlias { get; internal set; }
     }
 }

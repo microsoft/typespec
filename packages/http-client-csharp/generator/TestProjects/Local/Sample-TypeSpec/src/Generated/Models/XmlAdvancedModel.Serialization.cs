@@ -120,7 +120,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -382,9 +382,9 @@ namespace SampleTypeSpec
             string originalName = default;
             string xmlIdentifier = default;
             string content = default;
-            IList<string> unwrappedStrings = default;
-            IList<int> unwrappedCounts = default;
-            IList<XmlItem> unwrappedItems = default;
+            IList<string> unwrappedStrings = new List<string>();
+            IList<int> unwrappedCounts = new List<int>();
+            IList<XmlItem> unwrappedItems = new List<XmlItem>();
             IList<string> wrappedColors = default;
             IList<XmlItem> items = default;
             XmlNestedModel nestedModel = default;
@@ -403,13 +403,12 @@ namespace SampleTypeSpec
             IList<string> fooItems = default;
             XmlNestedModel anotherModel = default;
             IList<XmlModelWithNamespace> modelsWithNamespaces = default;
-            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
             IList<IList<XmlItem>> listOfListFoo = default;
             IDictionary<string, XmlItem> dictionaryFoo = default;
             IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default;
             IDictionary<string, IList<XmlItem>> dictionaryListFoo = default;
             IList<IDictionary<string, XmlItem>> listOfDictionaryFoo = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -490,28 +489,16 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedStrings")
                 {
-                    if (unwrappedStrings == null)
-                    {
-                        unwrappedStrings = new List<string>();
-                    }
                     unwrappedStrings.Add((string)child);
                     continue;
                 }
                 if (localName == "unwrappedCounts")
                 {
-                    if (unwrappedCounts == null)
-                    {
-                        unwrappedCounts = new List<int>();
-                    }
                     unwrappedCounts.Add((int)child);
                     continue;
                 }
                 if (localName == "unwrappedItems")
                 {
-                    if (unwrappedItems == null)
-                    {
-                        unwrappedItems = new List<XmlItem>();
-                    }
                     unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
@@ -632,10 +619,6 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    if (unwrappedModelsWithNamespaces == null)
-                    {
-                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
-                    }
                     unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }
@@ -752,8 +735,7 @@ namespace SampleTypeSpec
                 dictionaryFoo,
                 dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
-                listOfDictionaryFoo,
-                additionalBinaryDataProperties);
+                listOfDictionaryFoo);
         }
     }
 }

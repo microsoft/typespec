@@ -725,7 +725,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -735,7 +735,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -764,7 +764,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -774,7 +774,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -1280,7 +1280,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -1290,7 +1290,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -1319,7 +1319,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -1329,7 +1329,7 @@ public final class PropertiesImpl {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>

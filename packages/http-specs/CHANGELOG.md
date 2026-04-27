@@ -1,5 +1,48 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.36
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+
+## 0.1.0-alpha.35
+
+### Features
+
+- Added new scenario for next link based pagination where the initial verb is not GET
+- Add missing scenarios for xml handling
+
+### Bug Fixes
+
+- Accept both `2022-08-26T18:38:00.000Z` and `2022-08-26T18:38:00Z` as valid RFC3339 UTC datetime forms in the `ModelWithDatetime` XML scenario.
+
+
+## 0.1.0-alpha.34
+
+### Bug Fixes
+
+- [#9953](https://github.com/microsoft/typespec/pull/9953) Fix response type of putExtensibleStringValue to include explicit content-type header
+
+
+## 0.1.0-alpha.33
+
+### Features
+
+- [#9785](https://github.com/microsoft/typespec/pull/9785) Add spector case for extensible enum with special word member names
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with datetime properties (rfc3339 and rfc7231 encodings)
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with enum property
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9945](https://github.com/microsoft/typespec/pull/9945) Fix float comparison in duration encode mockapi for query and header params to use numeric comparison instead of string comparison, allowing values like `35625.0` to match `35625`
+
+
 ## 0.1.0-alpha.32
 
 ### Features

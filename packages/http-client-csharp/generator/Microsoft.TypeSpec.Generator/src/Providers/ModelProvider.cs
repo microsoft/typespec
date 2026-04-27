@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -342,9 +343,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // was not also defined in custom code so Roslyn does not recognize it.
                 if (string.IsNullOrEmpty(baseType.Namespace))
                 {
-                    if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
+                    // Cheap check: the base model may already be created and registered under the right name.
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            baseType.Name, out var resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedModel)
                     {
-                        baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
+                        return resolvedModel;
+                    }
+
+                    // Force-create all input models so that visitors run (which may rename models
+                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
+                    // This is a no-op for models that have already been created.
+                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                    }
+
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            baseType.Name, out resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedAfterCreate)
+                    {
+                        return resolvedAfterCreate;
                     }
                 }
 
@@ -596,7 +615,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         !outputProperty.Type.Equals(lastContractPropertyType))
                     {
                         outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.CollectionPropertyTypePreserved);
                     }
                 }
 
@@ -845,6 +866,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                         }
                     }
                 }
@@ -1295,6 +1319,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         protected virtual FieldProvider? BuildRawDataField()
         {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)

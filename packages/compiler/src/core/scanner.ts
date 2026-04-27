@@ -138,6 +138,7 @@ export enum Token {
   /** @internal */ __StartModifierKeyword = __EndStatementKeyword,
 
   ExternKeyword = __StartModifierKeyword,
+  InternalKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -198,7 +199,6 @@ export enum Token {
   PrivateKeyword,
   PublicKeyword,
   ProtectedKeyword,
-  InternalKeyword,
   SealedKeyword,
   LocalKeyword,
   AsyncKeyword,
@@ -383,6 +383,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["internal", Token.InternalKeyword],
 
   // Reserved keywords
   ["statemachine", Token.StatemachineKeyword],
@@ -420,7 +421,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
@@ -460,7 +460,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
@@ -1274,6 +1273,7 @@ export function createScanner(
       if (isCrlf(end - 2, 0, end)) {
         end--;
       }
+      // eslint-disable-next-line no-useless-assignment
       end--;
     }
 
@@ -1473,7 +1473,6 @@ export function createScanner(
 
   function scanIdentifierOrKeyword(): Token {
     let count = 0;
-    let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
@@ -1483,7 +1482,7 @@ export function createScanner(
         break;
       }
 
-      ch = input.charCodeAt(position);
+      const ch = input.charCodeAt(position);
       if (count < KeywordLimit.MaxLength && isLowercaseAsciiLetter(ch)) {
         continue;
       }
