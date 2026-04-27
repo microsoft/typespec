@@ -312,13 +312,7 @@ export class StarlightRenderer extends MarkdownRenderer {
   }
 
   linterRuleLink(url: string) {
-    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
-    if (homepage && url.includes(homepage)) {
-      const fromRoot = url.replace(homepage, "");
-      return `${fromRoot}.md`;
-    } else {
-      return url;
-    }
+    return url;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
