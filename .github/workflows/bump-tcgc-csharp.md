@@ -6,7 +6,8 @@ description: |
   exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 
 on:
-  schedule: daily
+  schedule:
+    - cron: "0 11 * * *" # 5am CST (UTC-6)
   workflow_dispatch:
 
 permissions: read-all
@@ -19,6 +20,7 @@ safe-outputs:
     footer-install: "<!-- -->" # Need this as empty string will still include it
   create-issue:
     title-prefix: "Bump TCGC to "
+    labels: [emitter:client:csharp]
     assignees: [copilot]
   assign-to-agent:
     name: "copilot"
@@ -72,7 +74,7 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
      ```
 
      Replace `<LATEST_STABLE>` with the actual version (e.g. `0.67.2`) and `<anchor>` with the GitHub-style heading anchor for that version on the CHANGELOG page (lowercased, dots removed — e.g. `0.67.2` → `0672`).
-   - **Labels**: include `emitter:client:csharp`. Other labels may be applied automatically by the repository's labeling workflow.
+   - **Labels**: `emitter:client:csharp` is applied automatically via the workflow's `safe-outputs.create-issue.labels` configuration.
    - **Assignees**: `copilot` is assigned automatically via the `assignees: [copilot]` setting in the workflow's `create-issue` configuration. The `assign-to-agent` block sets `claude-opus-4.6` as the default model for the Copilot coding agent.
 
    Do not perform the upgrade in this workflow — the Copilot coding agent picks up the issue once assigned and follows `.github/prompts/upgrade-tcgc.instructions.md`.

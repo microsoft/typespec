@@ -26,13 +26,12 @@
 # and, when a newer stable version is available and no equivalent issue already
 # exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 #
-# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"30e61545784ae55ae0ddb5b6983ba7e3a6dc583df92d44ad763efe432b3e83b5","compiler_version":"v0.50.1"}
+# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"15e3d47ce2f4096d2e0b258f35db9594a58c6afd477225d9a2b03af083895dc7","compiler_version":"v0.50.1"}
 
 name: "Agentic TCGC Bump for http-client-csharp"
 "on":
   schedule:
-  - cron: "36 2 * * *"
-    # Friendly format: daily (scattered)
+  - cron: "0 11 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -331,7 +330,7 @@ jobs:
           cat > /opt/gh-aw/safeoutputs/tools.json << 'GH_AW_SAFE_OUTPUTS_TOOLS_EOF'
           [
             {
-              "description": "Create a new GitHub issue for tracking bugs, feature requests, or tasks. Use this for actionable work items that need assignment, labeling, and status tracking. For reports, announcements, or status updates that don't require task tracking, use create_discussion instead. CONSTRAINTS: Maximum 1 issue(s) can be created. Title will be prefixed with \"Bump TCGC to \". Assignees [copilot] will be automatically assigned.",
+              "description": "Create a new GitHub issue for tracking bugs, feature requests, or tasks. Use this for actionable work items that need assignment, labeling, and status tracking. For reports, announcements, or status updates that don't require task tracking, use create_discussion instead. CONSTRAINTS: Maximum 1 issue(s) can be created. Title will be prefixed with \"Bump TCGC to \". Labels [emitter:client:csharp] will be automatically added. Assignees [copilot] will be automatically assigned.",
               "inputSchema": {
                 "additionalProperties": false,
                 "properties": {
@@ -1112,7 +1111,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_issue\":{\"assignees\":[\"copilot\"],\"max\":1,\"title_prefix\":\"Bump TCGC to \"},\"missing_data\":{},\"missing_tool\":{}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_issue\":{\"assignees\":[\"copilot\"],\"labels\":[\"emitter:client:csharp\"],\"max\":1,\"title_prefix\":\"Bump TCGC to \"},\"missing_data\":{},\"missing_tool\":{}}"
           GH_AW_ASSIGN_COPILOT: "true"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
