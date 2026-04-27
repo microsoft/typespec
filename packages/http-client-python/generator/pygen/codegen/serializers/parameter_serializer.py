@@ -39,16 +39,6 @@ SPECIAL_HEADER_SERIALIZATION: dict[str, list[str]] = {
     "client-request-id": [],
     "x-ms-client-request-id": [],
     "return-client-request-id": [],
-    "etag": [
-        """if_match = prep_if_match(etag, match_condition)""",
-        """if if_match is not None:""",
-        """    _headers["If-Match"] = _SERIALIZER.header("if_match", if_match, "str")""",
-    ],
-    "match-condition": [
-        """if_none_match = prep_if_none_match(etag, match_condition)""",
-        """if if_none_match is not None:""",
-        """    _headers["If-None-Match"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
-    ],
 }
 
 
@@ -156,6 +146,29 @@ class ParameterSerializer:
             and param.wire_name.lower() in SPECIAL_HEADER_SERIALIZATION
         ):
             return SPECIAL_HEADER_SERIALIZATION[param.wire_name.lower()]
+
+        if (
+            not is_legacy
+            and param.location == ParameterLocation.HEADER
+            and param.wire_name.lower() in ("etag", "match-condition")
+        ):
+            # Build etag serialization using the original wire name for the
+            # actual HTTP header.  For standard If-Match / If-None-Match the
+            # original wire name equals those values; for custom etag headers
+            # (e.g. x-ms-blob-if-match) it carries the real header name.
+            header_name = param.original_wire_name
+            if param.wire_name.lower() == "etag":
+                return [
+                    """if_match = prep_if_match(etag, match_condition)""",
+                    """if if_match is not None:""",
+                    f"""    _headers["{header_name}"] = _SERIALIZER.header("if_match", if_match, "str")""",
+                ]
+            else:
+                return [
+                    """if_none_match = prep_if_none_match(etag, match_condition)""",
+                    """if if_none_match is not None:""",
+                    f"""    _headers["{header_name}"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
+                ]
 
         set_parameter = "_{}['{}'] = {}".format(
             kwarg_name,

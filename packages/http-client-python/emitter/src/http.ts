@@ -1,4 +1,4 @@
-import { NoTarget } from "@typespec/compiler";
+import { getNamespaceFullName, NoTarget } from "@typespec/compiler";
 
 import {
   getHttpOperationParameter,
@@ -19,6 +19,7 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -39,6 +40,17 @@ export enum ReferredByOperationTypes {
   Default = 0,
   PagingOnly = 1,
   NonPagingOnly = 2,
+}
+
+function isEtagType(type: SdkType): boolean {
+  if (type.kind === "nullable") return isEtagType(type.type);
+  const raw = type.__raw;
+  if (!raw || raw.kind !== "Scalar") return false;
+  return (
+    raw.name === "eTag" &&
+    raw.namespace !== undefined &&
+    getNamespaceFullName(raw.namespace) === "Azure.Core"
+  );
 }
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -496,6 +508,7 @@ function emitHttpHeaderParameter(
     delimiter,
     explode,
     clientDefaultValue,
+    isEtag: isEtagType(parameter.type),
   };
 }
 

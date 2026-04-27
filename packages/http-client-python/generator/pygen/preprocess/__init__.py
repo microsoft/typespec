@@ -166,8 +166,29 @@ def get_wire_name_lower(parameter: dict[str, Any]) -> str:
     return (parameter.get("wireName") or "").lower()
 
 
+def _is_etag_match(parameter: dict[str, Any]) -> bool:
+    """Return True if this header should fill the if-match etag slot."""
+    wire = get_wire_name_lower(parameter)
+    if wire == "if-match":
+        return True
+    return bool(parameter.get("isEtag")) and "none-match" not in wire
+
+
+def _is_etag_none_match(parameter: dict[str, Any]) -> bool:
+    """Return True if this header should fill the if-none-match etag slot."""
+    wire = get_wire_name_lower(parameter)
+    if wire == "if-none-match":
+        return True
+    return bool(parameter.get("isEtag")) and "none-match" in wire
+
+
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
     if isinstance(replace_data, dict):
+        # Preserve original wire name so the serializer can use it
+        # for the actual HTTP header (important for custom etag headers
+        # like x-ms-blob-if-match).
+        if "wireName" in replace_data and "wireName" in yaml_data:
+            yaml_data["originalWireName"] = yaml_data["wireName"]
         for k, v in replace_data.items():
             yaml_data[k] = v
 
@@ -317,9 +338,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     if p["location"] == "header" and wire_name_lower == "client-request-id":
                         yaml_data["requestIdHeaderName"] = wire_name_lower
                     if self.version_tolerant and p["location"] == "header":
-                        if wire_name_lower == "if-match":
+                        if _is_etag_match(p) and not property_if_match:
                             property_if_match = p
-                        elif wire_name_lower == "if-none-match":
+                        elif _is_etag_none_match(p) and not property_if_none_match:
                             property_if_none_match = p
                 # pylint: disable=line-too-long
                 # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
@@ -333,11 +354,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
                 if property_if_match and property_if_none_match:
                     # arrange if-match and if-none-match to the end of parameters
-                    o["parameters"] = [
-                        item
-                        for item in o["parameters"]
-                        if get_wire_name_lower(item) not in ("if-match", "if-none-match")
-                    ] + [property_if_match, property_if_none_match]
+                    etag_params = {id(property_if_match), id(property_if_none_match)}
+                    o["parameters"] = [item for item in o["parameters"] if id(item) not in etag_params] + [
+                        property_if_match,
+                        property_if_none_match,
+                    ]
 
                     o["hasEtag"] = True
                     yaml_data["hasEtag"] = True
@@ -374,6 +395,18 @@ class PreProcessPlugin(YamlUpdatePlugin):
             yaml_data["hideInMethod"] = True
         if self.version_tolerant and yaml_data["location"] == "header" and wire_name_lower in HEADERS_CONVERT_IN_METHOD:
             headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD[wire_name_lower])
+        elif (
+            self.version_tolerant
+            and yaml_data["location"] == "header"
+            and yaml_data.get("isEtag")
+            and wire_name_lower not in HEADERS_CONVERT_IN_METHOD
+        ):
+            # Custom etag-typed headers (e.g. x-ms-blob-if-match) get the same
+            # etag/match_condition treatment as standard If-Match/If-None-Match.
+            if _is_etag_none_match(yaml_data):
+                headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD["if-none-match"])
+            else:
+                headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD["if-match"])
         if wire_name_lower in ["$host", "content-type", "accept"] and yaml_data["type"]["type"] == "constant":
             yaml_data["clientDefaultValue"] = yaml_data["type"]["value"]
 
