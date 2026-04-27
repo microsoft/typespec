@@ -132,20 +132,18 @@ HEADERS_HIDE_IN_METHOD = (
     "client-request-id",
     "return-client-request-id",
 )
-HEADERS_CONVERT_IN_METHOD = {
-    "if-match": {
-        "clientName": "etag",
-        "wireName": "etag",
-        "description": "check if resource is changed. Set None to skip checking etag.",
-    },
-    "if-none-match": {
-        "clientName": "match_condition",
-        "wireName": "match-condition",
-        "description": "The match condition to use upon the etag.",
-        "type": {
-            "type": "sdkcore",
-            "name": "MatchConditions",
-        },
+ETAG_MATCH_DATA = {
+    "clientName": "etag",
+    "etagRole": "ifMatch",
+    "description": "check if resource is changed. Set None to skip checking etag.",
+}
+ETAG_NONE_MATCH_DATA = {
+    "clientName": "match_condition",
+    "etagRole": "ifNoneMatch",
+    "description": "The match condition to use upon the etag.",
+    "type": {
+        "type": "sdkcore",
+        "name": "MatchConditions",
     },
 }
 CLOUD_SETTING = {
@@ -166,29 +164,25 @@ def get_wire_name_lower(parameter: dict[str, Any]) -> str:
     return (parameter.get("wireName") or "").lower()
 
 
-def _is_etag_match(parameter: dict[str, Any]) -> bool:
-    """Return True if this header should fill the if-match etag slot."""
+def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
+    """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter.
+
+    The emitter sets etagRole directly for TypeSpec inputs. For autorest/swagger
+    inputs we fall back to the wire name.
+    """
+    role = parameter.get("etagRole")
+    if role:
+        return role
     wire = get_wire_name_lower(parameter)
     if wire == "if-match":
-        return True
-    return bool(parameter.get("isEtag")) and "none-match" not in wire
-
-
-def _is_etag_none_match(parameter: dict[str, Any]) -> bool:
-    """Return True if this header should fill the if-none-match etag slot."""
-    wire = get_wire_name_lower(parameter)
+        return "ifMatch"
     if wire == "if-none-match":
-        return True
-    return bool(parameter.get("isEtag")) and "none-match" in wire
+        return "ifNoneMatch"
+    return None
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
     if isinstance(replace_data, dict):
-        # Preserve original wire name so the serializer can use it
-        # for the actual HTTP header (important for custom etag headers
-        # like x-ms-blob-if-match).
-        if "wireName" in replace_data and "wireName" in yaml_data:
-            yaml_data["originalWireName"] = yaml_data["wireName"]
         for k, v in replace_data.items():
             yaml_data[k] = v
 
@@ -302,9 +296,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         value["name"] = upper_name
 
         # add type for reference
-        for v in HEADERS_CONVERT_IN_METHOD.values():
-            if isinstance(v, dict) and "type" in v:
-                yaml_data.append(v["type"])
+        if "type" in ETAG_NONE_MATCH_DATA:
+            yaml_data.append(ETAG_NONE_MATCH_DATA["type"])
         yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
     def update_client(self, yaml_data: dict[str, Any]) -> None:
@@ -338,9 +331,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     if p["location"] == "header" and wire_name_lower == "client-request-id":
                         yaml_data["requestIdHeaderName"] = wire_name_lower
                     if self.version_tolerant and p["location"] == "header":
-                        if _is_etag_match(p) and not property_if_match:
+                        role = _get_etag_role(p)
+                        if role == "ifMatch" and not property_if_match:
                             property_if_match = p
-                        elif _is_etag_none_match(p) and not property_if_none_match:
+                        elif role == "ifNoneMatch" and not property_if_none_match:
                             property_if_none_match = p
                 # pylint: disable=line-too-long
                 # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
@@ -393,20 +387,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
             wire_name_lower in HEADERS_HIDE_IN_METHOD or yaml_data.get("clientDefaultValue") == "multipart/form-data"
         ):
             yaml_data["hideInMethod"] = True
-        if self.version_tolerant and yaml_data["location"] == "header" and wire_name_lower in HEADERS_CONVERT_IN_METHOD:
-            headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD[wire_name_lower])
-        elif (
-            self.version_tolerant
-            and yaml_data["location"] == "header"
-            and yaml_data.get("isEtag")
-            and wire_name_lower not in HEADERS_CONVERT_IN_METHOD
-        ):
-            # Custom etag-typed headers (e.g. x-ms-blob-if-match) get the same
-            # etag/match_condition treatment as standard If-Match/If-None-Match.
-            if _is_etag_none_match(yaml_data):
-                headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD["if-none-match"])
-            else:
-                headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD["if-match"])
+        if self.version_tolerant and yaml_data["location"] == "header":
+            role = _get_etag_role(yaml_data)
+            if role == "ifMatch":
+                headers_convert(yaml_data, ETAG_MATCH_DATA)
+            elif role == "ifNoneMatch":
+                headers_convert(yaml_data, ETAG_NONE_MATCH_DATA)
         if wire_name_lower in ["$host", "content-type", "accept"] and yaml_data["type"]["type"] == "constant":
             yaml_data["clientDefaultValue"] = yaml_data["type"]["value"]
 

@@ -53,6 +53,18 @@ function isEtagType(type: SdkType): boolean {
   );
 }
 
+function getEtagRole(parameter: SdkHeaderParameter): string | undefined {
+  if (!isEtagType(parameter.type)) return undefined;
+  const name = parameter.name.toLowerCase();
+  const wire = parameter.serializedName.toLowerCase();
+  // Check client name first, then wire name
+  if (name.includes("nonematch") || name.includes("none_match")) return "ifNoneMatch";
+  if (name.includes("match")) return "ifMatch";
+  if (wire.endsWith("if-none-match") || wire === "if-none-match") return "ifNoneMatch";
+  if (wire.endsWith("if-match") || wire === "if-match") return "ifMatch";
+  return undefined;
+}
+
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
   return parameter.serializedName.toLowerCase() === "content-type";
 }
@@ -508,7 +520,7 @@ function emitHttpHeaderParameter(
     delimiter,
     explode,
     clientDefaultValue,
-    isEtag: isEtagType(parameter.type),
+    etagRole: getEtagRole(parameter),
   };
 }
 

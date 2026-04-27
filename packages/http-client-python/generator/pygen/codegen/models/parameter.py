@@ -61,7 +61,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.wire_name: str = yaml_data.get("wireName", "")
-        self.original_wire_name: str = yaml_data.get("originalWireName", self.wire_name)
+        self.etag_role: Optional[str] = yaml_data.get("etagRole", None)
         self.client_name: str = self.yaml_data["clientName"]
         self.optional: bool = self.yaml_data["optional"]
         self.implementation: Optional[str] = yaml_data.get("implementation", None)
