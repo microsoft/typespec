@@ -176,8 +176,11 @@ if ($isOpenAIMode) {
         if ($Azure) { $generatorNames += "Azure" }
         if ($Unbranded) { $generatorNames += "Unbranded" }
         if ($Mgmt) { $generatorNames += "Management plane" }
-        $selectionSuffix = if ($Select) { " (interactive selection)" } else { "" }
-        "Regenerate $($generatorNames -join ', ') libraries$selectionSuffix"
+        if ($Select) {
+            "Regenerate $($generatorNames -join ', ') libraries (interactive selection)"
+        } else {
+            "Regenerate $($generatorNames -join ', ') libraries"
+        }
     } elseif ($Select) {
         "Interactive library selection"
     } else {
