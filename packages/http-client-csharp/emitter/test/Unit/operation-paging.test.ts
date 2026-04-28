@@ -230,6 +230,39 @@ describe("Next link operations", () => {
       `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
+
+  it("includes protocol-only response model in code model (issue #9391)", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false)
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The anonymous response model containing the @nextLink property must be
+    // included in the code model's models list, even though convenientAPI is
+    // false, because the protocol-only paging code path still references it.
+    const responseModel = root.models.find((m) => m.name === "LinkResponse");
+    ok(
+      responseModel,
+      `Expected response model 'LinkResponse' to be present in code model. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
 });
 
 describe("Continuation token operations", () => {

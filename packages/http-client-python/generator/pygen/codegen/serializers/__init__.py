@@ -180,6 +180,15 @@ class JinjaSerializer(ReaderAndWriter):
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
+                # When generation-subdir is configured, generated code goes into a subdirectory
+                # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
+                # so that the package is discoverable by find_packages() / pip install.
+                if self.code_model.options.get("generation-subdir"):
+                    root_dir = self.code_model.get_root_dir()
+                    self.write_file(
+                        root_dir / Path("__init__.py"),
+                        general_serializer.serialize_pkgutil_init_file(),
+                    )
             else:
                 # add pkgutil init file if no clients in this namespace
                 self.write_file(
@@ -242,7 +251,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = _PACKAGE_FILES
+            package_files = list(_PACKAGE_FILES)  # Copy to avoid modifying global
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():

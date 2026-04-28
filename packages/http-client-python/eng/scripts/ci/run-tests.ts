@@ -35,7 +35,7 @@ Options:
   -f, --flavor <azure|unbranded>  SDK flavor to test (only applies to --generator)
                                   If not specified, tests both flavors
   --env <env1,env2,...>           Specific tox environments to run
-                                  Available: test, lint, mypy, pyright, docs, ci, unittest
+                                  Available: test, lint, mypy, pyright, apiview, sphinx, docs, ci, unittest
   -j, --jobs <n>                  Number of parallel jobs (default: CPU cores - 2)
   -n, --name <pattern>            Filter tests by name pattern
   -q, --quiet                     Suppress test output (only show pass/fail summary)
@@ -46,8 +46,10 @@ Environments (for --generator):
   lint       Run pylint on generated packages
   mypy       Run mypy type checking on generated packages
   pyright    Run pyright type checking on generated packages
-  docs       Run documentation validation (apiview, sphinx)
-  ci         Run all checks (test + lint + mypy + pyright)
+  apiview    Run apiview validation on generated packages
+  sphinx     Run sphinx docstring validation on generated packages
+  docs       Run apiview + sphinx (split into parallel envs)
+  ci         Run all checks (test + lint + mypy + pyright + apiview + sphinx)
   unittest   Run unit tests for pygen internals
 
 Examples:
@@ -56,8 +58,8 @@ Examples:
   run-tests.ts --generator                     # Run generator tests for all flavors
   run-tests.ts --generator --flavor=azure      # Run generator tests for azure only
   run-tests.ts -g -f azure --env=test          # Run pytest for azure only
-  run-tests.ts -g --env=mypy                   # Run mypy for all flavors
-  run-tests.ts -g -f unbranded --env=lint      # Run pylint for unbranded only
+  run-tests.ts -g --env=lint                   # Run pylint for all flavors
+  run-tests.ts -g -f unbranded --env=mypy      # Run mypy for unbranded only
 `);
   process.exit(0);
 }
@@ -80,7 +82,13 @@ interface ToxResult {
   error?: string;
 }
 
-async function runToxEnv(env: string, pythonPath: string, name?: string): Promise<ToxResult> {
+interface RunningTask {
+  env: string;
+  proc: ChildProcess;
+  promise: Promise<ToxResult>;
+}
+
+function startToxEnv(env: string, pythonPath: string, name?: string): RunningTask {
   const startTime = Date.now();
   const toxIniPath = join(testsDir, "tox.ini");
 
@@ -92,20 +100,20 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
 
   console.log(`${pc.blue("[START]")} ${env}`);
 
-  return new Promise((resolve) => {
-    const proc: ChildProcess = spawn(pythonPath, args, {
-      cwd: testsDir,
-      stdio: !argv.values.quiet ? "inherit" : "pipe",
-      env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
+  const proc: ChildProcess = spawn(pythonPath, args, {
+    cwd: testsDir,
+    stdio: !argv.values.quiet ? "inherit" : "pipe",
+    env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
+  });
+
+  let stderr = "";
+  if (argv.values.quiet && proc.stderr) {
+    proc.stderr.on("data", (data) => {
+      stderr += data.toString();
     });
+  }
 
-    let stderr = "";
-    if (argv.values.quiet && proc.stderr) {
-      proc.stderr.on("data", (data) => {
-        stderr += data.toString();
-      });
-    }
-
+  const promise = new Promise<ToxResult>((resolve) => {
     proc.on("close", (code) => {
       const duration = (Date.now() - startTime) / 1000;
       const success = code === 0;
@@ -135,6 +143,16 @@ async function runToxEnv(env: string, pythonPath: string, name?: string): Promis
       });
     });
   });
+
+  return { env, proc, promise };
+}
+
+function killTask(task: RunningTask): void {
+  try {
+    task.proc.kill("SIGTERM");
+  } catch {
+    // Process may have already exited
+  }
 }
 
 async function runParallel(
@@ -144,24 +162,51 @@ async function runParallel(
   name?: string,
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
-  const running: Map<string, Promise<ToxResult>> = new Map();
+  const running: Map<string, RunningTask> = new Map();
 
   for (const env of envs) {
     // Wait if we're at max capacity
-    if (running.size >= maxJobs) {
-      const completed = await Promise.race(running.values());
+    while (running.size >= maxJobs) {
+      const promises = Array.from(running.values()).map((t) => t.promise);
+      const completed = await Promise.race(promises);
       results.push(completed);
       running.delete(completed.env);
+
+      // Fail-fast: kill all running tasks and exit
+      if (!completed.success) {
+        console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, killing remaining tasks...`));
+        for (const task of running.values()) {
+          killTask(task);
+        }
+        // Wait briefly for processes to terminate
+        await Promise.all(Array.from(running.values()).map((t) => t.promise));
+        return results;
+      }
     }
 
     // Start new task
-    const task = runToxEnv(env, pythonPath, name);
+    const task = startToxEnv(env, pythonPath, name);
     running.set(env, task);
   }
 
-  // Wait for remaining tasks
-  const remaining = await Promise.all(running.values());
-  results.push(...remaining);
+  // Wait for remaining tasks, checking for failures
+  while (running.size > 0) {
+    const promises = Array.from(running.values()).map((t) => t.promise);
+    const completed = await Promise.race(promises);
+    results.push(completed);
+    running.delete(completed.env);
+
+    // Fail-fast: kill all running tasks and exit
+    if (!completed.success) {
+      console.log(pc.red(`\n[FAIL-FAST] ${completed.env} failed, killing remaining tasks...`));
+      for (const task of running.values()) {
+        killTask(task);
+      }
+      // Wait briefly for processes to terminate
+      await Promise.all(Array.from(running.values()).map((t) => t.promise));
+      return results;
+    }
+  }
 
   return results;
 }
@@ -316,12 +361,15 @@ async function main(): Promise<void> {
       baseEnvs = ["test"];
     }
 
-    // Expand 'ci' into its component environments for parallel execution
+    // Expand 'ci' and 'docs' into component environments for parallel execution
     const expandedEnvs: string[] = [];
     for (const env of baseEnvs) {
       if (env === "ci") {
-        // Run test first (sequential), then lint/mypy/pyright/docs in parallel
-        expandedEnvs.push("test", "lint", "mypy", "pyright", "docs");
+        // All envs run in parallel — pre-built wheels make installs cheap
+        expandedEnvs.push("test", "lint", "mypy", "pyright", "apiview", "sphinx");
+      } else if (env === "docs") {
+        // Split docs into apiview + sphinx for parallelism
+        expandedEnvs.push("apiview", "sphinx");
       } else {
         expandedEnvs.push(env);
       }
@@ -348,37 +396,48 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    // Separate test environments from other environments
-    // Test environments must run sequentially (they share port 3000)
-    // Other environments (lint, mypy, pyright, docs) can run in parallel
-    const testEnvs = envs.filter((e) => e.startsWith("test-") || e === "unittest");
-    const otherEnvs = envs.filter((e) => !e.startsWith("test-") && e !== "unittest");
-
     const maxJobs = argv.values.jobs
       ? parseInt(argv.values.jobs, 10)
       : Math.max(2, cpus().length - 2);
 
     console.log(`  Flavors:      ${flavors.join(", ")}`);
     console.log(`  Environments: ${envs.join(", ")}`);
-    console.log(`  Jobs:         ${maxJobs} (test envs run sequentially, others in parallel)`);
+    console.log(`  Jobs:         ${maxJobs}`);
     if (argv.values.name) {
       console.log(`  Filter:       ${argv.values.name}`);
     }
     console.log();
 
-    // Run test environments first (sequentially)
-    let results: ToxResult[] = [];
-    if (testEnvs.length > 0) {
-      console.log(pc.cyan("Running test environments (sequential)..."));
-      results = await runParallel(testEnvs, pythonPath, 1, argv.values.name);
+    // Pre-build wheels for each flavor so tox envs install from pre-built
+    // wheels instead of rebuilding from source (~2min build once vs ~2min × N envs)
+    console.log(pc.cyan("Pre-building wheels for all flavors..."));
+    const installScript = join(testsDir, "install_packages.py");
+    for (const flavor of flavors) {
+      const startTime = Date.now();
+      const proc = spawn(pythonPath, [installScript, "build", flavor, testsDir], {
+        cwd: testsDir,
+        stdio: "inherit",
+      });
+      await new Promise<void>((resolve) => {
+        proc.on("close", (code) => {
+          const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+          if (code === 0) {
+            console.log(`${pc.green("[PASS]")} wheel build ${flavor} (${duration}s)`);
+          } else {
+            console.log(
+              `${pc.yellow("[WARN]")} wheel build ${flavor} failed (${duration}s), tox envs will build from source`,
+            );
+          }
+          resolve();
+        });
+      });
     }
+    console.log();
 
-    // Run other environments in parallel
-    if (otherEnvs.length > 0) {
-      console.log(pc.cyan("\nRunning lint/typecheck environments (parallel)..."));
-      const otherResults = await runParallel(otherEnvs, pythonPath, maxJobs, argv.values.name);
-      results = results.concat(otherResults);
-    }
+    // Run all environments in parallel
+    // The mock server serves both azure and unbranded specs, so all tests can run together
+    console.log(pc.cyan("Running all environments in parallel..."));
+    const results = await runParallel(envs, pythonPath, maxJobs, argv.values.name);
 
     allResults.push(...results);
   }

@@ -1,0 +1,28 @@
+name: Check Agentic Workflows
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/*.md"
+      - ".github/workflows/*.lock.yml"
+      - ".github/workflows/check-agentic-workflows.yml"
+
+jobs:
+  check-lock-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gh-aw
+        run: curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | bash
+
+      - name: Compile and check for drift
+        run: |
+          gh aw compile
+          if ! git diff --exit-code .github/workflows/*.lock.yml; then
+            echo "::error::Lock files are out of date. Run 'gh aw compile' locally and commit the changes."
+            exit 1
+          fi

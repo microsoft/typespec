@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -119,7 +118,6 @@ namespace SampleTypeSpec
             }
 
             string foo = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -130,7 +128,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties);
+            return new XmlModelWithNamespace(foo);
         }
     }
 }

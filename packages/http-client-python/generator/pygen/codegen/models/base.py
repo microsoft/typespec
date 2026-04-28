@@ -7,7 +7,6 @@ from typing import Any, TYPE_CHECKING, Optional
 from abc import ABC, abstractmethod
 from .imports import FileImport
 
-
 if TYPE_CHECKING:
     from .code_model import CodeModel
     from .model_type import ModelType

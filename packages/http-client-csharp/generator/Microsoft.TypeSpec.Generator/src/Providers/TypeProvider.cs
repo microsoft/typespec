@@ -403,6 +403,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildName();
 
         /// <summary>
+        /// Resets only the cached methods so they are rebuilt on next access.
+        /// Use this instead of <see cref="Reset"/> when you need to force a method
+        /// rebuild without discarding visitor-applied state on properties, fields,
+        /// constructors, or canonical/last-contract views.
+        /// </summary>
+        public void ResetMethods()
+        {
+            _methods = null;
+        }
+
+        /// <summary>
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>

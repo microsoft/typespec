@@ -69,6 +69,10 @@ extends:
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          UploadPlaygroundBundle: true
+          PlaygroundBundleBuildScript: "build:emitter"
+          PlaygroundServerDockerfile: "playground-server/Dockerfile"
+          PlaygroundServerAppName: "csharp-playground-server"
           AdditionalInitializeSteps:
             - task: UseDotNet@2
               inputs:

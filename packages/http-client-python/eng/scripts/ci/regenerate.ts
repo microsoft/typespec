@@ -7,7 +7,8 @@
  */
 
 import { compile, NodeHost } from "@typespec/compiler";
-import { rmSync } from "fs";
+import { execSync } from "child_process";
+import { existsSync, readdirSync, rmSync } from "fs";
 import { platform } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
@@ -173,6 +174,9 @@ function buildTaskGroups(specs: string[], flags: RegenerateFlags): TaskGroup[] {
       // Examples directory
       options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
 
+      // Emit YAML only - Python processing is batched after all specs compile
+      options["emit-yaml-only"] = true;
+
       tasks.push({ spec, outputDir, options });
     }
 
@@ -213,6 +217,25 @@ async function compileSpec(task: CompileTask): Promise<{ success: boolean; error
   }
 }
 
+function renderProgressBar(
+  completed: number,
+  failed: number,
+  total: number,
+  width: number = 40,
+): string {
+  const successCount = completed - failed;
+  const successWidth = Math.round((successCount / total) * width);
+  const failWidth = Math.round((failed / total) * width);
+  const emptyWidth = width - successWidth - failWidth;
+
+  const successBar = pc.bgGreen(" ".repeat(successWidth));
+  const failBar = failed > 0 ? pc.bgRed(" ".repeat(failWidth)) : "";
+  const emptyBar = pc.dim("░".repeat(Math.max(0, emptyWidth)));
+
+  const percent = Math.round((completed / total) * 100);
+  return `${successBar}${failBar}${emptyBar} ${pc.cyan(`${percent}%`)} (${completed}/${total})`;
+}
+
 async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<string, boolean>> {
   const results = new Map<string, boolean>();
   const executing: Set<Promise<void>> = new Set();
@@ -220,6 +243,20 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   // Count total tasks for progress
   const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
   let completed = 0;
+  let failed = 0;
+  const failedSpecs: string[] = [];
+
+  // Check if we're in a TTY for progress bar updates
+  const isTTY = process.stdout.isTTY;
+
+  const updateProgress = () => {
+    if (isTTY) {
+      process.stdout.write(`\r${renderProgressBar(completed, failed, totalTasks)}`);
+    }
+  };
+
+  // Initial progress bar
+  updateProgress();
 
   for (const group of groups) {
     // Each group runs as a unit - tasks within a group run sequentially
@@ -232,19 +269,17 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
       let groupSuccess = true;
       for (const task of group.tasks) {
         const packageName = (task.options["package-name"] as string) || shortName;
-        console.log(pc.blue(`[${completed + 1}/${totalTasks}] Compiling ${packageName}...`));
 
         const result = await compileSpec(task);
         completed++;
 
-        if (result.success) {
-          console.log(pc.green(`[${completed}/${totalTasks}] ${packageName} succeeded`));
-        } else {
-          console.log(
-            pc.red(`[${completed}/${totalTasks}] ${packageName} failed: ${result.error}`),
-          );
+        if (!result.success) {
+          failed++;
+          failedSpecs.push(`${packageName}: ${result.error}`);
           groupSuccess = false;
         }
+
+        updateProgress();
       }
 
       results.set(group.spec, groupSuccess);
@@ -259,7 +294,73 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   }
 
   await Promise.all(executing);
+
+  // Clear progress bar line and print final status
+  if (isTTY) {
+    process.stdout.write("\r" + " ".repeat(60) + "\r");
+  }
+
+  // Print failures at the end
+  if (failedSpecs.length > 0) {
+    console.log(pc.red(`\nFailed specs:`));
+    for (const spec of failedSpecs) {
+      console.log(pc.red(`  • ${spec}`));
+    }
+  }
+
   return results;
+}
+
+function collectConfigFiles(generatedDir: string, flavor: string): string[] {
+  const flavorDir = join(generatedDir, "..", "tests", "generated", flavor);
+  if (!existsSync(flavorDir)) return [];
+
+  const configFiles: string[] = [];
+  for (const pkg of readdirSync(flavorDir, { withFileTypes: true })) {
+    if (pkg.isDirectory()) {
+      const pkgDir = join(flavorDir, pkg.name);
+      // Find all .tsp-codegen-*.json files (supports multiple configs per output dir)
+      for (const file of readdirSync(pkgDir)) {
+        if (file.startsWith(".tsp-codegen-") && file.endsWith(".json")) {
+          configFiles.push(join(pkgDir, file));
+        }
+      }
+    }
+  }
+  return configFiles;
+}
+
+function runBatchPythonProcessing(flavor: string, configCount: number, jobs: number): boolean {
+  if (configCount === 0) return true;
+
+  console.log(pc.cyan(`\nRunning batch Python processing on ${configCount} specs...`));
+
+  // Find Python venv
+  let venvPath = join(PLUGIN_DIR, "venv");
+  if (existsSync(join(venvPath, "bin"))) {
+    venvPath = join(venvPath, "bin", "python");
+  } else if (existsSync(join(venvPath, "Scripts"))) {
+    venvPath = join(venvPath, "Scripts", "python.exe");
+  } else {
+    console.error(pc.red("Python venv not found"));
+    return false;
+  }
+
+  const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
+
+  try {
+    // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
+    execSync(
+      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
+      {
+        stdio: "inherit",
+        cwd: PLUGIN_DIR,
+      },
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function regenerateFlavor(
@@ -289,21 +390,46 @@ async function regenerateFlavor(
   console.log(pc.cyan(`Found ${allSpecs.length} specs (${totalTasks} total tasks) to compile`));
   console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
 
-  // Run compilation
+  // Run compilation (emits YAML only)
   const startTime = performance.now();
   const results = await runParallel(groups, jobs);
-  const duration = (performance.now() - startTime) / 1000;
+  const compileTime = (performance.now() - startTime) / 1000;
 
-  // Summary
+  // Summary for TypeSpec compilation
   const succeeded = Array.from(results.values()).filter((v) => v).length;
-  const failed = results.size - succeeded;
+  const compileFailed = results.size - succeeded;
+
+  console.log(
+    pc.cyan(
+      `\nTypeSpec compilation: ${succeeded} succeeded, ${compileFailed} failed (${compileTime.toFixed(1)}s)`,
+    ),
+  );
+
+  if (compileFailed > 0) {
+    console.log(pc.red(`Skipping Python processing due to compilation failures`));
+    return false;
+  }
+
+  // Batch process all specs with Python
+  const pyStartTime = performance.now();
+  const configCount = collectConfigFiles(GENERATED_FOLDER, flavor).length;
+  // Use fewer Python jobs since Python processing is heavier
+  const pyJobs = Math.max(4, jobs);
+  const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
+  const pyTime = (performance.now() - pyStartTime) / 1000;
+
+  const totalTime = (performance.now() - startTime) / 1000;
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
-  console.log(pc.cyan(`Results: ${succeeded} succeeded, ${failed} failed`));
-  console.log(pc.cyan(`Time: ${duration.toFixed(1)}s`));
+  console.log(pc.cyan(`Results: ${succeeded} specs processed`));
+  console.log(
+    pc.cyan(
+      `  TypeSpec: ${compileTime.toFixed(1)}s | Python: ${pyTime.toFixed(1)}s | Total: ${totalTime.toFixed(1)}s`,
+    ),
+  );
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
-  return failed === 0;
+  return pySuccess;
 }
 
 async function main() {

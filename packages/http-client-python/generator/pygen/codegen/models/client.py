@@ -291,11 +291,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                 ImportType.SDKCORE,
             )
 
-        # import for "Self"
+        # import for "Self" (typing.Self available from Python 3.11+)
         file_import.add_submodule_import(
             "typing_extensions",
             "Self",
             ImportType.STDLIB,
+            version_modules=(((3, 11), "typing", None),),
         )
         if self.need_cloud_setting:
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)

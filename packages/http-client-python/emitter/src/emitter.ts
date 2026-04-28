@@ -42,21 +42,24 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     const packageName = namespace.replace(/\./g, "-");
     options["package-name"] = packageName;
   }
-  if ((options as any).flavor !== "azure") {
-    // if they pass in a flavor other than azure, we want to ignore the value
-    (options as any).flavor = undefined;
-  }
+  // Set flavor based on namespace or passed option
   if (getRootNamespace(sdkContext).toLowerCase().includes("azure")) {
     (options as any).flavor = "azure";
+  } else if ((options as any).flavor !== "azure") {
+    // Explicitly set unbranded flavor when not azure
+    (options as any).flavor = "unbranded";
   }
 
   if (
     options["package-pprint-name"] !== undefined &&
     !options["package-pprint-name"].startsWith('"')
   ) {
-    options["package-pprint-name"] = options["use-pyodide"]
-      ? `${options["package-pprint-name"]}`
-      : `"${options["package-pprint-name"]}"`;
+    // Only add quotes for shell compatibility when NOT using emit-yaml-only mode
+    // (emit-yaml-only passes options via JSON config files, not shell)
+    const needsShellQuoting = !options["use-pyodide"] && !options["emit-yaml-only"];
+    options["package-pprint-name"] = needsShellQuoting
+      ? `"${options["package-pprint-name"]}"`
+      : `${options["package-pprint-name"]}`;
   }
 }
 
@@ -246,6 +249,21 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
 
     if (!program.compilerOptions.noEmit && !program.hasError()) {
+      // If emit-yaml-only mode, just copy YAML to output dir for batch processing
+      if (resolvedOptions["emit-yaml-only"]) {
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+        // Copy YAML to output dir with command args embedded
+        // Use unique filename to avoid conflicts when multiple specs share output dir
+        const configId = path.basename(yamlPath, ".yaml");
+        const batchConfig = { yamlPath, commandArgs, outputDir };
+        fs.writeFileSync(
+          path.join(outputDir, `.tsp-codegen-${configId}.json`),
+          JSON.stringify(batchConfig, null, 2),
+        );
+        return;
+      }
       // if not using pyodide and there's no venv, we try to create venv
       if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
         try {
