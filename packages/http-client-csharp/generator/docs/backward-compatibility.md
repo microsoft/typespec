@@ -21,6 +21,8 @@
     - [Method Parameter Name Preserved from Last Contract](#scenario-method-parameter-name-preserved-from-last-contract)
   - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
+  - [Service Method Evolution](#service-method-evolution)
+    - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
 
 ## Overview
 
@@ -784,3 +786,51 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Service Method Evolution
+
+#### Scenario: New Optional Non-Body Parameter Added to a Service Method
+
+**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s).
+
+This follows the guidance in [Service-Driven Evolution: A method gets a new optional parameter](https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
+
+**Rules:**
+
+- The previous method's parameters must appear, in the same relative order and matching by name and type, within the current method's parameters.
+- Every "extra" parameter on the current method must be optional (i.e. have a default value).
+- No "extra" parameter on the current method may be a body parameter; if any extra parameter is a body parameter, no back-compat overload is added.
+- The back-compat overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]` and has all default values stripped from its parameters to avoid ambiguous call sites.
+
+**Example:**
+
+Previous version of the client:
+
+```csharp
+public virtual ClientResult<string> GetData(int param2, string param1, CancellationToken cancellationToken = default);
+public virtual Task<ClientResult<string>> GetDataAsync(int param2, string param1, CancellationToken cancellationToken = default);
+```
+
+Current TypeSpec adds an optional header parameter `param3`:
+
+```typespec
+op getData(@query param2: int32, @body param1: string, @header param3?: boolean): string;
+```
+
+**Generated Compatibility Methods:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual ClientResult<string> GetData(int param2, string param1, CancellationToken cancellationToken)
+{
+    return this.GetData(param2, param1, default, cancellationToken);
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual Task<ClientResult<string>> GetDataAsync(int param2, string param1, CancellationToken cancellationToken)
+{
+    return this.GetDataAsync(param2, param1, default, cancellationToken);
+}
+```
+
+The same logic applies when more than one new optional non-body parameter is added — the back-compat overload simply passes `default` for each new parameter when delegating to the current method.

@@ -1261,7 +1261,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [.. originalMethods];
             }
 
-            var currentMethodSignatures = BuildCurrentMethodSignatures(originalMethods);
+            var materializedMethods = originalMethods as IList<MethodProvider> ?? [.. originalMethods];
+            var currentMethodSignatures = BuildCurrentMethodSignatures(materializedMethods);
             var updatedSignatureToOriginal = new Dictionary<MethodSignature, MethodSignature>(MethodSignature.MethodSignatureComparer);
             var methodsWithReorderedParams = new List<MethodProvider>();
 
@@ -1290,10 +1291,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (methodsWithReorderedParams.Count > 0)
             {
-                UpdateConvenienceMethodsForBackCompat(originalMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
+                UpdateConvenienceMethodsForBackCompat(materializedMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
             }
 
-            return [.. originalMethods];
+            // Add back-compat overloads for methods that have gained one or more new optional non-body parameter(s)
+            // relative to the last contract. See https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter
+            var resultMethods = new List<MethodProvider>(materializedMethods);
+            AddBackCompatOverloadsForNewOptionalParameters(resultMethods);
+            return resultMethods;
         }
 
         private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatures(IEnumerable<MethodProvider> originalMethods)
@@ -1747,6 +1752,220 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 xmlDocs.Update(parameters: reorderedParamDocs);
             }
+        }
+
+        /// <summary>
+        /// For each public/protected method on the last contract that does not have an exact match in the
+        /// current contract, attempts to find a corresponding current method whose parameter list is the
+        /// previous method's parameter list (in the same order) plus one or more additional optional
+        /// non-body parameters. When such a current method is found, a hidden back-compat overload that
+        /// matches the previous signature is added; its body simply delegates to the current method,
+        /// passing default values for the new parameters.
+        ///
+        /// Per https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter
+        /// this back-compat behavior is intentionally restricted to non-body parameters.
+        /// </summary>
+        private void AddBackCompatOverloadsForNewOptionalParameters(List<MethodProvider> methods)
+        {
+            if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
+            {
+                return;
+            }
+
+            var existingSignatures = new HashSet<MethodSignature>(MethodSignature.MethodSignatureComparer);
+            foreach (var m in methods)
+            {
+                existingSignatures.Add(m.Signature);
+            }
+            if (CustomCodeView?.Methods != null)
+            {
+                foreach (var m in CustomCodeView.Methods)
+                {
+                    existingSignatures.Add(m.Signature);
+                }
+            }
+
+            // Group current methods by name (using their post-reorder signatures).
+            var currentMethodsByName = new Dictionary<string, List<MethodProvider>>(StringComparer.Ordinal);
+            foreach (var method in methods)
+            {
+                if (!currentMethodsByName.TryGetValue(method.Signature.Name, out var list))
+                {
+                    list = [];
+                    currentMethodsByName[method.Signature.Name] = list;
+                }
+                list.Add(method);
+            }
+
+            var newMethods = new List<MethodProvider>();
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                var previousSignature = previousMethod.Signature;
+
+                // Only process public/protected methods.
+                if (!previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                    !previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                {
+                    continue;
+                }
+
+                // Skip if the current contract already contains an exact-matching signature.
+                if (existingSignatures.Contains(previousSignature))
+                {
+                    continue;
+                }
+
+                if (!currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
+                {
+                    continue;
+                }
+
+                MethodProvider? matchedCurrent = null;
+                foreach (var candidate in candidates)
+                {
+                    if (HasNewOptionalNonBodyParametersOnly(previousSignature, candidate.Signature))
+                    {
+                        matchedCurrent = candidate;
+                        break;
+                    }
+                }
+
+                if (matchedCurrent == null)
+                {
+                    continue;
+                }
+
+                var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedCurrent);
+                if (overload == null)
+                {
+                    continue;
+                }
+
+                if (existingSignatures.Add(overload.Signature))
+                {
+                    newMethods.Add(overload);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
+                        BackCompatibilityChangeCategory.MethodNewOptionalParameterOverloadAdded);
+                }
+            }
+
+            methods.AddRange(newMethods);
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> when <paramref name="currentSignature"/> contains all parameters of
+        /// <paramref name="previousSignature"/> in the same order, and the additional parameters are
+        /// all optional and none of them are body parameters.
+        /// </summary>
+        private static bool HasNewOptionalNonBodyParametersOnly(
+            MethodSignature previousSignature,
+            MethodSignature currentSignature)
+        {
+            if (currentSignature.Parameters.Count <= previousSignature.Parameters.Count)
+            {
+                return false;
+            }
+
+            if (!ReturnTypesMatch(previousSignature.ReturnType, currentSignature.ReturnType))
+            {
+                return false;
+            }
+
+            // Walk current parameters and ensure previous parameters appear in the same relative order
+            // (matched by variable name and type), with every "extra" parameter being optional and non-body.
+            int previousIndex = 0;
+            for (int currentIndex = 0; currentIndex < currentSignature.Parameters.Count; currentIndex++)
+            {
+                var currentParam = currentSignature.Parameters[currentIndex];
+
+                if (previousIndex < previousSignature.Parameters.Count)
+                {
+                    var previousParam = previousSignature.Parameters[previousIndex];
+                    if (currentParam.Name.ToVariableName() == previousParam.Name.ToVariableName() &&
+                        currentParam.Type.AreNamesEqual(previousParam.Type))
+                    {
+                        previousIndex++;
+                        continue;
+                    }
+                }
+
+                // current parameter is "new" relative to the previous contract
+                if (currentParam.DefaultValue is null)
+                {
+                    return false;
+                }
+
+                if (currentParam.Location == ParameterLocation.Body)
+                {
+                    return false;
+                }
+            }
+
+            // All previous parameters must have been matched.
+            return previousIndex == previousSignature.Parameters.Count;
+        }
+
+        private static bool ReturnTypesMatch(CSharpType? a, CSharpType? b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            if (a is null || b is null)
+            {
+                return false;
+            }
+            return a.AreNamesEqual(b);
+        }
+
+        private MethodProvider? BuildBackCompatOverloadForNewOptionalParameters(
+            MethodProvider previousMethod,
+            MethodProvider currentMethod)
+        {
+            var previousSignature = previousMethod.Signature;
+            var currentSignature = currentMethod.Signature;
+
+            var previousParamsByName = new Dictionary<string, ParameterProvider>(StringComparer.Ordinal);
+            foreach (var p in previousSignature.Parameters)
+            {
+                previousParamsByName[p.Name.ToVariableName()] = p;
+            }
+
+            var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
+            foreach (var currentParam in currentSignature.Parameters)
+            {
+                if (previousParamsByName.TryGetValue(currentParam.Name.ToVariableName(), out var prevParam))
+                {
+                    arguments.Add(prevParam);
+                }
+                else
+                {
+                    arguments.Add(currentParam.DefaultValue ?? Default);
+                }
+            }
+
+            // Always invoke without async/await: the back-compat overload simply delegates to the current
+            // method. For async methods, returning the Task directly is sufficient and keeps the back-compat
+            // overload itself non-async (its signature was loaded from the previous DLL contract and does
+            // not carry the async modifier). Constructing InvokeMethodExpression directly leaves
+            // CallAsAsync / AddConfigureAwaitFalse at their default false value.
+            var invocation = new InvokeMethodExpression(This, currentSignature, arguments);
+
+            MethodBodyStatement body = previousSignature.ReturnType is null
+                ? invocation.Terminate()
+                : Return(invocation);
+
+            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true);
+            var kind = (currentMethod as ScmMethodProvider)?.Kind ?? ScmMethodKind.Convenience;
+            return new ScmMethodProvider(
+                backCompatSignature,
+                body,
+                this,
+                kind,
+                xmlDocProvider: previousMethod.XmlDocs,
+                serviceMethod: (currentMethod as ScmMethodProvider)?.ServiceMethod);
         }
     }
 }
