@@ -93,7 +93,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
-            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+            => _lastContractPropertiesMap ??= LastContractView?.Properties
+                .Where(p => IsPublicApi(p.Modifiers))
+                .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
 
@@ -536,7 +538,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
+                // Apply back-compat type replacement only for properties on the public API
+                // surface: changing the type of an internal/private generated property is not
+                // a source-breaking change, and the last-contract map already excludes
+                // non-public-API entries.
+                if (IsPublicApi(outputProperty.Modifiers) &&
+                    LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
                     outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
@@ -1325,5 +1332,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
+
+        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }
