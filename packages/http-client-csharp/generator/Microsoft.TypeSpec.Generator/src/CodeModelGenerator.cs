@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
@@ -108,6 +109,12 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal virtual void Configure()
         {
+            if (string.IsNullOrEmpty(Configuration.PackageName))
+            {
+                Configuration.PackageName = TypeFactory.PrimaryNamespace;
+                Emitter.Info($"'package-name' was not specified. Defaulting to namespace '{Configuration.PackageName}'.");
+            }
+
             foreach (var type in CustomCodeAttributeProviders)
             {
                 AddTypeToKeep(type);
@@ -182,5 +189,12 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
         /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
         public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
+
+        /// <summary>
+        /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.
+        /// Override this method to generate non-C# output files.
+        /// </summary>
+        /// <param name="outputPath">The root output directory.</param>
+        public virtual Task WriteAdditionalFiles(string outputPath) => Task.CompletedTask;
     }
 }

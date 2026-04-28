@@ -25,6 +25,7 @@ updates:
       - "packages/http-client-csharp"
       - "packages/http-client-java"
       - "packages/http-client-python"
+    labels: [] # conflict with our labels in labels.ts
     groups:
       alloy:
         patterns:
@@ -126,6 +127,7 @@ updates:
       interval: "weekly"
     exclude-paths:
       - ".github/workflows/*.lock.{yaml,yml}"
+    labels: [] # conflict with our labels in labels.ts
     groups:
       actions:
         patterns:

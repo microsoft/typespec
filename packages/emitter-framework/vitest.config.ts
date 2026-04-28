@@ -10,10 +10,6 @@ export default mergeConfig(
       passWithNoTests: true,
       setupFiles: ["./test/vitest.setup.ts"],
     },
-    esbuild: {
-      jsx: "preserve",
-      sourcemap: "both",
-    },
     plugins: [alloyPlugin()],
   }),
 );

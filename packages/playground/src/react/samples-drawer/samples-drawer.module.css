@@ -1,3 +1,32 @@
+.samples-search {
+  padding: 0 0 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--colorNeutralBackground1);
+}
+
+.search-input {
+  width: 100%;
+}
+
+.samples-category {
+  margin-bottom: 24px;
+}
+
+.category-title {
+  font-size: var(--fontSizeBase400);
+  margin: 0 0 12px 0;
+  color: var(--colorNeutralForeground1);
+}
+
+.samples-empty {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+  color: var(--colorNeutralForeground3);
+}
+
 .samples-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

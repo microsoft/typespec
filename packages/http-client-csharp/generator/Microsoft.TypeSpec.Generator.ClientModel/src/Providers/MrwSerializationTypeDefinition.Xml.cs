@@ -183,7 +183,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var xmlWireInfo = prop.XmlWireInfo;
             if (xmlWireInfo.Namespace != null && namespaces?.TryGetValue(xmlWireInfo.Namespace.Namespace, out var nsInfo) == true)
             {
-                var stringValue = CreateXmlSerializeValueExpression(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat);
                 var writeStatement = _xmlWriterSnippet.WriteAttributeString(
                     nsInfo.Prefix,
                     xmlWireInfo.Name,
@@ -268,9 +267,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (!underlyingType.IsFrameworkType)
             {
-                return underlyingType.IsEnum
-                    ? _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
-                    : _xmlWriterSnippet.WriteObjectValue(value.As(valueType), _serializationOptionsParameter);
+                return ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
             }
 
             return underlyingType.FrameworkType switch
@@ -282,7 +279,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? value.As<BinaryData>().ToArray()
                     : value.NullableStructValue(valueType),
                     serializationFormat.ToFormatSpecifier()),
-                _ => _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
+                _ => ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat)
             };
         }
 
@@ -430,27 +427,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement CreateXmlWriteTextContentStatement(XmlPropertyInfo prop)
         {
-            var serializedValue = CreateXmlSerializeValueExpression(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat);
-            return WrapInIsDefinedCheck(prop, _xmlWriterSnippet.WriteValue(serializedValue));
-        }
-
-        private ValueExpression CreateXmlSerializeValueExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
-        {
-            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
-                ? valueType.Arguments[0]
-                : valueType;
-
-            if (underlyingType.IsEnum)
-            {
-                return underlyingType.ToSerial(value.NullableStructValue(valueType));
-            }
-
-            if (!underlyingType.IsFrameworkType)
-            {
-                return value;
-            }
-
-            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
+            var writeStatement = ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(prop.PropertyType, prop.SerializationExp, _xmlWriterSnippet, _mrwOptionsParameterSnippet, prop.SerializationFormat);
+            return WrapInIsDefinedCheck(prop, writeStatement);
         }
 
         private static ValueExpression CreateXmlSerializePrimitiveExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
@@ -886,7 +864,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return CreateXmlDeserializeDictionaryAssignment(childElement, propertyType, propertyExpression, xmlWireInfo, serializationFormat);
             }
 
-            var deserializedValue = CreateXmlDeserializeValueExpression(childElement, propertyType, serializationFormat);
+            var deserializedValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeXmlValue(propertyType, childElement, _mrwOptionsParameterSnippet, serializationFormat);
             return propertyExpression.Assign(deserializedValue).Terminate();
         }
 
@@ -1028,28 +1006,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return new MethodBodyStatement[] { dictDeclaration, foreachStatement };
             }
 
-            value = CreateXmlDeserializeValueExpression(element, valueType, serializationFormat);
+            value = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeXmlValue(valueType, element, _mrwOptionsParameterSnippet, serializationFormat);
             return MethodBodyStatement.Empty;
-        }
-
-        private ValueExpression CreateXmlDeserializeValueExpression(ScopedApi<XElement> element, CSharpType valueType, SerializationFormat serializationFormat)
-        {
-            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
-                ? valueType.Arguments[0]
-                : valueType;
-
-            if (underlyingType.IsEnum && underlyingType.UnderlyingEnumType != null)
-            {
-                var underlyingExpression = CreateXmlDeserializePrimitiveExpression(element, underlyingType.UnderlyingEnumType, serializationFormat);
-                return underlyingType.ToEnum(underlyingExpression);
-            }
-
-            if (!underlyingType.IsFrameworkType)
-            {
-                return GetDeserializationMethodInvocationForType(underlyingType, element, null, _serializationOptionsParameter);
-            }
-
-            return CreateXmlDeserializePrimitiveExpression(element, valueType, serializationFormat);
         }
 
         private static ValueExpression CreateXmlDeserializePrimitiveExpression(
@@ -1074,6 +1032,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(ushort) => element.CastTo(typeof(int)).CastTo(typeof(ushort)),
                 _ => element.CastTo(valueType)
             };
+        }
+
+        internal static ValueExpression DeserializeXmlValueCore(
+            CSharpType valueType,
+            ScopedApi<XElement> element,
+            ScopedApi<ModelReaderWriterOptions> mrwOptions,
+            SerializationFormat format)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsEnum && underlyingType.UnderlyingEnumType != null)
+            {
+                var underlyingExpression = CreateXmlDeserializePrimitiveExpression(element, underlyingType.UnderlyingEnumType, format);
+                return underlyingType.ToEnum(underlyingExpression);
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return GetDeserializationMethodInvocationForType(underlyingType, element, null, mrwOptions);
+            }
+
+            return CreateXmlDeserializePrimitiveExpression(element, valueType, format);
+        }
+
+        internal static MethodBodyStatement SerializeXmlValueCore(
+            CSharpType valueType,
+            ValueExpression value,
+            ScopedApi<XmlWriter> xmlWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat serializationFormat)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsEnum)
+            {
+                return xmlWriter.WriteValue(underlyingType.ToSerial(value.NullableStructValue(valueType)));
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return xmlWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter);
+            }
+
+            return xmlWriter.WriteValue(CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat));
         }
 
         private MethodBodyStatement CreateXmlDeserializeAttributeStatements(

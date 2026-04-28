@@ -31,3 +31,4 @@ extends:
           CadlRanchName: "@typespec/http-client-python"
           EnableCadlRanchReport: false
           PythonVersion: "3.11"
+          UploadPlaygroundBundle: true

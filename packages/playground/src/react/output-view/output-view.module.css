@@ -41,3 +41,30 @@
 .viewer-error {
   padding: 20px;
 }
+
+.output-view-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.output-compiling {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.output-compiling-overlay {
+  position: absolute;
+  top: 8px;
+  right: 48px;
+  z-index: 10;
+}
+
+.output-stale-banner {
+  background-color: var(--colorPaletteYellowBackground2);
+  color: var(--colorNeutralForeground1);
+  padding: 4px 12px;
+  font-size: 12px;
+  text-align: center;
+}

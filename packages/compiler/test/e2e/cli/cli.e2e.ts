@@ -16,7 +16,10 @@ interface ExecCliOptions {
 
 async function execCli(args: string[], { cwd }: ExecCliOptions) {
   const node = process.platform === "win32" ? "node.exe" : "node";
-  return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], { cwd });
+  return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], {
+    cwd,
+    env: { ...process.env, NO_COLOR: "1" },
+  });
 }
 async function execCliSuccess(args: string[], { cwd }: ExecCliOptions) {
   const result = await execCli(args, { cwd });
