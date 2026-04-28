@@ -1263,10 +1263,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var materializedMethods = originalMethods as IList<MethodProvider> ?? [.. originalMethods];
             var currentMethodSignatures = BuildCurrentMethodSignatures(materializedMethods);
+
+            ApplyParameterReorderingForBackCompat(materializedMethods, currentMethodSignatures);
+
+            // Add back-compat overloads for methods that have gained one or more new optional non-body parameter(s).
+            var resultMethods = new List<MethodProvider>(materializedMethods);
+            AddBackCompatOverloadsForNewOptionalParameters(resultMethods, currentMethodSignatures);
+            return resultMethods;
+        }
+
+        private void ApplyParameterReorderingForBackCompat(
+            IList<MethodProvider> materializedMethods,
+            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
+        {
             var updatedSignatureToOriginal = new Dictionary<MethodSignature, MethodSignature>(MethodSignature.MethodSignatureComparer);
             var methodsWithReorderedParams = new List<MethodProvider>();
 
-            foreach (var previousMethod in LastContractView.Methods)
+            foreach (var previousMethod in LastContractView!.Methods)
             {
                 if (!ShouldProcessMethodForBackCompat(previousMethod.Signature, currentMethodSignatures))
                 {
@@ -1293,12 +1306,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 UpdateConvenienceMethodsForBackCompat(materializedMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
             }
-
-            // Add back-compat overloads for methods that have gained one or more new optional non-body parameter(s)
-            // relative to the last contract. See https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter
-            var resultMethods = new List<MethodProvider>(materializedMethods);
-            AddBackCompatOverloadsForNewOptionalParameters(resultMethods);
-            return resultMethods;
         }
 
         private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatures(IEnumerable<MethodProvider> originalMethods)
@@ -1754,40 +1761,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        /// <summary>
-        /// For each public/protected method on the last contract that does not have an exact match in the
-        /// current contract, attempts to find a corresponding current method whose parameter list is the
-        /// previous method's parameter list (in the same order) plus one or more additional optional
-        /// non-body parameters. When such a current method is found, a hidden back-compat overload that
-        /// matches the previous signature is added; its body simply delegates to the current method,
-        /// passing default values for the new parameters.
-        ///
-        /// Per https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter
-        /// this back-compat behavior is intentionally restricted to non-body parameters.
-        /// </summary>
-        private void AddBackCompatOverloadsForNewOptionalParameters(List<MethodProvider> methods)
+        private void AddBackCompatOverloadsForNewOptionalParameters(
+            List<MethodProvider> methods,
+            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
         {
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
                 return;
             }
 
-            var existingSignatures = new HashSet<MethodSignature>(MethodSignature.MethodSignatureComparer);
-            foreach (var m in methods)
-            {
-                existingSignatures.Add(m.Signature);
-            }
-            if (CustomCodeView?.Methods != null)
-            {
-                foreach (var m in CustomCodeView.Methods)
-                {
-                    existingSignatures.Add(m.Signature);
-                }
-            }
-
-            // Group current methods by name (using their post-reorder signatures).
+            // Group existing (current + custom) methods by name so we can quickly find candidates
+            // that share the previous method's name. Reuses the dictionary built once in
+            // BuildMethodsForBackCompatibility to avoid recomputing signatures.
             var currentMethodsByName = new Dictionary<string, List<MethodProvider>>(StringComparer.Ordinal);
-            foreach (var method in methods)
+            foreach (var method in currentMethodSignatures.Values)
             {
                 if (!currentMethodsByName.TryGetValue(method.Signature.Name, out var list))
                 {
@@ -1797,6 +1784,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 list.Add(method);
             }
 
+            var addedSignatures = new HashSet<MethodSignature>(MethodSignature.MethodSignatureComparer);
             var newMethods = new List<MethodProvider>();
 
             foreach (var previousMethod in LastContractView.Methods)
@@ -1811,7 +1799,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // Skip if the current contract already contains an exact-matching signature.
-                if (existingSignatures.Contains(previousSignature))
+                if (currentMethodSignatures.ContainsKey(previousSignature))
                 {
                     continue;
                 }
@@ -1842,7 +1830,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (existingSignatures.Add(overload.Signature))
+                if (!currentMethodSignatures.ContainsKey(overload.Signature) && addedSignatures.Add(overload.Signature))
                 {
                     newMethods.Add(overload);
                     CodeModelGenerator.Instance.Emitter.Debug(
