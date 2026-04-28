@@ -4,7 +4,7 @@ import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { ResultCode } from "../types.js";
+import { Result, ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
 import {
   emptyActivityId,
@@ -108,11 +108,11 @@ export class TelemetryClient {
     }
   }
 
-  public async doOperationWithTelemetry<T>(
+  public async doOperationWithTelemetry<T extends ResultCode | Result<unknown>>(
     eventName: TelemetryEventName,
     /**
-     * The result will be set automatically if the return type is ResultCode or Result<T>
-     * Otherwise, you can set the result manually by setting the opTelemetryEvent.result
+     * The operation must return either a {@link ResultCode} or a {@link Result}, and the
+     * telemetry event's result will be set from it automatically.
      */
     operation: (
       opTelemetryEvent: OperationTelemetryEvent,
@@ -137,13 +137,11 @@ export class TelemetryClient {
       const result = await operation(opTelemetryEvent, (result, delay) =>
         sendTelemetryEvent(result, delay),
       );
-      if (result) {
-        const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
-        if (isResultCode(result)) {
-          opTelemetryEvent.result ??= result as ResultCode;
-        } else if (typeof result === "object" && "code" in result && isResultCode(result.code)) {
-          opTelemetryEvent.result ??= result.code as ResultCode;
-        }
+      const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
+      if (isResultCode(result)) {
+        opTelemetryEvent.result ??= result as ResultCode;
+      } else if (typeof result === "object" && "code" in result && isResultCode(result.code)) {
+        opTelemetryEvent.result ??= result.code as ResultCode;
       }
       return result;
     } catch (e) {

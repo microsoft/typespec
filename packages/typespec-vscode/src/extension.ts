@@ -48,7 +48,7 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 export async function activate(context: ExtensionContext) {
   await telemetryClient.doOperationWithTelemetry(
     TelemetryEventName.StartExtension,
-    async (tel: OperationTelemetryEvent) => {
+    async (tel: OperationTelemetryEvent): Promise<ResultCode> => {
       const stateManager = new ExtensionStateManager(context);
       telemetryClient.Initialize(stateManager);
       /**
@@ -324,6 +324,7 @@ export async function activate(context: ExtensionContext) {
       }
       showStartUpMessages(stateManager);
       telemetryClient.sendDelayedTelemetryEvents();
+      return ResultCode.Success;
     },
   );
 
