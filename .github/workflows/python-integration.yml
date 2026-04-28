@@ -67,6 +67,13 @@ jobs:
       - name: Build
         run: pnpm turbo run --filter "@azure-tools/typespec-python..." build
 
+      - name: Use pinned http-specs versions
+        run: |
+          rm -rf core/packages/http-specs/dist
+          cp -r core/packages/http-client-python/node_modules/@typespec/http-specs/dist core/packages/http-specs/dist
+          rm -rf packages/azure-http-specs/dist
+          cp -r core/packages/http-client-python/node_modules/@azure-tools/azure-http-specs/dist packages/azure-http-specs/dist
+
       - name: Prepare Python environment
         run: pnpm run prepare
         working-directory: packages/typespec-python
@@ -127,11 +134,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build spector and specs
-        run: |
-          pnpm turbo run --filter "@typespec/spector..." build
-          pnpm --filter "@typespec/http-specs" exec tsc -p ./tsconfig.build.json
-          pnpm --filter "@azure-tools/azure-http-specs" exec tsc -p ./tsconfig.build.json
+      - name: Build spector
+        run: pnpm turbo run --filter "@typespec/spector..." build
 
       - name: Prepare Python environment
         run: pnpm run prepare

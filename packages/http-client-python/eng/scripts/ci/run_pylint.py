@@ -43,7 +43,7 @@ def _single_dir_pylint(mod):
         "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
         "--output-format=parseable",
         "--recursive=y",
-        "--py-version=3.9",
+        "--py-version=3.10",
     ]
     if is_azure:
         pylint_args.append("--load-plugins=pylint_guidelines_checker")
