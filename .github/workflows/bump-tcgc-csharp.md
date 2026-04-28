@@ -6,7 +6,7 @@ description: |
   exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 
 on:
-  schedule: daily
+  schedule: "13 3 * * *"
   workflow_dispatch:
 
 permissions: read-all
