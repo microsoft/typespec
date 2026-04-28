@@ -314,16 +314,20 @@ export class StarlightRenderer extends MarkdownRenderer {
   linterRuleLink(url: string) {
     const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
     if (homepage && url.includes(homepage)) {
-      // The linter.md page is generated as a sibling of the reference folder's
-      // other pages (e.g., decorators.md). Rules pages live in a sibling
-      // `rules/` folder by convention, so use a relative `.md` link which is
-      // rewritten by the consumer (Astro/Docusaurus) into a proper site link
-      // honoring any base path or PR preview host.
-      const name = url.split("/").pop();
-      return `../rules/${name}.md`;
-    } else {
-      return url;
+      // The linter.md page is generated inside the package's `reference/`
+      // folder. Derive the rule's sibling folder and slug from the URL's
+      // last two path segments (so we don't hardcode the folder name) and
+      // emit a relative `.md` link which the consumer (Astro/Docusaurus)
+      // rewrites into a proper site link honoring the active base path
+      // and host.
+      const segments = new URL(url).pathname.split("/").filter(Boolean);
+      const folder = segments.at(-2);
+      const name = segments.at(-1);
+      if (folder && name) {
+        return `../${folder}/${name}.md`;
+      }
     }
+    return url;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
