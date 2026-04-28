@@ -50,20 +50,25 @@ def _serialize_import_type(imports: list[ImportModel], delimiter: str) -> str:
     import_list = []
     for module_name in sorted(set(i.module_name for i in imports)):
         normal_imports = [i for i in imports if i.module_name == module_name and not i.version_modules]
-        versioned_imports = [i for i in imports if i.module_name == module_name and i.version_modules]
         if normal_imports:
             import_list.append(_serialize_package(normal_imports, delimiter))
-        for i in versioned_imports:
-            import_list.append(_serialize_versioned_package(i, delimiter))
     return delimiter.join(import_list)
+
+
+def _serialize_versioned_imports(imports: list[ImportModel], delimiter: str) -> str:
+    """Serialize all versioned imports together, to be emitted after all regular imports."""
+    return delimiter.join(_serialize_versioned_package(i, delimiter) for i in imports if i.version_modules)
 
 
 def _get_import_clauses(imports: list[ImportModel], delimiter: str) -> list[str]:
     import_clause = []
     for import_type in ImportType:
-        imports_with_import_type = [i for i in imports if i.import_type == import_type]
+        imports_with_import_type = [i for i in imports if i.import_type == import_type and not i.version_modules]
         if imports_with_import_type:
             import_clause.append(_serialize_import_type(imports_with_import_type, delimiter))
+    versioned = [i for i in imports if i.version_modules]
+    if versioned:
+        import_clause.append(_serialize_versioned_imports(versioned, delimiter))
     return import_clause
 
 
