@@ -981,7 +981,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
             Assert.IsNotNull(itemsProperty);
@@ -1017,7 +1016,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var elementModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementModel") as ModelProvider;
 
@@ -1052,7 +1050,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var elementEnumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementEnum") as EnumProvider;
 
@@ -1082,7 +1079,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
             Assert.IsNotNull(itemsProperty);
@@ -1112,7 +1108,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
             Assert.IsNotNull(countProperty);
@@ -1122,52 +1117,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_ConstructorParameterTypesMatchOverriddenProperty()
-        {
-            // Regression: constructor parameters are built from PropertyProvider.AsParameter, which
-            // lazily materializes a ParameterProvider capturing property.Type on first access. Visitors
-            // that inspect constructors/methods before ProcessTypeForBackCompatibility runs can
-            // materialize AsParameter with the pre-override type, so when back-compat later rewrites
-            // property.Type, the cached ctor/method signatures would go out of sync. Verify that the
-            // back-compat pass cascades the type override onto the shared ParameterProvider.
-            var inputModel = InputFactory.Model(
-                "MockInputModel",
-                properties:
-                [
-                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
-                ]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
-            Assert.IsNotNull(modelProvider);
-
-            // Simulate a visitor materializing the constructor (and therefore the property's
-            // AsParameter) before the back-compat pass runs.
-            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
-            Assert.IsNotNull(countProperty);
-            _ = countProperty!.AsParameter;
-
-            modelProvider.ProcessTypeForBackCompatibility();
-
-            // Property type was overridden from int to int? to match the last contract.
-            var expectedType = new CSharpType(typeof(int), isNullable: true);
-            Assert.IsTrue(countProperty.Type.Equals(expectedType));
-            // The shared ParameterProvider (used by any ctor/method signature built from this
-            // property) must reflect the overridden type too.
-            Assert.IsTrue(countProperty.AsParameter.Type.Equals(expectedType));
-            Assert.IsTrue(countProperty.AsParameter.ToPublicInputParameter().Type.Equals(expectedType.InputType));
-        }
-
-        [Test]
         public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
         {
-            // When the property type differs between the last contract and the current spec
-            // (including a top-level type name change like string vs int), the generator
-            // preserves the last contract's type to avoid a source-breaking change. Users
-            // can override this behavior with custom code if needed.
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 properties:
@@ -1181,7 +1132,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
-            modelProvider!.ProcessTypeForBackCompatibility();
 
             var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
             Assert.IsNotNull(countProperty);
@@ -1217,10 +1167,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var statusProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Status");
             Assert.IsNotNull(statusProperty);
-            // The last contract had StatusEnum? but the spec marks it required/non-nullable –
-            // the generator should preserve the nullable type to avoid a breaking change.
             Assert.IsTrue(statusProperty!.Type.IsNullable);
             Assert.AreEqual("StatusEnum", statusProperty.Type.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainProperty()
+        {
+            // Negative test: the last contract has a MockInputModel but with a different property
+            // name, so the back-compat lookup for "Count" misses and the spec type is preserved.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because the last contract has no matching property.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainModel()
+        {
+            // Negative test: the last contract has no MockInputModel at all, so LastContractView
+            // is null, the property map is empty, and the spec type is preserved as-is.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            // Sanity: there is no last-contract view for this model.
+            Assert.IsNull(modelProvider!.LastContractView);
+
+            var countProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because there is no last contract to compare to.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
         }
 
         [Test]
@@ -1926,7 +1928,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Without ProcessTypeForBackCompatibility, constructor should be private protected
             var privateProtectedConstructor = modelProvider!.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
                     && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
@@ -1936,7 +1938,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
             var publicConstructor = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
