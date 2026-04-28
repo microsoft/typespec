@@ -393,3 +393,8 @@ class TypedDictModelType(DPGModelType):
         if kwargs.pop("is_response", False):
             return "JSON"
         return super().docstring_text(**kwargs)
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        file_import.define_mutable_mapping_type()
+        return file_import
