@@ -330,9 +330,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 if not property_if_match and property_if_none_match:
                     property_if_match = property_if_none_match.copy()
                     property_if_match["wireName"] = "if-match"
+                    property_if_match["etagRole"] = "ifMatch"
                 if not property_if_none_match and property_if_match:
                     property_if_none_match = property_if_match.copy()
                     property_if_none_match["wireName"] = "if-none-match"
+                    property_if_none_match["etagRole"] = "ifNoneMatch"
 
                 if property_if_match and property_if_none_match:
                     # arrange if-match and if-none-match to the end of parameters
