@@ -536,12 +536,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Apply backward-compatibility property type adjustment in place. Doing this
-                // here — before constructors/methods are built and before visitors run — ensures
-                // any downstream code that captures property.Type into expression trees (ctor
-                // bodies, serialization providers, etc.) and any visitor that mutates members
-                // sees the final type from the start. This avoids the chicken-and-egg problem of
-                // running back-compat as a post-visitor pass and then having to invalidate caches.
                 if (LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
