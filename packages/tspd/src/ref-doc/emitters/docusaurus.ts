@@ -287,7 +287,17 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   }
 
   linterRuleLink(url: string) {
-    return url;
+    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
+    if (homepage && url.includes(homepage)) {
+      // The linter.md page is generated as a sibling of the reference folder's
+      // other pages. Rules pages live in a sibling `rules/` folder by
+      // convention, so use a relative `.md` link which Docusaurus rewrites
+      // into the proper site link.
+      const name = url.split("/").pop();
+      return `../rules/${name}.md`;
+    } else {
+      return url;
+    }
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
