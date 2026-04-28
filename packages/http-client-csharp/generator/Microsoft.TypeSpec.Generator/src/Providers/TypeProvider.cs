@@ -590,7 +590,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
-            var hasProperties = LastContractView?.Properties != null && LastContractView.Properties.Count > 0;
 
             IEnumerable<FieldProvider>? newFields = null;
             if (this is EnumProvider)
@@ -609,11 +608,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
-            var newProperties = hasProperties ? BuildPropertiesForBackCompatibility(Properties) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null || newProperties != null)
+            if (newFields != null || newMethods != null || newConstructors != null)
             {
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors, properties: newProperties);
+                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
             }
         }
 
@@ -625,17 +623,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];
-
-        /// <summary>
-        /// Called from <see cref="ProcessTypeForBackCompatibility"/> to apply backward-compatibility
-        /// adjustments to the set of properties produced for this type. Runs after all visitors so
-        /// adjustments reflect the final state of the library. Overrides can replace, reorder, or
-        /// otherwise rewrite properties based on the <see cref="LastContractView"/>.
-        /// </summary>
-        /// <param name="originalProperties">The properties as produced from the current input spec.</param>
-        /// <returns>The possibly-adjusted list of properties.</returns>
-        protected internal virtual IReadOnlyList<PropertyProvider> BuildPropertiesForBackCompatibility(IEnumerable<PropertyProvider> originalProperties)
-            => [.. originalProperties];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 

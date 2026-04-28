@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -535,6 +534,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (outputProperty is null)
                 {
                     continue;
+                }
+
+                // Apply backward-compatibility property type adjustment in place. Doing this
+                // here — before constructors/methods are built and before visitors run — ensures
+                // any downstream code that captures property.Type into expression trees (ctor
+                // bodies, serialization providers, etc.) and any visitor that mutates members
+                // sees the final type from the start. This avoids the chicken-and-egg problem of
+                // running back-compat as a post-visitor pass and then having to invalidate caches.
+                if (LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
+                    !lastContractPropertyType.Equals(outputProperty.Type))
+                {
+                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                        BackCompatibilityChangeCategory.PropertyTypePreserved);
                 }
 
                 if (!isDiscriminator)
@@ -1264,56 +1278,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
                 _ => CSharpType.FromUnion([type])
             };
-        }
-
-        /// <summary>
-        /// Rewrites property types so that, whenever a property exists in the last contract
-        /// with a different type than the one produced by the current spec, the previous
-        /// contract's type is preserved. This avoids source-breaking changes for consumers
-        /// of the library for any kind of property change (collection wrapper, nullability,
-        /// underlying type, etc.). Users can override this behavior with custom code if they
-        /// want the new spec's type instead.
-        /// </summary>
-        protected internal override IReadOnlyList<PropertyProvider> BuildPropertiesForBackCompatibility(IEnumerable<PropertyProvider> originalProperties)
-        {
-            var properties = originalProperties as IReadOnlyList<PropertyProvider> ?? [.. originalProperties];
-            if (LastContractPropertiesMap.Count == 0)
-            {
-                return properties;
-            }
-
-            foreach (var outputProperty in properties)
-            {
-                if (TryGetLastContractPropertyTypeOverride(outputProperty, out var lastContractPropertyType))
-                {
-                    var newType = lastContractPropertyType.ApplyInputSpecProperty(outputProperty.InputProperty);
-                    outputProperty.Update(type: newType);
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
-                        BackCompatibilityChangeCategory.PropertyTypePreserved);
-                }
-            }
-
-            return properties;
-        }
-
-        private bool TryGetLastContractPropertyTypeOverride(
-            PropertyProvider outputProperty,
-            [NotNullWhen(true)] out CSharpType? lastContractPropertyType)
-        {
-            // Always preserve the last contract's property type when it differs from the
-            // type produced by the current spec. This prevents source-breaking changes
-            // for any kind of property change (collection wrapper, nullability, underlying
-            // type, etc.). Users can override this behavior with custom code if needed.
-            lastContractPropertyType = null;
-            if (LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var candidate) &&
-                !candidate.Equals(outputProperty.Type))
-            {
-                lastContractPropertyType = candidate;
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
