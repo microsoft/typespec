@@ -256,8 +256,7 @@ export async function activate(context: ExtensionContext) {
               return await vscode.window.withProgress(
                 {
                   title: "Launching TypeSpec language service...",
-                  location: vscode.ProgressLocation.Notification,
-                  cancellable: true,
+                  location: vscode.ProgressLocation.Window,
                 },
                 async () => {
                   return await recreateLSPClient(context, ssTel.activityId);

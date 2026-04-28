@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-Allow users to dismiss the "Launching TypeSpec language service..." notification
+Show "Launching TypeSpec language service..." progress in the status bar instead of as a notification to avoid blocking the UI
