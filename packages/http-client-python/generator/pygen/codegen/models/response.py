@@ -181,6 +181,7 @@ class PagingResponse(Response):
 
     def type_annotation(self, **kwargs: Any) -> str:
         iterable = "AsyncItemPaged" if kwargs["async_mode"] else "ItemPaged"
+        kwargs["is_operation_file"] = True
         return f"{iterable}[{self.item_type.type_annotation(**kwargs)}]"
 
     def docstring_text(self, **kwargs: Any) -> str:
