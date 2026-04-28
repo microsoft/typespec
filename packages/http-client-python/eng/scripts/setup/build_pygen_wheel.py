@@ -7,8 +7,8 @@
 # --------------------------------------------------------------------------
 import sys
 
-if not sys.version_info >= (3, 9, 0):
-    raise Exception("Autorest for Python extension requires Python 3.9 at least")
+if not sys.version_info >= (3, 10, 0):
+    raise Exception("Autorest for Python extension requires Python 3.10 at least")
 
 try:
     from package_manager import detect_package_manager, PackageManagerNotFoundError
@@ -18,7 +18,7 @@ except (ImportError, ModuleNotFoundError, PackageManagerNotFoundError):
     raise Exception("Your Python installation doesn't have a suitable package manager (pip or uv) available")
 
 
-# Now we have a package manager (pip or uv) and Py >= 3.9, go to work
+# Now we have a package manager (pip or uv) and Py >= 3.10, go to work
 
 from pathlib import Path
 
