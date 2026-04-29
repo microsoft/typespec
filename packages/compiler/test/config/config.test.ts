@@ -210,4 +210,30 @@ describe("compiler: config file loading", () => {
       strictEqual(diagnostics[0].code, "invalid-schema");
     });
   });
+
+  describe("project config validation", () => {
+    it("errors when kind: project is used in a non-tspconfig.yaml file", async () => {
+      const fullPath = join(scenarioRoot, "project-custom-name/myconfig.yaml");
+      const config = await loadTypeSpecConfigForPath(NodeHost, fullPath, true, false);
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-project-kind-filename");
+    });
+
+    it("errors when entrypoint is used without kind: project", async () => {
+      const config = await loadTestConfigFile("entrypoint-no-project");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-project-only-option");
+    });
+
+    it("allows kind: project in tspconfig.yaml", async () => {
+      const config = await loadTestConfigFile("project-basic");
+      strictEqual(config.diagnostics.length, 0);
+      strictEqual(config.kind, "project");
+    });
+  });
 });
+
+async function loadTestConfigFile(scenarioName: string) {
+  const fullPath = join(scenarioRoot, scenarioName, "tspconfig.yaml");
+  return loadTypeSpecConfigForPath(NodeHost, fullPath, true, false);
+}

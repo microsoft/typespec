@@ -1,5 +1,11 @@
 import { createDiagnostic } from "../core/messages.js";
-import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
+import {
+  getBaseFileName,
+  getDirectoryPath,
+  isPathAbsolute,
+  joinPaths,
+  resolvePath,
+} from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
 import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
@@ -176,6 +182,27 @@ async function loadConfigFile(
     // config. Otherwise, we may return an object that does not conform to
     // TypeSpecConfig's typing.
     data = deepClone(defaultConfig) as TypeSpecRawConfig;
+  }
+
+  // Validate project-specific constraints
+  if (data.kind === "project" && getBaseFileName(filename) !== TypeSpecConfigFilename) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-kind-filename",
+        format: { filename: getBaseFileName(filename) },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.entrypoint !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "entrypoint" },
+        target: NoTarget,
+      }),
+    );
   }
 
   const emit = data.emit;

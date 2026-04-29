@@ -10,6 +10,49 @@ The TypeSpec compiler and libraries can be configured either via a configuration
 
 TypeSpec configuration can be provided via the `tspconfig.yaml` configuration file.
 
+### Project Configuration
+
+A `tspconfig.yaml` file can be marked as a **project configuration** by setting `kind: project` at the top level:
+
+```yaml title=tspconfig.yaml
+kind: project
+entrypoint: main.tsp
+emit:
+  - "@typespec/openapi3"
+```
+
+A project configuration marks a **project boundary** — it serves the same role as `package.json` does today for boundary detection, but is specific to TypeSpec. When the compiler or IDE encounters a `tspconfig.yaml` with `kind: project`, it treats that directory as the root of a TypeSpec project.
+
+#### `kind`
+
+Set to `"project"` to mark the directory as a TypeSpec project root.
+
+**Constraints:**
+
+- `kind: project` can only be used in files named `tspconfig.yaml`. Custom-named config files (e.g. used with `--config`) cannot be project configs.
+
+#### `entrypoint`
+
+Declares the main TypeSpec file for the project. This is used by both the CLI (`tsp compile <dir>`) and the IDE (language server) to determine which file to compile.
+
+- **Default:** `main.tsp` (when `kind: project` is set but no `entrypoint` is specified)
+- Can only be used when `kind: project` is set.
+
+```yaml title=tspconfig.yaml
+kind: project
+entrypoint: src/service.tsp
+```
+
+#### Entrypoint Resolution Priority
+
+When compiling a directory, the compiler resolves the entrypoint in this order:
+
+1. **Project tspconfig** — If the directory has a `tspconfig.yaml` with `kind: project`, use its `entrypoint` (defaults to `main.tsp`)
+2. **package.json `tspMain`** — If a `package.json` exists with a `tspMain` field, use that
+3. **`main.tsp`** — Fall back to `main.tsp` in the directory
+
+The IDE language server uses the same priority when walking up directories to find the project root for a given TypeSpec file. When a project boundary (`kind: project`) is found, the walk stops — files outside the project boundary are not considered.
+
 ### Discovery
 
 The TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the TypeSpec entrypoint.
@@ -27,6 +70,8 @@ The file is a `yaml` document with the following structure. See the [next sectio
 
 ```typespec
 model TypeSpecProjectSchema {
+  kind?: "project";
+  entrypoint?: string;
   extends?: string;
   parameters?: Record<{default: string}>
   `environment-variables`?: Record<{default: string}>
@@ -237,6 +282,8 @@ Due to this capability, emitter option names should not contain a `.` in their n
 
 | Config          | Cli                       | Description                                              |
 | --------------- | ------------------------- | -------------------------------------------------------- |
+| `kind`          |                           | Set to `"project"` to mark as a project boundary         |
+| `entrypoint`    |                           | Main TypeSpec file (requires `kind: project`)            |
 | `output-dir`    | `--output-dir`            | Default output directory                                 |
 | `config`        | `--config`                | Path to config file or folder to search for config file. |
 | `trace`         | `--trace`                 | Specify tracing area to enable                           |
@@ -412,11 +459,17 @@ tsp compile . --dry-run
 
 ### `--config`
 
-Specify a different config file
+Specify a different config file for build overrides.
 
 ```bash
 tsp compile . --config ./tspconfig.alt.yaml
 ```
+
+:::note
+`--config` cannot point to a project configuration (one with `kind: project`). Project configs must be named `tspconfig.yaml` and are auto-discovered. Use `--config` with a non-project build config that can optionally use `extends` to inherit from the project config.
+
+When using `--config`, project-specific settings (like `entrypoint`) are automatically inherited from the project `tspconfig.yaml` that would normally apply to the entrypoint — the same project config that would be found if `--config` was not specified. Build settings (like `emit`, `options`, `linter`) are **not** inherited — use `extends` for that.
+:::
 
 ### `--watch`
 
