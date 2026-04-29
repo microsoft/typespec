@@ -213,7 +213,7 @@ describe("compiler: config file loading", () => {
 
   describe("project config validation", () => {
     it("errors when kind: project is used in a non-tspconfig.yaml file", async () => {
-      const fullPath = join(scenarioRoot, "project-custom-name/myconfig.yaml");
+      const fullPath = join(scenarioRoot, "project-custom-name/my-config.yaml");
       const config = await loadTypeSpecConfigForPath(NodeHost, fullPath, true, false);
       strictEqual(config.diagnostics.length, 1);
       strictEqual(config.diagnostics[0].code, "config-project-kind-filename");
