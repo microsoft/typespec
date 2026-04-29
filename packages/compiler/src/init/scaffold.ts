@@ -144,8 +144,7 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   );
 }
 
-const placeholderConfig = `
-kind: project                                    # Marks this as a TypeSpec project
+const commentedOptions = `\
 # entrypoint: main.tsp                           # Main TypeSpec file (default: main.tsp)
 # extends: ../tspconfig.yaml                     # Extend another config file
 # emit:                                          # Emitter name
@@ -162,8 +161,12 @@ kind: project                                    # Marks this as a TypeSpec proj
 # trace:                                         # Trace areas to enable tracing
 #  - "<trace-name>"
 # warn-as-error: true                            # Treat warnings as errors
-# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters
-`.trim();
+# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters`;
+
+const placeholderConfig = `\
+kind: project                                    # Marks this as a TypeSpec project
+${commentedOptions}`;
+
 async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
@@ -182,7 +185,7 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
+  const content = rawConfig ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
