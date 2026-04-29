@@ -27,9 +27,11 @@ namespace BoolsTrue {
   @doc("Set Boolean value true")
   @operationId("bool_putTrue")
   @put
-  op setTrue(@body value: true): {
-    ...Response<200>;
-  } | Error;
+  op setTrue(@body value: true):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 }
 
 @doc("AutoRest Bool Test Service")
