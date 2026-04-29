@@ -5166,6 +5166,19 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
 
+### SpecialWords_ReservedOperationBodyParams_withItems
+
+- Endpoint: `post /special-words/operations/body-param-reserved`
+
+Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+not mangled to "items_property" or similar.
+
+Send
+
+```json
+{ "items": ["item"] }
+```
+
 ### Streaming_Jsonl_Basic_receive
 
 - Endpoint: `get /streaming/jsonl/basic/receive`
