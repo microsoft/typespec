@@ -331,8 +331,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
-            var customMethods = CustomCodeView?.Methods ?? [];
-            var partialDeclarations = customMethods.Where(m => m.IsPartialMethod).ToList();
+            var customMethods = CustomCodeView?.Methods;
+            // Only build the partial-declarations list when there are custom methods to inspect.
+            // The vast majority of TypeProviders have no custom code; skip the allocation in that case.
+            List<MethodProvider>? partialDeclarations = null;
+            if (customMethods != null && customMethods.Count > 0)
+            {
+                foreach (var customMethod in customMethods)
+                {
+                    if (customMethod.IsPartialMethod)
+                    {
+                        (partialDeclarations ??= new List<MethodProvider>()).Add(customMethod);
+                    }
+                }
+            }
 
             foreach (var method in specMethods)
             {
@@ -344,8 +356,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var matchingPartial = partialDeclarations
-                    .FirstOrDefault(p => MethodSignatureBase.SignatureComparer.Equals(p.Signature, method.Signature));
+                MethodProvider? matchingPartial = null;
+                if (partialDeclarations != null)
+                {
+                    foreach (var partial in partialDeclarations)
+                    {
+                        if (MethodSignatureBase.SignatureComparer.Equals(partial.Signature, method.Signature))
+                        {
+                            matchingPartial = partial;
+                            break;
+                        }
+                    }
+                }
+
                 if (matchingPartial != null)
                 {
                     methods.Add(CreatePartialMethodFromCustomSignature(matchingPartial.Signature, method));
