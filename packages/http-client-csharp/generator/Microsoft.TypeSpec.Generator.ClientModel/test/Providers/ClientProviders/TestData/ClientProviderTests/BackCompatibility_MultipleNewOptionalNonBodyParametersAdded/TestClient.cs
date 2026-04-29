@@ -8,12 +8,12 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual ClientResult<string> GetData(int param2, string param1, CancellationToken cancellationToken = default)
+        public virtual ClientResult<string> GetData(int param1, string param2, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<ClientResult<string>> GetDataAsync(int param2, string param1, CancellationToken cancellationToken = default)
+        public virtual Task<ClientResult<string>> GetDataAsync(int param1, string param2, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             BackCompatibilityChangeCategory.ModelFactoryMethodReplaced => "Model Factory Method Replaced For Back-Compat",
             BackCompatibilityChangeCategory.ModelFactoryMethodAdded => "Model Factory Method Added For Back-Compat",
             BackCompatibilityChangeCategory.ModelFactoryMethodSkipped => "Model Factory Method Back-Compat Skipped",
-            BackCompatibilityChangeCategory.MethodNewOptionalParameterOverloadAdded => "Method Back-Compat Overload Added For New Optional Parameter",
+            BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded => "Method Back-Compat Overload Added For New Optional Parameter",
             _ => category.ToString(),
         };
 

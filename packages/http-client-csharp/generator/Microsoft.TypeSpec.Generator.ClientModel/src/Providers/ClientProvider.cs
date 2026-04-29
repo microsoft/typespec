@@ -1256,23 +1256,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
+            List<MethodProvider> materializedMethods = [.. originalMethods];
+
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
-                return [.. originalMethods];
+                return materializedMethods;
             }
 
-            var materializedMethods = originalMethods as IList<MethodProvider> ?? [.. originalMethods];
             var currentMethodSignatures = BuildCurrentMethodSignatures(materializedMethods);
 
-            ApplyParameterReorderingForBackCompat(materializedMethods, currentMethodSignatures);
+            ProcessBackCompatForParameterReordering(materializedMethods, currentMethodSignatures);
+            ProcessBackCompatForNewOptionalParameters(materializedMethods, currentMethodSignatures);
 
-            // Add back-compat overloads for methods that have gained one or more new optional non-body parameter(s).
-            var resultMethods = new List<MethodProvider>(materializedMethods);
-            AddBackCompatOverloadsForNewOptionalParameters(resultMethods, currentMethodSignatures);
-            return resultMethods;
+            return materializedMethods;
         }
 
-        private void ApplyParameterReorderingForBackCompat(
+        private void ProcessBackCompatForParameterReordering(
             IList<MethodProvider> materializedMethods,
             Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
         {
@@ -1761,21 +1760,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private void AddBackCompatOverloadsForNewOptionalParameters(
+        private void ProcessBackCompatForNewOptionalParameters(
             List<MethodProvider> methods,
             Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
         {
-            if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
-            {
-                return;
-            }
-
             // Group existing (current + custom) methods by name so we can quickly find candidates
             // that share the previous method's name. Reuses the dictionary built once in
             // BuildMethodsForBackCompatibility to avoid recomputing signatures.
             var currentMethodsByName = new Dictionary<string, List<MethodProvider>>(StringComparer.Ordinal);
             foreach (var method in currentMethodSignatures.Values)
             {
+                // Skip CreateRequest methods: they are internal helpers and never need a back-compat overload.
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest })
+                {
+                    continue;
+                }
+
                 if (!currentMethodsByName.TryGetValue(method.Signature.Name, out var list))
                 {
                     list = [];
@@ -1787,7 +1787,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var addedSignatures = new HashSet<MethodSignature>(MethodSignature.MethodSignatureComparer);
             var newMethods = new List<MethodProvider>();
 
-            foreach (var previousMethod in LastContractView.Methods)
+            foreach (var previousMethod in LastContractView!.Methods)
             {
                 var previousSignature = previousMethod.Signature;
 
@@ -1819,12 +1819,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                if (matchedCurrent == null)
+                if (matchedCurrent is not ScmMethodProvider matchedScmMethod)
                 {
                     continue;
                 }
 
-                var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedCurrent);
+                // Only generate back-compat overloads for Convenience or Protocol methods.
+                if (matchedScmMethod.Kind != ScmMethodKind.Convenience && matchedScmMethod.Kind != ScmMethodKind.Protocol)
+                {
+                    continue;
+                }
+
+                var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedScmMethod);
                 if (overload == null)
                 {
                     continue;
@@ -1835,18 +1841,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     newMethods.Add(overload);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
-                        BackCompatibilityChangeCategory.MethodNewOptionalParameterOverloadAdded);
+                        BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
                 }
             }
 
             methods.AddRange(newMethods);
         }
 
-        /// <summary>
-        /// Returns <c>true</c> when <paramref name="currentSignature"/> contains all parameters of
-        /// <paramref name="previousSignature"/> in the same order, and the additional parameters are
-        /// all optional and none of them are body parameters.
-        /// </summary>
+        // Returns true when currentSignature contains all parameters of previousSignature in the same
+        // relative order, every "extra" parameter is optional, and none of the extras are body parameters.
         private static bool HasNewOptionalNonBodyParametersOnly(
             MethodSignature previousSignature,
             MethodSignature currentSignature)
@@ -1871,6 +1874,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (previousIndex < previousSignature.Parameters.Count)
                 {
                     var previousParam = previousSignature.Parameters[previousIndex];
+                    // Use AreNamesEqual (rather than the default equality) because the previous
+                    // parameter type was loaded from the last contract assembly and may carry
+                    // different metadata (e.g. nullability annotations) than the freshly generated
+                    // current parameter type even when the two represent the same logical type.
                     if (currentParam.Name.ToVariableName() == previousParam.Name.ToVariableName() &&
                         currentParam.Type.AreNamesEqual(previousParam.Type))
                     {
@@ -1879,7 +1886,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // current parameter is "new" relative to the previous contract
+                // currentParam is "new" relative to the previous contract. Adding a back-compat overload
+                // requires us to supply a value when delegating to the current method, so the parameter
+                // must already provide a default value we can pass through.
                 if (currentParam.DefaultValue is null)
                 {
                     return false;
@@ -1895,6 +1904,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return previousIndex == previousSignature.Parameters.Count;
         }
 
+        // Returns true when the return types are considered equal across the previous and current
+        // contracts. Compares by name (ignoring nullability) because the previous type was loaded
+        // from the last contract assembly and may carry different metadata than the current one.
         private static bool ReturnTypesMatch(CSharpType? a, CSharpType? b)
         {
             if (ReferenceEquals(a, b))
@@ -1908,17 +1920,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return a.AreNamesEqual(b);
         }
 
-        private MethodProvider? BuildBackCompatOverloadForNewOptionalParameters(
+        private ScmMethodProvider? BuildBackCompatOverloadForNewOptionalParameters(
             MethodProvider previousMethod,
-            MethodProvider currentMethod)
+            ScmMethodProvider currentMethod)
         {
             var previousSignature = previousMethod.Signature;
             var currentSignature = currentMethod.Signature;
 
-            var previousParamsByName = new Dictionary<string, ParameterProvider>(StringComparer.Ordinal);
+            var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
-                previousParamsByName[p.Name.ToVariableName()] = p;
+                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
             }
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
@@ -1934,11 +1946,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // Always invoke without async/await: the back-compat overload simply delegates to the current
-            // method. For async methods, returning the Task directly is sufficient and keeps the back-compat
-            // overload itself non-async (its signature was loaded from the previous DLL contract and does
-            // not carry the async modifier). Constructing InvokeMethodExpression directly leaves
-            // CallAsAsync / AddConfigureAwaitFalse at their default false value.
+            // Delegate to the current method without async/await: returning the Task directly is
+            // sufficient and avoids state-machine overhead. We construct InvokeMethodExpression
+            // directly so CallAsAsync stays false even when the current async method's signature
+            // carries the Async modifier.
             var invocation = new InvokeMethodExpression(This, currentSignature, arguments);
 
             MethodBodyStatement body = previousSignature.ReturnType is null
@@ -1946,14 +1957,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : Return(invocation);
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true);
-            var kind = (currentMethod as ScmMethodProvider)?.Kind ?? ScmMethodKind.Convenience;
             return new ScmMethodProvider(
-                backCompatSignature,
-                body,
-                this,
-                kind,
+                signature: backCompatSignature,
+                bodyStatements: body,
+                enclosingType: this,
+                methodKind: currentMethod.Kind,
                 xmlDocProvider: previousMethod.XmlDocs,
-                serviceMethod: (currentMethod as ScmMethodProvider)?.ServiceMethod);
+                serviceMethod: currentMethod.ServiceMethod);
         }
     }
 }

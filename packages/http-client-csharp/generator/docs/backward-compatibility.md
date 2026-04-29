@@ -819,35 +819,36 @@ op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): stri
 
 **Generated Client:**
 
+The generated client includes the current methods (with the new optional `p2` parameter) and the hidden back-compat overloads that match the previous contract's signature. Required parameters come first, followed by optional parameters, with `RequestOptions` last — matching the [Azure SDK parameter ordering guidelines](https://azure.github.io/azure-sdk/dotnet_implementation.html#parameter-presence-and-ordering).
+
 ```csharp
-// Current method generated from the updated TypeSpec — includes the new optional `p2` parameter.
+// Current sync method generated from the updated TypeSpec.
 public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
 {
     // ... implementation ...
 }
 
-// Back-compat overload matching the previous contract's signature. Hidden from IntelliSense and
-// delegates to the current method, passing `default` for the new `p2` parameter. Default values
-// are stripped from this signature to avoid ambiguous call sites with the current method above.
+// Current async method generated from the updated TypeSpec.
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat sync overload matching the previous contract's signature.
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
 {
     return this.GetData(p1, body, default, options);
 }
 
-// Current async method generated from the updated TypeSpec — includes the new optional `p2` parameter.
-public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
-{
-    // ... implementation ...
-}
-
-// Back-compat async overload matching the previous contract's signature. Hidden from IntelliSense
-// and delegates to the current async method without `await` so this method itself is non-async.
+// Back-compat async overload matching the previous contract's signature.
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
 {
     return this.GetDataAsync(p1, body, default, options);
 }
 ```
+
+The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter. Async overloads return the `Task` directly without `await` so the back-compat method itself remains non-async, avoiding unnecessary state-machine overhead for a simple delegation.
 
 The same logic applies when more than one new optional non-body parameter is added — the back-compat overload simply passes `default` for each new parameter when delegating to the current method.

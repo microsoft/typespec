@@ -3149,15 +3149,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
         }
 
-        // Last contract has GetData(string param1, int param2, CancellationToken) (and async).
+        // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
         // The current TypeSpec adds a new optional non-body (header) parameter `param3`.
         // Expected: a hidden back-compat overload matching the previous signature is added that
         // delegates to the new method, passing default for the new parameter.
         [Test]
         public async Task BackCompatibility_NewOptionalNonBodyParameterAdded()
         {
-            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
-            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
             var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
 
             var operation = InputFactory.Operation(
@@ -3167,8 +3167,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             List<InputMethodParameter> methodParameters =
             [
-                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
-                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
                 InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
             ];
 
@@ -3216,11 +3216,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // Validate the back-compat sync body delegates to the current sync method with default for param3.
             var syncBody = backCompatSync!.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("return this.GetData(param2, param1, default, cancellationToken);\n", syncBody);
+            Assert.AreEqual("return this.GetData(param1, param2, default, cancellationToken);\n", syncBody);
 
             // Validate the back-compat async body delegates to the current async method (no await; returns Task directly).
             var asyncBody = backCompatAsync!.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("return this.GetDataAsync(param2, param1, default, cancellationToken);\n", asyncBody);
+            Assert.AreEqual("return this.GetDataAsync(param1, param2, default, cancellationToken);\n", asyncBody);
         }
 
         // The current TypeSpec adds two new optional non-body parameters relative to the last contract.
@@ -3229,8 +3229,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task BackCompatibility_MultipleNewOptionalNonBodyParametersAdded()
         {
-            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
-            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
             var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
             var param4 = InputFactory.QueryParameter("param4", InputPrimitiveType.String, isRequired: false);
 
@@ -3241,8 +3241,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             List<InputMethodParameter> methodParameters =
             [
-                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
-                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
                 InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
                 InputFactory.MethodParameter("param4", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
             ];
@@ -3279,10 +3279,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // The back-compat overloads should pass `default` for both new parameters.
             Assert.AreEqual(
-                "return this.GetData(param2, param1, default, default, cancellationToken);\n",
+                "return this.GetData(param1, param2, default, default, cancellationToken);\n",
                 backCompatSync!.BodyStatements!.ToDisplayString());
             Assert.AreEqual(
-                "return this.GetDataAsync(param2, param1, default, default, cancellationToken);\n",
+                "return this.GetDataAsync(param1, param2, default, default, cancellationToken);\n",
                 backCompatAsync!.BodyStatements!.ToDisplayString());
         }
 
