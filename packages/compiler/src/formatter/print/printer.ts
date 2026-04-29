@@ -1403,31 +1403,14 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const node = path.node;
-  const shouldHug = shouldHugType(node);
-
   const types = path.map((typePath) => {
-    let printedType: string | Doc = print(typePath);
-    if (!shouldHug) {
-      printedType = align(2, printedType);
-    }
+    const printedType: Doc = align(2, print(typePath));
     return printedType;
   }, "options");
-
-  if (shouldHug) {
-    return join(" | ", types);
-  }
 
   const shouldAddStartLine = true;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
   return group(indent(code));
-}
-
-function shouldHugType(node: Node) {
-  if (node.kind === SyntaxKind.UnionExpression || node.kind === SyntaxKind.IntersectionExpression) {
-    return node.options.length < 4;
-  }
-  return false;
 }
 
 export function printTypeReference(

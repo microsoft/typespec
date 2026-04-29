@@ -1720,6 +1720,32 @@ alias Foo = A | (B & C);
     });
   });
 
+  describe("union of intersections", () => {
+    it("breaks long union of intersections onto multiple lines", async () => {
+      await assertFormat({
+        code: `
+op create(@body body: CreateUserRequest): (CreatedResponse & Body<User>) | (BadRequestResponse & Body<ValidationError>);
+`,
+        expected: `
+op create(@body body: CreateUserRequest):
+  | (CreatedResponse & Body<User>)
+  | (BadRequestResponse & Body<ValidationError>);
+`,
+      });
+    });
+
+    it("keeps short union of intersections inline", async () => {
+      await assertFormat({
+        code: `
+alias Foo = (A   &   B)  |  (C   &   D);
+`,
+        expected: `
+alias Foo = (A & B) | (C & D);
+`,
+      });
+    });
+  });
+
   describe("enum", () => {
     it("format simple enum", async () => {
       await assertFormat({
