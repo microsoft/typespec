@@ -1296,6 +1296,7 @@ This is preferred over `[CodeGenSuppress]` + a hand-written replacement when the
 ### What is NOT supported
 
 - **Renaming the method itself.** Matching is by `(method name, ordered parameter type list)`. To rename, use `[CodeGenSuppress]` + a hand-written method that delegates to the underlying request/pipeline machinery.
+- **Changing parameter types.** The parameter type list must match the generated signature exactly (matched by type name). Replacing a parameter type with a different type — even an implicitly convertible one — will simply fail to match and the partial decl will be ignored. To project a different type, use `[CodeGenSuppress]` + a hand-written wrapper that converts and forwards.
 - **Adding/removing/reordering parameters.** The parameter type list must match the generated signature exactly. To restructure, use `[CodeGenSuppress]`.
 - **Default values on the partial implementation.** C# requires partial method implementations to have all parameters required, so any default values on your partial declaration are stripped on the generated impl. Callers still see the defaults from your declaration in custom code.
 - **Non-client members** (models, serialization methods, model factories). Use `[CodeGenSuppress]` for these.
