@@ -8,6 +8,7 @@ namespace Documentation
 {
     public static partial class DocumentationModelFactory
     {
+
         public static BulletPointsModel BulletPointsModel(BulletPointsEnum prop = default) => throw null;
     }
 }

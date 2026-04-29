@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields of primitive types.
+ * §1.1 — Contains fields of primitive types.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SimpleModel implements XmlSerializable<SimpleModel> {

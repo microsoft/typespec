@@ -1,7 +1,7 @@
 {
   "name": "typespec-vs",
   "author": "Microsoft Corporation",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "TypeSpec Language Support for Visual Studio",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "files": [
     "Microsoft.TypeSpec.VS.vsix"

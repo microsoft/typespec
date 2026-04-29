@@ -16,7 +16,6 @@ from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
 
 from ._version import VERSION
 
-
 __version__ = VERSION
 _LOGGER = logging.getLogger(__name__)
 

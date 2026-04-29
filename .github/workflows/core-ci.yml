@@ -1,0 +1,152 @@
+name: Core CI
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: ["22.x", "24.x"]
+
+    env:
+      TYPESPEC_VS_CI_BUILD: true
+      TYPESPEC_SKIP_WEBSITE_BUILD: true
+
+    steps:
+      - name: Enable git long paths (Windows)
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
+
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Restore .NET dependencies
+        run: dotnet restore
+        working-directory: packages/typespec-vs
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test
+        run: pnpm vitest run --coverage --reporter=default --reporter=github-actions
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: packages/*/coverage/
+          retention-days: 5
+
+      - name: Check for changed files
+        run: node eng/common/scripts/check-for-changed-files.js
+
+  website:
+    name: Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build website
+        run: pnpm --filter "@typespec/website..." run build
+
+      - name: Check for changed files
+        run: node eng/common/scripts/check-for-changed-files.js
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    env:
+      TYPESPEC_VS_CI_BUILD: false
+      TYPESPEC_SKIP_WEBSITE_BUILD: true
+      DISPLAY: ":99"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: |
+          sudo dpkg --configure -a
+          npx playwright install --with-deps
+
+      - name: Start Xvfb
+        run: |
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          echo "Started xvfb"
+
+      - name: Build
+        run: pnpm run build
+
+      - name: E2E Tests
+        run: pnpm run test:e2e
+
+      - name: Upload UI test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: uitestresults-e2e
+          path: packages/playground-website/test-results/
+          retention-days: 5
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshots
+          path: packages/typespec-vscode/temp/images-linux/
+          retention-days: 5
+
+      - name: Upload trace results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: trace-results
+          path: packages/typespec-vscode/test-results/
+          retention-days: 5
+
+      - name: Check for changed files
+        run: node eng/common/scripts/check-for-changed-files.js
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build Docker image
+        run: docker build -f ./docker/Dockerfile .

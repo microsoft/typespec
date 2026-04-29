@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -19,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientOptionsProvider : TypeProvider
     {
-        private const string ServicePrefix = "Service";
         private const string VersionSuffix = "Version";
         private const string ApiVersionSuffix = "ApiVersion";
         private const string LatestPrefix = "Latest";
@@ -34,8 +34,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            List<InputEnumType> inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
-                    .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            List<InputEnumType> inputEnums = [.. _inputClient.Parameters
+                    .Where(p => p.IsApiVersion && p.Type is InputEnumType)
+                    .Select(p => (InputEnumType)p.Type)];
+            if (inputEnums.Count == 0)
+            {
+                inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                        .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            }
 
             if (inputEnums.Count > 0)
             {
@@ -85,10 +91,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines if a client has only standard parameters (ApiVersion and Endpoint).
+        /// Determines if a client can share the singleton options instance.
+        /// Multi-service clients always need their own options type for service-specific API version properties.
+        /// Only optional parameters with default values that become properties on the options class
+        /// should trigger a separate client-specific options type.
         /// </summary>
         /// <param name="inputClient">The input client to check.</param>
-        /// <returns>True if the client has only standard parameters, false otherwise.</returns>
+        /// <returns>True if the client can share the singleton options instance, false otherwise.</returns>
         private static bool UseSingletonInstance(InputClient inputClient)
         {
             var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
@@ -96,6 +105,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Only one root client, no need for singleton
                 return false;
+            }
+
+            // Multi-service clients need their own options type for service-specific API version properties
+            if (inputClient.IsMultiServiceClient)
+            {
+                return false;
+            }
+
+            // Library spans multiple services (e.g. multiple @service-decorated namespaces without
+            // an explicit @client decorator, producing one single-service root client per service).
+            // Each root client needs its own options type for its service-specific API version.
+            int apiVersionEnumCount = 0;
+            foreach (var inputEnum in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums)
+            {
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    apiVersionEnumCount++;
+                    if (apiVersionEnumCount > 1)
+                    {
+                        return false;
+                    }
+                }
             }
 
             foreach (var parameter in inputClient.Parameters)
@@ -111,11 +142,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             return false; // Found a non-standard endpoint parameter
                         }
                     }
-                    else
+                    else if (parameter.DefaultValue != null)
                     {
-                        // Found a non-ApiVersion, non-Endpoint parameter
+                        // Found a non-ApiVersion, non-Endpoint optional parameter that will become
+                        // a property on the options class — requires a separate client-specific options type.
                         return false;
                     }
+                    // Required parameters (DefaultValue == null) are inlined as constructor parameters
+                    // on the client and do not become properties on the options class,
+                    // so they should not trigger a separate client-specific options type.
                 }
             }
             return true;
@@ -133,11 +168,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                // For multi-service clients, use the full namespace to guarantee uniqueness
-                // (the last segment alone can collide when services share a namespace).
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -161,11 +211,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
-            foreach (var enumProvider in _serviceVersionsEnums.Values)
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var fieldName = _inputClient.IsMultiServiceClient
-                    ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
-                    : LatestVersionFieldName;
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
+                }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,
@@ -353,6 +420,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Name,
                     property.Name.ToVariableName(),
                     property.Type);
+            }
+
+            // Also bind custom code properties (e.g., hand-written properties added via partial classes)
+            var generatedPropNames = new HashSet<string>(Properties.Select(p => p.Name));
+            if (versionPropertyNames != null)
+            {
+                generatedPropNames.UnionWith(versionPropertyNames);
+            }
+            var customCodeProperties = CustomCodeView?.Properties;
+            if (customCodeProperties != null)
+            {
+                foreach (var prop in customCodeProperties)
+                {
+                    if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                        !generatedPropNames.Contains(prop.Name))
+                    {
+                        ClientSettingsProvider.AppendBindingForProperty(
+                            body,
+                            sectionParam,
+                            prop.Name,
+                            prop.Name.ToVariableName(),
+                            prop.Type);
+                        generatedPropNames.Add(prop.Name);
+                    }
+                }
             }
 
             return new ConstructorProvider(

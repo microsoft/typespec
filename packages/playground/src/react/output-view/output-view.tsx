@@ -1,4 +1,10 @@
-import { Button, Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
+import {
+  Button,
+  Spinner,
+  Tab,
+  TabList,
+  type SelectTabEventHandler,
+} from "@fluentui/react-components";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { PlaygroundEditorsOptions } from "../playground.js";
@@ -10,6 +16,9 @@ import style from "./output-view.module.css";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
+  isCompiling?: boolean;
+  /** When true, the displayed output is from a previous successful compilation. */
+  isOutputStale?: boolean;
   editorOptions?: PlaygroundEditorsOptions;
   /**
    * List of custom viewers to display the output. It can be file viewers or program viewers.
@@ -36,6 +45,8 @@ export interface OutputViewProps {
 
 export const OutputView: FunctionComponent<OutputViewProps> = ({
   compilationState,
+  isCompiling,
+  isOutputStale,
   viewers,
   fileViewers,
   selectedViewer,
@@ -49,20 +60,39 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   );
 
   if (compilationState === undefined) {
+    if (isCompiling) {
+      return (
+        <div className={style["output-compiling"]}>
+          <Spinner size="small" label="Compiling..." />
+        </div>
+      );
+    }
     return <></>;
   }
   if ("internalCompilerError" in compilationState) {
     return <></>;
   }
   return (
-    <OutputViewInternal
-      compilationResult={compilationState}
-      viewers={resolvedViewers}
-      selectedViewer={selectedViewer}
-      onViewerChange={onViewerChange}
-      viewerState={viewerState}
-      onViewerStateChange={onViewerStateChange}
-    />
+    <div className={style["output-view-wrapper"]}>
+      {isOutputStale && (
+        <div className={style["output-stale-banner"]}>
+          Output is from last successful compilation
+        </div>
+      )}
+      {isCompiling && (
+        <div className={style["output-compiling-overlay"]}>
+          <Spinner size="tiny" label="Compiling..." />
+        </div>
+      )}
+      <OutputViewInternal
+        compilationResult={compilationState}
+        viewers={resolvedViewers}
+        selectedViewer={selectedViewer}
+        onViewerChange={onViewerChange}
+        viewerState={viewerState}
+        onViewerStateChange={onViewerStateChange}
+      />
+    </div>
   );
 };
 

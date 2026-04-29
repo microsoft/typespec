@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": ".",
     "outDir": "dist",
     "tsBuildInfoFile": "temp/.tsbuildinfo",
     "types": ["multer"]

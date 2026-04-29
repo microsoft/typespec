@@ -16,6 +16,10 @@ public class NamingTests {
 
     private final NamingClient client = new NamingClientBuilder().buildClient();
 
+    private final PropertyClient propertyClient = new NamingClientBuilder().buildPropertyClient();
+
+    private final HeaderClient headerClient = new NamingClientBuilder().buildHeaderClient();
+
     // client name should be "ClientModel", currently a bug in TCGC
     private final ModelClient modelClient = new NamingClientBuilder().buildModelClient();
 
@@ -30,13 +34,13 @@ public class NamingTests {
         client.parameter("true");
 
         // property
-        client.client(new ClientNameModel(true));
-        client.language(new LanguageClientNameModel(true));
-        client.compatibleWithEncodedName(new ClientNameAndJsonEncodedNameModel(true));
+        propertyClient.client(new ClientNameModel(true));
+        propertyClient.language(new LanguageClientNameModel(true));
+        propertyClient.compatibleWithEncodedName(new ClientNameAndJsonEncodedNameModel(true));
 
         // header
-        client.request("true");
-        client.response();  // no class about response header at present
+        headerClient.request("true");
+        headerClient.response();  // no class about response header at present
 
         // model
         modelClient.client(new ClientModel(true));

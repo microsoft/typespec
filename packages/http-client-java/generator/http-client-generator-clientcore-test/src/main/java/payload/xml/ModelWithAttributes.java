@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields that are XML attributes.
+ * §5.1 — Contains fields that are XML attributes.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithAttributes implements XmlSerializable<ModelWithAttributes> {

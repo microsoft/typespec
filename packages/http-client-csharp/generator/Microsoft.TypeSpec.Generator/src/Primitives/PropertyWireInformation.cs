@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         /// <param name="inputProperty">The input model property.</param>
         internal PropertyWireInformation(InputProperty inputProperty)
-            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type), inputProperty.SerializedName)
+            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty), inputProperty.SerializedName)
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;

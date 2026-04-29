@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -15,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -199,6 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;
+            }
+
+            // Register client parameters under their paramAlias names so that operation parameters
+            // (which use the original name) can find the corresponding client parameter.
+            foreach (var inputParam in _inputClient.Parameters)
+            {
+                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                {
+                    paramMap[alias] = aliasedParam;
+                }
             }
 
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
@@ -431,22 +444,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), toStringExpression.As<string>()]);
                 }
 
-                if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
+                if (inputHeaderParameter.IsContentType && contentParam != null &&
+                    operation.Parameters.Any(p => p is InputBodyParameter bodyParam && !bodyParam.IsRequired))
+                {
+                    statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                }
+                else if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
-                }
-                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
-                else if (inputHeaderParameter.IsContentType && contentParam != null)
-                {
-                    // Check if any body parameter in the operation is optional
-                    var hasOptionalBody = operation.Parameters.Any(p =>
-                        p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
-
-                    if (hasOptionalBody)
-                    {
-                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
-                    }
                 }
 
                 statements.Add(statement);
@@ -715,7 +722,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
+                    || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -920,10 +928,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider, InputServiceMethod? serviceMethod = null)
         {
+            // Look up the parameter's original (spec) name in the previous contract.
+            // When a service method is supplied, scope the search to methods whose name matches
+            // the current service method (allowing for sync/async pairing) so that a common
+            // parameter name (e.g. "id") on multiple methods can't cross-match.
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods;
+            if (lastContractMethods != null && serviceMethod != null)
+            {
+                var serviceMethodName = serviceMethod.Name;
+                scopedMethods = lastContractMethods.Where(m =>
+                    string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
+            }
+
             // Check if the original wire name exists in LastContractView for backward compatibility.
-            var existingParam = backCompatProvider.LastContractView?.Methods
+            var existingParam = scopedMethods
                 ?.SelectMany(method => method.Signature.Parameters)
                 .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
@@ -931,6 +953,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (existingParam != null)
             {
                 // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').",
+                        BackCompatibilityChangeCategory.ParameterNamePreserved);
+                }
                 proposedName = existingParam;
             }
 
@@ -1001,6 +1029,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
+            int contentType = 350;
             int optional = 400;
 
             var operation = serviceMethod.Operation;
@@ -1057,12 +1086,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For paging operations, handle parameter name corrections with backward compatibility
                 if (serviceMethod is InputPagingServiceMethod)
                 {
-                    var backCompatProvider = client.BackCompatProvider;
-
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
                     if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, serviceMethod);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
@@ -1073,9 +1100,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatProvider);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client.BackCompatProvider, serviceMethod);
                     }
                 }
+
+                // For every parameter, preserve a previously-published parameter name when the
+                // last contract has a matching parameter (matched by spec/original name). This
+                // generalizes back-compat name preservation beyond the paging-specific renames
+                // above so that any rename emitted by the generator falls back to the prior name
+                // when one was already published.
+                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
@@ -1118,7 +1152,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (parameter.DefaultValue == null)
+                        if (inputParam is InputHeaderParameter { IsContentType: true }
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
+                        {
+                            sortedParams.Add(contentType++, parameter);
+                        }
+                        else if (parameter.DefaultValue == null)
                         {
                             sortedParams.Add(required++, parameter);
                         }
@@ -1138,7 +1177,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (operation.IsMultipartFormData)
             {
-                sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
+                sortedParams.Add(contentType++, ScmKnownParameters.ContentType);
             }
 
             if (methodType == ScmMethodKind.CreateRequest)
@@ -1151,6 +1190,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
+        }
+
+        /// <summary>
+        /// Checks if the last contract view contains a method matching the given name where
+        /// a "contentType" parameter appears before the body ("content") parameter.
+        /// If so, we should preserve that ordering for backward compatibility.
+        /// </summary>
+        private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
+        {
+            const string contentTypeParamName = "contentType";
+            const string contentParamName = "content";
+
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+            if (lastContractMethods == null || lastContractMethods.Count == 0)
+            {
+                return false;
+            }
+
+            var syncMethodName = methodName;
+            var asyncMethodName = methodName + "Async";
+
+            foreach (var method in lastContractMethods)
+            {
+                if (!string.Equals(method.Signature.Name, syncMethodName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(method.Signature.Name, asyncMethodName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                int contentTypeIndex = -1;
+                int bodyIndex = -1;
+                for (int i = 0; i < method.Signature.Parameters.Count; i++)
+                {
+                    var param = method.Signature.Parameters[i];
+                    if (string.Equals(param.Name, contentTypeParamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        contentTypeIndex = i;
+                    }
+                    else if (string.Equals(param.Name, contentParamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        bodyIndex = i;
+                    }
+
+                    if (contentTypeIndex >= 0 && bodyIndex >= 0)
+                    {
+                        break;
+                    }
+                }
+
+                if (contentTypeIndex >= 0 && bodyIndex >= 0 && contentTypeIndex < bodyIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)

@@ -13,9 +13,9 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
-        private readonly string _sampleComputeApiVersion;
-        private readonly string _sampleKeyVaultApiVersion;
-        private readonly string _sampleStorageApiVersion;
+        private readonly string _computeApiVersion;
+        private readonly string _keyVaultApiVersion;
+        private readonly string _storageApiVersion;
 
         protected TestClient()
         {
@@ -40,9 +40,9 @@ namespace Sample
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
-            _sampleComputeApiVersion = options.SampleComputeApiVersion;
-            _sampleKeyVaultApiVersion = options.SampleKeyVaultApiVersion;
-            _sampleStorageApiVersion = options.SampleStorageApiVersion;
+            _computeApiVersion = options.ComputeApiVersion;
+            _keyVaultApiVersion = options.KeyVaultApiVersion;
+            _storageApiVersion = options.StorageApiVersion;
         }
 
         public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)

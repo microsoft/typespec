@@ -2,9 +2,9 @@ import {
   dyn,
   dynItem,
   json,
+  match,
   MockRequest,
   passOnSuccess,
-  ResolverConfig,
   ScenarioMockApi,
   ValidationError,
   xml,
@@ -173,6 +173,34 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
         },
       }),
     },
+    kind: "MockApiDefinition",
+  },
+]);
+
+// POST-THEN-GET LINK PAGINATION
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post",
+    method: "post",
+    request: {
+      body: json({ filter: "foo eq bar" }),
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post/nextPage",
+    method: "get",
+    request: {
+      query: { token: "abc" },
+    },
+    response: SecondResponse,
     kind: "MockApiDefinition",
   },
 ]);
@@ -622,22 +650,6 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
   },
 ]);
 
-const xmlNextLinkFirstPage = (baseUrl: string) => `
-<PetListResult>
-  <Pets>
-    <Pet>
-      <Id>1</Id>
-      <Name>dog</Name>
-    </Pet>
-    <Pet>
-      <Id>2</Id>
-      <Name>cat</Name>
-    </Pet>
-  </Pets>
-  <NextLink>${baseUrl}/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
-</PetListResult>
-`;
-
 const XmlNextLinkSecondPage = `
 <PetListResult>
   <Pets>
@@ -660,25 +672,24 @@ Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
     request: {},
     response: {
       status: 200,
-      body: {
-        contentType: "application/xml",
-        rawContent: {
-          serialize: (config: ResolverConfig) =>
-            `<?xml version='1.0' encoding='UTF-8'?>` + xmlNextLinkFirstPage(config.baseUrl),
-        },
-      },
+      body: xml`
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>${match.localUrl("/payload/pageable/xml/list-with-next-link/nextPage")}</NextLink>
+</PetListResult>
+`,
       headers: {
         "content-type": "application/xml; charset=utf-8",
       },
-    },
-    handler: (req: MockRequest) => {
-      return {
-        status: 200,
-        body: xml(xmlNextLinkFirstPage(req.baseUrl)),
-        headers: {
-          "content-type": "application/xml",
-        },
-      };
     },
     kind: "MockApiDefinition",
   },

@@ -1059,7 +1059,7 @@ export function getControllerReturnStatement(
 
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
-  if (model.properties.size === 0) return true;
+  if (model.properties.size === 0 && !model.baseModel) return true;
 
   return (
     model.properties.size === 1 &&

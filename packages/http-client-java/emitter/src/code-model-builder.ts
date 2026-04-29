@@ -45,6 +45,7 @@ import {
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
   CreateSdkContextOptions,
+  DecoratedType,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -73,6 +74,7 @@ import {
   createSdkContext,
   getAllModels,
   getClientNameOverride,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   isSdkBuiltInKind,
@@ -506,6 +508,14 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(schema, {
             usage: [SchemaContext.Public],
           });
+          if (schema instanceof ObjectSchema && schema.usage) {
+            const schemaUsage: SchemaContext[] | undefined = schema.usage;
+            // And, remove the Paged, as we assume customer explicitly asks Public
+            const index = schemaUsage.indexOf(SchemaContext.Paged);
+            if (index >= 0) {
+              schemaUsage.splice(index, 1);
+            }
+          }
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 
@@ -933,7 +943,7 @@ export class CodeModelBuilder {
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
     let diagnostic = undefined;
-    if (generateConvenienceApi) {
+    if (generateConvenienceApi && this.isAzureV1()) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
@@ -1519,7 +1529,7 @@ export class CodeModelBuilder {
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: !param.optional,
+        required: this.isPropertyRequired(param),
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
@@ -1690,7 +1700,7 @@ export class CodeModelBuilder {
             {
               summary: sdkMethodParameter.summary,
               implementation: ImplementationLocation.Method,
-              required: !sdkMethodParameter.optional,
+              required: this.isPropertyRequired(sdkMethodParameter),
               nullable: false,
             },
           );
@@ -2038,7 +2048,7 @@ export class CodeModelBuilder {
     const parameter = new Parameter(parameterName, sdkBody.doc ?? "", schema, {
       summary: sdkBody.summary,
       implementation: ImplementationLocation.Method,
-      required: !sdkBody.optional,
+      required: this.isPropertyRequired(sdkBody),
       protocol: {
         http: new HttpParameter(ParameterLocation.Body),
       },
@@ -2829,13 +2839,15 @@ export class CodeModelBuilder {
     }
 
     // discriminator
-    if (type.discriminatedSubtypes && type.discriminatorProperty) {
+    if (type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
         this.processModelProperty(type.discriminatorProperty),
       );
-      for (const discriminatorValue in type.discriminatedSubtypes) {
-        const subType = type.discriminatedSubtypes[discriminatorValue];
-        this.processSchema(subType, subType.name);
+      if (type.discriminatedSubtypes) {
+        for (const discriminatorValue in type.discriminatedSubtypes) {
+          const subType = type.discriminatedSubtypes[discriminatorValue];
+          this.processSchema(subType, subType.name);
+        }
       }
     }
 
@@ -2965,7 +2977,7 @@ export class CodeModelBuilder {
 
     const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
       summary: modelProperty.summary,
-      required: !modelProperty.optional,
+      required: this.isPropertyRequired(modelProperty),
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
       serializedName: getPropertySerializedName(modelProperty),
@@ -3628,5 +3640,16 @@ export class CodeModelBuilder {
 
   private isArm(): boolean {
     return Boolean(this.codeModel.arm);
+  }
+
+  private isPropertyRequired(property: { optional: boolean } & DecoratedType): boolean {
+    const clientRequired = getClientOptions(property, "clientRequired") as boolean;
+    if (clientRequired === false) {
+      reportDiagnostic(this.program, {
+        code: "client-required-false",
+        target: (property as any).__raw ?? NoTarget,
+      });
+    }
+    return clientRequired ?? !property.optional;
   }
 }

@@ -17,6 +17,11 @@ export interface PlaygroundSample {
   description?: string;
 
   /**
+   * Category for grouping samples in the sample gallery.
+   */
+  category?: string;
+
+  /**
    * Compiler options for the sample.
    */
   compilerOptions?: CompilerOptions;
