@@ -3186,41 +3186,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             processMethod?.Invoke(clientProvider, null);
 
-            var allGetDataConvenienceMethods = clientProvider!.Methods
-                .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
-                .ToList();
-
-            // Expect 4 convenience methods: current sync/async (with param3) + back-compat sync/async (without param3)
-            Assert.AreEqual(4, allGetDataConvenienceMethods.Count);
-
-            var backCompatSync = allGetDataConvenienceMethods
-                .FirstOrDefault(m => m.Signature.Name == "GetData" && m.Signature.Parameters.All(p => p.Name != "param3"));
-            var backCompatAsync = allGetDataConvenienceMethods
-                .FirstOrDefault(m => m.Signature.Name == "GetDataAsync" && m.Signature.Parameters.All(p => p.Name != "param3"));
-            Assert.IsNotNull(backCompatSync, "Expected a back-compat sync overload without param3.");
-            Assert.IsNotNull(backCompatAsync, "Expected a back-compat async overload without param3.");
-
-            // The back-compat overloads should be marked with [EditorBrowsable(EditorBrowsableState.Never)]
-            // and should not have default values on the parameters.
-            foreach (var backCompat in new[] { backCompatSync!, backCompatAsync! })
-            {
-                Assert.AreEqual(1, backCompat.Signature.Attributes.Count);
-                Assert.AreEqual(
-                    "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
-                    backCompat.Signature.Attributes[0].ToDisplayString());
-                foreach (var p in backCompat.Signature.Parameters)
-                {
-                    Assert.IsNull(p.DefaultValue);
-                }
-            }
-
-            // Validate the back-compat sync body delegates to the current sync method with default for param3.
-            var syncBody = backCompatSync!.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("return this.GetData(param1, param2, default, cancellationToken);\n", syncBody);
-
-            // Validate the back-compat async body delegates to the current async method (no await; returns Task directly).
-            var asyncBody = backCompatAsync!.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("return this.GetDataAsync(param1, param2, default, cancellationToken);\n", asyncBody);
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // The current TypeSpec adds two new optional non-body parameters relative to the last contract.
@@ -3261,29 +3229,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             processMethod?.Invoke(clientProvider, null);
 
-            var convenienceMethods = clientProvider!.Methods
-                .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
-                .ToList();
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
 
-            Assert.AreEqual(4, convenienceMethods.Count);
+        // Last contract has GetData(int param1, ModelType body, CancellationToken) (and async).
+        // The current TypeSpec adds a new optional non-body (header) parameter `param3`.
+        // Expected: a hidden back-compat overload matching the previous signature is added even when
+        // the method has a model-typed request body.
+        [Test]
+        public async Task BackCompatibility_NewOptionalNonBodyParameterAddedWithModelBody()
+        {
+            var bodyModel = InputFactory.Model(
+                "SampleModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
 
-            // Each back-compat overload should have only the previous-contract parameters.
-            var backCompatSync = convenienceMethods
-                .FirstOrDefault(m => m.Signature.Name == "GetData"
-                    && m.Signature.Parameters.All(p => p.Name != "param3" && p.Name != "param4"));
-            var backCompatAsync = convenienceMethods
-                .FirstOrDefault(m => m.Signature.Name == "GetDataAsync"
-                    && m.Signature.Parameters.All(p => p.Name != "param3" && p.Name != "param4"));
-            Assert.IsNotNull(backCompatSync);
-            Assert.IsNotNull(backCompatAsync);
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("body", bodyModel, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
 
-            // The back-compat overloads should pass `default` for both new parameters.
-            Assert.AreEqual(
-                "return this.GetData(param1, param2, default, default, cancellationToken);\n",
-                backCompatSync!.BodyStatements!.ToDisplayString());
-            Assert.AreEqual(
-                "return this.GetDataAsync(param1, param2, default, default, cancellationToken);\n",
-                backCompatAsync!.BodyStatements!.ToDisplayString());
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("body", bodyModel, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // When the new parameter is a body parameter, the back-compat overload should NOT be added.
@@ -3321,16 +3315,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             processMethod?.Invoke(clientProvider, null);
 
-            var convenienceMethods = clientProvider!.Methods
-                .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
-                .ToList();
-
-            // Only the current sync/async pair: no back-compat overload because the new parameter is a body parameter.
-            Assert.AreEqual(2, convenienceMethods.Count);
-            foreach (var m in convenienceMethods)
-            {
-                Assert.IsTrue(m.Signature.Parameters.Any(p => p.Name == "param1"));
-            }
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // When the new parameter is required (not optional), the back-compat overload should NOT be added,
@@ -3369,12 +3356,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             processMethod?.Invoke(clientProvider, null);
 
-            var convenienceMethods = clientProvider!.Methods
-                .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
-                .ToList();
-
-            // Only the current sync/async pair: no back-compat overload because the new parameter is required.
-            Assert.AreEqual(2, convenienceMethods.Count);
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
