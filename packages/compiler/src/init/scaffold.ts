@@ -185,7 +185,9 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions : placeholderConfig;
+  const content = rawConfig
+    ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions
+    : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
