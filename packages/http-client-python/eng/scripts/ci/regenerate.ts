@@ -99,10 +99,7 @@ interface RegenerateFlags {
 
 // ---- Base emitter options ----
 
-const AZURE_EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
@@ -229,10 +226,7 @@ const AZURE_EMITTER_OPTIONS: Record<
   },
 };
 
-const EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
     namespace: "resiliency.srv.driven1",
@@ -385,10 +379,7 @@ const EMITTER_OPTIONS: Record<
 
 // ---- Shared utility functions ----
 
-async function getSubdirectories(
-  baseDir: string,
-  flags: RegenerateFlags,
-): Promise<string[]> {
+async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promise<string[]> {
   const subdirectories: string[] = [];
 
   async function searchDir(currentDir: string) {
