@@ -509,4 +509,44 @@ describe("openapi: decorators", () => {
       deepStrictEqual(getTagsMetadata(program, PetStore), expected);
     });
   });
+
+  describe("@defaultResponse", () => {
+    it("emits warning when used on a model with @statusCode", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model MyResponse {
+          @TypeSpec.Http.statusCode _: 500;
+          message: string;
+        }
+
+        @defaultResponse
+        model DefaultError is MyResponse {}
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "@typespec/openapi/default-response-with-status-code", message: /status code/ },
+      ]);
+    });
+
+    it("emits warning when used on a model marked with @error", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @error
+        @defaultResponse
+        model DefaultError {
+          message: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "@typespec/openapi/default-response-with-status-code", message: /\@error/ },
+      ]);
+    });
+
+    it("does not emit warning when used on a plain model", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @defaultResponse
+        model DefaultError {
+          message: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, []);
+    });
+  });
 });

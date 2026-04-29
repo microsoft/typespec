@@ -34,6 +34,13 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`@tagMetadata must be used on the service namespace. Did you mean to annotate '${"namespace"}'  with '@service'?`,
       },
     },
+    "default-response-with-status-code": {
+      severity: "warning",
+      messages: {
+        statusCode: `@defaultResponse should not be used on a model that already has a status code defined. The status code will be ignored in favor of the default response.`,
+        error: `@defaultResponse should not be used on a model that is marked with @error. Use either @defaultResponse or @error, not both.`,
+      },
+    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

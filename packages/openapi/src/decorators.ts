@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isErrorModel,
   isType,
   Model,
   Namespace,
@@ -159,6 +160,27 @@ export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model,
 ) => {
+  // Warn if the model already has a @statusCode property
+  for (const prop of entity.properties.values()) {
+    if (http.isStatusCode(context.program, prop)) {
+      reportDiagnostic(context.program, {
+        code: "default-response-with-status-code",
+        messageId: "statusCode",
+        target: entity,
+      });
+      break;
+    }
+  }
+
+  // Warn if the model is marked with @error
+  if (isErrorModel(context.program, entity)) {
+    reportDiagnostic(context.program, {
+      code: "default-response-with-status-code",
+      messageId: "error",
+      target: entity,
+    });
+  }
+
   (http as any).setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
