@@ -14,10 +14,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Act
             var client = new InputClient(
                 "TestClient",
-                "TestNamespace", 
+                "TestNamespace",
                 "TestNamespace.TestClient",
                 "Test summary",
                 "Test documentation",
+                false,
                 [],
                 [],
                 null,
@@ -37,10 +38,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Act
             var client = new InputClient(
                 "TestClient",
-                "TestNamespace", 
+                "TestNamespace",
                 "TestNamespace.TestClient",
                 "Test summary",
                 "Test documentation",
+                false,
                 [],
                 [],
                 null,
@@ -58,10 +60,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Act
             var client = new InputClient(
                 "TestClient",
-                "TestNamespace", 
+                "TestNamespace",
                 "TestNamespace.TestClient",
                 "Test summary",
                 "Test documentation",
+                false,
                 [],
                 [],
                 null,
@@ -82,10 +85,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Act
             var client = new InputClient(
                 "TestClient",
-                "TestNamespace", 
+                "TestNamespace",
                 "TestNamespace.TestClient",
                 "Test summary",
                 "Test documentation",
+                false,
                 [],
                 [],
                 null,
@@ -105,10 +109,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Act
             var client = new InputClient(
                 "TestClient",
-                "TestNamespace", 
+                "TestNamespace",
                 "TestNamespace.TestClient",
                 "Test summary",
                 "Test documentation",
+                false,
                 [],
                 [],
                 null,

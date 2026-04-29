@@ -194,7 +194,7 @@ const fileDetailsMap: Map<string, ObjectSchema> = new Map();
 function getFileSchemaName(baseName: string, sdkModelType?: SdkModelType): string {
   // If the TypeSpec Model exists and is not TypeSpec.Http.File, directly use its name
   if (sdkModelType && sdkModelType.crossLanguageDefinitionId !== "TypeSpec.Http.File") {
-    return baseName;
+    return sdkModelType.name;
   }
 
   // make sure suffix "FileDetails"
@@ -250,17 +250,21 @@ function addFilenameProperty(
   filenameProperty?: SdkModelPropertyType,
   processSchemaFunc?: (type: SdkType) => Schema,
 ) {
+  const isRequired = filenameProperty ? !filenameProperty.optional : false;
+  const isConstant = filenameProperty?.type.kind === "constant" && isRequired;
+  // If the type is constant but not required, treat the type as non-constant String but its value as the default.
+  const clientDefaultValue =
+    filenameProperty?.type.kind === "constant" ? String(filenameProperty.type.value) : undefined;
   fileDetailsSchema.addProperty(
     new Property(
       "filename",
       "The filename of the file.",
-      filenameProperty?.type.kind === "constant" && processSchemaFunc
-        ? processSchemaFunc(filenameProperty.type)
-        : stringSchema,
+      isConstant && processSchemaFunc ? processSchemaFunc(filenameProperty.type) : stringSchema,
       {
-        required: filenameProperty ? !filenameProperty.optional : false,
+        required: isRequired,
         nullable: false,
         readOnly: false,
+        clientDefaultValue: clientDefaultValue,
       },
     ),
   );
@@ -272,19 +276,27 @@ function addContentTypeProperty(
   contentTypeProperty?: SdkModelPropertyType,
   processSchemaFunc?: (type: SdkType) => Schema,
 ) {
+  const isRequired = contentTypeProperty ? !contentTypeProperty.optional : false;
+  const isConstant = contentTypeProperty?.type.kind === "constant" && isRequired;
+  // If the type is constant but not required, treat the type as non-constant String but its value as the default.
+  /*
+   * TypeSpec 'TypeSpec.Http.File<"image/png">' is such case.
+   * Feels that it is not user-friendly to create a single value enum for FileContentType that user probably had to set for the request.
+   */
+  const clientDefaultValue =
+    contentTypeProperty?.type.kind === "constant"
+      ? String(contentTypeProperty.type.value)
+      : "application/octet-stream";
   fileDetailsSchema.addProperty(
     new Property(
       "contentType",
       "The content-type of the file.",
-      contentTypeProperty?.type.kind === "constant" && processSchemaFunc
-        ? processSchemaFunc(contentTypeProperty.type)
-        : stringSchema,
+      isConstant && processSchemaFunc ? processSchemaFunc(contentTypeProperty.type) : stringSchema,
       {
-        required: contentTypeProperty ? !contentTypeProperty.optional : false,
+        required: isRequired,
         nullable: false,
         readOnly: false,
-        clientDefaultValue:
-          contentTypeProperty?.type.kind === "constant" ? undefined : "application/octet-stream",
+        clientDefaultValue: clientDefaultValue,
       },
     ),
   );
@@ -317,8 +329,7 @@ export function getFileDetailsSchema(
     - Allow required for "filename" and "contentType"
      */
     const filePropertyName = property.name;
-    const fileSchemaName = fileSdkType.name;
-    const schemaName = getFileSchemaName(fileSchemaName, fileSdkType);
+    const schemaName = getFileSchemaName(filePropertyName, fileSdkType);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
       const typeNamespace = getNamespace(property.type.__raw) ?? namespace;

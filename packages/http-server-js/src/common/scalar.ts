@@ -782,7 +782,7 @@ function createJsScalar(
       scalar,
 
       getEncoding(encodeDataOrString: EncodeData | string, target?: Scalar): Encoder | undefined {
-        let encoding: string = "default";
+        let encoding: string;
 
         if (typeof encodeDataOrString === "string") {
           encoding = encodeDataOrString;

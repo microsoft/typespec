@@ -20,7 +20,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +69,7 @@ public class FluentManagerTemplate {
 
         String managerName = manager.getType().getName();
 
-        Set<String> imports = new HashSet<>(List.of(
+        Set<String> imports = new LinkedHashSet<>(List.of(
             // java
             Objects.class.getName(), Duration.class.getName(), ChronoUnit.class.getName(), List.class.getName(),
             ArrayList.class.getName(), Collectors.class.getName(), Map.class.getName(),

@@ -188,13 +188,13 @@ final class PollingMetadata {
 
         // Step_1: Resolve LRO poll and final result types.
         //
-        final ObjectMapper objectMapper = Mappers.getObjectMapper();
+        final SchemaMapper schemaMapper = Mappers.getSchemaMapper();
         final IType pollResultType;
         if (pollingSettings.getPollResultType() != null) {
             // For result types, the 'PollingSettings' would take precedence over 'LongRunningMetadata'
             pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
         } else {
-            pollResultType = objectMapper.map(lroMetadata.getPollResultType());
+            pollResultType = schemaMapper.map(lroMetadata.getPollResultType());
         }
 
         final IType finalResultType;
@@ -204,7 +204,7 @@ final class PollingMetadata {
             if (lroMetadata.getFinalResultType() == null) {
                 finalResultType = PrimitiveType.VOID;
             } else {
-                finalResultType = objectMapper.map(lroMetadata.getFinalResultType());
+                finalResultType = schemaMapper.map(lroMetadata.getFinalResultType());
             }
         }
 

@@ -112,7 +112,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdatePetAsPet.");
                 Argument.AssertNotNull(pet, nameof(pet));
 
-                ClientResult result = UpdatePetAsPet(pet, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                ClientResult result = UpdatePetAsPet(pet, cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Pet)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -138,7 +138,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdatePetAsPetAsync.");
                 Argument.AssertNotNull(pet, nameof(pet));
 
-                ClientResult result = await UpdatePetAsPetAsync(pet, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                ClientResult result = await UpdatePetAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Pet)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -232,7 +232,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateDogAsPet.");
                 Argument.AssertNotNull(pet, nameof(pet));
 
-                ClientResult result = UpdateDogAsPet(pet, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                ClientResult result = UpdateDogAsPet(pet, cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Pet)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -258,7 +258,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateDogAsPetAsync.");
                 Argument.AssertNotNull(pet, nameof(pet));
 
-                ClientResult result = await UpdateDogAsPetAsync(pet, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                ClientResult result = await UpdateDogAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Pet)result, result.GetRawResponse());
             }
             catch (Exception ex)

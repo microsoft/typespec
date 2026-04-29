@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -30,6 +31,10 @@ namespace Microsoft.TypeSpec.Generator
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+
+            // Resolve PackageReference items from the .csproj so custom code referencing
+            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
@@ -67,10 +72,15 @@ namespace Microsoft.TypeSpec.Generator
                 visitor.VisitLibrary(output);
             }
 
+            FilterAllCustomizedMembers(output);
+
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
+                // Ensure back-compatibility processing is done after all visitors have run
+                outputType.ProcessTypeForBackCompatibility();
+
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
@@ -106,13 +116,39 @@ namespace Microsoft.TypeSpec.Generator
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
-            // Write project scaffolding files
+            // Write additional output files (e.g. configuration schemas, .targets files)
+            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+
+            // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
+        }
+
+        internal static void FilterAllCustomizedMembers(OutputLibrary output)
+        {
+            foreach (var typeProvider in output.TypeProviders)
+            {
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                FilterCustomizedMembers(typeProvider);
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    FilterCustomizedMembers(serializationProvider);
+                }
+            }
+        }
+
+        private static void FilterCustomizedMembers(TypeProvider typeProvider)
+        {
+            typeProvider.Update(
+                typeProvider.FilterCustomizedMethods(typeProvider.Methods),
+                typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
+                typeProvider.FilterCustomizedProperties(typeProvider.Properties),
+                typeProvider.FilterCustomizedFields(typeProvider.Fields));
         }
 
         /// <summary>

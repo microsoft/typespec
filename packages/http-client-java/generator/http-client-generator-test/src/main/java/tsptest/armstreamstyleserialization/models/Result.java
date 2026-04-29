@@ -4,7 +4,7 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Immutable;
+import com.azure.core.annotation.Fluent;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -16,7 +16,7 @@ import tsptest.armstreamstyleserialization.fluent.models.ResultData;
 /**
  * The Result model.
  */
-@Immutable
+@Fluent
 public final class Result implements JsonSerializable<Result> {
     /*
      * The name property.
@@ -31,7 +31,7 @@ public final class Result implements JsonSerializable<Result> {
     /**
      * Creates an instance of Result class.
      */
-    private Result() {
+    public Result() {
     }
 
     /**
@@ -41,6 +41,17 @@ public final class Result implements JsonSerializable<Result> {
      */
     public String name() {
         return this.name;
+    }
+
+    /**
+     * Set the name property: The name property.
+     * 
+     * @param name the name value to set.
+     * @return the Result object itself.
+     */
+    public Result withName(String name) {
+        this.name = name;
+        return this;
     }
 
     /**

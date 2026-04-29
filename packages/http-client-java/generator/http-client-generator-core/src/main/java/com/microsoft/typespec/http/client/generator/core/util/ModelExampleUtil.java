@@ -71,6 +71,19 @@ public class ModelExampleUtil {
                     ExampleNode childNode = parseNode(elementType, childObjectValue);
                     node.getChildNodes().add(childNode);
                 }
+            } else if (objectValue instanceof String) {
+                // there is ArrayEncoding that serializes array to string
+                // for simplicity, treat it as CSV
+                ListNode listNode = new ListNode(elementType, objectValue);
+                if (!((String) objectValue).isEmpty()) {
+                    String value = (String) objectValue;
+                    String[] elements = value.split(",", -1);
+                    for (String childObjectValue : elements) {
+                        ExampleNode childNode = parseNode(elementType, childObjectValue);
+                        listNode.getChildNodes().add(childNode);
+                    }
+                }
+                node = listNode;
             } else {
                 throw new IllegalStateException("Example value is not List type: " + objectValue);
             }
@@ -88,8 +101,7 @@ public class ModelExampleUtil {
 
                     // redact possible credential
                     if (elementType == ClassType.STRING && entry.getValue() instanceof String) {
-                        value = ModelTestCaseUtil.redactStringValue(Collections.singletonList(entry.getKey()),
-                            (String) value);
+                        value = ModelTestCaseUtil.redactStringValue(List.of(entry.getKey()), (String) value);
                     }
 
                     ExampleNode childNode = parseNode(elementType, value);
@@ -109,7 +121,7 @@ public class ModelExampleUtil {
                 if (model.isPolymorphic()) {
                     // polymorphic, need to get the correct subclass from discriminator
                     String serializedName = model.getPolymorphicDiscriminatorName();
-                    List<String> jsonPropertyNames = Collections.singletonList(serializedName);
+                    List<String> jsonPropertyNames = List.of(serializedName);
                     if (model.getNeedsFlatten()) {
                         jsonPropertyNames = ClientModelUtil.splitFlattenedSerializedName(serializedName);
                     }

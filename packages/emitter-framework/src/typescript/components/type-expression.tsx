@@ -132,7 +132,7 @@ function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType):
   if ($.scalar.is(type)) {
     if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
       const encoding = $.scalar.getEncoding(type);
-      let emittedType = "Date";
+      let emittedType;
       switch (encoding?.encoding) {
         case "unixTimestamp":
         case "rfc7231":

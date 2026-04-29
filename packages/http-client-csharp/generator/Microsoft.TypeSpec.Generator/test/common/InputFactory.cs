@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
@@ -62,6 +63,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             public static InputConstant Int64(long value)
             {
                 return new InputConstant(value, InputPrimitiveType.Int64);
+            }
+        }
+
+        public static class Serialization
+        {
+            public static InputSerializationOptions Options(
+                InputJsonSerializationOptions? json = null,
+                InputXmlSerializationOptions? xml = null)
+            {
+                return new InputSerializationOptions(json, xml);
+            }
+
+            public static InputJsonSerializationOptions Json(string name)
+            {
+                return new InputJsonSerializationOptions(name);
+            }
+
+            public static InputXmlSerializationOptions Xml(
+                string name,
+                bool? attribute = null,
+                InputXmlNamespaceOptions? @namespace = null,
+                bool? unwrapped = null,
+                string? itemsName = null,
+                InputXmlNamespaceOptions? itemsNamespace = null)
+            {
+                return new InputXmlSerializationOptions(name, attribute, @namespace, unwrapped, itemsName, itemsNamespace);
+            }
+
+            public static InputXmlNamespaceOptions XmlNamespace(string ns, string prefix)
+            {
+                return new InputXmlNamespaceOptions(ns, prefix);
             }
         }
 
@@ -245,8 +277,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
-            string? doc = null)
+            string? doc = null,
+            InputSerializationOptions? serializationOptions = null,
+            ArrayKnownEncoding? encode = null)
         {
+            serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
                 name: name,
                 summary: summary,
@@ -260,7 +295,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
-                serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
+                serializationOptions: serializationOptions,
+                encode: encode);
         }
 
         public static InputHeaderParameter HeaderParameter(
@@ -275,7 +311,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? collectionFormat = null,
             string? serializedName = null,
             InputConstant? defaultValue = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? collectionHeaderPrefix = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -291,7 +328,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix);
         }
 
         public static InputQueryParameter QueryParameter(
@@ -433,7 +471,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             string? serializedName = null,
             InputRequestLocation location = InputRequestLocation.Body,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? paramAlias = null)
         {
             return new InputMethodParameter(
                 name: name,
@@ -447,7 +486,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 access: null,
                 location: location,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name)
+            {
+                ParamAlias = paramAlias
+            };
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
@@ -466,7 +508,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelType>? derivedModels = null,
             InputModelProperty? discriminatorProperty = null,
             bool isDynamicModel = false,
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -490,7 +533,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                     : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new(),
+                serializationOptions ?? new(),
                 isDynamicModel);
             if (baseModel is not null)
             {
@@ -599,9 +642,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string uri = "",
             string path = "",
             string httpMethod = "GET",
-            bool generateConvenienceMethod = true)
+            bool generateConvenienceMethod = true,
+            string? ns = null)
         {
-            return new InputOperation(
+            var operation = new InputOperation(
                 name,
                 null,
                 "",
@@ -618,7 +662,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 generateConvenienceMethod,
-                name);
+                name,
+                ns);
+            operation.OriginalName = name;
+            return operation;
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(
@@ -668,7 +715,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Default)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -678,6 +725,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
+                isMultiServiceClient ?? false,
                 methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,

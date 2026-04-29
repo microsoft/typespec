@@ -28,9 +28,15 @@
     </dependency>
 
     <dependency>
+      <groupId>io.github.encryptorcode</groupId>
+      <artifactId>pluralize</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
-      <version>1.19.2</version>
+      <version>1.19.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>

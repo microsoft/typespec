@@ -61,4 +61,48 @@ public class FluentUtilsTests {
         Assertions.assertEquals("ResponseModel",
             FluentUtils.resourceModelInterfaceClassType("Response" + innerSuffix).getName());
     }
+
+    @Test
+    public void testGetSingular() {
+        // ves → f (shelves → shelf)
+        Assertions.assertEquals("bookshelf", FluentUtils.getSingular("bookshelves"));
+
+        // ves → fe (knives → knife)
+        Assertions.assertEquals("knife", FluentUtils.getSingular("knives"));
+
+        // ies → y (policies → policy)
+        Assertions.assertEquals("policy", FluentUtils.getSingular("policies"));
+
+        // (addresses → address)
+        Assertions.assertEquals("address", FluentUtils.getSingular("addresses"));
+
+        // (watches → watch)
+        Assertions.assertEquals("watch", FluentUtils.getSingular("watches"));
+
+        // xes → x (boxes → box)
+        Assertions.assertEquals("box", FluentUtils.getSingular("boxes"));
+
+        // regular s (books → book)
+        Assertions.assertEquals("book", FluentUtils.getSingular("books"));
+
+        // ss stays (class → class)
+        Assertions.assertEquals("class", FluentUtils.getSingular("class"));
+
+        // null returns null
+        Assertions.assertNull(FluentUtils.getSingular(null));
+
+        // already singular
+        Assertions.assertEquals("child", FluentUtils.getSingular("child"));
+
+        // irregular (children → child)
+        Assertions.assertEquals("child", FluentUtils.getSingular("children"));
+
+        // require addSingularRule
+        Assertions.assertEquals("Cache", FluentUtils.getSingular("Caches"));
+
+        // Azure resource style names
+        Assertions.assertEquals("VirtualMachine", FluentUtils.getSingular("VirtualMachines"));
+        Assertions.assertEquals("NetworkInterface", FluentUtils.getSingular("NetworkInterfaces"));
+        Assertions.assertEquals("Factory", FluentUtils.getSingular("Factories"));
+    }
 }

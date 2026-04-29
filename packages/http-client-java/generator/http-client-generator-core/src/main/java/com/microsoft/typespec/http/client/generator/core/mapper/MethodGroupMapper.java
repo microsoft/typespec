@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -20,7 +21,6 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,7 +115,7 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
             builder.proxy(proxyBuilder.build());
         }
 
-        String serviceClientName = ClientModelUtil.getClientImplementClassName(methodGroup.getCodeModel());
+        String serviceClientName = this.getServiceClientName(methodGroup.getCodeModel());
         builder.serviceClientName(serviceClientName);
 
         builder.variableName(CodeNamer.toCamelCase(interfaceName));
@@ -172,6 +172,11 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
     }
 
     protected List<IType> supportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {
-        return Collections.emptyList();
+        return List.of();
+    }
+
+    protected String getServiceClientName(Client client) {
+        String serviceClientInterfaceName = ClientModelUtil.getClientInterfaceName(client);
+        return ClientModelUtil.getClientImplementClassName(serviceClientInterfaceName);
     }
 }

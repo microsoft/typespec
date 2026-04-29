@@ -54,7 +54,7 @@ namespace SampleTypeSpec
             Uri nextPage = ((ListWithNextLinkResponse)page).Next;
             if (nextPage != null)
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * A ClientMethod that exists on a ServiceClient or MethodGroupClient that eventually will call a ProxyMethod.
  */
 public class ClientMethod {
-    private static final List<String> KNOWN_POLLING_STRATEGIES = Arrays.asList("DefaultPollingStrategy",
+    private static final List<String> KNOWN_POLLING_STRATEGIES = List.of("DefaultPollingStrategy",
         "ChainedPollingStrategy", "OperationResourcePollingStrategy", "LocationPollingStrategy",
         "StatusCheckPollingStrategy", "SyncDefaultPollingStrategy", "SyncChainedPollingStrategy",
         "SyncOperationResourcePollingStrategy", "SyncLocationPollingStrategy", "SyncStatusCheckPollingStrategy");
@@ -373,7 +373,7 @@ public class ClientMethod {
     }
 
     public final List<String> getProxyMethodArguments(JavaSettings settings) {
-        List<String> restAPIMethodArguments = getProxyMethod().getParameters().stream().map(parameter -> {
+        return getProxyMethod().getParameters().stream().map(parameter -> {
             String parameterName = parameter.getParameterReference();
             IType parameterWireType = parameter.getWireType();
             if (parameter.isNullable()) {
@@ -382,13 +382,8 @@ public class ClientMethod {
             IType parameterClientType = parameter.getClientType();
 
             if (parameterClientType != ClassType.BASE_64_URL
-                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY /*
-                                                                                             * && parameter.
-                                                                                             * getRequestParameterLocation
-                                                                                             * () !=
-                                                                                             * RequestParameterLocation.
-                                                                                             * FormData
-                                                                                             */
+                // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData
+                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
                 && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = ClassType.STRING;
             }
@@ -405,7 +400,6 @@ public class ClientMethod {
             }
             return result;
         }).collect(Collectors.toList());
-        return restAPIMethodArguments;
     }
 
     public JavaVisibility getMethodVisibility() {

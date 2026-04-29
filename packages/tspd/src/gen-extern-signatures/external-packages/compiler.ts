@@ -6,7 +6,9 @@ export const typespecCompiler = createPackage({
   descriptor: {
     ".": {
       named: [
+        "Program",
         "DecoratorContext",
+        "FunctionContext",
         "Type",
         "Namespace",
         "Model",
@@ -21,6 +23,7 @@ export const typespecCompiler = createPackage({
         "EnumValue",
         "Numeric",
         "ScalarValue",
+        "DecoratorValidatorCallbacks",
       ],
     },
   },

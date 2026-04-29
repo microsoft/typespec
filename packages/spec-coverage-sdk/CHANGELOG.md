@@ -1,5 +1,41 @@
 # Change Log - @typespec/spec-coverage-sdk
 
+## 0.1.0-alpha.16
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9752](https://github.com/microsoft/typespec/pull/9752) Update to how coverage manifest are managed. The manifest upload each individual one as a single file
+
+
+## 0.1.0-alpha.15
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.1.0-alpha.14
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.13
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+
+
 ## 0.1.0-alpha.12
 
 ### Features

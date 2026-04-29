@@ -48,7 +48,7 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 export async function activate(context: ExtensionContext) {
   await telemetryClient.doOperationWithTelemetry(
     TelemetryEventName.StartExtension,
-    async (tel: OperationTelemetryEvent) => {
+    async (tel: OperationTelemetryEvent): Promise<ResultCode> => {
       const stateManager = new ExtensionStateManager(context);
       telemetryClient.Initialize(stateManager);
       /**
@@ -256,7 +256,7 @@ export async function activate(context: ExtensionContext) {
               return await vscode.window.withProgress(
                 {
                   title: "Launching TypeSpec language service...",
-                  location: vscode.ProgressLocation.Notification,
+                  location: vscode.ProgressLocation.Window,
                 },
                 async () => {
                   return await recreateLSPClient(context, ssTel.activityId);
@@ -324,6 +324,7 @@ export async function activate(context: ExtensionContext) {
       }
       showStartUpMessages(stateManager);
       telemetryClient.sendDelayedTelemetryEvents();
+      return ResultCode.Success;
     },
   );
 

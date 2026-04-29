@@ -238,7 +238,7 @@ public final class PropertyAsyncClient {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -248,7 +248,7 @@ public final class PropertyAsyncClient {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -501,7 +501,7 @@ public final class PropertyAsyncClient {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>
@@ -511,7 +511,7 @@ public final class PropertyAsyncClient {
      * <pre>
      * {@code
      * {
-     *     value: int (Required)
+     *     value: long (Required)
      * }
      * }
      * </pre>

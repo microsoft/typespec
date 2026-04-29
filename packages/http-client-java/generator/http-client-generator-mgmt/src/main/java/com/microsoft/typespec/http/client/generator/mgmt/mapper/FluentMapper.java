@@ -30,7 +30,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -79,7 +78,7 @@ public class FluentMapper {
                         .findFirst();
                     if (collectionOpt.isPresent()) {
                         FluentResourceCollection collection = collectionOpt.get();
-                        ResourceParser.parseResourcesCategory(collection, Collections.singletonList(model),
+                        ResourceParser.parseResourcesCategory(collection, List.of(model),
                             FluentStatic.getClient().getModels());
                     } else {
                         LOGGER.warn("Resource collection '{}' not found in association override '{}' to '{}'.",

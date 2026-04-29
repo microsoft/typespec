@@ -1,5 +1,49 @@
 # Change Log - @typespec/json-schema
 
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 1.9.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Fix crash on usage of templates that cannot be named
+
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 1.7.0
+
+### Features
+
+- [#9038](https://github.com/microsoft/typespec/pull/9038) Add discriminator support and polymorphic models strategy option
+  
+  - Automatically injects discriminator property into base models with `@discriminator` decorator
+  - Marks discriminator property as required in generated schemas
+  - New `polymorphic-models-strategy` emitter option with three strategies:
+    - `ignore`: Emit as regular object schema (default)
+    - `oneOf`: Emit oneOf schema for closed discriminated unions
+    - `anyOf`: Emit anyOf schema for open discriminated unions
+  - Includes discriminator.mapping in oneOf/anyOf schemas for improved validation
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 1.6.0
 
 ### Bump dependencies

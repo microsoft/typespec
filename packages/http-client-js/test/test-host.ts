@@ -1,15 +1,5 @@
 import { Diagnostic, resolvePath } from "@typespec/compiler";
-import {
-  BasicTestRunner,
-  createTester,
-  createTestHost,
-  createTestWrapper,
-  expectDiagnosticEmpty,
-} from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { RestTestLibrary } from "@typespec/rest/testing";
-import { join, relative } from "path";
-import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js";
+import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 
 const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/http", "@typespec/rest", "@typespec/http-client-js"],
@@ -17,63 +7,11 @@ const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
 
 export const Tester = ApiTester.emit("@typespec/http-client-js");
 
-export async function createHttpClientJsTestHost() {
-  return createTestHost({
-    libraries: [HttpClientJavascriptEmitterTestLibrary, HttpTestLibrary, RestTestLibrary],
-  });
-}
-
-export async function createHttpClientJavascriptEmitterTestRunner() {
-  const host = await createHttpClientJsTestHost();
-
-  return createTestWrapper(host, {
-    autoImports: ["@typespec/http", "@typespec/rest"],
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"],
-    compilerOptions: {
-      noEmit: false,
-      emit: ["@typespec/http-client-js"],
-    },
-  });
-}
-
-const emitterOutputDir = join("tsp-output", "http-client-js");
-
 export async function emitWithDiagnostics(
   code: string,
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
-  const runner = await createHttpClientJavascriptEmitterTestRunner();
-  await runner.compileAndDiagnose(code, {
-    outputDir: "tsp-output",
-  });
-  const result = await readFilesRecursively(emitterOutputDir, runner);
-  return [result, runner.program.diagnostics];
-}
-
-async function readFilesRecursively(
-  dir: string,
-  runner: BasicTestRunner,
-): Promise<Record<string, string>> {
-  const entries = await runner.program.host.readDir(dir);
-  const result: Record<string, string> = {};
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry);
-    const stat = await runner.program.host.stat(fullPath);
-
-    if (stat.isDirectory()) {
-      // Recursively read files in the directory
-      const nestedFiles = await readFilesRecursively(fullPath, runner);
-      Object.assign(result, nestedFiles);
-    } else if (stat.isFile()) {
-      // Read the file
-      // Read the file and store it with a relative path
-      const relativePath = relative(emitterOutputDir, fullPath);
-      const fileContent = await runner.program.host.readFile(fullPath);
-      result[relativePath] = fileContent.text;
-    }
-  }
-
-  return result;
+  const [result, diagnostics] = await Tester.compileAndDiagnose(code);
+  return [result.outputs, diagnostics];
 }
 
 export async function emit(code: string): Promise<Record<string, string>> {

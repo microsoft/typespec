@@ -1,7 +1,8 @@
+import { listAllServiceNamespaces } from "@azure-tools/typespec-client-generator-core";
 import * as childProcess from "child_process";
 import { EventEmitter } from "events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { execCSharpGenerator } from "../../src/lib/utils.js";
+import { execCSharpGenerator, getClientNamespaceStringHelper } from "../../src/lib/utils.js";
 import { CSharpEmitterContext } from "../../src/sdk-context.js";
 import {
   createCSharpSdkContext,
@@ -82,5 +83,44 @@ describe("execCSharpGenerator tests", () => {
       { stdio: "pipe" },
     );
     expect(result.exitCode).toBe(0);
+  });
+});
+
+describe("getClientNamespaceStringHelper", () => {
+  it("should return the formatted package name when namespace is undefined", () => {
+    expect(getClientNamespaceStringHelper(undefined, "client-plane-generated")).toBe(
+      "Client.Plane.Generated",
+    );
+    expect(getClientNamespaceStringHelper(undefined, "client-plane-Generated")).toBe(
+      "Client.Plane.Generated",
+    );
+    expect(getClientNamespaceStringHelper(undefined, "client-Plane-generated")).toBe(
+      "Client.Plane.Generated",
+    );
+  });
+
+  it("should handle dots in package name", () => {
+    expect(getClientNamespaceStringHelper(undefined, "client.plane.generated")).toBe(
+      "Client.Plane.Generated",
+    );
+  });
+
+  it("should return namespace override when provided", async () => {
+    expect(getClientNamespaceStringHelper("Namespace.Override", "Package.Name")).toBe(
+      "Namespace.Override",
+    );
+  });
+
+  it("should fallback to Namespace from spec when namespace and package are not provided", async () => {
+    const runner = await createEmitterTestHost();
+    const program = await typeSpecCompile(``, runner, { IsVersionNeeded: false });
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const primaryNamespace = listAllServiceNamespaces(sdkContext)[0];
+
+    expect(getClientNamespaceStringHelper(undefined, undefined, primaryNamespace)).toBe(
+      "Azure.Csharp.Testing",
+    );
   });
 });

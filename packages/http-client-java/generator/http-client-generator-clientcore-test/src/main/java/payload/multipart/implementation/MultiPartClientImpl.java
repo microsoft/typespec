@@ -106,6 +106,20 @@ public final class MultiPartClientImpl {
     }
 
     /**
+     * The FormDataFilesImpl object to access its operations.
+     */
+    private final FormDataFilesImpl formDataFiles;
+
+    /**
+     * Gets the FormDataFilesImpl object to access its operations.
+     * 
+     * @return the FormDataFilesImpl object.
+     */
+    public FormDataFilesImpl getFormDataFiles() {
+        return this.formDataFiles;
+    }
+
+    /**
      * Initializes an instance of MultiPartClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -120,5 +134,6 @@ public final class MultiPartClientImpl {
         this.formDataHttpParts = new FormDataHttpPartsImpl(this);
         this.formDataHttpPartsContentTypes = new FormDataHttpPartsContentTypesImpl(this);
         this.formDataHttpPartsNonStrings = new FormDataHttpPartsNonStringsImpl(this);
+        this.formDataFiles = new FormDataFilesImpl(this);
     }
 }

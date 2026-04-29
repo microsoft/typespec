@@ -250,7 +250,7 @@ function* emitRawServerOperation(
         let value: string;
 
         if (requiresJsonSerialization(ctx, module, body.type)) {
-          if (body.type.kind === "Model" && isArrayModelType(ctx.program, body.type)) {
+          if (body.type.kind === "Model" && isArrayModelType(body.type)) {
             yield `        const __arrayBody = JSON.parse(body);`;
             yield `        if (!Array.isArray(__arrayBody)) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -261,7 +261,7 @@ function* emitRawServerOperation(
             yield `          return reject();`;
             yield `        }`;
             value = transposeExpressionFromJson(ctx, body.type, `__arrayBody`, module);
-          } else if (body.type.kind === "Model" && isRecordModelType(ctx.program, body.type)) {
+          } else if (body.type.kind === "Model" && isRecordModelType(body.type)) {
             yield `        const __recordBody = JSON.parse(body);`;
             yield `        if (typeof __recordBody !== "object" || __recordBody === null) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -425,7 +425,11 @@ function* emitRawServerOperation(
 
         const encoder = jsScalar.http[httpOperationParam.type];
 
-        paramBaseExpression = encoder.decode(paramNameSafe);
+        const decoded = encoder.decode(paramNameSafe);
+
+        paramBaseExpression = param.optional
+          ? `${paramNameSafe} === undefined ? undefined : (${decoded})`
+          : decoded;
       } else {
         paramBaseExpression = paramNameSafe;
       }
@@ -576,6 +580,25 @@ function* emitResultProcessingForType(
     }
   }
 
+  if (target.kind === "Scalar" || isValueLiteralType(target)) {
+    const serializationRequired =
+      target.kind === "Scalar" && isSerializationRequired(ctx, module, target, "application/json");
+
+    if (target.kind === "Scalar") {
+      requireSerialization(ctx, target, "application/json");
+    }
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
+    }
+
+    return;
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
@@ -637,7 +660,7 @@ function* emitResultProcessingForType(
     } else {
       yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
     }
-  } else if (isArrayModelType(ctx.program, target)) {
+  } else if (isArrayModelType(target)) {
     const itemType = target.indexer.value;
 
     const serializationRequired = isSerializationRequired(
@@ -655,7 +678,7 @@ function* emitResultProcessingForType(
     } else {
       yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
     }
-  } else if (isRecordModelType(ctx.program, target)) {
+  } else if (isRecordModelType(target)) {
     const itemType = target.indexer.value;
 
     const serializationRequired = isSerializationRequired(

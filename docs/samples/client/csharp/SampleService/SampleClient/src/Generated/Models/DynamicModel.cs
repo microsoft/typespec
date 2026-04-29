@@ -3,17 +3,21 @@
 #nullable disable
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SampleTypeSpec
 {
     /// <summary> A sample dynamic model. </summary>
     public partial class DynamicModel
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        [Experimental("SCME0001")]
+        private JsonPatch _patch;
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>
@@ -71,8 +75,9 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        /// <param name="patch"></param>
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, in JsonPatch patch)
         {
             Name = name;
             OptionalUnknown = optionalUnknown;
@@ -89,8 +94,16 @@ namespace SampleTypeSpec
             DictionaryOfDictionaryFoo = dictionaryOfDictionaryFoo;
             DictionaryListFoo = dictionaryListFoo;
             ListOfDictionaryFoo = listOfDictionaryFoo;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            _patch = patch;
+            _patch.SetPropagators(PropagateSet, PropagateGet);
         }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        /// <summary> Gets the Patch. </summary>
+        [JsonIgnore]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Experimental("SCME0001")]
+        public ref JsonPatch Patch => ref _patch;
 
         /// <summary> Gets the Name. </summary>
         public string Name { get; }

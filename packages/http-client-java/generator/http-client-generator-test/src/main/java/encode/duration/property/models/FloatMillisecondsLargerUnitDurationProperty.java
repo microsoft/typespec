@@ -11,6 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * The FloatMillisecondsLargerUnitDurationProperty model.
@@ -30,8 +31,12 @@ public final class FloatMillisecondsLargerUnitDurationProperty
      * @param value the value value to set.
      */
     @Generated
-    public FloatMillisecondsLargerUnitDurationProperty(double value) {
-        this.value = value;
+    public FloatMillisecondsLargerUnitDurationProperty(Duration value) {
+        if (value == null) {
+            this.value = 0.0;
+        } else {
+            this.value = (double) value.toNanos() / 1000_000L;
+        }
     }
 
     /**
@@ -40,8 +45,8 @@ public final class FloatMillisecondsLargerUnitDurationProperty
      * @return the value value.
      */
     @Generated
-    public double getValue() {
-        return this.value;
+    public Duration getValue() {
+        return Duration.ofNanos((long) (this.value * 1000_000L));
     }
 
     /**
@@ -67,13 +72,13 @@ public final class FloatMillisecondsLargerUnitDurationProperty
     @Generated
     public static FloatMillisecondsLargerUnitDurationProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            double value = 0.0;
+            Duration value = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    value = reader.getDouble();
+                    value = Duration.ofNanos((long) (reader.getDouble() * 1000_000L));
                 } else {
                     reader.skipChildren();
                 }

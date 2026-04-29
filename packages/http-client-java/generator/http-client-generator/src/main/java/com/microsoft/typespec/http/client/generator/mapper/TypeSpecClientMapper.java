@@ -15,10 +15,10 @@ import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TypeSpecClientMapper extends ClientMapper {
 
@@ -47,21 +47,14 @@ public class TypeSpecClientMapper extends ClientMapper {
     @Override
     protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes,
         List<ClientResponse> responseModels) {
+        Set<String> packages = new LinkedHashSet<>();
 
-        Set<String> packages = clientModels.stream()
-            .filter(ModelUtil::isGeneratingModel)
-            .map(ClientModel::getPackage)
-            .collect(Collectors.toSet());
-
-        packages.addAll(enumTypes.stream()
-            .filter(ModelUtil::isGeneratingModel)
-            .map(EnumType::getPackage)
-            .collect(Collectors.toSet()));
-
-        packages.addAll(responseModels.stream()
+        clientModels.stream().filter(ModelUtil::isGeneratingModel).map(ClientModel::getPackage).forEach(packages::add);
+        enumTypes.stream().filter(ModelUtil::isGeneratingModel).map(EnumType::getPackage).forEach(packages::add);
+        responseModels.stream()
             .filter(ModelUtil::isGeneratingModel)
             .map(ClientResponse::getPackage)
-            .collect(Collectors.toSet()));
+            .forEach(packages::add);
 
         return new ArrayList<>(packages);
     }

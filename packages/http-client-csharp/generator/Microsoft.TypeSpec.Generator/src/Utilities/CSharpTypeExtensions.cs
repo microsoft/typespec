@@ -47,6 +47,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     inputType = GetInputEnumType(specProperty?.Type);
                 }
 
+                // If we still don't have an input type (e.g., custom property without spec property),
+                // try to look up the type by name in the TypeFactory
+                if (inputType == null)
+                {
+                    // Try to resolve by looking up the CSharp type directly
+                    var resolvedType = TryFindCSharpTypeByName(type.Name);
+                    if (resolvedType != null)
+                    {
+                        return type.IsNullable ? resolvedType.WithNullable(true) : resolvedType;
+                    }
+                }
+
                 if (inputType == null)
                 {
                     return type;
@@ -55,18 +67,25 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // Use the TypeFactory to get the correct namespace for the type which respects any customizations that have
                 // been applied to the generated types.
                 var newType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
-                if (specProperty?.IsRequired == false && newType?.IsCollection == false)
-                {
-                    newType = newType.WithNullable(true);
-                }
-
                 if (newType != null)
                 {
-                    return newType;
+                    return type.IsNullable ? newType.WithNullable(true) : newType;
                 }
             }
 
             return type;
+        }
+
+        private static CSharpType? TryFindCSharpTypeByName(string typeName)
+        {
+            // Look up type provider by name using the efficient name-based dictionary
+            // This handles cases where the type is renamed using CodeGenType attribute
+            if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
+            {
+                return typeProvider.Type;
+            }
+
+            return null;
         }
 
         private static bool IsCustomizedEnumProperty(

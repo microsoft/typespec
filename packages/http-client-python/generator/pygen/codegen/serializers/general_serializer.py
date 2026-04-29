@@ -23,12 +23,12 @@ VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
     "azure-mgmt-core": "1.6.0",
-    "azure-core": "1.36.0",
+    "azure-core": "1.37.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
 
-MIN_PYTHON_VERSION = "3.9"
+MIN_PYTHON_VERSION = "3.10"
 MAX_PYTHON_VERSION = "3.13"
 
 
@@ -75,9 +75,11 @@ class GeneralSerializer(BaseSerializer):
             # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
             return result
 
-        # Keep "azure-sdk-build" and "packaging" configuration
-        if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
-            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+        # Keep "azure-sdk-*" and "packaging" configuration
+        if "tool" in loaded_pyproject_toml:
+            for key in loaded_pyproject_toml["tool"]:
+                if key.startswith("azure-sdk"):
+                    result["KEEP_FIELDS"][f"tool.{key}"] = loaded_pyproject_toml["tool"][key]
         if "packaging" in loaded_pyproject_toml:
             result["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
 
@@ -153,7 +155,10 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
+            "ADDITIONAL_DEPENDENCIES": [
+                dep if dep.startswith('"') else f'"{dep}"'
+                for dep in (f"{item[0]}>={item[1]}" for item in additional_version_map.items())
+            ],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs

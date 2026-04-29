@@ -35,7 +35,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -106,7 +106,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -176,7 +176,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -231,7 +231,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -275,7 +275,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -314,7 +314,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -346,7 +346,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -364,6 +364,104 @@ describe("Operation Converter", () => {
         const response = operation.responses[0];
         ok(response);
         strictEqual(response.bodyType, undefined);
+      });
+    });
+
+    describe("Optional Content-Type header", () => {
+      it("Optional body should have Content-Type remain as Constant (not transformed to enum)", async () => {
+        const program = await typeSpecCompile(
+          `
+          model BodyModel {
+            name: string;
+          }
+          
+          @post
+          op withOptionalBody(@body body?: BodyModel): void;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const [root] = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+
+        const contentTypeMethodParam = method.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeMethodParam, "Content-Type parameter should exist in service method");
+        strictEqual(
+          contentTypeMethodParam.type.kind,
+          "constant",
+          "Content-type should remain a constant type, not transformed to enum",
+        );
+
+        // validate operation
+        const operation = method.operation;
+        ok(operation);
+
+        // Find Content-Type parameter
+        const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeParam, "Content-Type parameter should exist");
+        strictEqual(contentTypeParam.kind, "header");
+        strictEqual(contentTypeParam.serializedName, "Content-Type");
+        strictEqual(contentTypeParam.optional, true, "Content-Type should be optional");
+        strictEqual(
+          contentTypeParam.scope,
+          "Constant",
+          "Content-Type should remain Constant scope",
+        );
+        strictEqual(
+          contentTypeParam.type.kind,
+          "constant",
+          "Content-Type should remain a constant type, not transformed to enum",
+        );
+      });
+
+      it("Required body should have Content-Type with Constant scope", async () => {
+        const program = await typeSpecCompile(
+          `
+          model BodyModel {
+            name: string;
+          }
+          
+          @post
+          op withRequiredBody(@body body: BodyModel): void;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const [root] = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+
+        // validate operation
+        const operation = method.operation;
+        ok(operation);
+
+        // Find Content-Type parameter
+        const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeParam, "Content-Type parameter should exist");
+        strictEqual(contentTypeParam.kind, "header");
+        strictEqual(contentTypeParam.serializedName, "Content-Type");
+        strictEqual(contentTypeParam.optional, false, "Content-Type should be required");
+        strictEqual(
+          contentTypeParam.scope,
+          "Constant",
+          "Content-Type should have Constant scope for required body",
+        );
+        strictEqual(
+          contentTypeParam.type.kind,
+          "constant",
+          "Content-Type should be a constant type",
+        );
       });
     });
   });

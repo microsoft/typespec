@@ -1,15 +1,9 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import type { Program } from "../../src/core/program.js";
-import { Model, Namespace, Type } from "../../src/core/types.js";
+import type { Type } from "../../src/core/types.js";
 import { getTypeName } from "../../src/index.js";
-import {
-  TestHost,
-  createTestHost,
-  expectDiagnostics,
-  expectTypeEquals,
-  t,
-} from "../../src/testing/index.js";
+import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -18,28 +12,15 @@ describe("compiler: namespaces with blocks", () => {
     blues.add(target);
   }
 
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { $blue });
-  });
-
   it("can be decorated", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Q, N, Y } = await Tester.files({
+      "blue.js": mockFile.js({ $blue }),
+    }).compile(t.code`
       import "./blue.js";
-      @blue @test namespace Z.Q;
-      @blue @test namespace N { }
-      @blue @test namespace X.Y { }
-      `,
-    );
-    const { N, Y, Q } = (await testHost.compile("./")) as {
-      N: Namespace;
-      Y: Namespace;
-      Q: Namespace;
-    };
+      @blue namespace Z.${t.namespace("Q")};
+      @blue namespace ${t.namespace("N")} { }
+      @blue namespace X.${t.namespace("Y")} { }
+    `);
 
     ok(blues.has(N), "N is blue");
     ok(blues.has(Y), "Y is blue");
@@ -47,39 +28,27 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can reference array expression on decorator of namespace", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-    import "./blue.js";
-    @blue(Bar) @test
-    namespace Test {
-      model Bar {
-        arrayProp: string[];
+    const { Test } = await Tester.files({
+      "blue.js": mockFile.js({ $blue }),
+    }).compile(t.code`
+      import "./blue.js";
+      @blue(Bar)
+      namespace ${t.namespace("Test")} {
+        model Bar {
+          arrayProp: string[];
+        }
       }
-    }
-    `,
-    );
-    const { Test } = await testHost.compile("./");
+    `);
 
     strictEqual(Test.kind, "Namespace" as const);
   });
 
   it("merges like namespaces", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test
-      namespace N { @test model X { x: string } }
-      namespace N { @test model Y { y: string } }
-      namespace N { @test model Z { ... X, ... Y } }
-      `,
-    );
-    const { N, X, Y, Z } = (await testHost.compile("./")) as {
-      N: Namespace;
-      X: Model;
-      Y: Model;
-      Z: Model;
-    };
+    const { N, X, Y, Z } = await Tester.compile(t.code`
+      namespace ${t.namespace("N")} { model ${t.model("X")} { x: string } }
+      namespace N { model ${t.model("Y")} { y: string } }
+      namespace N { model ${t.model("Z")} { ... X, ... Y } }
+    `);
     strictEqual(X.namespace, N);
     strictEqual(Y.namespace, N);
     strictEqual(Z.namespace, N);
@@ -87,39 +56,16 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("merges like namespaces across files", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { N, Z } = await Tester.files({
+      "a.tsp": `namespace N { model X { x: string } }`,
+      "b.tsp": `namespace N { model Y { y: int32 } }`,
+    }).compile(t.code`
       import "./a.tsp";
       import "./b.tsp";
-      import "./c.tsp";
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      @test
-      namespace N { @test model X { x: string } }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      namespace N { @test model Y { y: int32 } }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "c.tsp",
-      `
-      namespace N { @test model Z { ... X, ... Y } }
-      `,
-    );
-    const { N, X, Y, Z } = (await testHost.compile("./")) as {
-      N: Namespace;
-      X: Model;
-      Y: Model;
-      Z: Model;
-    };
+      namespace ${t.namespace("N")} { model ${t.model("Z")} { ... X, ... Y } }
+    `);
+    const X = N.models.get("X")!;
+    const Y = N.models.get("Y")!;
     strictEqual(X.namespace, N, "X namespace");
     strictEqual(Y.namespace, N, "Y namespace");
     strictEqual(Z.namespace, N, "Z namespace");
@@ -127,36 +73,14 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("merges sub-namespaces across files", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Z } = await Tester.files({
+      "a.tsp": `namespace N { namespace M { model X { x: string } } }`,
+      "b.tsp": `namespace N { namespace M { model Y { y: int32 } } }`,
+    }).compile(t.code`
       import "./a.tsp";
       import "./b.tsp";
-      import "./c.tsp";
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      namespace N { namespace M { model X { x: string } } }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      namespace N { namespace M { model Y { y: int32 } } }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "c.tsp",
-      `
-      namespace N { @test model Z { ... M.X, ... M.Y } }
-      `,
-    );
-
-    const { Z } = (await testHost.compile("./")) as {
-      Z: Model;
-    };
+      namespace N { model ${t.model("Z")} { ... M.X, ... M.Y } }
+    `);
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
@@ -164,37 +88,31 @@ describe("compiler: namespaces with blocks", () => {
     const reds = new WeakSet();
     let isRedDuringRef = false;
     let isBlueDuringRef = false;
-    testHost.addJsFile("red.js", {
-      $red(p: Program, t: Type) {
-        reds.add(t);
-      },
-      $ref(p: Program, t: Type, arg: Type) {
-        isRedDuringRef = reds.has(arg);
-        isBlueDuringRef = blues.has(arg);
-      },
-    });
 
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { N } = await Tester.files({
+      "blue.js": mockFile.js({ $blue }),
+      "red.js": mockFile.js({
+        $red(p: Program, t: Type) {
+          reds.add(t);
+        },
+        $ref(p: Program, t: Type, arg: Type) {
+          isRedDuringRef = reds.has(arg);
+          isBlueDuringRef = blues.has(arg);
+        },
+      }),
+    }).compile(t.code`
       import "./blue.js";
       import "./red.js";
 
       @ref(N)
       namespace A { }
-      
+
       @red
-      @test
-      namespace N {}
+      namespace ${t.namespace("N")} {}
 
       @blue
       namespace N {}
-      `,
-    );
-
-    const { N } = (await testHost.compile("./")) as {
-      N: Namespace;
-    };
+    `);
 
     ok(reds.has(N), "is ultimately red"); // passes
     ok(blues.has(N), "is ultimately blue"); // passes
@@ -207,51 +125,31 @@ describe("compiler: namespaces with blocks", () => {
     const reds = new WeakSet();
     let isRedDuringRef = false;
     let isBlueDuringRef = false;
-    testHost.addJsFile("red.js", {
-      $red(p: Program, t: Type) {
-        reds.add(t);
-      },
-      $ref(p: Program, t: Type, arg: Type) {
-        isRedDuringRef = reds.has(arg);
-        isBlueDuringRef = blues.has(arg);
-      },
-    });
 
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { N } = await Tester.files({
+      "blue.js": mockFile.js({ $blue }),
+      "red.js": mockFile.js({
+        $red(p: Program, t: Type) {
+          reds.add(t);
+        },
+        $ref(p: Program, t: Type, arg: Type) {
+          isRedDuringRef = reds.has(arg);
+          isBlueDuringRef = blues.has(arg);
+        },
+      }),
+      "one.tsp": `@red namespace N {}`,
+      "two.tsp": `@blue namespace N {}`,
+    }).compile(t.code`
       import "./blue.js";
       import "./red.js";
       import "./one.tsp";
       import "./two.tsp";
-      
+
       @ref(N)
       namespace A { }
-    
-      `,
-    );
 
-    testHost.addTypeSpecFile(
-      "one.tsp",
-      `
-      @red
-      @test
-      namespace N {}
-    
-      `,
-    );
-
-    testHost.addTypeSpecFile(
-      "two.tsp",
-      `
-      @blue
-      namespace N {}
-      `,
-    );
-
-    const { N } = (await testHost.compile("./")) as {
-      N: Namespace;
-    };
+      namespace ${t.namespace("N")} {}
+    `);
 
     ok(reds.has(N), "is ultimately red"); // passes
     ok(blues.has(N), "is ultimately blue"); // passes
@@ -261,64 +159,37 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can see things in outer scope same file", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.compile(`
       model A { }
       namespace N { model B extends A { } }
-      `,
-    );
-    await testHost.compile("./");
+    `);
   });
 
   it("can see things in outer scope cross file", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.files({
+      "a.tsp": `model A { }`,
+      "b.tsp": `model B extends A { }`,
+      "c.tsp": `
+        model C { }
+        namespace foo {
+          op foo(a: A, b: B): C;
+        }
+      `,
+    }).compile(`
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      model A { }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      model B extends A { }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "c.tsp",
-      `
-      model C { }
-      namespace foo {
-        op foo(a: A, b: B): C;
-      }
-      `,
-    );
-    await testHost.compile("./");
+    `);
   });
 
   it("accumulates declarations inside of it", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test namespace Foo {
+    const { Foo } = await Tester.compile(t.code`
+      namespace ${t.namespace("Foo")} {
         namespace Bar { };
         op Baz(): {};
         model Qux { };
       }
-      `,
-    );
-
-    const { Foo } = (await testHost.compile("./")) as {
-      Foo: Namespace;
-    };
+    `);
 
     strictEqual(Foo.operations.size, 1);
     strictEqual(Foo.models.size, 1);
@@ -326,67 +197,35 @@ describe("compiler: namespaces with blocks", () => {
   });
 
   it("can be decorated, passing a model in a later namespace", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test(Azure.Foo)
+    await Tester.files({
+      "dec.js": mockFile.js({ $myDec() {} }),
+    }).compile(`
+      import "./dec.js";
+      @myDec(Azure.Foo)
       namespace Baz { };
       namespace Azure {
         model Foo { }
       }
-
-      `,
-    );
-
-    await testHost.compile("./");
+    `);
   });
 });
 
 describe("compiler: blockless namespaces", () => {
-  const blues = new WeakSet();
-  function $blue(_: any, target: Type) {
-    blues.add(target);
-  }
-
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-    testHost.addJsFile("blue.js", { $blue });
-  });
-
   it("merges properly with other namespaces", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { Z } = await Tester.files({
+      "a.tsp": `
+        namespace N;
+        model X { x: int32 }
+      `,
+      "b.tsp": `
+        namespace N;
+        model Y { y: int32 }
+      `,
+    }).compile(t.code`
       import "./a.tsp";
       import "./b.tsp";
-      import "./c.tsp";
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      namespace N;
-      model X { x: int32 }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      namespace N;
-      model Y { y: int32 }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "c.tsp",
-      `
-      @test model Z { ... N.X, ... N.Y }
-      `,
-    );
-    const { Z } = (await testHost.compile("./")) as {
-      Z: Model;
-    };
+      model ${t.model("Z")} { ... N.X, ... N.Y }
+    `);
     strictEqual(Z.properties.size, 2, "has two properties");
   });
 
@@ -405,123 +244,73 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("does lookup correctly", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.compile(`
       namespace Repro;
       model Yo {
       }
       model Hey {
         wat: Yo;
       }
-      `,
-    );
-
-    await testHost.compile("./");
+    `);
   });
 
   it("does lookup correctly with nested namespaces", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.files({
+      "b.tsp": `
+        namespace Repro.Uhoh;
+        model SayYo {
+          yo: Hey;
+          wat: Yo;
+        }
+      `,
+    }).compile(`
+      import "./b.tsp";
       namespace Repro;
       model Yo {
       }
       model Hey {
         wat: Yo;
       }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      namespace Repro.Uhoh;
-      model SayYo {
-        yo: Hey;
-        wat: Yo;
-      }
-      `,
-    );
-
-    await testHost.compile("./");
+    `);
   });
 
   it("binds correctly", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.files({
+      "b.tsp": `model X { a: N.M.A }`,
+    }).compile(`
+      import "./b.tsp";
       namespace N.M;
       model A { }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      model X { a: N.M.A }
-      `,
-    );
-
-    await testHost.compile("./");
+    `);
   });
 
   it("works with blockful namespaces", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test
-      namespace N;
+    const { N, M } = await Tester.files({
+      "b.tsp": `model X { a: N.M.A }`,
+    }).compile(t.code`
+      import "./b.tsp";
+      namespace ${t.namespace("N")};
 
-      @test
-      namespace M {
+      namespace ${t.namespace("M")} {
         model A { }
       }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      model X { a: N.M.A }
-      `,
-    );
-    const { N, M } = (await testHost.compile("./")) as {
-      N: Namespace;
-      M: Namespace;
-    };
+    `);
 
     ok(M.namespace);
     strictEqual(M.namespace, N);
   });
 
   it("works with nested blockless and blockfull namespaces", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./a.tsp";
+    const { M, O } = await Tester.files({
+      "b.tsp": `model X { a: N.M.O.A }`,
+    }).compile(t.code`
       import "./b.tsp";
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      @test
-      namespace N.M;
+      namespace N.${t.namespace("M")};
 
-      @test
-      namespace O {
+      namespace ${t.namespace("O")} {
         model A { }
       }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      model X { a: N.M.O.A }
-      `,
-    );
-    const { M, O } = (await testHost.compile("./")) as {
-      M: Namespace;
-      O: Namespace;
-    };
+    `);
 
     ok(M.namespace);
     ok(O.namespace);
@@ -529,38 +318,24 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("works when namespaces aren't evaluated first", async () => {
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
+    await Tester.files({
+      "b.tsp": `
+        namespace N;
+        model X {}
+      `,
+    }).compile(`
       import "./b.tsp";
       model M {x: N.X }
-      `,
-    );
-    testHost.addTypeSpecFile(
-      "b.tsp",
-      `
-      namespace N;
-      model X {}
-      `,
-    );
-
-    await testHost.compile("./a.tsp");
+    `);
   });
 
   it("accumulates declarations inside of it", async () => {
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
-      @test namespace Foo;
+    const { Foo } = await Tester.compile(t.code`
+      namespace ${t.namespace("Foo")};
       namespace Bar { };
       op Baz(): {};
       model Qux { };
-      `,
-    );
-
-    const { Foo } = (await testHost.compile("./a.tsp")) as {
-      Foo: Namespace;
-    };
+    `);
 
     strictEqual(Foo.operations.size, 1);
     strictEqual(Foo.models.size, 1);
@@ -569,70 +344,46 @@ describe("compiler: blockless namespaces", () => {
 });
 
 describe("compiler: namespace type name", () => {
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   it("prefix with the namespace of the entity", async () => {
-    testHost.addTypeSpecFile(
-      "a.tsp",
-      `
+    const { Model1, Model2 } = await Tester.compile(t.code`
       namespace Foo;
-      
-      @test()
-      model Model1 {}
+
+      model ${t.model("Model1")} {}
 
       namespace Other.Bar {
-         @test()
-        model Model2 {}
+        model ${t.model("Model2")} {}
       }
-      `,
-    );
+    `);
 
-    const { Model1, Model2 } = await testHost.compile("./a.tsp");
     strictEqual(getTypeName(Model1), "Foo.Model1");
     strictEqual(getTypeName(Model2), "Foo.Other.Bar.Model2");
   });
 
   it("gets full name in edge case with decorators", async () => {
-    testHost.addJsFile("lib.js", {
-      namespace: "AnotherNamespace",
-      $myDec() {},
-    });
-
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { SomeModel, AnotherModel } = await Tester.files({
+      "lib.js": mockFile.js({
+        namespace: "AnotherNamespace",
+        $myDec() {},
+      }),
+    }).compile(t.code`
       import "./lib.js";
 
       @AnotherNamespace.myDec(AnotherNamespace.AnotherModel)
       namespace SomeNamespace {
-        @test()
-        model SomeModel {}
+        model ${t.model("SomeModel")} {}
       }
 
       namespace AnotherNamespace {
-        @test()
-        model AnotherModel {}
+        model ${t.model("AnotherModel")} {}
       }
-      `,
-    );
+    `);
 
-    const { SomeModel, AnotherModel } = await testHost.compile("./main.tsp");
     strictEqual(getTypeName(SomeModel), "SomeNamespace.SomeModel");
     strictEqual(getTypeName(AnotherModel), "AnotherNamespace.AnotherModel");
   });
 });
 
 describe("compiler: decorators in namespaces", () => {
-  let testHost: TestHost;
-
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   it("puts decorators in namespaces using an exported string", async () => {
     let fooCalled = false;
     let barCalled = false;
@@ -649,17 +400,12 @@ describe("compiler: decorators in namespaces", () => {
 
     (dec.$bar as any).namespace = "C";
 
-    testHost.addJsFile("dec.js", dec);
-
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.files({
+      "dec.js": mockFile.js(dec),
+    }).compile(`
       import "./dec.js";
       @A.B.foo @A.B.C.bar model M { };
-      `,
-    );
-
-    await testHost.compile("main.tsp");
+    `);
     ok(fooCalled);
     ok(barCalled);
   });
@@ -678,41 +424,30 @@ describe("compiler: decorators in namespaces", () => {
 
     (dec.$foo as any).namespace = "A";
     (dec.$bar as any).namespace = "A.B";
-    testHost.addJsFile("dec.js", dec);
 
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    await Tester.files({
+      "dec.js": mockFile.js(dec),
+    }).compile(`
       import "./dec.js";
 
       @A.foo @A.B.bar model M { };
-      `,
-    );
-
-    await testHost.compile("main.tsp");
+    `);
     ok(fooCalled);
     ok(barCalled);
   });
 
   it("provides full namespace name in error when namespace is missing a member", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.files({
+      "other.tsp": `
+        namespace A.B.A.B;
+        model N {}
+      `,
+    }).diagnose(`
       import "./other.tsp";
       namespace A.B;
       model M { }
       model N extends A.B.M {}// There's a A.B.M, but this looks in A.B.A.B for M
-    `,
-    );
-    testHost.addTypeSpecFile(
-      "other.tsp",
-      `
-      namespace A.B.A.B;
-      model N {}
-      `,
-    );
-
-    const diagnostics = await testHost.diagnose("./");
+    `);
     expectDiagnostics(diagnostics, [
       {
         code: "invalid-ref",
@@ -722,21 +457,16 @@ describe("compiler: decorators in namespaces", () => {
   });
 
   it("can reference global namespace using `global` for disambiguation", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { B, X, Y } = await Tester.compile(t.code`
       namespace A {
-       @test namespace B {
-          @test model Y extends global.B.X {}
+        namespace ${t.namespace("B")} {
+          model ${t.model("Y")} extends global.B.X {}
         }
       }
       namespace B {
-        @test model X {}
+        model ${t.model("X")} {}
       }
-    `,
-    );
-
-    const { B, X, Y } = await testHost.compile("./main.tsp");
+    `);
     strictEqual(B.kind, "Namespace" as const);
     strictEqual(X.kind, "Model" as const);
     strictEqual(Y.kind, "Model" as const);

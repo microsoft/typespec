@@ -1,5 +1,101 @@
 # Change Log - @typespec/openapi3
 
+## 1.11.0
+
+### Bug Fixes
+
+- [#10041](https://github.com/microsoft/typespec/pull/10041) [importer] Fix `anyOf` with `$ref` and inline object being incorrectly imported as a model instead of a union.
+- [#10046](https://github.com/microsoft/typespec/pull/10046) Fix OpenAPI emitter failing with "Duplicate type name" error when using a named union with a `bytes` variant in a multipart body (e.g. `HttpPart<MyUnion>` where `MyUnion` includes `bytes`).
+
+
+## 1.10.0
+
+### Features
+
+- [#9577](https://github.com/microsoft/typespec/pull/9577) Add support for OpenAPI 3.2 nested tags via `parent` field in `@tagMetadata` decorator
+- [#9890](https://github.com/microsoft/typespec/pull/9890) `file-type` can now receive an array to allow emitting both `json` and `yaml` output in the same run.
+- [#9742](https://github.com/microsoft/typespec/pull/9742) Import tool: Support importing `readOnly` and `writeOnly` properties from OpenAPI. 
+  - `readOnly: true` is converted to `@visibility(Lifecycle.Read)`
+  - `writeOnly: true` is converted to `@visibility(Lifecycle.Create)`
+  - Both properties are mutually exclusive, a warning is emitted if both are present and both are ignored
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9634](https://github.com/microsoft/typespec/pull/9634) importer - Fix OpenAPI3 import to support JSON Schema 2020-12 sibling keywords alongside $ref (default, constraints, deprecated, etc.)
+- [#9802](https://github.com/microsoft/typespec/pull/9802) openapi3 - Fix `tsp-openapi3` ignoring array constraints (`minItems`, `maxItems`) on nullable arrays defined with `anyOf` + `null`
+
+
+## 1.9.0
+
+### Features
+
+- [#9629](https://github.com/microsoft/typespec/pull/9629) importer - Add support for importing the `@continuationToken` decorator based on x-ms-list-continuation-token extension
+- [#9627](https://github.com/microsoft/typespec/pull/9627) importer - Add support for importing paging link decorators (`@prevLink`, `@nextLink`, `@firstLink`, `@lastLink`) based on x-ms-list-*-link OpenAPI extensions
+- [#9609](https://github.com/microsoft/typespec/pull/9609) importer - Add support for x-ms-list extension to add `@list` decorator to operations
+- [#9613](https://github.com/microsoft/typespec/pull/9613) importer - Add support for `@offset` decorator when x-ms-list-offset extension is present
+- [#9618](https://github.com/microsoft/typespec/pull/9618) importer - Add support for `@pageSize` decorator based on x-ms-list-page-size extension
+- [#9615](https://github.com/microsoft/typespec/pull/9615) importer - Add support for x-ms-list-page-items extension to `@pageItems` decorator
+- [#9611](https://github.com/microsoft/typespec/pull/9611) importer - Add support for x-ms-list-page-index extension to add `@pageIndex` decorator
+- [#9512](https://github.com/microsoft/typespec/pull/9512) Expose performance information when running with `--stats`
+- [#9412](https://github.com/microsoft/typespec/pull/9412) importer - OpenAPI number type with duration format now converts to TypeSpec duration type with @encode("seconds", float32) decorator
+- [#9584](https://github.com/microsoft/typespec/pull/9584) Expose `openapi-versions` emitter option now that both 3.1.0 and 3.2.0 are implemented.
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9410](https://github.com/microsoft/typespec/pull/9410) importer - null reference exception if member schema cannot be resolved
+- [#9533](https://github.com/microsoft/typespec/pull/9533) Fix parameters with default value resulting in `$ref` with `default` as sibling for OpenAPI 3.0
+- [#9583](https://github.com/microsoft/typespec/pull/9583) Fix: tag metadata not scopped to the service it was defined on
+- [#9475](https://github.com/microsoft/typespec/pull/9475) Handle use of `.now()` constructor on date time types in examples and default.
+
+
+## 1.8.0
+
+### Features
+
+- [#9289](https://github.com/microsoft/typespec/pull/9289) Add support for importing deprecated properties and types from OpenAPI
+- [#9262](https://github.com/microsoft/typespec/pull/9262) Add support for OpenAPI 3.2.0 `defaultMapping` in discriminated unions. When a discriminated union has a default variant (unnamed variant), it is now properly emitted:
+  - For OpenAPI 3.2.0: The default variant is included in `oneOf` array and referenced via `discriminator.defaultMapping` property
+  - For OpenAPI 3.0 and 3.1: The default variant is included in `oneOf` array and its discriminator value is added to the `discriminator.mapping` object
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9228](https://github.com/microsoft/typespec/pull/9228) Importer: Escape ${...} patterns in extension string property values to prevent interpolation
+- [#9236](https://github.com/microsoft/typespec/pull/9236) Fix extension properties with JSON-like strings using escaped string literals to prevent triple-quote syntax issues
+- [#9275](https://github.com/microsoft/typespec/pull/9275) import tool - avoid double escaping backslashes
+- [#9265](https://github.com/microsoft/typespec/pull/9265) import tool - missing imports for SSE events
+- [#9265](https://github.com/microsoft/typespec/pull/9265) import tool - escape SSE event union identifiers when required
+
+
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9164](https://github.com/microsoft/typespec/pull/9164) Import OpenAPI schemas with anyOf/oneOf containing unixtime format correctly emits `@encode(DateTimeKnownEncoding.unixTimestamp, integer)` decorator for nullable utcDateTime properties
+- [#9151](https://github.com/microsoft/typespec/pull/9151) Import OpenAPI 3.1/3.2 schemas with contentEncoding: base64 as bytes type with `@encode("base64", string)` decorator
+- [#9076](https://github.com/microsoft/typespec/pull/9076) Respect `@externalDocs` on properties
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
 ## 1.6.0
 
 ### Features

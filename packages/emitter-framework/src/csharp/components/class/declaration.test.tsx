@@ -36,10 +36,7 @@ it("renders an empty class declaration", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    class TestModel
-    {
-
-    }
+    class TestModel {}
   `);
 });
 
@@ -88,14 +85,8 @@ it("renders a class declaration with properties using component override", async
       </TestClientOverrides>
     </Wrapper>,
   ).toRenderTo(d`
-    class Foo
-    {
-
-    }
-    class Bar
-    {
-
-    }
+    class Foo {}
+    class Bar {}
     class TestModel
     {
         public required string Prop1 { get; set; }
@@ -150,10 +141,7 @@ it("can override class name", async () => {
       <ClassDeclaration type={TestModel} name="CustomClassName" />
     </Wrapper>,
   ).toRenderTo(`
-    class CustomClassName
-    {
-
-    }
+    class CustomClassName {}
   `);
 });
 
@@ -168,10 +156,7 @@ it("renders a class with access modifiers", async () => {
       <ClassDeclaration type={TestModel} protected />
     </Wrapper>,
   ).toRenderTo(`
-    protected class TestModel
-    {
-
-    }
+    protected class TestModel {}
   `);
 });
 
@@ -187,10 +172,7 @@ describe("from an interface", () => {
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
     ).toRenderTo(`
-      class TestInterface
-      {
-
-      }
+      class TestInterface {}
     `);
   });
 
@@ -229,10 +211,7 @@ it("renders a class with model members", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    class TestReference
-    {
-
-    }
+    class TestReference {}
     class TestModel
     {
         public required TestReference Prop1 { get; set; }

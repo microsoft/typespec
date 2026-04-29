@@ -8,5 +8,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
     internal static partial class SystemSnippet
     {
         internal static ScopedApi<string> JsonFormatSerialization = Snippet.Literal("J");
+        internal static ScopedApi<string> XmlFormatSerialization = Snippet.Literal("X");
     }
 }

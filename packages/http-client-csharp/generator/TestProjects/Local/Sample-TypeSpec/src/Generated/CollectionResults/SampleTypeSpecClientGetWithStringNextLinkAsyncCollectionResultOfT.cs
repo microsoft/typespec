@@ -39,11 +39,11 @@ namespace SampleTypeSpec
                 yield return result;
 
                 string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
-                if (nextPageString == null)
+                if (string.IsNullOrEmpty(nextPageString))
                 {
                     yield break;
                 }
-                nextPageUri = new Uri(nextPageString);
+                nextPageUri = new Uri(nextPageString, UriKind.RelativeOrAbsolute);
                 message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }
@@ -54,7 +54,7 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             string nextPage = ((ListWithStringNextLinkResponse)page).Next;
-            if (nextPage != null)
+            if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }

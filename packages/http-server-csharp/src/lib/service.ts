@@ -103,6 +103,7 @@ import {
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getControllerReturnStatement,
   getFreePort,
   getHttpDeclParameters,
   getImports,
@@ -161,6 +162,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         case "StringTemplateSpan":
         case "TemplateParameter":
         case "Tuple":
+        case "FunctionType":
           return undefined;
         case "EnumMember":
           return this.#getOrAddNamespaceForType(type.enum);
@@ -210,6 +212,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #getDefaultNamespace(): string {
       return "TypeSpec.Service";
+    }
+
+    arrayDeclarationContext(array: Model, name: string, elementType: Type) {
+      const arrayName = ensureCSharpIdentifier(this.emitter.getProgram(), array, name);
+      const arrayFile = this.emitter.createSourceFile(`generated/models/${arrayName}.cs`);
+      arrayFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
+      arrayFile.meta["skipEmit"] = true;
+      const arrayNamespace = this.#getOrAddNamespace(array.namespace);
+      return this.#createModelContext(arrayNamespace, arrayFile, arrayName);
     }
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
@@ -783,6 +794,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         usings: [],
       };
       for (const [name, operation] of iface.operations) {
+        if (isTemplateDeclaration(operation)) continue;
         const doc = getDoc(this.emitter.getProgram(), operation);
         const returnTypes: Type[] = [];
         const [httpOp, _] = getHttpOperation(this.emitter.getProgram(), operation);
@@ -872,7 +884,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
+      const returnStatement = getControllerReturnStatement(status, hasResponseValue);
       if (!this.#isMultipartRequest(httpOperation)) {
         return this.emitter.result.declaration(
           operation.name,
@@ -886,9 +898,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
         );
@@ -914,9 +926,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
         );
@@ -955,7 +967,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
+      const returnStatement = getControllerReturnStatement(status, hasResponseValue);
       return this.emitter.result.declaration(
         operation.name,
         code`
@@ -968,9 +980,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
       );
@@ -1003,7 +1015,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           .checker.cloneType(responseType, { name: modelName });
         responseType = returnedType;
       }
-      this.emitter.emitType(responseType);
+      // TemplateParameter types cannot be emitted (they are unresolved template placeholders).
+      // Template operations are filtered in interfaceDeclarationOperations, but this guard
+      // prevents crashes if a TemplateParameter response type is encountered via other paths.
+      if (responseType.kind !== "TemplateParameter") {
+        this.emitter.emitType(responseType);
+      }
 
       const context = this.emitter.getContext();
       const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
@@ -1171,6 +1188,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #createEnumContext(namespace: string, file: SourceFile<string>, name: string): Context {
       file.imports.set("System.Text.Json", ["System.Text.Json"]);
       file.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+      file.meta[this.#nsKey] = namespace;
 
       return {
         namespace: namespace,
@@ -1254,6 +1272,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
       if (sourceFile.meta.emitted) {
         return sourceFile.meta.emitted;
+      }
+
+      if (sourceFile.meta["skipEmit"]) {
+        return { path: sourceFile.path, contents: "" };
       }
 
       const emittedSourceFile: EmittedSourceFile = {
@@ -1417,7 +1439,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             break;
         }
       }
-      return super.writeOutput(emittedSourceFiles);
+      return super.writeOutput(emittedSourceFiles.filter((f) => !f.meta["skipEmit"]));
     }
   }
 

@@ -1,25 +1,20 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model, Operation } from "../../src/index.js";
+import { describe, it } from "vitest";
 import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
-import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
-
-let runner: BasicTestRunner;
-beforeEach(async () => {
-  runner = await createTestRunner();
-});
+import { t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: checker: doc comments", () => {
   const expectedMainDoc = "This is a doc comment.";
   const docComment = `/**
    *  ${expectedMainDoc}
    */`;
-  function testMainDoc(name: string, code: string) {
+  function testMainDoc(name: string, code: string, key = "target") {
     it(name, async () => {
-      const { target } = await runner.compile(code);
-      ok(target, `Make sure to have @test("target") in code.`);
+      const result = (await Tester.compile(code)) as any;
+      ok(result[key], `Make sure to have /*${key}*/ marker in code.`);
 
-      strictEqual(getDoc(runner.program, target), expectedMainDoc);
+      strictEqual(getDoc(result.program, result[key]), expectedMainDoc);
     });
   }
 
@@ -27,23 +22,24 @@ describe("compiler: checker: doc comments", () => {
     testMainDoc(
       "model",
       `${docComment}
-      @test("target") model Foo {}`,
+      model /*target*/Foo {}`,
     );
 
-    testMainDoc(
-      "templated model",
-      `${docComment}
-      @test("target") model Foo<T> {}
+    it("templated model", async () => {
+      const { Bar, program } = await Tester.compile(t.code`${docComment}
+      model Foo<T> {}
 
-      model Bar { foo: Foo<string> }`,
-    );
+      model ${t.model("Bar")} { foo: Foo<string> }`);
+      const fooInstance = Bar.properties.get("foo")!.type;
+      strictEqual(getDoc(program, fooInstance), expectedMainDoc);
+    });
 
     testMainDoc(
       "model property",
       `
       model Foo {
         ${docComment}
-        @test("target") foo: string;
+        /*target*/name: string;
       }
     `,
     );
@@ -51,13 +47,13 @@ describe("compiler: checker: doc comments", () => {
     testMainDoc(
       "scalar",
       `${docComment}
-      @test("target") scalar foo;`,
+      scalar /*target*/unreal;`,
     );
 
     testMainDoc(
       "enum",
       `${docComment}
-      @test("target") enum Foo {}`,
+      enum /*target*/Foo {}`,
     );
 
     testMainDoc(
@@ -65,120 +61,120 @@ describe("compiler: checker: doc comments", () => {
       `
       enum Foo {
         ${docComment}
-        @test("target") foo,
+        /*target*/a,
       }
     `,
     );
     testMainDoc(
       "operation",
       `${docComment}
-      @test("target") op test(): string;`,
+      op /*target*/foo(): string;`,
     );
 
     testMainDoc(
       "interface",
       `${docComment}
-      @test("target") interface Foo {}`,
+      interface /*target*/Foo {}`,
     );
   });
 
   it("using @doc() decorator will override the doc comment", async () => {
-    const { Foo } = (await runner.compile(`
+    const { Foo, program } = await Tester.compile(t.code`
     
     /**
      * This is a doc comment.
      */
     @doc("This is the actual doc.")
-    @test model Foo {}
-    `)) as { Foo: Model };
+    model ${t.model("Foo")} {}
+    `);
 
-    strictEqual(getDoc(runner.program, Foo), "This is the actual doc.");
+    strictEqual(getDoc(program, Foo), "This is the actual doc.");
   });
 
   describe("override model is comment", () => {
     it("override another doc comment", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
     
     /** Base comment */
     model Base {}
 
     /** Override comment */
-    @test model Foo is Base {}
-    `)) as { Foo: Model };
+    model ${t.model("Foo")} is Base {}
+    `);
 
-      strictEqual(getDoc(runner.program, Foo), "Override comment");
+      strictEqual(getDoc(program, Foo), "Override comment");
     });
 
     it("override @doc", async () => {
-      const { Foo } = (await runner.compile(`
+      const { Foo, program } = await Tester.compile(t.code`
     
     @doc("Base comment")
     model Base {}
 
     /** Override comment */
-    @test model Foo is Base {}
-    `)) as { Foo: Model };
+    model ${t.model("Foo")} is Base {}
+    `);
 
-      strictEqual(getDoc(runner.program, Foo), "Override comment");
+      strictEqual(getDoc(program, Foo), "Override comment");
     });
   });
 
   describe("override op is comment", () => {
     it("override another doc comment", async () => {
-      const { foo } = (await runner.compile(`
+      const { foo, program } = await Tester.compile(t.code`
     
     /** Base comment */
     op base(): void;
 
     /** Override comment */
-    @test op foo is base;
-    `)) as { foo: Operation };
+    op ${t.op("foo")} is base;
+    `);
 
-      strictEqual(getDoc(runner.program, foo), "Override comment");
+      strictEqual(getDoc(program, foo), "Override comment");
     });
 
     it("override @doc", async () => {
-      const { foo } = (await runner.compile(`
+      const { foo, program } = await Tester.compile(t.code`
     
     @doc("Base comment")
     op base(): void;
 
     /** Override comment */
-    @test op foo is base;
-    `)) as { foo: Operation };
+    op ${t.op("foo")} is base;
+    `);
 
-      strictEqual(getDoc(runner.program, foo), "Override comment");
+      strictEqual(getDoc(program, foo), "Override comment");
     });
   });
 
   describe("@returns", () => {
     it("set the returnsDoc on an operation", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @returns A string
        */
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getReturnsDoc(runner.program, test), "A string");
+      strictEqual(getReturnsDoc(program, test), "A string");
     });
 
     it("@returnsDoc decorator override the doc comment", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @returns A string
        */
       @returnsDoc("Another string")
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getReturnsDoc(runner.program, test), "Another string");
+      strictEqual(getReturnsDoc(program, test), "Another string");
     });
 
     it("doc comment on op is override the base comment", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @returns A string
@@ -188,41 +184,41 @@ describe("compiler: checker: doc comments", () => {
       /**
        * @returns Another string
        */
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getReturnsDoc(runner.program, test), "Another string");
+      strictEqual(getReturnsDoc(program, test), "Another string");
     });
   });
 
   describe("@errors", () => {
     it("set the errorsDoc on an operation", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @errors A string
        */
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getErrorsDoc(runner.program, test), "A string");
+      strictEqual(getErrorsDoc(program, test), "A string");
     });
 
     it("@errorsDoc decorator override the doc comment", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @errors A string
        */
       @errorsDoc("Another string")
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getErrorsDoc(runner.program, test), "Another string");
+      strictEqual(getErrorsDoc(program, test), "Another string");
     });
 
     it("doc comment on op is override the base comment", async () => {
-      const { test } = (await runner.compile(`
+      const { test, program } = await Tester.compile(t.code`
       
       /**
        * @errors A string
@@ -232,19 +228,19 @@ describe("compiler: checker: doc comments", () => {
       /**
        * @errors Another string
        */
-      @test op test(): string;
-      `)) as { test: Operation };
+      op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getErrorsDoc(runner.program, test), "Another string");
+      strictEqual(getErrorsDoc(program, test), "Another string");
     });
   });
 });
 
 describe("@param", () => {
   async function getDocForParam(code: string): Promise<string | undefined> {
-    const { target } = (await runner.compile(code)) as { target: Operation };
-    ok(target, `Make sure to have @test("target") in code.`);
-    return getDoc(runner.program, target.parameters.properties.get("one")!);
+    const { target, program } = (await Tester.compile(code)) as any;
+    ok(target, `Make sure to have /*target*/ marker in code.`);
+    return getDoc(program, target.parameters.properties.get("one")!);
   }
 
   it("applies doc on param", async () => {
@@ -252,7 +248,7 @@ describe("@param", () => {
       /**
        * @param one Doc comment
        */
-      @test("target") op base(one: string): void;
+      op /*target*/target(one: string): void;
     `);
     strictEqual(doc, "Doc comment");
   });
@@ -262,7 +258,7 @@ describe("@param", () => {
       /**
        * @param one Doc comment
        */
-      @test("target") op base(@doc("Explicit") one: string): void;
+      op /*target*/target(@doc("Explicit") one: string): void;
     `);
     strictEqual(doc, "Explicit");
   });
@@ -272,9 +268,9 @@ describe("@param", () => {
       /**
        * @param one Doc comment
        */
-      @test("target") op base(one: string): void;
+      op /*target*/target(one: string): void;
 
-      @@doc(base::parameters.one, "Override");
+      @@doc(target::parameters.one, "Override");
     `);
     strictEqual(doc, "Override");
   });
@@ -286,7 +282,7 @@ describe("@param", () => {
        */
       op base(one: string): void;
       
-      @test("target") op child is base;
+      op /*target*/target is base;
     `);
     strictEqual(doc, "Doc comment");
   });
@@ -301,7 +297,7 @@ describe("@param", () => {
       /**
        * @param one Override for child
        */
-      @test("target") op child is base;
+      op /*target*/target is base;
     `);
     strictEqual(doc, "Override for child");
   });
@@ -316,8 +312,8 @@ describe("@param", () => {
       /**
        * @param one Override for child
        */
-      @test("target") op child is base;
-      @@doc(child::parameters.one, "Override for child again");
+      op /*target*/target is base;
+      @@doc(target::parameters.one, "Override for child again");
     `);
     strictEqual(doc, "Override for child again");
   });
@@ -327,7 +323,7 @@ describe("@param", () => {
       model A {
         @doc("Via model") one: string
       }
-      @test("target") op base(...A): void;
+      op /*target*/target(...A): void;
     `);
     strictEqual(doc, "Via model");
   });
@@ -340,30 +336,30 @@ describe("@param", () => {
       /**
        * @param one Doc comment
        */
-      @test("target") op base(...A): void;
+      op /*target*/target(...A): void;
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("applies to distinct parameters", async () => {
     // One @param has a hyphen but the other does not (should handle both cases)
-    const { addUser } = (await runner.compile(`
+    const { addUser, program } = await Tester.compile(t.code`
     
     /**
      * This is the operation doc.
      * @param name This is the name param doc.
      * @param age - This is the age param doc.
      */
-    @test op addUser(name: string, age: string): void;
-    `)) as { addUser: Operation };
+    op ${t.op("addUser")}(name: string, age: string): void;
+    `);
 
-    strictEqual(getDoc(runner.program, addUser), "This is the operation doc.");
+    strictEqual(getDoc(program, addUser), "This is the operation doc.");
     strictEqual(
-      getDoc(runner.program, addUser.parameters.properties.get("name")!),
+      getDoc(program, addUser.parameters.properties.get("name")!),
       "This is the name param doc.",
     );
     strictEqual(
-      getDoc(runner.program, addUser.parameters.properties.get("age")!),
+      getDoc(program, addUser.parameters.properties.get("age")!),
       "This is the age param doc.",
     );
   });
@@ -371,9 +367,9 @@ describe("@param", () => {
 
 describe("@prop", () => {
   async function getDocForProp(code: string): Promise<string | undefined> {
-    const { target } = (await runner.compile(code)) as { target: Model };
-    ok(target, `Make sure to have @test("target") in code.`);
-    return getDoc(runner.program, target.properties.get("one")!);
+    const { target, program } = (await Tester.compile(code)) as any;
+    ok(target, `Make sure to have /*target*/ marker in code.`);
+    return getDoc(program, target.properties.get("one")!);
   }
 
   it("applies doc on param", async () => {
@@ -381,7 +377,7 @@ describe("@prop", () => {
       /**
        * @prop one Doc comment
        */
-      @test("target") model Base { one: string }
+      model /*target*/target { one: string }
     `);
     strictEqual(doc, "Doc comment");
   });
@@ -391,7 +387,7 @@ describe("@prop", () => {
       /**
        * @prop one Doc comment
        */
-      @test("target") model Base { @doc("Explicit") one: string }
+      model /*target*/target { @doc("Explicit") one: string }
     `);
     strictEqual(doc, "Explicit");
   });
@@ -401,9 +397,9 @@ describe("@prop", () => {
       /**
        * @prop one Doc comment
        */
-      @test("target") model Base { one: string }
+      model /*target*/target { one: string }
 
-      @@doc(Base.one, "Override");
+      @@doc(target.one, "Override");
     `);
     strictEqual(doc, "Override");
   });
@@ -415,7 +411,7 @@ describe("@prop", () => {
        */
       model Base { one: string }
       
-      @test("target") model Child is Base;
+      model /*target*/target is Base;
     `);
     strictEqual(doc, "Doc comment");
   });
@@ -430,7 +426,7 @@ describe("@prop", () => {
       /**
        * @prop one Override for child
        */
-      @test("target") model Child is Base;
+      model /*target*/target is Base;
     `);
     strictEqual(doc, "Override for child");
   });
@@ -445,8 +441,8 @@ describe("@prop", () => {
       /**
        * @prop one Override for child
        */
-      @test("target") model Child is Base;
-      @@doc(Child.one, "Override for child again");
+      model /*target*/target is Base;
+      @@doc(target.one, "Override for child again");
     `);
     strictEqual(doc, "Override for child again");
   });
@@ -456,7 +452,7 @@ describe("@prop", () => {
       model Base {
         @doc("Via model") one: string
       }
-      @test("target") model Child { ...Base }
+      model /*target*/target { ...Base }
     `);
     strictEqual(doc, "Via model");
   });
@@ -469,25 +465,25 @@ describe("@prop", () => {
       /**
        * @prop one Doc comment
        */
-      @test("target") model Child { ...Base }
+      model /*target*/target { ...Base }
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("applies to distinct parameters", async () => {
     // One @prop has a hyphen but the other does not (should handle both cases)
-    const { Base } = (await runner.compile(`
+    const { Base, program } = await Tester.compile(t.code`
     
     /**
      * This is the model doc.
      * @prop name This is the name prop doc.
      * @prop age - This is the age prop doc.
      */
-    @test model Base { name: string, age: int32 }
-    `)) as { Base: Model };
+    model ${t.model("Base")} { name: string, age: int32 }
+    `);
 
-    strictEqual(getDoc(runner.program, Base), "This is the model doc.");
-    strictEqual(getDoc(runner.program, Base.properties.get("name")!), "This is the name prop doc.");
-    strictEqual(getDoc(runner.program, Base.properties.get("age")!), "This is the age prop doc.");
+    strictEqual(getDoc(program, Base), "This is the model doc.");
+    strictEqual(getDoc(program, Base.properties.get("name")!), "This is the name prop doc.");
+    strictEqual(getDoc(program, Base.properties.get("age")!), "This is the age prop doc.");
   });
 });

@@ -29,8 +29,8 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import io.clientcore.core.http.models.HttpMethod;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 public class ClientMethodExampleWriter {
 
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
     private final BiConsumer<JavaBlock, Boolean> methodBodyWriter;
     private final Consumer<JavaBlock> responseAssertionWriter;
     private final ModelExampleWriter.ExampleNodeModelInitializationVisitor nodeVisitor
@@ -285,7 +285,7 @@ public class ClientMethodExampleWriter {
         if (transformations.isGroupingParameter(methodParameter)) {
             // grouping, possible with flattening first
             // group example values into a map
-            Map<String, Object> exampleValue = new HashMap<>();
+            Map<String, Object> exampleValue = new LinkedHashMap<>();
             for (ParameterTransformation transformation : convenienceMethod.getParameterTransformations().asList()) {
                 for (ParameterMapping parameterMapping : transformation.getMappings()) {
                     if (parameterMapping.getOutParameterPropertyName() != null) {
@@ -368,7 +368,7 @@ public class ClientMethodExampleWriter {
     }
 
     public Set<String> getImports() {
-        return new HashSet<>(this.imports);
+        return new LinkedHashSet<>(this.imports);
     }
 
     public void writeClientMethodInvocation(JavaBlock javaBlock, boolean isTestCode) {
@@ -376,7 +376,7 @@ public class ClientMethodExampleWriter {
     }
 
     public Set<ExampleHelperFeature> getHelperFeatures() {
-        return new HashSet<>(nodeVisitor.getHelperFeatures());
+        return new LinkedHashSet<>(nodeVisitor.getHelperFeatures());
     }
 
     public void writeAssertion(JavaBlock methodBlock) {

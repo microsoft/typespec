@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.response.implementation.ResponseClientImpl;
+import tsptest.response.models.GetUnionResponseContentType;
 import tsptest.response.models.OperationDetails1;
 import tsptest.response.models.OperationDetails2;
 import tsptest.response.models.Resource;
@@ -368,7 +369,7 @@ public final class ResponseAsyncClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
+     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -806,10 +807,10 @@ public final class ResponseAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> getUnionResponse(String accept) {
+    public Mono<BinaryData> getUnionResponse(GetUnionResponseContentType accept) {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getUnionResponseWithResponse(accept, requestOptions).flatMap(FluxUtil::toMono);
+        return getUnionResponseWithResponse(accept.toString(), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

@@ -64,7 +64,7 @@ export function requiresJsonSerialization(
 
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
         requiresSerialization = requiresJsonSerialization(ctx, module, argumentType);
         break;
@@ -237,7 +237,7 @@ export function transposeExpressionToJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -245,7 +245,7 @@ export function transposeExpressionToJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -294,6 +294,8 @@ export function transposeExpressionToJson(
       }
     case "ModelProperty":
       return transposeExpressionToJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "void":
@@ -480,7 +482,7 @@ export function transposeExpressionFromJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -488,7 +490,7 @@ export function transposeExpressionFromJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -537,6 +539,8 @@ export function transposeExpressionFromJson(
       }
     case "ModelProperty":
       return transposeExpressionFromJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "ErrorType":
@@ -558,7 +562,6 @@ export function transposeExpressionFromJson(
     case "Boolean":
       return literalToExpr(type);
     case "Interface":
-    case "Enum":
     case "EnumMember":
     case "TemplateParameter":
     case "Namespace":

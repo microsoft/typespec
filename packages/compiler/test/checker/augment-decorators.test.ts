@@ -1,128 +1,96 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { StringLiteral, Type } from "../../src/core/types.js";
-import {
-  TestHost,
-  createTestHost,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../../src/testing/index.js";
-
-let testHost: TestHost;
-
-beforeEach(async () => {
-  testHost = await createTestHost();
-});
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 it("run decorator without arguments", async () => {
   let blueThing: Type | undefined;
 
-  testHost.addJsFile("test.js", {
-    $blue(_: any, t: Type) {
-      blueThing = t;
-    },
-  });
-
-  testHost.addTypeSpecFile(
-    "test.tsp",
-    `
-      import "./test.js";
-
-      @test model Foo { };
+  const { Foo } = await Tester.files({
+    "test.js": mockFile.js({
+      $blue(_: any, t: Type) {
+        blueThing = t;
+      },
+    }),
+  }).import("./test.js").compile(t.code`
+      model ${t.model("Foo")} { };
 
       @@blue(Foo);
-      `,
-  );
-
-  const { Foo } = await testHost.compile("test.tsp");
+    `);
   strictEqual(Foo, blueThing);
 });
 
 it("run decorator with arguments", async () => {
   let customName: string | undefined;
 
-  testHost.addJsFile("test.js", {
-    $customName(_: any, t: Type, n: StringLiteral) {
-      customName = n.value;
-    },
-  });
-
-  testHost.addTypeSpecFile(
-    "test.tsp",
-    `
-      import "./test.js";
-
+  await Tester.files({
+    "test.js": mockFile.js({
+      $customName(_: any, t: Type, n: StringLiteral) {
+        customName = n.value;
+      },
+    }),
+  }).import("./test.js").compile(`
       model Foo { };
 
       @@customName(Foo, "FooCustom");
-      `,
-  );
-
-  await testHost.compile("test.tsp");
+    `);
   strictEqual(customName, "FooCustom");
 });
 
 describe("declaration scope", () => {
-  let blueThing: Type | undefined;
-
-  beforeEach(() => {
-    blueThing = undefined;
-    testHost.addJsFile("test.js", {
-      $blue(_: any, t: Type) {
-        blueThing = t;
-      },
-    });
-  });
-
   it("can be defined at the root of document", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        import "./test.js";
-  
-        @test model Foo { };
-  
-        @@blue(Foo);
-        `,
-    );
+    let blueThing: Type | undefined;
 
-    const { Foo } = await testHost.compile("test.tsp");
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(_: any, t: Type) {
+          blueThing = t;
+        },
+      }),
+    }).import("./test.js").compile(t.code`
+        model ${t.model("Foo")} { };
+
+        @@blue(Foo);
+      `);
     strictEqual(Foo, blueThing);
   });
 
   it("can be defined in blockless namespace", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        import "./test.js";
-  
+    let blueThing: Type | undefined;
+
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(_: any, t: Type) {
+          blueThing = t;
+        },
+      }),
+    }).import("./test.js").compile(t.code`
         namespace MyLibrary;
 
-        @test model Foo { };
-  
-        @@blue(Foo);
-        `,
-    );
+        model ${t.model("Foo")} { };
 
-    const { Foo } = await testHost.compile("test.tsp");
+        @@blue(Foo);
+      `);
     strictEqual(Foo, blueThing);
   });
 
   it("can be defined in namespace", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        import "./test.js";
-  
+    let blueThing: Type | undefined;
+
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(_: any, t: Type) {
+          blueThing = t;
+        },
+      }),
+    }).import("./test.js").compile(t.code`
         namespace MyLibrary {
-          @test model Foo { };
-          
+          model ${t.model("Foo")} { };
+
           @@blue(Foo);
         }
-        `,
-    );
-
-    const { Foo } = await testHost.compile("test.tsp");
+      `);
     strictEqual(Foo, blueThing);
   });
 
@@ -132,42 +100,38 @@ describe("declaration scope", () => {
     // As we resolve the member symbols and meta types early,
     // alias `FactoryString` would have checked the template instance `Factory<string>`
     // which would then have checked `Foo` and then `@@blue` wouldn't have been run
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        import "./test.js";
-  
-        @test model Foo {};
+    let blueThing: Type | undefined;
+
+    const { Foo } = await Tester.files({
+      "test.js": mockFile.js({
+        $blue(_: any, t: Type) {
+          blueThing = t;
+        },
+      }),
+    }).import("./test.js").compile(t.code`
+        model ${t.model("Foo")} {};
 
         interface Factory<T> {
           op Action(): Foo;
         }
 
         alias FactoryString = Factory<string>;
-        
+
         op test is FactoryString.Action;
 
         @@doc(Foo, "This doc");
         @@blue(Foo);
-        `,
-    );
-
-    const { Foo } = await testHost.compile("test.tsp");
+      `);
     strictEqual(Foo, blueThing);
   });
 });
 
 describe("cannot augment expressions", () => {
   it("model expressions", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        alias A = { some: string};
-        @@doc(A, "This doc");
-        `,
-    );
-
-    const diagnostics = await testHost.diagnose("test.tsp");
+    const diagnostics = await Tester.diagnose(`
+      alias A = { some: string};
+      @@doc(A, "This doc");
+    `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
       message: "Cannot augment model expressions.",
@@ -175,15 +139,10 @@ describe("cannot augment expressions", () => {
   });
 
   it("union expressions", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        alias A = string | int32;
-        @@doc(A, "This doc");
-        `,
-    );
-
-    const diagnostics = await testHost.diagnose("test.tsp");
+    const diagnostics = await Tester.diagnose(`
+      alias A = string | int32;
+      @@doc(A, "This doc");
+    `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
       message: "Cannot augment union expressions.",
@@ -196,27 +155,22 @@ describe("augment types", () => {
     let customName: string | undefined;
     let runOnTarget: Type | undefined;
 
-    testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: StringLiteral) {
-        runOnTarget = t;
-        customName = n.value;
-      },
-    });
+    const [result, diagnostics] = await Tester.files({
+      "test.js": mockFile.js({
+        $customName(_: any, t: Type, n: StringLiteral) {
+          runOnTarget = t;
+          customName = n.value;
+        },
+      }),
+    }).import("./test.js").compileAndDiagnose(`
+        ${code}
 
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-      import "./test.js";
+        @@customName(${reference}, "FooCustom");
+      `);
 
-      ${code}
-
-      @@customName(${reference}, "FooCustom");
-      `,
-    );
-
-    const [result, diagnostics] = await testHost.compileAndDiagnose("test.tsp");
     expectDiagnosticEmpty(diagnostics);
     ok(result.target, `Missing element decorated with '@test("target")'`);
+    strictEqual(result.target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, result.target.kind);
     strictEqual(runOnTarget, result.target);
     strictEqual(customName, "FooCustom");
@@ -345,28 +299,16 @@ describe("augment types", () => {
 
 describe("emit diagnostic", () => {
   function diagnose(code: string) {
-    testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: string) {},
-    });
-
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-          import "./test.js";
-          ${code}
-        `,
-    );
-    return testHost.diagnose("test.tsp");
+    return Tester.files({
+      "test.js": mockFile.js({
+        $customName(_: any, t: Type, n: string) {},
+      }),
+    })
+      .import("./test.js")
+      .diagnose(code);
   }
 
   it("if using unknown decorator", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-        import "./test.js";
-       
-        `,
-    );
     const diagnostics = await diagnose(`
        model Foo {}
        @@notDefined(Foo, "A string Foo");
@@ -464,27 +406,22 @@ describe("emit diagnostic", () => {
 });
 
 describe("augment location", () => {
-  async function expectAugmentTarget(code: string) {
+  async function expectAugmentTarget(code: string, extraFiles?: Record<string, string>) {
     let customName: string | undefined;
     let runOnTarget: Type | undefined;
 
-    testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: StringLiteral) {
-        runOnTarget = t;
-        customName = n.value;
-      },
-    });
-
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-            import "./test.js";
-
-            ${code}
-      `,
-    );
-
-    const { target } = await testHost.compile("test.tsp");
+    const { target } = await Tester.files({
+      "test.js": mockFile.js({
+        $customName(_: any, t: Type, n: StringLiteral) {
+          runOnTarget = t;
+          customName = n.value;
+        },
+      }),
+      ...extraFiles,
+    })
+      .import("./test.js")
+      .compile(code);
+    strictEqual(target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, target.kind);
     strictEqual(runOnTarget, target);
     strictEqual(customName, "FooCustom");
@@ -503,22 +440,24 @@ describe("augment location", () => {
   });
 
   it("augment type in another file checked before", async () => {
-    testHost.addTypeSpecFile("lib.tsp", `@test("target") model Foo {} `);
-
-    await expectAugmentTarget(`
+    await expectAugmentTarget(
+      `
         import "./lib.tsp";
         @@customName(Foo, "FooCustom");
-      `);
+      `,
+      { "lib.tsp": `@test("target") model Foo {} ` },
+    );
   });
 
   it("augment type in another file checked after", async () => {
-    testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom"); `);
-
-    await expectAugmentTarget(`
+    await expectAugmentTarget(
+      `
         import "./lib.tsp";
 
         @test("target") model Foo {}
-      `);
+      `,
+      { "lib.tsp": `@@customName(Foo, "FooCustom"); ` },
+    );
   });
 });
 
@@ -527,23 +466,18 @@ describe("augment order", () => {
     let customName: string | undefined;
     let runOnTarget: Type | undefined;
 
-    testHost.addJsFile("test.js", {
-      $customName(_: any, t: Type, n: StringLiteral) {
-        runOnTarget = t;
-        customName = n.value;
-      },
-    });
+    const { target } = await Tester.files({
+      "test.js": mockFile.js({
+        $customName(_: any, t: Type, n: StringLiteral) {
+          runOnTarget = t;
+          customName = n.value;
+        },
+      }),
+    })
+      .import("./test.js")
+      .compile(code);
 
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
-      import "./test.js";
-
-      ${code}
-      `,
-    );
-
-    const { target } = await testHost.compile("test.tsp");
+    strictEqual(target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, target.kind);
     strictEqual(runOnTarget, target);
     strictEqual(customName, "FooCustom");

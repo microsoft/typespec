@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Optional
+from typing import Any
 from jinja2 import Environment
 
 from .import_serializer import FileImportSerializer
@@ -14,12 +14,9 @@ from ..models import (
     OperationGroup,
     Client,
     OperationType,
-    ModelType,
-    BaseType,
-    CombinedType,
     FileImport,
 )
-from .utils import json_dumps_template
+from .utils import create_fake_value
 
 
 def is_lro(operation_type: str) -> bool:
@@ -39,30 +36,15 @@ class TestName:
         self.code_model = code_model
         self.client_name = client_name
         self.async_mode = async_mode
-
-    @property
-    def async_suffix_capt(self) -> str:
-        return "Async" if self.async_mode else ""
-
-    @property
-    def create_client_name(self) -> str:
-        return "create_async_client" if self.async_mode else "create_client"
-
-    @property
-    def prefix(self) -> str:
-        return self.client_name.replace("Client", "")
-
-    @property
-    def preparer_name(self) -> str:
-        if self.code_model.options["azure-arm"]:
-            return "RandomNameResourceGroupPreparer"
-        return self.prefix + "Preparer"
-
-    @property
-    def base_test_class_name(self) -> str:
-        if self.code_model.options["azure-arm"]:
-            return "AzureMgmtRecordedTestCase"
-        return f"{self.client_name}TestBase{self.async_suffix_capt}"
+        # Pre-compute values for render speed optimization
+        self.async_suffix_capt = "Async" if async_mode else ""
+        self.create_client_name = "create_async_client" if async_mode else "create_client"
+        self.prefix = client_name.replace("Client", "")
+        is_azure_arm = code_model.options["azure-arm"]
+        self.preparer_name = "RandomNameResourceGroupPreparer" if is_azure_arm else self.prefix + "Preparer"
+        self.base_test_class_name = (
+            "AzureMgmtRecordedTestCase" if is_azure_arm else f"{client_name}TestBase{self.async_suffix_capt}"
+        )
 
 
 class TestCase:
@@ -73,50 +55,52 @@ class TestCase:
         operation: OperationType,
         *,
         async_mode: bool = False,
+        is_azure_arm: bool = False,
     ) -> None:
         self.operation_groups = operation_groups
-        self.params = params
         self.operation = operation
         self.async_mode = async_mode
-
-    @property
-    def name(self) -> str:
-        if self.operation_groups[-1].is_mixin:
-            return self.operation.name
-        return "_".join([og.property_name for og in self.operation_groups] + [self.operation.name])
-
-    @property
-    def operation_group_prefix(self) -> str:
-        if self.operation_groups[-1].is_mixin:
-            return ""
-        return "." + ".".join([og.property_name for og in self.operation_groups])
-
-    @property
-    def response(self) -> str:
-        if self.async_mode:
-            if is_lro(self.operation.operation_type):
-                return "response = await (await "
-            if is_common_operation(self.operation.operation_type):
-                return "response = await "
-        return "response = "
-
-    @property
-    def lro_comment(self) -> str:
-        return " # call '.result()' to poll until service return final result"
-
-    @property
-    def operation_suffix(self) -> str:
-        if is_lro(self.operation.operation_type):
-            extra = ")" if self.async_mode else ""
-            return f"{extra}.result(){self.lro_comment}"
-        return ""
-
-    @property
-    def extra_operation(self) -> str:
-        if is_paging(self.operation.operation_type):
-            async_str = "async " if self.async_mode else ""
-            return f"result = [r {async_str}for r in response]"
-        return ""
+        self.is_azure_arm = is_azure_arm
+        # Pre-compute params
+        if is_azure_arm:
+            self.params = {k: ("resource_group.name" if k == "resource_group_name" else v) for k, v in params.items()}
+        else:
+            self.params = params
+        # Pre-compute name
+        if operation_groups[-1].is_mixin:
+            self.name = operation.name
+        else:
+            self.name = "_".join([og.property_name for og in operation_groups] + [operation.name])
+        # Pre-compute operation_group_prefix
+        if operation_groups[-1].is_mixin:
+            self.operation_group_prefix = ""
+        else:
+            self.operation_group_prefix = "." + ".".join([og.property_name for og in operation_groups])
+        # Pre-compute response
+        operation_type = operation.operation_type
+        if async_mode:
+            if is_lro(operation_type):
+                self.response = "response = await (await "
+            elif is_common_operation(operation_type):
+                self.response = "response = await "
+            else:
+                self.response = "response = "
+        else:
+            self.response = "response = "
+        # Pre-compute lro_comment
+        self.lro_comment = " # call '.result()' to poll until service return final result"
+        # Pre-compute operation_suffix
+        if is_lro(operation_type):
+            extra = ")" if async_mode else ""
+            self.operation_suffix = f"{extra}.result(){self.lro_comment}"
+        else:
+            self.operation_suffix = ""
+        # Pre-compute extra_operation
+        if is_paging(operation_type):
+            async_str = "async " if async_mode else ""
+            self.extra_operation = f"result = [r {async_str}for r in response]"
+        else:
+            self.extra_operation = ""
 
 
 class Test(TestName):
@@ -189,9 +173,17 @@ class TestSerializer(TestGeneralSerializer):
         super().__init__(code_model, env, async_mode=async_mode)
         self.client = client
         self.operation_group = operation_group
+        self._import_test: str = ""
 
     @property
-    def import_test(self) -> FileImportSerializer:
+    def import_test(self) -> str:
+        return self._import_test
+
+    @import_test.setter
+    def import_test(self, value: str) -> None:
+        self._import_test = value
+
+    def get_import_test(self) -> str:
         imports = self.init_file_import()
         test_name = TestName(self.code_model, self.client.name, async_mode=self.async_mode)
         async_suffix = "_async" if self.async_mode else ""
@@ -212,7 +204,7 @@ class TestSerializer(TestGeneralSerializer):
         )
         if self.code_model.options["azure-arm"]:
             self.add_import_client(imports)
-        return FileImportSerializer(imports, self.async_mode)
+        return str(FileImportSerializer(imports, self.async_mode))
 
     @property
     def breadth_search_operation_group(self) -> list[list[OperationGroup]]:
@@ -226,26 +218,11 @@ class TestSerializer(TestGeneralSerializer):
                 queue.extend([current + [og] for og in current[-1].operation_groups])
         return result
 
-    def get_sub_type(self, param_type: ModelType) -> ModelType:
-        if param_type.discriminated_subtypes:
-            for item in param_type.discriminated_subtypes.values():
-                return self.get_sub_type(item)
-        return param_type
-
-    def get_model_type(self, param_type: BaseType) -> Optional[ModelType]:
-        if isinstance(param_type, ModelType):
-            return param_type
-        if isinstance(param_type, CombinedType):
-            return param_type.target_model_subtype((ModelType,))
-        return None
-
     def get_operation_params(self, operation: OperationType) -> dict[str, Any]:
         operation_params = {}
         required_params = [p for p in operation.parameters.method if not p.optional]
         for param in required_params:
-            model_type = self.get_model_type(param.type)
-            param_type = self.get_sub_type(model_type) if model_type else param.type
-            operation_params[param.client_name] = json_dumps_template(param_type.get_json_template_representation())
+            operation_params[param.client_name] = create_fake_value(param.type)
         return operation_params
 
     def get_test(self) -> Test:
@@ -260,6 +237,7 @@ class TestSerializer(TestGeneralSerializer):
                     params=operation_params,
                     operation=operation,
                     async_mode=self.async_mode,
+                    is_azure_arm=self.code_model.options["azure-arm"],
                 )
                 testcases.append(testcase)
         if not testcases:
@@ -283,6 +261,7 @@ class TestSerializer(TestGeneralSerializer):
     def serialize_test(self) -> str:
         return self.env.get_template("test.py.jinja2").render(
             imports=self.import_test,
-            code_model=self.code_model,
+            is_azure_arm=self.code_model.options["azure-arm"],
+            license_header=self.code_model.license_header,
             test=self.get_test(),
         )

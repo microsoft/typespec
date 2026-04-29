@@ -27,4 +27,5 @@ export interface InputOperation {
   examples?: InputHttpOperationExample[];
   crossLanguageDefinitionId: string;
   decorators?: DecoratorInfo[];
+  namespace?: string;
 }

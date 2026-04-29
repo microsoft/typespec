@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "parameters.path.PathClient": "Parameters.Path",
-    "parameters.path.PathClientBuilder": "Parameters.Path"
-  }
-}

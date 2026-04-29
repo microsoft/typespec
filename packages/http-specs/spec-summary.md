@@ -39,6 +39,18 @@ Expect error code 403 and error body:
 
 Expects header 'Authorization': 'SharedAccessKey valid-key'
 
+### Authentication_Noauth_Union_validNoAuth
+
+- Endpoint: `get /authentication/noauth/union/valid`
+
+Expects no authentication. The server accepts requests without any authentication header.
+
+### Authentication_Noauth_Union_validToken
+
+- Endpoint: `get /authentication/noauth/union/validtoken`
+
+Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
+
 ### Authentication_OAuth2_invalid
 
 - Endpoint: `get /authentication/oauth2/invalid`
@@ -123,6 +135,174 @@ Expected response body:
 ```json
 {
   "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumCommaDelimited
+
+- Endpoint: `post /encode/array/property/enum/comma-delimited`
+
+Test operation with request and response model contains an enum array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/enum/newline-delimited`
+
+Test operation with request and response model contains an enum array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_enumPipeDelimited
+
+- Endpoint: `post /encode/array/property/enum/pipe-delimited`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_enumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/enum/space-delimited`
+
+Test operation with request and response model contains an enum array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumCommaDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/comma-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/newline-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_extensibleEnumPipeDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/pipe-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/space-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
 }
 ```
 
@@ -1348,6 +1528,12 @@ Second request path:
 /optional/foo
 ```
 
+### Parameters_Query_Constant_post
+
+- Endpoint: `post /parameters/query/constant`
+
+Expect to handle a constant value for query and mock api returns nothing
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1589,6 +1775,17 @@ Scenario that returns a different file encoding depending on the accept header.
 
 - image/png return a png image
 - image/jpeg return a jpeg image
+
+### Payload_Head_contentTypeHeaderInResponse
+
+- Endpoint: `head /payload/head/content-type-header-in-response`
+
+A HEAD operation that returns response headers including Content-Type and x-ms-meta.
+
+Expected response headers:
+
+- Content-Type: text/plain; charset=utf-8
+- x-ms-meta: hello
 
 ### Payload_JsonMergePatch_createResource
 
@@ -1864,6 +2061,68 @@ Content-Type: image/jpg
 --abcde12345--
 ```
 
+### Payload_MultiPart_FormData_File_uploadFileArray
+
+- Endpoint: `post /multipart/form-data/file/file-array`
+
+Test multiple File instances in multipart form data.
+Expected request:
+
+```
+POST /multipart/form-data/file/file-array HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image1.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image2.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileRequiredFilename
+
+- Endpoint: `post /multipart/form-data/file/required-filename`
+
+Test File type in multipart form data with required filename.
+Expected request:
+
+```
+POST /multipart/form-data/file/required-filename HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileSpecificContentType
+
+- Endpoint: `post /multipart/form-data/file/specific-content-type`
+
+Test File type in multipart form data with specific content type.
+Expected request:
+
+```
+POST /multipart/form-data/file/specific-content-type HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
 ### Payload_MultiPart_FormData_fileArrayAndBasic
 
 - Endpoint: `post /multipart/form-data/complex-parts`
@@ -2109,6 +2368,98 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_MultiPart_FormData_optionalParts
+
+- Endpoint: `post /multipart/form-data/optional-parts`
+
+Please send request three times:
+
+- First time with only id
+- Second time with only profileImage
+- Third time with both id and profileImage
+
+Expect requests (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_withWireName
+
+- Endpoint: `post /multipart/form-data/mixed-parts-with-wire-name`
+
+Expect request with wire names (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream;
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
 ### Payload_Pageable_PageSize_listWithoutContinuation
 
 - Endpoint: `get /payload/pageable/pagesize/without-continuation`
@@ -2163,6 +2514,48 @@ Expected response body:
   "pets": [
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post
+
+- Endpoint: `post /payload/pageable/server-driven-pagination/link/initial-post`
+
+Test case for initial POST request followed by GET for next pages using link pagination.
+The initial request is a POST with a filter body, and the next page is fetched using a GET request on the next link.
+
+Two requests need to be tested.
+
+1. Initial request (POST):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post
+   Expected request body:
+
+```json
+{ "filter": "foo eq bar" }
+```
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
+}
+```
+
+2. Next page request (GET):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
+   Expected response body:
+
+```json
+{
+  "pets": [
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
@@ -2557,6 +2950,104 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_XmlPagination_listWithContinuation
+
+- Endpoint: `get /payload/pageable/xml/list-with-continuation`
+
+Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list?marker=page2
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
+### Payload_Pageable_XmlPagination_listWithNextLink
+
+- Endpoint: `get /payload/pageable/xml/list-with-next-link`
+
+Test case for XML pagination with next link.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list-with-next-link
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list-with-next-link/nextPage
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
@@ -2621,6 +3112,32 @@ Expected request body:
 <ModelWithAttributes id1="123" id2="foo">
   <enabled>true</enabled>
 </ModelWithAttributes>
+```
+
+### Payload_Xml_ModelWithDatetimeValue_get
+
+- Endpoint: `get /payload/xml/modelWithDatetime`
+
+Expected response body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+```
+
+### Payload_Xml_ModelWithDatetimeValue_put
+
+- Endpoint: `put /payload/xml/modelWithDatetime`
+
+Expected request body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
 ```
 
 ### Payload_Xml_ModelWithDictionaryValue_get
@@ -2719,6 +3236,114 @@ Expected request body:
 </ModelWithEncodedNamesSrc>
 ```
 
+### Payload_Xml_ModelWithEnumValue_get
+
+- Endpoint: `get /payload/xml/modelWithEnum`
+
+Expected response body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
+### Payload_Xml_ModelWithEnumValue_put
+
+- Endpoint: `put /payload/xml/modelWithEnum`
+
+Expected request body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
+### Payload_Xml_ModelWithNamespaceOnPropertiesValue_get
+
+- Endpoint: `get /payload/xml/modelWithNamespaceOnProperties`
+
+Expected response body:
+
+```xml
+<smp:ModelWithNamespaceOnProperties xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
+  <id>123</id>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
+</smp:ModelWithNamespaceOnProperties>
+```
+
+### Payload_Xml_ModelWithNamespaceOnPropertiesValue_put
+
+- Endpoint: `put /payload/xml/modelWithNamespaceOnProperties`
+
+Expected request body:
+
+```xml
+<smp:ModelWithNamespaceOnProperties xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
+  <id>123</id>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
+</smp:ModelWithNamespaceOnProperties>
+```
+
+### Payload_Xml_ModelWithNamespaceValue_get
+
+- Endpoint: `get /payload/xml/modelWithNamespace`
+
+Expected response body:
+
+```xml
+<smp:ModelWithNamespace xmlns:smp="http://example.com/schema">
+  <id>123</id>
+  <title>The Great Gatsby</title>
+</smp:ModelWithNamespace>
+```
+
+### Payload_Xml_ModelWithNamespaceValue_put
+
+- Endpoint: `put /payload/xml/modelWithNamespace`
+
+Expected request body:
+
+```xml
+<smp:ModelWithNamespace xmlns:smp="http://example.com/schema">
+  <id>123</id>
+  <title>The Great Gatsby</title>
+</smp:ModelWithNamespace>
+```
+
+### Payload_Xml_ModelWithNestedModelValue_get
+
+- Endpoint: `get /payload/xml/modelWithNestedModel`
+
+Expected response body:
+
+```xml
+<ModelWithNestedModel>
+  <nested>
+    <name>foo</name>
+    <age>123</age>
+  </nested>
+</ModelWithNestedModel>
+```
+
+### Payload_Xml_ModelWithNestedModelValue_put
+
+- Endpoint: `put /payload/xml/modelWithNestedModel`
+
+Expected request body:
+
+```xml
+<ModelWithNestedModel>
+  <nested>
+    <name>foo</name>
+    <age>123</age>
+  </nested>
+</ModelWithNestedModel>
+```
+
 ### Payload_Xml_ModelWithOptionalFieldValue_get
 
 - Endpoint: `get /payload/xml/modelWithOptionalField`
@@ -2779,6 +3404,32 @@ Expected request body:
 </ModelWithRenamedArrays>
 ```
 
+### Payload_Xml_ModelWithRenamedAttributeValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedAttribute`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedAttribute xml-id="123">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</ModelWithRenamedAttribute>
+```
+
+### Payload_Xml_ModelWithRenamedAttributeValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedAttribute`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedAttribute xml-id="123">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</ModelWithRenamedAttribute>
+```
+
 ### Payload_Xml_ModelWithRenamedFieldsValue_get
 
 - Endpoint: `get /payload/xml/modelWithRenamedFields`
@@ -2815,6 +3466,178 @@ Expected request body:
     <age>456</age>
   </OutputData>
 </ModelWithRenamedFieldsSrc>
+```
+
+### Payload_Xml_ModelWithRenamedNestedModelValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedNestedModel`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedNestedModel>
+  <author>
+    <name>foo</name>
+  </author>
+</ModelWithRenamedNestedModel>
+```
+
+### Payload_Xml_ModelWithRenamedNestedModelValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedNestedModel`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedNestedModel>
+  <author>
+    <name>foo</name>
+  </author>
+</ModelWithRenamedNestedModel>
+```
+
+### Payload_Xml_ModelWithRenamedPropertyValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedProperty`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedProperty>
+  <renamedTitle>foo</renamedTitle>
+  <author>bar</author>
+</ModelWithRenamedProperty>
+```
+
+### Payload_Xml_ModelWithRenamedPropertyValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedProperty`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedProperty>
+  <renamedTitle>foo</renamedTitle>
+  <author>bar</author>
+</ModelWithRenamedProperty>
+```
+
+### Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedUnwrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedUnwrappedModelArray>
+  <ModelItem>
+    <name>foo</name>
+    <age>123</age>
+  </ModelItem>
+  <ModelItem>
+    <name>bar</name>
+    <age>456</age>
+  </ModelItem>
+</ModelWithRenamedUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedUnwrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedUnwrappedModelArray>
+  <ModelItem>
+    <name>foo</name>
+    <age>123</age>
+  </ModelItem>
+  <ModelItem>
+    <name>bar</name>
+    <age>456</age>
+  </ModelItem>
+</ModelWithRenamedUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedWrappedAndItemModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedWrappedAndItemModelArray>
+  <AllBooks>
+    <XmlBook>
+      <title>The Great Gatsby</title>
+    </XmlBook>
+    <XmlBook>
+      <title>Les Miserables</title>
+    </XmlBook>
+  </AllBooks>
+</ModelWithRenamedWrappedAndItemModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedWrappedAndItemModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedWrappedAndItemModelArray>
+  <AllBooks>
+    <XmlBook>
+      <title>The Great Gatsby</title>
+    </XmlBook>
+    <XmlBook>
+      <title>Les Miserables</title>
+    </XmlBook>
+  </AllBooks>
+</ModelWithRenamedWrappedAndItemModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedWrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedWrappedModelArray>
+  <AllItems>
+    <SimpleModel>
+      <name>foo</name>
+      <age>123</age>
+    </SimpleModel>
+    <SimpleModel>
+      <name>bar</name>
+      <age>456</age>
+    </SimpleModel>
+  </AllItems>
+</ModelWithRenamedWrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedWrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedWrappedModelArray>
+  <AllItems>
+    <SimpleModel>
+      <name>foo</name>
+      <age>123</age>
+    </SimpleModel>
+    <SimpleModel>
+      <name>bar</name>
+      <age>456</age>
+    </SimpleModel>
+  </AllItems>
+</ModelWithRenamedWrappedModelArray>
 ```
 
 ### Payload_Xml_ModelWithSimpleArraysValue_get
@@ -2917,6 +3740,74 @@ Expected request body:
 </ModelWithUnwrappedArray>
 ```
 
+### Payload_Xml_ModelWithUnwrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithUnwrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithUnwrappedModelArray>
+  <items>
+    <name>foo</name>
+    <age>123</age>
+  </items>
+  <items>
+    <name>bar</name>
+    <age>456</age>
+  </items>
+</ModelWithUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithUnwrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithUnwrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithUnwrappedModelArray>
+  <items>
+    <name>foo</name>
+    <age>123</age>
+  </items>
+  <items>
+    <name>bar</name>
+    <age>456</age>
+  </items>
+</ModelWithUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_get
+
+- Endpoint: `get /payload/xml/modelWithWrappedPrimitiveCustomItemNames`
+
+Expected response body:
+
+```xml
+<ModelWithWrappedPrimitiveCustomItemNames>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</ModelWithWrappedPrimitiveCustomItemNames>
+```
+
+### Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_put
+
+- Endpoint: `put /payload/xml/modelWithWrappedPrimitiveCustomItemNames`
+
+Expected request body:
+
+```xml
+<ModelWithWrappedPrimitiveCustomItemNames>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</ModelWithWrappedPrimitiveCustomItemNames>
+```
+
 ### Payload_Xml_SimpleModelValue_get
 
 - Endpoint: `get /payload/xml/simpleModel`
@@ -2941,6 +3832,19 @@ Expected request body:
   <name>foo</name>
   <age>123</age>
 </SimpleModel>
+```
+
+### Payload_Xml_XmlErrorValue_get
+
+- Endpoint: `get /payload/xml/error`
+
+Expected error response body:
+
+```xml
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
 ```
 
 ### Response_StatusCodeRange_errorResponseStatusCode404
@@ -3476,6 +4380,13 @@ Expected header parameters:
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
 
+### SpecialWords_ExtensibleStrings_putExtensibleStringValue
+
+- Endpoint: `put /special-words/extensible-strings/string`
+
+Verify that enum members with special word names can be sent and received properly.
+Send 'class' and expect the same value back.
+
 ### SpecialWords_ModelProperties_dictMethods
 
 - Endpoint: `get /special-words/model-properties/dict-methods`
@@ -3509,6 +4420,18 @@ Send
 
 ```json
 { "SameAsModel": "ok" }
+```
+
+### SpecialWords_ModelProperties_withList
+
+- Endpoint: `get /special-words/model-properties/list`
+
+Verify that a property can be named "list", which is a reserved word in many languages like Python.
+
+Send
+
+```json
+{ "list": "ok" }
 ```
 
 ### SpecialWords_Models_and
@@ -4243,6 +5166,19 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
 
+### SpecialWords_ReservedOperationBodyParams_withItems
+
+- Endpoint: `post /special-words/operations/body-param-reserved`
+
+Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+not mangled to "items_property" or similar.
+
+Send
+
+```json
+{ "items": ["item"] }
+```
+
 ### Streaming_Jsonl_Basic_receive
 
 - Endpoint: `get /streaming/jsonl/basic/receive`
@@ -4808,6 +5744,90 @@ Expect to send a known value. Mock api expect to receive 'Monday'
 - Endpoint: `put /type/enum/fixed/string/unknown-value`
 
 Expect to handle an unknown value. Mock api expect to receive 'Weekend'
+
+### Type_File_Body_downloadFileDefaultContentType
+
+- Endpoint: `get /type/file/body/response/default-content-type`
+
+Test File type as response body with unspecified content type.
+The File type accepts any content type. For testing, server will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileJsonContentType
+
+- Endpoint: `get /type/file/body/response/json-content-type`
+
+Test File type as response body with JSON content type.
+Expected response:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_downloadFileMultipleContentTypes
+
+- Endpoint: `get /type/file/body/response/multiple-content-types`
+
+Test File type as response body with multiple allowed content types.
+Service will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileSpecificContentType
+
+- Endpoint: `get /type/file/body/response/specific-content-type`
+
+Test File type as response body with specific content type.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileDefaultContentType
+
+- Endpoint: `post /type/file/body/request/default-content-type`
+
+Test File type as request body with unspecified content type.
+The File type accepts any content type. For testing, sender will use image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileJsonContentType
+
+- Endpoint: `post /type/file/body/request/json-content-type`
+
+Test File type as request body with JSON content type.
+Expected request:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_uploadFileMultipleContentTypes
+
+- Endpoint: `post /type/file/body/request/multiple-content-types`
+
+Test File type as request body with multiple allowed content types (image/png or image/jpeg).
+Client should send image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileSpecificContentType
+
+- Endpoint: `post /type/file/body/request/specific-content-type`
+
+Test File type as request body with specific content type.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
 
 ### Type_Model_Empty_getEmpty
 

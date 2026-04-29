@@ -1,16 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
-import {
-  Enum,
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
-  Scalar,
-  Union,
-  getDiscriminatedUnion,
-  isSecret,
-} from "../../src/index.js";
+import { describe, expect, it } from "vitest";
+import { getDiscriminatedUnion, isSecret } from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -26,201 +16,153 @@ import {
   getReturnsDoc,
   isErrorModel,
   resolveEncodedName,
+  setMediaTypeHint,
 } from "../../src/lib/decorators.js";
-import {
-  BasicTestRunner,
-  createTestRunner,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-  t,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: built-in decorators", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   describe("dev comment /** */", () => {
     it("applies /** */ on blockless namespace", async () => {
-      const { Foo } = await runner.compile(
-        `
-        @test
+      const { Foo, program } = await Tester.compile(t.code`
         /** doc for namespace Foo */
-        namespace TestDoc.Foo;
+        namespace TestDoc.${t.namespace("Foo")};
 
         model A {}
-        `,
-      );
+      `);
 
-      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(program, Foo), "doc for namespace Foo");
     });
 
     it("applies /** */ on enclosed namespace", async () => {
-      const { Foo } = await runner.compile(
-        `
-        @test
+      const { Foo, program } = await Tester.compile(t.code`
         /** doc for namespace Foo */
-        namespace TestDoc.Foo {
+        namespace TestDoc.${t.namespace("Foo")} {
            model A {}
         }
-        `,
-      );
+      `);
 
-      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(program, Foo), "doc for namespace Foo");
     });
 
     it("applies /** */ on nested enclosed namespace", async () => {
-      const { Foo } = await runner.compile(
-        // const { Foo, Foo_Bar } = await runner.compile(
-        `
-        @test
+      const { Foo, program } = await Tester.compile(t.code`
         /** doc for namespace Foo */
-        namespace TestDoc.Foo {
+        namespace TestDoc.${t.namespace("Foo")} {
           /** doc for namespace Bar */       
           namespace Bar {
             model A {};
           }
         }
-        `,
-      );
+      `);
 
-      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
-      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
-      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+      const Bar = Foo.namespaces.get("Bar")!;
+      strictEqual(getDoc(program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(program, Bar), "doc for namespace Bar");
     });
 
     it("applies /** */ on nested blockless + enclosed namespace", async () => {
-      const { Foo } = await runner.compile(
-        `
-        @test
+      const { Foo, program } = await Tester.compile(t.code`
         /** doc for namespace Foo */
-        namespace TestDoc.Foo;
+        namespace TestDoc.${t.namespace("Foo")};
 
         /** doc for namespace Bar */       
         namespace Bar {
           model A {}
         }
-        `,
-      );
+      `);
 
-      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
-      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
-      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+      const Bar = Foo.namespaces.get("Bar")!;
+      strictEqual(getDoc(program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(program, Bar), "doc for namespace Bar");
     });
   });
 
   describe("@doc", () => {
     it("applies @doc on model", async () => {
-      const { A } = await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @doc("My Doc")
-        model A { }
-        `,
-      );
+        model ${t.model("A")} { }
+      `);
 
-      strictEqual(getDoc(runner.program, A), "My Doc");
+      strictEqual(getDoc(program, A), "My Doc");
     });
 
     it("formats @doc string using source object", async () => {
-      const { A, B } = await runner.compile(
-        `
+      const { A, B, program } = await Tester.compile(t.code`
         @doc("Templated {name}", T)
         model Template<T extends {}>  {
         }
 
-        @test
         @doc("Model {name}", A)
-        model A { }
+        model ${t.model("A")} { }
 
-        @test
-        model B is Template<B> {
+        model ${t.model("B")} is Template<B> {
         }
-        `,
-      );
-      strictEqual(getDoc(runner.program, A), "Model A");
-      strictEqual(getDoc(runner.program, B), "Templated B");
+      `);
+      strictEqual(getDoc(program, A), "Model A");
+      strictEqual(getDoc(program, B), "Templated B");
     });
 
     it("applies @doc on namespace", async () => {
-      const { TestDoc } = await runner.compile(
-        `
-        @test
+      const { TestDoc, program } = await Tester.compile(t.code`
         @doc("doc for namespace")
-        namespace Foo.TestDoc {
+        namespace Foo.${t.namespace("TestDoc")} {
         }
-        `,
-      );
+      `);
 
-      strictEqual(getDoc(runner.program, TestDoc), "doc for namespace");
+      strictEqual(getDoc(program, TestDoc), "doc for namespace");
     });
 
     it("applies @doc on enum", async () => {
-      const { Color, Red } = await runner.compile(
-        `
-        @test
+      const { Color, Red, program } = await Tester.compile(t.code`
         @doc("doc for enum")
-        enum Color {
-          @test
+        enum ${t.enum("Color")} {
           @doc("doc for enum element")
-          Red: "red",
+          ${t.enumMember("Red")}: "red",
         }
-        `,
-      );
+      `);
 
-      strictEqual(getDoc(runner.program, Color), "doc for enum");
-      strictEqual(getDoc(runner.program, Red), "doc for enum element");
+      strictEqual(getDoc(program, Color), "doc for enum");
+      strictEqual(getDoc(program, Red), "doc for enum element");
     });
 
     it("applies @doc on union", async () => {
-      const { AB } = await runner.compile(
-        `
+      const { AB, program } = await Tester.compile(t.code`
         model A { }
         model B { }
 
-        @test
         @doc("doc for union")
-        union AB { a: A, b: B }
-        `,
-      );
+        union ${t.union("AB")} { a: A, b: B }
+      `);
 
-      strictEqual(getDoc(runner.program, AB), "doc for union");
+      strictEqual(getDoc(program, AB), "doc for union");
     });
 
     it("applies @doc on interfaces", async () => {
-      const { TestDoc, a } = await runner.compile(
-        `
-        @test
+      const { TestDoc, a, program } = await Tester.compile(t.code`
         @doc("doc for interface")
-        interface TestDoc {
-          @test
+        interface ${t.interface("TestDoc")} {
           @doc("doc for interface operation")
-          a(): string;
+          ${t.op("a")}(): string;
         }
-        `,
-      );
+      `);
 
-      strictEqual(getDoc(runner.program, TestDoc), "doc for interface");
-      strictEqual(getDoc(runner.program, a), "doc for interface operation");
+      strictEqual(getDoc(program, TestDoc), "doc for interface");
+      strictEqual(getDoc(program, a), "doc for interface operation");
     });
 
     it("applies @doc on operations", async () => {
-      const { b } = await runner.compile(
-        `
-        @test
+      const { b, program } = await Tester.compile(t.code`
         @doc("doc for an operation")
-        op b(): string;
-        `,
-      );
+        op ${t.op("b")}(): string;
+      `);
 
-      strictEqual(getDoc(runner.program, b), "doc for an operation");
+      strictEqual(getDoc(program, b), "doc for an operation");
     });
 
     it("emit diagnostic if doc is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @doc(123)
         model A { }
       `);
@@ -233,36 +175,29 @@ describe("compiler: built-in decorators", () => {
 
   describe("@pattern", () => {
     it("applies @pattern to scalar", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @pattern("^[a-z]+$")
-        scalar A extends string;
-        `,
-      )) as { A: Scalar };
+        scalar ${t.scalar("A")} extends string;
+      `);
 
-      strictEqual(getPattern(runner.program, A), "^[a-z]+$");
+      strictEqual(getPattern(program, A), "^[a-z]+$");
     });
 
     it("applies @pattern to model property", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
-        model A {
-          @test
+      const { A, program } = await Tester.compile(t.code`
+        model ${t.model("A")} {
           @pattern("^[a-z]+$")
           prop: string;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      const prop = A.properties.get("prop") as ModelProperty;
+      const prop = A.properties.get("prop")!;
       strictEqual(prop.kind, "ModelProperty");
-      strictEqual(getPattern(runner.program, prop), "^[a-z]+$");
+      strictEqual(getPattern(program, prop), "^[a-z]+$");
     });
 
     it("emit diagnostic if pattern is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model A {
           @pattern(123)
           prop: string;
@@ -275,7 +210,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("emit diagnostic if pattern targe is a non-string union", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Employee {
           @pattern("^[a-zA-Z0-9-]{3,24}$")
           name: Test;
@@ -291,7 +226,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("allows string union on @pattern", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Employee {
           @pattern("^[a-zA-Z0-9-]{3,24}$")
           name: Test;
@@ -303,7 +238,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("emit diagnostic if pattern is not a valid RegEx", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model A {
           @pattern("[a-z")
           prop: string;
@@ -316,27 +251,23 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("optionally allows specifying a pattern validation message", async () => {
-      const { A, B } = (await runner.compile(
-        `
-        @test
+      const { A, B, program } = await Tester.compile(t.code`
         @pattern("^[a-z]+$", "Must be all lowercase.")
-        scalar A extends string;
+        scalar ${t.scalar("A")} extends string;
 
-        @test
         @pattern("^[a-z]+$")
-        scalar B extends string;
-        `,
-      )) as { A: Scalar; B: Scalar };
+        scalar ${t.scalar("B")} extends string;
+      `);
 
-      const pattern = getPattern(runner.program, A);
+      const pattern = getPattern(program, A);
       strictEqual(pattern, "^[a-z]+$");
-      const data = getPatternData(runner.program, A);
+      const data = getPatternData(program, A);
       strictEqual(data?.pattern, pattern);
       strictEqual(data?.validationMessage, "Must be all lowercase.");
 
-      const pattern2 = getPattern(runner.program, B);
+      const pattern2 = getPattern(program, B);
       strictEqual(pattern2, "^[a-z]+$");
-      const data2 = getPatternData(runner.program, B);
+      const data2 = getPatternData(program, B);
       strictEqual(data2?.pattern, pattern2);
       strictEqual(data2?.validationMessage, undefined);
     });
@@ -344,32 +275,26 @@ describe("compiler: built-in decorators", () => {
 
   describe("@format", () => {
     it("applies @pattern to scalar", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @format("email")
-        scalar A extends string;
-        `,
-      )) as { A: Scalar };
+        scalar ${t.scalar("A")} extends string;
+      `);
 
-      strictEqual(getFormat(runner.program, A), "email");
+      strictEqual(getFormat(program, A), "email");
     });
 
     it("applies @pattern to model property", async () => {
-      const { prop } = (await runner.compile(
-        `
+      const { prop, program } = await Tester.compile(t.code`
         model A {
-          @test
           @format("email")
-          prop: string;
+          ${t.modelProperty("prop")}: string;
         }
-        `,
-      )) as { prop: ModelProperty };
-      strictEqual(getFormat(runner.program, prop), "email");
+      `);
+      strictEqual(getFormat(program, prop), "email");
     });
 
     it("emit diagnostic if targeting bytes", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model A {
           @format("email")
           prop: bytes;
@@ -385,20 +310,16 @@ describe("compiler: built-in decorators", () => {
 
   describe("@returnsDoc", () => {
     it("applies @returnsDoc on operation", async () => {
-      const { test } = (await runner.compile(
-        `
-        @test
+      const { test, program } = await Tester.compile(t.code`
         @returnsDoc("A string")
-        op test(): string;
-        `,
-      )) as { test: Operation };
+        op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getReturnsDoc(runner.program, test), "A string");
+      strictEqual(getReturnsDoc(program, test), "A string");
     });
 
     it("emit diagnostic if doc is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
-        @test
+      const diagnostics = await Tester.diagnose(`
         @returnsDoc(123)
         op test(): string;
       `);
@@ -411,20 +332,16 @@ describe("compiler: built-in decorators", () => {
 
   describe("@errorsDoc", () => {
     it("applies @errorsDoc on operation", async () => {
-      const { test } = (await runner.compile(
-        `
-        @test
+      const { test, program } = await Tester.compile(t.code`
         @errorsDoc("An error")
-        op test(): string;
-        `,
-      )) as { test: Operation };
+        op ${t.op("test")}(): string;
+      `);
 
-      strictEqual(getErrorsDoc(runner.program, test), "An error");
+      strictEqual(getErrorsDoc(program, test), "An error");
     });
 
     it("emit diagnostic if doc is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
-        @test
+      const diagnostics = await Tester.diagnose(`
         @errorsDoc(123)
         op test(): string;
       `);
@@ -437,60 +354,55 @@ describe("compiler: built-in decorators", () => {
 
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
-      const { A, B } = await runner.compile(`
-        @test
+      const { A, B, program } = await Tester.compile(t.code`
         @friendlyName("MyNameIsA")
-        model A { }
+        model ${t.model("A")} { }
 
-        @test
         @friendlyName("{name}Model", B)
-        model B { }
+        model ${t.model("B")} { }
 
         @friendlyName("Templated{name}", T)
         model Templated<T> {
           prop: T;
         }
-        `);
-      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
-      strictEqual(getFriendlyName(runner.program, B), "BModel");
+      `);
+      strictEqual(getFriendlyName(program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(program, B), "BModel");
     });
 
     it(" @friendlyName doesn't carry over to derived models", async () => {
-      const { A, B } = await runner.compile(`
-        @test
+      const { A, B, program } = await Tester.compile(t.code`
         @friendlyName("MyNameIsA")
-        model A<T> { t: T; }
+        model ${t.model("A")} { t: string; }
 
-        @test
-        model B is A<string> { }
-        `);
-      strictEqual(getFriendlyName(runner.program, A), "MyNameIsA");
-      strictEqual(getFriendlyName(runner.program, B), undefined);
+        model ${t.model("B")} is A { }
+      `);
+      strictEqual(getFriendlyName(program, A), "MyNameIsA");
+      strictEqual(getFriendlyName(program, B), undefined);
     });
   });
 
   describe("@error", () => {
     it("applies @error on model", async () => {
-      const { A } = await runner.compile(`
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @error
-        model A { }
+        model ${t.model("A")} { }
       `);
-      ok(isErrorModel(runner.program, A), "isError should be true");
+      ok(isErrorModel(program, A), "isError should be true");
     });
 
     it("applies @error on derived models", async () => {
-      const { B, C } = await runner.compile(`
+      const { B, C, program } = await Tester.compile(t.code`
         @error model A { }
-        @test model B extends A { }
-        @test model C extends B { }
+        model ${t.model("B")} extends A { }
+        model ${t.model("C")} extends B { }
       `);
-      ok(isErrorModel(runner.program, B), "isError should be true");
-      ok(isErrorModel(runner.program, C), "isError should be true");
+      ok(isErrorModel(program, B), "isError should be true");
+      ok(isErrorModel(program, C), "isError should be true");
     });
 
     it("emit diagnostic if error is not applied to a model", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @error
         enum A { B, C }
         `);
@@ -506,7 +418,7 @@ describe("compiler: built-in decorators", () => {
 
   describe("@key", () => {
     it("emits diagnostic when argument is not a string", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `model M {
           @key(4)
           prop: string;
@@ -521,7 +433,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("emits diagnostic when not applied to model property", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `@key
         model M {}`,
       );
@@ -535,44 +447,42 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("sets key to property name by default", async () => {
-      const { prop } = await runner.compile(
-        `model M {
-          @test
+      const { prop, program } = await Tester.compile(t.code`
+        model M {
           @key
-          prop: string;
-        }`,
-      );
+          ${t.modelProperty("prop")}: string;
+        }
+      `);
 
       strictEqual(prop.kind, "ModelProperty" as const);
-      strictEqual(getKeyName(runner.program, prop), "prop");
+      strictEqual(getKeyName(program, prop), "prop");
     });
 
     it("sets key to alternate name when provided", async () => {
-      const { prop } = await runner.compile(
-        `model M {
-          @test
+      const { prop, program } = await Tester.compile(t.code`
+        model M {
           @key("alternateName")
-          prop: string;
-        }`,
-      );
+          ${t.modelProperty("prop")}: string;
+        }
+      `);
 
       strictEqual(prop.kind, "ModelProperty" as const);
-      strictEqual(getKeyName(runner.program, prop), "alternateName");
+      strictEqual(getKeyName(program, prop), "alternateName");
     });
 
     it("getKeyName returns undefined if used on property not annotated with @key", async () => {
-      const { prop } = await runner.compile(
-        `model M {
-          @test prop: string;
-        }`,
-      );
+      const { prop, program } = await Tester.compile(t.code`
+        model M {
+          ${t.modelProperty("prop")}: string;
+        }
+      `);
 
       strictEqual(prop.kind, "ModelProperty" as const);
-      strictEqual(getKeyName(runner.program, prop), undefined);
+      strictEqual(getKeyName(program, prop), undefined);
     });
 
     it("emits diagnostic when key property is marked as optional", async () => {
-      const diagnostics = await runner.diagnose(
+      const diagnostics = await Tester.diagnose(
         `model M {
           @key
           prop?: string;
@@ -590,57 +500,52 @@ describe("compiler: built-in decorators", () => {
 
   describe("@encode", () => {
     it(`set encoding on scalar`, async () => {
-      const { s } = (await runner.compile(`
+      const { s, program } = await Tester.compile(t.code`
         @encode("rfc3339")
-        @test
-        scalar s extends utcDateTime;
-      `)) as { s: Scalar };
+        scalar ${t.scalar("s")} extends utcDateTime;
+      `);
 
-      strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
+      strictEqual(getEncode(program, s)?.encoding, "rfc3339");
     });
 
     it(`set encoding on model property`, async () => {
-      const { prop } = (await runner.compile(`
+      const { prop, program } = await Tester.compile(t.code`
         model Foo {
           @encode("rfc3339")
-          @test
-          prop: utcDateTime;
+          ${t.modelProperty("prop")}: utcDateTime;
         }
-      `)) as { prop: ModelProperty };
+      `);
 
-      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+      strictEqual(getEncode(program, prop)?.encoding, "rfc3339");
     });
 
     it(`set encoding on model property of union type`, async () => {
-      const { prop } = (await runner.compile(`
+      const { prop, program } = await Tester.compile(t.code`
         model Foo {
           @encode("rfc3339")
-          @test
-          prop: utcDateTime | null; 
+          ${t.modelProperty("prop")}: utcDateTime | null; 
         }
-      `)) as { prop: ModelProperty };
+      `);
 
-      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+      strictEqual(getEncode(program, prop)?.encoding, "rfc3339");
     });
 
     it(`encode type default to string`, async () => {
-      const { s } = (await runner.compile(`
+      const { s, program } = await Tester.compile(t.code`
         @encode("rfc3339")
-        @test
-        scalar s extends utcDateTime;
-      `)) as { s: Scalar };
+        scalar ${t.scalar("s")} extends utcDateTime;
+      `);
 
-      strictEqual(getEncode(runner.program, s)?.type.name, "string");
+      strictEqual(getEncode(program, s)?.type.name, "string");
     });
 
     it(`change encode type`, async () => {
-      const { s } = (await runner.compile(`
+      const { s, program } = await Tester.compile(t.code`
         @encode("unixTimestamp", int32)
-        @test
-        scalar s extends utcDateTime;
-      `)) as { s: Scalar };
+        scalar ${t.scalar("s")} extends utcDateTime;
+      `);
 
-      strictEqual(getEncode(runner.program, s)?.type.name, "int32");
+      strictEqual(getEncode(program, s)?.type.name, "int32");
     });
 
     describe("known encoding validation", () => {
@@ -658,7 +563,7 @@ describe("compiler: built-in decorators", () => {
         // Do not block unknown encoding
         ["utcDateTime", "custom-encoding", undefined],
         ["duration", "custom-encoding", "int32"],
-      ];
+      ] as const;
       const invalidCases = [
         [
           "utcDateTime",
@@ -737,13 +642,12 @@ describe("compiler: built-in decorators", () => {
         validCases.forEach(([target, encoding, encodeAs]) => {
           it(`encoding '${encoding}' on ${target} encoded as ${encodeAs ?? "string"}`, async () => {
             const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
-            const { s } = (await runner.compile(`
+            const { s, program } = await Tester.compile(t.code`
           @encode("${encoding}"${encodeAsParam})
-          @test
-          scalar s extends ${target};
-        `)) as { s: Scalar };
+          scalar ${t.scalar("s")} extends ${target};
+        `);
 
-            const encodeData = getEncode(runner.program, s);
+            const encodeData = getEncode(program, s);
             ok(encodeData);
             strictEqual(encodeData.encoding, encoding);
             strictEqual(encodeData.type.name, encodeAs ?? "string");
@@ -751,13 +655,12 @@ describe("compiler: built-in decorators", () => {
         });
 
         it(`@encode(string) on numeric scalar`, async () => {
-          const { s } = (await runner.compile(`
+          const { s, program } = await Tester.compile(t.code`
             @encode(string)
-            @test
-            scalar s extends int64;
-          `)) as { s: Scalar };
+            scalar ${t.scalar("s")} extends int64;
+          `);
 
-          const encodeData = getEncode(runner.program, s);
+          const encodeData = getEncode(program, s);
           ok(encodeData);
           strictEqual(encodeData.encoding, undefined);
           strictEqual(encodeData.type.name, "string");
@@ -769,9 +672,8 @@ describe("compiler: built-in decorators", () => {
             encodeAs ?? "string"
           }`, async () => {
             const encodeAsParam = encodeAs ? `, ${encodeAs}` : "";
-            const diagnostics = await runner.diagnose(`
+            const diagnostics = await Tester.diagnose(`
           @encode("${encoding}"${encodeAsParam})
-          @test
           scalar s extends ${target};
         `);
             expectDiagnostics(diagnostics, {
@@ -783,9 +685,8 @@ describe("compiler: built-in decorators", () => {
         });
 
         it(`@encode(string) on non-numeric scalar`, async () => {
-          const diagnostics = await runner.diagnose(`
+          const diagnostics = await Tester.diagnose(`
             @encode(string)
-            @test
             scalar s extends utcDateTime;
           `);
 
@@ -847,81 +748,73 @@ describe("compiler: built-in decorators", () => {
 
   describe("@withoutOmittedProperties", () => {
     it("removes a model property when given a string literal", async () => {
-      const { TestModel } = await runner.compile(
-        `
+      const { TestModel } = await Tester.compile(t.code`
         model OriginalModel {
           removeMe: string;
           notMe: string;
         }
 
-        @test
-        model TestModel is OmitProperties<OriginalModel, "removeMe"> {
-        }`,
-      );
+        model ${t.model("TestModel")} is OmitProperties<OriginalModel, "removeMe"> {
+        }
+      `);
 
-      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      const properties = Array.from(TestModel.properties.keys());
       deepStrictEqual(properties, ["notMe"]);
     });
 
     it("removes model properties when given a union containing strings", async () => {
-      const { TestModel } = await runner.compile(
-        `
+      const { TestModel } = await Tester.compile(t.code`
         model OriginalModel {
           removeMe: string;
           removeMeToo: string;
           notMe: string;
         }
 
-        @test
-        model TestModel is OmitProperties<OriginalModel, "removeMe" | "removeMeToo"> {
-        }`,
-      );
+        model ${t.model("TestModel")} is OmitProperties<OriginalModel, "removeMe" | "removeMeToo"> {
+        }
+      `);
 
-      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      const properties = Array.from(TestModel.properties.keys());
       deepStrictEqual(properties, ["notMe"]);
     });
   });
 
   describe("@withPickedProperties", () => {
     it("picks a model property when given a string literal", async () => {
-      const { TestModel } = await runner.compile(
-        `
+      const { TestModel } = await Tester.compile(t.code`
         model OriginalModel {
           pickMe: string;
           notMe: string;
         }
 
-        @test
-        model TestModel is PickProperties<OriginalModel, "pickMe"> {
-        }`,
-      );
+        model ${t.model("TestModel")} is PickProperties<OriginalModel, "pickMe"> {
+        }
+      `);
 
-      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      const properties = Array.from(TestModel.properties.keys());
       deepStrictEqual(properties, ["pickMe"]);
     });
 
     it("picks model properties when given a union containing strings", async () => {
-      const { TestModel } = await runner.compile(
-        `
+      const { TestModel } = await Tester.compile(t.code`
         model OriginalModel {
           pickMe: string;
           pickMeToo: string;
           notMe: string;
         }
 
-        @test
-        model TestModel is PickProperties<OriginalModel, "pickMe" | "pickMeToo"> {
-        }`,
-      );
+        model ${t.model("TestModel")} is PickProperties<OriginalModel, "pickMe" | "pickMeToo"> {
+        }
+      `);
 
-      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      const properties = Array.from(TestModel.properties.keys());
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
   });
 
   describe("@overload", () => {
     it("emits an error when @overload is given something other than an operation", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @overload("foo")
         op someStringThing(param: string): string;
       `);
@@ -934,7 +827,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("emits an error when the overload's parameters are unrelated to the overloaded operation", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         op someThing(param: string | int32): string | int32;
 
         @overload(someThing)
@@ -963,96 +856,74 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("can define operation overloads outside of a namespace or interface", async () => {
-      const compiled = (await runner.compile(`
-        @test
-        op someThing(param: string | int32): string | int32;
+      const { someThing, someStringThing, someNumberThing, someUnrelatedThing, program } =
+        await Tester.compile(t.code`
+        op ${t.op("someThing")}(param: string | int32): string | int32;
 
-        @test
         @overload(someThing)
-        op someStringThing(param: string): string;
+        op ${t.op("someStringThing")}(param: string): string;
 
-        @test
         @overload(someThing)
-        op someNumberThing(param: int32): int32;
+        op ${t.op("someNumberThing")}(param: int32): int32;
 
-        @test
-        op someUnrelatedThing(): void;
+        op ${t.op("someUnrelatedThing")}(): void;
 
-      `)) as {
-        someThing: Operation;
-        someStringThing: Operation;
-        someNumberThing: Operation;
-        someUnrelatedThing: Operation;
-      };
+      `);
 
-      strictEqual(compiled.someThing.kind, "Operation");
-      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
-      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
-      ok(!getOverloadedOperation(runner.program, compiled.someThing));
-      ok(!getOverloadedOperation(runner.program, compiled.someUnrelatedThing));
-      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      strictEqual(someThing.kind, "Operation");
+      ok(getOverloadedOperation(program, someStringThing));
+      ok(getOverloadedOperation(program, someNumberThing));
+      ok(!getOverloadedOperation(program, someThing));
+      ok(!getOverloadedOperation(program, someUnrelatedThing));
+      const overloadedBy = getOverloads(program, someThing)?.map((op) => op.name);
       ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
-      ok(getOverloads(runner.program, compiled.someUnrelatedThing) === undefined);
+      ok(getOverloads(program, someUnrelatedThing) === undefined);
     });
 
     it("can overload operations defined in a namespace", async () => {
-      const compiled = (await runner.compile(`
+      const { someThing, someStringThing, someNumberThing, program } = await Tester.compile(t.code`
         namespace MyArea {
-          @test
-          op someThing(param: string | int32): string | int32;
+          op ${t.op("someThing")}(param: string | int32): string | int32;
 
-          @test
           @overload(someThing)
-          op someStringThing(param: string): string;
+          op ${t.op("someStringThing")}(param: string): string;
 
-          @test
           @overload(MyArea.someThing)
-          op someNumberThing(param: int32): int32;
+          op ${t.op("someNumberThing")}(param: int32): int32;
         }
 
-      `)) as {
-        someThing: Operation;
-        someStringThing: Operation;
-        someNumberThing: Operation;
-      };
+      `);
 
-      strictEqual(compiled.someThing.kind, "Operation");
-      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
-      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
-      ok(!getOverloadedOperation(runner.program, compiled.someThing));
-      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      strictEqual(someThing.kind, "Operation");
+      ok(getOverloadedOperation(program, someStringThing));
+      ok(getOverloadedOperation(program, someNumberThing));
+      ok(!getOverloadedOperation(program, someThing));
+      const overloadedBy = getOverloads(program, someThing)?.map((op) => op.name);
       ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
     });
 
     it("can overload operations defined in an interface", async () => {
-      const compiled = (await runner.compile(`
+      const { someThing, someStringThing, someNumberThing, program } = await Tester.compile(t.code`
         interface SomeInterface {
-          @test
-          op someThing(param: string | int32): string | int32;
+          op ${t.op("someThing")}(param: string | int32): string | int32;
 
-          @test
           @overload(SomeInterface.someThing)
-          op someStringThing(param: string): string;
+          op ${t.op("someStringThing")}(param: string): string;
 
-          @test
           @overload(SomeInterface.someThing)
-          op someNumberThing(param: int32): int32;
+          op ${t.op("someNumberThing")}(param: int32): int32;
         }
-      `)) as {
-        someThing: Operation;
-        someStringThing: Operation;
-        someNumberThing: Operation;
-      };
+      `);
 
-      strictEqual(compiled.someThing.kind, "Operation");
-      ok(getOverloadedOperation(runner.program, compiled.someStringThing));
-      ok(getOverloadedOperation(runner.program, compiled.someNumberThing));
-      ok(!getOverloadedOperation(runner.program, compiled.someThing));
-      const overloadedBy = getOverloads(runner.program, compiled.someThing)?.map((op) => op.name);
+      strictEqual(someThing.kind, "Operation");
+      ok(getOverloadedOperation(program, someStringThing));
+      ok(getOverloadedOperation(program, someNumberThing));
+      ok(!getOverloadedOperation(program, someThing));
+      const overloadedBy = getOverloads(program, someThing)?.map((op) => op.name);
       ok(overloadedBy?.length === 2);
       ok(overloadedBy?.includes("someStringThing"));
       ok(overloadedBy?.includes("someNumberThing"));
@@ -1060,7 +931,7 @@ describe("compiler: built-in decorators", () => {
 
     describe("overloads must have the same parent as the overload base", () => {
       it("emit diagnostic if outside of interface", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           interface SomeInterface {
             someThing(param: string | int32): string | int32;
           }
@@ -1075,7 +946,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("emit diagnostic if outside of namespace", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           namespace SomeNamespace {
             op someThing(param: string | int32): string | int32;
           }
@@ -1090,7 +961,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("emit diagnostic if different interface", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           interface SomeInterface {
             someThing(param: string | int32): string | int32;
           }
@@ -1107,7 +978,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("emit diagnostic if different namespace", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           namespace SomeNamespace {
             op someThing(param: string | int32): string | int32;
           }
@@ -1124,7 +995,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("emit diagnostic if in an interface but base isn't", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           op someThing(param: string | int32): string | int32;
   
           interface OtherInterface {
@@ -1142,176 +1013,143 @@ describe("compiler: built-in decorators", () => {
 
   describe("@secret", () => {
     it("can be applied on a string model", async () => {
-      const { A } = await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @secret
-        scalar A extends string;
-        `,
-      );
+        scalar ${t.scalar("A")} extends string;
+      `);
 
-      ok(isSecret(runner.program, A));
+      ok(isSecret(program, A));
     });
 
     it("can be applied on a model property with string type", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
-        model A {
+      const { A, program } = await Tester.compile(t.code`
+        model ${t.model("A")} {
           @secret
           a: string;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("a")!));
+      ok(isSecret(program, A.properties.get("a")!));
     });
 
     it("can be applied on a model property with stringlike model as type", async () => {
-      const { A } = (await runner.compile(
-        `
+      const { A, program } = await Tester.compile(t.code`
         scalar CustomStr extends string;
 
-        @test
-        model A {
+        model ${t.model("A")} {
           @secret
           a: CustomStr;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("a")!));
+      ok(isSecret(program, A.properties.get("a")!));
     });
 
     it("can be applied on a model", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @secret
-        model A {}
-        `,
-      )) as { A: Model };
+        model ${t.model("A")} {}
+      `);
 
-      ok(isSecret(runner.program, A));
+      ok(isSecret(program, A));
     });
 
     it("can be applied on a non-string scalar", async () => {
-      const { A } = await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @secret
-        scalar A extends int32;
-        `,
-      );
+        scalar ${t.scalar("A")} extends int32;
+      `);
 
-      ok(isSecret(runner.program, A));
+      ok(isSecret(program, A));
     });
 
     it("can be applied on a model property with non-string type", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
-        model A {
+      const { A, program } = await Tester.compile(t.code`
+        model ${t.model("A")} {
           @secret
           a: int32;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("a")!));
+      ok(isSecret(program, A.properties.get("a")!));
     });
 
     it("can be applied on a union", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @secret
-        union A {
+        union ${t.union("A")} {
           x: string,
           y: int32
         }
-        `,
-      )) as { A: Union };
+      `);
 
-      ok(isSecret(runner.program, A));
+      ok(isSecret(program, A));
     });
 
     it("can be applied on an enum", async () => {
-      const { A } = (await runner.compile(
-        `
-        @test
+      const { A, program } = await Tester.compile(t.code`
         @secret
-        enum A {
+        enum ${t.enum("A")} {
           One: "one",
           Two: "two"
         }
-        `,
-      )) as { A: Enum };
+      `);
 
-      ok(isSecret(runner.program, A));
+      ok(isSecret(program, A));
     });
 
     it("can be applied on a model property with model type", async () => {
-      const { A } = (await runner.compile(
-        `
+      const { A, program } = await Tester.compile(t.code`
         @secret
         model SecretModel {
           data: string;
         }
 
-        @test
-        model A {
+        model ${t.model("A")} {
           @secret
           secret: SecretModel;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("secret")!));
+      ok(isSecret(program, A.properties.get("secret")!));
     });
 
     it("can be applied on a model property with union type", async () => {
-      const { A } = (await runner.compile(
-        `
+      const { A, program } = await Tester.compile(t.code`
         union SecretUnion {
           x: string,
           y: int32
         }
 
-        @test
-        model A {
+        model ${t.model("A")} {
           @secret
           secret: SecretUnion;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("secret")!));
+      ok(isSecret(program, A.properties.get("secret")!));
     });
 
     it("can be applied on a model property with enum type", async () => {
-      const { A } = (await runner.compile(
-        `
+      const { A, program } = await Tester.compile(t.code`
         enum SecretEnum {
           One: "one",
           Two: "two"
         }
 
-        @test
-        model A {
+        model ${t.model("A")} {
           @secret
           secret: SecretEnum;
         }
-        `,
-      )) as { A: Model };
+      `);
 
-      ok(isSecret(runner.program, A.properties.get("secret")!));
+      ok(isSecret(program, A.properties.get("secret")!));
     });
   });
 
   describe("@discriminated", () => {
     it("error if more than one unnamed variant", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         @discriminated
         union Foo {
           "A",
@@ -1321,12 +1159,12 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-discriminated-union-variant",
-        message: `Discriminated union only allow a single default variant(Without a variant name).`,
+        message: `Discriminated union Foo only allow a single default variant(Without a variant name).`,
       });
     });
 
     it("error if using no envelope and variant name mismatch with property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model A {
           kind: "a-kind",
         }
@@ -1343,15 +1181,14 @@ describe("compiler: built-in decorators", () => {
     });
 
     async function getTestDiscriminatedUnion(code: string) {
-      const { Foo } = (await runner.compile(code)) as { Foo: Union };
-
-      return getDiscriminatedUnion(runner.program, Foo)[0]!;
+      const { Foo, program } = (await Tester.compile(code)) as any;
+      return getDiscriminatedUnion(program, Foo)[0]!;
     }
 
     it("discriminated by default", async () => {
       const union = await getTestDiscriminatedUnion(`
-        @test @discriminated
-        union Foo {
+        @discriminated
+        union /*Foo*/Foo {
         }
       `);
 
@@ -1364,8 +1201,8 @@ describe("compiler: built-in decorators", () => {
 
     it("change discriminator", async () => {
       const union = await getTestDiscriminatedUnion(`
-        @test @discriminated(#{discriminatorPropertyName: "dataKind"})
-        union Foo {
+        @discriminated(#{discriminatorPropertyName: "dataKind"})
+        union /*Foo*/Foo {
         }
       `);
 
@@ -1378,8 +1215,8 @@ describe("compiler: built-in decorators", () => {
 
     it("change envelopePropertyName", async () => {
       const union = await getTestDiscriminatedUnion(`
-        @test @discriminated(#{envelopePropertyName: "data"})
-        union Foo {
+        @discriminated(#{envelopePropertyName: "data"})
+        union /*Foo*/Foo {
         }
       `);
 
@@ -1392,8 +1229,8 @@ describe("compiler: built-in decorators", () => {
 
     it("set envelope: none", async () => {
       const union = await getTestDiscriminatedUnion(`
-        @test @discriminated(#{envelope: "none"})
-        union Foo {
+        @discriminated(#{envelope: "none"})
+        union /*Foo*/Foo {
         }
       `);
 
@@ -1407,7 +1244,7 @@ describe("compiler: built-in decorators", () => {
 
   describe("@encodedName", () => {
     it("emit error if passing invalid mime type", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Cert {
           @encodedName("foo/bar/baz", "exp")
           expireAt: utcDateTime;
@@ -1421,7 +1258,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("emit error if passing mime type with suffix", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Cert {
           @encodedName("application/merge-patch+json", "exp")
           expireAt: utcDateTime;
@@ -1437,7 +1274,7 @@ describe("compiler: built-in decorators", () => {
 
     describe("detect conflicts", () => {
       it("emit error if encoded name is same as existing property ", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Cert {
             @encodedName("application/json", "exp")
             expireAt: utcDateTime;
@@ -1453,7 +1290,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("emit error if 2 properties use the same encoded name with the same mimeType ", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Cert {
             @encodedName("application/json", "exp")
             expireAt: utcDateTime;
@@ -1475,7 +1312,7 @@ describe("compiler: built-in decorators", () => {
       });
 
       it("is ok if 2 different mime type have the same encoded name", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Cert {
             @encodedName("application/json", "exp")
             expireAt: utcDateTime;
@@ -1489,124 +1326,129 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("resolve explicit encoded name", async () => {
-      const { expireAt } = (await runner.compile(`
+      const { expireAt, program } = await Tester.compile(t.code`
         model Cert {
           @encodedName("application/json", "exp")
-          @test expireAt: utcDateTime;
+          ${t.modelProperty("expireAt")}: utcDateTime;
         }
-      `)) as { expireAt: ModelProperty };
-      strictEqual(resolveEncodedName(runner.program, expireAt, "application/json"), "exp");
-      strictEqual(
-        resolveEncodedName(runner.program, expireAt, "application/merge-patch+json"),
-        "exp",
-      );
+      `);
+      strictEqual(resolveEncodedName(program, expireAt, "application/json"), "exp");
+      strictEqual(resolveEncodedName(program, expireAt, "application/merge-patch+json"), "exp");
     });
 
     it("resolve default name if no explicit encoded name", async () => {
-      const { expireAt } = (await runner.compile(`
+      const { expireAt, program } = await Tester.compile(t.code`
         model Cert {
           @encodedName("application/json", "exp")
-          @test expireAt: utcDateTime;
+          ${t.modelProperty("expireAt")}: utcDateTime;
         }
-      `)) as { expireAt: ModelProperty };
-      strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
+      `);
+      strictEqual(resolveEncodedName(program, expireAt, "application/xml"), "expireAt");
     });
   });
 
   describe("@mediaTypeHint", () => {
     it("returns correct media type hint for string", async () => {
-      const { A, B, C } = (await runner.compile(`
-        @test
+      const { A, B, C, program } = await Tester.compile(t.code`
         @mediaTypeHint("application/json")
-        scalar A extends string;
+        scalar ${t.scalar("A")} extends string;
 
-        @test
-        scalar B extends A;
+        scalar ${t.scalar("B")} extends A;
 
-        @test
-        scalar C extends string;
-      `)) as { A: Scalar; B: Scalar; C: Scalar };
+        scalar ${t.scalar("C")} extends string;
+      `);
 
-      const string = runner.program.checker.getStdType("string");
+      const string = program.checker.getStdType("string");
 
-      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
-      strictEqual(getMediaTypeHint(runner.program, string), "text/plain");
+      strictEqual(getMediaTypeHint(program, A), "application/json");
+      strictEqual(getMediaTypeHint(program, string), "text/plain");
 
-      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+      strictEqual(getMediaTypeHint(program, B), "application/json");
 
-      strictEqual(getMediaTypeHint(runner.program, C), "text/plain");
+      strictEqual(getMediaTypeHint(program, C), "text/plain");
     });
 
     it("returns correct media type hint for bytes", async () => {
-      const { A, B, C } = (await runner.compile(`
-        @test
+      const { A, B, C, program } = await Tester.compile(t.code`
         @mediaTypeHint("application/json")
-        scalar A extends bytes;
+        scalar ${t.scalar("A")} extends bytes;
 
-        @test
-        scalar B extends A;
+        scalar ${t.scalar("B")} extends A;
 
-        @test
-        scalar C extends bytes;
-      `)) as { A: Scalar; B: Scalar; C: Scalar };
+        scalar ${t.scalar("C")} extends bytes;
+      `);
 
-      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
-      strictEqual(getMediaTypeHint(runner.program, A.baseScalar!), "application/octet-stream");
+      strictEqual(getMediaTypeHint(program, A), "application/json");
+      strictEqual(getMediaTypeHint(program, A.baseScalar!), "application/octet-stream");
 
-      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+      strictEqual(getMediaTypeHint(program, B), "application/json");
 
-      strictEqual(getMediaTypeHint(runner.program, C), "application/octet-stream");
+      strictEqual(getMediaTypeHint(program, C), "application/octet-stream");
     });
 
     it("returns correct media type hint for model", async () => {
-      const { A, B, C, D } = (await runner.compile(`
-        @test
-        model A {}
+      const { A, B, C, D, program } = await Tester.compile(t.code`
+        model ${t.model("A")} {}
 
-        @test
         @mediaTypeHint("application/xml")
-        model B extends A {}
+        model ${t.model("B")} extends A {}
 
-        @test
-        model C extends B {}
+        model ${t.model("C")} extends B {}
 
-        @test
         @mediaTypeHint("application/json")
-        model D extends C {}
-      `)) as { A: Model; B: Model; C: Model; D: Model };
+        model ${t.model("D")} extends C {}
+      `);
 
-      strictEqual(getMediaTypeHint(runner.program, A), undefined);
-      strictEqual(getMediaTypeHint(runner.program, B), "application/xml");
-      strictEqual(getMediaTypeHint(runner.program, C), "application/xml");
-      strictEqual(getMediaTypeHint(runner.program, D), "application/json");
+      strictEqual(getMediaTypeHint(program, A), undefined);
+      strictEqual(getMediaTypeHint(program, B), "application/xml");
+      strictEqual(getMediaTypeHint(program, C), "application/xml");
+      strictEqual(getMediaTypeHint(program, D), "application/json");
     });
 
     it("returns correct media type hint for enum", async () => {
-      const { A, B } = (await runner.compile(`
-        @test
-        enum A { a, b }
+      const { A, B, program } = await Tester.compile(t.code`
+        enum ${t.enum("A")} { a, b }
 
-        @test
         @mediaTypeHint("application/json")
-        enum B { a, b }
-      `)) as { A: Enum; B: Enum };
+        enum ${t.enum("B")} { a, b }
+      `);
 
-      strictEqual(getMediaTypeHint(runner.program, A), undefined);
-      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+      strictEqual(getMediaTypeHint(program, A), undefined);
+      strictEqual(getMediaTypeHint(program, B), "application/json");
     });
 
     it("returns correct media type hint for union", async () => {
-      const { A, B } = (await runner.compile(`
-        @test
-        union A {}
+      const { A, B, program } = await Tester.compile(t.code`
+        union ${t.union("A")} {}
 
-        @test
         @mediaTypeHint("text/plain")
-        union B {}
-      `)) as { A: Union; B: Union };
+        union ${t.union("B")} {}
+      `);
 
-      strictEqual(getMediaTypeHint(runner.program, A), undefined);
-      strictEqual(getMediaTypeHint(runner.program, B), "text/plain");
+      strictEqual(getMediaTypeHint(program, A), undefined);
+      strictEqual(getMediaTypeHint(program, B), "text/plain");
+    });
+
+    it("can set media type hint programmatically", async () => {
+      const { A, program } = await Tester.compile(t.code`
+        @test
+        model ${t.model("A")} {}
+      `);
+
+      strictEqual(getMediaTypeHint(program, A), undefined);
+      setMediaTypeHint(program, A, "application/merge-patch+json");
+      strictEqual(getMediaTypeHint(program, A), "application/merge-patch+json");
+    });
+
+    it("validates media type when set programmatically", async () => {
+      const { A, program } = await Tester.compile(t.code`
+        @test
+        model ${t.model("A")} {}
+      `);
+
+      expect(() => setMediaTypeHint(program, A, "not-a-mime-type")).toThrow(
+        "Invalid MIME type 'not-a-mime-type' provided to setMediaTypeHint",
+      );
     });
   });
 });

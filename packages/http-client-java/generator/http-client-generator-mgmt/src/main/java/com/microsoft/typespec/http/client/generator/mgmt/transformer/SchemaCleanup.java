@@ -17,7 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -68,10 +68,10 @@ public class SchemaCleanup {
                 }))
             .collect(Collectors.toSet());
 
-        Set<Schema> choicesSchemasNotInUse = new HashSet<>(codeModel.getSchemas().getSealedChoices());
+        Set<Schema> choicesSchemasNotInUse = new LinkedHashSet<>(codeModel.getSchemas().getSealedChoices());
         choicesSchemasNotInUse.addAll(codeModel.getSchemas().getChoices());
 
-        Set<Schema> schemasInUse = new HashSet<>();
+        Set<Schema> schemasInUse = new LinkedHashSet<>();
         if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
             // properties of object
             Set<Schema> propertiesOfObject = codeModel.getSchemas().getObjects().stream().filter(o -> {

@@ -1,7 +1,7 @@
 import type { Model } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
 describe("body resolution", () => {
@@ -140,6 +140,22 @@ it("supports any casing for string literal 'Content-Type' header properties.", a
   deepStrictEqual(routes[2].responses[0].responses[0].body?.contentTypes, ["application/json"]);
 });
 
+it("treats content-type as a header for HEAD responses", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
+    `
+      @head
+      op head(): { @header "content-type": "text/plain" };
+    `,
+  );
+
+  expectDiagnosticEmpty(diagnostics);
+  strictEqual(routes.length, 1);
+  const response = routes[0].responses[0].responses[0];
+  strictEqual(response.body, undefined);
+  ok(response.headers);
+  deepStrictEqual(Object.keys(response.headers), ["content-type"]);
+});
+
 // Regression test for https://github.com/microsoft/typespec/issues/328
 it("empty response model becomes body if it has children", async () => {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(
@@ -213,4 +229,33 @@ it("chooses correct content-type for extensible union body", async () => {
   const body = response.responses[0].body;
   ok(body);
   deepStrictEqual(body.contentTypes, ["text/plain"]);
+});
+
+describe("status code", () => {
+  async function getResponse(code: string) {
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(code);
+    expectDiagnosticEmpty(diagnostics);
+    expect(routes).toHaveLength(1);
+    expect(routes[0].responses).toHaveLength(1);
+    return routes[0].responses[0];
+  }
+
+  it("resolve from a property at the root", async () => {
+    const response = await getResponse(`op test1(): { @statusCode code: 201 };`);
+    expect(response.statusCodes).toEqual(201);
+  });
+
+  it("resolve from a property nested", async () => {
+    const response = await getResponse(`op test1(): { nested: { @statusCode code: 201 } };`);
+    expect(response.statusCodes).toEqual(201);
+  });
+
+  it("resolve from parent model with no local props", async () => {
+    const response = await getResponse(`
+      model Created { @statusCode code: 201 }
+      model Res extends Created {};
+      op test1(): Res;
+    `);
+    expect(response.statusCodes).toEqual(201);
+  });
 });

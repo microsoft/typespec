@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   mutateSubgraph,
   mutateSubgraphWithNamespace,
@@ -7,28 +7,18 @@ import {
   MutatorFlow,
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
-import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
-
-let host: TestHost;
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  host = await createTestHost();
-  runner = createTestWrapper(host);
-});
+import { Model, Namespace, Operation } from "../../src/index.js";
+import { mockFile, t } from "../../src/testing/index.js";
+import { expectTypeEquals } from "../../src/testing/test-utils.js";
+import { Tester } from "../tester.js";
 
 it("works", async () => {
-  const code = `
-      @test model Foo {
+  const { Foo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         x: string;
         y: string;
       };
-    `;
-
-  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+    `);
   const mutator: Mutator = {
     name: "test",
     Model: {
@@ -37,7 +27,7 @@ it("works", async () => {
       },
     },
   };
-  const mutated = mutateSubgraph(runner.program, [mutator], Foo);
+  const mutated = mutateSubgraph(program, [mutator], Foo);
 
   const mutatedModel = mutated.type as Model;
   expect(mutated.realm?.hasType(mutatedModel)).toBeTruthy();
@@ -50,19 +40,17 @@ it("works", async () => {
 });
 
 it("recurses the model", async () => {
-  const code = `
-    @test model Bar {
+  const visited: string[] = [];
+  const { Foo, program } = await Tester.compile(t.code`
+    model Bar {
       bar: string;
     }
-    @test model Foo {
+    model ${t.model("Foo")} {
       x: string;
       y: string;
       z: Bar;
     };
-  `;
-
-  const visited: string[] = [];
-  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  `);
   const mutator: Mutator = {
     name: "test",
     Model: {
@@ -74,21 +62,19 @@ it("recurses the model", async () => {
       },
     },
   };
-  mutateSubgraph(runner.program, [mutator], Foo);
+  mutateSubgraph(program, [mutator], Foo);
 
   expect(visited).toStrictEqual(["Foo", "Bar"]);
 });
 
 it("propagate mutated model to model property", async () => {
-  const code = `
-    @test model Foo {
+  const visited: string[] = [];
+  const { Foo, program } = await Tester.compile(t.code`
+    model ${t.model("Foo")} {
       a: string;
     }
     
-  `;
-
-  const visited: string[] = [];
-  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  `);
   const mutator: Mutator = {
     name: "test",
     Model: (_, clone) => {
@@ -98,20 +84,18 @@ it("propagate mutated model to model property", async () => {
       // Just to force mutation
     },
   };
-  const MutatedFoo = mutateSubgraph(runner.program, [mutator], Foo).type as Model;
+  const MutatedFoo = mutateSubgraph(program, [mutator], Foo).type as Model;
   expectTypeEquals(MutatedFoo.properties.get("a")!.model, MutatedFoo);
 });
 
 describe("handles circular references", () => {
   it("reference itself", async () => {
-    const code = `
-    @test model Foo {
+    const visited: string[] = [];
+    const { Foo, program } = await Tester.compile(t.code`
+    model ${t.model("Foo")} {
       foo: Foo
     };
-  `;
-
-    const visited: string[] = [];
-    const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  `);
     const mutator: Mutator = {
       name: "test",
       Model: {
@@ -120,7 +104,7 @@ describe("handles circular references", () => {
         },
       },
     };
-    mutateSubgraph(runner.program, [mutator], Foo);
+    mutateSubgraph(program, [mutator], Foo);
 
     expect(visited).toStrictEqual(["Foo"]);
   });
@@ -128,21 +112,19 @@ describe("handles circular references", () => {
 
 // We said we didn't actually want model properties to be cloned if they are not explicitly mutated.`¡
 it.skip("doesn't duplicate references", async () => {
-  const code = `
-    @test model Bar {
+  const visited: Model[] = [];
+  const { Foo, program } = await Tester.compile(t.code`
+    model Bar {
       bar: string;
     }
-    @test model Baz {
+    model Baz {
       bar: Bar;
     }
-    @test model Foo {
+    model ${t.model("Foo")} {
       baz: Baz;
       bar: Bar;
     };
-  `;
-
-  const visited: Model[] = [];
-  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  `);
   const mutator: Mutator = {
     name: "test",
     Model: {
@@ -151,7 +133,7 @@ it.skip("doesn't duplicate references", async () => {
       },
     },
   };
-  mutateSubgraph(runner.program, [mutator], Foo);
+  mutateSubgraph(program, [mutator], Foo);
 
   expect(visited.map((x) => x.name)).toEqual(["Foo", "Baz", "Bar"]);
   const [MutatedFoo, _MutatedBaz, MutatedBar] = visited;
@@ -163,13 +145,11 @@ it.skip("doesn't duplicate references", async () => {
 });
 
 it("doesn't duplicate references from different types", async () => {
-  const code = `
-    @test model Common {}
-    @test op test(bar: Common): Common;
-  `;
-
   const visited: (Model | Operation)[] = [];
-  const { test } = await runner.compile(code);
+  const { test, program } = await Tester.compile(t.code`
+    model Common {}
+    op ${t.op("test")}(bar: Common): Common;
+  `);
   const mutator: Mutator = {
     name: "test",
     Operation: {
@@ -183,7 +163,7 @@ it("doesn't duplicate references from different types", async () => {
       },
     },
   };
-  mutateSubgraph(runner.program, [mutator], test as any);
+  mutateSubgraph(program, [mutator], test as any);
 
   expect(visited.map((x) => x.name)).toEqual(["test", "", "Common"]);
   const [MutatedTest, _, MutatedCommon] = visited;
@@ -191,19 +171,17 @@ it("doesn't duplicate references from different types", async () => {
 });
 
 it("removes model reference from namespace", async () => {
-  const code = `
-  @test namespace Foo;
-  @test model Bar {
+  const { Foo, program } = await Tester.compile(t.code`
+  namespace ${t.namespace("Foo")};
+  model Bar {
     bar: string;
   }
-  @test model Baz {
+  model Baz {
     x: string;
     y: string;
     z: Bar;
   };
-  `;
-
-  const { Foo } = (await runner.compile(code)) as { Foo: Namespace; Bar: Model; Baz: Model };
+  `);
   const mutator: MutatorWithNamespace = {
     name: "test",
     Namespace: {
@@ -213,7 +191,7 @@ it("removes model reference from namespace", async () => {
     },
   };
 
-  const { type } = mutateSubgraphWithNamespace(runner.program, [mutator], Foo);
+  const { type } = mutateSubgraphWithNamespace(program, [mutator], Foo);
 
   const mutatedNs = type as Namespace;
 
@@ -231,17 +209,15 @@ it("removes model reference from namespace", async () => {
 });
 
 it("doesn't mutate the same type twice when mutating namespace", async () => {
-  const code = `
-  @test namespace Foo;
-  @test model Bar {}
-  @test model Baz {
-    z: Bar;
-  };
-  `;
-
   const visited: string[] = [];
 
-  const { Foo } = (await runner.compile(code)) as { Foo: Namespace; Bar: Model; Baz: Model };
+  const { Foo, program } = await Tester.compile(t.code`
+  namespace ${t.namespace("Foo")};
+  model Bar {}
+  model Baz {
+    z: Bar;
+  };
+  `);
   const mutator: MutatorWithNamespace = {
     name: "test",
     Namespace: {
@@ -254,24 +230,22 @@ it("doesn't mutate the same type twice when mutating namespace", async () => {
     },
   };
 
-  mutateSubgraphWithNamespace(runner.program, [mutator], Foo);
+  mutateSubgraphWithNamespace(program, [mutator], Foo);
   expect(visited).toEqual(["Bar", "Baz"]);
 });
 
 it("do not recurse the model", async () => {
-  const code = `
-    @test model Bar {
+  const visited: string[] = [];
+  const { Foo, program } = await Tester.compile(t.code`
+    model Bar {
       bar: string;
     }
-    @test model Foo {
+    model ${t.model("Foo")} {
       x: string;
       y: string;
       z: Bar;
     };
-  `;
-
-  const visited: string[] = [];
-  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  `);
   const mutator: Mutator = {
     name: "test",
     Model: {
@@ -283,19 +257,19 @@ it("do not recurse the model", async () => {
       },
     },
   };
-  mutateSubgraph(runner.program, [mutator], Foo);
+  mutateSubgraph(program, [mutator], Foo);
 
   expect(visited).toStrictEqual(["Foo"]);
 });
 
 it("can mutate literals", async () => {
-  const { a, b, c } = (await runner.compile(`
+  const { a, b, c, program } = await Tester.compile(t.code`
     model Foo {
-      @test a: "example";
-      @test b: 42;
-      @test c: false;
+      ${t.modelProperty("a")}: "example";
+      ${t.modelProperty("b")}: 42;
+      ${t.modelProperty("c")}: false;
     }
-  `)) as { a: ModelProperty; b: ModelProperty; c: ModelProperty };
+  `);
 
   const mutator: Mutator = {
     name: "test",
@@ -314,17 +288,17 @@ it("can mutate literals", async () => {
   strictEqual(b.type.kind, "Number");
   strictEqual(c.type.kind, "Boolean");
 
-  const mutatedA = mutateSubgraph(runner.program, [mutator], a.type).type;
+  const mutatedA = mutateSubgraph(program, [mutator], a.type).type;
 
   strictEqual(mutatedA.kind, "String");
   strictEqual(mutatedA.value, "example!");
 
-  const mutatedB = mutateSubgraph(runner.program, [mutator], b.type).type;
+  const mutatedB = mutateSubgraph(program, [mutator], b.type).type;
 
   strictEqual(mutatedB.kind, "Number");
   strictEqual(mutatedB.value, 43);
 
-  const mutatedC = mutateSubgraph(runner.program, [mutator], c.type).type;
+  const mutatedC = mutateSubgraph(program, [mutator], c.type).type;
 
   strictEqual(mutatedC.kind, "Boolean");
   strictEqual(mutatedC.value, true);
@@ -349,12 +323,12 @@ describe("global graph mutation", () => {
   };
 
   async function globalMutate(code: string): Promise<Namespace> {
-    await runner.compile(code);
+    const { program } = await Tester.compile(code);
 
     const { type } = mutateSubgraphWithNamespace(
-      runner.program,
+      program,
       [mutator],
-      runner.program.getGlobalNamespaceType(),
+      program.getGlobalNamespaceType(),
     );
     strictEqual(type.kind, "Namespace");
 
@@ -437,26 +411,77 @@ describe("global graph mutation", () => {
 });
 
 describe("decorators", () => {
+  it("mutates arguments values", async () => {
+    const visited: string[] = [];
+
+    const { Foo, program } = await Tester.files({
+      "dec.js": mockFile.js({ $myDec: () => {} }),
+    }).import("./dec.js").compile(t.code`
+      extern dec myDec(target, value: valueof unknown);
+      
+      enum E {
+        a: "a"
+      }
+      
+      @myDec(#{
+        enumValue: E.a,
+      })
+      model ${t.model("Foo")} {}
+  `);
+    const mutator: Mutator = {
+      name: "test",
+      Enum: {
+        mutate: (_enum, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      EnumMember: {
+        mutate: (_enumMember, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      Model: {
+        mutate: (_model, clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+
+    mutateSubgraph(program, [mutator], Foo);
+    expect(visited).toStrictEqual(["Foo", "a", "E"]);
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/9318
+  it("doesn't crash when mutating numeric value", async () => {
+    const { prop, program } = await Tester.compile(t.code`
+      model Test {
+        @minValue(123)
+        ${t.modelProperty("prop")}: int32;
+      }
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      ModelProperty: { mutate: (_, clone) => {} },
+    };
+    expect(() => mutateSubgraph(program, [mutator], prop)).not.toThrow();
+  });
+
   // Regression test for https://github.com/microsoft/typespec/issues/6655
   it("doesn't crash when mutating null value", async () => {
-    const host = await createTestHost();
-    const code = `
-      import "./dec.js";
+    const { Foo, program } = await Tester.files({
+      "dec.js": mockFile.js({ $myDec: () => {} }),
+    }).import("./dec.js").compile(t.code`
       extern dec myDec(target, value: valueof unknown);
       
       @myDec(null)
-      @test model Foo {}
-  `;
-    host.addJsFile("dec.js", { $myDec: () => {} });
-    host.addTypeSpecFile("main.tsp", code);
-
-    const { Foo } = (await host.compile("main.tsp")) as { Foo: Model };
+      model ${t.model("Foo")} {}
+  `);
     const mutator: Mutator = {
       name: "test",
       Model: {
         mutate: (_model, clone) => {},
       },
     };
-    expect(() => mutateSubgraph(host.program, [mutator], Foo)).not.toThrow();
+    expect(() => mutateSubgraph(program, [mutator], Foo)).not.toThrow();
   });
 });

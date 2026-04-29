@@ -205,14 +205,38 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         private const string SeeCrefStart = "<see ";
         private const string SeeCrefEnd = "</see>";
+
+        // Allowed XML documentation tags that should not be escaped
+        private static readonly HashSet<string> AllowedXmlDocTags = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "<see ",
+            "</see>",
+            "<b>",
+            "</b>",
+            "<i>",
+            "</i>",
+            "<list ",
+            "</list>",
+            "<item>",
+            "</item>",
+            "<description>",
+            "</description>"
+        };
+
         private static bool SkipValidTag(ref ReadOnlySpan<char> span, ref int i)
         {
             var slice = span.Slice(i);
-            if (slice.StartsWith(SeeCrefStart.AsSpan(), StringComparison.Ordinal) || slice.StartsWith(SeeCrefEnd.AsSpan(), StringComparison.Ordinal))
+
+            // Check if the tag starts with any of the allowed XML doc tags
+            foreach (var tag in AllowedXmlDocTags)
             {
-                i += slice.IndexOf('>');
-                return true;
+                if (slice.StartsWith(tag.AsSpan(), StringComparison.Ordinal))
+                {
+                    i += slice.IndexOf('>');
+                    return true;
+                }
             }
+
             return false;
         }
 

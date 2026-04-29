@@ -12,7 +12,7 @@ import {
   createSourceFile,
   defineCodeFix,
 } from "../../src/index.js";
-import { createTestHost } from "../../src/testing/test-host.js";
+import { createTestFileSystem } from "../../src/testing/fs.js";
 
 describe("Codefixes", () => {
   describe("applyCodeFix", () => {
@@ -21,11 +21,11 @@ describe("Codefixes", () => {
       fix: (context: CodeFixContext, file: SourceFile) => CodeFixEdit | CodeFixEdit[],
     ): Promise<string> {
       const fakeFile = createSourceFile(text, "test.ts");
-      const host = await createTestHost();
+      const fs = createTestFileSystem();
       let result: string | undefined;
       await applyCodeFix(
         {
-          ...host.compilerHost,
+          ...fs.compilerHost,
           writeFile: (name, content) => {
             result = content;
             return Promise.resolve();

@@ -1,5 +1,7 @@
 import {
   listAllServiceNamespaces,
+  SdkClientType,
+  SdkHttpOperation,
   SdkHttpParameter,
   SdkMethodParameter,
   SdkModelPropertyType,
@@ -139,16 +141,38 @@ export async function execAsync(
 }
 
 export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
-  return getClientNamespaceStringHelper(
-    context.emitContext.options["package-name"],
-    listAllServiceNamespaces(context)[0],
-  );
+  const packageName = context.emitContext.options["package-name"];
+  const serviceNamespaces = listAllServiceNamespaces(context);
+  const firstNamespace = serviceNamespaces.length > 0 ? serviceNamespaces[0] : undefined;
+  // namespace is not a public emitter option, but it is supported by TCGC
+  const namespaceOverride = (context.emitContext.options as any).namespace;
+
+  if (packageName) {
+    return getClientNamespaceStringHelper(namespaceOverride, packageName, firstNamespace);
+  }
+
+  if (containsMultiServiceClient(context.sdkPackage.clients)) {
+    return getClientNamespaceStringHelper(
+      namespaceOverride,
+      context.sdkPackage.clients[0].namespace,
+    );
+  }
+
+  if (serviceNamespaces.length > 1) {
+    return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace?.namespace);
+  }
+
+  return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace);
 }
 
 export function getClientNamespaceStringHelper(
+  namespaceOverride?: string,
   packageName?: string,
   namespace?: Namespace,
 ): string | undefined {
+  if (namespaceOverride) {
+    return namespaceOverride;
+  }
   if (packageName) {
     packageName = packageName
       .replace(/-/g, ".")
@@ -185,4 +209,32 @@ export function isReadOnly(
   } else {
     return false;
   }
+}
+
+/**
+ * Determines if the library contains a multiservice client.
+ * Returns true if any of the given root clients is itself a multiservice client
+ * (i.e. {@link isMultiServiceClient} returns true).
+ *
+ * @param rootClients - Array of root clients from the SDK package
+ * @returns True if any root client is a multiservice client, false otherwise
+ * @beta
+ */
+export function containsMultiServiceClient(
+  rootClients: SdkClientType<SdkHttpOperation>[],
+): boolean {
+  return rootClients.some(isMultiServiceClient);
+}
+
+/**
+ * Determines if a client is a multiservice client.
+ * A multiservice client is one where the underlying service is an array of services
+ * with more than one element.
+ *
+ * @param client - The SDK client to check
+ * @returns True if this is a multiservice client, false otherwise
+ * @beta
+ */
+export function isMultiServiceClient(client: SdkClientType<SdkHttpOperation>): boolean {
+  return client.__raw.services.length > 1;
 }

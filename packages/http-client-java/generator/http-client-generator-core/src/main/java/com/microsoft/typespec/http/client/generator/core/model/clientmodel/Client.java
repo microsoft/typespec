@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,48 +14,48 @@ public class Client {
     /**
      * The name of this service client.
      */
-    private String clientName;
+    private final String clientName;
     /**
      * The description of this service.
      */
-    private String clientDescription;
+    private final String clientDescription;
     /**
      * Get the enum types that are used by this service.
      */
-    private List<EnumType> enums;
+    private final List<EnumType> enums;
     /**
      * Get the exception types that are used by this service.
      */
-    private List<ClientException> exceptions;
+    private final List<ClientException> exceptions;
     /**
      * Get the XML sequence wrappers that are used by this service.
      */
-    private List<XmlSequenceWrapper> xmlSequenceWrappers;
+    private final List<XmlSequenceWrapper> xmlSequenceWrappers;
     /**
      * Get the response models which contain the response status code, headers and body for each service method.
      */
-    private List<ClientResponse> responseModels;
+    private final List<ClientResponse> responseModels;
     /**
      * Get the model types that are used by this service.
      */
-    private List<ClientModel> models;
+    private final List<ClientModel> models;
     /**
      * Get the package infos.
      */
-    private List<PackageInfo> packageInfos;
+    private final List<PackageInfo> packageInfos;
     /**
      * Get the manager for this service.
      */
-    private Manager manager;
+    private final Manager manager;
     /**
      * The serviceClient for this service.
      */
-    private ServiceClient serviceClient;
-    private List<ServiceClient> serviceClients;
+    private final ServiceClient serviceClient;
+    private final List<ServiceClient> serviceClients;
     /**
      * Get the module info.
      */
-    private ModuleInfo moduleInfo;
+    private final ModuleInfo moduleInfo;
     private final List<AsyncSyncClient> syncClients;
 
     private final List<AsyncSyncClient> asyncClients;
@@ -218,15 +217,15 @@ public class Client {
         private List<PackageInfo> packageInfos;
         private Manager manager;
         private ServiceClient serviceClient;
-        private List<ServiceClient> serviceClients = Collections.emptyList();
+        private List<ServiceClient> serviceClients = List.of();
         private ModuleInfo moduleInfo;
-        private List<AsyncSyncClient> syncClients = Collections.emptyList();
-        private List<AsyncSyncClient> asyncClients = Collections.emptyList();
-        private List<ClientBuilder> clientBuilders = Collections.emptyList();
-        private List<ProtocolExample> protocolExamples = Collections.emptyList();
-        private List<LiveTests> liveTests = Collections.emptyList();
-        private List<UnionModel> unionModels = Collections.emptyList();
-        private List<ClientMethodExample> clientMethodExamples = Collections.emptyList();
+        private List<AsyncSyncClient> syncClients = List.of();
+        private List<AsyncSyncClient> asyncClients = List.of();
+        private List<ClientBuilder> clientBuilders = List.of();
+        private List<ProtocolExample> protocolExamples = List.of();
+        private List<LiveTests> liveTests = List.of();
+        private List<UnionModel> unionModels = List.of();
+        private List<ClientMethodExample> clientMethodExamples = List.of();
         private GraalVmConfig graalVmConfig;
         private String crossLanguageDefinitionId;
 

@@ -37,7 +37,7 @@ export function stubDialog<T extends keyof Dialog>(
   return stubMultipleDialogs(app, [{ method, value }]);
 }
 
-export function stubMultipleDialogs<T extends keyof Dialog>(
+export async function stubMultipleDialogs<T extends keyof Dialog>(
   app: ElectronApplication,
   mocks: DialogMethodStubPartial<T>[],
 ) {

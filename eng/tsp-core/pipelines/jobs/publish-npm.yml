@@ -3,73 +3,44 @@ parameters:
     type: string
   - name: tag
     type: string
-  - name: publishGithubRelease
-    type: boolean
-    default: false
+  - name: condition
+    default: succeeded()
   - name: dependsOn
     type: string
     default: ""
 
 jobs:
-  - job: publish_npm_${{ parameters.tag }}
+  - deployment: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
-    pool:
-      name: $(LINUXPOOL)
-      image: $(LINUXVMIMAGE)
+    condition: ${{ parameters.condition }}
+    environment: none
+    pool: # hardcoding the pool and image name because deployment jobs do not support variable expansion in pool names
+      name: azsdk-pool
+      image: ubuntu-24.04
       os: linux
+    templateContext:
+      type: releaseJob
+      isProduction: true
+      inputs:
+        - input: pipelineArtifact
+          artifactName: ${{ parameters.artifactName }}
+          itemPattern: "**/*.tgz"
+          targetPath: $(Pipeline.Workspace)/${{ parameters.artifactName }}/
 
-    steps:
-      - download: current
-        artifact: ${{ parameters.artifactName }}
-        displayName: Download Npm Packages
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
+              displayName: List files in artifact
 
-      - template: ../templates/install.yml
+            - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
+              parameters:
+                tag: ${{ parameters.tag }}
+                path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
 
-      - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
-        displayName: List files in artifact
-
-      - script: |
-          echo "Updating config"
-          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-          echo "Publishing at tag ${{ parameters.tag }}"
-          pnpm chronus publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz" --tag ${{ parameters.tag }}  --access public  --engine npm --report-summary ./publish-summary.json
-        displayName: Publish
-        env:
-          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
-
-      - pwsh: |
-          $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
-          if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
-            Write-Output "Setting PublishHttpSpecs variable to true."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
-          } else {
-            Write-Output "Setting PublishHttpSpecs variable to false."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
-          }
-        displayName: "Check if @typespec/http-specs was published"
-
-      - script: pnpm -r --filter '@typespec/http-specs...' build
-        condition: eq(variables['PublishHttpSpecs'], 'true')
-        displayName: Build spector
-
-      - task: AzureCLI@2
-        displayName: Upload scenario manifest
-        condition: eq(variables['PublishHttpSpecs'], 'true')
-        inputs:
-          workingDirectory: packages/http-specs
-          azureSubscription: "TypeSpec Storage"
-          scriptType: "bash"
-          scriptLocation: "inlineScript"
-          inlineScript: "pnpm upload-manifest"
-
-      - ${{ if eq(parameters.publishGithubRelease, true) }}:
-          - script: |
-              echo "Publish summary:"
-              cat ./publish-summary.json
-            displayName: Log publish summary
-
-          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
-            displayName: Create github releases
-            env:
-              GITHUB_TOKEN: $(azuresdk-github-pat)
+            - script: |
+                echo "ESRP_RELEASE_DETAILS:"
+                echo "$ESRP_RELEASE_DETAILS"
+              displayName: "Log ESRP release details"

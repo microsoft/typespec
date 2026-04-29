@@ -1,33 +1,39 @@
 import type { Union, UnionVariant } from "@typespec/compiler";
-import { MutationEdge } from "./mutation-edge.js";
+import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 
 export class UnionMutationNode extends MutationNode<Union> {
   readonly kind = "Union";
 
-  traverse(): void {
-    for (const variant of this.sourceType.variants.values()) {
-      const variantNode = this.subgraph.getNode(variant);
-      this.connectVariant(variantNode, variant.name);
-    }
-  }
-
-  connectVariant(variantNode: MutationNode<UnionVariant>, sourcePropName: string | symbol) {
-    MutationEdge.create(this, variantNode, {
-      onTailMutation: () => {
-        this.mutatedType.variants.delete(sourcePropName);
-        this.mutatedType.variants.set(variantNode.mutatedType.name, variantNode.mutatedType);
+  startVariantEdge() {
+    return new HalfEdge<Union, UnionVariant>(this, {
+      onTailCreation: ({ tail }) => {
+        tail.connectUnion(this);
       },
-      onTailDeletion: () => {
-        this.mutatedType.variants.delete(sourcePropName);
+      onTailMutation: ({ tail }) => {
+        this.mutate();
+        this.mutatedType.variants.delete(tail.sourceType.name);
+        this.mutatedType.variants.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailReplaced: (newTail) => {
+      onTailDeletion: ({ tail }) => {
+        this.mutate();
+        this.mutatedType.variants.delete(tail.sourceType.name);
+      },
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "UnionVariant") {
           throw new Error("Cannot replace union variant with non-union variant type");
         }
-        this.mutatedType.variants.delete(sourcePropName);
-        this.mutatedType.variants.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutate();
+        head.mutatedType.variants.delete(oldTail.sourceType.name);
+        head.mutatedType.variants.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectVariant(newTail as MutationNode<UnionVariant>);
+        }
       },
     });
+  }
+
+  connectVariant(variantNode: MutationNode<UnionVariant>) {
+    this.startVariantEdge().setTail(variantNode);
   }
 }

@@ -44,6 +44,8 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  CreateSdkContextOptions,
+  DecoratedType,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -72,6 +74,7 @@ import {
   createSdkContext,
   getAllModels,
   getClientNameOverride,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   isSdkBuiltInKind,
@@ -108,6 +111,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -124,12 +128,12 @@ import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./extern
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
-  CONTENT_TYPE_KEY,
   ORIGIN_API_VERSION,
   SPECIAL_HEADER_NAMES,
   cloneOperationParameter,
   findResponsePropertySegments,
   getServiceVersion,
+  isContentTypeHeader,
   isKnownContentType,
   isLroNewPollingStrategy,
   operationIsJsonMergePatch,
@@ -163,7 +167,11 @@ import {
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
-import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
+import {
+  InconsistentVersions,
+  getFilteredApiVersions,
+  getServiceApiVersions,
+} from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -296,11 +304,23 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
-      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
-      versioning: { previewStringRegex: /$/ },
-    }); // include all versions and do the filter by ourselves
+    // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
+    const sdkContextOptions: CreateSdkContextOptions =
+      this.options["service-version-exclude-preview"] === false
+        ? {
+            versioning: { previewStringRegex: /$/ },
+          }
+        : {};
+    sdkContextOptions.additionalDecorators = ["Azure\\.ClientGenerator\\.Core\\.@override"];
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
+
+    // metadata
+    if (this.sdkContext.sdkPackage.metadata.apiVersions) {
+      this.codeModel.apiVersionMap = Object.fromEntries(
+        this.sdkContext.sdkPackage.metadata.apiVersions,
+      );
+    }
 
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {
@@ -488,6 +508,14 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(schema, {
             usage: [SchemaContext.Public],
           });
+          if (schema instanceof ObjectSchema && schema.usage) {
+            const schemaUsage: SchemaContext[] | undefined = schema.usage;
+            // And, remove the Paged, as we assume customer explicitly asks Public
+            const index = schemaUsage.indexOf(SchemaContext.Paged);
+            if (index >= 0) {
+              schemaUsage.splice(index, 1);
+            }
+          }
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 
@@ -653,9 +681,10 @@ export class CodeModelBuilder {
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
-    // versioning
+    // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
-    if (versions && versions.length > 0) {
+    if (Array.isArray(versions) && versions.length > 0) {
+      // consistent api-versions
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
@@ -717,7 +746,10 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
-      codeModelClient.apiVersions,
+      // versioning: consistent api-versions, or MixedVersions for mixed api-versions, undefined if not versioned
+      versions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : codeModelClient.apiVersions,
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
@@ -746,7 +778,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+          subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
@@ -911,7 +943,7 @@ export class CodeModelBuilder {
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
     let diagnostic = undefined;
-    if (generateConvenienceApi) {
+    if (generateConvenienceApi && this.isAzureV1()) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
@@ -987,14 +1019,14 @@ export class CodeModelBuilder {
         httpOperation.bodyParam &&
         param.kind === "header"
       ) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
       // if the request body is optional, skip content-type header added by TCGC
       // TODO: add optional content type to code-model, and support optional content-type from codegen, https://github.com/Azure/autorest.java/issues/2930
       if (httpOperation.bodyParam && httpOperation.bodyParam.optional) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
@@ -1064,9 +1096,9 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    const response = responses[0];
-    const bodyType = response.type;
-    if (!bodyType || bodyType.kind !== "model") {
+    if (!responses.some((r) => r.type && r.type.kind === "model")) {
+      // abort, if none of the responses contains model type
+      // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
 
@@ -1351,23 +1383,33 @@ export class CodeModelBuilder {
   ) {
     if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
-      if (this.isArm()) {
-        // Currently we assume ARM tsp only have one client and one api-version.
-        // TODO: How will service define mixed api-versions(like those in Compute RP)?
-        const apiVersion = this.apiVersion;
-        if (!this._armApiVersionParameter) {
-          this._armApiVersionParameter = this.createApiVersionParameter(
-            "api-version",
-            param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
-            apiVersion,
-          );
-          clientContext.addGlobalParameter(this._armApiVersionParameter);
-        }
-        op.addParameter(this._armApiVersionParameter);
-      } else {
-        const parameter = this.getApiVersionParameter(param);
+      if (clientContext.apiVersions === InconsistentVersions.MixedVersions) {
+        // mixed api-versions
+        const parameter = this.createApiVersionParameter(
+          "api-version",
+          param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+          String(param.clientDefaultValue),
+          ImplementationLocation.Method,
+        );
         op.addParameter(parameter);
-        clientContext.addGlobalParameter(parameter);
+      } else {
+        // consistent api-versions
+        if (this.isArm()) {
+          const apiVersion = this.apiVersion;
+          if (!this._armApiVersionParameter) {
+            this._armApiVersionParameter = this.createApiVersionParameter(
+              "api-version",
+              param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+              apiVersion,
+            );
+            clientContext.addGlobalParameter(this._armApiVersionParameter);
+          }
+          op.addParameter(this._armApiVersionParameter);
+        } else {
+          const parameter = this.getApiVersionParameter(param);
+          op.addParameter(parameter);
+          clientContext.addGlobalParameter(parameter);
+        }
       }
     } else if (param.kind === "path" && param.onClient && this.isSubscriptionId(param)) {
       const parameter = this.subscriptionIdParameter(param);
@@ -1472,8 +1514,12 @@ export class CodeModelBuilder {
       const parameterOnClient = param.onClient;
       if (parameterOnClient) {
         // use parameter name from client parameter, as the name could be an alias
-        if (param.correspondingMethodParams) {
-          parameterName = param.correspondingMethodParams[0].name;
+        if (
+          param.methodParameterSegments &&
+          param.methodParameterSegments[0] &&
+          param.methodParameterSegments[0].at(-1)
+        ) {
+          parameterName = param.methodParameterSegments[0].at(-1)!.name;
         }
       }
 
@@ -1483,7 +1529,7 @@ export class CodeModelBuilder {
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: !param.optional,
+        required: this.isPropertyRequired(param),
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
@@ -1654,7 +1700,7 @@ export class CodeModelBuilder {
             {
               summary: sdkMethodParameter.summary,
               implementation: ImplementationLocation.Method,
-              required: !sdkMethodParameter.optional,
+              required: this.isPropertyRequired(sdkMethodParameter),
               nullable: false,
             },
           );
@@ -1677,7 +1723,7 @@ export class CodeModelBuilder {
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
-    // the "GroupSchema" is simliar to "ObjectSchema", but the process is different
+    // the "GroupSchema" is similar to "ObjectSchema", but the process is different
 
     if (type && this.schemaCache.has(type)) {
       return this.schemaCache.get(type) as GroupSchema;
@@ -1850,7 +1896,7 @@ export class CodeModelBuilder {
 
         // group schema
 
-        let coreNamespace = this.namespace;
+        let coreNamespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
         } else {
@@ -1953,26 +1999,56 @@ export class CodeModelBuilder {
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
 
-    const unknownRequestBody =
-      op.requests![0].protocol.http!.mediaTypes &&
-      op.requests![0].protocol.http!.mediaTypes.length > 0 &&
-      !isKnownContentType(op.requests![0].protocol.http!.mediaTypes);
-
     const sdkType: SdkType = sdkBody.type;
 
+    let requestBodyIsFile: boolean = false;
+    if (
+      sdkType &&
+      sdkType.kind === "model" &&
+      sdkType.serializationOptions.binary &&
+      sdkType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      requestBodyIsFile = true;
+    } else if (sdkType && sdkType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const mediaTypes = op.requests![0].protocol.http!.mediaTypes;
+      const unknownRequestBody =
+        mediaTypes && mediaTypes.length > 0 && !isKnownContentType(mediaTypes);
+      requestBodyIsFile = Boolean(unknownRequestBody);
+    }
+
     let schema: Schema;
-    if (unknownRequestBody && sdkType.kind === "bytes") {
-      // if it's unknown request body, handle binary request body
+    if (requestBodyIsFile) {
+      // binary/file
       schema = this.processBinarySchema(sdkType);
     } else {
-      schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      if (
+        !requestBodyIsFile &&
+        sdkBody.contentTypes.length === 1 &&
+        sdkBody.contentTypes[0] === "text/plain" &&
+        sdkType.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "request body",
+          },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
+        schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      }
     }
 
     const parameterName = sdkBody.name;
     const parameter = new Parameter(parameterName, sdkBody.doc ?? "", schema, {
       summary: sdkBody.summary,
       implementation: ImplementationLocation.Method,
-      required: !sdkBody.optional,
+      required: this.isPropertyRequired(sdkBody),
       protocol: {
         http: new HttpParameter(ParameterLocation.Body),
       },
@@ -2008,14 +2084,14 @@ export class CodeModelBuilder {
        * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
        */
       /**
-       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type'.
        * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
        */
       const bodyParameterFlatten =
         !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type;
+        sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
@@ -2029,6 +2105,11 @@ export class CodeModelBuilder {
 
         if (jsonMergePatch) {
           // skip model flatten, if "application/merge-patch+json"
+          reportDiagnostic(this.program, {
+            code: "spread-json-merge-patch-payload-not-supported",
+            target: sdkMethod.__raw ?? NoTarget,
+          });
+
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
@@ -2160,17 +2241,15 @@ export class CodeModelBuilder {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
     // let response: Response;
-    let headers: Array<HttpHeader> | undefined = undefined;
+    const headers: Array<HttpHeader> = [];
 
-    // headers
-    headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
 
         if (schema instanceof ConstantSchema) {
           // skip constant header in response
-          if (header.serializedName.toLowerCase() !== "content-type") {
+          if (isContentTypeHeader(header)) {
             // we does not warn on content-type as constant, as this is the most common case
             reportDiagnostic(this.program, {
               code: "constant-header-in-response-removed",
@@ -2197,14 +2276,27 @@ export class CodeModelBuilder {
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    const unknownResponseBody =
-      sdkResponse.contentTypes &&
-      sdkResponse.contentTypes.length > 0 &&
-      !isKnownContentType(sdkResponse.contentTypes);
+    let responseBodyIsFile: boolean = false;
+    if (
+      bodyType &&
+      bodyType.kind === "model" &&
+      bodyType.serializationOptions.binary &&
+      bodyType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      responseBodyIsFile = true;
+    } else if (bodyType && bodyType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const unknownResponseBody =
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length > 0 &&
+        !isKnownContentType(sdkResponse.contentTypes);
+      responseBodyIsFile = Boolean(unknownResponseBody);
+    }
 
     let response: Response;
-    if (unknownResponseBody && bodyType && bodyType.kind === "bytes") {
-      // binary
+    if (responseBodyIsFile) {
+      // binary/file
       response = new BinaryResponse({
         protocol: {
           http: {
@@ -2222,13 +2314,32 @@ export class CodeModelBuilder {
         },
       });
     } else if (bodyType) {
-      // schema (usually JSON)
-      let schema: Schema | undefined = undefined;
       if (longRunning) {
         // LRO uses the LroMetadata for poll/final result, not the response of activation request
+        // hence the schema below is not tracked for convenience API
         trackConvenienceApi = false;
       }
-      if (!schema) {
+
+      // schema (usually JSON)
+      let schema: Schema | undefined;
+      if (
+        !responseBodyIsFile &&
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length === 1 &&
+        sdkResponse.contentTypes[0] === "text/plain" &&
+        bodyType?.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "response body",
+          },
+          target: NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
         schema = this.processSchema(bodyType, op.language.default.name + "Response");
       }
       response = new SchemaResponse(schema, {
@@ -2595,6 +2706,11 @@ export class CodeModelBuilder {
       // java name
       schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(schema, {
+        usage: [SchemaContext.External],
+      });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
@@ -2723,13 +2839,15 @@ export class CodeModelBuilder {
     }
 
     // discriminator
-    if (type.discriminatedSubtypes && type.discriminatorProperty) {
+    if (type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
         this.processModelProperty(type.discriminatorProperty),
       );
-      for (const discriminatorValue in type.discriminatedSubtypes) {
-        const subType = type.discriminatedSubtypes[discriminatorValue];
-        this.processSchema(subType, subType.name);
+      if (type.discriminatedSubtypes) {
+        for (const discriminatorValue in type.discriminatedSubtypes) {
+          const subType = type.discriminatedSubtypes[discriminatorValue];
+          this.processSchema(subType, subType.name);
+        }
       }
     }
 
@@ -2859,12 +2977,18 @@ export class CodeModelBuilder {
 
     const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
       summary: modelProperty.summary,
-      required: !modelProperty.optional,
+      required: this.isPropertyRequired(modelProperty),
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      if (schema instanceof ArraySchema) {
+        // ArrayEncoding
+        (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
+      }
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {
@@ -2930,7 +3054,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(unionSchema);
   }
 
-  private processBinarySchema(type: SdkBuiltInType): BinarySchema {
+  private processBinarySchema(type: SdkType): BinarySchema {
     return this.codeModel.schemas.add(
       new BinarySchema(type.doc ?? "", {
         summary: type.summary,
@@ -2965,14 +3089,14 @@ export class CodeModelBuilder {
       case "Enum":
         return pascalCase(type.name);
       case "Model":
-        if (isArrayModelType(this.program, type)) {
+        if (isArrayModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "List";
           } else {
             return "ListOf" + this.getUnionVariantName(type.indexer.value, option);
           }
-        } else if (isRecordModelType(this.program, type)) {
+        } else if (isRecordModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "Map";
@@ -3298,6 +3422,7 @@ export class CodeModelBuilder {
     serializedName: string,
     parameterLocation: ParameterLocation,
     value = "",
+    implementationLocation = ImplementationLocation.Client,
   ): Parameter {
     return new Parameter(
       serializedName,
@@ -3309,7 +3434,7 @@ export class CodeModelBuilder {
         }),
       ),
       {
-        implementation: ImplementationLocation.Client,
+        implementation: implementationLocation,
         origin: ORIGIN_API_VERSION,
         required: true,
         protocol: {
@@ -3515,5 +3640,16 @@ export class CodeModelBuilder {
 
   private isArm(): boolean {
     return Boolean(this.codeModel.arm);
+  }
+
+  private isPropertyRequired(property: { optional: boolean } & DecoratedType): boolean {
+    const clientRequired = getClientOptions(property, "clientRequired") as boolean;
+    if (clientRequired === false) {
+      reportDiagnostic(this.program, {
+        code: "client-required-false",
+        target: (property as any).__raw ?? NoTarget,
+      });
+    }
+    return clientRequired ?? !property.optional;
   }
 }

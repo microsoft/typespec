@@ -30,7 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -200,7 +200,7 @@ public class Main {
      */
     private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings,
         String suffix) {
-        Set<String> filesToDelete = new HashSet<>();
+        Set<String> filesToDelete = new LinkedHashSet<>();
 
         // clean up source code, based on metadata
         String metadataFilename = "src/main/resources/META-INF/"

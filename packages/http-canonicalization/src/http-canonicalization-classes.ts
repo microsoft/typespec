@@ -1,4 +1,6 @@
 import type { InstancesFor } from "@typespec/mutator-framework";
+import { EnumMemberHttpCanonicalization } from "./enum-member.js";
+import { EnumHttpCanonicalization } from "./enum.js";
 import { IntrinsicHttpCanonicalization } from "./intrinsic.js";
 import { LiteralHttpCanonicalization } from "./literal.js";
 import { ModelPropertyHttpCanonicalization } from "./model-property.js";
@@ -16,6 +18,8 @@ export const CANONICALIZATION_CLASSES = {
   Union: UnionHttpCanonicalization,
   Intrinsic: IntrinsicHttpCanonicalization,
   UnionVariant: UnionVariantHttpCanonicalization,
+  Enum: EnumHttpCanonicalization,
+  EnumMember: EnumMemberHttpCanonicalization,
   String: LiteralHttpCanonicalization,
   Number: LiteralHttpCanonicalization,
   Boolean: LiteralHttpCanonicalization,

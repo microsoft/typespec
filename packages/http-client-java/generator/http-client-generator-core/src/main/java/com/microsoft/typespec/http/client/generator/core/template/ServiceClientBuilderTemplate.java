@@ -27,7 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,7 +67,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             buildReturnType = serviceClient.getClassName();
         }
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         serviceClient.addImportsTo(imports, false, true, settings);
         commonProperties.forEach(p -> p.addImportsTo(imports, false));
         imports.add("java.util.List");

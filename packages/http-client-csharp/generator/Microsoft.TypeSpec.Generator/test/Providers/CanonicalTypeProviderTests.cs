@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,6 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateProperties()
         {
+            // Call EnsureBuilt to simulate the real build pipeline where members are cached
+            // without customization filtering before the canonical view is accessed.
+            _typeProvider.EnsureBuilt();
             // customization code provides 5 properties:
             // - public int IntProperty { get; set; }
             // - public string StringProperty { get; }
@@ -67,14 +71,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // therefore the CanonicalType should have 6 properties:
             // - public int IntProperty { get; set; } (from customization code)
             // - public string StringProperty { get; } (from customization code)
+            // - public string NullWireInfoProperty { get; set; } (from customization code)
+            // - public string SpecProperty { get; } (from generated code)
             // - public string InternalStringProperty { get; } (from customization code)
             // - public PropertyType PropertyTypeProperty { get; set; } (from customization code)
-            // - public string SpecProperty { get; } (from generated code)
-            // - public string NullWireInfoProperty { get; set; } (from customization code)
             Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
             Assert.AreEqual(6, properties.Count);
-            // 1 non-customized property
-            Assert.AreEqual(1, _typeProvider.Properties.Count);
             Assert.AreEqual(5, _typeProvider.CustomCodeView!.Properties.Count);
 
             // Validate the exact order
@@ -176,6 +178,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateMethods()
         {
+            // Call EnsureBuilt to simulate the real build pipeline where members are cached
+            // without customization filtering before the canonical view is accessed.
+            _typeProvider.EnsureBuilt();
+
             // customization code provides a method:
             // - public virtual Task<int> Method1(int intParam)
             // generated code provides three methods:
@@ -189,7 +195,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var methods = _typeProvider.CanonicalView.Methods;
 
             Assert.AreEqual(4, methods.Count);
-            Assert.AreEqual(2, _typeProvider.Methods.Count);
             Assert.AreEqual(2, _typeProvider.CustomCodeView!.Methods.Count);
 
             // the first should be public virtual Task<string> Method1(string strParam)
@@ -226,6 +231,113 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(MethodSignatureModifiers.Async, fourth.Modifiers);
             Assert.AreEqual(new CSharpType(typeof(ValueTask)), fourth.ReturnType);
             Assert.AreEqual(0, fourth.Parameters.Count);
+        }
+
+        [Test]
+        public void ValidateConstructors()
+        {
+            // Call EnsureBuilt to simulate the real build pipeline where members are cached
+            // without customization filtering before the canonical view is accessed.
+            _typeProvider.EnsureBuilt();
+
+            // customization code provides 1 constructor:
+            // - public TestName(int intParam)
+            // generated code provides 2 constructors:
+            // - internal TestName(int intParam) (customized by the NamedSymbol)
+            // - internal TestName() (not customized)
+            // therefore the CanonicalType should have 2 constructors:
+            // - public TestName(int intParam) (from customization code)
+            // - internal TestName() (from generated code)
+            var constructors = _typeProvider.CanonicalView.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+
+            // the first should be the non-customized parameterless constructor
+            var first = constructors[0].Signature;
+            Assert.AreEqual(0, first.Parameters.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, first.Modifiers);
+
+            // the second should be the custom constructor with int param
+            var second = constructors[1].Signature;
+            Assert.AreEqual(1, second.Parameters.Count);
+            Assert.AreEqual("intParam", second.Parameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(int)), second.Parameters[0].Type);
+            Assert.AreEqual(MethodSignatureModifiers.Public, second.Modifiers);
+        }
+
+        [Test]
+        public void ValidateFields()
+        {
+            // Call EnsureBuilt to simulate the real build pipeline where members are cached
+            // without customization filtering before the canonical view is accessed.
+            _typeProvider.EnsureBuilt();
+
+            // customization code provides 4 fields:
+            // - public int IntField
+            // - private string StringField
+            // - internal double DoubleField
+            // - public static float FloatField
+            // generated code provides 2 fields:
+            // - private int IntField (customized by the NamedSymbol)
+            // - private string GeneratedOnlyField (not customized)
+            // therefore the CanonicalType should have 5 fields:
+            // - private string GeneratedOnlyField (from generated code)
+            // - public int IntField (from customization code)
+            // - private string StringField (from customization code)
+            // - internal double DoubleField (from customization code)
+            // - public static float FloatField (from customization code)
+            var fields = _typeProvider.CanonicalView.Fields;
+
+            Assert.AreEqual(5, fields.Count);
+            var fieldNames = fields.Select(f => f.Name).ToList();
+            Assert.Contains("GeneratedOnlyField", fieldNames);
+            Assert.Contains("IntField", fieldNames);
+            Assert.Contains("StringField", fieldNames);
+            Assert.Contains("DoubleField", fieldNames);
+            Assert.Contains("FloatField", fieldNames);
+
+            // IntField should appear only once (not duplicated)
+            Assert.AreEqual(1, fields.Count(f => f.Name == "IntField"));
+        }
+
+        [Test]
+        public void ValidatePropertiesWithNoSpecProperties()
+        {
+            // Call EnsureBuilt to simulate the real build pipeline where members are cached
+            // without customization filtering before the canonical view is accessed.
+            var noSpecProvider = new NoSpecTypeProvider(Name, Ns);
+            noSpecProvider.EnsureBuilt();
+
+            // customization code provides 5 properties:
+            // - public int IntProperty { get; set; }
+            // - public string StringProperty { get; }
+            // - public string InternalStringProperty { get; }
+            // - public PropertyType PropertyTypeProperty { get; set; }
+            // - public string NullWireInfoProperty { get; set; }
+            // generated code provides 2 properties:
+            // - public int IntProperty { get; set; } (customized by the NamedSymbol)
+            // - public string SpecProperty { get; } (not customized)
+            // therefore the CanonicalType should have 6 properties:
+            // - public string SpecProperty { get; } (from generated code)
+            // - public int IntProperty { get; set; } (from customization code)
+            // - public string StringProperty { get; } (from customization code)
+            // - public string InternalStringProperty { get; } (from customization code)
+            // - public PropertyType PropertyTypeProperty { get; set; } (from customization code)
+            // - public string NullWireInfoProperty { get; set; } (from customization code)
+            var properties = noSpecProvider.CanonicalView.Properties;
+
+            Assert.AreEqual(6, properties.Count);
+
+            // IntProperty should appear only once (not duplicated)
+            Assert.AreEqual(1, properties.Count(p => p.Name == "IntProperty"));
+
+            var propertyNames = properties.Select(p => p.Name).ToList();
+            Assert.Contains("SpecProperty", propertyNames);
+            Assert.Contains("IntProperty", propertyNames);
+            Assert.Contains("StringProperty", propertyNames);
+            Assert.Contains("InternalStringProperty", propertyNames);
+            Assert.Contains("PropertyTypeProperty", propertyNames);
+            Assert.Contains("NullWireInfoProperty", propertyNames);
         }
 
         [Test]
@@ -282,9 +394,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false)),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false, false)),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false)),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false, false)),
                     // customized by the NamedSymbol with null wire info
                     new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfoProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];
@@ -312,6 +424,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                         new MethodSignature("Method2", $"I should not be replaced", MethodSignatureModifiers.Public| MethodSignatureModifiers.Virtual, typeof(Task), null, [floatParam]),
                         Throw(Null),
                         this),
+                ];
+            }
+
+            protected internal override ConstructorProvider[] BuildConstructors()
+            {
+                var intParam = new ParameterProvider("intParam", $"intParam", typeof(int));
+                return
+                [
+                    // customized by the NamedSymbol
+                    new ConstructorProvider(
+                        new ConstructorSignature(Type, $"Generated constructor", MethodSignatureModifiers.Internal, [intParam]),
+                        Throw(Null),
+                        this),
+                    // not customized by the NamedSymbol
+                    new ConstructorProvider(
+                        new ConstructorSignature(Type, $"Not customized constructor", MethodSignatureModifiers.Internal, []),
+                        Throw(Null),
+                        this),
+                ];
+            }
+
+            protected internal override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    // customized by the NamedSymbol
+                    new FieldProvider(FieldModifiers.Private, typeof(int), "IntField", this, $"Generated IntField"),
+                    // not customized by the NamedSymbol
+                    new FieldProvider(FieldModifiers.Private, typeof(string), "GeneratedOnlyField", this, $"Generated only field"),
+                ];
+            }
+        }
+
+        private class NoSpecTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+            private readonly string _namespace;
+            public NoSpecTypeProvider(string name, string ns)
+                : base(InputFactory.Model(name, ns, properties: []))
+            {
+                _name = name;
+                _namespace = ns;
+            }
+
+            protected override string BuildRelativeFilePath() => "NamedSymbol";
+            protected override string BuildName() => _name;
+            protected override string BuildNamespace() => _namespace;
+
+            protected internal override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    // customized by the NamedSymbol
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this),
+                    // not customized by the NamedSymbol
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this),
                 ];
             }
         }

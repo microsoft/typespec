@@ -77,6 +77,46 @@ public final class ModelPropertiesImpl {
         Response<Void> sameAsModelSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
+
+        @Post("/special-words/model-properties/dict-methods")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> dictMethods(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/special-words/model-properties/dict-methods")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> dictMethodsSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/special-words/model-properties/list")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> withList(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            RequestOptions requestOptions, Context context);
+
+        @Post("/special-words/model-properties/list")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> withListSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -130,5 +170,129 @@ public final class ModelPropertiesImpl {
     public Response<Void> sameAsModelWithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         return service.sameAsModelSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The dictMethods operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     keys: String (Required)
+     *     items: String (Required)
+     *     values: String (Required)
+     *     popitem: String (Required)
+     *     clear: String (Required)
+     *     update: String (Required)
+     *     setdefault: String (Required)
+     *     pop: String (Required)
+     *     get: String (Required)
+     *     copy: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> dictMethodsWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(
+            context -> service.dictMethods(this.client.getEndpoint(), contentType, body, requestOptions, context));
+    }
+
+    /**
+     * The dictMethods operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     keys: String (Required)
+     *     items: String (Required)
+     *     values: String (Required)
+     *     popitem: String (Required)
+     *     clear: String (Required)
+     *     update: String (Required)
+     *     setdefault: String (Required)
+     *     pop: String (Required)
+     *     get: String (Required)
+     *     copy: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> dictMethodsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.dictMethodsSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The withList operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     list: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> withListWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(
+            context -> service.withList(this.client.getEndpoint(), contentType, body, requestOptions, context));
+    }
+
+    /**
+     * The withList operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     list: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withListWithResponse(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.withListSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 }

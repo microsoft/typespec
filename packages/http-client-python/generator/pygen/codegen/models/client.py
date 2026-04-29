@@ -247,7 +247,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
 
     def imports(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         if self.code_model.options["azure-arm"]:
             file_import.add_submodule_import("azure.mgmt.core", self.pipeline_class(async_mode), ImportType.SDKCORE)
         else:
@@ -291,11 +291,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                 ImportType.SDKCORE,
             )
 
-        # import for "Self"
+        # import for "Self" (typing.Self available from Python 3.11+)
         file_import.add_submodule_import(
             "typing_extensions",
             "Self",
             ImportType.STDLIB,
+            version_modules=(((3, 11), "typing", None),),
         )
         if self.need_cloud_setting:
             file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
@@ -307,20 +308,20 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                 "rest",
                 "AsyncHttpResponse",
                 ImportType.SDKCORE,
-                TypingSection.CONDITIONAL,
+                TypingSection.REGULAR,
             )
         else:
             file_import.add_submodule_import(
                 "rest",
                 "HttpResponse",
                 ImportType.SDKCORE,
-                TypingSection.CONDITIONAL,
+                TypingSection.REGULAR,
             )
         file_import.add_submodule_import(
             "rest",
             "HttpRequest",
             ImportType.SDKCORE,
-            TypingSection.CONDITIONAL,
+            TypingSection.REGULAR,
         )
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
@@ -401,7 +402,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             "policies",
             ImportType.SDKCORE,
         )
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         if self.code_model.options.get("package-version"):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(

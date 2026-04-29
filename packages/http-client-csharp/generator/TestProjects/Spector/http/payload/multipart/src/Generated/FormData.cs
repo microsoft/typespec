@@ -2,9 +2,11 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
+using Payload.MultiPart._FormData.File;
 using Payload.MultiPart._FormData.HttpParts;
 
 namespace Payload.MultiPart._FormData
@@ -13,11 +15,21 @@ namespace Payload.MultiPart._FormData
     {
         protected FormData() => throw null;
 
+        internal FormData(ClientPipeline pipeline, Uri endpoint) => throw null;
+
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Basic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult WithWireName(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> WithWireNameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult OptionalParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> OptionalPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
@@ -44,5 +56,7 @@ namespace Payload.MultiPart._FormData
         public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
+
+        public virtual FormDataFile GetFormDataFileClient() => throw null;
     }
 }
