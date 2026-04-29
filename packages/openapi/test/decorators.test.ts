@@ -535,7 +535,7 @@ describe("openapi: decorators", () => {
         }
       `);
       expectDiagnostics(diagnostics, [
-        { code: "@typespec/openapi/default-response-with-status-code", message: /\@error/ },
+        { code: "@typespec/openapi/default-response-with-status-code", message: /@error/ },
       ]);
     });
 
