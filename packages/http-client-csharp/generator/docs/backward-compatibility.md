@@ -817,15 +817,32 @@ Current TypeSpec adds an optional query parameter `p2`:
 op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): string;
 ```
 
-**Generated Compatibility Methods:**
+**Generated Client:**
 
 ```csharp
+// Current method generated from the updated TypeSpec — includes the new optional `p2` parameter.
+public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat overload matching the previous contract's signature. Hidden from IntelliSense and
+// delegates to the current method, passing `default` for the new `p2` parameter. Default values
+// are stripped from this signature to avoid ambiguous call sites with the current method above.
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
 {
     return this.GetData(p1, body, default, options);
 }
 
+// Current async method generated from the updated TypeSpec — includes the new optional `p2` parameter.
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat async overload matching the previous contract's signature. Hidden from IntelliSense
+// and delegates to the current async method without `await` so this method itself is non-async.
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
 {
