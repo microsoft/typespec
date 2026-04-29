@@ -114,7 +114,9 @@ describe("Init templates e2e tests", () => {
     it("rest", () => scaffoldTemplateSnapshot("rest"));
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
     it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
-    it("validate rest template", async () => {
+    it.skip("validate rest template", async () => {
+      // TODO: Re-enable after release that includes `kind: project` support.
+      // The e2e test uses the published compiler which doesn't yet understand `kind`.
       const fixture = await scaffoldTemplateForTest("rest");
       await fixture.checkCommand("npm", ["install"]);
       await fixture.checkCommand("npx", ["tsp", "compile", "."]);
