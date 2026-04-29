@@ -492,18 +492,30 @@ export function printDecorators(
   options: object,
   print: PrettierChildPrint,
   { tryInline }: { tryInline: boolean },
-): { decorators: Doc; multiline: boolean } {
+): { decorators: Doc; multiline: boolean; wrappedInGroup: boolean } {
   const node = path.node;
   if (node.decorators.length === 0) {
-    return { decorators: "", multiline: false };
+    return { decorators: "", multiline: false, wrappedInGroup: false };
   }
 
   const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
+  if (shouldBreak) {
+    return {
+      decorators: group([breakParent, decorators]),
+      multiline: true,
+      wrappedInGroup: true,
+    };
+  }
+
+  // When tryInline and not forced to break, don't wrap in a group.
+  // The caller should wrap the entire statement in a group so that
+  // decorators break to separate lines when the total line is too long.
   return {
-    decorators: group([shouldBreak ? breakParent : "", decorators]),
-    multiline: shouldBreak,
+    decorators: decorators,
+    multiline: false,
+    wrappedInGroup: false,
   };
 }
 
@@ -565,7 +577,7 @@ function printAugmentDecoratorArgs(
     group([
       indent(
         join(", ", [
-          path.call(print, "targetType"),
+          [softline, path.call(print, "targetType")],
           ...path.map((arg) => [softline, print(arg)], "arguments"),
         ]),
       ),
@@ -719,10 +731,11 @@ export function printEnumMember(
   const node = path.node;
   const id = printIdentifier(node.id, "allow-reserved");
   const value = node.value ? [": ", path.call(print, "value")] : "";
-  const { decorators } = printDecorators(path, options, print, {
+  const { decorators, wrappedInGroup } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
   });
-  return [decorators, id, value];
+  const content = [decorators, id, value];
+  return wrappedInGroup ? content : group(content);
 }
 
 function printEnumSpreadMember(
@@ -773,10 +786,11 @@ export function printUnionVariant(
 ) {
   const id =
     path.node.id === undefined ? "" : [printIdentifier(path.node.id, "allow-reserved"), ": "];
-  const { decorators } = printDecorators(path, options, print, {
+  const { decorators, wrappedInGroup } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
-  return [decorators, id, path.call(print, "value")];
+  const content = [decorators, id, path.call(print, "value")];
+  return wrappedInGroup ? content : group(content);
 }
 
 export function printInterfaceStatement(
@@ -1199,11 +1213,16 @@ export function printModelProperty(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
-    tryInline: DecoratorsTryInline.modelProperty,
-  });
+  const { decorators, wrappedInGroup } = printDecorators(
+    path as AstPath<DecorableNode>,
+    options,
+    print,
+    {
+      tryInline: DecoratorsTryInline.modelProperty,
+    },
+  );
   const id = printIdentifier(node.id, "allow-reserved");
-  return [
+  const content = [
     printDirectives(path, options, print),
     decorators,
     id,
@@ -1211,6 +1230,9 @@ export function printModelProperty(
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
   ];
+
+  // Wrap in a group so decorators break to separate lines when the total line is too long
+  return wrappedInGroup ? content : group(content);
 }
 
 function printIdentifier(
@@ -1341,11 +1363,16 @@ export function printOperationStatement(
 ) {
   const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
   const templateParams = printTemplateParameters(path, options, print, "templateParameters");
-  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
-    tryInline: true,
-  });
+  const { decorators, wrappedInGroup } = printDecorators(
+    path as AstPath<DecorableNode>,
+    options,
+    print,
+    {
+      tryInline: true,
+    },
+  );
 
-  return [
+  const content = [
     decorators,
     printModifiers(path, options, print),
     inInterface ? "" : "op ",
@@ -1354,6 +1381,9 @@ export function printOperationStatement(
     path.call(print, "signature"),
     `;`,
   ];
+
+  // Wrap in a group so decorators break to separate lines when the total line is too long
+  return wrappedInGroup ? content : group(content);
 }
 
 export function printStatementSequence<T extends Node>(

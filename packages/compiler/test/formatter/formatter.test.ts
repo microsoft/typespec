@@ -2459,6 +2459,22 @@ namespace Foo {
       `,
       });
     });
+    it("split decorator first if line is long with multiple decorators", async () => {
+      await assertFormat({
+        code: `
+namespace Foo {
+  @route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
+}
+      `,
+        expected: `
+namespace Foo {
+  @route("/channel/with-terminal")
+  @get
+  op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
+}
+      `,
+      });
+    });
   });
 
   describe("augment decorators", () => {
@@ -2483,10 +2499,23 @@ namespace Foo {
 @@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
       `,
         expected: `
-@@doc(Foo,
+@@doc(
+  Foo,
   "This is getting very very very long 1",
   "This is getting very very very long 2",
   "This is getting very very very long 3"
+);
+      `,
+      });
+    });
+    it("break arguments per lines when decorator name is very long", async () => {
+      await assertFormat({
+        code: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(subscribe1);
+      `,
+        expected: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(
+  subscribe1
 );
       `,
       });
