@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -335,25 +334,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
-        public void ValidatePartialMethodIsDetected()
+        public async Task ValidatePartialMethodIsDetected()
         {
-            const string source = @"
-namespace Sample
-{
-    public partial class WithPartial
-    {
-        public partial void DoIt(int value);
-        public void NonPartial(int value) { }
-    }
-}";
-            var syntaxTree = CSharpSyntaxTree.ParseText(source);
-            var compilation = CSharpCompilation.Create(
-                assemblyName: "PartialTest",
-                syntaxTrees: [syntaxTree],
-                references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
 
-            MockHelpers.LoadMockGenerator();
-            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
             var provider = new NamedTypeSymbolProvider(symbol, compilation);
 
             var partial = provider.Methods.Single(m => m.Signature.Name == "DoIt");
@@ -366,26 +354,16 @@ namespace Sample
         }
 
         [Test]
-        public void ValidatePartialMethodWithBodyIsNotDetectedAsPartialDeclaration()
+        public async Task ValidatePartialMethodWithBodyIsNotDetectedAsPartialDeclaration()
         {
             // A partial method *with* a body is the implementation half - not the declaration we
             // want to treat as a customization signal.
-            const string source = @"
-namespace Sample
-{
-    public partial class WithPartial
-    {
-        public partial void DoIt(int value) { /* body */ }
-    }
-}";
-            var syntaxTree = CSharpSyntaxTree.ParseText(source);
-            var compilation = CSharpCompilation.Create(
-                assemblyName: "PartialImplTest",
-                syntaxTrees: [syntaxTree],
-                references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
 
-            MockHelpers.LoadMockGenerator();
-            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
             var provider = new NamedTypeSymbolProvider(symbol, compilation);
 
             var doIt = provider.Methods.Single(m => m.Signature.Name == "DoIt");
