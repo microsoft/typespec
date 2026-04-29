@@ -119,7 +119,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] signatureParameters = [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.
-            var customSignature = FindPartialMethodSignature(client, methodName, signatureParameters);
+            MethodSignature? customSignature = null;
+            PartialMethodCustomization.TryFindCustomSignature(client, methodName, signatureParameters, out customSignature);
             bool isPartialMethod = false;
 
             // Parameters used to construct the method body. When customizing, we clone the generator's
@@ -133,11 +134,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 isPartialMethod = true;
 
-                var renamedSignatureParameters = new ParameterProvider[signatureParameters.Length];
-                for (int i = 0; i < signatureParameters.Length; i++)
-                {
-                    renamedSignatureParameters[i] = CloneParameterWithName(signatureParameters[i], customSignature.Parameters[i].Name, removeDefault: true);
-                }
+                var renamedSignatureParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                    signatureParameters,
+                    customSignature.Parameters,
+                    removeDefaults: true);
 
                 // The generator-controlled body params are the leading parameters (everything except the trailing CancellationToken).
                 convenienceBodyParameters = new ParameterProvider[ConvenienceMethodParameters.Count];
@@ -146,18 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     convenienceBodyParameters[i] = renamedSignatureParameters[i];
                 }
 
-                methodSignature = new MethodSignature(
-                    customSignature.Name,
-                    customSignature.Description,
-                    customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                    customSignature.ReturnType,
-                    customSignature.ReturnDescription,
-                    renamedSignatureParameters,
-                    customSignature.Attributes,
-                    customSignature.GenericArguments,
-                    customSignature.GenericParameterConstraints,
-                    customSignature.ExplicitInterface,
-                    customSignature.NonDocumentComment);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
             }
             else
             {
@@ -230,39 +219,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
-        }
-
-        // Clones a ParameterProvider with a new name while preserving all generator metadata
-        // (Location, WireInfo, SpreadSource, InputParameter, etc.). Used when applying a user's
-        // partial method declaration so that body construction (which references the parameters
-        // by their providers) emits code referring to the customer-chosen names.
-        private static ParameterProvider CloneParameterWithName(ParameterProvider source, string newName, bool removeDefault)
-        {
-            if (source.Name == newName && !(removeDefault && source.DefaultValue != null))
-            {
-                return source;
-            }
-
-            return new ParameterProvider(
-                newName,
-                source.Description,
-                source.Type,
-                defaultValue: removeDefault ? null : source.DefaultValue,
-                isRef: source.IsRef,
-                isOut: source.IsOut,
-                isIn: source.IsIn,
-                isParams: source.IsParams,
-                attributes: source.Attributes,
-                property: source.Property,
-                field: source.Field,
-                initializationValue: source.InitializationValue,
-                location: source.Location,
-                wireInfo: source.WireInfo,
-                validation: source.Validation,
-                inputParameter: source.InputParameter)
-            {
-                SpreadSource = source.SpreadSource,
-            };
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
@@ -1026,7 +982,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Detect a partial method declaration in the client's custom code matching this protocol method.
             // When found, we use the customized signature (modifiers, name, parameter names) and emit the
             // generated body using the customized parameter references.
-            var customSignature = FindPartialMethodSignature(client, methodName, parameters);
+            MethodSignature? customSignature = null;
+            PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
             bool isPartialMethod = false;
 
             MethodSignature methodSignature;
@@ -1037,30 +994,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 isPartialMethod = true;
 
                 // Partial methods cannot have optional parameters in the implementation.
-                var requiredCustomParameters = customSignature.Parameters
-                    .Select(p => p.DefaultValue != null
-                        ? new ParameterProvider(p.Name, p.Description, p.Type, defaultValue: null,
-                            isRef: p.IsRef, isOut: p.IsOut, isIn: p.IsIn, isParams: p.IsParams,
-                            attributes: p.Attributes, property: p.Property)
-                        {
-                            Validation = p.Validation,
-                            Field = p.Field,
-                        }
-                        : p)
-                    .ToArray();
+                var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                    customSignature.Parameters,
+                    customSignature.Parameters,
+                    removeDefaults: true).ToArray();
 
-                methodSignature = new MethodSignature(
-                    customSignature.Name,
-                    customSignature.Description,
-                    customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                    customSignature.ReturnType,
-                    customSignature.ReturnDescription,
-                    requiredCustomParameters,
-                    customSignature.Attributes,
-                    customSignature.GenericArguments,
-                    customSignature.GenericParameterConstraints,
-                    customSignature.ExplicitInterface,
-                    customSignature.NonDocumentComment);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
 
                 bodyParameters = requiredCustomParameters;
                 // Re-resolve the request options parameter from the customized parameter list so the
@@ -1122,59 +1061,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
-        }
-
-        private MethodSignature? FindPartialMethodSignature(ClientProvider client, string methodName, IReadOnlyList<ParameterProvider> parameters)
-        {
-            var customMethods = client.CustomCodeView?.Methods;
-            if (customMethods == null || customMethods.Count == 0)
-            {
-                return null;
-            }
-
-            foreach (var customMethod in customMethods)
-            {
-                if (!customMethod.IsPartialMethod)
-                {
-                    continue;
-                }
-
-                var customSignature = customMethod.Signature;
-                if (customSignature.Name != methodName || customSignature.Parameters.Count != parameters.Count)
-                {
-                    continue;
-                }
-
-                bool match = true;
-                for (int i = 0; i < parameters.Count; i++)
-                {
-                    if (!IsTypeNameMatch(customSignature.Parameters[i].Type, parameters[i].Type))
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-
-                if (match)
-                {
-                    return customSignature;
-                }
-            }
-
-            return null;
-        }
-
-        private static bool IsTypeNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
-        {
-            // The namespace may not be available for generated types referenced from customization as they
-            // are not yet generated, so Roslyn will not have the namespace information.
-            if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
-            {
-                return typeFromCustomization.Name == generatedType.Name;
-            }
-
-            return typeFromCustomization.Namespace == generatedType.Namespace
-                && typeFromCustomization.Name == generatedType.Name;
         }
 
         private ParameterProvider ProcessOptionalParameters(

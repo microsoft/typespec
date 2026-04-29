@@ -364,30 +364,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
         {
             // Partial method implementations require all parameters to be required (no default values).
-            var requiredParameters = customSignature.Parameters
-                .Select(p => p.DefaultValue != null
-                    ? new ParameterProvider(p.Name, p.Description, p.Type, defaultValue: null,
-                        isRef: p.IsRef, isOut: p.IsOut, isIn: p.IsIn, isParams: p.IsParams,
-                        attributes: p.Attributes, property: p.Property)
-                    {
-                        Validation = p.Validation,
-                        Field = p.Field,
-                    }
-                    : p)
-                .ToList();
+            var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                customSignature.Parameters,
+                customSignature.Parameters,
+                removeDefaults: true);
 
-            var partialSignature = new MethodSignature(
-                customSignature.Name,
-                customSignature.Description,
-                customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                customSignature.ReturnType,
-                customSignature.ReturnDescription,
-                requiredParameters,
-                customSignature.Attributes,
-                customSignature.GenericArguments,
-                customSignature.GenericParameterConstraints,
-                customSignature.ExplicitInterface,
-                customSignature.NonDocumentComment);
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
 
             MethodProvider partialMethod = generatedMethod.BodyExpression != null
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)
