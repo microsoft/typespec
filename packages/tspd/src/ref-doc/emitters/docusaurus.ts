@@ -1,5 +1,6 @@
 import {
   DeprecationNotice,
+  LinterRuleRefDoc,
   NamedTypeRefDoc,
   RefDocEntity,
   TypeSpecLibraryRefDoc,
@@ -286,22 +287,8 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     }
   }
 
-  linterRuleLink(url: string) {
-    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
-    if (homepage && url.includes(homepage)) {
-      // The linter.md page is generated inside the package's `reference/`
-      // folder. Derive the rule's sibling folder and slug from the URL's
-      // last two path segments (so we don't hardcode the folder name) and
-      // emit a relative `.md` link which Docusaurus rewrites into a proper
-      // site link.
-      const segments = new URL(url).pathname.split("/").filter(Boolean);
-      const folder = segments.at(-2);
-      const name = segments.at(-1);
-      if (folder && name) {
-        return `../${folder}/${name}.md`;
-      }
-    }
-    return url;
+  linterRuleLink(rule: LinterRuleRefDoc) {
+    return `../rules/${rule.rule.name}.md`;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
