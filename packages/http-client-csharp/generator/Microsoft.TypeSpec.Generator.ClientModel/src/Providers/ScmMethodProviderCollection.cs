@@ -110,31 +110,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
-            if (EnclosingType is not ClientProvider)
+            if (EnclosingType is not ClientProvider client)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodSignature = new MethodSignature(
-                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
-                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                protocolMethod.Signature.Modifiers,
-                GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
-                null,
-                [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
+            var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
+            ParameterProvider[] signatureParameters = [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken];
+
+            // Detect a partial method declaration in the client's custom code matching this convenience method.
+            var customSignature = FindPartialMethodSignature(client, methodName, signatureParameters);
+            bool isPartialMethod = false;
+
+            // Parameters used to construct the method body. When customizing, we clone the generator's
+            // parameter providers with the customer's names but keep all generator metadata so that the
+            // body construction (param conversions, request invocation, etc.) still works.
+            ParameterProvider[] convenienceBodyParameters = [.. ConvenienceMethodParameters];
+
+            MethodSignature methodSignature;
+
+            if (customSignature != null)
+            {
+                isPartialMethod = true;
+
+                var renamedSignatureParameters = new ParameterProvider[signatureParameters.Length];
+                for (int i = 0; i < signatureParameters.Length; i++)
+                {
+                    renamedSignatureParameters[i] = CloneParameterWithName(signatureParameters[i], customSignature.Parameters[i].Name, removeDefault: true);
+                }
+
+                // The generator-controlled body params are the leading parameters (everything except the trailing CancellationToken).
+                convenienceBodyParameters = new ParameterProvider[ConvenienceMethodParameters.Count];
+                for (int i = 0; i < ConvenienceMethodParameters.Count; i++)
+                {
+                    convenienceBodyParameters[i] = renamedSignatureParameters[i];
+                }
+
+                methodSignature = new MethodSignature(
+                    customSignature.Name,
+                    customSignature.Description,
+                    customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                    customSignature.ReturnType,
+                    customSignature.ReturnDescription,
+                    renamedSignatureParameters,
+                    customSignature.Attributes,
+                    customSignature.GenericArguments,
+                    customSignature.GenericParameterConstraints,
+                    customSignature.ExplicitInterface,
+                    customSignature.NonDocumentComment);
+            }
+            else
+            {
+                methodSignature = new MethodSignature(
+                    methodName,
+                    DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                    protocolMethod.Signature.Modifiers,
+                    GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
+                    null,
+                    signatureParameters);
+            }
+
+            // Recompute the response body type so we can branch the body accordingly.
+            GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
+                methodBody = [.. GetPagingMethodBody(collection, convenienceBodyParameters, true)];
             }
             else if (responseBodyType is null)
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
                     Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync))
                 ];
             }
@@ -142,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
@@ -167,6 +217,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
 
+            if (isPartialMethod)
+            {
+                convenienceMethod.IsPartialMethod = true;
+            }
+
             if (convenienceMethod.XmlDocs != null)
             {
                 var exceptions = new List<XmlDocExceptionStatement>(convenienceMethod.XmlDocs.Exceptions);
@@ -175,6 +230,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
+        }
+
+        // Clones a ParameterProvider with a new name while preserving all generator metadata
+        // (Location, WireInfo, SpreadSource, InputParameter, etc.). Used when applying a user's
+        // partial method declaration so that body construction (which references the parameters
+        // by their providers) emits code referring to the customer-chosen names.
+        private static ParameterProvider CloneParameterWithName(ParameterProvider source, string newName, bool removeDefault)
+        {
+            if (source.Name == newName && !(removeDefault && source.DefaultValue != null))
+            {
+                return source;
+            }
+
+            return new ParameterProvider(
+                newName,
+                source.Description,
+                source.Type,
+                defaultValue: removeDefault ? null : source.DefaultValue,
+                isRef: source.IsRef,
+                isOut: source.IsOut,
+                isIn: source.IsIn,
+                isParams: source.IsParams,
+                attributes: source.Attributes,
+                property: source.Property,
+                field: source.Field,
+                initializationValue: source.InitializationValue,
+                location: source.Location,
+                wireInfo: source.WireInfo,
+                validation: source.Validation,
+                inputParameter: source.InputParameter)
+            {
+                SpreadSource = source.SpreadSource,
+            };
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
