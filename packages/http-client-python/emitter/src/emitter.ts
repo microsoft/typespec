@@ -346,7 +346,7 @@ async function setupPyodideCallBrowser() {
   pyodide.FS.mkdirTree("/generator");
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
-  await micropip.install("/pygen-0.1.0-py3-none-any.whl");
+  await micropip.install(getBrowserPygenWheelUrl());
 
   return pyodide;
 }
