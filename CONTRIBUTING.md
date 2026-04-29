@@ -4,7 +4,7 @@ This section goes over the setup of the repo for development.
 
 ## Repo setup
 
-- Install [Node.js](https://nodejs.org/) 20 LTS
+- Install [Node.js](https://nodejs.org/) 24 LTS
 - Install [pnpm](https://pnpm.io/)
 
 ```bash

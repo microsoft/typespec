@@ -9,12 +9,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -389,8 +391,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            return LastContractView.Properties.Any(p =>
+            bool needsBackCompat = LastContractView.Properties.Any(p =>
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
+
+            if (needsBackCompat)
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Preserved 'AdditionalProperties' property shape on model '{Name}' to match last contract.",
+                    BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved);
+            }
+
+            return needsBackCompat;
         }
     }
 }

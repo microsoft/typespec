@@ -1,6 +1,5 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
-import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
@@ -26,6 +25,7 @@ export interface ExportData {
   default?: string;
   import?: string;
   types?: string;
+  typespec?: string;
 }
 
 export interface TypeSpecBundle {
@@ -60,7 +60,7 @@ interface PackageJson {
   tspMain?: string;
   peerDependencies: string[];
   dependencies: string[];
-  exports?: Record<string, string>;
+  exports?: Record<string, string | ExportData>;
 }
 
 export interface CreateTypeSpecBundleOptions {
@@ -183,6 +183,25 @@ async function createEsBuildContext(
     typespecFiles[filename] = sourceFile.file.text;
   }
 
+  // Also compile sub-exports with typespec entry points to include their source files
+  for (const [, value] of Object.entries(definition.exports)) {
+    const typespecEntry = typeof value === "object" ? value.typespec : undefined;
+    if (typespecEntry) {
+      const subEntryPoint = resolvePath(libraryPath, typespecEntry);
+      const subProgram = await compile(NodeHost, subEntryPoint, {
+        noEmit: true,
+      });
+      for (const file of subProgram.jsSourceFiles.keys()) {
+        if (file.startsWith(libraryPath)) {
+          jsFiles.add(file);
+        }
+      }
+      for (const [filename, sourceFile] of subProgram.sourceFiles) {
+        typespecFiles[filename] = sourceFile.file.text;
+      }
+    }
+  }
+
   const content = createBundleEntrypoint({
     libraryPath,
     mainFile: definition.main,
@@ -257,12 +276,8 @@ async function createEsBuildContext(
     format: "esm",
     target: "es2024",
     minify,
-    plugins: [
-      virtualPlugin,
-      alloySingletonPlugin,
-      nodeModulesPolyfillPlugin({ globals: { process: true } }),
-      ...plugins,
-    ],
+    keepNames: minify,
+    plugins: [virtualPlugin, alloySingletonPlugin, ...plugins],
   });
 }
 

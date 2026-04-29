@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -20,7 +19,6 @@ namespace Sample
             }
 
             global::System.Collections.Generic.IList<string> colors = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -35,7 +33,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel((colors ?? new global::Sample.ChangeTrackingList<string>()), additionalBinaryDataProperties);
+            return new global::Sample.Models.TestXmlModel((colors ?? new global::Sample.ChangeTrackingList<string>()));
         }
     }
 }

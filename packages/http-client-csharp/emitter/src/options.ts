@@ -18,6 +18,7 @@ export interface CSharpEmitterOptions {
   "disable-xml-docs"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
+  plugins?: string[];
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
@@ -112,6 +113,14 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
+    },
+    plugins: {
+      type: "array",
+      items: { type: "string" },
+      nullable: true,
+      description:
+        "Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. " +
+        "Each plugin must contain a class that extends GeneratorPlugin.",
     },
     license: {
       type: "object",

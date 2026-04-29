@@ -403,6 +403,9 @@ export function getXmlSerializationFormat(
     attribute: type.serializationOptions.xml.attribute ?? false,
     wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
     text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
+    itemsName: type.serializationOptions.xml.itemsName ?? undefined,
+    itemsNamespace: type.serializationOptions.xml.itemsNs?.namespace ?? undefined,
+    itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix ?? undefined,
   };
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spec-api",
-  "version": "0.1.0-alpha.13",
+  "version": "0.1.0-alpha.14",
   "description": "Spec api to implement mock api",
   "type": "module",
   "exports": {
@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -28,16 +28,13 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "deep-equal": "catalog:",
     "express": "catalog:",
-    "xml2js": "catalog:"
+    "fast-xml-parser": "catalog:"
   },
   "devDependencies": {
-    "@types/deep-equal": "catalog:",
     "@types/express": "catalog:",
     "@types/multer": "catalog:",
     "@types/node": "catalog:",
-    "@types/xml2js": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "rimraf": "catalog:",

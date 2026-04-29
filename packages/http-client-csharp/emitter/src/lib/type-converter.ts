@@ -329,7 +329,9 @@ function createEnumType(
     values: values,
     // constantType.access, TODO - constant type now does not have access. TCGC will add it later
     access:
-      sdkType.kind === "enum" ? getAccessOverride(sdkContext, sdkType.__raw as any) : undefined,
+      sdkType.kind === "enum" && sdkType.__raw
+        ? getAccessOverride(sdkContext, sdkType.__raw as any)
+        : undefined,
     namespace: namespace,
     deprecation: sdkType.deprecation,
     summary: sdkType.summary,

@@ -122,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Name,
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"),
-                        initializationValue: GetFieldInitializer(fieldSymbol))
+                        initializationValue: GetFieldInitializer(fieldSymbol),
+                        attributes: fieldSymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -146,7 +147,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
-                    this)
+                    this,
+                    attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol

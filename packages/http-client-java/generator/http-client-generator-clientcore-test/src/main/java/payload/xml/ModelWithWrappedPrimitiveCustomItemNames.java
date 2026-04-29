@@ -59,7 +59,7 @@ public final class ModelWithWrappedPrimitiveCustomItemNames
         if (this.tags != null) {
             xmlWriter.writeStartElement("ItemsTags");
             for (String element : this.tags) {
-                xmlWriter.writeStringElement("string", element);
+                xmlWriter.writeStringElement("ItemName", element);
             }
             xmlWriter.writeEndElement();
         }
@@ -105,7 +105,7 @@ public final class ModelWithWrappedPrimitiveCustomItemNames
                 if ("ItemsTags".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         elementName = reader.getElementName();
-                        if ("string".equals(elementName.getLocalPart())) {
+                        if ("ItemName".equals(elementName.getLocalPart())) {
                             if (tags == null) {
                                 tags = new ArrayList<>();
                             }

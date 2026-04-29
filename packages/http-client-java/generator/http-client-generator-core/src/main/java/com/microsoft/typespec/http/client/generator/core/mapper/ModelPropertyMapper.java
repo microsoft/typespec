@@ -194,11 +194,17 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         Schema autoRestPropertyModelType = property.getSchema();
         if (autoRestPropertyModelType instanceof ArraySchema) {
             ArraySchema sequence = (ArraySchema) autoRestPropertyModelType;
-            if (property.getSerialization() != null && !isXmlWrapper) {
+            if (property.getSerialization() != null) {
                 // TypeSpec sets "serialization" to property
-                builder.xmlListElementName(property.getSerialization().getXml().getName());
-                builder.xmlListElementNamespace(property.getSerialization().getXml().getNamespace());
-                builder.xmlListElementPrefix(property.getSerialization().getXml().getPrefix());
+                if (isXmlWrapper) {
+                    builder.xmlListElementName(property.getSerialization().getXml().getItemsName());
+                    builder.xmlListElementNamespace(property.getSerialization().getXml().getItemsNamespace());
+                    builder.xmlListElementPrefix(property.getSerialization().getXml().getItemsPrefix());
+                } else {
+                    builder.xmlListElementName(property.getSerialization().getXml().getName());
+                    builder.xmlListElementNamespace(property.getSerialization().getXml().getNamespace());
+                    builder.xmlListElementPrefix(property.getSerialization().getXml().getPrefix());
+                }
             } else if (sequence.getElementType().getSerialization() != null
                 && sequence.getElementType().getSerialization().getXml() != null
                 && sequence.getElementType().getSerialization().getXml().getName() != null) {

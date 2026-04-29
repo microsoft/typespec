@@ -11,7 +11,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ### Prerequisites and Installation
 
-- Install Node.js 20 LTS: `curl -fsSL https://nodejs.org/dist/v20.19.4/node-v20.19.4-linux-x64.tar.xz | tar -xJ --strip-components=1 -C /usr/local`
+- Install Node.js LTS:
 - Install pnpm globally: `npm install -g pnpm`
 - Install dependencies: `pnpm install` (takes ~1.5 minutes)
 - Install Playwright browsers (optional for UI testing): `npx playwright install`
