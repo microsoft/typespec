@@ -1949,10 +1949,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Delegate to the current method without async/await: returning the Task directly is
-            // sufficient and avoids state-machine overhead. We construct InvokeMethodExpression
-            // directly so CallAsAsync stays false even when the current async method's signature
-            // carries the Async modifier.
-            var invocation = new InvokeMethodExpression(This, currentSignature, arguments);
+            // sufficient and avoids state-machine overhead. We use the name-based Invoke overload so
+            // CallAsAsync stays false even when the current async method's signature carries the
+            // Async modifier (the MethodSignature-based overloads auto-set CallAsAsync).
+            var invocation = This.Invoke(currentSignature.Name, arguments);
 
             MethodBodyStatement body = previousSignature.ReturnType is null
                 ? invocation.Terminate()
