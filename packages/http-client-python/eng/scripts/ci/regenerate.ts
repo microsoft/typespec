@@ -8,7 +8,8 @@
 
 import { compile, NodeHost } from "@typespec/compiler";
 import { execSync } from "child_process";
-import { existsSync, promises, readdirSync, rmSync } from "fs";
+import { existsSync, rmSync } from "fs";
+import { access, mkdir, readdir, writeFile } from "fs/promises";
 import { platform } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
@@ -391,7 +392,7 @@ async function getSubdirectories(
   const subdirectories: string[] = [];
 
   async function searchDir(currentDir: string) {
-    const items = await promises.readdir(currentDir, { withFileTypes: true });
+    const items = await readdir(currentDir, { withFileTypes: true });
 
     const promisesArray = items.map(async (item) => {
       const subDirPath = join(currentDir, item.name);
@@ -466,8 +467,8 @@ async function preprocess(flavor: string, generatedFolder: string): Promise<void
     await Promise.all(
       entries.map(async ({ folder, file, content }) => {
         const targetFolder = join(testsGeneratedDir, ...folder);
-        await promises.mkdir(targetFolder, { recursive: true });
-        await promises.writeFile(join(targetFolder, file), content);
+        await mkdir(targetFolder, { recursive: true });
+        await writeFile(join(targetFolder, file), content);
       }),
     );
   }
@@ -691,16 +692,19 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
   return results;
 }
 
-function collectConfigFiles(generatedDir: string, flavor: string): string[] {
+async function collectConfigFiles(generatedDir: string, flavor: string): Promise<string[]> {
   const flavorDir = join(generatedDir, "..", "tests", "generated", flavor);
-  if (!existsSync(flavorDir)) return [];
+  try {
+    await access(flavorDir);
+  } catch {
+    return [];
+  }
 
   const configFiles: string[] = [];
-  for (const pkg of readdirSync(flavorDir, { withFileTypes: true })) {
+  for (const pkg of await readdir(flavorDir, { withFileTypes: true })) {
     if (pkg.isDirectory()) {
       const pkgDir = join(flavorDir, pkg.name);
-      // Find all .tsp-codegen-*.json files (supports multiple configs per output dir)
-      for (const file of readdirSync(pkgDir)) {
+      for (const file of await readdir(pkgDir)) {
         if (file.startsWith(".tsp-codegen-") && file.endsWith(".json")) {
           configFiles.push(join(pkgDir, file));
         }
@@ -792,7 +796,7 @@ async function regenerateFlavor(
 
   // Batch process all specs with Python
   const pyStartTime = performance.now();
-  const configCount = collectConfigFiles(GENERATED_FOLDER, flavor).length;
+  const configCount = (await collectConfigFiles(GENERATED_FOLDER, flavor)).length;
   // Use fewer Python jobs since Python processing is heavier
   const pyJobs = Math.max(4, jobs);
   const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
