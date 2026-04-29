@@ -145,22 +145,24 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
 }
 
 const placeholderConfig = `
-# extends: ../tspconfig.yaml                    # Extend another config file
-# emit:                                         # Emitter name
+kind: project                                    # Marks this as a TypeSpec project
+# entrypoint: main.tsp                           # Main TypeSpec file (default: main.tsp)
+# extends: ../tspconfig.yaml                     # Extend another config file
+# emit:                                          # Emitter name
 #   - "<emitter-name"
-# options:                                      # Emitter options
+# options:                                       # Emitter options
 #   <emitter-name>:
 #    "<option-name>": "<option-value>"
-# environment-variables:                        # Environment variables which can be used to interpolate emitter options
+# environment-variables:                         # Environment variables which can be used to interpolate emitter options
 #   <variable-name>:
 #     default: "<variable-default>"
-# parameters:                                   # Parameters which can be used to interpolate emitter options
+# parameters:                                    # Parameters which can be used to interpolate emitter options
 #   <param-name>:
 #     default: "<param-default>"
-# trace:                                        # Trace areas to enable tracing
+# trace:                                         # Trace areas to enable tracing
 #  - "<trace-name>"
-# warn-as-error: true                           # Treat warnings as errors
-# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
+# warn-as-error: true                            # Treat warnings as errors
+# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters
 `.trim();
 async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {

@@ -132,6 +132,27 @@ describe("compiler: config file loading", () => {
         emit: ["openapi"],
       });
     });
+
+    it("loads config with kind: project", async () => {
+      const config = await loadTestConfig("project-basic");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
+        emit: ["openapi"],
+      });
+    });
+
+    it("loads config with kind: project and entrypoint", async () => {
+      const config = await loadTestConfig("project-entrypoint");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
+        entrypoint: "src/service.tsp",
+        emit: ["openapi"],
+      });
+    });
   });
 
   describe("validation", () => {
@@ -167,6 +188,26 @@ describe("compiler: config file loading", () => {
 
     it("succeeds if config is valid", () => {
       deepStrictEqual(validate({ options: { openapi: {} } }), []);
+    });
+
+    it("succeeds with kind: project", () => {
+      deepStrictEqual(validate({ kind: "project" }), []);
+    });
+
+    it("succeeds with kind: project and entrypoint", () => {
+      deepStrictEqual(validate({ kind: "project", entrypoint: "src/service.tsp" }), []);
+    });
+
+    it("fails with invalid kind value", () => {
+      const diagnostics = validate({ kind: "invalid" } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
+
+    it("fails with non-string entrypoint", () => {
+      const diagnostics = validate({ entrypoint: 123 } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
     });
   });
 });

@@ -187,6 +187,8 @@ async function loadConfigFile(
     filename,
     diagnostics,
     extends: data.extends,
+    kind: data.kind,
+    entrypoint: data.entrypoint,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",
