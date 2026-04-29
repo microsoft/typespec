@@ -933,21 +933,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
+            var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
 
-            var methodSignature = new MethodSignature(
-                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
-                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifiers,
-                GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
-                $"The response returned from the service.",
-                parameters);
+            // Detect a partial method declaration in the client's custom code matching this protocol method.
+            // When found, we use the customized signature (modifiers, name, parameter names) and emit the
+            // generated body using the customized parameter references.
+            var customSignature = FindPartialMethodSignature(client, methodName, parameters);
+            bool isPartialMethod = false;
+
+            MethodSignature methodSignature;
+            ParameterProvider[] bodyParameters;
+
+            if (customSignature != null)
+            {
+                isPartialMethod = true;
+
+                // Partial methods cannot have optional parameters in the implementation.
+                var requiredCustomParameters = customSignature.Parameters
+                    .Select(p => p.DefaultValue != null
+                        ? new ParameterProvider(p.Name, p.Description, p.Type, defaultValue: null,
+                            isRef: p.IsRef, isOut: p.IsOut, isIn: p.IsIn, isParams: p.IsParams,
+                            attributes: p.Attributes, property: p.Property)
+                        {
+                            Validation = p.Validation,
+                            Field = p.Field,
+                        }
+                        : p)
+                    .ToArray();
+
+                methodSignature = new MethodSignature(
+                    customSignature.Name,
+                    customSignature.Description,
+                    customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                    customSignature.ReturnType,
+                    customSignature.ReturnDescription,
+                    requiredCustomParameters,
+                    customSignature.Attributes,
+                    customSignature.GenericArguments,
+                    customSignature.GenericParameterConstraints,
+                    customSignature.ExplicitInterface,
+                    customSignature.NonDocumentComment);
+
+                bodyParameters = requiredCustomParameters;
+                // Re-resolve the request options parameter from the customized parameter list so the
+                // generated body references the user-named options parameter (typically the last param).
+                requestOptionsParameter = requiredCustomParameters[requiredCustomParameters.Length - 1];
+            }
+            else
+            {
+                methodSignature = new MethodSignature(
+                    methodName,
+                    DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                    methodModifiers,
+                    GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
+                    $"The response returned from the service.",
+                    parameters);
+                bodyParameters = parameters;
+            }
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, parameters, false)];
+                methodBody = [.. GetPagingMethodBody(collection, bodyParameters, false)];
             }
             else
             {
@@ -956,7 +1005,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
-                            [.. parameters.Select(p => (ValueExpression)p)]), out var message),
+                            [.. bodyParameters.Select(p => (ValueExpression)p)]), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
                         .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
@@ -964,6 +1013,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
+
+            if (isPartialMethod)
+            {
+                protocolMethod.IsPartialMethod = true;
+            }
 
             if (protocolMethod.XmlDocs != null)
             {
@@ -980,6 +1034,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
+        }
+
+        private MethodSignature? FindPartialMethodSignature(ClientProvider client, string methodName, IReadOnlyList<ParameterProvider> parameters)
+        {
+            var customMethods = client.CustomCodeView?.Methods;
+            if (customMethods == null || customMethods.Count == 0)
+            {
+                return null;
+            }
+
+            foreach (var customMethod in customMethods)
+            {
+                if (!customMethod.IsPartialMethod)
+                {
+                    continue;
+                }
+
+                var customSignature = customMethod.Signature;
+                if (customSignature.Name != methodName || customSignature.Parameters.Count != parameters.Count)
+                {
+                    continue;
+                }
+
+                bool match = true;
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    if (!IsTypeNameMatch(customSignature.Parameters[i].Type, parameters[i].Type))
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match)
+                {
+                    return customSignature;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool IsTypeNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
+        {
+            // The namespace may not be available for generated types referenced from customization as they
+            // are not yet generated, so Roslyn will not have the namespace information.
+            if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
+            {
+                return typeFromCustomization.Name == generatedType.Name;
+            }
+
+            return typeFromCustomization.Namespace == generatedType.Namespace
+                && typeFromCustomization.Name == generatedType.Name;
         }
 
         private ParameterProvider ProcessOptionalParameters(

@@ -334,5 +334,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);
         }
+
+        // Validates that a generated protocol method can be customized via a partial method declaration in custom code.
+        [Test]
+        public async Task CanCustomizeMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the protocol method that should now be partial.
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Custom signature changes should be applied (parameter renamed to "content").
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // All parameters in the partial implementation must be required (no default values).
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+
+            // The original generated (non-partial) HelloAgain protocol method should not also be present.
+            var nonPartialDuplicates = clientProvider.Methods.Where(m =>
+                m.Signature.Name == "HelloAgain"
+                && !m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent")).ToList();
+            Assert.AreEqual(0, nonPartialDuplicates.Count);
+        }
     }
 }
