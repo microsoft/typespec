@@ -13,39 +13,6 @@ namespace Sample
 {
     public partial class TestClient
     {
-        private readonly global::System.Uri _endpoint;
-
-        protected TestClient()
-        {
-        }
-
-        public TestClient(global::System.Uri endpoint) : this(endpoint, new global::Sample.TestClientOptions())
-        {
-        }
-
-        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
-        {
-            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
-
-            options ??= new global::Sample.TestClientOptions();
-
-            _endpoint = endpoint;
-            if ((authenticationPolicy != null))
-            {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
-            }
-            else
-            {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
-            }
-        }
-
-        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
-        {
-        }
-
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
-
         public virtual global::System.ClientModel.ClientResult GetData(int param1, global::System.ClientModel.BinaryContent content, bool? param3 = default, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             global::Sample.Argument.AssertNotNull(content, nameof(content));

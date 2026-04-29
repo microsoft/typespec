@@ -823,13 +823,13 @@ The generated client includes the current methods (with the new optional `p2` pa
 
 ```csharp
 // Current sync method generated from the updated TypeSpec.
-public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
+public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
 {
     // ... implementation ...
 }
 
 // Current async method generated from the updated TypeSpec.
-public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = null, RequestOptions options = null)
+public virtual async Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
 {
     // ... implementation ...
 }
@@ -838,17 +838,15 @@ public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool?
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
 {
-    return this.GetData(p1, body, default, options);
+    return this.GetData(p1: p1, body: body, p2: default, options: options);
 }
 
 // Back-compat async overload matching the previous contract's signature.
 [EditorBrowsable(EditorBrowsableState.Never)]
 public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
 {
-    return this.GetDataAsync(p1, body, default, options);
+    return this.GetDataAsync(p1: p1, body: body, p2: default, options: options);
 }
 ```
 
 The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter. Async overloads return the `Task` directly without `await` so the back-compat method itself remains non-async, avoiding unnecessary state-machine overhead for a simple delegation.
-
-The same logic applies when more than one new optional non-body parameter is added — the back-compat overload simply passes `default` for each new parameter when delegating to the current method.
