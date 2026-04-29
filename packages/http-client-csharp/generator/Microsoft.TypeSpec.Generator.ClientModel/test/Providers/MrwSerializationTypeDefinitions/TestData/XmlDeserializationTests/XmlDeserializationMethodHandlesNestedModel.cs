@@ -4,10 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using Sample;
 
 namespace Sample.Models
 {
@@ -36,7 +34,6 @@ namespace Sample.Models
             }
 
             global::Sample.Models.InnerModel inner = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -47,7 +44,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.OuterModel(inner, additionalBinaryDataProperties);
+            return new global::Sample.Models.OuterModel(inner);
         }
     }
 }

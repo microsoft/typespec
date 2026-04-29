@@ -158,6 +158,10 @@ export function getClientNamespaceString(context: CSharpEmitterContext): string 
     );
   }
 
+  if (serviceNamespaces.length > 1) {
+    return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace?.namespace);
+  }
+
   return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace);
 }
 
@@ -209,19 +213,17 @@ export function isReadOnly(
 
 /**
  * Determines if the library contains a multiservice client.
+ * Returns true if any of the given root clients is itself a multiservice client
+ * (i.e. {@link isMultiServiceClient} returns true).
  *
  * @param rootClients - Array of root clients from the SDK package
- * @returns True if this is a multiservice client library, false otherwise
+ * @returns True if any root client is a multiservice client, false otherwise
  * @beta
  */
 export function containsMultiServiceClient(
   rootClients: SdkClientType<SdkHttpOperation>[],
 ): boolean {
-  if (rootClients.length === 0) {
-    return false;
-  }
-
-  return isMultiServiceClient(rootClients[0]);
+  return rootClients.some(isMultiServiceClient);
 }
 
 /**

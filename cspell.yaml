@@ -50,6 +50,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - Creds
   - CRUDL
   - ctxt
   - dbaeumer
@@ -271,6 +272,7 @@ words:
   - tspwebsitepr
   - tsvs
   - typespec
+  - typespecacr
   - typespecvs
   - tzname
   - Uhoh

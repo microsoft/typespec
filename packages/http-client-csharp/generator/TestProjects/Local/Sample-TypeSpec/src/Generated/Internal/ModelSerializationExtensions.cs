@@ -402,6 +402,7 @@ namespace SampleTypeSpec
                             if (nameHint != null)
                             {
                                 writer.WriteStartElement(nameHint);
+                                writer.WriteAttributes(reader, true);
                                 reader.ReadStartElement();
                                 while (reader.NodeType != XmlNodeType.EndElement)
                                 {
@@ -411,6 +412,7 @@ namespace SampleTypeSpec
                             }
                             else
                             {
+                                writer.WriteAttributes(reader, true);
                                 reader.ReadStartElement();
                                 while (reader.NodeType != XmlNodeType.EndElement)
                                 {

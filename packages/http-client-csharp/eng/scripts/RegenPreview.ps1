@@ -35,9 +35,10 @@
     6. Restores all modified artifacts to original state
     
     Generator Filtering (Azure SDK Mode only):
-    - Use -Azure to regenerate only Azure-branded libraries (@azure-typespec/http-client-csharp)
-    - Use -Unbranded to regenerate only unbranded libraries (@typespec/http-client-csharp)
-    - Use -Mgmt to regenerate only management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Use -Azure to regenerate Azure-branded libraries (@azure-typespec/http-client-csharp)
+    - Use -Unbranded to regenerate unbranded libraries (@typespec/http-client-csharp)
+    - Use -Mgmt to regenerate management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Filters can be combined (e.g. -Azure -Unbranded) to regenerate libraries from multiple generators
     - Omit all filter parameters to regenerate all libraries (default)
         - Use -Select for interactive selection (can be combined with generator filters)
 
@@ -51,18 +52,18 @@
     Not applicable in OpenAI mode.
 
 .PARAMETER Azure
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
-    Mutually exclusive with Unbranded and Mgmt parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
+    Can be combined with -Unbranded and/or -Mgmt to regenerate libraries from multiple generators.
     Not applicable in OpenAI mode.
 
 .PARAMETER Unbranded
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
-    Mutually exclusive with Azure and Mgmt parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
+    Can be combined with -Azure and/or -Mgmt to regenerate libraries from multiple generators.
     Not applicable in OpenAI mode.
 
 .PARAMETER Mgmt
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
-    Mutually exclusive with Azure and Unbranded parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
+    Can be combined with -Azure and/or -Unbranded to regenerate libraries from multiple generators.
     If no generator filter is specified, all libraries are regenerated.
     Not applicable in OpenAI mode.
 
@@ -100,6 +101,10 @@
 .EXAMPLE
     # Regenerate only management plane libraries
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+
+.EXAMPLE
+    # Regenerate both Azure-branded and unbranded libraries
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure -Unbranded
 
 .EXAMPLE
     # Regenerate Azure spector test scenarios using local changes
@@ -145,15 +150,6 @@ if ($isOpenAIMode) {
         Write-Error "The -Spector parameter is mutually exclusive with -Select, -Azure, -Unbranded, and -Mgmt."
         exit 1
     }
-
-    # In Azure SDK mode, validate filter parameters
-    $generatorFilters = @($Azure, $Unbranded, $Mgmt)
-    $activeFilters = @($generatorFilters | Where-Object { $_ }).Count
-
-    if ($activeFilters -gt 1) {
-        Write-Error "Parameters -Azure, -Unbranded, and -Mgmt are mutually exclusive. Please specify only one."
-        exit 1
-    }
 }
 
 # Import utility functions
@@ -175,14 +171,18 @@ if ($isOpenAIMode) {
     # Display active mode
     $modeText = if ($Spector) {
         "Regenerate Azure spector test scenarios"
+    } elseif ($Azure -or $Unbranded -or $Mgmt) {
+        $generatorNames = @()
+        if ($Azure) { $generatorNames += "Azure" }
+        if ($Unbranded) { $generatorNames += "Unbranded" }
+        if ($Mgmt) { $generatorNames += "Management plane" }
+        if ($Select) {
+            "Regenerate $($generatorNames -join ', ') libraries (interactive selection)"
+        } else {
+            "Regenerate $($generatorNames -join ', ') libraries"
+        }
     } elseif ($Select) {
         "Interactive library selection"
-    } elseif ($Azure) {
-        "Regenerate Azure SDK libraries only"
-    } elseif ($Unbranded) {
-        "Regenerate Unbranded libraries only"
-    } elseif ($Mgmt) {
-        "Regenerate Management plane libraries only"
     } else {
         "Regenerate ALL libraries"
     }
@@ -926,12 +926,12 @@ try {
             Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
             Write-Host "Skipping regeneration step..." -ForegroundColor Gray
         } else {
-            $filterText = if ($Azure) {
-                " (Azure generator only)"
-            } elseif ($Unbranded) {
-                " (Unbranded generator only)"
-            } elseif ($Mgmt) {
-                " (Management plane generator only)"
+            $filterParts = @()
+            if ($Azure) { $filterParts += "Azure" }
+            if ($Unbranded) { $filterParts += "Unbranded" }
+            if ($Mgmt) { $filterParts += "Management plane" }
+            $filterText = if ($filterParts.Count -gt 0) {
+                " ($($filterParts -join ', ') generator$(if ($filterParts.Count -gt 1) { 's' } else { '' }) only)"
             } else {
                 ""
             }

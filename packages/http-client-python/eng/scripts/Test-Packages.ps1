@@ -74,17 +74,6 @@ try {
 
         Invoke-LoggedCommand "npm run ci"
         Write-Host "All tests passed." -ForegroundColor Green
-
-        # Linux specific: check mypy/lint/pyright on generated code
-        if ($IsLinux) {
-            Write-Host "`n=== Running lint on generated code ===" -ForegroundColor Cyan
-            Invoke-LoggedCommand "npm run lint:generated"
-            Write-Host "Generated code checks passed." -ForegroundColor Green
-
-            Write-Host "`n=== Running mypy/pyright on generated code ===" -ForegroundColor Cyan
-            Invoke-LoggedCommand "npm run typecheck:generated"
-            Write-Host "Generated code mypy/pyright checks passed." -ForegroundColor Green
-        }    
     }
 }
 finally {

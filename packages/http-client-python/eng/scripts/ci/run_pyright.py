@@ -13,7 +13,7 @@ from subprocess import check_output, CalledProcessError
 import logging
 import sys
 import time
-from util import run_check
+from util import run_check, get_package_namespace_dir
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -28,7 +28,10 @@ def get_pyright_config_file_location():
 
 
 def _single_dir_pyright(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    inner_class = get_package_namespace_dir(mod)
+    if not inner_class:
+        logging.info(f"No package directory found in {mod}, skipping")
+        return True
     retries = 3
     while retries:
         try:

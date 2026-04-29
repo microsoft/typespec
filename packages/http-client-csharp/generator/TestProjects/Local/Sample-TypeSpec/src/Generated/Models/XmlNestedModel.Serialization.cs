@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -123,7 +122,6 @@ namespace SampleTypeSpec
 
             string value = default;
             int nestedId = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -144,7 +142,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties);
+            return new XmlNestedModel(value, nestedId);
         }
     }
 }

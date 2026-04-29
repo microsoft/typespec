@@ -1,0 +1,210 @@
+---
+slug: release-notes/typespec-1-11-0
+title: "1.11.0"
+releaseDate: 2026-04-07
+version: "1.11.0"
+---
+
+TypeSpec 1.11.0 improves the authoring loop across modeling, testing, and reviewing generated output. This release introduces `FilterVisibility`, makes Spector scenario matching more semantic, improves Playground navigation, and fixes several compiler, OpenAPI, and generated-server edge cases that previously required workarounds.
+
+**Thank you to everyone who contributed feedback and fixes for version 1.11**.
+
+## Highlights
+
+### `FilterVisibility` is the new path for visibility transforms
+
+Library authors now have a new `FilterVisibility` template for producing visibility-filtered shapes with better metadata preservation. It also provides the forward-looking replacement path as `@withVisibilityFilter` is deprecated.
+
+Prefer `FilterVisibility` for new visibility-transform logic, especially when downstream tooling depends on metadata preserved on the transformed shape.
+
+**Example**
+
+```typespec
+model Example {
+  @visibility(Lifecycle.Create)
+  id: string;
+
+  @visibility(Lifecycle.Create, Lifecycle.Read)
+  name: string;
+
+  @visibility(Lifecycle.Update)
+  description: string;
+}
+
+model CreateAndReadExample
+  is FilterVisibility<
+    Example,
+    #{ all: #[Lifecycle.Create, Lifecycle.Read] },
+    "CreateAndRead{name}"
+  >;
+```
+
+:::caution
+`@withVisibilityFilter` is now **deprecated**, and `FilterVisibility` provides some guarantees about preserving decorator metadata that were impossible to provide with `@withVisibilityFilter`. We have no plans to remove `@withVisibilityFilter` in any TypeSpec 1.x version, but we recommend that all `@withVisibilityFilter`-based custom visibility templates by migrated to use `FilterVisibility` instead to avoid common issues with the decorator-based visibility filters.
+:::
+
+Related PR: [microsoft/typespec#9893 - [compiler/http] Replace mutative decorators with function calls for visibility and merge-patch](https://github.com/microsoft/typespec/pull/9893)
+
+### Playground navigation works better on mobile and with larger outputs
+
+The Playground is easier to use on smaller screens, larger sample collections, and multi-file outputs. You can switch between TypeSpec and output panels on mobile, browse samples by category or search, and navigate generated output in a file tree without adding clutter for single-file results.
+
+Open the Playground on mobile or with larger sample and output sets to use the new panel switcher, sample search and grouping, and file-tree navigation.
+
+Related PRs:
+
+- [microsoft/typespec#10018 - Playground mobile improvements](https://github.com/microsoft/typespec/pull/10018)
+- [microsoft/typespec#10024 - TypeSpec Playground: File tree view](https://github.com/microsoft/typespec/pull/10024)
+- [microsoft/typespec#10212 - fix: don't show file tree view in playground output for single file](https://github.com/microsoft/typespec/pull/10212)
+- [microsoft/typespec#10256 - Add search and category to the gallery](https://github.com/microsoft/typespec/pull/10256)
+
+### OpenAPI import and emission handle more real-world schemas
+
+OpenAPI documents that use `anyOf` with both a `$ref` and an inline object are now imported as unions instead of collapsing to a single model. The OpenAPI emitter also no longer fails with duplicate type name errors when a multipart body uses a named union that includes `bytes`.
+
+This keeps imported TypeSpec closer to the original API design and removes a multipart emission failure that previously required redesigns or workarounds.
+
+**Example**
+
+```yaml
+components:
+  schemas:
+    VoiceIdsOrCustomVoice:
+      anyOf:
+        - $ref: "#/components/schemas/VoiceIdsShared"
+        - type: object
+          properties:
+            id:
+              type: string
+          required:
+            - id
+```
+
+```typespec
+union VoiceIdsOrCustomVoice {
+  VoiceIdsShared,
+  {
+    id: string,
+  },
+}
+```
+
+Related PRs:
+
+- [microsoft/typespec#10041 - fix(openapi3): anyOf with $ref + inline object incorrectly imported as model instead of union](https://github.com/microsoft/typespec/pull/10041)
+- [microsoft/typespec#10046 - fix(openapi3): resolve "Duplicate type name" error for named union with bytes in multipart body](https://github.com/microsoft/typespec/pull/10046)
+
+### Spector matchers make scenario tests less brittle
+
+Spector now includes semantic matchers for values like datetimes, and query/header matching now preserves matcher objects instead of comparing their string representations. That makes cross-language scenario tests less sensitive to formatting differences in timestamps and similar values.
+
+Use semantic matchers when scenarios need to compare equivalent values rather than exact string formatting.
+
+**Example**
+
+```ts
+const body = xml`<Event><when>${match.dateTime.rfc3339("2022-08-26T18:38:00.000Z")}</when></Event>`;
+```
+
+Related PRs:
+
+- [microsoft/typespec#10011 - Add matcher framework for flexible value comparison in scenarios](https://github.com/microsoft/typespec/pull/10011)
+- [microsoft/typespec#10259 - Fix query parameter matcher handling](https://github.com/microsoft/typespec/pull/10259)
+
+## Additional improvements
+
+### Emitter config interpolation no longer flattens arrays and objects
+
+When one config option references another, the compiler now leaves non-primitive values untouched instead of interpolating the default JS string representations of arrays or objects. This makes advanced emitter configuration more predictable when emitters need to resolve structured options themselves.
+
+Keep placeholders that refer to array- or object-valued options in config and let the emitter resolve them instead of relying on automatic string interpolation.
+
+```yaml
+file-type: ["yaml", "json"]
+output-file: "openapi.{file-type}"
+```
+
+Related PR: [microsoft/typespec#10183 - Do not interpolate non string values automatically](https://github.com/microsoft/typespec/pull/10183)
+
+### Generated JavaScript servers handle more response and serializer shapes
+
+Generated JavaScript servers no longer crash when an operation returns a bare scalar or value literal, and enum properties now pass through generated JSON transpose helpers correctly. This makes generated server code more reliable for simple return types and models that require generated JSON serializers.
+
+Related PRs:
+
+- [microsoft/typespec#10058 - handle immediate scalar-typed and value-literal typed responses in result processing layer](https://github.com/microsoft/typespec/pull/10058)
+- [microsoft/typespec#10059 - handle Enum type in JSON serialization transpose helpers](https://github.com/microsoft/typespec/pull/10059)
+
+### Duplicate-definition diagnostics are easier to act on
+
+Duplicate-property and duplicate default-variant errors now identify the model or discriminated union involved, making large specs faster to debug.
+
+Related PRs:
+
+- [microsoft/typespec#10196 - include model name in duplicate-property error message](https://github.com/microsoft/typespec/pull/10196)
+- [microsoft/typespec#10199 - include union type name in invalid-discriminated-union-variant diagnostic](https://github.com/microsoft/typespec/pull/10199)
+
+## Full Changelog
+
+<details>
+  <summary><strong>Show all changes</strong></summary>
+
+### `@typespec/compiler`
+
+#### Features
+
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Added a new template `FilterVisibility` to support more accurate visibility transforms. This replaces the `@withVisibilityFilter` decorator, which is now deprecated and slated for removal in a future version of TypeSpec.
+
+#### Bug fixes
+
+- [#10196](https://github.com/microsoft/typespec/pull/10196) Include model name in `duplicate-property` error message.
+- [#10199](https://github.com/microsoft/typespec/pull/10199) `duplicateDefaultVariant` diagnostic now includes the union type name.
+- [#10183](https://github.com/microsoft/typespec/pull/10183) Do not interpolate non-primitive values in config automatically.
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Fixed a bug that would prevent template parameters from assigning to values in some cases.
+
+### `@typespec/openapi3`
+
+#### Bug fixes
+
+- [#10041](https://github.com/microsoft/typespec/pull/10041) Fix `anyOf` with `$ref` and an inline object being incorrectly imported as a model instead of a union.
+- [#10046](https://github.com/microsoft/typespec/pull/10046) Fix OpenAPI emission failing with a duplicate type name error when a named union with `bytes` appears in a multipart body.
+
+### `@typespec/playground`
+
+#### Features
+
+- [#10024](https://github.com/microsoft/typespec/pull/10024) Add a file tree view for output.
+- [#10018](https://github.com/microsoft/typespec/pull/10018) Make the UI more mobile friendly, including a panel switcher and a more compact command bar.
+- [#10256](https://github.com/microsoft/typespec/pull/10256) Add search and category grouping to samples.
+
+#### Bug fixes
+
+- [#10212](https://github.com/microsoft/typespec/pull/10212) Do not show the file tree view in output when there is only a single file.
+
+### `@typespec/spector`
+
+#### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add a matcher framework for flexible value comparison in scenarios, including semantic datetime matching.
+
+#### Bug fixes
+
+- [#10259](https://github.com/microsoft/typespec/pull/10259) Fix query and header matcher handling so matcher objects are compared semantically instead of being serialized to plain strings first.
+
+### `@typespec/http-server-js`
+
+#### Bug fixes
+
+- [#10059](https://github.com/microsoft/typespec/pull/10059) Handle enum types in generated JSON serialization transpose helpers.
+- [#10058](https://github.com/microsoft/typespec/pull/10058) Handle immediate scalar-typed and value-literal typed responses in the result-processing layer.
+
+### Version-bump only in 1.11.0
+
+- `@typespec/http`
+- `@typespec/json-schema`
+- `@typespec/openapi`
+- `@typespec/prettier-plugin-typespec`
+- `typespec-vscode`
+- `typespec-vs`
+
+</details>
