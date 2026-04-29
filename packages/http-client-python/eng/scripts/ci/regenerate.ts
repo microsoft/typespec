@@ -124,15 +124,22 @@ interface TaskGroup {
   tasks: CompileTask[];
 }
 
+// Check whether a spec path belongs to azure-http-specs (vs standard http-specs).
+// Using "azure-http-specs" instead of "azure" to avoid false positives when the
+// working directory path contains "azure" (e.g. azure-sdk-for-python).
+function isAzureSpec(spec: string): boolean {
+  return spec.includes("azure-http-specs");
+}
+
 function defaultPackageName(spec: string): string {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const specDir = isAzureSpec(spec) ? AZURE_HTTP_SPECS : HTTP_SPECS;
   return toPosix(relative(specDir, dirname(spec)))
     .replace(/\//g, "-")
     .toLowerCase();
 }
 
 function getEmitterOptions(spec: string, flavor: string): Record<string, string>[] {
-  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const specDir = isAzureSpec(spec) ? AZURE_HTTP_SPECS : HTTP_SPECS;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
@@ -262,7 +269,7 @@ async function runParallel(groups: TaskGroup[], maxJobs: number): Promise<Map<st
     // Each group runs as a unit - tasks within a group run sequentially
     // But different groups can run in parallel
     const runGroup = async () => {
-      const specDir = group.spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+      const specDir = isAzureSpec(group.spec) ? AZURE_HTTP_SPECS : HTTP_SPECS;
       const shortName = toPosix(relative(specDir, dirname(group.spec)));
 
       // Run all tasks in this group sequentially to avoid state pollution

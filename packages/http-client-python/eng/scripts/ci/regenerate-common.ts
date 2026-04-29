@@ -339,7 +339,9 @@ export function getEmitterOption(
   flavor: string,
   config: RegenerateConfig,
 ): Record<string, string>[] {
-  const specDir = spec.includes("azure") ? config.azureHttpSpecs : config.httpSpecs;
+  // Use "azure-http-specs" instead of "azure" to avoid false positives when the
+  // working directory path contains "azure" (e.g. azure-sdk-for-python).
+  const specDir = spec.includes("azure-http-specs") ? config.azureHttpSpecs : config.httpSpecs;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
