@@ -787,7 +787,7 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
 }
 ```
 
-### Service Method Evolution
+### Client Methods
 
 #### Scenario: New Optional Non-Body Parameter Added to a Service Method
 
@@ -807,29 +807,29 @@ This follows the guidance in [Service-Driven Evolution: A method gets a new opti
 Previous version of the client:
 
 ```csharp
-public virtual ClientResult<string> GetData(int param2, string param1, CancellationToken cancellationToken = default);
-public virtual Task<ClientResult<string>> GetDataAsync(int param2, string param1, CancellationToken cancellationToken = default);
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options = null);
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options = null);
 ```
 
-Current TypeSpec adds an optional header parameter `param3`:
+Current TypeSpec adds an optional query parameter `p2`:
 
 ```typespec
-op getData(@query param2: int32, @body param1: string, @header param3?: boolean): string;
+op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): string;
 ```
 
 **Generated Compatibility Methods:**
 
 ```csharp
 [EditorBrowsable(EditorBrowsableState.Never)]
-public virtual ClientResult<string> GetData(int param2, string param1, CancellationToken cancellationToken)
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
 {
-    return this.GetData(param2, param1, default, cancellationToken);
+    return this.GetData(p1, body, default, options);
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public virtual Task<ClientResult<string>> GetDataAsync(int param2, string param1, CancellationToken cancellationToken)
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
 {
-    return this.GetDataAsync(param2, param1, default, cancellationToken);
+    return this.GetDataAsync(p1, body, default, options);
 }
 ```
 
