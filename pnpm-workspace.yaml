@@ -7,13 +7,13 @@ packages:
   - "!packages/http-client-python/**"
 
 catalog:
-  "@alloy-js/cli": ^0.22.0
-  "@alloy-js/core": ^0.22.0
-  "@alloy-js/csharp": ^0.22.0
-  "@alloy-js/markdown": ^0.22.0
-  "@alloy-js/python": ^0.3.0
-  "@alloy-js/rollup-plugin": ^0.1.0
-  "@alloy-js/typescript": ^0.22.0
+  "@alloy-js/cli": ^0.23.0
+  "@alloy-js/core": ^0.23.0
+  "@alloy-js/csharp": ^0.23.0
+  "@alloy-js/markdown": ^0.23.0
+  "@alloy-js/python": ^0.4.0
+  "@alloy-js/rollup-plugin": ^0.1.1
+  "@alloy-js/typescript": ^0.23.0
   "@astrojs/check": ^0.9.8
   "@astrojs/react": ^5.0.3
   "@astrojs/starlight": ^0.38.3
