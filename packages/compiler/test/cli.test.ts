@@ -314,10 +314,7 @@ describe("compiler: cli", () => {
         stringify({ kind: "project", entrypoint: "src/service.tsp" }),
       );
       host.addTypeSpecFile("ws/src/service.tsp", "");
-      host.addTypeSpecFile(
-        "ws/tspconfig.build.yaml",
-        stringify({ emit: ["openapi"] }),
-      );
+      host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
       const [options, diagnostics] = await getCompilerOptions(
         host.compilerHost,
         "ws/main.tsp",
@@ -335,10 +332,7 @@ describe("compiler: cli", () => {
         "ws/tspconfig.yaml",
         stringify({ kind: "project", emit: ["should-not-inherit"] }),
       );
-      host.addTypeSpecFile(
-        "ws/tspconfig.build.yaml",
-        stringify({ emit: ["openapi"] }),
-      );
+      host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
       const [options, diagnostics] = await getCompilerOptions(
         host.compilerHost,
         "ws/main.tsp",

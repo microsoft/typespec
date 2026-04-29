@@ -30,20 +30,18 @@ async function resolveEntrypoint(
 
 describe("entrypoint resolution", () => {
   it("returns client-provided entrypoint in current directory", async () => {
-    const result = await resolveEntrypoint(
-      { "project/custom.tsp": "" },
-      "project/src/doc.tsp",
-      ["custom.tsp", "main.tsp"],
-    );
+    const result = await resolveEntrypoint({ "project/custom.tsp": "" }, "project/src/doc.tsp", [
+      "custom.tsp",
+      "main.tsp",
+    ]);
     expect(result).toBe(resolveVirtualPath("project/custom.tsp"));
   });
 
   it("finds client-provided entrypoint in parent directory when not in current", async () => {
-    const result = await resolveEntrypoint(
-      { "repo/main.tsp": "" },
-      "repo/pkg/src/file.tsp",
-      ["missing.tsp", "main.tsp"],
-    );
+    const result = await resolveEntrypoint({ "repo/main.tsp": "" }, "repo/pkg/src/file.tsp", [
+      "missing.tsp",
+      "main.tsp",
+    ]);
     expect(result).toBe(resolveVirtualPath("repo/main.tsp"));
   });
 
@@ -59,10 +57,7 @@ describe("entrypoint resolution", () => {
   });
 
   it("uses the given path as main when nothing else is found", async () => {
-    const result = await resolveEntrypoint(
-      { "standalone/file.tsp": "" },
-      "standalone/file.tsp",
-    );
+    const result = await resolveEntrypoint({ "standalone/file.tsp": "" }, "standalone/file.tsp");
     expect(result).toBe(resolveVirtualPath("standalone/file.tsp"));
   });
 

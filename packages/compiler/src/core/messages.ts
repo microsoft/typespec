@@ -656,7 +656,8 @@ const diagnostics = {
   "config-project-not-as-cli-config": {
     severity: "error",
     messages: {
-      default: "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
     },
   },
   /**
