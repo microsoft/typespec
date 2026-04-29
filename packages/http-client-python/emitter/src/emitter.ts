@@ -235,7 +235,16 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   if (typeof window !== "undefined") {
     // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
-    const pyodide = await setupPyodideCallBrowser();
+    const pyodide = await browserPyodidePromise;
+
+    if (!pyodide) {
+      reportDiagnostic(program, {
+        code: "browser-runtime-load-failed",
+        target: NoTarget,
+        format: { details: "" },
+      });
+      return;
+    }
 
     const yamlFilePath = "/yaml/python-yaml-path.yaml";
     pyodide.FS.mkdirTree("/yaml");
@@ -325,6 +334,9 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 }
 
+const browserPyodidePromise: Promise<PyodideInterface> | null =
+  typeof window !== "undefined" ? setupPyodideCallBrowser() : null;
+
 async function setupPyodideCallBrowser() {
   const pyodide = await loadPyodide({
     indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
@@ -334,7 +346,7 @@ async function setupPyodideCallBrowser() {
   pyodide.FS.mkdirTree("/generator");
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
+  await micropip.install("/pygen-0.1.0-py3-none-any.whl");
 
   return pyodide;
 }
