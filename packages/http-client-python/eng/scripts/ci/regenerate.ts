@@ -395,12 +395,10 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 
         if (SKIP_SPECS.some((skipSpec) => mainTspRelativePath.includes(skipSpec))) return;
 
-        const hasMainTsp = await promises
-          .access(mainTspPath)
+        const hasMainTsp = await access(mainTspPath)
           .then(() => true)
           .catch(() => false);
-        const hasClientTsp = await promises
-          .access(clientTspPath)
+        const hasClientTsp = await access(clientTspPath)
           .then(() => true)
           .catch(() => false);
 
