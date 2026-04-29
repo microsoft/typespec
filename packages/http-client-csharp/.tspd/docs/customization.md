@@ -1273,9 +1273,11 @@ namespace Azure.Service.Operations
 
 </details>
 
-## Customize a generated method's signature
+## Customize a generated client method's signature
 
-Declare a `partial` method (without a body) on the generated client (or any other generated `TypeProvider`) with the same name and parameter types as the generated method. The generator emits a matching partial implementation, taking the modifiers and parameter names from your declaration while keeping its generated body. This works for protocol methods, convenience methods, and other methods on `TypeProvider`s such as model factories.
+Declare a `partial` method (without a body) on the generated client class with the same name and parameter types as a generated protocol or convenience method. The generator emits a matching partial implementation, taking the modifiers and parameter names from your declaration while keeping its generated body.
+
+This applies specifically to **client methods** (protocol and convenience methods on the generated `*Client` class). Other generated members (model constructors, model serialization methods, model factories, etc.) should be customized using `[CodeGenSuppress]` + a hand-written replacement, or one of the other techniques in this document.
 
 Use this when you want to keep the generated body but tweak the surface — typically:
 
@@ -1289,12 +1291,14 @@ This is preferred over `[CodeGenSuppress]` + a hand-written replacement when the
 
 - **Modifier changes** (access modifier, `virtual`, `override`, `new`, `unsafe`).
 - **Parameter renames.** The generator clones each parameter with the customer-chosen name while preserving all internal metadata (parameter location, wire info, spread source, validation, …) so the generated body keeps compiling.
+- Both protocol method overloads and convenience method overloads (sync and async) on the generated client. Each overload must be customized independently.
 
 ### What is NOT supported
 
 - **Renaming the method itself.** Matching is by `(method name, ordered parameter type list)`. To rename, use `[CodeGenSuppress]` + a hand-written method that delegates to the underlying request/pipeline machinery.
 - **Adding/removing/reordering parameters.** The parameter type list must match the generated signature exactly. To restructure, use `[CodeGenSuppress]`.
 - **Default values on the partial implementation.** C# requires partial method implementations to have all parameters required, so any default values on your partial declaration are stripped on the generated impl. Callers still see the defaults from your declaration in custom code.
+- **Non-client members** (models, serialization methods, model factories). Use `[CodeGenSuppress]` for these.
 
 <details>
 
