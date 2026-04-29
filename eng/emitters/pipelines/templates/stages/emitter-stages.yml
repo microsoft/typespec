@@ -370,9 +370,48 @@ stages:
                   ArtifactPath: $(buildArtifactsPath)
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
-              # Playground upload moved to separate UploadPlayground stage below.
-              # - ${{ if parameters.UploadPlaygroundBundle }}:
-              #     - task: NodeTool@0 ...
+              - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - task: NodeTool@0
+                    displayName: Use Node 22.x for playground bundle
+                    inputs:
+                      versionSpec: "22.x"
+                  - script: npm ci
+                    displayName: Install emitter dependencies for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ if parameters.BuildPrereleaseVersion }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-alpha.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ else }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
+                    displayName: Build emitter for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm install -g pnpm
+                    displayName: Install pnpm for playground bundle upload
+                  - script: pnpm install --filter "@typespec/bundle-uploader..."
+                    displayName: Install bundle-uploader dependencies
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - script: pnpm --filter "@typespec/bundle-uploader..." build
+                    displayName: Build bundle-uploader
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - task: AzureCLI@1
+                    displayName: Upload playground bundle
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
 
               - ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:
                   - task: AzureCLI@1
@@ -411,72 +450,3 @@ stages:
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)
                   artifact: publish_artifacts
-
-  # Temporary separate stage for playground bundle upload so it can run independently
-  # of the Publish stage (which may fail on unrelated steps).
-  - ${{ if parameters.UploadPlaygroundBundle }}:
-      - stage: ${{ parameters.StagePrefix }}_UploadPlayground
-        displayName: ${{ parameters.StagePrefix }} - Upload Playground Bundle
-        condition: and(succeeded(), ${{ parameters.Condition }})
-        dependsOn:
-          - ${{ parameters.DependsOn }}
-          - ${{ parameters.StagePrefix }}_Build
-        variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-        pool:
-          name: $(LINUXPOOL)
-          image: $(LINUXVMIMAGE)
-          os: linux
-        jobs:
-          - job: UploadPlayground
-            steps:
-              - checkout: self
-
-              - task: NodeTool@0
-                displayName: Use Node 22.x for playground bundle
-                inputs:
-                  versionSpec: "22.x"
-
-              - script: npm ci
-                displayName: Install emitter dependencies for playground bundle
-                workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-
-              - ${{ if parameters.BuildPrereleaseVersion }}:
-                  - script: |
-                      CURRENT_VERSION=$(node -p "require('./package.json').version")
-                      NEW_VERSION="${CURRENT_VERSION}-alpha.${BUILD_BUILDNUMBER}"
-                      echo "Setting version to $NEW_VERSION"
-                      npm version "$NEW_VERSION" --no-git-tag-version
-                    displayName: Stamp build version for playground bundle
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-              - ${{ else }}:
-                  - script: |
-                      CURRENT_VERSION=$(node -p "require('./package.json').version")
-                      NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
-                      echo "Setting version to $NEW_VERSION"
-                      npm version "$NEW_VERSION" --no-git-tag-version
-                    displayName: Stamp build version for playground bundle
-                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-
-              - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
-                displayName: Build emitter for playground bundle
-                workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-
-              - script: npm install -g pnpm
-                displayName: Install pnpm for playground bundle upload
-
-              - script: pnpm install --filter "@typespec/bundle-uploader..."
-                displayName: Install bundle-uploader dependencies
-                workingDirectory: $(Build.SourcesDirectory)
-
-              - script: pnpm --filter "@typespec/bundle-uploader..." build
-                displayName: Build bundle-uploader
-                workingDirectory: $(Build.SourcesDirectory)
-
-              - task: AzureCLI@1
-                displayName: Upload playground bundle
-                inputs:
-                  azureSubscription: "Azure SDK Engineering System"
-                  scriptLocation: inlineScript
-                  inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
-                  workingDirectory: $(Build.SourcesDirectory)
