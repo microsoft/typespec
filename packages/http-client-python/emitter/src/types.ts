@@ -436,7 +436,7 @@ function emitConstant(context: PythonSdkContext, type: SdkConstantType) {
 }
 
 const sdkScalarKindToPythonKind: Record<string, string> = {
-  numeric: "integer",
+  numeric: "float",
   integer: "integer",
   safeint: "integer",
   int8: "integer",
