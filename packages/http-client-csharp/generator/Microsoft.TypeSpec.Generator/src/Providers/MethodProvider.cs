@@ -24,11 +24,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
         /// <summary>
-        /// Indicates whether this method should be generated as a partial method.
-        /// When true, custom code provides the signature declaration and the generator
-        /// emits a matching partial implementation.
+        /// Indicates whether this method is declared as a <c>partial</c> method.
+        /// Derived from the <see cref="MethodSignatureModifiers.Partial"/> modifier on the signature.
         /// </summary>
-        public bool IsPartialMethod { get; set; }
+        public bool IsPartialMethod => Signature?.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ?? false;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

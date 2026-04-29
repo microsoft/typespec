@@ -398,7 +398,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)
                 : new MethodProvider(partialSignature, generatedMethod.BodyStatements ?? MethodBodyStatement.Empty, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions);
 
-            partialMethod.IsPartialMethod = true;
             return partialMethod;
         }
 

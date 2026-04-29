@@ -121,35 +121,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Detect a partial method declaration in the client's custom code matching this convenience method.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, signatureParameters, out customSignature);
-            bool isPartialMethod = false;
 
             // Parameters used to construct the method body. When customizing, we clone the generator's
             // parameter providers with the customer's names but keep all generator metadata so that the
             // body construction (param conversions, request invocation, etc.) still works.
-            ParameterProvider[] convenienceBodyParameters = [.. ConvenienceMethodParameters];
+            IReadOnlyList<ParameterProvider> convenienceBodyParameters;
 
             MethodSignature methodSignature;
 
             if (customSignature != null)
             {
-                isPartialMethod = true;
-
                 var renamedSignatureParameters = PartialMethodCustomization.RenameAndCloneParameters(
                     signatureParameters,
                     customSignature.Parameters,
                     removeDefaults: true);
 
                 // The generator-controlled body params are the leading parameters (everything except the trailing CancellationToken).
-                convenienceBodyParameters = new ParameterProvider[ConvenienceMethodParameters.Count];
+                var bodyParams = new ParameterProvider[ConvenienceMethodParameters.Count];
                 for (int i = 0; i < ConvenienceMethodParameters.Count; i++)
                 {
-                    convenienceBodyParameters[i] = renamedSignatureParameters[i];
+                    bodyParams[i] = renamedSignatureParameters[i];
                 }
+                convenienceBodyParameters = bodyParams;
 
                 methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
             }
             else
             {
+                convenienceBodyParameters = ConvenienceMethodParameters;
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
@@ -205,11 +204,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
-
-            if (isPartialMethod)
-            {
-                convenienceMethod.IsPartialMethod = true;
-            }
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -984,15 +978,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // generated body using the customized parameter references.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
-            bool isPartialMethod = false;
 
             MethodSignature methodSignature;
             ParameterProvider[] bodyParameters;
 
             if (customSignature != null)
             {
-                isPartialMethod = true;
-
                 // Partial methods cannot have optional parameters in the implementation.
                 var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
                     customSignature.Parameters,
@@ -1040,11 +1031,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
-
-            if (isPartialMethod)
-            {
-                protocolMethod.IsPartialMethod = true;
-            }
 
             if (protocolMethod.XmlDocs != null)
             {

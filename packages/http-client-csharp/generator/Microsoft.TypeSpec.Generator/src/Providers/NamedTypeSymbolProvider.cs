@@ -294,7 +294,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
                     ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
 
-                methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this) { IsPartialMethod = isPartialDeclaration });
+                methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. methods];
         }

@@ -76,7 +76,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool match = true;
                 for (int i = 0; i < parameters.Count; i++)
                 {
-                    if (!IsTypeNameMatch(candidate.Parameters[i].Type, parameters[i].Type))
+                    // The customer's CSharpType may not carry a namespace (when referencing a
+                    // not-yet-generated type, Roslyn returns an empty namespace). AreNamesEqual
+                    // handles that by falling back to name-only comparison and also recurses into
+                    // generic type arguments.
+                    if (!candidate.Parameters[i].Type.AreNamesEqual(parameters[i].Type))
                     {
                         match = false;
                         break;
@@ -208,20 +212,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 SpreadSource = source.SpreadSource,
             };
-        }
-
-        // Compares parameter types by name. The namespace may not be available for generated types
-        // referenced from customization since they aren't yet generated, so Roslyn won't have the
-        // namespace information; in that case we fall back to a name-only comparison.
-        private static bool IsTypeNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
-        {
-            if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
-            {
-                return typeFromCustomization.Name == generatedType.Name;
-            }
-
-            return typeFromCustomization.Namespace == generatedType.Namespace
-                && typeFromCustomization.Name == generatedType.Name;
         }
     }
 }
