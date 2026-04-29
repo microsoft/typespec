@@ -3,9 +3,10 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -16,18 +17,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
     public class TypeSymbolExtensionsTests
     {
         private const string SampleStructFullName = "Sample.SampleStruct";
-
-        private const string TestSource = """
-            namespace Sample
-            {
-                public struct SampleStruct { }
-                public class Container
-                {
-                    public SampleStruct NonNullable { get; set; }
-                    public SampleStruct? Nullable { get; set; }
-                }
-            }
-            """;
 
         [SetUp]
         public void SetUp()
@@ -45,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        public void NullableValueTypeOfKnownFrameworkTypeResolvesToNullableFrameworkCSharpType()
+        public async Task NullableValueTypeOfKnownFrameworkTypeResolvesToNullableFrameworkCSharpType()
         {
             // Regression: TypeFactory.CreateFrameworkType resolves known framework types by their
             // bare fully-qualified name (e.g. "Azure.ETag" => typeof(ETag)), but the symbol-derived
@@ -54,7 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             // in GetCSharpType, the result was a symbol-based CSharpType (with _type == null) that
             // failed equality against framework-typed CSharpTypes (e.g. typeof(ETag)) used as keys
             // in serialization handler tables.
-            var propertySymbol = GetPropertySymbol(TestSource, "Container", "Nullable");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "Nullable");
 
             // Sanity: the property symbol is the constructed Nullable<SampleStruct>.
             var propertyTypeSymbol = (INamedTypeSymbol)propertySymbol.Type;
@@ -69,9 +59,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        public void NullableValueTypeOfKnownFrameworkTypeMatchesIgnoreNullableComparer()
+        public async Task NullableValueTypeOfKnownFrameworkTypeMatchesIgnoreNullableComparer()
         {
-            var propertySymbol = GetPropertySymbol(TestSource, "Container", "Nullable");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "Nullable");
 
             var csharpType = propertySymbol.Type.GetCSharpType();
 
@@ -80,9 +71,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        public void NonNullableKnownFrameworkTypeResolvesUnchanged()
+        public async Task NonNullableKnownFrameworkTypeResolvesUnchanged()
         {
-            var propertySymbol = GetPropertySymbol(TestSource, "Container", "NonNullable");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "NonNullable");
 
             var csharpType = propertySymbol.Type.GetCSharpType();
 
@@ -91,15 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsFalse(csharpType.IsNullable);
         }
 
-        private static IPropertySymbol GetPropertySymbol(string source, string containerName, string propertyName)
+        private static IPropertySymbol GetPropertySymbol(Compilation compilation, string containerName, string propertyName)
         {
-            var syntaxTree = CSharpSyntaxTree.ParseText(source);
-            var compilation = CSharpCompilation.Create(
-                "TestAssembly",
-                [syntaxTree],
-                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
             var typeSymbol = compilation.GetTypeByMetadataName($"Sample.{containerName}");
             Assert.IsNotNull(typeSymbol, $"Failed to resolve 'Sample.{containerName}' type symbol from compiled source.");
             var propertySymbol = typeSymbol!.GetMembers(propertyName).OfType<IPropertySymbol>().FirstOrDefault();
