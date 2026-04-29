@@ -1889,26 +1889,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
-                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
+                previousParamsByName.TryAdd(p.Name, p);
             }
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
-                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name.ToVariableName(), out var prevParam)
+                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name, out var prevParam)
                     ? prevParam
                     : (currentParam.DefaultValue ?? Default);
                 arguments.Add(PositionalReference(currentParam.Name, value));
             }
 
-            var invocation = This.Invoke(currentSignature.Name, arguments);
-
-            MethodBodyStatement body = Return(invocation);
-
-            var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true);
             return new ScmMethodProvider(
-                signature: backCompatSignature,
-                bodyStatements: body,
+                signature: MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true),
+                bodyStatements: Return(This.Invoke(currentSignature.Name, arguments)),
                 enclosingType: this,
                 methodKind: currentMethod.Kind,
                 xmlDocProvider: previousMethod.XmlDocs,
