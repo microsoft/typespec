@@ -791,9 +791,7 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
 
 #### Scenario: New Optional Non-Body Parameter Added to a Service Method
 
-**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s).
-
-This follows the guidance in [Service-Driven Evolution: A method gets a new optional parameter](https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
+**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
 
 **Rules:**
 
@@ -849,4 +847,4 @@ public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, Reque
 }
 ```
 
-The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter. Async overloads return the `Task` directly without `await` so the back-compat method itself remains non-async, avoiding unnecessary state-machine overhead for a simple delegation.
+The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.

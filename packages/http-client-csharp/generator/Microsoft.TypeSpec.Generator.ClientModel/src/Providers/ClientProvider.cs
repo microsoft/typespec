@@ -1764,7 +1764,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodProvider> methods,
             Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
         {
-            var currentMethodsByName = new Dictionary<string, List<MethodProvider>>(StringComparer.Ordinal);
+            var currentMethodsByName = new Dictionary<string, List<MethodProvider>>();
             foreach (var method in currentMethodSignatures.Values)
             {
                 if (method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest })
@@ -1895,21 +1895,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
-                if (previousParamsByName.TryGetValue(currentParam.Name.ToVariableName(), out var prevParam))
-                {
-                    arguments.Add(prevParam);
-                }
-                else
-                {
-                    arguments.Add(currentParam.DefaultValue ?? Default);
-                }
+                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name.ToVariableName(), out var prevParam)
+                    ? prevParam
+                    : (currentParam.DefaultValue ?? Default);
+                arguments.Add(PositionalReference(currentParam.Name, value));
             }
 
             var invocation = This.Invoke(currentSignature.Name, arguments);
 
-            MethodBodyStatement body = previousSignature.ReturnType is null
-                ? invocation.Terminate()
-                : Return(invocation);
+            MethodBodyStatement body = Return(invocation);
 
             var backCompatSignature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true);
             return new ScmMethodProvider(
