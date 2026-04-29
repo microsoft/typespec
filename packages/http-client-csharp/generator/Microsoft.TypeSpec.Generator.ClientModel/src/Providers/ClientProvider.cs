@@ -1886,9 +1886,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // currentParam is "new" relative to the previous contract. Adding a back-compat overload
-                // requires us to supply a value when delegating to the current method, so the parameter
-                // must already provide a default value we can pass through.
+                // currentParam is "new" relative to the previous contract. Per the Service-Driven
+                // Evolution guidance, we only emit a back-compat overload when the added parameter is
+                // *optional* in the current contract. A parameter without a default value is required,
+                // and adding a required parameter is itself a breaking change we should surface rather
+                // than silently bridge with a back-compat overload.
                 if (currentParam.DefaultValue is null)
                 {
                     return false;
