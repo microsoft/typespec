@@ -55,6 +55,23 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
             k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]
         }
 
+        # Reset pygen's module-level _PACKAGE_FILES / _REGENERATE_FILES before each spec.
+        # JinjaSerializer._regenerate_setup_py appends to these globals, and ProcessPoolExecutor
+        # reuses worker processes across specs. Without this reset, once a worker handles a
+        # spec with keep-setup-py=true, every subsequent spec on that worker emits BOTH
+        # setup.py and pyproject.toml.
+        from pygen.codegen import serializers as _serializers
+
+        _serializers._PACKAGE_FILES[:] = [
+            "CHANGELOG.md.jinja2",
+            "dev_requirements.txt.jinja2",
+            "LICENSE.jinja2",
+            "MANIFEST.in.jinja2",
+            "README.md.jinja2",
+        ]
+        _serializers._REGENERATE_FILES.clear()
+        _serializers._REGENERATE_FILES.add("MANIFEST.in")
+
         # Run preprocess and codegen (black is batched at the end for performance)
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
