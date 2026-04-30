@@ -7,6 +7,7 @@ import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js
 import { createDiagnostic } from "./messages.js";
 import { perf } from "./perf.js";
 import type { Program } from "./program.js";
+import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import {
   Diagnostic,
@@ -126,8 +127,13 @@ export function createLinter(
           const rule = ruleMap.get(ruleName);
           if (rule) {
             enabledInThisRuleSet.add(ruleName);
-            const options = resolveRuleOptions(rule, enableValue);
-            enabledRules.set(ruleName, { rule, options });
+            const [options, optionDiagnostics] = resolveRuleOptions(rule, enableValue);
+            for (const d of optionDiagnostics) {
+              diagnostics.add(d);
+            }
+            if (!optionDiagnostics.some((d) => d.severity === "error")) {
+              enabledRules.set(ruleName, { rule, options });
+            }
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -304,12 +310,36 @@ export function createLinter(
   function resolveRuleOptions(
     rule: LinterRule<string, any, any>,
     enableValue: Exclude<LinterRuleEnableValue, false>,
-  ): Record<string, unknown> {
-    if (enableValue === true) {
-      return rule.defaultOptions ?? {};
+  ): [Record<string, unknown>, readonly Diagnostic[]] {
+    const options =
+      enableValue === true
+        ? (rule.defaultOptions ?? {})
+        : { ...(rule.defaultOptions ?? {}), ...enableValue };
+
+    if (rule.optionSchema && enableValue !== true) {
+      const validator = createJSONSchemaValidatorForRuleOptions(rule.optionSchema);
+      const validationDiagnostics = validator.validate(options, NoTarget);
+      if (validationDiagnostics.length > 0) {
+        const details = validationDiagnostics.map((d) => d.message).join("; ");
+        return [
+          options,
+          [
+            createDiagnostic({
+              code: "invalid-rule-options",
+              format: { ruleName: rule.id, details },
+              target: NoTarget,
+            }),
+          ],
+        ];
+      }
     }
-    return { ...(rule.defaultOptions ?? {}), ...enableValue };
+
+    return [options, []];
   }
+}
+
+function createJSONSchemaValidatorForRuleOptions(schema: Record<string, unknown>) {
+  return createJSONSchemaValidator(schema as any, { strict: false });
 }
 
 export function createLinterRuleContext<

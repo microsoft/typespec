@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
@@ -568,6 +568,150 @@ describe("compiler: linter", () => {
       expectDiagnostics((await linter.lint()).diagnostics, {
         severity: "warning",
         code: "@typespec/test-linter/no-model-with-name",
+      });
+    });
+
+    describe("option schema validation", () => {
+      const ruleWithSchema = createLinterRule({
+        name: "with-schema",
+        description: "Rule with option schema validation",
+        severity: "warning",
+        messages: { default: "test" },
+        optionSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            count: { type: "number" },
+          },
+          required: ["name"],
+          additionalProperties: false,
+        },
+        create() {
+          return {};
+        },
+      });
+
+      it("reports diagnostic when options fail schema validation", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: 123 } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("reports diagnostic when required option is missing", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { count: 5 } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("reports diagnostic when additional properties are provided", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: "test", extra: true } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("accepts valid options matching the schema", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: "valid", count: 10 },
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not validate options when enabled with true (uses defaults)", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": true,
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not validate when rule has no optionSchema", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [noModelWithName],
+        });
+        // noModelWithName has no optionSchema, so any object should be accepted
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/no-model-with-name": { anything: "goes" } as any,
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not run the rule when options are invalid", async () => {
+        const modelListener = vi.fn();
+        const ruleWithRequiredOption = createLinterRule({
+          name: "required-option-rule",
+          description: "Rule that requires a name option",
+          severity: "warning",
+          messages: { default: "always fires" },
+          optionSchema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+            },
+            required: ["name"],
+          },
+          create() {
+            return {
+              model: modelListener,
+            };
+          },
+        });
+
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithRequiredOption],
+        });
+
+        // Provide invalid options (missing required "name")
+        const configDiagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/required-option-rule": { notName: "value" } as any,
+          },
+        });
+        expectDiagnostics(configDiagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+
+        // Rule should not have run
+        await linter.lint();
+        expect(modelListener).not.toHaveBeenCalled();
       });
     });
   });
