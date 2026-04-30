@@ -14,6 +14,7 @@ def client():
         yield client
 
 
+@pytest.mark.skip(reason="https://github.com/microsoft/typespec/issues/10579 - model default serialization bug")
 def test_put_model_property(client: ClientDefaultValueClient):
     """Test case 1: @clientDefaultValue for model property."""
     body = ModelWithDefaultValues(name="test")
