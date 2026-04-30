@@ -342,12 +342,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var messageParameter = new ParameterProvider(
                 "message",
-                $"The pipeline message to send.",
+                $"The pipeline message containing the request to send.",
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
 
             var signature = new MethodSignature(
                 GetNextResponseMethodName,
-                $"Gets the next response.",
+                $"Sends the request in the pipeline message and returns the response.",
                 IsAsync ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Async : MethodSignatureModifiers.Private,
                 IsAsync
                     ? new CSharpType(typeof(ValueTask<>), typeof(ClientResult))
