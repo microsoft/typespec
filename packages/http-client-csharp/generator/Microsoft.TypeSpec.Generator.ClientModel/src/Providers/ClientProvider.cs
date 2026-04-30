@@ -1861,9 +1861,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // Per the Service-Driven Evolution guidance, we only emit a back-compat overload when
-                // the added parameter is *optional*. A parameter without a default is required, and
-                // adding a required parameter is itself a breaking change.
                 if (currentParam.DefaultValue is null)
                 {
                     return false;
@@ -1875,7 +1872,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // All previous parameters must have been matched.
             return previousIndex == previousSignature.Parameters.Count;
         }
 
