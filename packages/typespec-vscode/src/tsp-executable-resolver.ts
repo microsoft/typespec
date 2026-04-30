@@ -80,7 +80,12 @@ export async function resolveTypeSpecServer(
   // location that is not on PATH, or a workspace-specific installation.
   let serverPath: string | undefined = workspace.getConfiguration().get(SettingName.TspServerPath);
   if (serverPath && typeof serverPath !== "string") {
-    throw new Error(`VS Code configuration option '${SettingName.TspServerPath}' must be a string`);
+    logger.error(
+      `VS Code configuration option '${SettingName.TspServerPath}' must be a string. Please check your settings.`,
+      [],
+      { showPopup: true },
+    );
+    return undefined;
   }
   const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 

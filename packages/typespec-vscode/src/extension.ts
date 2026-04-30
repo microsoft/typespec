@@ -126,6 +126,12 @@ export async function activate(context: ExtensionContext) {
                 async (tel): Promise<ResultCode> => {
                   return await emitCode(context, uri, tel);
                 },
+                undefined,
+                (e) => {
+                  logger.error("Unexpected error when emitting code from TypeSpec.", [e], {
+                    showPopup: true,
+                  });
+                },
               );
             },
           );
@@ -165,6 +171,13 @@ export async function activate(context: ExtensionContext) {
                     }
                   },
                   args?.activityId,
+                  (e) => {
+                    logger.error(
+                      "Unexpected error when restarting TypeSpec language server.",
+                      [e],
+                      { showPopup: true },
+                    );
+                  },
                 );
               },
             );
@@ -198,7 +211,29 @@ export async function activate(context: ExtensionContext) {
           await telemetryClient.doOperationWithTelemetry(
             TelemetryEventName.PreviewOpenApi3,
             async (tel): Promise<ResultCode> => {
-              return await showOpenApi3(uri, context, tspLanguageClient!, tel);
+              if (!tspLanguageClient || tspLanguageClient.state !== State.Running) {
+                logger.error(
+                  "TypeSpec language server is not running. Please restart the server.",
+                  [],
+                  {
+                    showPopup: true,
+                    popupButtonText: "Restart Server",
+                    onPopupButtonClicked: () => {
+                      void commands.executeCommand(CommandName.RestartServer, {
+                        forceRecreate: true,
+                      });
+                    },
+                  },
+                );
+                return ResultCode.Fail;
+              }
+              return await showOpenApi3(uri, context, tspLanguageClient, tel);
+            },
+            undefined,
+            (e) => {
+              logger.error("Unexpected error when previewing OpenAPI3.", [e], {
+                showPopup: true,
+              });
             },
           );
         }),
@@ -212,6 +247,14 @@ export async function activate(context: ExtensionContext) {
               TelemetryEventName.ServerPathSettingChanged,
               async (tel) => {
                 return await recreateLSPClient(context, tel.activityId);
+              },
+              undefined,
+              (e) => {
+                logger.error(
+                  "Unexpected error when restarting server after path change.",
+                  [e],
+                  { showPopup: true },
+                );
               },
             );
           }
@@ -318,6 +361,13 @@ export async function activate(context: ExtensionContext) {
             return installResult.code;
           },
           tel.activityId,
+          (e) => {
+            logger.error(
+              "Unexpected error when starting TypeSpec language server.",
+              [e],
+              { showPopup: true },
+            );
+          },
         );
       } else {
         logger.info("No workspace opened, Skip starting TypeSpec language service.");
@@ -339,36 +389,58 @@ export async function activate(context: ExtensionContext) {
 }
 
 export async function deactivate() {
-  await tspLanguageClient?.stop();
-  await clearOpenApi3PreviewTempFolders();
+  try {
+    await tspLanguageClient?.stop();
+    await clearOpenApi3PreviewTempFolders();
+  } catch (e) {
+    logger.error("Error during extension deactivation", [e]);
+  }
 }
 
 async function recreateLSPClient(
   context: ExtensionContext,
   activityId: string,
 ): Promise<Result<TspLanguageClient>> {
-  logger.info("Recreating TypeSpec LSP server...");
-  const oldClient = tspLanguageClient;
-  setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
-  await oldClient?.stop();
-  if (!tspLanguageClient) {
-    telemetryClient.logOperationDetailTelemetry(activityId, {
-      error: "Failed to create TspLanguageClient",
-    });
-    return { code: ResultCode.Fail, details: "Failed to create TspLanguageClient." };
-  } else {
-    await tspLanguageClient.start(activityId);
-    if (tspLanguageClient.state === State.Running) {
+  try {
+    logger.info("Recreating TypeSpec LSP server...");
+    const oldClient = tspLanguageClient;
+    setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
+    await oldClient?.stop();
+    if (!tspLanguageClient) {
       telemetryClient.logOperationDetailTelemetry(activityId, {
-        compilerVersion: tspLanguageClient.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+        error: "Failed to create TspLanguageClient",
       });
-      return { code: ResultCode.Success, value: tspLanguageClient };
+      return { code: ResultCode.Fail, details: "Failed to create TspLanguageClient." };
     } else {
-      telemetryClient.logOperationDetailTelemetry(activityId, {
-        error: `Failed to start TspLanguageClient.`,
-      });
-      return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+      await tspLanguageClient.start(activityId);
+      if (tspLanguageClient.state === State.Running) {
+        telemetryClient.logOperationDetailTelemetry(activityId, {
+          compilerVersion: tspLanguageClient.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+        });
+        return { code: ResultCode.Success, value: tspLanguageClient };
+      } else {
+        telemetryClient.logOperationDetailTelemetry(activityId, {
+          error: `Failed to start TspLanguageClient.`,
+        });
+        return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+      }
     }
+  } catch (e) {
+    logger.error(
+      "TypeSpec language server is unavailable due to an unexpected error. Please restart the server.",
+      [e],
+      {
+        showPopup: true,
+        popupButtonText: "Restart Server",
+        onPopupButtonClicked: () => {
+          void vscode.commands.executeCommand(CommandName.RestartServer, { forceRecreate: true });
+        },
+      },
+    );
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      error: `Unexpected error in recreateLSPClient: ${e}`,
+    });
+    return { code: ResultCode.Fail, details: `Unexpected error: ${e}` };
   }
 }
 

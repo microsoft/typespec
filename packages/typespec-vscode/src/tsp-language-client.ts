@@ -8,9 +8,13 @@ import type {
 } from "@typespec/compiler";
 import { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
-import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
+import { commands, ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import {
+  CloseHandlerResult,
+  ErrorHandlerResult,
   Executable,
+  ErrorAction,
+  CloseAction,
   LanguageClient,
   LanguageClientOptions,
   TextDocumentIdentifier,
@@ -21,6 +25,7 @@ import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
+  CommandName,
   LspClientCustomRequest_ChatComplete_Name,
   LspClientCustomRequest_ChatCompletion_Params,
 } from "./types.js";
@@ -269,6 +274,35 @@ export class TspLanguageClient {
         { scheme: "file", language: "yaml", pattern: `**/${TspConfigFileName}` },
       ],
       outputChannel,
+      errorHandler: {
+        error(error, message, count): ErrorHandlerResult {
+          logger.error(
+            `TypeSpec language server encountered an error: ${error.message ?? error}`,
+            [message],
+          );
+          // Stop retrying after 3 errors to avoid infinite loops
+          if (count && count >= 3) {
+            return { action: ErrorAction.Shutdown };
+          }
+          return { action: ErrorAction.Continue };
+        },
+        closed(): CloseHandlerResult {
+          logger.error(
+            "TypeSpec language server stopped unexpectedly. Please restart the server.",
+            [],
+            {
+              showPopup: true,
+              popupButtonText: "Restart Server",
+              onPopupButtonClicked: () => {
+                void commands.executeCommand(CommandName.RestartServer, { forceRecreate: true });
+              },
+            },
+          );
+          // Do not automatically restart — prompt user to restart manually
+          // to avoid infinite restart loops if the server keeps crashing
+          return { action: CloseAction.DoNotRestart };
+        },
+      },
     };
 
     const name = "TypeSpec";
