@@ -122,10 +122,11 @@ export class TelemetryClient {
     activityId?: string,
     /**
      * Optional callback to handle unhandled exceptions from the operation.
-     * If provided, the exception will NOT be re-thrown and this callback will be invoked instead.
+     * If provided, the exception will NOT be re-thrown and this callback will be invoked instead,
+     * and its return value will be used as the result of the operation.
      * If not provided, the exception will be re-thrown after telemetry logging (default behavior).
      */
-    onUnhandledException?: (error: unknown) => void,
+    onUnhandledException?: (error: unknown) => T,
   ): Promise<T> {
     const opTelemetryEvent = this.createOperationTelemetryEvent(eventName, activityId);
     let eventSent = false;
@@ -156,8 +157,7 @@ export class TelemetryClient {
       });
       opTelemetryEvent.result = ResultCode.Fail;
       if (onUnhandledException) {
-        onUnhandledException(e);
-        return ResultCode.Fail as T;
+        return onUnhandledException(e);
       }
       // just report the issue in telemetry and re-throw the error
       throw e;

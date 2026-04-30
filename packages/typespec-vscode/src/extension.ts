@@ -131,6 +131,7 @@ export async function activate(context: ExtensionContext) {
                   logger.error("Unexpected error when emitting code from TypeSpec.", [e], {
                     showPopup: true,
                   });
+                  return ResultCode.Fail;
                 },
               );
             },
@@ -177,6 +178,7 @@ export async function activate(context: ExtensionContext) {
                       [e],
                       { showPopup: true },
                     );
+                    return { code: ResultCode.Fail };
                   },
                 );
               },
@@ -234,6 +236,7 @@ export async function activate(context: ExtensionContext) {
               logger.error("Unexpected error when previewing OpenAPI3.", [e], {
                 showPopup: true,
               });
+              return ResultCode.Fail;
             },
           );
         }),
@@ -250,11 +253,10 @@ export async function activate(context: ExtensionContext) {
               },
               undefined,
               (e) => {
-                logger.error(
-                  "Unexpected error when restarting server after path change.",
-                  [e],
-                  { showPopup: true },
-                );
+                logger.error("Unexpected error when restarting server after path change.", [e], {
+                  showPopup: true,
+                });
+                return { code: ResultCode.Fail };
               },
             );
           }
@@ -362,11 +364,10 @@ export async function activate(context: ExtensionContext) {
           },
           tel.activityId,
           (e) => {
-            logger.error(
-              "Unexpected error when starting TypeSpec language server.",
-              [e],
-              { showPopup: true },
-            );
+            logger.error("Unexpected error when starting TypeSpec language server.", [e], {
+              showPopup: true,
+            });
+            return ResultCode.Fail;
           },
         );
       } else {
