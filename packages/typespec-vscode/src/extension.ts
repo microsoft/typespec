@@ -436,13 +436,7 @@ async function recreateLSPClient(
     logger.error(
       "TypeSpec language server is unavailable due to an unexpected error. Please restart the server.",
       [e],
-      {
-        showPopup: true,
-        popupButtonText: "Restart Server",
-        onPopupButtonClicked: () => {
-          void vscode.commands.executeCommand(CommandName.RestartServer, { forceRecreate: true });
-        },
-      },
+      { showPopup: true },
     );
     telemetryClient.logOperationDetailTelemetry(activityId, {
       error: `Unexpected error in recreateLSPClient: ${e}`,
