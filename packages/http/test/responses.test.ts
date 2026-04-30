@@ -341,4 +341,20 @@ describe("union of unannotated return types", () => {
     `);
     expect(responses.length).toBeGreaterThanOrEqual(1);
   });
+
+  it("treats discriminated union as a single body type (not expanded)", async () => {
+    const responses = await getResponses(`
+      @discriminated
+      union Pet { cat: Cat, dog: Dog }
+      model Cat { kind: "cat"; meow: boolean }
+      model Dog { kind: "dog"; bark: boolean }
+      op get(): Pet;
+    `);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].statusCodes).toBe(200);
+    const body = responses[0].responses[0].body;
+    ok(body);
+    expect(body.type.kind).toBe("Union");
+    expect((body.type as Union).name).toBe("Pet");
+  });
 });
