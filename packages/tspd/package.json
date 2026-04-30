@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.73.1",
+  "version": "0.74.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating TypeSpec docs",
   "homepage": "https://typespec.io",
@@ -36,7 +36,7 @@
     }
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -55,34 +55,33 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@alloy-js/core": "^0.21.0",
-    "@alloy-js/markdown": "^0.21.0",
-    "@alloy-js/typescript": "^0.21.0",
-    "@microsoft/api-extractor": "^7.52.1",
-    "@microsoft/api-extractor-model": "^7.30.6",
-    "@microsoft/tsdoc": "^0.16.0",
-    "@microsoft/tsdoc-config": "^0.18.0",
+    "@alloy-js/core": "catalog:",
+    "@alloy-js/markdown": "catalog:",
+    "@alloy-js/typescript": "catalog:",
+    "@microsoft/api-extractor": "catalog:",
+    "@microsoft/api-extractor-model": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
+    "@microsoft/tsdoc-config": "catalog:",
     "@typespec/compiler": "workspace:^",
-    "picocolors": "~1.1.1",
-    "prettier": "~3.6.2",
-    "typedoc": "^0.28.1",
-    "typedoc-plugin-markdown": "^4.5.2",
-    "yaml": "~2.8.0",
-    "yargs": "~18.0.0"
+    "picocolors": "catalog:",
+    "prettier": "catalog:",
+    "typedoc": "catalog:",
+    "typedoc-plugin-markdown": "catalog:",
+    "yaml": "catalog:",
+    "yargs": "catalog:"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.21.0",
-    "@alloy-js/rollup-plugin": "^0.1.0",
-    "@types/node": "~24.10.1",
-    "@types/yargs": "~17.0.33",
+    "@alloy-js/cli": "catalog:",
+    "@alloy-js/rollup-plugin": "catalog:",
+    "@types/node": "catalog:",
+    "@types/yargs": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/prettier-plugin-typespec": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.4",
-    "@vitest/ui": "^4.0.4",
-    "c8": "^10.1.3",
-    "rimraf": "~6.1.2",
-    "source-map-support": "~0.5.21",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.4"
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "rimraf": "catalog:",
+    "source-map-support": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

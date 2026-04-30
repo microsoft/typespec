@@ -3,11 +3,12 @@ import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
-export class UnionMutation<
+export abstract class UnionMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
@@ -20,18 +21,22 @@ export class UnionMutation<
     sourceType: Union,
     referenceTypes: MemberType[] = [],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   protected mutateVariants() {
-    this.variants = new Map(
-      [...this.sourceType.variants].map(([name, variant]) => [
-        name,
-        this.engine.mutate(variant, this.options),
-      ]),
-    );
+    const variants = [...this.sourceType.variants.values()];
+    for (const variant of variants) {
+      this.variants.set(
+        variant.name,
+        this.engine.mutate(variant, this.options, this.startVariantEdge()),
+      );
+    }
   }
+
+  protected abstract startVariantEdge(): MutationHalfEdge;
 
   mutate() {
     this.mutateVariants();

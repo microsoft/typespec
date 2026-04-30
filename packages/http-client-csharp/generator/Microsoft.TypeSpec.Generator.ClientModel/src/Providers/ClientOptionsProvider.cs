@@ -10,6 +10,9 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Shared;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -17,34 +20,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientOptionsProvider : TypeProvider
     {
-        private const string LatestVersionFieldName = "LatestVersion";
-        private const string VersionPropertyName = "Version";
+        private const string VersionSuffix = "Version";
+        private const string ApiVersionSuffix = "ApiVersion";
+        private const string LatestPrefix = "Latest";
+        private const string LatestVersionFieldName = $"{LatestPrefix}{VersionSuffix}";
+
         private readonly InputClient _inputClient;
         private readonly ClientProvider _clientProvider;
-        private readonly TypeProvider? _serviceVersionEnum;
-        private readonly PropertyProvider? _versionProperty;
-        private FieldProvider? _latestVersionField;
+        private readonly Dictionary<InputEnumType, EnumProvider>? _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;
 
-        // Internal constructor for testing purposes
         internal ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            var inputEnumType = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
-                    .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
-            if (inputEnumType != null)
+            List<InputEnumType> inputEnums = [.. _inputClient.Parameters
+                    .Where(p => p.IsApiVersion && p.Type is InputEnumType)
+                    .Select(p => (InputEnumType)p.Type)];
+            if (inputEnums.Count == 0)
             {
-                _serviceVersionEnum = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnumType, this);
-                // Ensure the service version enum uses the same namespace as the options class since it is nested.
-                _serviceVersionEnum?.Update(@namespace: Type.Namespace);
-                _versionProperty = new(
-                    null,
-                    MethodSignatureModifiers.Internal,
-                    typeof(string),
-                    VersionPropertyName,
-                    new AutoPropertyBody(false),
-                    this);
+                inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                        .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            }
+
+            if (inputEnums.Count > 0)
+            {
+                _serviceVersionsEnums = [];
+                foreach (var inputEnum in inputEnums)
+                {
+                    var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum, this);
+                    if (enumProvider != null)
+                    {
+                        // Ensure the service version enum uses the same namespace as the options class since it is nested.
+                        enumProvider.Update(@namespace: Type.Namespace);
+                        _serviceVersionsEnums.Add(inputEnum, enumProvider);
+                    }
+
+                    // Only create one version property for single service clients
+                    if (!_inputClient.IsMultiServiceClient)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -74,10 +91,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines if a client has only standard parameters (ApiVersion and Endpoint).
+        /// Determines if a client can share the singleton options instance.
+        /// Multi-service clients always need their own options type for service-specific API version properties.
+        /// Only optional parameters with default values that become properties on the options class
+        /// should trigger a separate client-specific options type.
         /// </summary>
         /// <param name="inputClient">The input client to check.</param>
-        /// <returns>True if the client has only standard parameters, false otherwise.</returns>
+        /// <returns>True if the client can share the singleton options instance, false otherwise.</returns>
         private static bool UseSingletonInstance(InputClient inputClient)
         {
             var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
@@ -85,6 +105,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Only one root client, no need for singleton
                 return false;
+            }
+
+            // Multi-service clients need their own options type for service-specific API version properties
+            if (inputClient.IsMultiServiceClient)
+            {
+                return false;
+            }
+
+            // Library spans multiple services (e.g. multiple @service-decorated namespaces without
+            // an explicit @client decorator, producing one single-service root client per service).
+            // Each root client needs its own options type for its service-specific API version.
+            int apiVersionEnumCount = 0;
+            foreach (var inputEnum in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums)
+            {
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    apiVersionEnumCount++;
+                    if (apiVersionEnumCount > 1)
+                    {
+                        return false;
+                    }
+                }
             }
 
             foreach (var parameter in inputClient.Parameters)
@@ -100,30 +142,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             return false; // Found a non-standard endpoint parameter
                         }
                     }
-                    else
+                    else if (parameter.DefaultValue != null)
                     {
-                        // Found a non-ApiVersion, non-Endpoint parameter
+                        // Found a non-ApiVersion, non-Endpoint optional parameter that will become
+                        // a property on the options class — requires a separate client-specific options type.
                         return false;
                     }
+                    // Required parameters (DefaultValue == null) are inlined as constructor parameters
+                    // on the client and do not become properties on the options class,
+                    // so they should not trigger a separate client-specific options type.
                 }
             }
             return true;
         }
 
-        internal PropertyProvider? VersionProperty => _versionProperty;
-        private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
+        internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-        private FieldProvider? BuildLatestVersionField()
+        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
-            if (_serviceVersionEnum == null)
+            if (_serviceVersionsEnums is null)
+            {
                 return null;
+            }
 
-            return new(
-                modifiers: FieldModifiers.Private | FieldModifiers.Const,
-                type: _serviceVersionEnum.Type,
-                name: LatestVersionFieldName,
-                enclosingType: this,
-                initializationValue: Static(_serviceVersionEnum.Type).Property(_serviceVersionEnum.EnumValues[^1].Name));
+            var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
+            {
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
+                }
+
+                var versionProperty = new PropertyProvider(
+                    null,
+                    MethodSignatureModifiers.Internal,
+                    typeof(string),
+                    versionPropertyName,
+                    new AutoPropertyBody(false),
+                    this);
+                properties.Add(enumProvider, versionProperty);
+            }
+
+            return properties;
+        }
+        private IReadOnlyDictionary<FieldProvider, EnumProvider>? LatestVersionsFields => field ??= BuildLatestVersionsFields();
+
+        private Dictionary<FieldProvider, EnumProvider>? BuildLatestVersionsFields()
+        {
+            if (_serviceVersionsEnums is null)
+            {
+                return null;
+            }
+
+            Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
+            {
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
+                }
+                var field = new FieldProvider(
+                    modifiers: FieldModifiers.Private | FieldModifiers.Const,
+                    type: enumProvider.Type,
+                    name: fieldName,
+                    enclosingType: this,
+                    initializationValue: Static(enumProvider.Type).Property(enumProvider.EnumValues[^1].Name));
+
+                latestVersionFields.Add(field, enumProvider);
+            }
+
+            return latestVersionFields;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
@@ -159,60 +279,203 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            if (LatestVersionField == null)
+            if (LatestVersionsFields is null)
+            {
                 return [];
+            }
 
-            return [LatestVersionField];
+            return [.. LatestVersionsFields.Keys.OrderBy(f => f.Name)];
         }
 
         protected override TypeProvider[] BuildNestedTypes()
         {
-            if (_serviceVersionEnum == null)
+            if (_serviceVersionsEnums is null)
+            {
                 return [];
+            }
 
-            return [_serviceVersionEnum];
+            return [.. _serviceVersionsEnums.Values.OrderBy(e => e.Name)];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            if (_serviceVersionEnum == null || LatestVersionField == null)
-                return [];
+            var configSectionCtor = BuildConfigurationSectionConstructor();
 
-            var versionParam = new ParameterProvider(
-                "version",
-                $"The service version",
-                _serviceVersionEnum.Type,
-                defaultValue: LatestVersionField);
-            var serviceVersionsCount = _serviceVersionEnum.EnumValues.Count;
-            List<SwitchCaseExpression> switchCases = new(serviceVersionsCount + 1);
-
-            for (int i = 0; i < serviceVersionsCount; i++)
+            if (LatestVersionsFields is null)
             {
-                var serviceVersionMember = _serviceVersionEnum.EnumValues[i];
-                // ServiceVersion.Version => "version"
-                switchCases.Add(new(
-                    Static(_serviceVersionEnum.Type).Property(serviceVersionMember.Name),
-                    new LiteralExpression(serviceVersionMember.Value)));
+                var defaultCtor = new ConstructorProvider(
+                    new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, []),
+                    MethodBodyStatement.Empty,
+                    this);
+                return [defaultCtor, configSectionCtor];
             }
 
-            switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
+            var constructorBody = new List<MethodBodyStatement>();
+            var constructorParameters = new List<ParameterProvider>();
+            foreach (var (latestVersionField, serviceVersionEnum) in LatestVersionsFields)
+            {
+                if (VersionProperties is null ||
+                    !VersionProperties.TryGetValue(serviceVersionEnum, out PropertyProvider? versionProperty))
+                {
+                    continue;
+                }
+
+                string versionParameterName = "version";
+                FormattableString versionParamDescription = $"The service version";
+                if (_inputClient.IsMultiServiceClient)
+                {
+                    versionParameterName = serviceVersionEnum.Name.ToVariableName();
+                    versionParamDescription = $"The {serviceVersionEnum.Name} service version";
+                }
+
+                var versionParam = new ParameterProvider(
+                    versionParameterName,
+                    versionParamDescription,
+                    serviceVersionEnum.Type,
+                    defaultValue: latestVersionField);
+                constructorParameters.Add(versionParam);
+
+                var enumValues = serviceVersionEnum.EnumValues;
+                var switchCases = new List<SwitchCaseExpression>(enumValues.Count + 1);
+                foreach (var serviceVersionMember in enumValues)
+                {
+                    // ServiceVersion.Version => "version"
+                    switchCases.Add(new SwitchCaseExpression(
+                        Static(serviceVersionEnum.Type).Property(serviceVersionMember.Name),
+                        new LiteralExpression(serviceVersionMember.Value)));
+                }
+
+                switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
+                constructorBody.Add(versionProperty.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate());
+            }
 
             var constructor = new ConstructorProvider(
-                new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, [versionParam]),
-                _versionProperty!.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate(),
+                new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, constructorParameters),
+                constructorBody,
                 this);
-            return [constructor];
+            return [constructor, configSectionCtor];
+        }
+
+        private ConstructorProvider BuildConfigurationSectionConstructor()
+        {
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            var experimentalAttr = new AttributeStatement(
+                typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+                [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
+
+            // Set version to latest version before the guard so it is always initialized
+            var body = new List<MethodBodyStatement>();
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        var latestVersion = serviceVersionEnum.EnumValues[^1];
+                        body.Add(versionProperty.Assign(Literal(latestVersion.Value)).Terminate());
+                    }
+                }
+            }
+
+            // if (section is null || !section.Exists()) { return; }
+            var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
+            var guardStatement = new IfStatement(guardCondition) { Return() };
+
+            body.Add(guardStatement);
+
+            // Bind version properties from configuration (after guard, default already set before guard)
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        // if (section["VersionPropertyName"] is string version) { Version = version; }
+                        var versionVarDecl = Declare(versionProperty.Name.ToVariableName(), new CSharpType(typeof(string)), out var versionVar);
+                        var ifVersionStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(versionProperty.Name)).Is(versionVarDecl));
+                        ifVersionStatement.Add(This.Property(versionProperty.Name).Assign(versionVar).Terminate());
+                        body.Add(ifVersionStatement);
+                    }
+                }
+            }
+
+            // Build a set of version property names for O(1) lookup
+            var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
+
+            // Bind non-version properties from configuration using type-aware binding
+            foreach (var property in Properties)
+            {
+                if (versionPropertyNames?.Contains(property.Name) == true)
+                {
+                    continue;
+                }
+
+                ClientSettingsProvider.AppendBindingForProperty(
+                    body,
+                    sectionParam,
+                    property.Name,
+                    property.Name.ToVariableName(),
+                    property.Type);
+            }
+
+            // Also bind custom code properties (e.g., hand-written properties added via partial classes)
+            var generatedPropNames = new HashSet<string>(Properties.Select(p => p.Name));
+            if (versionPropertyNames != null)
+            {
+                generatedPropNames.UnionWith(versionPropertyNames);
+            }
+            var customCodeProperties = CustomCodeView?.Properties;
+            if (customCodeProperties != null)
+            {
+                foreach (var prop in customCodeProperties)
+                {
+                    if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                        !generatedPropNames.Contains(prop.Name))
+                    {
+                        ClientSettingsProvider.AppendBindingForProperty(
+                            body,
+                            sectionParam,
+                            prop.Name,
+                            prop.Name.ToVariableName(),
+                            prop.Type);
+                        generatedPropNames.Add(prop.Name);
+                    }
+                }
+            }
+
+            return new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {_clientProvider.Name}Options from configuration.",
+                    MethodSignatureModifiers.Internal,
+                    [sectionParam],
+                    attributes: [experimentalAttr],
+                    initializer: new ConstructorInitializer(true, [sectionParam])),
+                new MethodBodyStatements([.. body]),
+                this);
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
-            List<PropertyProvider> properties = _versionProperty != null ? [_versionProperty] : [];
+            var properties = VersionProperties is not null
+                ? [.. VersionProperties.Values.OrderBy(p => p.Name)]
+                : new List<PropertyProvider>();
 
             foreach (var p in _inputClient.Parameters)
             {
                 if ((p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
                     && !p.IsApiVersion && p.DefaultValue != null)
                 {
+                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
+                    if (type is null)
+                    {
+                        continue;
+                    }
+
                     FormattableString? description = null;
                     var parameterDescription = DocHelpers.GetDescription(p.Summary, p.Doc);
                     if (parameterDescription is not null)
@@ -220,17 +483,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         description = $"{parameterDescription}";
                     }
 
-                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
-                    if (type != null)
-                    {
-                        properties.Add(new(
-                            description,
-                            MethodSignatureModifiers.Public,
-                            type,
-                            p.Name.ToIdentifierName(),
-                            new AutoPropertyBody(true),
-                            this));
-                    }
+                    properties.Add(new PropertyProvider(
+                        description,
+                        MethodSignatureModifiers.Public,
+                        type,
+                        p.Name.ToIdentifierName(),
+                        new AutoPropertyBody(true),
+                        this));
                 }
             }
 

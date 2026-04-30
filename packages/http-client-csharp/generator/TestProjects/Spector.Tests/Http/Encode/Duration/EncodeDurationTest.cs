@@ -54,7 +54,6 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8987")]
         public Task HeaderFloatSecondsLargerUnit() => Test(async (host) =>
         {
             var input = TimeSpan.FromMinutes(2.5);
@@ -203,7 +202,7 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         {
             var data1 = TimeSpan.FromSeconds(35.625);
             var data2 = TimeSpan.FromSeconds(46.75);
-            var body = new FloatSecondsDurationArrayProperty(new[] { data1, data2});
+            var body = new FloatSecondsDurationArrayProperty(new[] { data1, data2 });
             ClientResult<FloatSecondsDurationArrayProperty> result = await new DurationClient(host, null).GetPropertyClient().FloatSecondsArrayAsync(body);
             Assert.AreEqual(body.Value, result.Value.Value);
         });
@@ -257,7 +256,6 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8987")]
         public Task QueryFloatSecondsLargerUnit() => Test(async (host) =>
         {
             var input = TimeSpan.FromMinutes(2.5);
@@ -307,7 +305,6 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8987")]
         public Task QueryFloatMillisecondsLargerUnit() => Test(async (host) =>
         {
             var input = TimeSpan.FromMinutes(3.5);
@@ -357,7 +354,6 @@ namespace TestProjects.Spector.Tests.Http.Encode.Duration
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/8987")]
         public Task HeaderFloatMillisecondsLargerUnit() => Test(async (host) =>
         {
             var input = TimeSpan.FromMinutes(3.5);

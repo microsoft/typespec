@@ -233,7 +233,7 @@ class LROResponse(Response):
 
     def get_no_polling_method(self, async_mode: bool) -> str:
         """Get the default no polling method"""
-        return self.get_no_polling_method_path(async_mode).split(".")[-1]
+        return self.get_no_polling_method_path(async_mode).rsplit(".", maxsplit=1)[-1]
 
     @staticmethod
     def get_base_polling_method_path(async_mode: bool) -> str:
@@ -242,7 +242,7 @@ class LROResponse(Response):
 
     def get_base_polling_method(self, async_mode: bool) -> str:
         """Get the base polling method."""
-        return self.get_base_polling_method_path(async_mode).split(".")[-1]
+        return self.get_base_polling_method_path(async_mode).rsplit(".", maxsplit=1)[-1]
 
     def type_annotation(self, **kwargs: Any) -> str:
         return f"{self.get_poller(kwargs.get('async_mode', False))}[{super().type_annotation(**kwargs)}]"

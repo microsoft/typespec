@@ -32,7 +32,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<Task<Compilation>>? compilation = null,
             Func<Task<Compilation>>? lastContractCompilation = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
-            string? configuration = null)
+            string? configuration = null,
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -40,7 +42,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputModels: inputModels,
                 clients: clients,
                 apiVersions: apiVersions,
-                configuration: configuration);
+                configuration: configuration,
+                createCSharpTypeCore: createCSharpTypeCore,
+                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();

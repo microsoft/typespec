@@ -3,7 +3,7 @@ import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
-import { getSubgraph } from "../../test/utils.js";
+import { getEngine } from "../../test/utils.js";
 let runner: TesterInstance;
 beforeEach(async () => {
   runner = await Tester.createInstance();
@@ -17,10 +17,15 @@ it("handles mutation of element types", async () => {
       model ${t.model("Bar")} {}
 
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const propNode = subgraph.getNode(prop);
-  const barNode = subgraph.getNode(Bar);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const propNode = engine.getMutationNode(prop);
+  const barNode = engine.getMutationNode(Bar);
+  fooNode.connectProperty(propNode);
+  const tupleType = prop.type as Tuple;
+  const tupleNode = engine.getMutationNode(tupleType);
+  propNode.connectType(tupleNode);
+  tupleNode.connectElement(barNode, 0);
   barNode.mutate();
   expect(barNode.isMutated).toBe(true);
   expect(propNode.isMutated).toBe(true);

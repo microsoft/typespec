@@ -19,7 +19,6 @@ import {
   Model,
   ModelProperty,
   Scalar,
-  serializeValueAsJson,
   Type,
   Union,
 } from "@typespec/compiler";
@@ -27,6 +26,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { serializeExample } from "./examples.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-0.js";
@@ -75,7 +75,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      setProperty(target, "example", serializeValueAsJson(program, examples[0].value, type));
+      setProperty(target, "example", serializeExample(program, examples[0].value, type));
     }
   }
 

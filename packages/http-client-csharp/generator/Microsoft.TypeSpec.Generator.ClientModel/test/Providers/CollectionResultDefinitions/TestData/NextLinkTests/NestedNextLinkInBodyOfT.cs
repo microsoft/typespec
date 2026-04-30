@@ -44,7 +44,7 @@ namespace Sample
             global::System.Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
             if ((nextPage != null))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {

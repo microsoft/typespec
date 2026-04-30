@@ -5,8 +5,10 @@ import { buildParameterDescriptors, getReturnType } from "../utils/operation.js"
 import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
 
-export interface FunctionDeclarationPropsWithType
-  extends Omit<ts.FunctionDeclarationProps, "name"> {
+export interface FunctionDeclarationPropsWithType extends Omit<
+  ts.FunctionDeclarationProps,
+  "name"
+> {
   type: Operation;
   name?: string;
   parametersMode?: "prepend" | "append" | "replace";

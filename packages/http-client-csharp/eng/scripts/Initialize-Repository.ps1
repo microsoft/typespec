@@ -26,16 +26,28 @@ try {
         Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
         Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
-        Invoke-LoggedCommand "npm ci"
+        if ($UseTypeSpecNext) {
+            Invoke-LoggedCommand "npm ci --force"
+        }
+        else {
+            Invoke-LoggedCommand "npm ci"
+        }
     }
     elseif ($UseTypeSpecNext) {
-        # TODO: add use typespec next to template later
+        Invoke-LoggedCommand "npm install --force"
     }
     else {
         Invoke-LoggedCommand "npm ci"
     }
 
-    Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    if ($UseTypeSpecNext) {
+        # npm ls may report peer dependency mismatches with @next versions; ignore exit code
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput -IgnoreExitCode
+        $global:LASTEXITCODE = 0
+    }
+    else {
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    }
 
     Write-Host "artifactStagingDirectory: $env:BUILD_ARTIFACTSTAGINGDIRECTORY"
     Write-Host "BuildArtifactsPath: $BuildArtifactsPath"

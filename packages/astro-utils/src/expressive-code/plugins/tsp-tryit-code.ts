@@ -43,6 +43,12 @@ export default function (playgroundUrl: string) {
         display: flex;
         align-items: center;
         padding: 0 0.5rem;
+        text-decoration: none;
+        color: var(--colorPaletteGreenBackground3);
+
+        &:hover {
+          color: var(--colorPaletteGreenBackground4);
+        }
       }
 
       .tryit-link.with-title {
@@ -59,12 +65,7 @@ export default function (playgroundUrl: string) {
         right: 0px;
         height: 34px;
       }
-        
 
-      .tryit-link {
-        text-decoration: none;
-        color: var(--colorPaletteGreenBackground3);
-      }
 
       .play {
         height: 20px;
@@ -85,7 +86,7 @@ export default function (playgroundUrl: string) {
 
         const compilerOptions = JSON.parse(tryitStr);
         const extraElements = [];
-        const hasTitle = metaOptions.getString("title");
+        const hasTitle = codeBlock.props.title || metaOptions.getString("title");
         extraElements.push(
           h(
             "a",

@@ -78,9 +78,8 @@ def serialize_multipart_data_entry(data_entry: Any) -> Any:
 
 def prepare_multipart_form_data(
     body: Mapping[str, Any], multipart_fields: list[str], data_fields: list[str]
-) -> tuple[list[FileType], dict[str, Any]]:
+) -> list[FileType]:
     files: list[FileType] = []
-    data: dict[str, Any] = {}
     for multipart_field in multipart_fields:
         multipart_entry = body.get(multipart_field)
         if isinstance(multipart_entry, list):
@@ -88,10 +87,12 @@ def prepare_multipart_form_data(
         elif multipart_entry:
             files.append((multipart_field, multipart_entry))
 
+    # if files is empty, sdk core library can't handle multipart/form-data correctly, so
+    # we put data fields into files with filename as None to avoid that scenario.
     for data_field in data_fields:
         data_entry = body.get(data_field)
         if data_entry:
-            data[data_field] = serialize_multipart_data_entry(data_entry)
+            files.append((data_field, str(serialize_multipart_data_entry(data_entry))))
 
-    return files, data
+    return files
 {% endif %}

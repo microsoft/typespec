@@ -5,15 +5,16 @@ dictionaries:
   - node
   - typescript
 words:
+  - Ablack
   - Adoptium
   - agentic
+  - agentics
   - aiohttp
   - alzimmer
   - amqp
   - AQID
   - Arize
   - arizeaiobservabilityeval
-  - Ablack
   - arraya
   - astimezone
   - astro
@@ -36,10 +37,11 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - cadlplayground
+  - canidae
+  - canonicalizer
   - Cblack
   - Cbrown
-  - cadlplayground
-  - canonicalizer
   - clsx
   - cobertura
   - codehaus
@@ -48,6 +50,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - Creds
   - CRUDL
   - ctxt
   - dbaeumer
@@ -83,6 +86,7 @@ words:
   - ESRP
   - etree
   - fastify
+  - felidae
   - fluentui
   - français
   - freadme
@@ -90,7 +94,6 @@ words:
   - genproto
   - getpgid
   - giacamo
-  - globby
   - graalvm
   - Gson
   - Hdvcmxk
@@ -127,6 +130,7 @@ words:
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -144,6 +148,7 @@ words:
   - lzutf
   - MACVMIMAGE
   - MACVMIMAGEM
+  - marshal
   - mday
   - methodsubscriptionid
   - mgmt
@@ -157,6 +162,7 @@ words:
   - msrest
   - multis
   - munge
+  - muscidae
   - mylib
   - myname
   - mypy
@@ -165,6 +171,7 @@ words:
   - nexted
   - nihao
   - nint
+  - noauth
   - NODEFS
   - noformat
   - nologo
@@ -191,6 +198,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pkgs
   - pnpx
   - posargs
   - primitivea
@@ -241,6 +249,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -248,8 +257,8 @@ words:
   - ssvs
   - statment
   - strs
+  - stubbed
   - swaggerui
-  - syncpack
   - TCGC
   - terlson
   - timegm
@@ -263,6 +272,7 @@ words:
   - tspwebsitepr
   - tsvs
   - typespec
+  - typespecacr
   - typespecvs
   - tzname
   - Uhoh
@@ -270,6 +280,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -277,11 +288,13 @@ words:
   - unioned
   - unionified
   - unionify
+  - unmarshal
   - unparented
   - unprefixed
   - unprojected
   - unrepresentable
   - unsourced
+  - unstubbed
   - unversioned
   - venv
   - venvtools
@@ -299,6 +312,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
@@ -328,6 +343,9 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - "**/*.lock.yml"
+  - pnpm-workspace.yaml
+  - "**/dependabot.yml"
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
@@ -348,6 +366,10 @@ patterns:
   - name: Authorization_Basic
     description: Ignore Base64 authorization tokens
     pattern: "/Authorization: Basic\\s+\\S+/g"
+  - name: Todo
+    description: Ignore TODO comments with usernames
+    pattern: /TODO[\/\s\(][a-zA-Z0-9_-]+/g
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic
+  - Todo

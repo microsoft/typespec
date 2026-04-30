@@ -28,12 +28,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? keyType = null;
             InputType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadComplexType("keyType", options, ref keyType)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -47,6 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             var dictType = new InputDictionaryType("Dictionary", keyType, valueType)
             {
                 Decorators = decorators ?? [],
+                External = external
             };
             if (id != null)
             {

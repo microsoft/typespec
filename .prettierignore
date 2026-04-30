@@ -11,6 +11,9 @@
 # Pnpm lock file
 pnpm-lock.yaml
 
+# Agentic workflow lock file
+**/*.lock.yml
+
 # Emu spec file, formatting is wrong
 packages/spec/src/spec.emu.html
 
@@ -80,6 +83,9 @@ packages/typespec-vscode/swagger-ui/swagger-ui*
 # Docs with code
 docs/samples/client/csharp/oauth/readme.md
 packages/http-client-csharp/generator/docs/architecture.md
+
+# http-server-csharp snapshot test output
+packages/http-server-csharp/test/snapshots/sample-service/
 
 .gitattributes
 CODEOWNERS

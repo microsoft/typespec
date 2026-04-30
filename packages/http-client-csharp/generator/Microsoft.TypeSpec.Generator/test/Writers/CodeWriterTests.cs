@@ -194,6 +194,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteMethod_NonDocumentComment()
+        {
+            var methodSignature = new MethodSignature(
+                "TestMethod",
+                $"To test a method with a non-document comment",
+                MethodSignatureModifiers.Public,
+                typeof(void),
+                null,
+                [],
+                NonDocumentComment: "This is a non-document comment");
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("// This is a non-document comment\npublic global::System.Void TestMethod()", result);
+        }
+
+        [Test]
         public void CodeWriter_WriteField()
         {
             var field1 = new FieldProvider(FieldModifiers.Private, typeof(int), "_intConst", new TestTypeProvider(), $"To test int");
@@ -606,6 +624,107 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var expected = Helpers.GetExpectedFromFile();
             var result = codeWriter.ToString(false);
 
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethodDeclaration_WithPartialModifier()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("private partial void DefineAdditionalProperties()", result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_PartialMethodWithBody()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            var method = new MethodProvider(
+                methodSignature,
+                MethodBodyStatement.Empty,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_PartialMethodWithoutBody()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            var method = new MethodProvider(
+                methodSignature,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethodDeclaration_WithAbstractModifier()
+        {
+            var methodSignature = new MethodSignature(
+                "GetDefaultOptions",
+                $"Gets the default options.",
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Abstract,
+                typeof(string),
+                null,
+                []);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("protected abstract string GetDefaultOptions()", result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_AbstractMethodWithoutBody()
+        {
+            var methodSignature = new MethodSignature(
+                "GetDefaultOptions",
+                $"Gets the default options.",
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Abstract,
+                typeof(string),
+                null,
+                []);
+            var method = new MethodProvider(
+                methodSignature,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
             Assert.AreEqual(expected, result);
         }
     }

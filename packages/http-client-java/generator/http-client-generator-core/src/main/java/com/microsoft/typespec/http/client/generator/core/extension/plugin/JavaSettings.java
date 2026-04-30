@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class JavaSettings {
     private static JavaSettings instance;
     private static NewPlugin host;
     private static String header;
-    private static final Map<String, Object> SIMPLE_JAVA_SETTINGS = new HashMap<>();
+    private static final Map<String, Object> SIMPLE_JAVA_SETTINGS = new LinkedHashMap<>();
     private static Logger logger;
     private final boolean useKeyCredential;
     private final String flavor;
@@ -70,7 +70,7 @@ public class JavaSettings {
         }
     }
 
-    static void setHost(NewPlugin host) {
+    public static void setHost(NewPlugin host) {
         JavaSettings.host = host;
         logger = new PluginLogger(host, JavaSettings.class);
     }
@@ -122,7 +122,7 @@ public class JavaSettings {
 
     private static Map<Integer, String> parseStatusCodeMapping(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            Map<Integer, String> mapping = new HashMap<>();
+            Map<Integer, String> mapping = new LinkedHashMap<>();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 int key = Integer.parseInt(reader.getFieldName());
                 reader.nextToken();
@@ -649,7 +649,7 @@ public class JavaSettings {
          * @param settings The settings that are used by the modeler.
          */
         public ModelerSettings(Map<String, Object> settings) {
-            this.settings = settings == null ? Collections.emptyMap() : settings;
+            this.settings = settings == null ? Map.of() : settings;
         }
 
         /**
@@ -1523,7 +1523,7 @@ public class JavaSettings {
         return useObjectForUnknown;
     }
 
-    private final Map<String, String> renameModel = new HashMap<>();
+    private final Map<String, String> renameModel = new LinkedHashMap<>();
 
     public Map<String, String> getJavaNamesForRenameModel() {
         return renameModel;
@@ -1602,7 +1602,7 @@ public class JavaSettings {
             } else {
                 // Single values will be returned as the string representation.
                 logger.debug("Option, string, {} : {}", settingName, jsonString);
-                action.accept(Collections.singletonList(jsonString));
+                action.accept(List.of(jsonString));
             }
 
             return null;

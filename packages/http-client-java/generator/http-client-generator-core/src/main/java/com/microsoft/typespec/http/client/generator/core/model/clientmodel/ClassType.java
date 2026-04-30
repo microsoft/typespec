@@ -26,7 +26,7 @@ import java.util.function.Function;
 /**
  * The details of a class type that is used by a client.
  */
-public class ClassType implements IType {
+public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonTypeTrait {
     private static ClassType withClientCoreReplacement(String azureClass, String clientCoreClass) {
         return withClientCoreAndVNextReplacement(azureClass, clientCoreClass, clientCoreClass);
     }
@@ -282,6 +282,7 @@ public class ClassType implements IType {
     public static final ClassType POLLER_FLUX = new ClassType("com.azure.core.util.polling", "PollerFlux");
 
     // Complex mapped types
+    // JSON type is STRING, wire type is Base64Url/Base64Uri, client type is byte[]
     public static final ClassType BASE_64_URL
         = withClientCoreReplacementBuilder("com.azure.core.util.Base64Url", "io.clientcore.core.utils.Base64Uri", false)
             .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
@@ -310,6 +311,7 @@ public class ClassType implements IType {
             .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, BinaryData::fromObject)")
             .build();
 
+    // JSON type is STRING, wire type is DateTimeRfc1123, client type is OffsetDateTime
     public static final ClassType DATE_TIME_RFC_1123
         = withClientCoreReplacementBuilder("com.azure.core.util.DateTimeRfc1123",
             "io.clientcore.core.utils.DateTimeRfc1123", false)
@@ -497,9 +499,17 @@ public class ClassType implements IType {
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, OffsetDateTime::parse)")
         .build();
 
+    // JSON type is NUMERIC, client type is OffsetDateTime
     public static final ClassType UNIX_TIME_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC, client type is Duration
     public static final ClassType DURATION_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC, client type is Duration
     public static final ClassType DURATION_DOUBLE = new ClassType.Builder(false).prototypeAsDouble().build();
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final ClassType DURATION_MILLISECONDS_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final ClassType DURATION_MILLISECONDS_DOUBLE
+        = new ClassType.Builder(false).prototypeAsDouble().build();
 
     public static final ClassType URL = new Builder(false)
         .defaultValueExpressionConverter(defaultValueExpression -> "new URL(\"" + defaultValueExpression + "\")")
@@ -691,6 +701,10 @@ public class ClassType implements IType {
             clientType = ClassType.DURATION;
         } else if (this == ClassType.DURATION_DOUBLE) {
             clientType = ClassType.DURATION;
+        } else if (this == ClassType.DURATION_MILLISECONDS_LONG) {
+            clientType = ClassType.DURATION;
+        } else if (this == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            clientType = ClassType.DURATION;
         }
         return clientType;
     }
@@ -782,6 +796,35 @@ public class ClassType implements IType {
     @Override
     public boolean isUsedInXml() {
         return usedInXml;
+    }
+
+    @Override
+    public String convertToJsonType(String variableName) {
+        String expression = convertFromClientType(variableName);
+        return serializationValueGetterModifier != null
+            ? serializationValueGetterModifier.apply(expression)
+            : expression;
+    }
+
+    @Override
+    public String convertFromJsonType(String variableName) {
+        // TODO (weidxu): it may be better to refactor it to type initialization, similar as
+        // defaultValueExpressionConverter
+        if (this == ClassType.INTEGER_AS_STRING) {
+            return variableName + " == null ? null : Integer.parseInt(" + variableName + ")";
+        } else if (this == ClassType.LONG_AS_STRING) {
+            return variableName + " == null ? null : Long.parseInt(" + variableName + ")";
+        } else if (this == ClassType.DATE_TIME) {
+            return variableName + " == null ? null : OffsetDateTime.parse(" + variableName + ")";
+        } else if (this == ClassType.DATE_TIME_RFC_1123) {
+            return variableName + " == null ? null : new DateTimeRfc1123(" + variableName + ")";
+        } else if (this == ClassType.DURATION) {
+            return variableName + " == null ? null : Duration.parse(" + variableName + ")";
+        } else if (this == ClassType.URL) {
+            return variableName + " == null ? null : new URL(" + variableName + ")";
+        } else {
+            return convertToClientType(variableName);
+        }
     }
 
     public static class Builder {

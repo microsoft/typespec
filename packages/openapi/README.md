@@ -176,6 +176,7 @@ Specify OpenAPI additional information.
     `x-custom`: "string",
   }
 )
+@tagMetadata("Child Tag", #{ description: "Child tag description", parent: "Tag Name" })
 namespace PetStore {
 
 }

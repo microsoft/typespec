@@ -1,22 +1,21 @@
-import type { Model, Operation, Type } from "@typespec/compiler";
-import { MutationEdge } from "./mutation-edge.js";
+import type { Interface, Model, Operation, Type } from "@typespec/compiler";
+import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
+
+export interface OperationConnectOptions {
+  /** Mutation key for the parameters node. Defaults to this node's key. */
+  parameters?: string;
+  /** Mutation key for the return type node. Defaults to this node's key. */
+  returnType?: string;
+}
 
 export class OperationMutationNode extends MutationNode<Operation> {
   readonly kind = "Operation";
 
-  traverse() {
-    const parameterNode = this.subgraph.getNode(this.sourceType.parameters);
-    this.connectParameters(parameterNode);
-
-    const returnTypeNode = this.subgraph.getNode(this.sourceType.returnType);
-    this.connectReturnType(returnTypeNode);
-  }
-
-  connectParameters(baseNode: MutationNode<Model>) {
-    MutationEdge.create(this, baseNode, {
-      onTailMutation: () => {
-        this.mutatedType!.parameters = baseNode.mutatedType;
+  startParametersEdge() {
+    return new HalfEdge<Operation, Model>(this, {
+      onTailMutation: ({ tail }) => {
+        this.mutatedType!.parameters = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.mutatedType.parameters = this.$.model.create({
@@ -24,26 +23,59 @@ export class OperationMutationNode extends MutationNode<Operation> {
           properties: {},
         });
       },
-      onTailReplaced: (newTail) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "Model") {
           throw new Error("Cannot replace parameters with non-model type");
         }
-        this.mutatedType.parameters = newTail.mutatedType;
+        head.mutatedType.parameters = newTail.mutatedType;
+        if (reconnect) {
+          head.connectParameters(newTail as MutationNode<Model>);
+        }
+      },
+    });
+  }
+
+  connectParameters(baseNode: MutationNode<Model>) {
+    this.startParametersEdge().setTail(baseNode);
+  }
+
+  startReturnTypeEdge() {
+    return new HalfEdge<Operation, Type>(this, {
+      onTailMutation: ({ tail }) => {
+        this.mutatedType!.returnType = tail.mutatedType;
+      },
+      onTailDeletion: () => {
+        this.mutatedType.returnType = this.$.intrinsic.void;
+      },
+      onTailReplaced: ({ newTail, head, reconnect }) => {
+        head.mutatedType.returnType = newTail.mutatedType;
+        if (reconnect) {
+          head.connectReturnType(newTail);
+        }
       },
     });
   }
 
   connectReturnType(typeNode: MutationNode<Type>) {
-    MutationEdge.create(this, typeNode, {
-      onTailMutation: () => {
-        this.mutatedType!.returnType = typeNode.mutatedType;
+    this.startReturnTypeEdge().setTail(typeNode);
+  }
+
+  startInterfaceEdge() {
+    return new HalfEdge<Operation, Interface>(this, {
+      onTailMutation: ({ tail }) => {
+        this.mutate();
+        this.mutatedType.interface = tail.mutatedType;
       },
       onTailDeletion: () => {
-        this.mutatedType.returnType = this.$.intrinsic.void;
+        this.delete();
       },
-      onTailReplaced: (newTail) => {
-        this.mutatedType.returnType = newTail.mutatedType;
+      onTailReplaced: ({ head }) => {
+        head.delete();
       },
     });
+  }
+
+  connectInterface(interfaceNode: MutationNode<Interface>) {
+    this.startInterfaceEdge().setTail(interfaceNode);
   }
 }

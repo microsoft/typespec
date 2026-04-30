@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -154,7 +153,7 @@ public class JavaFileContents {
     }
 
     public void declareImport(String... imports) {
-        declareImport(Arrays.asList(imports));
+        declareImport(List.of(imports));
     }
 
     public void declareImport(List<String> imports) {
@@ -228,7 +227,7 @@ public class JavaFileContents {
     }
 
     public void annotation(String... annotations) {
-        annotation(Arrays.asList(annotations));
+        annotation(List.of(annotations));
     }
 
     public void annotation(List<String> annotations) {

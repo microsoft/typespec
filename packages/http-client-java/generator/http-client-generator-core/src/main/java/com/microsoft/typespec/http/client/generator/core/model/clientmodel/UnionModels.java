@@ -3,14 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UnionModels {
 
     private static final UnionModels INSTANCE = new UnionModels();
-    private final Map<String, List<UnionModel>> nameMap = new HashMap<>();
+    private final Map<String, List<UnionModel>> nameMap = new LinkedHashMap<>();
 
     private UnionModels() {
     }

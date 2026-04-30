@@ -23,6 +23,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
+        /// <summary>
+        /// Indicates whether this method is declared as a <c>partial</c> method.
+        /// Derived from the <see cref="MethodSignatureModifiers.Partial"/> modifier on the signature.
+        /// </summary>
+        public bool IsPartialMethod => Signature?.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ?? false;
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected MethodProvider()
@@ -71,6 +77,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with only a method signature and no body,
+        /// for use with partial method declarations.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="enclosingType">The enclosing type.</param>
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default)
+        {
+            Signature = signature;
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
+            EnclosingType = enclosingType;
+            Suppressions = [];
         }
 
         public void Update(
@@ -129,9 +153,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     BodyExpression = expression;
                 }
             }
-            else
+            else if (BodyStatements != null)
             {
-                var updatedStatements = BodyStatements!.Accept(visitor, this);
+                var updatedStatements = BodyStatements.Accept(visitor, this);
                 if (!ReferenceEquals(updatedStatements, BodyStatements))
                 {
                     BodyStatements = updatedStatements;

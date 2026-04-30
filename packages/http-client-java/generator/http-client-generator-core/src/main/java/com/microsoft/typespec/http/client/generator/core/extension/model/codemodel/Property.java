@@ -18,6 +18,7 @@ public class Property extends Value {
     private String summary;
     // TypeSpec only
     private SerializationFormats serialization;
+    private String arrayEncoding;
     // internal use, not from modelerfour
     private ObjectSchema parentSchema;
 
@@ -159,6 +160,24 @@ public class Property extends Value {
 
     public void setSerialization(SerializationFormats serialization) {
         this.serialization = serialization;
+    }
+
+    /**
+     * Gets the array encoding style of this property.
+     *
+     * @return The array encoding style of this property.
+     */
+    public String getArrayEncoding() {
+        return arrayEncoding;
+    }
+
+    /**
+     * Sets the array encoding style of this property.
+     *
+     * @param arrayEncoding The array encoding style of this property.
+     */
+    public void setArrayEncoding(String arrayEncoding) {
+        this.arrayEncoding = arrayEncoding;
     }
 
     @Override

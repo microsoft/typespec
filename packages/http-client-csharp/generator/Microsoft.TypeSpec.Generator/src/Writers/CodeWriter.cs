@@ -33,7 +33,6 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
-
         internal CodeWriter()
         {
             _builder = new UnsafeBufferSequence(1024);
@@ -216,6 +215,14 @@ namespace Microsoft.TypeSpec.Generator
                     foreach (var suppression in method.Suppressions)
                     {
                         suppression.RestoreStatement.Write(this);
+                    }
+                }
+                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                {
+                    using (WriteMethodDeclarationNoScope(method.Signature))
+                    {
+                        WriteRawLine(";");
                     }
                 }
             }
@@ -621,11 +628,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
+        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
             if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
                 AppendRaw("[]");
                 return;
             }
@@ -663,7 +670,7 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
-                    AppendType(type.Arguments[i], false, writeTypeNameOnly);
+                    AppendType(type.Arguments[i], false, writeTypeNameOnly, genericDepth + 1);
                     if (i != type.Arguments.Count - 1)
                     {
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
@@ -672,7 +679,8 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
+            // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
+            if ((!_writingNewInstance || genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
@@ -786,6 +794,11 @@ namespace Microsoft.TypeSpec.Generator
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
+            if (methodBase.NonDocumentComment is { } comment)
+            {
+                WriteLine($"// {comment}");
+            }
+
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
@@ -800,11 +813,13 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static))
+                .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
 
             if (methodBase is MethodSignature method)
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
+                    .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -989,11 +1004,15 @@ namespace Microsoft.TypeSpec.Generator
             return codeWriterScope;
         }
 
-        internal void Append(CodeWriterDeclaration declaration)
+        internal void Append(CodeWriterDeclaration declaration, bool referenceOnly = false)
         {
             if (declaration.HasBeenDeclared(_scopes))
             {
                 WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
+            }
+            else if (referenceOnly)
+            {
+                WriteIdentifier(declaration.RequestedName);
             }
             else
             {

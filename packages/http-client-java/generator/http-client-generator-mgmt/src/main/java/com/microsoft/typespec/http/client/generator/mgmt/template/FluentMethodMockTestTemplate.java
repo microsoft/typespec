@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,7 +52,7 @@ public class FluentMethodMockTestTemplate
     @Override
     public void write(ClientMethodInfo info, JavaFile javaFile) {
         Set<String> imports
-            = new HashSet<>(List.of(ClassType.ACCESS_TOKEN.getFullName(), ClassType.HTTP_CLIENT.getFullName(),
+            = new LinkedHashSet<>(List.of(ClassType.ACCESS_TOKEN.getFullName(), ClassType.HTTP_CLIENT.getFullName(),
                 ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(),
                 ClassType.HTTP_RESPONSE.getFullName(), "com.azure.core.test.http.MockHttpResponse",
                 ClassType.AZURE_CLOUD.getFullName(), FluentType.AZURE_PROFILE.getFullName(),

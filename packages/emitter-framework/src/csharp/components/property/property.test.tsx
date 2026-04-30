@@ -233,7 +233,6 @@ describe("jsonAttributes", () => {
           [JsonConverter(typeof(TimeSpanIso8601JsonConverter))]
           public required TimeSpan Prop3 { get; set; }
 
-
           // JsonConverter wont work as nested class, but good enough for test to verify the generated code.
           internal sealed class TimeSpanSecondsInt32JsonConverter : JsonConverter<TimeSpan>
           {

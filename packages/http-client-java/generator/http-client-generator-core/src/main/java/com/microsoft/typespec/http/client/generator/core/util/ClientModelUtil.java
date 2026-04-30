@@ -34,7 +34,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -99,7 +98,7 @@ public class ClientModelUtil {
                 .filter(og -> CoreUtils.isNullOrEmpty(og.getLanguage().getJava().getName()))    // no resource group
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
             if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
@@ -134,7 +133,7 @@ public class ClientModelUtil {
                 .filter(og -> methodGroupClient.getClassBaseName().equals(og.getLanguage().getJava().getName()))
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
             if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
@@ -214,15 +213,6 @@ public class ClientModelUtil {
             }
         }
         return serviceClientInterfaceName;
-    }
-
-    /**
-     * @param codeModel the code model
-     * @return the class name of service client implementation.
-     */
-    public static String getClientImplementClassName(Client codeModel) {
-        String serviceClientInterfaceName = getClientInterfaceName(codeModel);
-        return getClientImplementClassName(serviceClientInterfaceName);
     }
 
     /**
@@ -376,9 +366,9 @@ public class ClientModelUtil {
         if (versions == null) {
             String version = getFirstApiVersionFromOperation(codeModel);
             if (version != null) {
-                versions = Collections.singletonList(version);
+                versions = List.of(version);
             } else {
-                versions = Collections.emptyList();
+                versions = List.of();
             }
         }
         return versions;
@@ -420,7 +410,7 @@ public class ClientModelUtil {
      */
     public static List<String> splitFlattenedSerializedName(String serializedName) {
         if (serializedName == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         String[] values = SPLIT_FLATTEN_PROPERTY_PATTERN.split(serializedName);
@@ -619,40 +609,7 @@ public class ClientModelUtil {
     }
 
     /**
-     * Gets all the properties that parent models define that are part of the constructor.
-     * <p>
-     * This uses {@link ClientModelUtil#includePropertyInConstructor(ClientModelProperty, JavaSettings)} to determine
-     * which properties should be included in the constructor.
-     *
-     * @param model The client model.
-     * @param settings Autorest generation settings.
-     * @return All properties that are defined by super types of the client model that should be included in the
-     * constructor.
-     */
-    public static List<ClientModelProperty> getParentConstructorProperties(ClientModel model, JavaSettings settings) {
-        String lastParentName = model.getName();
-        ClientModel parentModel = getClientModel(model.getParentModelName());
-        Set<ClientModelProperty> constructorProperties = new LinkedHashSet<>();
-        while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
-            // Add the properties in inverse order as they be reverse at the end.
-            List<ClientModelProperty> parentProperties = parentModel.getProperties();
-            for (int i = parentProperties.size() - 1; i >= 0; i--) {
-                ClientModelProperty property = parentProperties.get(i);
-                if (includePropertyInConstructor(property, settings)) {
-                    constructorProperties.add(property);
-                }
-            }
-
-            lastParentName = parentModel.getName();
-            parentModel = getClientModel(parentModel.getParentModelName());
-        }
-
-        List<ClientModelProperty> propertyList = new ArrayList<>(constructorProperties);
-        Collections.reverse(propertyList);
-        return propertyList;
-    }
-
-    /**
+     * /**
      * Whether the property needs public setter.
      *
      * @param property The client model property, or a reference.
@@ -807,7 +764,7 @@ public class ClientModelUtil {
     public static Set<String> getExternalPackageNamesUsedInClient(List<ClientModel> models, CodeModel codeModel) {
         // models
         Set<String> externalPackageNames = models == null
-            ? new HashSet<>()
+            ? new LinkedHashSet<>()
             : models.stream()
                 .filter(m -> m.getImplementationDetails() != null
                     && m.getImplementationDetails().getUsages() != null

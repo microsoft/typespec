@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -15,12 +18,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class ApiVersionEnumProvider : FixedEnumProvider
     {
-        private const string ApiVersionEnumName = "ServiceVersion";
+        private const string ServicePrefix = "Service";
+        private const string VersionSuffix = "Version";
+        private const string ApiVersionEnumName = $"{ServicePrefix}{VersionSuffix}";
         private const string ApiVersionEnumDescription = "The version of the service to use.";
 
-        public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
+        private readonly InputEnumType _inputEnum;
 
-        protected override string BuildName() => ApiVersionEnumName;
+        public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType)
+        {
+            _inputEnum = input;
+        }
+
+        protected override string BuildName()
+        {
+            List<InputEnumType> apiVersionEnums = [.. CodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                    .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+
+            if (CodeModelGenerator.Instance.InputLibrary.HasMultiServiceClient && apiVersionEnums.Count > 1)
+            {
+                var serviceNamespace = _inputEnum.Namespace;
+                if (!string.IsNullOrEmpty(serviceNamespace))
+                {
+                    if (!ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums))
+                    {
+                        // No collision in the last segment — use BuildNameForService with the last segment.
+                        return ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
+                    }
+
+                    // Last segment collides — find the shortest unique namespace suffix.
+                    string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, _inputEnum, apiVersionEnums);
+                    return $"{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                }
+            }
+
+            return ApiVersionEnumName;
+        }
+
         protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
@@ -123,6 +157,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     string enumValue = field.Name.ToApiVersionValue(versionPrefix, versionSeparator);
                     allMembers.Add(new EnumTypeMember(field.Name, field, enumValue));
                     addedPreviousApiVersion = true;
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added previous API version '{field.Name}' to enum '{Name}' to preserve members from last contract.",
+                        BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded);
                 }
             }
 

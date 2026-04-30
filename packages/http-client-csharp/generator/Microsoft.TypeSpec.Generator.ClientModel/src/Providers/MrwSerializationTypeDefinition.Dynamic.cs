@@ -13,25 +13,12 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
     {
-        internal static ValueExpression GetDeserializationMethodInvocationForType(
-            CSharpType modelType,
-            ScopedApi<JsonElement> jsonElementVariable,
-            ValueExpression dataVariable,
-            ValueExpression? optionsVariable = null)
-        {
-            return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(modelType, out var provider) &&
-                provider is ModelProvider modelProvider
-                ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)
-                : modelType.Deserialize(jsonElementVariable, null, optionsVariable);
-        }
-
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         private MethodBodyStatement CreateDictionarySerializationWithPatch(
             DictionaryExpression dictionary,
@@ -322,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Add direct dynamic properties
                 var dynamicProperties = properties.Where(p =>
-                    p.WireInfo?.SerializedName != null &&
+                    p.WireInfo != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { JsonPatchProperty: not null });
                 allDynamicProperties.AddRange(dynamicProperties);
@@ -330,7 +317,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Add dynamic collection properties
                 var dynamicCollectionProperties = properties
                     .Where(p => p.Type.IsCollection &&
-                        p.WireInfo?.SerializedName != null &&
+                        p.WireInfo != null &&
                         ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                             p.Type.GetNestedElementType(),
                             out var provider) &&
@@ -346,8 +333,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var property in allDynamicProperties)
             {
                 var patchProperty = ((MemberExpression)property).Property("Patch").As<JsonPatch>();
+                var jsonSerializedName = GetJsonSerializedName(property.WireInfo!);
                 statements.Add(
-                    new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(property.WireInfo!.SerializedName)))
+                    new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(jsonSerializedName)))
                     {
                         propagateGet
                             ? Return(patchProperty.TryGetEncodedValue(
@@ -355,7 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     Spread(LiteralU8("$")),
                                     Spread(ReadOnlySpanSnippets.Slice(
                                         localVariable,
-                                        LiteralU8(property.WireInfo!.SerializedName).Property("Length")))),
+                                        LiteralU8(jsonSerializedName).Property("Length")))),
                                 valueParameter))
                             : new MethodBodyStatement[]
                             {
@@ -364,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                         Spread(LiteralU8("$")),
                                         Spread(ReadOnlySpanSnippets.Slice(
                                             localVariable,
-                                            LiteralU8(property.WireInfo!.SerializedName).Property("Length")))),
+                                            LiteralU8(jsonSerializedName).Property("Length")))),
                                     valueParameter),
                                 Return(True)
                             }
@@ -376,7 +364,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var indexableProperty = new IndexableExpression(property);
                 statements.Add(
                     new IfStatement(
-                        localVariable.Invoke("StartsWith", LiteralU8(property.WireInfo!.SerializedName)))
+                        localVariable.Invoke("StartsWith", LiteralU8(GetJsonSerializedName(property.WireInfo!))))
                     {
                         BuildCollectionIfStatements(
                             property,
@@ -406,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? remainderSlice = null;
 
             statements.Add(Declare("propertyLength", typeof(int),
-                LiteralU8(property.WireInfo!.SerializedName).Property("Length"),
+                LiteralU8(GetJsonSerializedName(property.WireInfo!)).Property("Length"),
                 out var propertyLength));
 
             statements.Add(Declare("currentSlice", typeof(ReadOnlySpan<byte>),
@@ -516,14 +504,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
             ModelProvider model,
-            ScopedApi<JsonElement> jsonElementVariable,
+            ScopedApi element,
             ValueExpression? dataVariable = null,
             ValueExpression? optionsVariable = null)
         {
             optionsVariable ??= ModelSerializationExtensionsSnippets.Wire;
             return model is ScmModelProvider { IsDynamicModel: true }
-                ? model.Type.Deserialize(jsonElementVariable, dataVariable, optionsVariable)
-                : model.Type.Deserialize(jsonElementVariable, null, optionsVariable);
+                ? model.Type.Deserialize(element, dataVariable, optionsVariable)
+                : model.Type.Deserialize(element, null, optionsVariable);
         }
     }
 }

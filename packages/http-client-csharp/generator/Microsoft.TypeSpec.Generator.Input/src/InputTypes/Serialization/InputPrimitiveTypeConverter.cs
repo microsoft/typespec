@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? encode = null;
             InputPrimitiveType? baseType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
@@ -37,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("encode", ref encode)
                     || reader.TryReadComplexType("baseType", options, ref baseType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -56,7 +58,8 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             var primitiveType = new InputPrimitiveType(primitiveTypeKind, name, crossLanguageDefinitionId, encode, baseType)
             {
-                Decorators = decorators ?? []
+                Decorators = decorators ?? [],
+                External = external
             };
             if (id != null)
             {

@@ -1,6 +1,6 @@
 import type { EnumMember, MemberType } from "@typespec/compiler";
 import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
 export class EnumMemberMutation<
   TOptions extends MutationOptions,
@@ -14,8 +14,9 @@ export class EnumMemberMutation<
     sourceType: EnumMember,
     referenceTypes: MemberType[] = [],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   mutate() {

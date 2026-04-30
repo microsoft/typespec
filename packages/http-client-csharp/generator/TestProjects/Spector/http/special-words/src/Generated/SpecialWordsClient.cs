@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using SpecialWords._ExtensibleStrings;
 using SpecialWords._ModelProperties;
 using SpecialWords._Models;
 
@@ -13,13 +15,20 @@ namespace SpecialWords
     {
         public SpecialWordsClient() : this(new Uri("http://localhost:3000"), new SpecialWordsClientOptions()) => throw null;
 
-        public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) => throw null;
+        internal SpecialWordsClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SpecialWordsClientOptions options) => throw null;
+
+        public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public SpecialWordsClient(SpecialWordsClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual Models GetModelsClient() => throw null;
 
         public virtual ModelProperties GetModelPropertiesClient() => throw null;
+
+        public virtual ExtensibleStrings GetExtensibleStringsClient() => throw null;
 
         public virtual Operations GetOperationsClient() => throw null;
 

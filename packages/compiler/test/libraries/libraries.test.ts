@@ -4,11 +4,13 @@ import { compile } from "../../src/core/program.js";
 import { resolvePath } from "../../src/index.js";
 import { MANIFEST } from "../../src/manifest.js";
 import {
-  createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
   findTestPackageRoot,
+  mockFile,
+  resolveVirtualPath,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 const libs = [
   "simple", // Load a library in `node_modules`
@@ -28,19 +30,19 @@ describe("compiler: libraries", () => {
   }
 
   it("detects compiler version mismatches", async () => {
-    const testHost = await createTestHost();
-    testHost.addTypeSpecFile("other/main.tsp", "");
-    testHost.addTypeSpecFile(
-      "./other/node_modules/@typespec/compiler/package.json",
-      JSON.stringify({
+    const instance = await Tester.files({
+      "other/main.tsp": "",
+      "./other/node_modules/@typespec/compiler/package.json": JSON.stringify({
         name: "@typespec/compiler",
         main: "index.js",
         version: "0.1.0-notthesame.1",
       }),
-    );
-    testHost.addJsFile("./other/node_modules/@typespec/compiler/index.js", {});
-    const diagnostics = await testHost.diagnose("other/main.tsp");
-    expectDiagnostics(diagnostics, {
+      "./other/node_modules/@typespec/compiler/index.js": mockFile.js({}),
+    }).createInstance();
+    // Add test-lib placeholder (normally added internally by Tester.diagnose)
+    instance.fs.addTypeSpecFile("./node_modules/@typespec/compiler/test-lib/main.tsp", "");
+    const program = await compile(instance.fs.compilerHost, resolveVirtualPath("other/main.tsp"));
+    expectDiagnostics(program.diagnostics, {
       code: "compiler-version-mismatch",
       severity: "warning",
       message: /Current TypeSpec compiler conflicts with local version/,
@@ -48,29 +50,25 @@ describe("compiler: libraries", () => {
   });
 
   it("allows compiler install to mismatch if the version are the same", async () => {
-    const testHost = await createTestHost();
-    testHost.addTypeSpecFile("main.tsp", "");
-    testHost.addTypeSpecFile(
-      "./node_modules/@typespec/compiler/package.json",
-      JSON.stringify({ name: "@typespec/compiler", main: "index.js", version: MANIFEST.version }),
-    );
-    testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await Tester.files({
+      "./node_modules/@typespec/compiler/package.json": JSON.stringify({
+        name: "@typespec/compiler",
+        main: "index.js",
+        version: MANIFEST.version,
+      }),
+      "./node_modules/@typespec/compiler/index.js": mockFile.js({}),
+    }).diagnose("");
     expectDiagnosticEmpty(diagnostics);
   });
 
   it("report errors in js files", async () => {
-    const testHost = await createTestHost();
-    testHost.addJsFile("lib1.js", { $myDec: () => null });
-    testHost.addJsFile("lib2.js", { $myDec: () => null });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.files({
+      "lib1.js": mockFile.js({ $myDec: () => null }),
+      "lib2.js": mockFile.js({ $myDec: () => null }),
+    }).diagnose(`
     import "./lib1.js";
     import "./lib2.js";
-    `,
-    );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    `);
     expectDiagnostics(diagnostics, [
       {
         code: "duplicate-symbol",

@@ -5,12 +5,12 @@
     Builds local generator packages and regenerates Azure SDK for .NET or OpenAI .NET libraries for validation.
 
 .DESCRIPTION
-    This script supports two modes:
+    This script supports three modes:
     
     Azure SDK Mode (default):
     1. Builds a local npm package of @typespec/http-client-csharp with a versioned name (1.0.0-alpha.YYYYMMDD.hash)
     2. Builds and packages the three NuGet generator framework packages with the same versioning
-    3. Updates Packages.Data.props in azure-sdk-for-net with the local NuGet version
+    3. Updates Directory.Generation.Packages.props in azure-sdk-for-net with the local NuGet version
     4. Updates the Azure generator (@azure-typespec/http-client-csharp) to use the local unbranded generator
     5. Builds and packages the Azure generator locally
     6. Updates the management plane generator (@azure-typespec/http-client-csharp-mgmt) to use local generators
@@ -26,10 +26,19 @@
     5. Invokes Invoke-CodeGen.ps1 to regenerate the OpenAI library
     6. Restores all modified artifacts to original state on success
     
+    Spector Mode (when -Spector switch is specified):
+    1. Builds a local npm package of @typespec/http-client-csharp with a versioned name
+    2. Builds and packages the NuGet generator framework packages
+    3. Updates the Azure generator's package.json to use the local unbranded package
+    4. Updates Directory.Generation.Packages.props with local NuGet version and adds local NuGet source
+    5. Runs the Azure generator's Generate.ps1 to regenerate spector test scenarios
+    6. Restores all modified artifacts to original state
+    
     Generator Filtering (Azure SDK Mode only):
-    - Use -Azure to regenerate only Azure-branded libraries (@azure-typespec/http-client-csharp)
-    - Use -Unbranded to regenerate only unbranded libraries (@typespec/http-client-csharp)
-    - Use -Mgmt to regenerate only management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Use -Azure to regenerate Azure-branded libraries (@azure-typespec/http-client-csharp)
+    - Use -Unbranded to regenerate unbranded libraries (@typespec/http-client-csharp)
+    - Use -Mgmt to regenerate management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Filters can be combined (e.g. -Azure -Unbranded) to regenerate libraries from multiple generators
     - Omit all filter parameters to regenerate all libraries (default)
         - Use -Select for interactive selection (can be combined with generator filters)
 
@@ -43,19 +52,26 @@
     Not applicable in OpenAI mode.
 
 .PARAMETER Azure
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
-    Mutually exclusive with Unbranded and Mgmt parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
+    Can be combined with -Unbranded and/or -Mgmt to regenerate libraries from multiple generators.
     Not applicable in OpenAI mode.
 
 .PARAMETER Unbranded
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
-    Mutually exclusive with Azure and Mgmt parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
+    Can be combined with -Azure and/or -Mgmt to regenerate libraries from multiple generators.
     Not applicable in OpenAI mode.
 
 .PARAMETER Mgmt
-    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
-    Mutually exclusive with Azure and Unbranded parameters.
+    Optional. Azure SDK Mode only. When specified, regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
+    Can be combined with -Azure and/or -Unbranded to regenerate libraries from multiple generators.
     If no generator filter is specified, all libraries are regenerated.
+    Not applicable in OpenAI mode.
+
+.PARAMETER Spector
+    Optional. Azure SDK Mode only. When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net
+    instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator,
+    and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
+    Mutually exclusive with Select, Azure, Unbranded, and Mgmt parameters.
     Not applicable in OpenAI mode.
 
 .EXAMPLE
@@ -85,6 +101,14 @@
 .EXAMPLE
     # Regenerate only management plane libraries
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+
+.EXAMPLE
+    # Regenerate both Azure-branded and unbranded libraries
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure -Unbranded
+
+.EXAMPLE
+    # Regenerate Azure spector test scenarios using local changes
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Spector
 #>
 
 param(
@@ -101,7 +125,10 @@ param(
     [switch]$Unbranded,
     
     [Parameter(Mandatory=$false)]
-    [switch]$Mgmt
+    [switch]$Mgmt,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Spector
 )
 
 $ErrorActionPreference = 'Stop'
@@ -113,17 +140,14 @@ $isOpenAIMode = $SdkLibraryRepoPath -like "*openai-dotnet*"
 # Validate mutually exclusive parameters
 if ($isOpenAIMode) {
     # In OpenAI mode, no filter parameters are allowed
-    if ($Select -or $Azure -or $Unbranded -or $Mgmt) {
-        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, and -Mgmt parameters are not applicable when regenerating OpenAI libraries."
+    if ($Select -or $Azure -or $Unbranded -or $Mgmt -or $Spector) {
+        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, -Mgmt, and -Spector parameters are not applicable when regenerating OpenAI libraries."
         exit 1
     }
 } else {
-    # In Azure SDK mode, validate filter parameters
-    $generatorFilters = @($Azure, $Unbranded, $Mgmt)
-    $activeFilters = @($generatorFilters | Where-Object { $_ }).Count
-
-    if ($activeFilters -gt 1) {
-        Write-Error "Parameters -Azure, -Unbranded, and -Mgmt are mutually exclusive. Please specify only one."
+    # -Spector is mutually exclusive with all other filter parameters
+    if ($Spector -and ($Select -or $Azure -or $Unbranded -or $Mgmt)) {
+        Write-Error "The -Spector parameter is mutually exclusive with -Select, -Azure, -Unbranded, and -Mgmt."
         exit 1
     }
 }
@@ -145,14 +169,20 @@ if ($isOpenAIMode) {
     Write-Host "Repository: Azure SDK for .NET" -ForegroundColor Gray
     
     # Display active mode
-    $modeText = if ($Select) {
+    $modeText = if ($Spector) {
+        "Regenerate Azure spector test scenarios"
+    } elseif ($Azure -or $Unbranded -or $Mgmt) {
+        $generatorNames = @()
+        if ($Azure) { $generatorNames += "Azure" }
+        if ($Unbranded) { $generatorNames += "Unbranded" }
+        if ($Mgmt) { $generatorNames += "Management plane" }
+        if ($Select) {
+            "Regenerate $($generatorNames -join ', ') libraries (interactive selection)"
+        } else {
+            "Regenerate $($generatorNames -join ', ') libraries"
+        }
+    } elseif ($Select) {
         "Interactive library selection"
-    } elseif ($Azure) {
-        "Regenerate Azure SDK libraries only"
-    } elseif ($Unbranded) {
-        "Regenerate Unbranded libraries only"
-    } elseif ($Mgmt) {
-        "Regenerate Management plane libraries only"
     } else {
         "Regenerate ALL libraries"
     }
@@ -163,9 +193,9 @@ Write-Host ""
 # Generate version string with timestamp and hash
 # Used for both npm and NuGet packages to ensure consistency
 function Get-LocalPackageVersion {
-    $timestamp = Get-Date -Format "yyyyMMdd"
-    $hash = (git -C $packageRoot rev-parse --short HEAD 2>$null) ?? "local"
-    return "1.0.0-alpha.$timestamp.$hash"
+    $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+    $hash = (git -C $packageRoot rev-parse --short=7 HEAD 2>$null) ?? "local"
+    return "1.0.0-alpha-$timestamp.$hash"
 }
 
 # Run npm pack and return the package file path
@@ -221,14 +251,14 @@ function Update-PackageJsonVersion {
     $packageJson | ConvertTo-Json -Depth 100 | Set-Content $PackageJsonPath -Encoding utf8 -NoNewline
 }
 
-# Update UnbrandedGeneratorVersion in Packages.Data.props
+# Update UnbrandedGeneratorVersion in Directory.Generation.Packages.props
 function Update-UnbrandedGeneratorVersion {
     param(
         [string]$PackagesDataPropsPath,
         [string]$NewVersion
     )
     
-    Write-Host "Updating UnbrandedGeneratorVersion to $NewVersion in Packages.Data.props" -ForegroundColor Gray
+    Write-Host "Updating UnbrandedGeneratorVersion to $NewVersion in Directory.Generation.Packages.props" -ForegroundColor Gray
     
     $content = Get-Content $PackagesDataPropsPath -Raw
     
@@ -347,10 +377,16 @@ function Select-LibrariesToRegenerate {
     Write-Host "Found $($Libraries.Count) libraries available for regeneration" -ForegroundColor White
     Write-Host ""
     
-    # Display libraries grouped by generator
+    # Group libraries by generator
     $azureLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp" })
     $unbrandedLibs = @($Libraries | Where-Object { $_.Generator -eq "@typespec/http-client-csharp" })
     $mgmtLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp-mgmt" })
+    
+    # Reorder libraries array to match display order (Azure, Unbranded, Mgmt)
+    $orderedLibraries = @()
+    $orderedLibraries += $azureLibs
+    $orderedLibraries += $unbrandedLibs
+    $orderedLibraries += $mgmtLibs
     
     $currentIndex = 1
     
@@ -398,7 +434,7 @@ function Select-LibrariesToRegenerate {
     }
     
     if ($selection -ieq 'all') {
-        return $Libraries
+        return $orderedLibraries
     }
     
     # Parse selection
@@ -425,11 +461,11 @@ function Select-LibrariesToRegenerate {
     # Validate and collect selected libraries
     $selectedLibraries = @()
     foreach ($index in $selectedIndices | Sort-Object -Unique) {
-        if ($index -lt 1 -or $index -gt $Libraries.Count) {
-            Write-Host "Invalid library number: $index (valid range: 1-$($Libraries.Count))" -ForegroundColor Red
+        if ($index -lt 1 -or $index -gt $orderedLibraries.Count) {
+            Write-Host "Invalid library number: $index (valid range: 1-$($orderedLibraries.Count))" -ForegroundColor Red
             exit 1
         }
-        $selectedLibraries += $Libraries[$index - 1]
+        $selectedLibraries += $orderedLibraries[$index - 1]
     }
     
     if ($selectedLibraries.Count -eq 0) {
@@ -547,7 +583,7 @@ try {
     Write-Host ""
     
     # Step 1: Build the unbranded generator
-    if ($isOpenAIMode) {
+    if ($isOpenAIMode -or $Spector) {
         Write-Host "`n[1/3] Building unbranded generator..." -ForegroundColor Cyan
     } else {
         Write-Host "`n[2/5] Building unbranded generator..." -ForegroundColor Cyan
@@ -580,7 +616,7 @@ try {
     }
     
     # Step 2: Package the generators with local version
-    if ($isOpenAIMode) {
+    if ($isOpenAIMode -or $Spector) {
         Write-Host "`n[2/3] Packaging generators..." -ForegroundColor Cyan
     } else {
         Write-Host "`n[2/5] Packaging generators..." -ForegroundColor Cyan
@@ -676,12 +712,59 @@ try {
         }
     }
     
+    # Spector Mode: Regenerate Azure spector test scenarios
+    if ($Spector) {
+        Write-Host "`n[3/3] Regenerating Azure spector test scenarios..." -ForegroundColor Cyan
+        
+        try {
+            $generationOutput = Update-AzureSpectorScenarios `
+                -AzureGeneratorPath (Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp") `
+                -UnbrandedPackagePath $unbrandedPackagePath `
+                -LocalVersion $localVersion `
+                -DebugFolder $debugFolder
+            
+            $result = @{
+                Success = $true
+                Library = "Azure Spector Test Scenarios"
+                Service = "Spector"
+                Path = "eng/packages/http-client-csharp/generator/TestProjects/Spector"
+                Generator = "@azure-typespec/http-client-csharp"
+                Error = ""
+                Output = $generationOutput
+            }
+        }
+        catch {
+            $result = @{
+                Success = $false
+                Library = "Azure Spector Test Scenarios"
+                Service = "Spector"
+                Path = "eng/packages/http-client-csharp/generator/TestProjects/Spector"
+                Generator = "@azure-typespec/http-client-csharp"
+                Error = $_.Exception.Message
+                Output = $_.Exception.ToString()
+            }
+        }
+        
+        $scriptEndTime = Get-Date
+        $elapsedTime = $scriptEndTime - $scriptStartTime
+        
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
+        
+        if ($result.Success) {
+            Write-Host "`nScript completed successfully." -ForegroundColor Cyan
+            exit 0
+        } else {
+            Write-Host "`nScript failed." -ForegroundColor Red
+            exit 1
+        }
+    }
+    
     # Azure SDK Mode: Continue with Azure SDK-specific steps
     
-    # Update Packages.Data.props with local NuGet version
-    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+    # Update Directory.Generation.Packages.props with local NuGet version
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
     if (-not (Test-Path $packagesDataPropsPath)) {
-        throw "Packages.Data.props not found at: $packagesDataPropsPath"
+        throw "Directory.Generation.Packages.props not found at: $packagesDataPropsPath"
     }
     
     Update-UnbrandedGeneratorVersion -PackagesDataPropsPath $packagesDataPropsPath -NewVersion $localVersion
@@ -738,7 +821,7 @@ try {
         Write-Host "Building Azure generator..." -ForegroundColor Gray
         
         $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
-        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
         
         $azurePackagePath = Update-AzureGenerator `
             -AzureGeneratorPath $azureGeneratorPath `
@@ -843,12 +926,12 @@ try {
             Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
             Write-Host "Skipping regeneration step..." -ForegroundColor Gray
         } else {
-            $filterText = if ($Azure) {
-                " (Azure generator only)"
-            } elseif ($Unbranded) {
-                " (Unbranded generator only)"
-            } elseif ($Mgmt) {
-                " (Management plane generator only)"
+            $filterParts = @()
+            if ($Azure) { $filterParts += "Azure" }
+            if ($Unbranded) { $filterParts += "Unbranded" }
+            if ($Mgmt) { $filterParts += "Management plane" }
+            $filterText = if ($filterParts.Count -gt 0) {
+                " ($($filterParts -join ', ') generator$(if ($filterParts.Count -gt 1) { 's' } else { '' }) only)"
             } else {
                 ""
             }
@@ -1005,7 +1088,7 @@ try {
                 "eng/packages/http-client-csharp/package-lock.json"
                 "eng/packages/http-client-csharp-mgmt/package.json"
                 "eng/packages/http-client-csharp-mgmt/package-lock.json"
-                "eng/Packages.Data.props"
+                "eng/centralpackagemanagement/Directory.Generation.Packages.props"
                 "NuGet.Config"
             )
             $restoreCmd = "git restore $($filesToRestore -join ' ')"

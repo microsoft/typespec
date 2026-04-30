@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.FishesClient;
 import tsptest.armstreamstyleserialization.fluent.models.FishInner;
 import tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner;
-import tsptest.armstreamstyleserialization.models.ErrorException;
+import tsptest.armstreamstyleserialization.models.ErrorMaxException;
 import tsptest.armstreamstyleserialization.models.ErrorMinException;
 
 /**
@@ -63,14 +63,14 @@ public final class FishesClientImpl implements FishesClient {
         @Headers({ "Content-Type: application/json" })
         @Get("/model")
         @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ErrorException.class)
+        @UnexpectedResponseExceptionType(ErrorMaxException.class)
         Mono<Response<FishInner>> getModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Get("/model")
         @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ErrorException.class)
+        @UnexpectedResponseExceptionType(ErrorMaxException.class)
         Response<FishInner> getModelSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             Context context);
 
@@ -106,7 +106,7 @@ public final class FishesClientImpl implements FishesClient {
     /**
      * The getModel operation.
      * 
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
      * {@link Response} on successful completion of {@link Mono}.
@@ -125,7 +125,7 @@ public final class FishesClientImpl implements FishesClient {
     /**
      * The getModel operation.
      * 
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator on successful
      * completion of {@link Mono}.
@@ -140,7 +140,7 @@ public final class FishesClientImpl implements FishesClient {
      * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
      * {@link Response}.
@@ -159,7 +159,7 @@ public final class FishesClientImpl implements FishesClient {
     /**
      * The getModel operation.
      * 
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */

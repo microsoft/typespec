@@ -47,7 +47,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -134,7 +133,7 @@ abstract class ConvenienceMethodTemplateBase {
         boolean isJsonMergePatchOperation = protocolMethod != null
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
-        Map<String, String> parameterExpressionsMap = new HashMap<>();
+        Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
@@ -561,7 +560,7 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     private static String expressionConvertToBinaryData(String name, IType type, String mediaType) {
-        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(Collections.singleton(mediaType));
+        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(List.of(mediaType));
         switch (mimeType) {
             case TEXT:
                 return "BinaryData.fromString(" + name + ")";

@@ -201,6 +201,45 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       deepStrictEqual(terminalVariant.properties.data.contentMediaType, "text/plain");
       deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], true);
     });
+
+    it("emits itemSchema with terminal event marked by extension with a discriminated member", async () => {
+      const openApi = await openApiFor(
+        `
+        model UserConnect {
+          username: string;
+        }
+
+        model UserMessage {
+          text: string;
+        }
+
+        @events
+        union ChannelEvents {
+          userconnect: UserConnect,
+          @terminalEvent
+          @extension("x-ms-sse-terminal-event", true)
+          usermessage: UserMessage,
+        }
+
+        @route("/channel")
+        @get op subscribe(): SSEStream<ChannelEvents>;
+        `,
+      );
+
+      ok(openApi.paths["/channel"], "expected /channel path");
+      const response = openApi.paths["/channel"].get.responses["200"];
+      const eventStreamContent = response.content["text/event-stream"];
+      ok(eventStreamContent.itemSchema, "expected itemSchema for SSE");
+
+      // Check oneOf includes all three events
+      ok(eventStreamContent.itemSchema.oneOf, "expected oneOf");
+      deepStrictEqual(eventStreamContent.itemSchema.oneOf.length, 2);
+
+      // Check terminal event
+      const terminalVariant = eventStreamContent.itemSchema.oneOf[1];
+      ok(terminalVariant, "expected terminal event variant");
+      deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], true);
+    });
   });
 
   describe("SSE stream with custom content types", () => {

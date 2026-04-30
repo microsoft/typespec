@@ -5,6 +5,10 @@ using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
 @service(#{ title: "Visibility" })
+@client({
+  service: TspTest.Visibility,
+  name: "VisibilityClient",
+})
 namespace TspTest.Visibility;
 
 model Dog {
@@ -51,6 +55,7 @@ interface VisibilityWrite {
   };
 }
 
+@operationGroup
 @route("/visibility")
 interface VisibilityOp extends VisibilityRead, VisibilityWrite {
   @post

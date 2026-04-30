@@ -1,4 +1,4 @@
-import type { z } from "astro:content";
+import { z } from "astro/zod";
 import { generateMarkdownPath } from "./generators";
 import type { llmstxtSchema } from "./schema";
 

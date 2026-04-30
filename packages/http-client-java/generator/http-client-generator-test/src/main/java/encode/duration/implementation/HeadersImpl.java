@@ -26,6 +26,7 @@ import com.azure.core.util.serializer.CollectionFormat;
 import com.azure.core.util.serializer.JacksonAdapter;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 import reactor.core.publisher.Mono;
 
 /**
@@ -210,7 +211,7 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> int32Milliseconds(@HostParam("endpoint") String endpoint,
-            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/int32-milliseconds")
         @ExpectedResponses({ 204 })
@@ -219,7 +220,7 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> int32MillisecondsSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/int32-milliseconds-larger-unit")
         @ExpectedResponses({ 204 })
@@ -228,7 +229,7 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
-            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/int32-milliseconds-larger-unit")
         @ExpectedResponses({ 204 })
@@ -237,7 +238,7 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> int32MillisecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/float-milliseconds")
         @ExpectedResponses({ 204 })
@@ -606,9 +607,10 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> int32MillisecondsWithResponseAsync(int duration, RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.int32Milliseconds(this.client.getEndpoint(), duration, requestOptions, context));
+    public Mono<Response<Void>> int32MillisecondsWithResponseAsync(Duration duration, RequestOptions requestOptions) {
+        long durationConverted = duration.toMillis();
+        return FluxUtil.withContext(context -> service.int32Milliseconds(this.client.getEndpoint(), durationConverted,
+            requestOptions, context));
     }
 
     /**
@@ -623,8 +625,10 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsWithResponse(int duration, RequestOptions requestOptions) {
-        return service.int32MillisecondsSync(this.client.getEndpoint(), duration, requestOptions, Context.NONE);
+    public Response<Void> int32MillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
+        long durationConverted = duration.toMillis();
+        return service.int32MillisecondsSync(this.client.getEndpoint(), durationConverted, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -639,10 +643,11 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> int32MillisecondsLargerUnitWithResponseAsync(int duration,
+    public Mono<Response<Void>> int32MillisecondsLargerUnitWithResponseAsync(Duration duration,
         RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.int32MillisecondsLargerUnit(this.client.getEndpoint(), duration,
-            requestOptions, context));
+        long durationConverted = duration.toMillis();
+        return FluxUtil.withContext(context -> service.int32MillisecondsLargerUnit(this.client.getEndpoint(),
+            durationConverted, requestOptions, context));
     }
 
     /**
@@ -657,8 +662,9 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestOptions requestOptions) {
-        return service.int32MillisecondsLargerUnitSync(this.client.getEndpoint(), duration, requestOptions,
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        long durationConverted = duration.toMillis();
+        return service.int32MillisecondsLargerUnitSync(this.client.getEndpoint(), durationConverted, requestOptions,
             Context.NONE);
     }
 
@@ -674,9 +680,10 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> floatMillisecondsWithResponseAsync(double duration, RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.floatMilliseconds(this.client.getEndpoint(), duration, requestOptions, context));
+    public Mono<Response<Void>> floatMillisecondsWithResponseAsync(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return FluxUtil.withContext(context -> service.floatMilliseconds(this.client.getEndpoint(), durationConverted,
+            requestOptions, context));
     }
 
     /**
@@ -691,8 +698,10 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsWithResponse(double duration, RequestOptions requestOptions) {
-        return service.floatMillisecondsSync(this.client.getEndpoint(), duration, requestOptions, Context.NONE);
+    public Response<Void> floatMillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return service.floatMillisecondsSync(this.client.getEndpoint(), durationConverted, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -707,10 +716,11 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> floatMillisecondsLargerUnitWithResponseAsync(double duration,
+    public Mono<Response<Void>> floatMillisecondsLargerUnitWithResponseAsync(Duration duration,
         RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.floatMillisecondsLargerUnit(this.client.getEndpoint(), duration,
-            requestOptions, context));
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return FluxUtil.withContext(context -> service.floatMillisecondsLargerUnit(this.client.getEndpoint(),
+            durationConverted, requestOptions, context));
     }
 
     /**
@@ -725,8 +735,9 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestOptions requestOptions) {
-        return service.floatMillisecondsLargerUnitSync(this.client.getEndpoint(), duration, requestOptions,
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return service.floatMillisecondsLargerUnitSync(this.client.getEndpoint(), durationConverted, requestOptions,
             Context.NONE);
     }
 
@@ -742,9 +753,10 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> float64MillisecondsWithResponseAsync(double duration, RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.float64Milliseconds(this.client.getEndpoint(), duration, requestOptions, context));
+    public Mono<Response<Void>> float64MillisecondsWithResponseAsync(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return FluxUtil.withContext(context -> service.float64Milliseconds(this.client.getEndpoint(), durationConverted,
+            requestOptions, context));
     }
 
     /**
@@ -759,8 +771,10 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> float64MillisecondsWithResponse(double duration, RequestOptions requestOptions) {
-        return service.float64MillisecondsSync(this.client.getEndpoint(), duration, requestOptions, Context.NONE);
+    public Response<Void> float64MillisecondsWithResponse(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000L;
+        return service.float64MillisecondsSync(this.client.getEndpoint(), durationConverted, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -775,10 +789,12 @@ public final class HeadersImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> int32MillisecondsArrayWithResponseAsync(List<Integer> duration,
+    public Mono<Response<Void>> int32MillisecondsArrayWithResponseAsync(List<Duration> duration,
         RequestOptions requestOptions) {
-        String durationConverted
-            = JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(duration, CollectionFormat.CSV);
+        String durationConverted = JacksonAdapter.createDefaultSerializerAdapter()
+            .serializeIterable(
+                duration.stream().map(paramItemValue -> paramItemValue.toMillis()).collect(Collectors.toList()),
+                CollectionFormat.CSV);
         return FluxUtil.withContext(context -> service.int32MillisecondsArray(this.client.getEndpoint(),
             durationConverted, requestOptions, context));
     }
@@ -795,9 +811,11 @@ public final class HeadersImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestOptions requestOptions) {
-        String durationConverted
-            = JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(duration, CollectionFormat.CSV);
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Duration> duration, RequestOptions requestOptions) {
+        String durationConverted = JacksonAdapter.createDefaultSerializerAdapter()
+            .serializeIterable(
+                duration.stream().map(paramItemValue -> paramItemValue.toMillis()).collect(Collectors.toList()),
+                CollectionFormat.CSV);
         return service.int32MillisecondsArraySync(this.client.getEndpoint(), durationConverted, requestOptions,
             Context.NONE);
     }

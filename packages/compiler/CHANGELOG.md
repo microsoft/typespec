@@ -1,5 +1,121 @@
 # Change Log - @typespec/compiler
 
+## 1.11.0
+
+### Features
+
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Added a new template `FilterVisibility` to support more accurate visibility transforms. This replaces the `@withVisibilityFilter` decorator, which is now deprecated and slated for removal in a future version of TypeSpec.
+
+### Bug Fixes
+
+- [#10196](https://github.com/microsoft/typespec/pull/10196) Include model name in `duplicate-property` error message
+- [#10199](https://github.com/microsoft/typespec/pull/10199) [invalid-discriminated-union-variant] `duplicateDefaultVariant` diagnostic now includes the union type name
+- [#10183](https://github.com/microsoft/typespec/pull/10183) Do not interpolate non primitive values in config automatically
+    ```yaml
+        file-type: ["json", "yaml"]
+        output-file: "openapi.{file-type}"
+    ```
+    Will not be interpolated as `openapi.json,yaml` but keep the placeholder `{file-type}` intact for the emitter to handle.
+- [#9893](https://github.com/microsoft/typespec/pull/9893) Fixed a bug that would prevent template parameters from assigning to values in some cases.
+
+
+## 1.10.0
+
+### Features
+
+- [#9819](https://github.com/microsoft/typespec/pull/9819) Export `resolveCodeFix` function to allow resolving a `CodeFix` into `CodeFixEdit[]` without the LSP layer.
+- [#9829](https://github.com/microsoft/typespec/pull/9829) `tsp info` now accepts an optional `<libName>` argument to display detailed information about a specific library or emitter, including all available options.
+- [#9060](https://github.com/microsoft/typespec/pull/9060) Added support for Functions, a new type graph entity and language feature. Functions enable library authors to provide input-output style transforms that operate on types and values. See [the Functions Documentation](https://typespec.io/docs/language-basics/functions/) for more information about the use and implementation of functions.
+- [#9762](https://github.com/microsoft/typespec/pull/9762) Added experimental support for `internal` modifiers on type declarations. Any type _except `namespace`_ can be declared `internal`. An `internal` symbol can only be accessed from within the same package where it was declared.
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9939](https://github.com/microsoft/typespec/pull/9939) Fix `@overload` interface validation failing when the enclosing namespace is versioned
+- [#9641](https://github.com/microsoft/typespec/pull/9641) Don't report `non-literal-string-template` diagnostic when interpolating an invalid reference
+- [#9803](https://github.com/microsoft/typespec/pull/9803) Support `TYPESPEC_NPM_REGISTRY` environment variable to configure the npm registry used by `tsp init` and `tsp install` when fetching package manifests and downloading packages.
+- [#9804](https://github.com/microsoft/typespec/pull/9804) Fix crash when using custom scalar initializer in examples or default values
+    [API] Fix crash in `serializeValueAsJson` when a custom scalar initializer has no recognized constructor (e.g. `S.i()` with no args). Now returns `undefined` instead of crashing.
+- [#9670](https://github.com/microsoft/typespec/pull/9670) Fixed an issue where referencing a member of a templated alias with defaultable parameters would fail to instantiate the alias, leaking template parameters.
+
+
+## 1.9.0
+
+### Deprecations
+
+- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
+
+### Features
+
+- [#9078](https://github.com/microsoft/typespec/pull/9078) Remove type constraints from `@continuationToken` decorator
+- [#9512](https://github.com/microsoft/typespec/pull/9512) [API] Add performance reporting utilities for emitters [See docs for more info](https://typespec.io/docs/extending-typespec/performance-reporting/)
+- [#9475](https://github.com/microsoft/typespec/pull/9475) [API] `serializeValueAsJson` throws a `UnsupportedScalarConstructorError` for unsupported scalar constructor instead of crashing
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9320](https://github.com/microsoft/typespec/pull/9320) Fix `--list-files` not working when multiple instance of compiler are loaded
+- [#9607](https://github.com/microsoft/typespec/pull/9607) Fix stack overflow for specs with large number of circular references
+- [#9342](https://github.com/microsoft/typespec/pull/9342) Ensuring ignore-deprecated gets resolved.
+- [#9588](https://github.com/microsoft/typespec/pull/9588) Fixed several checking errors around template instantiations that could cause TemplateParameter instances to leak into decorator calls.
+
+
+## 1.8.0
+
+### Features
+
+- [#9295](https://github.com/microsoft/typespec/pull/9295) Add `now()` initializer to date/time scalars (`plainDate`, `plainTime`, `utcDateTime`, `offsetDateTime`) for indicating current date/time at runtime. Emitters should interpret this as the appropriate runtime value (e.g., database `CURRENT_TIMESTAMP`, JavaScript `Date.now()`, etc.).
+- [#9104](https://github.com/microsoft/typespec/pull/9104) [API] Introduction of decorator validator callbacks. A decorator can define some callbacks to achieve some deferred validation (After the type is finished or the whole graph is)
+- [#9288](https://github.com/microsoft/typespec/pull/9288) [api] Expose `createSuppressCodeFixes` method to generate multiple code fixes from diagnostics
+- [#9262](https://github.com/microsoft/typespec/pull/9262) Add support for OpenAPI 3.2.0 `defaultMapping` in discriminated unions. When a discriminated union has a default variant (unnamed variant), it is now properly emitted:
+  - For OpenAPI 3.2.0: The default variant is included in `oneOf` array and referenced via `discriminator.defaultMapping` property
+  - For OpenAPI 3.0 and 3.1: The default variant is included in `oneOf` array and its discriminator value is added to the `discriminator.mapping` object
+- [#9300](https://github.com/microsoft/typespec/pull/9300) Add typekit to tester instances and test compile result"
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9280](https://github.com/microsoft/typespec/pull/9280) suppress - a extends/is inner statement suppress should be generated on the parent model node
+- [#9293](https://github.com/microsoft/typespec/pull/9293) compiler - suppression node selection for operation response bodies
+- [#9308](https://github.com/microsoft/typespec/pull/9308) Fixed mutation of decorator's argument values
+
+
+## 1.7.1
+
+### Bug Fixes
+
+- [#9210](https://github.com/microsoft/typespec/pull/9210) Fix crash in `tsp init` introduced in `1.7.0`
+
+
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+- [#8942](https://github.com/microsoft/typespec/pull/8942) - Add 'exit' final event for linter rules
+  - Support 'async' in linter definition and async function as callback for 'exit' event.
+- [#9024](https://github.com/microsoft/typespec/pull/9024) [API] Add `node` to `SourceModel` type
+- [#8619](https://github.com/microsoft/typespec/pull/8619) Add support for escaping param like tags(`@param`, `@prop`, etc.) identifier with backtick in doc comments to allow special characters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8917](https://github.com/microsoft/typespec/pull/8917) Add security warning to tsp init CLI documentation for external templates (#8916)
+- [#8997](https://github.com/microsoft/typespec/pull/8997) UnusedUsing Diagnostics are reported as warning instead of hint when there are linters defined in tspconfig.yaml
+
+
 ## 1.6.0
 
 ### Features

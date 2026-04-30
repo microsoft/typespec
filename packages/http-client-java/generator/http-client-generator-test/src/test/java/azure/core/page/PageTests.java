@@ -47,4 +47,9 @@ public class PageTests {
     public void testPageNextLinkReInjectedParameters() {
         Assertions.assertEquals(2, client.withParameterizedNextLink("name", true).stream().count());
     }
+
+    @Test
+    public void testPageWithRelativeNextLink() {
+        Assertions.assertEquals(2, client.withRelativeNextLink().stream().count());
+    }
 }

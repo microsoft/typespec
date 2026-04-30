@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -31,6 +31,20 @@ Scenarios.SpecialWords_ModelProperties_dictMethods = passOnSuccess({
       pop: "ok",
       get: "ok",
       copy: "ok",
+    }),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.SpecialWords_ModelProperties_withList = passOnSuccess({
+  uri: "/special-words/model-properties/list",
+  method: "post",
+  request: {
+    body: json({
+      list: "ok",
     }),
   },
   response: {
@@ -405,3 +419,36 @@ Scenarios.SpecialWords_Parameters_cancellationToken = createParametersTests(
   },
   "cancellationToken",
 );
+
+Scenarios.SpecialWords_ReservedOperationBodyParams_withItems = passOnSuccess({
+  uri: "/special-words/operations/body-param-reserved",
+  method: "post",
+  request: {
+    body: json({
+      items: ["item"],
+    }),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.SpecialWords_ExtensibleStrings_putExtensibleStringValue = passOnSuccess({
+  uri: `/special-words/extensible-strings/string`,
+  method: "put",
+  request: {
+    body: json("class"),
+  },
+  response: {
+    status: 200,
+    body: json("class"),
+  },
+  handler: (req: MockRequest) => {
+    return {
+      status: 200,
+      body: json(req.body),
+    };
+  },
+  kind: "MockApiDefinition",
+});

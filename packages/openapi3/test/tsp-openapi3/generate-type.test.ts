@@ -3,10 +3,10 @@ import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
 import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../src/types.js";
+import { OpenAPI3Document, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../../src/types.js";
 
 interface TestScenario {
-  schema: Refable<OpenAPI3Schema>;
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>;
   expected: string;
 }
 
@@ -49,6 +49,23 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", format: "double" }, expected: "float64" },
   { schema: { type: "number", format: "float" }, expected: "float32" },
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
+  // Duration tests with x-ms-duration extension
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
   // strings
   { schema: { type: "string" }, expected: "string" },
   {
@@ -62,6 +79,8 @@ const testScenarios: TestScenario[] = [
   },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
+  // OpenAPI 3.1+ contentEncoding: base64 should be bytes
+  { schema: { type: "string", contentEncoding: "base64" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
   { schema: { type: "string", format: "date-time" }, expected: "utcDateTime" },
   { schema: { type: "string", format: "duration" }, expected: "duration" },

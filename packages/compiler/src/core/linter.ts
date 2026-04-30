@@ -5,9 +5,9 @@ import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
+import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import { startTimer } from "./stats.js";
 import {
   Diagnostic,
   DiagnosticMessages,
@@ -197,17 +197,17 @@ export function createLinter(
         [...filteredRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
-    const timer = startTimer();
+    const timer = perf.startTimer();
     const exitCallbacks = [];
     const EXIT_EVENT_NAME = "exit";
     const allPromises: Promise<any>[] = [];
     for (const rule of filteredRules.values()) {
-      const createTiming = startTimer();
+      const createTiming = perf.startTimer();
       const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
       stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
         const timedCb = (...args: any[]) => {
-          const timer = startTimer();
+          const timer = perf.startTimer();
           const result = (cb as any)(...args);
           if (name === EXIT_EVENT_NAME && isPromise(result)) {
             compilerAssert(

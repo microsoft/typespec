@@ -54,10 +54,7 @@ it("renders an empty enum declaration", async () => {
       <EnumDeclaration type={TestEnum} />
     </Wrapper>,
   ).toRenderTo(`
-    enum TestEnum
-    {
-
-    }
+    enum TestEnum {}
   `);
 });
 

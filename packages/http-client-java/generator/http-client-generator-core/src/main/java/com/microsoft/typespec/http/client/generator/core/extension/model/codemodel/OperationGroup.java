@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class OperationGroup extends Metadata {
     private String $key;
-    private List<Operation> operations = new ArrayList<Operation>();
+    private List<Operation> operations = new ArrayList<>();
     private Client codeModel;
 
     /**

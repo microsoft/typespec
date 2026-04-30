@@ -33,9 +33,8 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -82,15 +81,14 @@ public class ResourceParser {
         if (model.getCategory() != ModelCategory.IMMUTABLE) {
             if (FluentUtils.modelHasLocationProperty(model) && !model.hasProperty("region")) {
                 // if resource instance has location property, add region() method
-                methods.add(MethodTemplate.builder()
-                    .imports(Collections.singletonList(FluentType.REGION.getFullName()))
-                    .comment(commentBlock -> {
+                methods.add(
+                    MethodTemplate.builder().imports(List.of(FluentType.REGION.getFullName())).comment(commentBlock -> {
                         commentBlock.description("Gets the region of the resource.");
                         commentBlock.methodReturns("the region of the resource.");
                     })
-                    .methodSignature("Region region()")
-                    .method(methodBlock -> methodBlock.methodReturn("Region.fromName(this.regionName())"))
-                    .build());
+                        .methodSignature("Region region()")
+                        .method(methodBlock -> methodBlock.methodReturn("Region.fromName(this.regionName())"))
+                        .build());
                 methods.add(MethodTemplate.builder().comment(commentBlock -> {
                     commentBlock.description("Gets the name of the resource region.");
                     commentBlock.methodReturns("the name of the resource region.");
@@ -184,7 +182,7 @@ public class ResourceParser {
             .collect(Collectors.toMap(m -> m.getInterfaceType().toString(), Function.identity()));
 
         List<ResourceCreate> supportsCreateList = new ArrayList<>();
-        Set<FluentResourceModel> foundModels = new HashSet<>();
+        Set<FluentResourceModel> foundModels = new LinkedHashSet<>();
 
         for (ModelCategory category : categories) {
             Map<FluentResourceModel, ResourceCreate> modelResourceCreateMap = findResourceCreateForCategory(collection,
@@ -352,15 +350,22 @@ public class ResourceParser {
                         FluentResourceModel fluentModel = fluentModelMapByName.get(returnTypeName);
                         // at present, cannot handle derived models
                         if (fluentModel != null && fluentModel.getInnerModel().getDerivedModels().isEmpty()) {
+                            String url = m.getInnerProxyMethod().getUrlPath();
+                            UrlPathSegments urlPathSegments = new UrlPathSegments(url);
                             // "id", "name", "type" in resource instance
                             if (fluentModel.getResourceCreate() == null
-                                && !foundModels.containsKey(fluentModel)
                                 && !excludeModels.contains(fluentModel)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_NAME)
-                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)) {
-                                String url = m.getInnerProxyMethod().getUrlPath();
-                                UrlPathSegments urlPathSegments = new UrlPathSegments(url);
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)
+                                && (!foundModels.containsKey(fluentModel) ||
+                            // In case multiple PUTs appear in the same collection, try sticking with the one with the
+                            // shortest URL segments in order to keep consistency.
+                            // We can't do much if some of them share the same shortest segment length. Currently, we
+                            // stick with the first one, as this scenario doesn't make sense for now.
+                            // We may need a way to specify which one, when we meet real case.
+                            foundModels.get(fluentModel).getUrlPathSegments().getReverseSegments().size()
+                                > urlPathSegments.getReverseSegments().size())) {
 
                                 // logger.info("Candidate fluent model '{}', hasSubscription '{}', hasResourceGroup
                                 // '{}', isNested '{}', method name '{}'", fluentModel.getName(),

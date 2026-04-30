@@ -20,16 +20,16 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
 
     private final String artifactId;
     private final String flavor;
-    private final String apiVersion;
+    private final Map<String, String> apiVersions;
     private final Map<String, String> crossLanguageDefinitions;
 
     private final List<String> generatedFiles;
 
-    public TypeSpecMetadata(String artifactId, String flavor, String apiVersion,
+    public TypeSpecMetadata(String artifactId, String flavor, Map<String, String> apiVersions,
         Map<String, String> crossLanguageDefinitions, List<String> generatedFiles) {
         this.artifactId = artifactId;
         this.flavor = flavor;
-        this.apiVersion = apiVersion;
+        this.apiVersions = apiVersions;
         this.crossLanguageDefinitions = crossLanguageDefinitions;
         this.generatedFiles = generatedFiles;
     }
@@ -42,8 +42,8 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
         return flavor;
     }
 
-    public String getApiVersion() {
-        return apiVersion;
+    public Map<String, String> getApiVersions() {
+        return apiVersions;
     }
 
     public Map<String, String> getCrossLanguageDefinitions() {
@@ -63,9 +63,15 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("flavor", flavor);
-        jsonWriter.writeStringField("apiVersion", apiVersion);
+        jsonWriter.writeMapField("apiVersions", apiVersions, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                writer.writeString(element);
+            }
+        });
         if (!CoreUtils.isNullOrEmpty(crossLanguageDefinitions)) {
-            jsonWriter.writeMapField("crossLanguageDefinitions", this.crossLanguageDefinitions, (writer, element) -> {
+            jsonWriter.writeMapField("crossLanguageDefinitions", crossLanguageDefinitions, (writer, element) -> {
                 if (element == null) {
                     writer.writeNull();
                 } else {
@@ -74,7 +80,7 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
             });
         }
         if (!CoreUtils.isNullOrEmpty(generatedFiles)) {
-            jsonWriter.writeArrayField("generatedFiles", this.generatedFiles, JsonWriter::writeString);
+            jsonWriter.writeArrayField("generatedFiles", generatedFiles, JsonWriter::writeString);
         }
         return jsonWriter.writeEndObject();
     }
@@ -83,7 +89,7 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
         return jsonReader.readObject(reader -> {
             String artifactId = null;
             String flavor = null;
-            String apiVersion = null;
+            Map<String, String> apiVersions = null;
             Map<String, String> crossLanguageDefinitions = null;
             List<String> generatedFiles = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
@@ -94,8 +100,8 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
                     artifactId = reader.getString();
                 } else if ("flavor".equals(fieldName)) {
                     flavor = reader.getString();
-                } else if ("apiVersion".equals(fieldName)) {
-                    apiVersion = reader.getString();
+                } else if ("apiVersions".equals(fieldName)) {
+                    apiVersions = reader.readMap(JsonReader::getString);
                 } else if ("crossLanguageDefinitions".equals(fieldName)) {
                     crossLanguageDefinitions = reader.readMap(JsonReader::getString);
                 } else if ("generatedFiles".equals(fieldName)) {
@@ -104,7 +110,7 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
                     reader.skipChildren();
                 }
             }
-            return new TypeSpecMetadata(artifactId, flavor, apiVersion, crossLanguageDefinitions, generatedFiles);
+            return new TypeSpecMetadata(artifactId, flavor, apiVersions, crossLanguageDefinitions, generatedFiles);
         });
     }
 }

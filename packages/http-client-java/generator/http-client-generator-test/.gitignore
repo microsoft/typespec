@@ -1,2 +1,5 @@
 # ignore ARM generated tests with random mock values
 src/test/java/tsptest/**/arm*/generated
+
+# ignore tsp-spector coverage files
+tsp-spector-coverage-*.json

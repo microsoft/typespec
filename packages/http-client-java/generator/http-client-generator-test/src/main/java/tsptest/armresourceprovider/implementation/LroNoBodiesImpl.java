@@ -7,6 +7,7 @@ package tsptest.armresourceprovider.implementation;
 import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
 import tsptest.armresourceprovider.fluent.LroNoBodiesClient;
+import tsptest.armresourceprovider.models.ActionFinalResult;
 import tsptest.armresourceprovider.models.LroNoBodies;
 import tsptest.armresourceprovider.models.ResourceLroNoBody;
 
@@ -31,6 +32,14 @@ public final class LroNoBodiesImpl implements LroNoBodies {
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
         ResourceLroNoBody resource, Context context) {
         return this.serviceClient().createOrUpdate(resourceGroupName, resourceLroNoBodyName, resource, context);
+    }
+
+    public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName) {
+        return this.serviceClient().action(resourceGroupName, resourceLroNoBodyName);
+    }
+
+    public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName, Context context) {
+        return this.serviceClient().action(resourceGroupName, resourceLroNoBodyName, context);
     }
 
     private LroNoBodiesClient serviceClient() {

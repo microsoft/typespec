@@ -37,11 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             IReadOnlyList<InputType>? variantTypes = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
                     || reader.TryReadComplexType("variantTypes", options, ref variantTypes)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -56,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             union.VariantTypes = variantTypes;
             union.Decorators = decorators ?? [];
+            union.External = external;
             return union;
         }
     }

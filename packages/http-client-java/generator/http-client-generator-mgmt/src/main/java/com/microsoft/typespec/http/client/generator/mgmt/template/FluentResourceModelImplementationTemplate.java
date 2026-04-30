@@ -16,7 +16,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immutablemodel.ImmutableMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +37,7 @@ public class FluentResourceModelImplementationTemplate implements IJavaTemplate<
         model.getProperties().forEach(p -> methodTemplates.add(p.getImplementationMethodTemplate()));
         methodTemplates.addAll(model.getAdditionalMethods());
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         /*
          * use full name for FooManager, to avoid naming conflict
          * // manager

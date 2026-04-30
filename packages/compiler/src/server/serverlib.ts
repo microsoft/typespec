@@ -165,6 +165,7 @@ export function createServer(
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
     "signature-help",
     log,
+    host.getDocumentUpdateDebounceDelay,
   );
 
   const compileService = createCompileService({

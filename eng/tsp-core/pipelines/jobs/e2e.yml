@@ -8,7 +8,7 @@ jobs:
 
     variables:
       TYPESPEC_VS_CI_BUILD: false # Enable official Visual Studio extension build
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+      TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
       DISPLAY: ":99" # Set DISPLAY for Linux GUI applications
 
     pool:
