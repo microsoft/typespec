@@ -10,11 +10,11 @@ import { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
 import { commands, ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import {
+  CloseAction,
   CloseHandlerResult,
+  ErrorAction,
   ErrorHandlerResult,
   Executable,
-  ErrorAction,
-  CloseAction,
   LanguageClient,
   LanguageClientOptions,
   TextDocumentIdentifier,
@@ -276,10 +276,9 @@ export class TspLanguageClient {
       outputChannel,
       errorHandler: {
         error(error, message, count): ErrorHandlerResult {
-          logger.error(
-            `TypeSpec language server encountered an error: ${error.message ?? error}`,
-            [message],
-          );
+          logger.error(`TypeSpec language server encountered an error: ${error.message ?? error}`, [
+            message,
+          ]);
           // Stop retrying after 3 errors to avoid infinite loops
           if (count && count >= 3) {
             return { action: ErrorAction.Shutdown };

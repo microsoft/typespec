@@ -217,16 +217,12 @@ export async function activate(context: ExtensionContext) {
                 logger.error(
                   "TypeSpec language server is not running. Please restart the server.",
                   [],
-                  {
-                    showPopup: true,
-                    popupButtonText: "Restart Server",
-                    onPopupButtonClicked: () => {
-                      void commands.executeCommand(CommandName.RestartServer, {
-                        forceRecreate: true,
-                      });
-                    },
-                  },
+                  { showPopup: true },
                 );
+                telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                  error: "LSP client is not running",
+                });
+                tel.lastStep = "Check LSP client";
                 return ResultCode.Fail;
               }
               return await showOpenApi3(uri, context, tspLanguageClient, tel);
@@ -372,10 +368,20 @@ export async function activate(context: ExtensionContext) {
         );
       } else {
         logger.info("No workspace opened, Skip starting TypeSpec language service.");
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          compilerLocation: "skipped-no-workspace-or-tsp-file",
+        });
       }
       showStartUpMessages(stateManager);
       telemetryClient.sendDelayedTelemetryEvents();
       return ResultCode.Success;
+    },
+    undefined,
+    (e) => {
+      logger.error("Unexpected error when starting TypeSpec extension.", [e], {
+        showPopup: true,
+      });
+      return ResultCode.Fail;
     },
   );
 
@@ -409,7 +415,7 @@ async function recreateLSPClient(
     await oldClient?.stop();
     if (!tspLanguageClient) {
       telemetryClient.logOperationDetailTelemetry(activityId, {
-        error: "Failed to create TspLanguageClient",
+        error: "Failed to create TspLanguageClient. Compiler could not be resolved.",
       });
       return { code: ResultCode.Fail, details: "Failed to create TspLanguageClient." };
     } else {
@@ -421,7 +427,7 @@ async function recreateLSPClient(
         return { code: ResultCode.Success, value: tspLanguageClient };
       } else {
         telemetryClient.logOperationDetailTelemetry(activityId, {
-          error: `Failed to start TspLanguageClient.`,
+          error: `Failed to start TspLanguageClient. State: ${tspLanguageClient.state}`,
         });
         return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
       }
