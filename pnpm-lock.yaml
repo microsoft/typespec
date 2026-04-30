@@ -9,9 +9,6 @@ catalogs:
     '@alloy-js/cli':
       specifier: ^0.23.0
       version: 0.23.0
-    '@alloy-js/core':
-      specifier: ^0.23.0
-      version: 0.23.0
     '@alloy-js/csharp':
       specifier: ^0.23.0
       version: 0.23.0
@@ -522,6 +519,7 @@ overrides:
   diff@>=6.0.0 <8.0.3: '>=8.0.3'
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  '@alloy-js/core': file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
 
 importers:
 
@@ -890,14 +888,14 @@ importers:
 
   packages/emitter-framework:
     dependencies:
+      '@alloy-js/core':
+        specifier: file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
+        version: file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       '@alloy-js/csharp':
         specifier: 'catalog:'
         version: 0.23.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: 'catalog:'
-        version: 0.23.0
-      '@alloy-js/core':
         specifier: 'catalog:'
         version: 0.23.0
       '@alloy-js/python':
@@ -1148,11 +1146,12 @@ importers:
         version: 3.8.1
 
   packages/http-client:
+    dependencies:
+      '@alloy-js/core':
+        specifier: file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
+        version: file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
     devDependencies:
       '@alloy-js/cli':
-        specifier: 'catalog:'
-        version: 0.23.0
-      '@alloy-js/core':
         specifier: 'catalog:'
         version: 0.23.0
       '@alloy-js/rollup-plugin':
@@ -1189,8 +1188,8 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
+        version: file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.23.0
@@ -2680,8 +2679,8 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
+        version: file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       '@alloy-js/markdown':
         specifier: 'catalog:'
         version: 0.23.0
@@ -3113,8 +3112,9 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.23.0':
-    resolution: {integrity: sha512-pbr0a1vMLQgdgUUponGQ6tzZ63fo20yjAANr+FH6OSs8yih1C16fU3Jc02ok247jah7r1obwbzcwwpqi3IAb8w==}
+  '@alloy-js/core@file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz':
+    resolution: {integrity: sha512-5t6yXJUnOCJfxAxphVih1Uwzfl7KxFJhfkxQ4gmanOFFC9ZAqdRSho+MPwa6CNxWFvTgnM3HBgcQrLJcukHjiQ==, tarball: file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz}
+    version: 0.23.0
 
   '@alloy-js/csharp@0.23.0':
     resolution: {integrity: sha512-z/uc3PP0toaBkP8GoWM0SSVZ8TiC0KO9g8O/hFnBKcWZGpmA7JT0Oe5moRn2QDBf+OZZzuCH5XGDwcMPWTS5PQ==}
@@ -13738,7 +13738,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.23.0':
+  '@alloy-js/core@file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz':
     dependencies:
       '@types/ws': 8.18.1
       '@vue/reactivity': 3.5.30
@@ -13754,7 +13754,7 @@ snapshots:
 
   '@alloy-js/csharp@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       '@alloy-js/msbuild': 0.23.0
       change-case: 5.4.4
       marked: 16.4.2
@@ -13765,7 +13765,7 @@ snapshots:
 
   '@alloy-js/markdown@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       yaml: 2.8.3
     transitivePeerDependencies:
       - bufferutil
@@ -13773,7 +13773,7 @@ snapshots:
 
   '@alloy-js/msbuild@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       change-case: 5.4.4
       marked: 16.4.2
       pathe: 2.0.3
@@ -13783,7 +13783,7 @@ snapshots:
 
   '@alloy-js/python@0.4.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -13803,7 +13803,7 @@ snapshots:
 
   '@alloy-js/typescript@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': file:../../github/alloy/packages/core/alloy-js-core-0.23.0.tgz
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:

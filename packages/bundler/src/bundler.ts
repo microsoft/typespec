@@ -277,6 +277,9 @@ async function createEsBuildContext(
     target: "es2024",
     minify,
     keepNames: minify,
+    define: {
+      "process.env": "{}",
+    },
     plugins: [virtualPlugin, alloySingletonPlugin, ...plugins],
   });
 }
