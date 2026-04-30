@@ -59,7 +59,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/http/deprecated-implicit-optionality",
         message:
-          "The implicitOptionality option is deprecated. Use MergePatch templates to define the body of a PATCH operation instead.",
+          "The implicitOptionality option is deprecated. To preserve previous behavior, use an explicit patch model with optional properties. For actual merge-patch semantics, use MergePatchUpdate<T> for the @body type.",
       });
     });
 

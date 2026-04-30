@@ -266,7 +266,12 @@ model PatchOptions {
   /**
    * If set to `false`, disables the implicit transform that makes the body of a
    * PATCH operation deeply optional.
-   * @deprecated Use MergePatch templates instead.
+   *
+   * @deprecated `implicitOptionality` is deprecated and will be removed.
+   *   To preserve the previous behavior, define and use an explicit patch model
+   *   with optional properties for your `@body` parameter.
+   *   For actual JSON Merge Patch behavior, use `MergePatchUpdate<T>` as the
+   *   `@body` type (for example: `@patch op update(@body pet: MergePatchUpdate<Pet>): void;`).
    */
   implicitOptionality?: boolean;
 }

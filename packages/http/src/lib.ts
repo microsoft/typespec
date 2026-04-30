@@ -198,7 +198,7 @@ export const $lib = createTypeSpecLibrary({
     "deprecated-implicit-optionality": {
       severity: "warning",
       messages: {
-        default: `The implicitOptionality option is deprecated. Use MergePatch templates to define the body of a PATCH operation instead.`,
+        default: `The implicitOptionality option is deprecated. To preserve previous behavior, use an explicit patch model with optional properties. For actual merge-patch semantics, use MergePatchUpdate<T> for the @body type.`,
       },
     },
     "merge-patch-contains-null": {
