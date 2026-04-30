@@ -26,67 +26,55 @@ def get_v2_client(service_deployment_version: str, api_version: str = "v2") -> V
 
 def test_add_optional_param_from_none():
     # old client to old service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    with get_v1_client(service_deployment_version="v1") as client:
         client.from_none()
 
     # old client to new service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v1_client(service_deployment_version="v2") as client:
         client.from_none()
 
     # new client to new service with api version v1
-    with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         client.from_none()
 
     # new client to new service with api version v2
-    with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v2_client(service_deployment_version="v2") as client:
         client.from_none(new_parameter="new")
 
 
 def test_add_optional_param_from_one_required():
     # old client to old service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    with get_v1_client(service_deployment_version="v1") as client:
         client.from_one_required(parameter="required")
 
     # old client to new service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v1_client(service_deployment_version="v2") as client:
         client.from_one_required(parameter="required")
 
     # new client to new service with api version v1
-    with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         client.from_one_required(parameter="required")
 
     # new client to new service with api version v2
-    with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v2_client(service_deployment_version="v2") as client:
         client.from_one_required(parameter="required", new_parameter="new")
 
 
 def test_add_optional_param_from_one_optional():
     # old client to old service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    with get_v1_client(service_deployment_version="v1") as client:
         client.from_one_optional(parameter="optional")
 
     # old client to new service with api version v1
-    with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v1_client(service_deployment_version="v2") as client:
         client.from_one_optional(parameter="optional")
 
     # new client to new service with api version v1
-    with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         client.from_one_optional(parameter="optional")
 
     # new client to new service with api version v2
-    with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v2_client(service_deployment_version="v2") as client:
         client.from_one_optional(parameter="optional", new_parameter="new")
 
 
@@ -94,17 +82,13 @@ def test_break_the_glass():
     from azure.core.rest import HttpRequest
 
     request = HttpRequest(method="DELETE", url="/add-operation")
-    with V1Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v2",
-    ) as client:
+    with get_v1_client(service_deployment_version="v2", api_version="v2") as client:
         response = client.send_request(request)
         response.raise_for_status()
 
 
 def test_add_operation():
-    with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    with get_v2_client(service_deployment_version="v2") as client:
         client.add_operation()
 
 

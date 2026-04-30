@@ -27,69 +27,57 @@ def get_v2_client(service_deployment_version: str, api_version: str = "v2") -> V
 @pytest.mark.asyncio
 async def test_add_optional_param_from_none():
     # old client to old service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    async with get_v1_client(service_deployment_version="v1") as client:
         await client.from_none()
 
     # old client to new service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v1_client(service_deployment_version="v2") as client:
         await client.from_none()
 
     # new client to new service with api version v1
-    async with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    async with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         await client.from_none()
 
     # new client to new service with api version v2
-    async with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v2_client(service_deployment_version="v2") as client:
         await client.from_none(new_parameter="new")
 
 
 @pytest.mark.asyncio
 async def test_add_optional_param_from_one_required():
     # old client to old service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    async with get_v1_client(service_deployment_version="v1") as client:
         await client.from_one_required(parameter="required")
 
     # old client to new service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v1_client(service_deployment_version="v2") as client:
         await client.from_one_required(parameter="required")
 
     # new client to new service with api version v1
-    async with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    async with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         await client.from_one_required(parameter="required")
 
     # new client to new service with api version v2
-    async with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v2_client(service_deployment_version="v2") as client:
         await client.from_one_required(parameter="required", new_parameter="new")
 
 
 @pytest.mark.asyncio
 async def test_add_optional_param_from_one_optional():
     # old client to old service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v1") as client:
+    async with get_v1_client(service_deployment_version="v1") as client:
         await client.from_one_optional(parameter="optional")
 
     # old client to new service with api version v1
-    async with V1Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v1_client(service_deployment_version="v2") as client:
         await client.from_one_optional(parameter="optional")
 
     # new client to new service with api version v1
-    async with V2Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v1",
-    ) as client:
+    async with get_v2_client(service_deployment_version="v2", api_version="v1") as client:
         await client.from_one_optional(parameter="optional")
 
     # new client to new service with api version v2
-    async with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v2_client(service_deployment_version="v2") as client:
         await client.from_one_optional(parameter="optional", new_parameter="new")
 
 
@@ -98,18 +86,14 @@ async def test_break_the_glass():
     from azure.core.rest import HttpRequest
 
     request = HttpRequest(method="DELETE", url="/add-operation")
-    async with V1Client(
-        endpoint="http://localhost:3000",
-        service_deployment_version="v2",
-        api_version="v2",
-    ) as client:
+    async with get_v1_client(service_deployment_version="v2", api_version="v2") as client:
         response = await client.send_request(request)
         response.raise_for_status()
 
 
 @pytest.mark.asyncio
 async def test_add_operation():
-    async with V2Client(endpoint="http://localhost:3000", service_deployment_version="v2") as client:
+    async with get_v2_client(service_deployment_version="v2") as client:
         await client.add_operation()
 
 
