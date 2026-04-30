@@ -331,8 +331,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
+            var customMethods = CustomCodeView?.Methods;
+            // Only build the partial-declarations list when there are custom methods to inspect.
+            // The vast majority of TypeProviders have no custom code; skip the allocation in that case.
+            List<MethodProvider>? partialDeclarations = null;
+            if (customMethods != null && customMethods.Count > 0)
+            {
+                foreach (var customMethod in customMethods)
+                {
+                    if (customMethod.IsPartialMethod)
+                    {
+                        (partialDeclarations ??= new List<MethodProvider>()).Add(customMethod);
+                    }
+                }
+            }
+
             foreach (var method in specMethods)
             {
+                // If a generated method is already marked as partial (e.g., by
+                // ScmMethodProviderCollection's early detection), keep it as-is.
+                if (method.IsPartialMethod)
+                {
+                    methods.Add(method);
+                    continue;
+                }
+
+                MethodProvider? matchingPartial = null;
+                if (partialDeclarations != null)
+                {
+                    foreach (var partial in partialDeclarations)
+                    {
+                        if (MethodSignatureBase.SignatureComparer.Equals(partial.Signature, method.Signature))
+                        {
+                            matchingPartial = partial;
+                            break;
+                        }
+                    }
+                }
+
+                if (matchingPartial != null)
+                {
+                    methods.Add(CreatePartialMethodFromCustomSignature(matchingPartial.Signature, method));
+                    continue;
+                }
+
                 if (ShouldGenerate(method))
                 {
                     methods.Add(method);
@@ -340,6 +382,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. methods];
+        }
+
+        private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
+        {
+            // Partial method implementations require all parameters to be required (no default values).
+            var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                customSignature.Parameters,
+                customSignature.Parameters,
+                removeDefaults: true);
+
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
+
+            MethodProvider partialMethod = generatedMethod.BodyExpression != null
+                ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)
+                : new MethodProvider(partialSignature, generatedMethod.BodyStatements ?? MethodBodyStatement.Empty, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions);
+
+            return partialMethod;
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -671,6 +730,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
+                // Partial method declarations are handled in FilterCustomizedMethods and
+                // should not suppress the generated method.
+                if (customMethod.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;

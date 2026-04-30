@@ -19,8 +19,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// <summary>The shape of a model's <c>AdditionalProperties</c> property was preserved from the last contract.</summary>
         AdditionalPropertiesShapePreserved,
 
-        /// <summary>A collection property type was preserved from the last contract.</summary>
-        CollectionPropertyTypePreserved,
+        /// <summary>A property type was preserved from the last contract.</summary>
+        PropertyTypePreserved,
 
         /// <summary>A constructor modifier (e.g. <c>private protected</c> -&gt; <c>public</c>) was preserved from the last contract.</summary>
         ConstructorModifierPreserved,

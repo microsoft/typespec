@@ -1,7 +1,7 @@
 import { ok } from "assert";
-import { SpawnOptions, spawn } from "child_process";
-import { rm } from "fs/promises";
-import { dirname, resolve } from "pathe";
+import { spawn, SpawnOptions } from "child_process";
+import { readdir, readFile, rm, writeFile } from "fs/promises";
+import { dirname, join, relative, resolve } from "pathe";
 import { fileURLToPath } from "url";
 import { beforeAll, describe, it } from "vitest";
 import { NodeHost } from "../../src/index.js";
@@ -11,6 +11,53 @@ import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffo
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testTempRoot = resolve(__dirname, "../../temp/scaffolded-template-tests");
 const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
+const repoRoot = resolve(__dirname, "../../../..");
+const packagesRoot = resolve(repoRoot, "packages");
+
+/**
+ * Build a mapping from @typespec/* package names to their local file paths.
+ */
+async function resolveLocalPackageMap(): Promise<Record<string, string>> {
+  const map: Record<string, string> = {};
+  const dirs = await readdir(packagesRoot);
+  for (const dir of dirs) {
+    try {
+      const pkgJsonPath = join(packagesRoot, dir, "package.json");
+      const pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
+      if (pkgJson.name?.startsWith("@typespec/")) {
+        map[pkgJson.name] = join(packagesRoot, dir);
+      }
+    } catch {
+      // skip directories without package.json
+    }
+  }
+  return map;
+}
+
+/**
+ * Rewrite the package.json in the given directory to use local file: references
+ * for @typespec/* dependencies instead of registry versions.
+ */
+async function useLocalDependencies(
+  directory: string,
+  localPackages: Record<string, string>,
+): Promise<void> {
+  const pkgJsonPath = join(directory, "package.json");
+  const pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
+
+  for (const field of ["dependencies", "devDependencies", "peerDependencies"] as const) {
+    const deps = pkgJson[field];
+    if (deps) {
+      for (const [name, _version] of Object.entries(deps)) {
+        if (name in localPackages) {
+          deps[name] = `file:${relative(directory, localPackages[name])}`;
+        }
+      }
+    }
+  }
+
+  await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2));
+}
 
 async function execAsync(
   command: string,
@@ -82,6 +129,11 @@ describe("Init templates e2e tests", () => {
   async function scaffoldTemplateForTest(name: string): Promise<ScaffoldedTemplateFixture> {
     const targetFolder = resolve(testTempRoot, name);
     await scaffoldTemplateTo(name, targetFolder);
+
+    // Replace @typespec/* dependency versions with local file: references
+    // so that tests use the locally built packages instead of pulling from npm.
+    const localPackages = await resolveLocalPackageMap();
+    await useLocalDependencies(targetFolder, localPackages);
 
     return {
       directory: targetFolder,

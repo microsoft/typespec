@@ -511,14 +511,14 @@ describe("compiler: references", () => {
       }));
 
     describe("reference sibling members", () => {
-      // Those tests look broken https://github.com/microsoft/typespec/issues/9731
-      // eslint-disable-next-line no-unassigned-vars
       let linkedValue: Operation | undefined;
 
       it("defined before", async () => {
         const { Foo } = await Tester.files({
           "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {},
+            $testLink: (_: any, _t: any, value: Operation) => {
+              linkedValue = value;
+            },
           }),
         }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
@@ -528,13 +528,15 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("a"));
+        strictEqual(linkedValue, Foo.operations.get("one"));
       });
 
       it("defined after", async () => {
         const { Foo } = await Tester.files({
           "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {},
+            $testLink: (_: any, _t: any, value: Operation) => {
+              linkedValue = value;
+            },
           }),
         }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
@@ -544,7 +546,7 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("a"));
+        strictEqual(linkedValue, Foo.operations.get("two"));
       });
     });
 

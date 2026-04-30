@@ -1090,6 +1090,164 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NullableScalarPropertyTypeIsRetained()
+        {
+            // Regression: when a scalar property was previously generated as nullable
+            // but the current spec marks it as non-nullable, the previous nullable type
+            // should be preserved to avoid a source-breaking change.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // The current spec says non-nullable int, but the last contract had int? – the
+            // generator should preserve the nullable type for backwards compatibility.
+            Assert.IsTrue(countProperty!.Type.Equals(new CSharpType(typeof(int), isNullable: true)));
+        }
+
+        [Test]
+        public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Last contract has `string Count { get; set; }` and the new spec says int – the
+            // generator preserves the last contract's type for backwards compatibility.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(string)));
+        }
+
+        [Test]
+        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers()
+        {
+            // A scalar (non-collection) enum property whose nullability changed between the
+            // last contract and the current spec should retain the last contract's nullability.
+            var statusEnum = InputFactory.StringEnum(
+                "StatusEnum",
+                [("Active", "Active"), ("Inactive", "Inactive")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("status", statusEnum, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [statusEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var statusProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Status");
+            Assert.IsNotNull(statusProperty);
+            Assert.IsTrue(statusProperty!.Type.IsNullable);
+            Assert.AreEqual("StatusEnum", statusProperty.Type.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainProperty()
+        {
+            // Negative test: the last contract has a MockInputModel but with a different property
+            // name, so the back-compat lookup for "Count" misses and the spec type is preserved.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because the last contract has no matching property.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainModel()
+        {
+            // Negative test: the last contract has no MockInputModel at all, so LastContractView
+            // is null, the property map is empty, and the spec type is preserved as-is.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            // Sanity: there is no last-contract view for this model.
+            Assert.IsNull(modelProvider!.LastContractView);
+
+            var countProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because there is no last contract to compare to.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_InternalPropertyInLastContractIsIgnored()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+        }
+
+        [Test]
         public async Task BackCompat_NonAbstractTypeIsRespected()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
@@ -1792,7 +1950,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Without ProcessTypeForBackCompatibility, constructor should be private protected
             var privateProtectedConstructor = modelProvider!.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
                     && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
@@ -1802,7 +1960,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
             var publicConstructor = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);

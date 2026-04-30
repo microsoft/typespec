@@ -216,11 +216,11 @@ public static PublicModel1 PublicModel1(
 
 ### Model Properties
 
-The generator attempts to maintain backward compatibility for model property types, particularly for collection types.
+The generator preserves the previous property type whenever it differs from the type produced by the current spec. This applies to all public model properties (scalars, enums, models, and collections), so any property type change is non-source-breaking by default. Users who want the new spec's type to take effect can override this behavior with custom code.
 
 #### Scenario: Collection Property Type Changed
 
-**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
+**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator preserves the previous property type to avoid breaking changes.
 
 **Example:**
 
@@ -242,11 +242,31 @@ public IList<string> Items { get; set; }
 public IReadOnlyList<string> Items { get; }
 ```
 
-**Implementation Details:**
+#### Scenario: Scalar/Model Property Type Changed
 
-- The generator compares property types against the `LastContractView`
-- For read-write lists and dictionaries, if the previous type was different, the previous type is retained
-- A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
+**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec — whether the change is in nullability, the underlying type, or anything else — the generator preserves the last contract's type.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public int? Count { get; set; }
+```
+
+Current TypeSpec would generate:
+
+```csharp
+public int Count { get; set; }
+```
+
+**Result:** The generator detects the type mismatch and preserves the previous nullable type:
+
+```csharp
+public int? Count { get; set; }
+```
+
+A diagnostic message is logged for every overridden property: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation
 
