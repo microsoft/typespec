@@ -188,4 +188,4 @@ overrides:
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"
-  "@alloy-js/core": file:/Users/timotheeguerin/dev/github/alloy/packages/core/alloy-js-core-0.23.0.tgz
+  "@alloy-js/core": 0.23.1

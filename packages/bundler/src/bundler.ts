@@ -1,6 +1,6 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
-import { mkdir, readFile, realpath, writeFile } from "fs/promises";
+import { access, mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
 import { gzip } from "zlib";
@@ -365,15 +365,17 @@ async function isTypeSpecLibrary(libraryPath: string, depName: string): Promise<
   // that don't expose ./package.json.
   let dir = libraryPath;
   while (true) {
+    const pkgJsonPath = join(dir, "node_modules", depName, "package.json");
     try {
-      const pkgJsonPath = join(dir, "node_modules", depName, "package.json");
-      const depPkgJson = JSON.parse((await readFile(pkgJsonPath)).toString());
-      return !!depPkgJson.tspMain;
+      await access(pkgJsonPath);
     } catch {
       const parent = dirname(dir);
       if (parent === dir) break;
       dir = parent;
+      continue;
     }
+    const depPkgJson = JSON.parse((await readFile(pkgJsonPath)).toString());
+    return !!depPkgJson.tspMain;
   }
   // If we can't resolve the package, externalize to be safe (preserves previous behavior)
   return true;
