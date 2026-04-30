@@ -46,7 +46,7 @@
     "typecheck": "tsx ./eng/scripts/ci/typecheck.ts",
     "typecheck:generated": "tsx ./eng/scripts/ci/typecheck.ts --generated",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "npm run test && npm run lint && npm run typecheck",
+    "ci": "npm run test:emitter && npm run ci:generated",
     "ci:generated": "tsx ./eng/scripts/ci/run-tests.ts --generator --env=ci",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
     "change:add": "pnpm chronus add",

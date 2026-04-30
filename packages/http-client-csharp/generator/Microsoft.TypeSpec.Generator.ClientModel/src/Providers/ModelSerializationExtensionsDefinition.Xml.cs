@@ -218,12 +218,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new MethodBodyStatement[]
                 {
                     writer.WriteStartElement(nameHint),
+                    writer.WriteAttributes(readerTyped, True),
                     readerTyped.ReadStartElement(),
                     writeNodeLoop,
                     writer.WriteEndElement(),
                 },
                 new MethodBodyStatement[]
                 {
+                    writer.WriteAttributes(readerTyped, True),
                     readerTyped.ReadStartElement(),
                     new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
                     {

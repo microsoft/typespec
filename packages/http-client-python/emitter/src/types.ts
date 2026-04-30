@@ -249,6 +249,7 @@ function emitProperty(
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
     encode: property.encode,
+    clientDefaultValue: property.clientDefaultValue,
   };
 }
 
@@ -377,9 +378,6 @@ function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, 
 }
 
 function enumName(name: string): string {
-  if (name.toUpperCase() === name) {
-    return name;
-  }
   return camelToSnakeCase(name).toUpperCase();
 }
 

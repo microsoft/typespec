@@ -23,6 +23,8 @@ export const $lib = createTypeSpecLibrary({
         default:
           "Java Development Kit (JDK) is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download",
         jdkVersion: paramMessage`Java Development Kit (JDK) in PATH is version '${"javaVersion"}'. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`,
+        java: "Java Runtime is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download",
+        javaVersion: paramMessage`Java Runtime in PATH is version '${"javaVersion"}'. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`,
         maven:
           "Apache Maven is not found in PATH. Apache Maven can be downloaded from https://maven.apache.org/download.cgi",
       },
@@ -130,6 +132,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Complex SDK type is not supported for "text/plain" content-type. Emitter would use string type on '${"operationName"}' ${"payloadKind"}.`,
+      },
+    },
+    "client-required-false": {
+      severity: "error",
+      messages: {
+        default: "Client option 'clientRequired' can only be set to 'true'.",
       },
     },
   },

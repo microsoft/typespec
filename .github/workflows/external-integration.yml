@@ -44,7 +44,7 @@ jobs:
           submodules: true
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Update core submodule to PR commit
         run: |
