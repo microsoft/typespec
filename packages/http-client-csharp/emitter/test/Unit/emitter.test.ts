@@ -4,7 +4,7 @@ import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generate } from "../../src/emit-generate.js";
-import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
+import { execAsync, execCSharpGenerator } from "../../src/lib/exec-utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { CodeModel } from "../../src/type/code-model.js";
 import {
@@ -54,7 +54,7 @@ describe("$onEmit tests", () => {
       }),
     }));
 
-    vi.mock("../../src/lib/utils.js", () => ({
+    vi.mock("../../src/lib/exec-utils.js", () => ({
       execCSharpGenerator: vi.fn(),
       execAsync: vi.fn(),
     }));
