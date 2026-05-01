@@ -355,6 +355,45 @@ describe("Next link operations", () => {
       `Expected model 'Foo' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
     );
   });
+
+  it("does not deduplicate enums with the same name but different namespaces", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false)
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Status { active, inactive };
+        namespace Sub {
+          enum Status { open, closed };
+        }
+        model Foo {
+          name: string;
+          a: Status;
+          b: Sub.Status;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Two enums share the name "Status" but live in different namespaces.
+    // The namespace-aware dedup key must keep both in the code model.
+    const statusEnums = root.enums.filter((e) => e.name === "Status");
+    strictEqual(
+      statusEnums.length,
+      2,
+      `Expected 2 'Status' enums from different namespaces. Found ${statusEnums.length}: ${root.enums.map((e) => `${e.namespace}.${e.name}`).join(", ")}`,
+    );
+  });
 });
 
 describe("Continuation token operations", () => {
