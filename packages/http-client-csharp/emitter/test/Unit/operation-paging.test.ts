@@ -386,7 +386,69 @@ describe("Next link operations", () => {
     const [root] = createModel(sdkContext);
 
     // Two enums share the name "Status" but live in different namespaces.
-    // The namespace-aware dedup key must keep both in the code model.
+    // The namespace-aware key must keep both in the code model.
+    const statusEnums = root.enums.filter((e) => e.name === "Status");
+    strictEqual(
+      statusEnums.length,
+      2,
+      `Expected 2 'Status' enums from different namespaces. Found ${statusEnums.length}: ${root.enums.map((e) => `${e.namespace}.${e.name}`).join(", ")}`,
+    );
+  });
+
+  it("preserves same-named models from different namespaces across two paging operations", async () => {
+    const program = await typeSpecCompile(
+      `
+        namespace NsA {
+          enum Status { active, inactive };
+          model Item {
+            name: string;
+            status: Status;
+          };
+        }
+        namespace NsB {
+          enum Status { open, closed };
+          model Item {
+            id: int32;
+            status: Status;
+          };
+        }
+
+        @convenientAPI(false)
+        @list
+        @route("/a")
+        op listA(): {
+          @pageItems
+          items: NsA.Item[];
+          @nextLink
+          next?: url;
+        };
+
+        @convenientAPI(false)
+        @list
+        @route("/b")
+        op listB(): {
+          @pageItems
+          items: NsB.Item[];
+          @nextLink
+          next?: url;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Two paging operations reference models named "Item" and enums named
+    // "Status" from different namespaces. All four types must be present.
+    const itemModels = root.models.filter((m) => m.name === "Item");
+    strictEqual(
+      itemModels.length,
+      2,
+      `Expected 2 'Item' models from different namespaces. Found ${itemModels.length}: ${root.models.map((m) => `${m.namespace}.${m.name}`).join(", ")}`,
+    );
+
     const statusEnums = root.enums.filter((e) => e.name === "Status");
     strictEqual(
       statusEnums.length,
