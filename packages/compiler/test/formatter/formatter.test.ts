@@ -2459,7 +2459,8 @@ namespace Foo {
       `,
       });
     });
-    it("split decorator first if line is long with multiple decorators", async () => {
+
+    it("split decorators when decorator + op signature exceeds line width", async () => {
       await assertFormat({
         code: `
 namespace Foo {
@@ -2508,6 +2509,7 @@ namespace Foo {
       `,
       });
     });
+
     it("break arguments per lines when decorator name is very long", async () => {
       await assertFormat({
         code: `

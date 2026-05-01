@@ -52,11 +52,15 @@ union ChannelEventWithCustomContentType {
   },
 }
 
-@route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(): {
+@route("/channel/no-terminal")
+@get
+op subscribeToChannelNoTerminalGet(): {
   @header contentType: "text/event-stream";
 };
 
-@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminalPost(
+@route("/channel/no-terminal-post")
+@post
+op subscribeToChannelNoTerminalPost(
   /** Request body for subscribing to a channel without terminal event. */
   @body body: {
     channelId?: string;
@@ -65,10 +69,14 @@ union ChannelEventWithCustomContentType {
   @header contentType: "text/event-stream";
 };
 
-@route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(): {
+@route("/channel/with-terminal")
+@get
+op subscribeToChannelWithTerminal(): {
   @header contentType: "text/event-stream";
 };
 
-@route("/data/custom-content-type") @get op subscribeToDataStream(): {
+@route("/data/custom-content-type")
+@get
+op subscribeToDataStream(): {
   @header contentType: "text/event-stream";
 };

@@ -67,7 +67,9 @@ describe("x-ms-list-offset extension", () => {
       namespace TestService;
 
       /** List widgets */
-      @route("/widgets") @get op Widgets_list(
+      @route("/widgets")
+      @get
+      op Widgets_list(
         @extension("x-ms-list-offset", true)
         @offset
         @query

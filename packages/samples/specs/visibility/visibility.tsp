@@ -59,7 +59,8 @@ model ListResult<Item> {
 
 @route("/hello")
 namespace Hello {
-  @get op read(
+  @get
+  op read(
     @path id: string,
 
     @query(#{ explode: true })

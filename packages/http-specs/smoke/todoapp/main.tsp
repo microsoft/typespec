@@ -259,18 +259,19 @@ namespace TodoItems {
   ): WithStandardErrors<TodoItem | InvalidTodoItem>;
 
   @get op get(@path id: TodoItem.id): TodoItem | NotFoundErrorResponse;
-  @patch op update(
+  @patch
+  op update(
     @header contentType: "application/merge-patch+json",
     @path id: TodoItem.id,
     @body patch: TodoItemPatch,
   ): TodoItem;
-  @delete op delete(
-    @path id: TodoItem.id,
-  ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+  @delete
+  op delete(@path id: TodoItem.id): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
 
   @route("{itemId}/attachments")
   namespace Attachments {
-    @list op list(
+    @list
+    op list(
       @path itemId: TodoItem.id,
     ): WithStandardErrors<Page<TodoAttachment> | NotFoundErrorResponse>;
 

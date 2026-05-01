@@ -129,9 +129,8 @@ interface Parameters {
   @paramNameScenario("yield") withYield(@query yield: string): void;
 
   // Non keywords but parameters name that could cause conflict with some language standards
-  @paramNameScenario("cancellationToken") withCancellationToken(
-    @query cancellationToken: string,
-  ): void;
+  @paramNameScenario("cancellationToken")
+  withCancellationToken(@query cancellationToken: string): void;
 }
 
 /**

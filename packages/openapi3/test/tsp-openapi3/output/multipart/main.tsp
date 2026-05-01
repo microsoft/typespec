@@ -28,7 +28,9 @@ model PetOwnerProfileRequestBody {
   age: HttpPart<int32>;
 }
 
-@route("/") @post op extensive(
+@route("/")
+@post
+op extensive(
   @header contentType: "multipart/form-data",
   @multipartBody body: {
     owner: HttpPart<PetOwner & {
@@ -43,7 +45,9 @@ model PetOwnerProfileRequestBody {
   },
 ): NoContentResponse;
 
-@route("/profile") @post op extensiveWithComponents(
+@route("/profile")
+@post
+op extensiveWithComponents(
   @header contentType: "multipart/form-data",
   @multipartBody body: PetOwnerProfileRequestBody,
 ): NoContentResponse;

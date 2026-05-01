@@ -25,7 +25,9 @@ model DogOwner {
   } = #{ street: "", city: "", state: "", `zip.code`: "" };
 }
 
-@route("/") @get op extensive(): DogOwner | {
+@route("/")
+@get
+op extensive(): DogOwner | {
   @statusCode
   @minValue(400)
   @maxValue(499)

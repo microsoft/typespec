@@ -17,7 +17,8 @@ model HasOptional {
 
 @route("/test")
 namespace OptionalMethods {
-  @get op read(
+  @get
+  op read(
     @query queryString?: string = "defaultQueryString",
     @body queryNumber?: int64 = 123,
   ): HasOptional;

@@ -29,7 +29,8 @@ model TodoItemPatch {
   title?: TodoItem.title;
   assignedTo?: TodoItem.assignedTo | null;
 }
-@patch op update(
+@patch
+op update(
   @header contentType: "application/merge-patch+json",
   @path id: TodoItem.id,
   @body patch: TodoItemPatch,
