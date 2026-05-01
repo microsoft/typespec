@@ -2100,5 +2100,60 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsTrue(file.Content.Contains("uri.AppendQuery(\"maxpagesize\""),
                 "Generated code should use the serialized name 'maxpagesize' in the query string");
         }
+
+        // Regression test for https://github.com/microsoft/typespec/issues/10585
+        // String-derived custom scalars (e.g. Azure.Core.eTag) used as headers must not be wrapped
+        // with TypeFormatters.ConvertToString, otherwise downstream visitors that post-process the
+        // header value (e.g. by appending `.Value`) generate code that fails to compile.
+        [Test]
+        public void StringDerivedScalarHeaderIsNotWrappedInConvertToString()
+        {
+            // Simulate `scalar eTag extends string;` (e.g. Azure.Core.eTag) as an InputPrimitiveType
+            // whose Kind is String and whose CrossLanguageDefinitionId differs from "TypeSpec.string".
+            var eTagPrimitive = new InputPrimitiveType(
+                InputPrimitiveTypeKind.String,
+                name: "eTag",
+                crossLanguageDefinitionId: "Azure.Core.eTag",
+                encode: null,
+                baseType: InputPrimitiveType.String);
+
+            // Simulate a generator plugin (such as the Azure generator) mapping the string-derived
+            // scalar to a custom struct type rather than `string`. Without the fix this causes
+            // BuildHeaderStatement to wrap the value with TypeFormatters.ConvertToString, which
+            // then breaks downstream visitor rewrites that access an underlying value.
+            // We use Guid here as a stand-in for any struct type (such as Azure.ETag).
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: input => new CSharpType(typeof(Guid)),
+                createCSharpTypeCoreFallback: input => input is InputPrimitiveType primitive && primitive.CrossLanguageDefinitionId == "Azure.Core.eTag");
+
+            var ifMatchParam = InputFactory.HeaderParameter(
+                "ifMatch",
+                eTagPrimitive,
+                isRequired: true,
+                serializedName: "If-Match");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PostIfMatch",
+                InputFactory.Operation(
+                    "PostIfMatch",
+                    parameters: [ifMatchParam],
+                    responses: [InputFactory.OperationResponse([200])]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+
+            // The header value must be the parameter directly so that downstream visitors can
+            // safely rewrite it (e.g. `ifMatch.Value`). Wrapping with ConvertToString would
+            // produce broken code such as `TypeFormatters.ConvertToString(ifMatch).Value`.
+            Assert.IsFalse(
+                file.Content.Contains("ConvertToString(ifMatch)"),
+                $"String-derived scalar header should not be wrapped with TypeFormatters.ConvertToString. Generated code:\n{file.Content}");
+            Assert.IsTrue(
+                file.Content.Contains("\"If-Match\", ifMatch"),
+                $"Generated code should pass the header parameter directly. Generated code:\n{file.Content}");
+        }
     }
 }

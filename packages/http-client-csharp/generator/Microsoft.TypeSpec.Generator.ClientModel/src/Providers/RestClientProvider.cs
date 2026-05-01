@@ -420,9 +420,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Check if parameter is already a string type or an enum with string values
+                // Check if parameter is already a string type or an enum with string values.
+                // Also treat string-derived custom scalars (e.g. Azure.Core.eTag, which has Kind=String)
+                // as string-like so we don't wrap them with TypeFormatters.ConvertToString. Generator
+                // plugins (e.g. the Azure generator's MatchConditionsHeadersVisitor) may post-process
+                // the resulting expression to access an underlying value (such as via `.Value`), and
+                // wrapping with ConvertToString would produce code like
+                // `TypeFormatters.ConvertToString(ifMatch).Value`, which fails to compile.
                 bool isStringType = type?.Equals(typeof(string)) == true ||
-                    (isAcceptParameter && inputHeaderParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String });
+                    (isAcceptParameter && inputHeaderParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String }) ||
+                    HasStringPrimitiveBase(inputHeaderParameter.Type);
                 ValueExpression toStringExpression = isStringType ?
                     valueExpression :
                     GetParameterValueExpression(valueExpression, serializationFormat);
@@ -887,6 +894,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ValueExpression GetParameterValueExpression(ValueExpression valueExpression, SerializationFormat? serializationFormat)
         {
             return valueExpression.ConvertToString(GetFormatEnumValue(serializationFormat));
+        }
+
+        /// <summary>
+        /// Determines whether <paramref name="inputType"/> is an <see cref="InputPrimitiveType"/>
+        /// whose root primitive (walking the <see cref="InputPrimitiveType.BaseType"/> chain) has
+        /// <see cref="InputPrimitiveTypeKind.String"/>. This is true for the built-in
+        /// <c>string</c> primitive as well as custom string-derived scalars such as
+        /// <c>Azure.Core.eTag</c>.
+        /// </summary>
+        private static bool HasStringPrimitiveBase(InputType? inputType)
+        {
+            var primitive = inputType as InputPrimitiveType;
+            while (primitive != null)
+            {
+                if (primitive.Kind == InputPrimitiveTypeKind.String)
+                {
+                    return true;
+                }
+                primitive = primitive.BaseType;
+            }
+            return false;
         }
 
         private static ValueExpression? GetFormatEnumValue(SerializationFormat? serializationFormat)
