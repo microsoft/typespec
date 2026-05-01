@@ -190,7 +190,7 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 }
 
 /**
- * Returns a dedup key for a model or enum type. Prefers `crossLanguageDefinitionId`
+ * Returns a key for a model or enum type. Prefers `crossLanguageDefinitionId`
  * because it is the canonical identity TCGC assigns. Falls back to `namespace.name`
  * for anonymous/constant-derived types whose `crossLanguageDefinitionId` is empty.
  */
