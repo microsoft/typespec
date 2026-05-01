@@ -53,11 +53,12 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
 
   const models: InputModelType[] = [];
   const enums: InputEnumType[] = [];
-  const existingModelNames = new Set<string>();
+  const existingModelKeys = new Set<string>();
   for (const type of typesBeforeClients) {
     if (type.kind === "model") {
-      models.push(type as InputModelType);
-      existingModelNames.add((type as InputModelType).name);
+      const model = type as InputModelType;
+      models.push(model);
+      existingModelKeys.add(`${model.namespace}.${model.name}`);
     } else if (type.kind === "enum") {
       enums.push(type as InputEnumType);
     }
@@ -66,21 +67,23 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // response models for protocol-only paging operations where TCGC does not include the
   // response model in sdkPackage.models, or enums only reachable through nested property
   // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
-  // models by name to avoid duplicates when TCGC produces a different reference for the
-  // same model.
-  const existingEnumNames = new Set(enums.map((e) => e.name));
+  // by namespace + name to avoid duplicates when TCGC produces a different reference for
+  // the same type, while still allowing distinct types that share a name across namespaces.
+  const existingEnumKeys = new Set(enums.map((e) => `${e.namespace}.${e.name}`));
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
     if (type.kind === "model") {
       const model = type as InputModelType;
-      if (existingModelNames.has(model.name)) continue;
+      const key = `${model.namespace}.${model.name}`;
+      if (existingModelKeys.has(key)) continue;
       models.push(model);
-      existingModelNames.add(model.name);
+      existingModelKeys.add(key);
     } else if (type.kind === "enum") {
       const enumType = type as InputEnumType;
-      if (existingEnumNames.has(enumType.name)) continue;
+      const key = `${enumType.namespace}.${enumType.name}`;
+      if (existingEnumKeys.has(key)) continue;
       enums.push(enumType);
-      existingEnumNames.add(enumType.name);
+      existingEnumKeys.add(key);
     }
   }
 
