@@ -58,7 +58,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     if (type.kind === "model") {
       const model = type as InputModelType;
       models.push(model);
-      existingModelKeys.add(`${model.namespace}.${model.name}`);
+      existingModelKeys.add(typeDedupeKey(model));
     } else if (type.kind === "enum") {
       enums.push(type as InputEnumType);
     }
@@ -67,20 +67,22 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // response models for protocol-only paging operations where TCGC does not include the
   // response model in sdkPackage.models, or enums only reachable through nested property
   // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
-  // by namespace + name to avoid duplicates when TCGC produces a different reference for
-  // the same type, while still allowing distinct types that share a name across namespaces.
-  const existingEnumKeys = new Set(enums.map((e) => `${e.namespace}.${e.name}`));
+  // by crossLanguageDefinitionId when available, falling back to namespace + name for
+  // anonymous types (empty crossLanguageDefinitionId). This avoids duplicates when TCGC
+  // produces a different reference for the same logical type, while still preserving
+  // distinct types that share a name across different namespaces.
+  const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
     if (type.kind === "model") {
       const model = type as InputModelType;
-      const key = `${model.namespace}.${model.name}`;
+      const key = typeDedupeKey(model);
       if (existingModelKeys.has(key)) continue;
       models.push(model);
       existingModelKeys.add(key);
     } else if (type.kind === "enum") {
       const enumType = type as InputEnumType;
-      const key = `${enumType.namespace}.${enumType.name}`;
+      const key = typeDedupeKey(enumType);
       if (existingEnumKeys.has(key)) continue;
       enums.push(enumType);
       existingEnumKeys.add(key);
@@ -185,6 +187,15 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
       modelNameMap.set(key, 1);
     }
   }
+}
+
+/**
+ * Returns a dedup key for a model or enum type. Prefers `crossLanguageDefinitionId`
+ * because it is the canonical identity TCGC assigns. Falls back to `namespace.name`
+ * for anonymous/constant-derived types whose `crossLanguageDefinitionId` is empty.
+ */
+function typeDedupeKey(type: InputModelType | InputEnumType): string {
+  return type.crossLanguageDefinitionId || `${type.namespace}.${type.name}`;
 }
 
 function navigateModels(sdkContext: CSharpEmitterContext): [void, readonly Diagnostic[]] {
