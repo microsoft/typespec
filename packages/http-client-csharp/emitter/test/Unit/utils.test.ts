@@ -2,7 +2,8 @@ import { listAllServiceNamespaces } from "@azure-tools/typespec-client-generator
 import * as childProcess from "child_process";
 import { EventEmitter } from "events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { execCSharpGenerator, getClientNamespaceStringHelper } from "../../src/lib/utils.js";
+import { execCSharpGenerator } from "../../src/lib/exec-utils.js";
+import { getClientNamespaceStringHelper } from "../../src/lib/utils.js";
 import { CSharpEmitterContext } from "../../src/sdk-context.js";
 import {
   createCSharpSdkContext,
