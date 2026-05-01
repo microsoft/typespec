@@ -62,17 +62,26 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
       enums.push(type as InputEnumType);
     }
   }
-  // Include models discovered only via operation processing (e.g., anonymous response models
-  // for protocol-only paging operations where TCGC does not include the response model in
-  // sdkPackage.models). See https://github.com/microsoft/typespec/issues/9391. Dedupe by
-  // name to avoid duplicates when TCGC produces a different reference for the same model.
+  // Include models and enums discovered only via operation processing (e.g., anonymous
+  // response models for protocol-only paging operations where TCGC does not include the
+  // response model in sdkPackage.models, or enums only reachable through nested property
+  // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
+  // models by name to avoid duplicates when TCGC produces a different reference for the
+  // same model.
+  const existingEnumNames = new Set(enums.map((e) => e.name));
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
-    if (type.kind !== "model") continue;
-    const model = type as InputModelType;
-    if (existingModelNames.has(model.name)) continue;
-    models.push(model);
-    existingModelNames.add(model.name);
+    if (type.kind === "model") {
+      const model = type as InputModelType;
+      if (existingModelNames.has(model.name)) continue;
+      models.push(model);
+      existingModelNames.add(model.name);
+    } else if (type.kind === "enum") {
+      const enumType = type as InputEnumType;
+      if (existingEnumNames.has(enumType.name)) continue;
+      enums.push(enumType);
+      existingEnumNames.add(enumType.name);
+    }
   }
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.

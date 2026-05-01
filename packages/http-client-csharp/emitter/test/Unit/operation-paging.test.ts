@@ -263,6 +263,98 @@ describe("Next link operations", () => {
       `Expected response model 'LinkResponse' to be present in code model. Found: ${root.models.map((m) => m.name).join(", ")}`,
     );
   });
+
+  it("includes nested enum from protocol-only response model in code model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false)
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Status { running, completed, failed };
+        model Foo {
+          name: string;
+          status: Status;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The enum used as a property type of a model only reachable via a
+    // protocol-only paging operation must be included in the code model's
+    // enums list, not just the models list.
+    const statusEnum = root.enums.find((e) => e.name === "Status");
+    ok(
+      statusEnum,
+      `Expected enum 'Status' to be present in code model enums. Found: ${root.enums.map((e) => e.name).join(", ")}`,
+    );
+
+    // The model itself should also be present
+    const fooModel = root.models.find((m) => m.name === "Foo");
+    ok(
+      fooModel,
+      `Expected model 'Foo' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
+
+  it("includes deeply nested enum from protocol-only response model in code model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @convenientAPI(false)
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        enum Priority { low, medium, high };
+        model Bar {
+          priority: Priority;
+        };
+        model Foo {
+          name: string;
+          bar: Bar;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // An enum nested two levels deep (Foo -> Bar -> Priority) must still
+    // be captured when the entire graph is only reachable via a
+    // protocol-only paging operation.
+    const priorityEnum = root.enums.find((e) => e.name === "Priority");
+    ok(
+      priorityEnum,
+      `Expected enum 'Priority' to be present in code model enums. Found: ${root.enums.map((e) => e.name).join(", ")}`,
+    );
+
+    const barModel = root.models.find((m) => m.name === "Bar");
+    ok(
+      barModel,
+      `Expected model 'Bar' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+
+    const fooModel = root.models.find((m) => m.name === "Foo");
+    ok(
+      fooModel,
+      `Expected model 'Foo' to be present in code model models. Found: ${root.models.map((m) => m.name).join(", ")}`,
+    );
+  });
 });
 
 describe("Continuation token operations", () => {
