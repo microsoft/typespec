@@ -502,18 +502,17 @@ class JinjaSerializer(ReaderAndWriter):
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _version.py
+        # Always write at root namespace since pyproject.toml references it there
         self._serialize_and_write_version_file(general_serializer)
-        # if there's a subdir, we need to write another version file in the subdir
         if self.code_model.options.get("generation-subdir"):
             self._serialize_and_write_version_file(general_serializer, namespace)
 
         # write the empty py.typed file
+        # Always write at root namespace since MANIFEST.in references it there
         pytyped_value = "# Marker file for PEP 561."
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
-        # Use generation_dir so that relative imports from operations/clients
-        # within a generation-subdir resolve correctly.
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
                 generation_dir / Path("_validation.py"),

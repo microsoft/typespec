@@ -21,6 +21,8 @@
     - [Method Parameter Name Preserved from Last Contract](#scenario-method-parameter-name-preserved-from-last-contract)
   - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
+  - [Client Methods](#client-methods)
+    - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
 
 ## Overview
 
@@ -804,3 +806,65 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Client Methods
+
+#### Scenario: New Optional Non-Body Parameter Added to a Service Method
+
+**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
+
+**Rules:**
+
+- The previous method's parameters must appear, in the same relative order and matching by name and type, within the current method's parameters.
+- Every "extra" parameter on the current method must be optional (i.e. have a default value).
+- No "extra" parameter on the current method may be a body parameter; if any extra parameter is a body parameter, no back-compat overload is added.
+- The back-compat overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]` and has all default values stripped from its parameters to avoid ambiguous call sites.
+
+**Example:**
+
+Previous version of the client:
+
+```csharp
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options = null);
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options = null);
+```
+
+Current TypeSpec adds an optional query parameter `p2`:
+
+```typespec
+op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): string;
+```
+
+**Generated Client:**
+
+The generated client includes the current methods (with the new optional `p2` parameter) and the hidden back-compat overloads that match the previous contract's signature. Required parameters come first, followed by optional parameters, with `RequestOptions` last — matching the [Azure SDK parameter ordering guidelines](https://azure.github.io/azure-sdk/dotnet_implementation.html#parameter-presence-and-ordering).
+
+```csharp
+// Current sync method generated from the updated TypeSpec.
+public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Current async method generated from the updated TypeSpec.
+public virtual async Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat sync overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetData(p1: p1, body: body, p2: default, options: options);
+}
+
+// Back-compat async overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetDataAsync(p1: p1, body: body, p2: default, options: options);
+}
+```
+
+The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.

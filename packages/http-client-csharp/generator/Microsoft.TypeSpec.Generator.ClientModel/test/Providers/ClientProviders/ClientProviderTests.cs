@@ -3149,6 +3149,264 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
         }
 
+        // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
+        // The current TypeSpec adds a new optional non-body (header) parameter `param3`.
+        // Expected: a hidden back-compat overload matching the previous signature is added that
+        // delegates to the new method, passing default for the new parameter.
+        [Test]
+        public async Task BackCompatibility_NewOptionalNonBodyParameterAdded()
+        {
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // The current TypeSpec adds two new optional non-body parameters relative to the last contract.
+        // Expected: a single back-compat overload matching the previous signature is added that
+        // delegates to the new method, passing default for both new parameters.
+        [Test]
+        public async Task BackCompatibility_MultipleNewOptionalNonBodyParametersAdded()
+        {
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+            var param4 = InputFactory.QueryParameter("param4", InputPrimitiveType.String, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3, param4],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+                InputFactory.MethodParameter("param4", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Last contract has GetData(int param1, ModelType body, CancellationToken) (and async).
+        // The current TypeSpec adds a new optional non-body (header) parameter `param3`.
+        // Expected: a hidden back-compat overload matching the previous signature is added even when
+        // the method has a model-typed request body.
+        [Test]
+        public async Task BackCompatibility_NewOptionalNonBodyParameterAddedWithModelBody()
+        {
+            var bodyModel = InputFactory.Model(
+                "SampleModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
+
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("body", bodyModel, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("body", bodyModel, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // When the new parameter is a body parameter, the back-compat overload should NOT be added.
+        // See https://github.com/Azure/azure-sdk-for-net/blob/main/doc/DataPlaneCodeGeneration/ServiceDrivenEvolution.md#a-method-gets-a-new-optional-parameter
+        [Test]
+        public async Task BackCompatibility_NewOptionalBodyParameterDoesNotAddBackCompatOverload()
+        {
+            // Last contract had a GetData(int param2, CancellationToken) method (no body parameter).
+            // Current method adds an optional body parameter `param1`.
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: false);
+            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: false),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // When the new parameter is required (not optional), the back-compat overload should NOT be added,
+        // even if it is non-body. Adding such an overload would require us to invent a value for a required
+        // parameter, which would be unsafe.
+        [Test]
+        public async Task BackCompatibility_NewRequiredParameterDoesNotAddBackCompatOverload()
+        {
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Last contract has GetData(string itemId, int filter, CancellationToken) (and async) where
+        // itemId is a path parameter, filter is a required query, and a required header is present.
+        // The current TypeSpec adds a new optional query parameter `sort`.
+        // Expected: a hidden back-compat overload matching the previous signature is added even when
+        // the operation mixes path, query, and header parameters.
+        [Test]
+        public async Task BackCompatibility_NewOptionalNonBodyParameterAddedWithPathAndHeaderParameters()
+        {
+            var itemId = InputFactory.PathParameter("itemId", InputPrimitiveType.String, isRequired: true);
+            var filter = InputFactory.QueryParameter("filter", InputPrimitiveType.Int32, isRequired: true);
+            var region = InputFactory.HeaderParameter("region", InputPrimitiveType.String, isRequired: true);
+            var sort = InputFactory.QueryParameter("sort", InputPrimitiveType.String, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                path: "/items/{itemId}",
+                parameters: [itemId, filter, region, sort],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("itemId", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true),
+                InputFactory.MethodParameter("filter", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("region", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true),
+                InputFactory.MethodParameter("sort", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public void ServerTemplateWithBasePathOnly_DoesNotDuplicateBasePath()
         {
