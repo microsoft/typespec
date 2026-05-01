@@ -130,6 +130,44 @@ describe("compiler: imports", () => {
     });
   });
 
+  it("emit warning for self-import", async () => {
+    const diagnostics = await Tester.diagnose(`
+      import "./main.tsp";
+      model A { }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "self-import",
+      severity: "warning",
+      message: "A file cannot import itself.",
+    });
+  });
+
+  it("emit warning for duplicate imports", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./b.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "duplicate-import",
+      severity: "warning",
+      message: `Duplicate import of "./b.tsp"`,
+    });
+  });
+
+  it("does not emit duplicate warning for different paths to the same file", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./sub/../b.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, []);
+  });
+
   describe("import scopes", () => {
     interface ScopeTest<T extends Structure> {
       readonly structure: T;
