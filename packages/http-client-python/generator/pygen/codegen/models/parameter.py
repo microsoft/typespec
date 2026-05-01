@@ -377,6 +377,8 @@ class ClientParameter(Parameter):
     def method_location(self) -> ParameterMethodLocation:
         if self.constant:
             return ParameterMethodLocation.KWARG
+        if self.is_api_version:
+            return ParameterMethodLocation.KWARG
         if (
             self.is_host
             and (self.code_model.options["version-tolerant"] or self.code_model.options["low-level-client"])
@@ -408,6 +410,6 @@ class ConfigParameter(Parameter):
 
     @property
     def method_location(self) -> ParameterMethodLocation:
-        if self.constant:
+        if self.constant or self.is_api_version:
             return ParameterMethodLocation.KWARG
         return ParameterMethodLocation.POSITIONAL
