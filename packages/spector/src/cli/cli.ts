@@ -6,6 +6,7 @@ import { generateScenarioSummary } from "../actions/generate-scenario-summary.js
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
 import { serverTest } from "../actions/server-test.js";
+import { uploadBenchmark } from "../actions/upload-benchmark.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
@@ -366,6 +367,40 @@ async function main() {
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
           containerName: args.containerName,
+        });
+      },
+    )
+    .command(
+      "upload-benchmark",
+      "Run the TypeSpec compiler on a benchmark fixture and upload the performance results.",
+      (cmd) => {
+        return cmd
+          .option("commit", {
+            type: "string",
+            description:
+              "Git SHA of the commit being benchmarked. Resolved automatically if run inside a repository.",
+          })
+          .option("storageAccountName", {
+            type: "string",
+            description: "Name of the Azure Blob Storage account.",
+            demandOption: true,
+          })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the container within the storage account.",
+            demandOption: true,
+          })
+          .option("tspBin", {
+            type: "string",
+            description: "Path to the tsp CLI entry point. Defaults to the local compiler build.",
+          });
+      },
+      async (args) => {
+        await uploadBenchmark({
+          commit: args.commit ?? getCommit(process.cwd()),
+          storageAccountName: args.storageAccountName,
+          containerName: args.containerName,
+          tspBin: args.tspBin,
         });
       },
     )

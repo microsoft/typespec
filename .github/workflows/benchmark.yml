@@ -1,0 +1,44 @@
+name: Compiler Benchmarks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/compiler/**"
+      - ".github/workflows/benchmark.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    name: Run and upload compiler benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build compiler and supporting packages
+        run: pnpm -r --filter "@typespec/compiler..." --filter "@typespec/spector..." run build
+
+      - name: Run benchmark and upload result
+        run: |
+          node packages/spector/cmd/cli.mjs upload-benchmark \
+            --commit "${{ github.sha }}" \
+            --storageAccountName typespec \
+            --containerName coverage
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.BENCHMARK_AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.BENCHMARK_AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.BENCHMARK_AZURE_CLIENT_SECRET }}

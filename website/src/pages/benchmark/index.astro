@@ -1,0 +1,16 @@
+---
+import { FluentLayout } from "../../components/fluent/fluent-layout";
+import BaseLayout from "../../layouts/base-layout.astro";
+import { BenchmarkDashboardFromAzureStorage } from "@typespec/spec-dashboard";
+import "@typespec/spec-dashboard/style.css";
+---
+
+<BaseLayout>
+  <FluentLayout client:only="react">
+    <BenchmarkDashboardFromAzureStorage
+      storageAccountName="typespec"
+      containerName="coverage"
+      client:only="react"
+    />
+  </FluentLayout>
+</BaseLayout>
