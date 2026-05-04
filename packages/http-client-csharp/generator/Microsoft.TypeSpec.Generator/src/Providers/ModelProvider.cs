@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -92,7 +93,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
-            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+            => _lastContractPropertiesMap ??= LastContractView?.Properties
+                .Where(p => IsPublicApi(p.Modifiers))
+                .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
 
@@ -535,24 +538,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
-                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+                // Apply back-compat type replacement only for properties on the public API
+                // surface: changing the type of an internal/private generated property is not
+                // a source-breaking change, and the last-contract map already excludes
+                // non-public-API entries.
+                if (IsPublicApi(outputProperty.Modifiers) &&
+                    LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
+                    !lastContractPropertyType.Equals(outputProperty.Type))
                 {
-                    // We compare Arguments by name (not just ElementType) to cover both list element types
-                    // and dictionary key/value types. This ensures we only override the collection wrapper
-                    // (e.g. IReadOnlyList<T> → IList<T>) and not when the element type itself has changed.
-                    // We use AreNamesEqual rather than Equals because the argument types may come from
-                    // different sources (TypeProvider vs compiled assembly) but represent the same logical type.
-                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
-                            out CSharpType? lastContractPropertyType) &&
-                        !outputProperty.Type.Equals(lastContractPropertyType) &&
-                        outputProperty.Type.Arguments.Count == lastContractPropertyType.Arguments.Count &&
-                        outputProperty.Type.Arguments.Zip(lastContractPropertyType.Arguments).All(
-                            pair => pair.First.AreNamesEqual(pair.Second)))
-                    {
-                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
-                    }
+                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                        BackCompatibilityChangeCategory.PropertyTypePreserved);
                 }
 
                 if (!isDiscriminator)
@@ -776,6 +773,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                         }
                     }
                 }
@@ -1226,6 +1226,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         private FieldProvider? BuildRawDataField()
         {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)
@@ -1327,5 +1332,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
+
+        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }
