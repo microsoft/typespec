@@ -211,6 +211,11 @@ extends:
                 displayName: "Log npm configuration"
                 condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+                parameters:
+                  TokenOwners:
+                    - Azure
+
               - task: PowerShell@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
@@ -219,7 +224,7 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                    -AuthToken '$(azuresdk-github-pat)'
+                    -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
