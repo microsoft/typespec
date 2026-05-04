@@ -250,7 +250,7 @@ const BenchmarkChart: FunctionComponent<BenchmarkChartProps> = ({ results }) => 
       <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginTop: "8px" }}>
         {metrics.map((metric) => (
           <span key={metric} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <svg width={16} height={4}>
+            <svg width={16} height={4} aria-hidden="true">
               <line x1={0} y1={2} x2={16} y2={2} stroke={COLORS[metric]} strokeWidth={2} />
             </svg>
             <span style={{ color: "var(--colorNeutralForeground1, #000)" }}>
@@ -259,6 +259,54 @@ const BenchmarkChart: FunctionComponent<BenchmarkChartProps> = ({ results }) => 
           </span>
         ))}
       </div>
+
+      {/* Accessible data table for screen readers */}
+      <details style={{ marginTop: "16px" }}>
+        <summary style={{ cursor: "pointer", color: "var(--colorNeutralForeground2, #666)" }}>
+          View data table
+        </summary>
+        <table
+          style={{ borderCollapse: "collapse", marginTop: "8px", fontSize: "12px", width: "100%" }}
+        >
+          <thead>
+            <tr>
+              <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid #ccc" }}>
+                Commit
+              </th>
+              <th style={{ textAlign: "left", padding: "4px 8px", borderBottom: "1px solid #ccc" }}>
+                Date
+              </th>
+              {metrics.map((m) => (
+                <th
+                  key={m}
+                  style={{
+                    textAlign: "right",
+                    padding: "4px 8px",
+                    borderBottom: "1px solid #ccc",
+                  }}
+                >
+                  {METRIC_LABELS[m]} (ms)
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((r) => (
+              <tr key={r.commit}>
+                <td style={{ padding: "4px 8px", fontFamily: "monospace" }}>
+                  {r.commit.slice(0, 8)}
+                </td>
+                <td style={{ padding: "4px 8px" }}>{new Date(r.date).toLocaleDateString()}</td>
+                {metrics.map((m) => (
+                  <td key={m} style={{ textAlign: "right", padding: "4px 8px" }}>
+                    {r.metrics[m as keyof typeof r.metrics] ?? 0}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
     </div>
   );
 };

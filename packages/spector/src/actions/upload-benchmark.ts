@@ -92,21 +92,39 @@ function runBenchmark(tspBin?: string): CompilerBenchmarkMetrics {
     const mainFile = join(dir, "main.tsp");
     writeFileSync(mainFile, FIXTURE);
 
+    // Resolve the tsp compiler binary. Prefer an explicitly provided path; otherwise
+    // look for the compiler CLI in the monorepo's node_modules/.bin.
     const bin =
-      tspBin ?? join(new URL("../../../../compiler/cmd/tsp.js", import.meta.url).pathname);
+      tspBin ??
+      join(new URL("../../../..", import.meta.url).pathname, "node_modules", ".bin", "tsp");
 
     let output = "";
+    let exitCode = 0;
     try {
       output = execFileSync(process.execPath, [bin, "compile", mainFile, "--no-emit", "--stats"], {
         encoding: "utf8",
         stdio: ["pipe", "pipe", "pipe"],
       });
     } catch (e: any) {
-      // tsp compile exits non-zero on warnings; capture stdout/stderr anyway
+      exitCode = e.status ?? 1;
+      // tsp compile exits non-zero when there are only warnings; capture the output
+      // so we can still parse the stats. However, if there is no usable output
+      // (e.g. the binary was not found), surface the error immediately.
       output = (e.stdout ?? "") + (e.stderr ?? "");
+      if (!output.trim()) {
+        throw new Error(`tsp compile failed with exit code ${exitCode}: ${String(e.message ?? e)}`);
+      }
     }
 
-    return parseStats(output);
+    const metrics = parseStats(output);
+    // Sanity-check: if total is still 0 the output format may have changed.
+    if (metrics.total === 0) {
+      logger.warn(
+        `Could not parse 'total' duration from tsp compile output. ` +
+          `The stats output format may have changed. Raw output:\n${output}`,
+      );
+    }
+    return metrics;
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

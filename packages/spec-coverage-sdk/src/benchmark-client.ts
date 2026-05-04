@@ -74,7 +74,10 @@ async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
   const blob = await blobClient.download();
   if (blob.blobBody) {
     const body = await blob.blobBody;
-    const content = await body!.text();
+    if (body === null || body === undefined) {
+      throw new Error("Blob body is null");
+    }
+    const content = await body.text();
     return JSON.parse(content);
   } else if (blob.readableStreamBody) {
     const stream = blob.readableStreamBody;
