@@ -3,8 +3,8 @@ import { runOrExit } from "@typespec/internal-build-utils";
 import { copyFile } from "fs/promises";
 import { join, resolve } from "path";
 
-if (process.env.TYPESPEC_SKIP_DOCUSAURUS_BUILD?.toLowerCase() === "true") {
-  console.log("Skipping docusaurus build: TYPESPEC_SKIP_DOCUSAURUS_BUILD=true");
+if (process.env.TYPESPEC_SKIP_WEBSITE_BUILD?.toLowerCase() === "true") {
+  console.log("Skipping website build: TYPESPEC_SKIP_WEBSITE_BUILD=true");
   process.exit(0);
 }
 

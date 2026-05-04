@@ -15,6 +15,9 @@ public class XmlSerializationFormat extends SerializationFormat {
     private boolean attribute;
     private boolean wrapped;
     private boolean text;
+    private String itemsName;
+    private String itemsNamespace;
+    private String itemsPrefix;
 
     /**
      * Creates a new instance of the XmlSerializationFormat class.
@@ -130,17 +133,73 @@ public class XmlSerializationFormat extends SerializationFormat {
         this.text = text;
     }
 
+    /**
+     * Gets the name of the XML items element.
+     *
+     * @return The name of the XML items element.
+     */
+    public String getItemsName() {
+        return itemsName;
+    }
+
+    /**
+     * Sets the name of the XML items element.
+     *
+     * @param itemsName The name of the XML items element.
+     */
+    public void setItemsName(String itemsName) {
+        this.itemsName = itemsName;
+    }
+
+    /**
+     * Gets the namespace of the XML items element.
+     *
+     * @return The namespace of the XML items element.
+     */
+    public String getItemsNamespace() {
+        return itemsNamespace;
+    }
+
+    /**
+     * Sets the namespace of the XML items element.
+     *
+     * @param itemsNamespace The namespace of the XML items element.
+     */
+    public void setItemsNamespace(String itemsNamespace) {
+        this.itemsNamespace = itemsNamespace;
+    }
+
+    /**
+     * Gets the prefix of the XML items element.
+     *
+     * @return The prefix of the XML items element.
+     */
+    public String getItemsPrefix() {
+        return itemsPrefix;
+    }
+
+    /**
+     * Sets the prefix of the XML items element.
+     *
+     * @param itemsPrefix The prefix of the XML items element.
+     */
+    public void setItemsPrefix(String itemsPrefix) {
+        this.itemsPrefix = itemsPrefix;
+    }
+
     @Override
     public String toString() {
         return XmlSerializationFormat.class.getName() + "@" + Integer.toHexString(System.identityHashCode(this))
             + "[name=" + Objects.toString(name, "<null>") + ",namespace=" + Objects.toString(namespace, "<null>")
             + ",prefix=" + Objects.toString(prefix, "<null>") + ",attribute=" + attribute + ",wrapped=" + wrapped
-            + ",text=" + text + "]";
+            + ",itemsName=" + Objects.toString(itemsName, "<null>") + ",itemsNamespace="
+            + Objects.toString(itemsNamespace, "<null>") + ",itemsPrefix=" + Objects.toString(itemsPrefix, "<null>")
+            + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, namespace, attribute, wrapped, prefix, text);
+        return Objects.hash(name, namespace, attribute, wrapped, prefix, text, itemsName, itemsNamespace, itemsPrefix);
     }
 
     @Override
@@ -158,6 +217,9 @@ public class XmlSerializationFormat extends SerializationFormat {
             && attribute == rhs.attribute
             && wrapped == rhs.wrapped
             && Objects.equals(prefix, rhs.prefix)
-            && text == rhs.text;
+            && text == rhs.text
+            && Objects.equals(itemsName, rhs.itemsName)
+            && Objects.equals(itemsNamespace, rhs.itemsNamespace)
+            && Objects.equals(itemsPrefix, rhs.itemsPrefix);
     }
 }

@@ -11,7 +11,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { createDiagnostic } from "./lib.js";
-import { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
+import type { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
 
 function error(target: DiagnosticTarget): [HttpStatusCodes, readonly Diagnostic[]] {
   return [

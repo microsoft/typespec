@@ -1,3 +1,5 @@
+import { debugGlobals, debugLibs } from "./react/debug.js";
+
 /**
  * Options for importing libraries.
  */
@@ -12,7 +14,11 @@ export interface LibraryImportOptions {
 export async function importTypeSpecCompiler(
   config: LibraryImportOptions,
 ): Promise<typeof import("@typespec/compiler")> {
-  return (await importLibrary("@typespec/compiler", config)) as any;
+  const compiler = (await importLibrary("@typespec/compiler", config)) as any;
+
+  debugGlobals().compiler = compiler;
+
+  return compiler;
 }
 
 /**
@@ -20,9 +26,13 @@ export async function importTypeSpecCompiler(
  * @returns Promise with the loaded module.
  */
 export async function importLibrary(name: string, config: LibraryImportOptions): Promise<unknown> {
-  return config.useShim
+  const lib = await (config.useShim
     ? importShim(name)
-    : import(/* @vite-ignore */ /* webpackIgnore: true */ name);
+    : import(/* @vite-ignore */ /* webpackIgnore: true */ name));
+
+  debugLibs()[name] = lib;
+
+  return lib;
 }
 
 /**

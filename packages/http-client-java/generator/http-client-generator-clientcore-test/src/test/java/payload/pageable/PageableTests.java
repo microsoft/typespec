@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import payload.pageable.serverdrivenpagination.alternateinitialverb.Filter;
 
 public class PageableTests {
 
+    private final PageSizeClient pageableClient = new PageableClientBuilder().buildPageSizeClient();
     private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
     private final ServerDrivenPaginationContinuationTokenClient tokenClient
         = new PageableClientBuilder().buildServerDrivenPaginationContinuationTokenClient();
+    private final ServerDrivenPaginationAlternateInitialVerbClient alternateInitialVerbClient
+        = new PageableClientBuilder().buildServerDrivenPaginationAlternateInitialVerbClient();
 
     @Test
     public void testNextLink() {
@@ -51,5 +55,62 @@ public class PageableTests {
             () -> tokenClient.requestQueryResponseHeader("foo", "bar")
                 .streamByPage(new PagingOptions().setPageSize(4L))
                 .count());
+    }
+
+    @Test
+    public void testNestedLink() {
+        PagedIterable<Pet> pagedIterable = client.nestedLink();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testNestedContinuationToken() {
+        PagedIterable<Pet> pagedIterable = tokenClient.requestQueryNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+
+        pagedIterable = tokenClient.requestHeaderNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+
+        // query 2nd page with continuation token
+        pagedIterable = tokenClient.requestQueryNestedResponseBody("foo", "bar");
+        Assertions.assertEquals(List.of("3", "4"),
+            pagedIterable.streamByPage(new PagingOptions().setContinuationToken("page2"))
+                .flatMap(page -> page.getValue().stream())
+                .map(Pet::getId)
+                .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testListWithoutContinuation() {
+        PagedIterable<Pet> pagedIterable = pageableClient.listWithoutContinuation();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testLinkString() {
+        PagedIterable<Pet> pagedIterable = client.linkString();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testAlternateInitialVerbPost() {
+        PagedIterable<Pet> pagedIterable = alternateInitialVerbClient.post(new Filter("foo eq bar"));
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
     }
 }

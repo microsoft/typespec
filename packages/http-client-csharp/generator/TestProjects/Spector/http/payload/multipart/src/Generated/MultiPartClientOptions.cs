@@ -3,11 +3,17 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Payload.MultiPart
 {
     /// <summary> Client options for <see cref="MultiPartClient"/>. </summary>
     public partial class MultiPartClientOptions : ClientPipelineOptions
     {
+        public MultiPartClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal MultiPartClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

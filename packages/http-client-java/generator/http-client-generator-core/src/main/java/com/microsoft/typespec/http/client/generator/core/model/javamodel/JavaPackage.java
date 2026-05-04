@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -50,11 +49,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 
 public class JavaPackage {
@@ -67,7 +65,7 @@ public class JavaPackage {
 
     private final JavaFileFactory javaFileFactory;
 
-    private final Set<String> filePaths = new HashSet<>();
+    private final Set<String> filePaths = new LinkedHashSet<>();
 
     public JavaPackage(NewPlugin host) {
         this.settings = JavaSettings.getInstance();
@@ -370,41 +368,15 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata) {
-        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata.json";
+    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata, String suffix) {
+        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         try {
             TextFile textFile = new TextFile(filePath, typeSpecMetadata.toJsonString());
             this.checkDuplicateFile(textFile.getFilePath());
             textFiles.add(textFile);
         } catch (IOException e) {
             logger.warn("Failed to write metadata file {}", filePath);
-        }
-
-        // TODO(weidxu): remove in future, when "apiview_properties.json" file is not needed
-        filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_apiview_properties.json";
-        if (!CoreUtils.isNullOrEmpty(typeSpecMetadata.getCrossLanguageDefinitions())) {
-            String flavor = typeSpecMetadata.getFlavor();
-            StringBuilder sb
-                = new StringBuilder("{\n  \"flavor\": \"" + flavor + "\", \n  \"CrossLanguageDefinitionId\": {\n");
-            AtomicBoolean first = new AtomicBoolean(true);
-            typeSpecMetadata.getCrossLanguageDefinitions().forEach((key, value) -> {
-                if (first.get()) {
-                    first.set(false);
-                } else {
-                    sb.append(",\n");
-                }
-                sb.append("    \"").append(key).append("\": ");
-                if (value == null) {
-                    sb.append("null");
-                } else {
-                    sb.append("\"").append(value).append("\"");
-                }
-            });
-            sb.append("\n  }\n}\n");
-
-            TextFile textFile = new TextFile(filePath, sb.toString());
-            this.checkDuplicateFile(textFile.getFilePath());
-            textFiles.add(textFile);
         }
     }
 

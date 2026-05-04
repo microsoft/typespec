@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [{ "path": "../compiler/tsconfig.json" }],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "verbatimModuleSyntax": true,
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
+  }
+}

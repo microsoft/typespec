@@ -337,9 +337,17 @@ const BIGINT: ScalarInfo = {
         decodeTemplate: "globalThis.BigInt({})",
       },
     },
+    "TypeSpec.safeint": {
+      lossy: {
+        encodeTemplate: "globalThis.Number({})",
+        decodeTemplate: "globalThis.BigInt({})",
+      },
+    },
   },
   defaultEncodings: {
-    byMimeType: { "application/json": ["TypeSpec.string", "default"] },
+    byMimeType: {
+      "application/json": ["TypeSpec.safeint", "lossy"],
+    },
   },
   isJsonCompatible: false,
 };
@@ -774,7 +782,7 @@ function createJsScalar(
       scalar,
 
       getEncoding(encodeDataOrString: EncodeData | string, target?: Scalar): Encoder | undefined {
-        let encoding: string = "default";
+        let encoding: string;
 
         if (typeof encodeDataOrString === "string") {
           encoding = encodeDataOrString;

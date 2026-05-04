@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
+worksFor(supportedVersions, ({ checkFor, openApiFor }) => {
   it("discriminator can be simple literals", async () => {
     const openApi = await openApiFor(`
       @discriminator("kind")
@@ -343,6 +343,33 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
         message: `Discriminator value "dog" is already used in another variant.`,
       },
     ]);
+  });
+
+  it("includes all variants in discriminator mapping when first union variant causes circular emit", async () => {
+    const openApi = await openApiFor(`
+      @discriminator("kind")
+      model Pet { kind: string; }
+
+      model Cat extends Pet { kind: "cat"; }
+      model Dog extends Pet { kind: "dog"; }
+      model Bird extends Pet { kind: "bird"; }
+
+      union PetVariant {
+        cat: Cat,
+        dog: Dog,
+        bird: Bird,
+      }
+
+      op read(): { @body body: PetVariant };
+      `);
+    deepStrictEqual(openApi.components.schemas.Pet.discriminator, {
+      propertyName: "kind",
+      mapping: {
+        cat: "#/components/schemas/Cat",
+        dog: "#/components/schemas/Dog",
+        bird: "#/components/schemas/Bird",
+      },
+    });
   });
 
   it("discriminator always needs to be marked as required", async () => {

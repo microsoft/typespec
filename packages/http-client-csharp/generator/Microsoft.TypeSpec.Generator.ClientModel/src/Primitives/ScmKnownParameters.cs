@@ -21,7 +21,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 
         public static readonly ParameterProvider XmlWriter = new("writer", FormattableStringHelpers.Empty, typeof(XmlWriter));
         public static readonly ParameterProvider NameHint = new("nameHint", FormattableStringHelpers.Empty, typeof(string));
-        public static readonly ParameterProvider XElement = new("element", FormattableStringHelpers.Empty, typeof(XElement));
         public static readonly ParameterProvider Utf8JsonWriter = new("writer", FormattableStringHelpers.Empty, typeof(Utf8JsonWriter));
         public static readonly ParameterProvider Utf8JsonReader = new("reader", FormattableStringHelpers.Empty, typeof(Utf8JsonReader), isRef: true);
         public static readonly ParameterProvider JsonOptions = new("options", FormattableStringHelpers.Empty, typeof(JsonSerializerOptions));
@@ -42,27 +41,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         private static readonly FormattableString RequestContentDescription = $"The content to send as the body of the request.";
         private const string RequestContentParameterName = "content";
 
-        public static readonly ParameterProvider RequestContent = new(
-            RequestContentParameterName,
-            RequestContentDescription,
-            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
-            location: ParameterLocation.Body)
-        {
-            Validation = ParameterValidationType.AssertNotNull
-        };
-
-        public static readonly ParameterProvider NullableRequiredRequestContent = new(
-            RequestContentParameterName,
-            RequestContentDescription,
-            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
-            location: ParameterLocation.Body);
-
-        public static readonly ParameterProvider OptionalRequestContent = new(
+        public static ParameterProvider CreateRequestContent(InputParameter? parameter = null, bool optional = false, bool nullable = false) => new(
             RequestContentParameterName,
             RequestContentDescription,
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
             location: ParameterLocation.Body,
-            defaultValue: Null);
+            defaultValue: optional ? Null : null,
+            inputParameter: parameter)
+        {
+            Validation = nullable ? ParameterValidationType.None : ParameterValidationType.AssertNotNull,
+        };
 
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
@@ -74,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
             DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
         };
 
-        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type", PropertyLocation.Body));
+        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type", false, false));
 
         public static readonly ParameterProvider NextPage =
             new ParameterProvider("nextPage", $"The url of the next page of responses.", typeof(Uri));

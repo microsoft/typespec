@@ -1,5 +1,145 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.36
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+
+## 0.1.0-alpha.35
+
+### Features
+
+- Added new scenario for next link based pagination where the initial verb is not GET
+- Add missing scenarios for xml handling
+
+### Bug Fixes
+
+- Accept both `2022-08-26T18:38:00.000Z` and `2022-08-26T18:38:00Z` as valid RFC3339 UTC datetime forms in the `ModelWithDatetime` XML scenario.
+
+
+## 0.1.0-alpha.34
+
+### Bug Fixes
+
+- [#9953](https://github.com/microsoft/typespec/pull/9953) Fix response type of putExtensibleStringValue to include explicit content-type header
+
+
+## 0.1.0-alpha.33
+
+### Features
+
+- [#9785](https://github.com/microsoft/typespec/pull/9785) Add spector case for extensible enum with special word member names
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with datetime properties (rfc3339 and rfc7231 encodings)
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with enum property
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9945](https://github.com/microsoft/typespec/pull/9945) Fix float comparison in duration encode mockapi for query and header params to use numeric comparison instead of string comparison, allowing values like `35625.0` to match `35625`
+
+
+## 0.1.0-alpha.32
+
+### Features
+
+- [#9390](https://github.com/microsoft/typespec/pull/9390) Add array encoding test for enum and extensible enum arrays.
+- [#9513](https://github.com/microsoft/typespec/pull/9513) Add Spector tests for File type with various content types (body and multipart)
+- [#9499](https://github.com/microsoft/typespec/pull/9499) Add test for xml error deserialization
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml pagination with next link
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml paging
+
+### Bug Fixes
+
+- [#9570](https://github.com/microsoft/typespec/pull/9570) Fix payload/xml XmlErrorValue response to wrap SimpleModel with content-type "application/xml" for consistency with XmlError
+- [#9636](https://github.com/microsoft/typespec/pull/9636) Fix expectation for query larger unit tests
+
+
+## 0.1.0-alpha.31
+
+### Features
+
+- [#9299](https://github.com/microsoft/typespec/pull/9299) Add test for services that accept `NoAuth` unioned with other auth type
+
+### Bug Fixes
+
+- [#9200](https://github.com/microsoft/typespec/pull/9200) Fix bulletPointsModel API signature to match runtime behavior - changed response type to OkResponse and updated request body structure
+
+
+## 0.1.0-alpha.30
+
+### Features
+
+- [#8836](https://github.com/microsoft/typespec/pull/8836) Add case for constant query
+- [#9139](https://github.com/microsoft/typespec/pull/9139) Add new test case for multipart
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.29
+
+### Features
+
+- [#9106](https://github.com/microsoft/typespec/pull/9106) Add tests for array encode.
+- [#8929](https://github.com/microsoft/typespec/pull/8929) add test for documentation generation
+- [#9019](https://github.com/microsoft/typespec/pull/9019) Add test case for special words about model property name
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9039](https://github.com/microsoft/typespec/pull/9039) Fix EncodeDuration tests with larger unit durations being too strict by making query parameter expectations match input types as numbers instead of strings
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+
+
+## 0.1.0-alpha.28
+
+### Features
+
+- [#8729](https://github.com/microsoft/typespec/pull/8729) Add scenario for encode duration with larger units
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.27
+
+### Features
+
+- [#8307](https://github.com/microsoft/typespec/pull/8307) Add `@pageSize` parameter tests for pageable payload specs
+- [#8498](https://github.com/microsoft/typespec/pull/8498) Add specs for DurationKnownEncoding.milliseconds
+
+
+## 0.1.0-alpha.26
+
+### Features
+
+- [#8200](https://github.com/microsoft/typespec/pull/8200) Add spector scenario for nextLink defined as string
+- [#8255](https://github.com/microsoft/typespec/pull/8255) Enhanced body-optionality scenario to validate Content-Type header presence/absence based on optional body parameters
+- [#7651](https://github.com/microsoft/typespec/pull/7651) Add Spector scenario for simple pagination without nextlink or continuationToken. This covers basic pagination patterns using only @pageItems decorator without any continuation mechanism.
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.1.0-alpha.25
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.1.0-alpha.24
 
 ### Features

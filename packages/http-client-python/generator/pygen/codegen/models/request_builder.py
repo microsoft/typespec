@@ -6,7 +6,6 @@
 from typing import (
     Any,
     Callable,
-    Dict,
     TypeVar,
     TYPE_CHECKING,
     Union,
@@ -17,11 +16,12 @@ from typing import (
 from abc import abstractmethod
 
 from .base_builder import BaseBuilder
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, LOCALS_LENGTH_LIMIT, REQUEST_BUILDER_BODY_VARIABLES_LENGTH
 from .parameter_list import (
     RequestBuilderParameterList,
     OverloadedRequestBuilderParameterList,
 )
+from .parameter import ParameterLocation
 from .imports import FileImport, ImportType, TypingSection, MsrestImportType
 from ...utils import NAME_LENGTH_LIMIT
 
@@ -38,7 +38,7 @@ ParameterListType = TypeVar(
 class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder"]]):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
@@ -68,9 +68,25 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
         return self.yaml_data.get("discriminator") in ("lro", "lropaging")
 
     def pylint_disable(self, async_mode: bool) -> str:
+        retval = ""
         if len(self.name) > NAME_LENGTH_LIMIT:
-            return add_to_pylint_disable("", "name-too-long")
-        return ""
+            retval = add_to_pylint_disable(retval, "name-too-long")
+        method_params = self.parameters.method
+        if len(method_params) > LOCALS_LENGTH_LIMIT - REQUEST_BUILDER_BODY_VARIABLES_LENGTH:
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+        if (
+            len(
+                [
+                    p
+                    for p in method_params
+                    if p.optional and p.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]
+                ]
+            )
+            > LOCALS_LENGTH_LIMIT
+        ):
+            retval = add_to_pylint_disable(retval, "too-many-statements")
+            retval = add_to_pylint_disable(retval, "too-many-branches")
+        return retval
 
     def response_type_annotation(self, **kwargs) -> str:
         return "HttpRequest"
@@ -104,7 +120,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
                 "case_insensitive_dict",
                 ImportType.SDKCORE,
             )
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, typing_section=TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, typing_section=TypingSection.REGULAR)
         file_import.add_msrest_import(
             serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
             msrest_import_type=MsrestImportType.Serializer,
@@ -116,13 +132,13 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
 
     @staticmethod
     @abstractmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], ParameterListType]: ...
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], ParameterListType]: ...
 
     @classmethod
     def get_name(
         cls,
         name: str,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ) -> str:
@@ -140,7 +156,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ):
@@ -165,18 +181,18 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
 
 class RequestBuilder(RequestBuilderBase[RequestBuilderParameterList]):
     @staticmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], RequestBuilderParameterList]:
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], RequestBuilderParameterList]:
         return RequestBuilderParameterList.from_yaml
 
 
 class OverloadedRequestBuilder(RequestBuilderBase[OverloadedRequestBuilderParameterList]):
     @staticmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], OverloadedRequestBuilderParameterList]:
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], OverloadedRequestBuilderParameterList]:
         return OverloadedRequestBuilderParameterList.from_yaml
 
 
 def get_request_builder(
-    yaml_data: Dict[str, Any], code_model: "CodeModel", client: "Client"
+    yaml_data: dict[str, Any], code_model: "CodeModel", client: "Client"
 ) -> Union[RequestBuilder, OverloadedRequestBuilder]:
     if yaml_data.get("overloads"):
         return OverloadedRequestBuilder.from_yaml(yaml_data, code_model, client)

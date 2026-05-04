@@ -1,4 +1,4 @@
-import { For, join, List, refkey } from "@alloy-js/core";
+import { code, For, join, List, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   getSourceLocation,
@@ -58,7 +58,10 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name={props.signature.typeName}
       doc={getDocComment(props.signature.decorator)}
     >
-      <ts.FunctionType parameters={parameters} />
+      <ts.FunctionType
+        parameters={parameters}
+        returnType={code`${typespecCompiler.DecoratorValidatorCallbacks} | void`}
+      />
     </ts.TypeDeclaration>
   );
 }
@@ -71,14 +74,14 @@ function extractRestParamConstraint(
   let valueType: Type | undefined;
   let type: Type | undefined;
   if (constraint.valueType) {
-    if (constraint.valueType.kind === "Model" && isArrayModelType(program, constraint.valueType)) {
+    if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
       valueType = constraint.valueType.indexer.value;
     } else {
       return undefined;
     }
   }
   if (constraint.type) {
-    if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+    if (constraint.type.kind === "Model" && isArrayModelType(constraint.type)) {
       type = constraint.type.indexer.value;
     } else {
       return undefined;
@@ -120,14 +123,17 @@ function TargetParameterTsType(props: { type: Type | undefined }) {
     return typespecCompiler.Type;
   }
   if (type.kind === "Union") {
-    const variants = [...type.variants.values()].map((x) => x.type).map(getTargetType);
+    const variants = [...type.variants.values()]
+      .map((x) => x.type)
+      .map(getTargetType)
+      .flat();
     return join(new Set(variants).values(), { joiner: " | " });
   } else {
     return getTargetType(type);
   }
 }
 
-function getTargetType(type: Type) {
+function getTargetType(type: Type): Refkey | Refkey[] {
   if (type === undefined || isUnknownType(type)) {
     return typespecCompiler.Type;
   } else if (type.kind === "Model" && isReflectionType(type)) {
@@ -137,6 +143,11 @@ function getTargetType(type: Type) {
     // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
     // so we only change that when isTarget is true.
     return typespecCompiler.Scalar;
+  } else if (type.kind === "Union") {
+    return [...type.variants.values()]
+      .map((x) => x.type)
+      .map(getTargetType)
+      .flat();
   } else {
     return typespecCompiler.Type;
   }
@@ -167,7 +178,6 @@ function getCompilerType(name: string) {
 }
 
 function ValueTsType({ type }: { type: Type }) {
-  const { program } = useTspd();
   switch (type.kind) {
     case "Boolean":
       return `${type.value}`;
@@ -183,7 +193,7 @@ function ValueTsType({ type }: { type: Type }) {
         { joiner: " | " },
       );
     case "Model":
-      if (isArrayModelType(program, type)) {
+      if (isArrayModelType(type)) {
         return (
           <>
             readonly (<ValueTsType type={type.indexer.value} />
@@ -293,7 +303,7 @@ function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
     case "plainTime":
     case "duration":
     case "bytes":
-      return "unknown";
+      return typespecCompiler.ScalarValue;
     default:
       const _assertNever: never = scalar.name;
       return "unknown";

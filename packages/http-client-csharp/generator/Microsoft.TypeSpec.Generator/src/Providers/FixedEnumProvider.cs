@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -13,31 +14,34 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class FixedEnumProvider : EnumProvider
+    public class FixedEnumProvider : EnumProvider
     {
         private readonly TypeSignatureModifiers _modifiers;
-        private readonly InputEnumType _inputType;
+        private readonly InputEnumType? _inputType;
 
-        internal FixedEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
+        public FixedEnumProvider(InputEnumType? input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
 
-            if (input.Access == "internal")
+            if (input?.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            DeclaringTypeProvider = declaringType;
-            AllowedValues = input.Values;
+            _declaringTypeProvider = declaringType;
+            AllowedValues = input?.Values ?? [];
+            FixedEnumView = this;
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
+        protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+        private readonly TypeProvider? _declaringTypeProvider;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this)];
+            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType!, this)];
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
@@ -87,7 +91,72 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
+        {
+            var lastContractFields = LastContractView?.Fields;
+            if (lastContractFields == null || lastContractFields.Count == 0)
+            {
+                return null;
+            }
+
+            var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
+            var allMembers = new List<EnumTypeMember>(currentValues.Count);
+
+            foreach (var field in lastContractFields)
+            {
+                if (currentLookup.TryGetValue(field.Name, out var existingMember))
+                {
+                    var updatedField = new FieldProvider(
+                        existingMember.Field.Modifiers,
+                        existingMember.Field.Type,
+                        existingMember.Name,
+                        existingMember.Field.EnclosingType,
+                        existingMember.Field.Description);
+                    allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, existingMember.Value));
+                }
+            }
+
+            // Then, add new members that weren't in the last contract (in their original input order)
+            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var current in currentValues)
+            {
+                if (!processedNames.Contains(current.Name))
+                {
+                    allMembers.Add(current);
+                }
+            }
+
+            // Report a summary-level change only if the relative order of shared members
+            // was actually altered to match the last contract.
+            if (!EnumMemberOrderMatches(currentValues, allMembers))
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Reordered members of enum '{Name}' to match last contract.",
+                    BackCompatibilityChangeCategory.EnumMemberReordering);
+            }
+
+            return allMembers;
+        }
+
+        private static bool EnumMemberOrderMatches(
+            IReadOnlyList<EnumTypeMember> left,
+            IReadOnlyList<EnumTypeMember> right)
+        {
+            if (left.Count != right.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < left.Count; i++)
+            {
+                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        protected internal override FieldProvider[] BuildFields()
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override bool GetIsEnum() => true;

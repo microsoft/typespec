@@ -18,6 +18,7 @@ import {
 export interface VisibilityUsageTracker {
   getUsage(type: Type): Set<Visibility> | undefined;
   isUnreachable(type: Type): boolean;
+  manuallyTrack(type: Type, visibility: Set<Visibility>): void;
 }
 
 export type OperationContainer = Namespace | Interface | Operation;
@@ -59,6 +60,12 @@ export function resolveVisibilityUsage(
     },
     isUnreachable: (type: Type) => {
       return !reachableTypes.has(type);
+    },
+    manuallyTrack: (type: Type, visibility: Set<Visibility>) => {
+      for (const vis of visibility) {
+        trackUsageExact(usages, type, vis);
+      }
+      reachableTypes.add(type);
     },
   };
 }
@@ -145,6 +152,16 @@ function addUsagesInOperation(
     navigateReferencedTypes(httpOperation.parameters.body.type, visibility, (type, vis) =>
       trackUsage(metadataInfo, usages, type, vis),
     );
+    // For multipart bodies, also navigate part types directly. HttpPart<T> wrappers are
+    // empty models with no properties, so navigateReferencedTypes won't reach T through
+    // normal property traversal, causing T to be incorrectly treated as unreachable.
+    if (httpOperation.parameters.body.bodyKind === "multipart") {
+      for (const part of httpOperation.parameters.body.parts) {
+        navigateReferencedTypes(part.body.type, visibility, (type, vis) =>
+          trackUsage(metadataInfo, usages, type, vis),
+        );
+      }
+    }
   }
   for (const param of httpOperation.parameters.parameters) {
     navigateReferencedTypes(param.param, visibility, (type, vis) =>

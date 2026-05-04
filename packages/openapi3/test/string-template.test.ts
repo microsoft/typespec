@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, openApiFor }) => {
+worksFor(supportedVersions, ({ emitOpenApiWithDiagnostics, openApiFor }) => {
   describe("handle interpolating literals", () => {
     it("string", async () => {
       const schemas = await openApiFor(`

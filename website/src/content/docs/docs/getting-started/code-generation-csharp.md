@@ -39,13 +39,11 @@ tsp init
 ```
 
 3. Select the appropriate template when prompted:
-
    - Choose "Generic REST API" to create a standard REST API
    - Enter a project name or accept the default
    - Select "C# Server Stubs" from the emitter options
 
 4. After initialization completes, your project structure will include:
-
    - `main.tsp` - Your TypeSpec definition file with a sample service
    - `tspconfig.yaml` - Configuration for your emitters
    - `package.json` - Project dependencies
@@ -183,12 +181,10 @@ The scaffolded code is organized into two main categories:
 Located in the `generated` directory, these files will be regenerated whenever you recompile your TypeSpec definition:
 
 - **Controllers**: Front-end API endpoints that receive HTTP requests
-
   - Example: `WidgetsController.cs` handles requests to `/widgets`
   - Each controller method maps to an operation in your TypeSpec interface
 
 - **Operations interfaces**: Definitions for your business logic
-
   - Example: `IWidgets.cs` defines methods like `ListWidgetsAsync()`
   - These interfaces are what your implementation will need to fulfill
 
@@ -201,7 +197,6 @@ Located in the `generated` directory, these files will be regenerated whenever y
 These files are intended for you to modify with your implementation:
 
 - **Implementation classes**: Mock implementations of your operations interfaces
-
   - Example: `Widgets.cs` is where you'll add your business logic
   - The emitter generates these with mock implementations that return syntactically correct responses
   - These files **won't be overwritten** when you recompile, preserving your business logic

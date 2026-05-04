@@ -64,7 +64,7 @@ export function requiresJsonSerialization(
 
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
         requiresSerialization = requiresJsonSerialization(ctx, module, argumentType);
         break;
@@ -160,6 +160,7 @@ function* emitToJson(
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
 
         let expr: string = access("input", propertyName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -192,6 +193,9 @@ function* emitToJson(
           expr = transposeExpressionToJson(ctx, property.type, expr, module);
         }
 
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
         yield `  ${objectLiteralProperty(encodedName)}: ${expr},`;
       }
 
@@ -233,7 +237,7 @@ export function transposeExpressionToJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -241,7 +245,7 @@ export function transposeExpressionToJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -290,6 +294,8 @@ export function transposeExpressionToJson(
       }
     case "ModelProperty":
       return transposeExpressionToJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "void":
@@ -393,6 +399,7 @@ function* emitFromJson(
           resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
         let expr = access("input", encodedName);
+        const primitiveExpr = expr;
 
         const encoding = getEncode(ctx.program, property);
 
@@ -428,6 +435,10 @@ function* emitFromJson(
         }
 
         const propertyName = keywordSafe(parseCase(property.name).camelCase);
+
+        if (property.optional && requiresJsonSerialization(ctx, module, property.type)) {
+          expr = `(${primitiveExpr}) !== undefined ? ${expr} : undefined`;
+        }
 
         yield `  ${propertyName}: ${expr},`;
       }
@@ -471,7 +482,7 @@ export function transposeExpressionFromJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -479,7 +490,7 @@ export function transposeExpressionFromJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -528,6 +539,8 @@ export function transposeExpressionFromJson(
       }
     case "ModelProperty":
       return transposeExpressionFromJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "ErrorType":
@@ -549,7 +562,6 @@ export function transposeExpressionFromJson(
     case "Boolean":
       return literalToExpr(type);
     case "Interface":
-    case "Enum":
     case "EnumMember":
     case "TemplateParameter":
     case "Namespace":

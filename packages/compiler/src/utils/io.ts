@@ -2,7 +2,14 @@ import { DiagnosticHandler } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createSourceFile } from "../core/source-file.js";
-import { CompilerHost, Diagnostic, DiagnosticTarget, NoTarget, SourceFile } from "../core/types.js";
+import {
+  CompilerHost,
+  Diagnostic,
+  DiagnosticTarget,
+  NoTarget,
+  SourceFile,
+  SystemHost,
+} from "../core/types.js";
 
 export interface FileHandlingOptions {
   allowFileNotFound?: boolean;
@@ -52,7 +59,7 @@ export async function doIO<T>(
 }
 
 export async function loadFile<T>(
-  host: CompilerHost,
+  host: SystemHost,
   path: string,
   load: (contents: string) => T,
   reportDiagnostic: DiagnosticHandler,

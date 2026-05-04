@@ -5,8 +5,6 @@
 # --------------------------------------------------------------------------
 import logging
 from typing import (
-    List,
-    Dict,
     Any,
     Generic,
     TypeVar,
@@ -52,7 +50,7 @@ class BaseBuilder(
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
@@ -70,9 +68,9 @@ class BaseBuilder(
         self.want_tracing: bool = yaml_data.get("wantTracing", True)
         self.group_name: str = yaml_data["groupName"]  # either operationGroup or client I am on
         self.is_overload: bool = yaml_data["isOverload"]
-        self.api_versions: List[str] = yaml_data["apiVersions"]
+        self.api_versions: list[str] = yaml_data["apiVersions"]
         self.added_on: Optional[str] = yaml_data.get("addedOn")
-        self.external_docs: Optional[Dict[str, Any]] = yaml_data.get("externalDocs")
+        self.external_docs: Optional[dict[str, Any]] = yaml_data.get("externalDocs")
         self.client_namespace: str = yaml_data.get("clientNamespace", code_model.namespace)
 
         if code_model.options["version-tolerant"] and yaml_data.get("abstract"):
@@ -114,7 +112,7 @@ class BaseBuilder(
             )
         return self._description or self.name
 
-    def method_signature(self, async_mode: bool, **kwargs: Any) -> List[str]:
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> list[str]:
         if self.abstract:
             return ["*args,", "**kwargs"]
         return self.parameters.method_signature(async_mode, **kwargs)

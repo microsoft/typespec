@@ -7,7 +7,9 @@ if (!(globalThis as any).enableCompilerInternalsExport) {
   throw new Error("Importing @typespec/compiler/internals is reserved for internal use only.");
 }
 
+export { resolveCompilerOptions } from "../config/config-to-options.js";
 export { NodeSystemHost } from "../core/node-system-host.js";
 export { InitTemplateSchema } from "../init/init-template.js";
 export { makeScaffoldingConfig, scaffoldNewProject } from "../init/scaffold.js";
+export { resolveEntrypointFile } from "../server/entrypoint-resolver.js";
 export { InternalCompileResult, ServerDiagnostic } from "../server/index.js";

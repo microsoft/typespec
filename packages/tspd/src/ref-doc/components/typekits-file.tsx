@@ -37,13 +37,15 @@ export function createTypekitDocs(typekit: TypekitCollection) {
 async function flattenOutput(output: OutputDirectory): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
   const rawFiles: OutputFile[] = [];
-  traverseOutput(output, {
+  await traverseOutput(output, {
     visitDirectory: () => {},
     visitFile: (file) => rawFiles.push(file),
   });
 
   for (const file of rawFiles) {
-    files[file.path] = await format(file.contents);
+    if ("contents" in file) {
+      files[file.path] = await format(file.contents);
+    }
   }
   return files;
 }

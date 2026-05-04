@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -239,6 +240,262 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNotNull(propertyValue2);
 
             ValidateGetHashCodeMethod(enumType);
+        }
+
+        [TestCase]
+        public void ExtensibleStringEnum_HasNullableImplicitOperator()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var input = InputFactory.StringEnum("mockInputEnum",
+                [
+                    ("One", "1"),
+                    ("Two", "2")
+                ], isExtensible: true);
+            var enumType = EnumProvider.Create(input);
+
+            // String extensible enums should have both nullable and non-nullable implicit operators
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
+
+            Assert.AreEqual(2, implicitOperators.Count, "String extensible enum should have 2 implicit operators");
+
+            // Verify we have one nullable and one non-nullable operator
+#pragma warning disable CS8602 // Dereference of a possibly null reference
+            var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
+            var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
+#pragma warning restore CS8602
+
+            Assert.AreEqual(1, nullableCount, "Should have exactly 1 nullable implicit operator");
+            Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
+        }
+
+        [TestCase]
+        public void ExtensibleIntEnum_HasOnlyNonNullableImplicitOperator()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("mockInputEnum",
+                [
+                    ("One", 1),
+                    ("Two", 2)
+                ], isExtensible: true);
+            var enumType = EnumProvider.Create(input);
+
+            // Int extensible enums should only have the non-nullable implicit operator
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
+
+            Assert.AreEqual(1, implicitOperators.Count, "Int extensible enum should have only 1 implicit operator");
+
+            // Verify we have one non-nullable and zero nullable operators
+#pragma warning disable CS8602 // Dereference of a possibly null reference
+            var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
+            var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
+#pragma warning restore CS8602
+
+            Assert.AreEqual(0, nullableCount, "Should have no nullable implicit operators");
+            Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
+        }
+
+        [TestCase]
+        public void ExtensibleFloatEnum_HasOnlyNonNullableImplicitOperator()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
+
+            var input = InputFactory.Float32Enum("mockInputEnum",
+                [
+                    ("One", 1f),
+                    ("Two", 2f)
+                ], isExtensible: true);
+            var enumType = EnumProvider.Create(input);
+
+            // Float extensible enums should only have the non-nullable implicit operator
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
+
+            Assert.AreEqual(1, implicitOperators.Count, "Float extensible enum should have only 1 implicit operator");
+
+            // Verify we have one non-nullable and zero nullable operators
+#pragma warning disable CS8602 // Dereference of a possibly null reference
+            var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
+            var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
+#pragma warning restore CS8602
+
+            Assert.AreEqual(0, nullableCount, "Should have no nullable implicit operators");
+            Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
+        }
+
+        [Test]
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StringEnum",
+                [("One", "1"), ("Two", "2")],
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [inputEnum]);
+
+            var enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "StringEnum") as EnumProvider;
+            Assert.IsNotNull(enumProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+        }
+
+        [Test]
+        public void InternalModelsAreNotIncludedInAdditionalRootTypes()
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StringEnum",
+                [("One", "1"), ("Two", "2")],
+                access: "internal");
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [inputEnum]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "StringEnum") as EnumProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.StringEnum"));
+        }
+
+        // Validates that int enum member order is preserved from the last contract when values are reordered
+        [Test]
+        public async Task BackCompat_IntEnumOrderPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract (Default first, Recover second)
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        // Validates that int enum member order is preserved and new values are appended
+        [Test]
+        public async Task BackCompat_IntEnumNewValueAppended()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has different order AND a new value
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+                ("Third", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second, new value Third appended
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+            Assert.AreEqual("Third", fields[2].Name);
+
+            // No explicit initialization values for reordered members - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+            // New value keeps its initialization value from the input
+            var value3 = fields[2].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value3);
+            Assert.AreEqual(2, value3?.Literal);
+        }
+
+        // Validates that removed enum values from last contract are not included
+        [Test]
+        public async Task BackCompat_IntEnumValueRemoved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in different order and removed "Third"
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract for members that still exist
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        // Validates that string enum order is also preserved from last contract
+        [Test]
+        public async Task BackCompat_StringEnumOrderPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)

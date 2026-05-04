@@ -3,17 +3,17 @@
 
 package com.microsoft.typespec.http.client.generator.model;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,20 +34,25 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Map<String, PollingSettings> polling = new HashMap<>();
+    private Map<String, PollingSettings> polling = new LinkedHashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private Boolean useRestProxy;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
+    private Boolean clientSideValidations = false;
+    private Boolean uuidAsString = true;
     private DevOptions devOptions;
 
     // mgmt
+    private Boolean premium = false;
     private String renameModel;
     private String addInner;
     private String removeInner;
     private String preserveModel;
     private Boolean generateAsyncMethods;
+    private String propertyIncludeAlways;
     private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
+    private String metadataSuffix;
 
     // internal
     private String outputDir;
@@ -98,6 +103,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
+    }
+
+    public Boolean getUuidAsString() {
+        return uuidAsString;
     }
 
     public List<String> getServiceVersions() {
@@ -156,6 +165,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useRestProxy;
     }
 
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
+    public Boolean getClientSideValidations() {
+        return clientSideValidations;
+    }
+
     public String getRenameModel() {
         return renameModel;
     }
@@ -176,12 +193,20 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return generateAsyncMethods;
     }
 
+    public String getPropertyIncludeAlways() {
+        return propertyIncludeAlways;
+    }
+
+    public Boolean getPremium() {
+        return premium;
+    }
+
     public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
         return resourceCollectionAssociations;
     }
 
-    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
-        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    public String getMetadataSuffix() {
+        return metadataSuffix;
     }
 
     @Override
@@ -250,8 +275,18 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {
                 options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("property-include-always".equals(fieldName)) {
+                options.propertyIncludeAlways = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("resource-collection-associations".equals(fieldName)) {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
+            } else if ("premium".equals(fieldName)) {
+                options.premium = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("client-side-validations".equals(fieldName)) {
+                options.clientSideValidations = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("uuid-as-string".equals(fieldName)) {
+                options.uuidAsString = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("metadata-suffix".equals(fieldName)) {
+                options.metadataSuffix = emptyToNull(reader.getString());
             } else {
                 reader.skipChildren();
             }

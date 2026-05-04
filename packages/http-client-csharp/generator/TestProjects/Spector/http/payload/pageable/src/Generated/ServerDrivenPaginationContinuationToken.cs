@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
     public partial class ServerDrivenPaginationContinuationToken
     {
         protected ServerDrivenPaginationContinuationToken() => throw null;
+
+        internal ServerDrivenPaginationContinuationToken(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -46,5 +49,21 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
         public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual CollectionResult RequestQueryNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult RequestQueryNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+
+        public virtual CollectionResult<Pet> RequestQueryNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult<Pet> RequestQueryNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual CollectionResult RequestHeaderNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult RequestHeaderNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+
+        public virtual CollectionResult<Pet> RequestHeaderNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult<Pet> RequestHeaderNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -5,6 +5,7 @@ import { createDiagnostic } from "../../../messages.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget } from "../../../types.js";
+import { parseCliArgsArgOption } from "../../utils.js";
 
 export interface CompileCliArgs {
   path?: string;
@@ -51,7 +52,7 @@ export async function getCompilerOptions(
       entrypoint,
       configPath: args["config"] && resolvePath(cwd, args["config"]),
       cwd,
-      args: resolveConfigArgs(args),
+      args: parseCliArgsArgOption(args.args),
       env,
       overrides: omitUndefined({
         outputDir: cliOutputDir,
@@ -69,6 +70,8 @@ export async function getCompilerOptions(
     resolvedOptions.listFiles = true;
   } else if (args["dry-run"]) {
     resolvedOptions.dryRun = true;
+  } else if (args["ignore-deprecated"]) {
+    resolvedOptions.ignoreDeprecated = true;
   }
 
   return diagnostics.wrap(
@@ -77,20 +80,6 @@ export async function getCompilerOptions(
       miscOptions: cliOptions.miscOptions,
     }),
   );
-}
-
-function resolveConfigArgs(args: CompileCliArgs): Record<string, string> {
-  const map: Record<string, string> = {};
-  for (const arg of args.args ?? []) {
-    const optionParts = arg.split("=");
-    if (optionParts.length !== 2) {
-      throw new Error(`The --arg parameter value "${arg}" must be in the format: arg-name=value`);
-    }
-
-    map[optionParts[0]] = optionParts[1];
-  }
-
-  return map;
 }
 
 function resolveCliOptions(args: CompileCliArgs): [

@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Input;
 
-namespace AutoRest.CSharp.Common.Input
+namespace Microsoft.TypeSpec.Generator.Input
 {
     internal class InputDecoratorInfoConverter : JsonConverter<InputDecoratorInfo>
     {

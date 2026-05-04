@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Scalar
 {
@@ -11,7 +12,12 @@ namespace _Type.Scalar
     {
         public ScalarClient() : this(new Uri("http://localhost:3000"), new ScalarClientOptions()) => throw null;
 
-        public ScalarClient(Uri endpoint, ScalarClientOptions options) => throw null;
+        internal ScalarClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ScalarClientOptions options) => throw null;
+
+        public ScalarClient(Uri endpoint, ScalarClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ScalarClient(ScalarClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -44,10 +44,21 @@ namespace Microsoft.TypeSpec.Generator
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-            Type? type = LoadFrameworkType(fullyQualifiedName);
+            Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
 
             if (type is null)
             {
+                // Resolve Nullable<T> of a known framework type to a nullable framework CSharpType.
+                if (namedTypeSymbol?.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T &&
+                    namedTypeSymbol.TypeArguments.Length == 1)
+                {
+                    var underlying = GetCSharpType(namedTypeSymbol.TypeArguments[0]);
+                    if (underlying.IsFrameworkType)
+                    {
+                        return underlying.WithNullable(true);
+                    }
+                }
+
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
@@ -158,17 +169,6 @@ namespace Microsoft.TypeSpec.Generator
             return fullyQualifiedName.StartsWith(GlobalPrefix, StringComparison.Ordinal) ? fullyQualifiedName.Substring(GlobalPrefix.Length) : fullyQualifiedName;
         }
 
-        private static Type? LoadFrameworkType(string fullyQualifiedName)
-        {
-            return fullyQualifiedName switch
-            {
-                // Special case for types that would not be defined in corlib, but should still be considered framework types.
-                "System.BinaryData" => typeof(BinaryData),
-                "System.Uri" => typeof(Uri),
-                _ => Type.GetType(fullyQualifiedName)
-            };
-        }
-
         private static CSharpType ConstructCSharpTypeFromSymbol(
             ITypeSymbol typeSymbol,
             string fullyQualifiedName,
@@ -210,6 +210,15 @@ namespace Microsoft.TypeSpec.Generator
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
             }
 
+            CSharpType? baseType = null;
+            if (typeSymbol.BaseType is not null &&
+                typeSymbol.BaseType.TypeKind != TypeKind.Error &&
+                !isNullableUnknownType &&
+                !ContainsTypeAsArgument(typeSymbol.BaseType, typeSymbol))
+            {
+                baseType = GetCSharpType(typeSymbol.BaseType);
+            }
+
             return new CSharpType(
                 name,
                 ns,
@@ -219,12 +228,21 @@ namespace Microsoft.TypeSpec.Generator
                 arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
-                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error && !isNullableUnknownType
-                    ? GetCSharpType(typeSymbol.BaseType)
-                    : null,
+                baseType: baseType,
                 underlyingEnumType: enumUnderlyingType != null
                     ? GetCSharpType(enumUnderlyingType).FrameworkType
                     : null);
+        }
+
+        internal static bool ContainsTypeAsArgument(ITypeSymbol potentialGenericType, ITypeSymbol targetType)
+        {
+            if (potentialGenericType is not INamedTypeSymbol namedType || !namedType.IsGenericType)
+            {
+                return false;
+            }
+
+            return namedType.TypeArguments.Any(arg =>
+                SymbolEqualityComparer.Default.Equals(arg, targetType));
         }
 
         private static bool IsCollectionType(INamedTypeSymbol typeSymbol)

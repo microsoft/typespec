@@ -4,13 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Providers;
-using NuGet.Configuration;
 
 namespace Microsoft.TypeSpec.Generator.SourceInput
 {
@@ -54,15 +49,48 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(Customization, ns, name, false, declaringTypeName);
+            return FindTypeInCustomization(Customization, ns, name, false, declaringTypeName);
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName);
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
         private TypeProvider? FindTypeInCompilation(
+            Compilation? compilation,
+            string ns,
+            string name,
+            bool includeReferencedAssemblies,
+            string? declaringTypeName,
+            bool includeInternal = true)
+        {
+            if (compilation == null)
+            {
+                return null;
+            }
+            string fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
+
+            var type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
+            if (!includeInternal && type != null && type.DeclaredAccessibility != Accessibility.Public)
+            {
+                type = null;
+            }
+
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
+        }
+
+        private static INamedTypeSymbol? FindNamedTypeSymbol(Compilation compilation, bool includeReferencedAssemblies, string fullyQualifiedMetadataName)
+            => includeReferencedAssemblies
+                ? compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)
+                : compilation.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
+
+        private static string GetFullyQualifiedMetadataName(string ns, string name, string? declaringTypeName)
+            => declaringTypeName != null
+                ? $"{ns}.{declaringTypeName}+{name}"
+                : $"{ns}.{name}";
+
+        private TypeProvider? FindTypeInCustomization(
             Compilation? compilation,
             string ns,
             string name,
@@ -74,18 +102,15 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 return null;
             }
 
-            var fullyQualifiedMetadataName = declaringTypeName != null
-                ? $"{ns}.{declaringTypeName}+{name}"
-                : $"{ns}.{name}";
-            if (!_nameMap.Value.TryGetValue(name, out var type) &&
-                !_nameMap.Value.TryGetValue(fullyQualifiedMetadataName, out type))
+            var fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
+
+            // Either find by the CodeGenType attribute or by the actual type name.
+            if (!_nameMap.Value.TryGetValue(name, out var type))
             {
-                type = includeReferencedAssemblies
-                    ? compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)
-                    : compilation.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
+                type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
             }
 
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)

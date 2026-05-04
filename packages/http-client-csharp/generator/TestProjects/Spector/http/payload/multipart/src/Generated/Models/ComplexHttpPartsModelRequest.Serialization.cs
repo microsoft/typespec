@@ -20,12 +20,12 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormContent content = new();
             content.Add("id", Id);
-            content.Add("address", Address, ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
 
             foreach (Address item in PreviousAddresses)
             {
-                content.Add("previousAddresses", item, ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+                content.Add("previousAddresses", item);
             }
             foreach (var picture in Pictures)
             {

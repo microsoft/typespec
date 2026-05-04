@@ -1,5 +1,85 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.25
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+### Bug Fixes
+
+- [#10259](https://github.com/microsoft/typespec/pull/10259) Fix query parameter matcher handling: use `resolveMatchers: false` so matcher objects (e.g. `match.dateTime`) are checked semantically instead of being serialized to plain strings before comparison.
+
+
+## 0.1.0-alpha.24
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9752](https://github.com/microsoft/typespec/pull/9752) Update to how coverage manifest are managed. The manifest upload each individual one as a single file
+
+
+## 0.1.0-alpha.23
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.1.0-alpha.22
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.21
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+- [#9016](https://github.com/microsoft/typespec/pull/9016) Switch `js-yaml` to `yaml` library
+
+
+## 0.1.0-alpha.20
+
+### Features
+
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.19
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 0.1.0-alpha.18
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.1.0-alpha.17
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.1.0-alpha.16
 
 ### Bump dependencies

@@ -21,8 +21,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract ValueExpression BufferResponse();
 
-        public abstract MethodBodyStatement ApplyResponseClassifier(StatusCodeClassifierApi statusCodeClassifier);
-
         public abstract MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options);
 
         public abstract HttpMessageApi FromExpression(ValueExpression original);

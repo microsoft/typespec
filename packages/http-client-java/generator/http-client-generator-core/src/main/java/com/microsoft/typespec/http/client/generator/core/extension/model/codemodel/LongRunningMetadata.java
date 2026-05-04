@@ -7,8 +7,8 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
  * Represents the metadata for long-running operations.
  */
 public class LongRunningMetadata {
-    private ObjectSchema pollResultType;
-    private ObjectSchema finalResultType;
+    private Schema pollResultType;
+    private Schema finalResultType;
     private Metadata pollingStrategy;
     private String finalResultPropertySerializedName;
 
@@ -23,7 +23,7 @@ public class LongRunningMetadata {
      *
      * @return The poll result type.
      */
-    public ObjectSchema getPollResultType() {
+    public Schema getPollResultType() {
         return pollResultType;
     }
 
@@ -32,7 +32,7 @@ public class LongRunningMetadata {
      *
      * @param pollResultType The poll result type.
      */
-    public void setPollResultType(ObjectSchema pollResultType) {
+    public void setPollResultType(Schema pollResultType) {
         this.pollResultType = pollResultType;
     }
 
@@ -41,7 +41,7 @@ public class LongRunningMetadata {
      *
      * @return The final result type.
      */
-    public ObjectSchema getFinalResultType() {
+    public Schema getFinalResultType() {
         return finalResultType;
     }
 
@@ -50,7 +50,7 @@ public class LongRunningMetadata {
      *
      * @param finalResultType The final result type.
      */
-    public void setFinalResultType(ObjectSchema finalResultType) {
+    public void setFinalResultType(Schema finalResultType) {
         this.finalResultType = finalResultType;
     }
 

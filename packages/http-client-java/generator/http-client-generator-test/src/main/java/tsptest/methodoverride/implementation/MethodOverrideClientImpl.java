@@ -155,8 +155,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupQuery(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, RequestOptions requestOptions, Context context);
 
         @Get("/group-query")
         @ExpectedResponses({ 200 })
@@ -165,8 +164,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupQuerySync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, RequestOptions requestOptions, Context context);
 
         @Post("/group-all")
         @ExpectedResponses({ 200 })
@@ -176,8 +174,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupAll(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupAllRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupAllRequest, RequestOptions requestOptions, Context context);
 
         @Post("/group-all")
         @ExpectedResponses({ 200 })
@@ -187,8 +184,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupAllSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupAllRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupAllRequest, RequestOptions requestOptions, Context context);
 
         @Post("/group-part")
         @ExpectedResponses({ 200 })
@@ -198,8 +194,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupPart(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupPartRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupPartRequest, RequestOptions requestOptions, Context context);
 
         @Post("/group-part")
         @ExpectedResponses({ 200 })
@@ -209,8 +204,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupPartSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupPartRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupPartRequest, RequestOptions requestOptions, Context context);
 
         @Post("/group-part-etag")
         @ExpectedResponses({ 200 })
@@ -220,8 +214,8 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupPartETag(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupPartETagRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupPartETagRequest, RequestOptions requestOptions,
+            Context context);
 
         @Post("/group-part-etag")
         @ExpectedResponses({ 200 })
@@ -231,8 +225,8 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupPartETagSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupPartETagRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupPartETagRequest, RequestOptions requestOptions,
+            Context context);
 
         @Post("/group-exclude-body")
         @ExpectedResponses({ 200 })
@@ -242,8 +236,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupExcludeBody(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/group-exclude-body")
         @ExpectedResponses({ 200 })
@@ -253,8 +246,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupExcludeBodySync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/group-none")
         @ExpectedResponses({ 200 })
@@ -264,8 +256,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> groupNone(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupNoneRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupNoneRequest, RequestOptions requestOptions, Context context);
 
         @Post("/group-none")
         @ExpectedResponses({ 200 })
@@ -275,8 +266,7 @@ public final class MethodOverrideClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> groupNoneSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData groupNoneRequest,
-            RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData groupNoneRequest, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -299,9 +289,8 @@ public final class MethodOverrideClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupQueryWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupQuery(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), accept, requestOptions, context));
+            this.getServiceVersion().getVersion(), requestOptions, context));
     }
 
     /**
@@ -324,8 +313,7 @@ public final class MethodOverrideClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupQueryWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.groupQuerySync(this.getEndpoint(), this.getServiceVersion().getVersion(), accept, requestOptions,
+        return service.groupQuerySync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptions,
             Context.NONE);
     }
 
@@ -361,9 +349,8 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupAllWithResponseAsync(BinaryData groupAllRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupAll(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, accept, groupAllRequest, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, groupAllRequest, requestOptions, context));
     }
 
     /**
@@ -398,8 +385,7 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupAllWithResponse(BinaryData groupAllRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.groupAllSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept,
+        return service.groupAllSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
             groupAllRequest, requestOptions, Context.NONE);
     }
 
@@ -435,9 +421,8 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupPartWithResponseAsync(BinaryData groupPartRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupPart(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, accept, groupPartRequest, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, groupPartRequest, requestOptions, context));
     }
 
     /**
@@ -472,8 +457,7 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupPartWithResponse(BinaryData groupPartRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.groupPartSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept,
+        return service.groupPartSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
             groupPartRequest, requestOptions, Context.NONE);
     }
 
@@ -520,9 +504,8 @@ public final class MethodOverrideClientImpl {
     public Mono<Response<Void>> groupPartETagWithResponseAsync(BinaryData groupPartETagRequest,
         RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupPartETag(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, accept, groupPartETagRequest, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, groupPartETagRequest, requestOptions, context));
     }
 
     /**
@@ -567,8 +550,7 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupPartETagWithResponse(BinaryData groupPartETagRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.groupPartETagSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept,
+        return service.groupPartETagSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
             groupPartETagRequest, requestOptions, Context.NONE);
     }
 
@@ -604,9 +586,8 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupExcludeBodyWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupExcludeBody(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, accept, body, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, body, requestOptions, context));
     }
 
     /**
@@ -641,9 +622,8 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupExcludeBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return service.groupExcludeBodySync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
-            accept, body, requestOptions, Context.NONE);
+            body, requestOptions, Context.NONE);
     }
 
     /**
@@ -688,9 +668,8 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupNoneWithResponseAsync(BinaryData groupNoneRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.groupNone(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, accept, groupNoneRequest, requestOptions, context));
+            this.getServiceVersion().getVersion(), contentType, groupNoneRequest, requestOptions, context));
     }
 
     /**
@@ -735,8 +714,7 @@ public final class MethodOverrideClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupNoneWithResponse(BinaryData groupNoneRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.groupNoneSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept,
+        return service.groupNoneSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
             groupNoneRequest, requestOptions, Context.NONE);
     }
 }

@@ -77,7 +77,6 @@ export class DemoServiceClient {
 }
 export class WidgetsClient {
   #context: WidgetsClientContext;
-
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }

@@ -1,5 +1,6 @@
 ---
 title: "Data types"
+description: "Data types exported by @typespec/sse"
 ---
 
 ## TypeSpec.SSE

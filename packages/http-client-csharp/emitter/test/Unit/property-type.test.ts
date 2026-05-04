@@ -28,7 +28,7 @@ describe("Test GetInputType for array", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
@@ -49,7 +49,7 @@ describe("Test GetInputType for array", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const bodyType = root.clients[0].methods[0].operation.responses[0].bodyType;
     strictEqual(bodyType?.kind, "array");
     strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Array");
@@ -68,9 +68,7 @@ describe("Test GetInputType for enum", () => {
   it("Fixed string enum", async () => {
     const program = await typeSpecCompile(
       `
-        #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "Enums should be defined without the @fixed decorator."
         @doc("fixed string enum")
-        @fixed
         enum SimpleEnum {
             @doc("Enum value one")
             One: "1",
@@ -88,7 +86,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
@@ -114,9 +112,7 @@ describe("Test GetInputType for enum", () => {
   it("Fixed int enum", async () => {
     const program = await typeSpecCompile(
       `
-      #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "Enums should be defined without the @fixed decorator."
       @doc("Fixed int enum")
-      @fixed
       enum FixedIntEnum {
           @doc("Enum value one")
           One: 1,
@@ -134,7 +130,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );
@@ -173,7 +169,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
       (p) => p.name === "input",
     );

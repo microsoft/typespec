@@ -12,11 +12,11 @@ namespace Microsoft.TypeSpec.Generator.Input
     public class InputModelType : InputType
     {
         private const string UnknownDiscriminatorValue = "unknown";
-        private IReadOnlyList<InputProperty> _properties = [];
+        private IReadOnlyList<InputModelProperty> _properties = [];
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions)
+        public InputModelType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct, InputSerializationOptions serializationOptions, bool isDynamicModel)
             : base(name)
         {
             Namespace = @namespace;
@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 AddDerivedModel(model);
             }
+            IsDynamicModel = isDynamicModel;
             if (discriminatedSubtypes is not null)
             {
                 foreach (var model in discriminatedSubtypes.Values)
@@ -57,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Doc { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
 
-        public IReadOnlyList<InputProperty> Properties
+        public IReadOnlyList<InputModelProperty> Properties
         {
             get => _properties;
             internal set
@@ -78,9 +79,14 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             model.BaseModel = this;
             _derivedModels.Add(model);
+            // If this base model is dynamic, the derived model should also be dynamic
+            if (IsDynamicModel && !model.IsDynamicModel)
+            {
+                model.IsDynamicModel = true;
+            }
         }
         public string? DiscriminatorValue { get; internal set; }
-        public InputProperty? DiscriminatorProperty { get; internal set; }
+        public InputModelProperty? DiscriminatorProperty { get; internal set; }
         private Dictionary<string, InputModelType>? _discriminatedSubtypes;
         public IReadOnlyDictionary<string, InputModelType> DiscriminatedSubtypes
         {
@@ -92,7 +98,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
+                InputModelTypeUsage usage = Usage;
+                if (!usage.HasFlag(InputModelTypeUsage.Xml))
+                {
+                    usage |= InputModelTypeUsage.Json;
+                }
                 var cleanBaseName = Name.ToIdentifierName();
+
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
                     $"Unknown{cleanBaseName}",
@@ -102,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     null,
                     $"Unknown variant of {cleanBaseName}",
-                    Usage | InputModelTypeUsage.Json,
+                    usage,
                     [],
                     this,
                     [],
@@ -111,13 +123,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new Dictionary<string, InputModelType>(),
                     null,
                     false,
-                    SerializationOptions)
+                    SerializationOptions,
+                    IsDynamicModel)
                 );
             }
         }
         public InputType? AdditionalProperties { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
+        public bool IsDynamicModel { get; internal set; }
         public InputSerializationOptions SerializationOptions { get; internal set; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);

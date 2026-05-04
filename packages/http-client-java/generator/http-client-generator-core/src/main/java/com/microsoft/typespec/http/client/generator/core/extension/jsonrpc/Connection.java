@@ -3,9 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.jsonrpc;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,7 +84,7 @@ public class Connection {
      * @throws IOException If the JSON text is invalid.
      */
     private static void validateJsonText(String jsonText) throws IOException {
-        try (JsonReader jsonReader = JsonProviders.createReader(jsonText)) {
+        try (JsonReader jsonReader = JsonReader.fromString(jsonText)) {
             jsonReader.readUntyped();
         }
     }
@@ -105,7 +104,7 @@ public class Connection {
     }
 
     private static List<String> readArguments(String input) {
-        try (JsonReader jsonReader = JsonProviders.createReader(input)) {
+        try (JsonReader jsonReader = JsonReader.fromString(input)) {
             List<String> ret = jsonReader.readArray(JsonReader::getString);
             if (ret.size() == 2) {
                 // Return passed array if size is larger than 0, otherwise return a new ArrayList
@@ -223,8 +222,7 @@ public class Connection {
         }
 
         executorService.submit(() -> {
-
-            try (JsonReader jsonReader = JsonProviders.createReader(content)) {
+            try (JsonReader jsonReader = JsonReader.fromString(content)) {
                 Map<String, String> jobject = jsonReader.readMap(reader -> {
                     if (reader.isStartArrayOrObject()) {
                         return reader.readChildren();
@@ -272,7 +270,7 @@ public class Connection {
                     if (id != -1) {
                         CompletableFuture<String> f = tasks.remove(id);
 
-                        try (JsonReader errorReader = JsonProviders.createReader(error)) {
+                        try (JsonReader errorReader = JsonReader.fromString(error)) {
                             Map<String, Object> errorObject = errorReader.readMap(JsonReader::readUntyped);
 
                             String message = String.valueOf(errorObject.get("message"));
@@ -339,7 +337,7 @@ public class Connection {
      */
     public void sendError(int id, int code, String message) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeStartObject()
                 .writeStringField("jsonrpc", "2.0")
                 .writeIntField("id", id)
@@ -364,7 +362,7 @@ public class Connection {
      */
     public void respond(int id, String value) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeStartObject()
                 .writeStringField("jsonrpc", "2.0")
                 .writeIntField("id", id)
@@ -386,7 +384,7 @@ public class Connection {
      */
     public void notify(String methodName, Object... values) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeArray(values, JsonWriter::writeUntyped).flush();
             notifyWithSerializedObject(methodName, outputStream.toString(StandardCharsets.UTF_8));
         } catch (IOException ex) {
@@ -421,7 +419,7 @@ public class Connection {
         tasks.put(id, response);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeStartObject()
                 .writeStringField("jsonrpc", "2.0")
                 .writeStringField("method", methodName)

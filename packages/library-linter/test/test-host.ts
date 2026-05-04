@@ -1,13 +1,6 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { LibraryLinterTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createLibraryLinterTestHost() {
-  return createTestHost({
-    libraries: [LibraryLinterTestLibrary],
-  });
-}
-
-export async function createLibraryLinterTestRunner() {
-  const host = await createLibraryLinterTestHost();
-  return createTestWrapper(host);
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/library-linter"],
+}).importLibraries();

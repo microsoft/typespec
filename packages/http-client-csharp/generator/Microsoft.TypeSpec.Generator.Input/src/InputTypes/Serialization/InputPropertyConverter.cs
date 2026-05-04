@@ -46,17 +46,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             null => throw new JsonException($"InputProperty (id: '{id}') must have a 'Kind' property"),
             ModelPropertyKind => InputModelPropertyConverter.ReadInputModelProperty(ref reader, id, kind, options, resolver),
-            HeaderParameterKind => InputHeaderParameterConverter.ReadInputHeaderParameter(ref reader, id, kind, options, resolver),
-            QueryParameterKind => InputQueryParameterConverter.ReadInputQueryParameter(ref reader, id, kind, options, resolver),
-            PathParameterKind => InputPathParameterConverter.ReadInputPathParameter(ref reader, id, kind, options, resolver),
-            BodyParameterKind => InputBodyParameterConverter.ReadInputBodyParameter(ref reader, id, kind, options, resolver),
             _ => throw new JsonException($"Unknown kind for InputProperty (id: '{id}'): '{kind}'"),
         };
 
         private const string ModelPropertyKind = "property";
-        private const string HeaderParameterKind = "header";
-        private const string QueryParameterKind = "query";
-        private const string PathParameterKind = "path";
-        private const string BodyParameterKind = "body";
     }
 }

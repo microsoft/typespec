@@ -1,0 +1,19 @@
+# Template installing all dependencies.
+parameters:
+  - name: artifactName
+    type: string
+  - name: name
+    type: string
+
+steps:
+  - pwsh: |
+      $outDir = "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}"
+      echo "Packing npm packages into $outDir"
+      pnpm chronus pack --exclude standalone --pack-destination $outDir
+
+      $summaryFilePath = "$outDir/publish-summary.json"
+      echo "Create manifest of unpublished packages in $summaryFilePath"
+
+      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" --manifest $summaryFilePath
+    name: pack_${{ parameters.name }}
+    displayName: Pack packages ${{ parameters.artifactName }}

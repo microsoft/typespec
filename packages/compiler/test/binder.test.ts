@@ -11,6 +11,7 @@ import {
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
+  ModifierFlags,
   NodeFlags,
   Sym,
   SymbolFlags,
@@ -88,6 +89,40 @@ describe("compiler: binder", () => {
                     },
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/8630
+  it("nested namespace with same name within file namespace", () => {
+    const code = `
+      namespace Top;
+
+      namespace A {}
+      namespace B.A {}
+    `;
+    const script = bindTypeSpec(code);
+    strictEqual(script.namespaces.length, 4);
+    assertBindings("root", script.symbol.exports!, {
+      Top: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+        exports: {
+          A: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            exports: {},
+          },
+          B: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            exports: {
+              A: {
+                declarations: [SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+                exports: {},
               },
             },
           },
@@ -387,18 +422,10 @@ describe("compiler: binder", () => {
                 flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
-              fn2: {
-                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
-                declarations: [SyntaxKind.JsSourceFile],
-              },
             },
           },
           "@myDec": {
             flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-            declarations: [SyntaxKind.JsSourceFile],
-          },
-          fn: {
-            flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
@@ -435,6 +462,39 @@ describe("compiler: binder", () => {
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
+      },
+    });
+  });
+
+  it("binds $functions in JS file", () => {
+    const exports = {
+      $functions: {
+        "Foo.Bar": { myFn2: () => {} },
+        "": { myFn: () => {} },
+      },
+    };
+
+    const sourceFile = bindJs(exports);
+    assertBindings("jsFile", sourceFile.symbol.exports!, {
+      Foo: {
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
+        exports: {
+          Bar: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
+            exports: {
+              myFn2: {
+                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+                declarations: [SyntaxKind.JsSourceFile],
+              },
+            },
+          },
+        },
+      },
+      myFn: {
+        flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+        declarations: [SyntaxKind.JsSourceFile],
       },
     });
   });
@@ -531,5 +591,7 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
 }

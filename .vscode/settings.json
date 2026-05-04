@@ -56,9 +56,7 @@
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
-  "vitest.enable": true,
-  "vitest.commandLine": "node ./node_modules/vitest/vitest.mjs",
-  "prettier.prettierPath": "./node_modules/prettier/index.cjs",
-  "prettier.documentSelectors": ["**/*.tsp", "**/*.astro"],
+  "vitest.rootConfig": "vitest.config.js",
+  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }

@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? doc = null;
             string? summary = null;
             InputOperation? operation = null;
-            IReadOnlyList<InputParameter>? parameters = null;
+            IReadOnlyList<InputMethodParameter>? parameters = null;
             InputServiceMethodResponse? response = null;
             InputServiceMethodResponse? exception = null;
             InputLongRunningServiceMetadata? lroMetadata = null;

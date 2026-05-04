@@ -19,6 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class FluentProject extends Project {
@@ -27,13 +30,13 @@ public class FluentProject extends Project {
 
     private final ServiceDescription serviceDescription = new ServiceDescription();
 
-    private String apiVersionInTypeSpec = null;
+    private Map<String, String> apiVersionMap = null;
 
     private Changelog changelog;
     private final List<CodeSample> codeSamples = new ArrayList<>();
 
-    public void setApiVersionInTypeSpec(String apiVersionInTypeSpec) {
-        this.apiVersionInTypeSpec = apiVersionInTypeSpec;
+    public void setApiVersionInTypeSpec(Map<String, String> apiVersionMap) {
+        this.apiVersionMap = apiVersionMap;
     }
 
     private static class ServiceDescription {
@@ -59,12 +62,12 @@ public class FluentProject extends Project {
         }
     }
 
-    public FluentProject(FluentClient fluentClient, String apiVersionInTypeSpec) {
-        this(fluentClient.getManager().getServiceName(), apiVersionInTypeSpec,
+    public FluentProject(FluentClient fluentClient, Map<String, String> apiVersionMap) {
+        this(fluentClient.getManager().getServiceName(), apiVersionMap,
             fluentClient.getInnerClient().getClientDescription());
     }
 
-    protected FluentProject(String serviceName, String apiVersionInTypeSpec, String clientDescription) {
+    protected FluentProject(String serviceName, Map<String, String> apiVersionMap, String clientDescription) {
         this.groupId = "com.azure.resourcemanager";
 
         this.serviceName = serviceName;
@@ -88,8 +91,16 @@ public class FluentProject extends Project {
         // SDK from TypeSpec does not contain autorest tag.
         if (autorestTag != null) {
             this.serviceDescription.tagDescription = "Package tag " + autorestTag + ".";
-        } else if (apiVersionInTypeSpec != null) {
-            this.serviceDescription.tagDescription = "Package api-version " + apiVersionInTypeSpec + ".";
+        } else if (apiVersionMap != null) {
+            if (apiVersionMap.size() == 1) {
+                this.serviceDescription.tagDescription
+                    = "Package api-version " + apiVersionMap.values().iterator().next() + ".";
+            } else {
+                this.serviceDescription.tagDescription = "Package api-version " + apiVersionMap.entrySet()
+                    .stream()
+                    .map(e -> e.getKey() + ": " + e.getValue())
+                    .collect(Collectors.joining(", ")) + ".";
+            }
         } else {
             this.serviceDescription.tagDescription = "";
         }
@@ -102,6 +113,11 @@ public class FluentProject extends Project {
 //        FluentPomTemplate.setProject(this);
 
         findPackageVersions();
+
+        // call after findPackageVersions, as findPackageVersions will populate the sdkFolder field
+        if (FluentStatic.getFluentJavaSettings().getArtifactVersion().isEmpty()) {
+            findMyVersion().ifPresent(version -> this.version = version);
+        }
 
         findPomDependencies();
 
@@ -155,6 +171,34 @@ public class FluentProject extends Project {
         } else {
             LOGGER.warn("'output-folder' parameter is not an absolute path, skip code samples");
         }
+    }
+
+    private Optional<String> findMyVersion() {
+        if (this.sdkFolder == null) {
+            // abort, if this is not in azure-sdk-for-java repository
+            return Optional.empty();
+        }
+
+        Path sdkPath = Paths.get(this.sdkFolder);
+        Path versionClientPath = sdkPath.resolve(Paths.get("eng", "versioning", "version_client.txt"));
+        if (Files.isReadable(versionClientPath)) {
+            try (BufferedReader reader = Files.newBufferedReader(versionClientPath, StandardCharsets.UTF_8)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String artifact = getVersionUpdateTag(this.groupId, this.artifactId);
+                    Optional<String> versionOpt = checkArtifact(line, artifact, true);
+                    if (versionOpt.isPresent()) {
+                        return versionOpt;
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Failed to parse 'version_client.txt'", e);
+            }
+        } else {
+            LOGGER.warn("'version_client.txt' not found or not readable");
+        }
+
+        return Optional.empty();
     }
 
     @Override

@@ -126,17 +126,6 @@ public final class ChildResourceInner extends Resource {
     }
 
     /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (innerProperties() != null) {
-            innerProperties().validate();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override

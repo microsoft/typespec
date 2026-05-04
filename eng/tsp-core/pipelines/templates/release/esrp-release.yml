@@ -1,0 +1,27 @@
+parameters:
+  - name: tag
+    type: string
+    default: stable
+  - name: path
+    type: string
+
+steps:
+  - task: EsrpRelease@9
+    displayName: "Publish via ESRP"
+    condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
+    inputs:
+      ConnectedServiceName: "Azure SDK PME Managed Identity"
+      ClientId: "5f81938c-2544-4f1f-9251-dd9de5b8a81b"
+      DomainTenantId: "975f013f-7f24-47e8-a7d3-abc4752bf346"
+      Usemanagedidentity: true
+      KeyVaultName: "kv-azuresdk-codesign"
+      SignCertName: "azure-sdk-esrp-release-certificate"
+      Intent: "PackageDistribution"
+      ContentType: "npm"
+      FolderLocation: ${{ parameters.path }}
+      Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+      Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+      ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+      # cspell:ignore ESRPRELPACMANTEST
+      MainPublisher: "ESRPRELPACMANTEST"
+      productstate: ${{ parameters.tag }}

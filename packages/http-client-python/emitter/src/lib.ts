@@ -1,5 +1,6 @@
 import {
   SdkContext,
+  SdkType,
   UnbrandedSdkEmitterOptions,
 } from "@azure-tools/typespec-client-generator-core";
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
@@ -22,10 +23,16 @@ export interface PythonEmitterOptions {
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
+  "keep-setup-py"?: boolean;
+  "clear-output-folder"?: boolean;
+  "emit-yaml-only"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
   __endpointPathParameters: Record<string, any>[];
+  __typesMap: Map<SdkType, Record<string, any>>;
+  __simpleTypesMap: Map<string | null, Record<string, any>>;
+  __disableGenerationMap: Set<SdkType>;
 }
 
 export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
@@ -86,6 +93,30 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.",
     },
+    "generation-subdir": {
+      type: "string",
+      nullable: true,
+      description:
+        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+    },
+    "keep-setup-py": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "clear-output-folder": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to clear the output folder before generating the code. Defaults to `false`.",
+    },
+    "emit-yaml-only": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Emit YAML code model only, without running Python generator. For batch processing.",
+    },
   },
   required: [],
 };
@@ -105,6 +136,19 @@ const libDef = {
       messages: {
         default:
           "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
+      },
+    },
+    "no-sdk-clients": {
+      severity: "error",
+      messages: {
+        default:
+          "The Python emitter did not find any SDK clients in this TypeSpec program. The current Python generator expects at least one client/service to generate code.",
+      },
+    },
+    "browser-runtime-load-failed": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Failed to initialize the browser Python runtime.${"details"}`,
       },
     },
     "invalid-paging-items": {

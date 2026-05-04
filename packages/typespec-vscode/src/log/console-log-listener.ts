@@ -12,7 +12,7 @@ export class ConsoleLogLogger implements LogListener {
       case "info":
         logToConsole(log, console.log);
         break;
-      case "warn":
+      case "warning":
         logToConsole(log, console.warn);
         break;
       case "error":

@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -30,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             InputLiteralType[]? inputLiteralTypes = null,
+            InputClient[]? inputClients = null,
             Func<Task<Compilation>>? compilation = null,
             Func<Task<Compilation>>? lastContractCompilation = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
@@ -48,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 inputModelTypes,
                 inputEnumTypes,
                 inputLiteralTypes,
+                inputClients,
                 additionalMetadataReferences,
                 sharedSourceDirectories,
                 typesToKeep,
@@ -73,6 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             InputLiteralType[]? inputLiteralTypes = null,
+            InputClient[]? inputClients = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
             IEnumerable<string>? typesToKeep = null,
@@ -80,6 +86,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? inputNamespaceName = null,
             string? outputPath = null)
         {
+            ResetCache();
+
             outputPath = outputPath ?? Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             if (includeXmlDocs)
             {
@@ -117,6 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 inputNamespaceName ?? "Sample",
                 models: inputModelTypes,
                 enums: inputEnumTypes,
+                clients: inputClients,
                 constants: inputLiteralTypes));
 
             mockGenerator.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
@@ -153,6 +162,22 @@ namespace Microsoft.TypeSpec.Generator.Tests
             CodeModelGenerator.Instance = mockGenerator.Object;
 
             return mockGenerator;
+        }
+
+        private static void ResetCache()
+        {
+            TypeReferenceExpression.ResetCache();
+
+            // Clear the CSharpType static cache
+            var csharpTypeType = typeof(CSharpType);
+            var cacheField = csharpTypeType.GetField("_cache",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            if (cacheField != null)
+            {
+                var cache = cacheField.GetValue(null) as IDictionary;
+                cache?.Clear();
+            }
         }
     }
 }

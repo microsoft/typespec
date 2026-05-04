@@ -28,13 +28,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? crossLanguageDefinitionId = null;
             InputType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -45,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             valueType = valueType ?? throw new JsonException("List must have element type");
             var listType = new InputArrayType(name ?? "Array", crossLanguageDefinitionId ?? string.Empty, valueType)
             {
-                Decorators = decorators ?? []
+                Decorators = decorators ?? [],
+                External = external
             };
             if (id != null)
             {

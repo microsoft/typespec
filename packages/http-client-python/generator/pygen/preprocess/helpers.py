@@ -4,14 +4,14 @@
 # license information.
 # --------------------------------------------------------------------------
 import re
-from typing import Any, Dict
+from typing import Any
 from .python_mappings import (
     REDEFINED_BUILTINS,
     BUILTIN_PACKAGES,
 )
 
 
-def add_redefined_builtin_info(name: str, yaml_data: Dict[str, Any]) -> None:
+def add_redefined_builtin_info(name: str, yaml_data: dict[str, Any]) -> None:
     if name in REDEFINED_BUILTINS:
         yaml_data["pylintDisable"] = "redefined-builtin"
 

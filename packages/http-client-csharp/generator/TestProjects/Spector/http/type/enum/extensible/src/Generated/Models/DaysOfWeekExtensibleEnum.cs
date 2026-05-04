@@ -31,6 +31,8 @@ namespace _Type._Enum.Extensible
 
         public static implicit operator DaysOfWeekExtensibleEnum(string value) => throw null;
 
+        public static implicit operator DaysOfWeekExtensibleEnum?(string value) => throw null;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 

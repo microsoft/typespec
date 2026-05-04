@@ -158,7 +158,8 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getModelWithResponse(RequestContext requestContext) {
@@ -177,7 +178,7 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Fish input, RequestContext requestContext) {
@@ -195,7 +196,8 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getRecursiveModelWithResponse(RequestContext requestContext) {
@@ -214,7 +216,7 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Fish input, RequestContext requestContext) {
@@ -232,7 +234,8 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
@@ -250,7 +253,8 @@ public final class NestedDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
+     * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Fish> getWrongDiscriminatorWithResponse(RequestContext requestContext) {

@@ -1,16 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This is the SampleTypeSpec client library for developing .NET applications with rich experience.</Description>
     <AssemblyTitle>SDK Code Generation SampleTypeSpec</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
     <PackageTags>SampleTypeSpec</PackageTags>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.6.0-alpha.20250729.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.ClientModel" Version="1.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\SampleTypeSpec.NuGet.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0\SampleTypeSpec.targets" />
   </ItemGroup>
 </Project>

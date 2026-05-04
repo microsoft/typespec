@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,7 +71,7 @@ public final class CollectionUtil {
             // 'map', so this reference equality check save us from creating a new map (below) with list values copied.
             return map;
         }
-        final Map<K, List<V>> m = new HashMap<>(map.size());
+        final Map<K, List<V>> m = new LinkedHashMap<>(map.size());
         for (Map.Entry<K, List<V>> e : map.entrySet()) {
             m.put(e.getKey(), toImmutableList(e.getValue()));
         }

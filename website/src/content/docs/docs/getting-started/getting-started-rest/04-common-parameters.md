@@ -1,5 +1,7 @@
 ---
 title: Common Parameters
+description: Getting started with REST - 04 reuse common parameters
+llmstxt: true
 ---
 
 ## Introduction
@@ -14,7 +16,7 @@ Let's start by defining a model for common parameters. This model will include p
 
 For the sake of demonstration, we're going to require each API call in our Pet Store service to include a request ID, a locale, and a client version. Let's define a model for these common parameters, which we'll label `requestID`, `locale`, and `clientVersion`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={30-39}
 import "@typespec/http";
 
 using Http;
@@ -44,7 +46,6 @@ enum petType {
   reptile: "reptile",
 }
 
-// highlight-start
 model CommonParameters {
   @header
   requestID: string;
@@ -55,7 +56,6 @@ model CommonParameters {
   @header
   clientVersion?: string;
 }
-// highlight-end
 ```
 
 In this example:
@@ -69,7 +69,7 @@ Now that we have defined our common parameters model, let's reuse it across mult
 
 ### Example: Reusing Common Parameters in Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={44,50,59,71,90}
 import "@typespec/http";
 
 using Http;
@@ -113,14 +113,12 @@ model CommonParameters {
 @route("/pets")
 namespace Pets {
   @get
-  // highlight-next-line
   op listPets(...CommonParameters): {
     @statusCode statusCode: 200;
     @body pets: Pet[];
   };
 
   @get
-  // highlight-next-line
   op getPet(@path petId: int32, ...CommonParameters): {
     @statusCode statusCode: 200;
     @body pet: Pet;
@@ -130,7 +128,6 @@ namespace Pets {
   };
 
   @post
-  // highlight-next-line
   op createPet(@body pet: Pet, ...CommonParameters): {
     @statusCode statusCode: 201;
     @body newPet: Pet;
@@ -143,7 +140,6 @@ namespace Pets {
   };
 
   @put
-  // highlight-next-line
   op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
     | {
         @statusCode statusCode: 200;
@@ -163,7 +159,6 @@ namespace Pets {
       };
 
   @delete
-  // highlight-next-line
   op deletePet(@path petId: int32, ...CommonParameters): {
     @statusCode statusCode: 204;
   };
@@ -198,7 +193,7 @@ In this example:
 
 Let's take a closer look at how the common parameters model with the `spread` operator is represented in the generated OpenAPI specification by looking at the `deletePet` operation:
 
-```yaml
+```yaml ins={14-16,28-45}
 #### Generated OpenAPI Specification:
 
 paths:
@@ -212,11 +207,9 @@ paths:
           schema:
             type: integer
             format: int32
-        // highlight-start
         - $ref: "#/components/parameters/CommonParameters.requestID"
         - $ref: "#/components/parameters/CommonParameters.locale"
         - $ref: "#/components/parameters/CommonParameters.clientVersion"
-        // highlight-end
       responses:
         "204":
           description: "There is no content to send for this request, but the headers may be useful."
@@ -228,7 +221,6 @@ paths:
                 $ref: "#/components/schemas/NotFoundError"
 components:
   parameters:
-    // highlight-start
     CommonParameters.clientVersion:
       name: client-version
       in: header
@@ -247,7 +239,6 @@ components:
       required: true
       schema:
         type: string
-    // highlight-end
   schemas:
     NotFoundError:
       type: object

@@ -4,7 +4,9 @@
 using System;
 using System.ClientModel;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 
@@ -22,6 +24,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
+            new ModelSerializationExtensionsDefinition();
+
+        internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
+            new SerializationFormatDefinition();
+
+        /// <summary>
+        /// Gets the options that control ConfigurationSchema.json generation.
+        /// </summary>
+        public ConfigurationSchemaOptions ConfigurationSchema { get; } = new();
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)
@@ -36,7 +49,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
-            AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
+            AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+        }
+
+        public override async Task WriteAdditionalFiles(string outputPath)
+        {
+            // Skip generation if a custom ConfigurationSchema.json exists outside the Generated folder
+            var customSchemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
+            if (File.Exists(customSchemaPath))
+            {
+                Emitter.Info($"Custom ConfigurationSchema.json detected at {Path.GetFullPath(customSchemaPath)}, skipping generation.");
+                return;
+            }
+
+            var schemaContent = ConfigurationSchemaGenerator.Generate(
+                OutputLibrary,
+                ConfigurationSchema.SectionName,
+                ConfigurationSchema.OptionsRef);
+            if (schemaContent != null)
+            {
+                var schemaPath = Path.Combine(outputPath, "src", "Generated", "schema", "ConfigurationSchema.json");
+                var schemaDir = Path.GetDirectoryName(schemaPath);
+                if (schemaDir != null)
+                {
+                    Directory.CreateDirectory(schemaDir);
+                }
+                Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
+                await File.WriteAllTextAsync(schemaPath, schemaContent);
+
+                if (ConfigurationSchema.GenerateNuGetTargets)
+                {
+                    // Generate the .targets file for JsonSchemaSegment registration
+                    var packageName = Configuration.PackageName;
+                    var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                    var targetsContent = GenerateTargetsFile();
+                    Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                    await File.WriteAllTextAsync(targetsPath, targetsContent);
+                }
+            }
+        }
+
+        private static string GenerateTargetsFile()
+        {
+            return "<Project>\n" +
+                   "  <ItemGroup>\n" +
+                   "    <JsonSchemaSegment Include=\"$(MSBuildThisFileDirectory)..\\..\\ConfigurationSchema.json\"\n" +
+                   "                       FilePathPattern=\"appsettings.*.json\" />\n" +
+                   "  </ItemGroup>\n" +
+                   "</Project>\n";
         }
     }
 }

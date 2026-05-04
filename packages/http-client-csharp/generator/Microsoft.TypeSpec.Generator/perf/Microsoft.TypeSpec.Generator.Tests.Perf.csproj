@@ -2,7 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator.ClientModel\src\Microsoft.TypeSpec.Generator.ClientModel.csproj" />
+    <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator.ClientModel\test\Microsoft.TypeSpec.Generator.ClientModel.Tests.csproj" />
     <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.csproj" />
+    <ProjectReference Include="..\test\common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

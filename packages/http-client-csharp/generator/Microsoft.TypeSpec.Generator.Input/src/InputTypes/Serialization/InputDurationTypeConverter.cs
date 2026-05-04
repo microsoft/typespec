@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? wireType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
+            InputExternalTypeMetadata? external = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -39,7 +40,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("encode", ref encode)
                     || reader.TryReadComplexType("wireType", options, ref wireType)
                     || reader.TryReadComplexType("baseType", options, ref baseType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -50,11 +52,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             name = name ?? throw new JsonException("Duration type must have name");
             crossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("Duration type must have crossLanguageDefinitionId");
             encode = encode ?? throw new JsonException("Duration type must have encoding");
+            // translate "duration-constant" into simply "constant". Both strings are supported
+            if (encode.Equals( "duration-constant", StringComparison.OrdinalIgnoreCase))
+            {
+                encode = "constant";
+            }
             wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
-            var dateTimeType = DurationKnownEncodingExtensions.TryParse(encode, out var encodeKind)
-                ? new InputDurationType(encodeKind.Value, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
-                : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
+            var dateTimeType = new InputDurationType(new DurationKnownEncoding(encode), name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external };
 
             if (id != null)
             {

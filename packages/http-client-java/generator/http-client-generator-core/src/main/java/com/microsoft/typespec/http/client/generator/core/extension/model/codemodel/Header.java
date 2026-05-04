@@ -12,6 +12,7 @@ public class Header {
     private String header;
     private Schema schema;
     private XmsExtensions extensions;
+    private Languages language;
 
     /**
      * Creates a new instance of the Header class.
@@ -53,6 +54,14 @@ public class Header {
      */
     public void setSchema(Schema schema) {
         this.schema = schema;
+    }
+
+    public Languages getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Languages language) {
+        this.language = language;
     }
 
     /**

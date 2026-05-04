@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace Encode.Datetime._ResponseHeader
     public partial class ResponseHeader
     {
         protected ResponseHeader() => throw null;
+
+        internal ResponseHeader(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

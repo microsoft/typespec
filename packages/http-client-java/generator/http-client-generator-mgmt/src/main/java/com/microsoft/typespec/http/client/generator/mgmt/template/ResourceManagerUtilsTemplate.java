@@ -3,11 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.http.rest.PagedFlux;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.PagedResponse;
-import com.azure.core.http.rest.PagedResponseBase;
-import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
@@ -18,14 +14,13 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import reactor.core.publisher.Flux;
 
 public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFile> {
 
@@ -38,9 +33,9 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
     private static final List<MethodTemplate> METHOD_TEMPLATES = new ArrayList<>();
     static {
         MethodTemplate getValueFromIdByNameMethod = MethodTemplate.builder()
-            .imports(Arrays.asList(Arrays.class.getName(), Iterator.class.getName()))
+            .imports(List.of(Arrays.class.getName(), Iterator.class.getName()))
             .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(Collections.singletonList(JavaModifier.Static))
+            .modifiers(List.of(JavaModifier.Static))
             .methodSignature("String getValueFromIdByName(String id, String name)")
             .method(
                 block -> block.line(FluentUtils.loadTextFromResource("ResourceManagerUtils_getValueFromIdByName.txt")))
@@ -48,10 +43,10 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
         METHOD_TEMPLATES.add(getValueFromIdByNameMethod);
 
         MethodTemplate getValueFromIdByParameterNameMethod = MethodTemplate.builder()
-            .imports(Arrays.asList(Arrays.class.getName(), Iterator.class.getName(), List.class.getName(),
-                ArrayList.class.getName(), CoreUtils.class.getName(), Collections.class.getName()))
+            .imports(List.of(Arrays.class.getName(), Iterator.class.getName(), List.class.getName(),
+                ArrayList.class.getName(), ClassType.CORE_UTILS.getFullName(), Collections.class.getName()))
             .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(Collections.singletonList(JavaModifier.Static))
+            .modifiers(List.of(JavaModifier.Static))
             .methodSignature(
                 "String getValueFromIdByParameterName(String id, String pathTemplate, String parameterName)")
             .method(block -> block
@@ -60,10 +55,10 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
         METHOD_TEMPLATES.add(getValueFromIdByParameterNameMethod);
     }
 
-    private static final List<String> IMPORTS_UTILS_PAGED_ITERABLE
-        = Arrays.asList(PagedFlux.class.getName(), PagedIterable.class.getName(), PagedResponse.class.getName(),
-            PagedResponseBase.class.getName(), Flux.class.getName(), Iterator.class.getName(), Function.class.getName(),
-            Collectors.class.getName(), Stream.class.getName());
+    private static final List<String> IMPORTS_UTILS_PAGED_ITERABLE = List.of(ClassType.PAGED_FLUX.getFullName(),
+        ClassType.FLUX.getFullName(), ClassType.PAGED_ITERABLE.getFullName(), ClassType.PAGED_RESPONSE.getFullName(),
+        ClassType.PAGED_RESPONSE_BASE.getFullName(), Iterator.class.getName(), Function.class.getName(),
+        Collectors.class.getName(), Stream.class.getName());
 
     public void write(JavaFile javaFile) {
         write(null, javaFile);
@@ -71,15 +66,15 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
 
     @Override
     public void write(Void ignored, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         METHOD_TEMPLATES.forEach(mt -> mt.addImportsTo(imports));
         imports.addAll(IMPORTS_UTILS_PAGED_ITERABLE);
         javaFile.declareImport(imports);
 
-        javaFile.classBlock(JavaVisibility.PackagePrivate, Collections.singletonList(JavaModifier.Final),
+        javaFile.classBlock(JavaVisibility.PackagePrivate, List.of(JavaModifier.Final),
             ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, classBlock -> {
-                classBlock.constructor(JavaVisibility.Private,
-                    String.format("%s()", ModelNaming.CLASS_RESOURCE_MANAGER_UTILS), (constructorBlock) -> {
+                classBlock.constructor(JavaVisibility.Private, ModelNaming.CLASS_RESOURCE_MANAGER_UTILS + "()",
+                    constructorBlock -> {
                     });
                 METHOD_TEMPLATES.forEach(mt -> mt.writeMethod(classBlock));
 

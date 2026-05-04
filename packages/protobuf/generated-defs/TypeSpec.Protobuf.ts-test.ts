@@ -7,4 +7,4 @@ import type { TypeSpecProtobufDecorators } from "./TypeSpec.Protobuf.js";
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: TypeSpecProtobufDecorators = $decorators["TypeSpec.Protobuf"];
+const _decs: TypeSpecProtobufDecorators = $decorators["TypeSpec.Protobuf"];

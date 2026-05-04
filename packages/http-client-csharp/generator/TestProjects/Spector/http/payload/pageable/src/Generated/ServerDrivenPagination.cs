@@ -2,10 +2,12 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using Payload.Pageable;
+using Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb;
 using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable._ServerDrivenPagination
@@ -13,6 +15,8 @@ namespace Payload.Pageable._ServerDrivenPagination
     public partial class ServerDrivenPagination
     {
         protected ServerDrivenPagination() => throw null;
+
+        internal ServerDrivenPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -23,6 +27,24 @@ namespace Payload.Pageable._ServerDrivenPagination
         public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default) => throw null;
 
         public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual CollectionResult LinkString(RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult LinkStringAsync(RequestOptions options) => throw null;
+
+        public virtual CollectionResult<Pet> LinkString(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult<Pet> LinkStringAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual CollectionResult NestedLink(RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options) => throw null;
+
+        public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ServerDrivenPaginationAlternateInitialVerb GetServerDrivenPaginationAlternateInitialVerbClient() => throw null;
 
         public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
     }

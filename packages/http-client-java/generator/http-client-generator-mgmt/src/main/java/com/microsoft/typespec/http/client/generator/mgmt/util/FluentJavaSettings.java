@@ -3,15 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,18 +31,18 @@ public class FluentJavaSettings {
     /**
      * Java class names for extra Inner classes.
      */
-    private final Set<String> javaNamesForAddInner = new HashSet<>();
+    private final Set<String> javaNamesForAddInner = new LinkedHashSet<>();
 
     /**
      * Java class names for excluded Inner classes.
      */
-    private final Set<String> javaNamesForRemoveInner = new HashSet<>();
+    private final Set<String> javaNamesForRemoveInner = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForRemoveModel = new HashSet<>();
+    private final Set<String> javaNamesForRemoveModel = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForPreserveModel = new HashSet<>();
+    private final Set<String> javaNamesForPreserveModel = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForRemoveOperationGroup = new HashSet<>();
+    private final Set<String> javaNamesForRemoveOperationGroup = new LinkedHashSet<>();
 
     private final List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
@@ -64,13 +64,11 @@ public class FluentJavaSettings {
     /**
      * Naming override.
      */
-    private final Map<String, String> namingOverride = new HashMap<>();
+    private final Map<String, String> namingOverride = new LinkedHashMap<>();
 
-    private final Map<String, String> renameModel = new HashMap<>();
+    private final Set<String> javaNamesForPropertyIncludeAlways = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForPropertyIncludeAlways = new HashSet<>();
-
-    private final Map<String, String> renameOperationGroup = new HashMap<>();
+    private final Map<String, String> renameOperationGroup = new LinkedHashMap<>();
 
     private String pomFilename = "pom.xml";
 
@@ -80,7 +78,7 @@ public class FluentJavaSettings {
 
     private SampleGeneration generateSamples = SampleGeneration.NONE;
 
-    private String graalVmConfigSuffix = null;
+    private String metadataSuffix = null;
 
     private boolean sdkIntegration = false;
 
@@ -121,10 +119,6 @@ public class FluentJavaSettings {
         return namingOverride;
     }
 
-    public Map<String, String> getJavaNamesForRenameModel() {
-        return renameModel;
-    }
-
     public Set<String> getJavaNamesForRemoveModel() {
         return javaNamesForRemoveModel;
     }
@@ -137,6 +131,12 @@ public class FluentJavaSettings {
         return javaNamesForRemoveOperationGroup;
     }
 
+    /**
+     * The set of model property that should always be serialized, even its value is null.
+     * The model property is in the form of "<modelName>.<propertyName>".
+     *
+     * @return the set of model property names that should always be serialized.
+     */
     public Set<String> getJavaNamesForPropertyIncludeAlways() {
         return javaNamesForPropertyIncludeAlways;
     }
@@ -165,8 +165,8 @@ public class FluentJavaSettings {
         return generateSamples != SampleGeneration.NONE;
     }
 
-    public Optional<String> getGraalVmConfigSuffix() {
-        return Optional.ofNullable(graalVmConfigSuffix);
+    public Optional<String> getMetadataSuffix() {
+        return Optional.ofNullable(metadataSuffix);
     }
 
     public boolean isSdkIntegration() {
@@ -177,22 +177,6 @@ public class FluentJavaSettings {
         loadStringSetting("add-inner", s -> splitStringToSet(s, javaNamesForAddInner));
 
         loadStringSetting("remove-inner", s -> splitStringToSet(s, javaNamesForRemoveInner));
-
-        loadStringSetting("rename-model", s -> {
-            if (!CoreUtils.isNullOrEmpty(s)) {
-                String[] renamePairs = s.split(Pattern.quote(","));
-                for (String pair : renamePairs) {
-                    String[] fromAndTo = pair.split(Pattern.quote(":"));
-                    if (fromAndTo.length == 2) {
-                        String from = fromAndTo[0];
-                        String to = fromAndTo[1];
-                        if (!CoreUtils.isNullOrEmpty(from) && !CoreUtils.isNullOrEmpty(to)) {
-                            renameModel.put(from, to);
-                        }
-                    }
-                }
-            }
-        });
 
         loadStringSetting("remove-model", s -> splitStringToSet(s, javaNamesForRemoveModel));
 
@@ -232,7 +216,7 @@ public class FluentJavaSettings {
         loadBooleanSetting("generate-samples",
             s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
 
-        loadStringSetting("graalvm-config-suffix", s -> graalVmConfigSuffix = s);
+        loadStringSetting("metadata-suffix", s -> metadataSuffix = s);
 
         loadBooleanSetting("sdk-integration", b -> sdkIntegration = b);
 

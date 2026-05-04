@@ -20,6 +20,7 @@ import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
+import payload.pageable.serverdrivenpagination.implementation.LinkStringResponse;
 import payload.pageable.serverdrivenpagination.implementation.NestedLinkResponse;
 
 /**
@@ -80,6 +81,14 @@ public final class ServerDrivenPaginationsImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
+            path = "/payload/pageable/server-driven-pagination/link-string",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<LinkStringResponse> linkString(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/nested-link",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
@@ -89,6 +98,12 @@ public final class ServerDrivenPaginationsImpl {
         @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<LinkResponse> linkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
+            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<LinkStringResponse> linkStringNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestContext requestContext);
 
@@ -104,7 +119,7 @@ public final class ServerDrivenPaginationsImpl {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkSinglePage() {
@@ -125,7 +140,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkSinglePage(RequestContext requestContext) {
@@ -146,7 +161,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link(RequestContext requestContext) {
@@ -181,11 +196,94 @@ public final class ServerDrivenPaginationsImpl {
     }
 
     /**
+     * The linkString operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkStringSinglePage() {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.linkString",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<LinkStringResponse> res
+                    = service.linkString(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The linkString operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkStringSinglePage(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.linkString",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                Response<LinkStringResponse> res
+                    = service.linkString(this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * The linkString operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the paginated response with {@link PagedIterable}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> linkString(RequestContext requestContext) {
+        RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "linkString")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "linkString")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "linkString")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "linkString")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            return linkStringSinglePage(requestContext);
+        }, (pagingOptions, nextLink) -> linkStringNextSinglePage(nextLink, requestContextForNextPage));
+    }
+
+    /**
      * The nestedLink operation.
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> nestedLinkSinglePage() {
@@ -210,7 +308,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> nestedLinkSinglePage(RequestContext requestContext) {
@@ -235,7 +333,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> nestedLink(RequestContext requestContext) {
@@ -276,7 +374,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkNextSinglePage(String nextLink) {
@@ -299,7 +397,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> linkNextSinglePage(String nextLink, RequestContext requestContext) {
@@ -321,7 +419,52 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkStringNextSinglePage(String nextLink) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.linkString",
+            RequestContext.none(), updatedContext -> {
+                final String accept = "application/json";
+                Response<LinkStringResponse> res
+                    = service.linkStringNext(nextLink, this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> linkStringNextSinglePage(String nextLink, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.Pageable.ServerDrivenPagination.linkString",
+            requestContext, updatedContext -> {
+                final String accept = "application/json";
+                Response<LinkStringResponse> res
+                    = service.linkStringNext(nextLink, this.client.getEndpoint(), accept, updatedContext);
+                return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
+                    res.getValue().getPets(), null, res.getValue().getNext() != null ? res.getValue().getNext() : null,
+                    null, null, null);
+            });
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> nestedLinkNextSinglePage(String nextLink) {
@@ -347,7 +490,7 @@ public final class ServerDrivenPaginationsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PagedResponse<Pet> nestedLinkNextSinglePage(String nextLink, RequestContext requestContext) {

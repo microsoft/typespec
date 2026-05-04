@@ -3,20 +3,18 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.MessageChannel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,9 +68,9 @@ public abstract class NewPlugin {
      * @param converter The converter to convert the value to the desired type.
      * @return The value of the key.
      */
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         try {
-            return converter.read(getValueString(key));
+            return converter.apply(getValueString(key));
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -86,14 +84,14 @@ public abstract class NewPlugin {
      * @return The value of the key.
      * @param <T> The type of the value.
      */
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         String valueString = getValueString(key);
         if (valueString == null) {
             return null;
         }
 
-        try (JsonReader jsonReader = JsonProviders.createReader(valueString)) {
-            return converter.read(jsonReader);
+        try (JsonReader jsonReader = JsonReader.fromString(valueString)) {
+            return converter.apply(jsonReader);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -165,7 +163,7 @@ public abstract class NewPlugin {
      */
     public List<String> listInputs(String artifactType) {
         String jsonResponse = connection.request("ListInputs", sessionId, artifactType);
-        try (JsonReader jsonReader = JsonProviders.createReader(jsonResponse)) {
+        try (JsonReader jsonReader = JsonReader.fromString(jsonResponse)) {
             return jsonReader.readArray(JsonReader::getString);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -193,7 +191,7 @@ public abstract class NewPlugin {
         Message message = new Message();
         message.setChannel(channel);
         message.setKey(keys);
-        message.setSource(Collections.emptyList());
+        message.setSource(List.of());
         if (error != null) {
             text += "\n" + formatThrowableMessage(error);
         }

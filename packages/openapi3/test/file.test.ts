@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
+worksFor(supportedVersions, ({ openApiFor, version }) => {
   function getRawBinarySchema<T extends string>(contentMediaType?: T) {
     if (version === "3.0.0") {
       return { type: "string", format: "binary" } as const;

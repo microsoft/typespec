@@ -33,9 +33,7 @@ model Thing {
 
 namespace Parameters {
   model NameParameter {
-    /**
-     * Name parameter
-     */
+    /** Name parameter */
     @pattern("^[a-zA-Z0-9-]{3,24}$")
     @format("UUID")
     @path

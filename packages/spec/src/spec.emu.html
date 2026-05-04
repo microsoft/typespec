@@ -497,6 +497,7 @@ ArrayExpressionOrHigher[InParameter] :
 
 PrimaryExpression[InParameter] :
     TypeOfExpression
+    FunctionTypeExpression
     Literal
     CallOrReferenceExpression
     ParenthesizedExpression[?InParameter]
@@ -504,6 +505,12 @@ PrimaryExpression[InParameter] :
     ArrayLiteral
     ModelExpression
     TupleExpression
+
+FunctionTypeExpression :
+    `fn` `(` FunctionParameterList? `)` FunctionTypeExpressionReturnTypeAnnotation?
+
+FunctionTypeExpressionReturnTypeAnnotation :
+    `=>` MixedParameterConstraint
 
 Literal :
     StringLiteral

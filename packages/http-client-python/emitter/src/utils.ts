@@ -1,10 +1,12 @@
 import {
   InitializedByFlags,
+  SdkCredentialParameter,
+  SdkEndpointParameter,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
+  SdkMethodParameter,
   SdkModelPropertyType,
-  SdkParameter,
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
@@ -107,7 +109,7 @@ export function camelToSnakeCase(name: string): string {
 
 export function getImplementation(
   context: PythonSdkContext,
-  parameter: SdkParameter | SdkHttpParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
   return "Method";
@@ -153,22 +155,29 @@ type ParamBase = {
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
-  type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
+  type:
+    | SdkEndpointParameter
+    | SdkCredentialParameter
+    | SdkModelPropertyType
+    | SdkMethodParameter
+    | SdkHttpParameter
+    | SdkMethod<TServiceOperation>,
+  serviceApiVersions: string[] = [],
 ): string | undefined {
-  // since we do not support multi-service for now, we can just check the root client's api version
   // if type is added in the first version of the client, we do not need to add the versioning info
-  if (
-    type.apiVersions[0] ===
-    context.sdkPackage.clients.find(
-      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
-    )?.apiVersions[0]
-  )
-    return undefined;
+  const apiVersions =
+    serviceApiVersions.length > 0
+      ? serviceApiVersions
+      : (context.sdkPackage.clients.find(
+          (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+        )?.apiVersions ?? []);
+
+  if (type.apiVersions[0] === apiVersions[0]) return undefined;
   return type.apiVersions[0];
 }
 
 export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
-  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  parameter: SdkMethodParameter | SdkHttpParameter | SdkServiceResponseHeader,
   method?: SdkServiceMethod<TServiceOperation>,
   input: boolean = true,
 ): boolean {
@@ -184,9 +193,9 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
   if (input) {
     return Boolean(
       parameterSegments &&
-        parameterSegments.length > 0 &&
-        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
-        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+      parameterSegments.length > 0 &&
+      (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+      parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
     );
   }
 
@@ -197,13 +206,14 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
 
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
-  parameter: SdkParameter | SdkHttpParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
+  serviceApiVersions: string[] = [],
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
     if (parameter.clientDefaultValue) {
-      type = getSimpleTypeResult({
+      type = getSimpleTypeResult(context, {
         type: "constant",
         value: parameter.clientDefaultValue,
         valueType: type,
@@ -212,9 +222,9 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   }
   let clientName = camelToSnakeCase(parameter.name);
   if (
-    parameter.kind !== "endpoint" &&
-    parameter.kind !== "credential" &&
     parameter.kind !== "method" &&
+    parameter.kind !== "credential" &&
+    parameter.kind !== "endpoint" &&
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
@@ -223,11 +233,14 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
-    addedOn: getAddedOn(context, parameter),
+    addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
-    isContinuationToken: isContinuationToken(parameter, method),
+    isContinuationToken:
+      parameter.kind !== "endpoint" &&
+      parameter.kind !== "credential" &&
+      isContinuationToken(parameter, method),
     type,
     apiVersions: parameter.apiVersions,
   };
@@ -249,6 +262,7 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
+// Library namespaces that should not be used as client namespaces
 const LIB_NAMESPACE = [
   "azure.core",
   "azure.resourcemanager",
@@ -259,29 +273,25 @@ const LIB_NAMESPACE = [
 ];
 
 export function getRootNamespace(context: PythonSdkContext): string {
-  let rootNamespace = "";
   if (context.sdkPackage.clients.length > 0) {
-    rootNamespace = context.sdkPackage.clients[0].namespace;
-  } else if (context.sdkPackage.models.length > 0) {
-    const result = context.sdkPackage.models
-      .map((model) => model.namespace)
-      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
-    if (result.length > 0) {
-      result.sort();
-      rootNamespace = result[0];
-    }
+    return context.sdkPackage.clients[0].namespace.toLowerCase();
   } else if (context.sdkPackage.namespaces.length > 0) {
-    rootNamespace = context.sdkPackage.namespaces[0].fullName;
+    return context.sdkPackage.namespaces[0].fullName.toLowerCase();
   }
+  return "";
+}
 
-  return rootNamespace.toLowerCase();
+function isLibraryNamespace(namespace: string): boolean {
+  const ns = namespace.toLowerCase();
+  return LIB_NAMESPACE.some((lib) => ns.startsWith(lib));
 }
 
 export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
-  if (
-    clientNamespace === "" ||
-    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
-  ) {
+  // Namespace precedence: @clientNamespace > --namespace > original namespace
+  // These are resolved by TCGC and passed in as clientNamespace.
+  // However, models from library namespaces (azure.core, azure.resourcemanager, etc.)
+  // should use the SDK's root namespace instead.
+  if (clientNamespace === "" || isLibraryNamespace(clientNamespace)) {
     return getRootNamespace(context);
   }
   return clientNamespace.toLowerCase();
@@ -307,13 +317,18 @@ function parseToken(token: Token): string {
     case "codespan":
       parsed += `\`\`${token.text}\`\``;
       break;
-    case "code":
+    case "code": {
       let codeBlockStyle = token.codeBlockStyle;
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
       }
+      // Convert invalid Pygments lexer names to valid ones
+      if (codeBlockStyle === "txt") {
+        codeBlockStyle = "text";
+      }
       parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
+    }
     case "link":
       if (token.href !== undefined) {
         parsed += `\`${token.text} <${token.href}>\`_`;

@@ -1,0 +1,84 @@
+{
+  "name": "SampleNamespace",
+  "models": [
+    {
+      "$id": "2",
+      "kind": "model",
+      "name": "BaseModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.BaseModel",
+      "usage": "Output,Input,Json",
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
+      "properties": [
+        {
+          "$id": "3",
+          "kind": "property",
+          "name": "baseProp",
+          "serializedName": "baseProp",
+          "type": {
+            "$id": "4",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.BaseModel.baseProp",
+          "serializationOptions": {
+            "json": {
+              "name": "baseProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "5",
+      "kind": "model",
+      "name": "DerivedModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.DerivedModel",
+      "usage": "Output,Input,Json",
+      "baseModel": {
+        "$ref": "2"
+      },
+      "properties": [
+        {
+          "$id": "6",
+          "kind": "property",
+          "name": "derivedProp",
+          "serializedName": "derivedProp",
+          "type": {
+            "$id": "7",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.DerivedModel.derivedProp",
+          "serializationOptions": {
+            "json": {
+              "name": "derivedProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ]
+}

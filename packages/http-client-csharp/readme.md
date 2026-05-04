@@ -125,11 +125,11 @@ The name of the generator. By default this is set to `ScmCodeModelGenerator`. Ge
 
 Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
 
-### `update-code-model`
+### `plugins`
 
-**Type:** `object`
+**Type:** `array`
 
-Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.
+Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends GeneratorPlugin.
 
 ### `license`
 
@@ -142,3 +142,43 @@ License information for the generated client code.
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
+
+## Decorators
+
+### TypeSpec.HttpClient.CSharp
+
+- [`@dynamicModel`](#@dynamicmodel)
+
+#### `@dynamicModel`
+
+Marks a model or namespace as dynamic, indicating it should generate dynamic model code.
+Can be applied to Model or Namespace types.
+
+```typespec
+@TypeSpec.HttpClient.CSharp.dynamicModel
+```
+
+##### Target
+
+`Model | Namespace`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```tsp
+@dynamicModel
+model Pet {
+  name: string;
+  kind: string;
+}
+
+@dynamicModel
+namespace PetStore {
+  model Dog extends Pet {
+    breed: string;
+  }
+}
+```

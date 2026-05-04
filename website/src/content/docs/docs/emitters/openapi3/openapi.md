@@ -564,7 +564,6 @@ Where:
 The emitter follows these rules to determine the OpenAPI format:
 
 1. For date/time types:
-
    - `@encode("rfc3339", string) _: utcDateTime` → `type: string, format: date-time`
    - `@encode("rfc7231", string) _: utcDateTime` → `type: string, format: http-date`
    - `@encode("unixTimestamp", int32) _: utcDateTime` → `type: integer, format: unixtime`

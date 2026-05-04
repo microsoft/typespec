@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
@@ -42,17 +43,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public CSharpType? ReturnType { get; private set; }
 
-        public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<AttributeStatement> Attributes { get; internal set; }
 
-        public IReadOnlyList<ParameterProvider> Parameters { get; private set; }
+        public IReadOnlyList<ParameterProvider> Parameters { get; internal set; }
 
-        public MethodSignatureModifiers Modifiers { get; private set; }
+        public MethodSignatureModifiers Modifiers { get; internal set; }
 
-        public string? NonDocumentComment { get; private set; }
+        public string? NonDocumentComment { get; internal set; }
 
-        public FormattableString? Description { get; private set; }
+        public FormattableString? Description { get; internal set; }
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         public void Update(string? name = default, FormattableString? description = default, string? nonDocumentComment = default, MethodSignatureModifiers? modifiers = default, IReadOnlyList<ParameterProvider>? parameters = default, IReadOnlyList<AttributeStatement>? attributes = default, CSharpType? returnType = default)
         {
@@ -83,6 +84,88 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (returnType != null)
             {
                 ReturnType = returnType;
+            }
+        }
+
+        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+
+        private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
+        {
+            public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                if (x.Parameters.Count != y.Parameters.Count || GetFullMethodName(x) != GetFullMethodName(y))
+                {
+                    return false;
+                }
+
+                // For operators, we need to also check the return type and operator type (explicit vs implicit)
+                // since operators can have the same "name" (the target type) but different signatures
+                if (x.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                {
+                    // Check if both are operators and of the same type (explicit or implicit)
+                    if (!y.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                    {
+                        return false;
+                    }
+
+                    // Check explicit vs implicit - both flags must match
+                    bool xIsExplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                    bool yIsExplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                    bool xIsImplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                    bool yIsImplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                    if (xIsExplicit != yIsExplicit || xIsImplicit != yIsImplicit)
+                    {
+                        return false;
+                    }
+
+                    // For operators, the return type is crucial for matching
+                    if (x.ReturnType != null && y.ReturnType != null)
+                    {
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType))
+                        {
+                            return false;
+                        }
+                    }
+                    else if (x.ReturnType != y.ReturnType) // One is null, the other is not
+                    {
+                        return false;
+                    }
+                }
+
+                for (int i = 0; i < x.Parameters.Count; i++)
+                {
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public int GetHashCode([DisallowNull] MethodSignatureBase obj)
+            {
+                return HashCode.Combine(obj.Name, obj.ReturnType);
+            }
+
+            private static string GetFullMethodName(MethodSignatureBase method)
+            {
+                if (method is MethodSignature methodSignature)
+                {
+                    return methodSignature.FullMethodName;
+                }
+
+                return method.Name;
             }
         }
     }

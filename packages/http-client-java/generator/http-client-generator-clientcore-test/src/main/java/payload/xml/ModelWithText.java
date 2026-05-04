@@ -8,7 +8,7 @@ import io.clientcore.core.serialization.xml.XmlWriter;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains an attribute and text.
+ * §8.1 — Contains an attribute and text.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithText implements XmlSerializable<ModelWithText> {

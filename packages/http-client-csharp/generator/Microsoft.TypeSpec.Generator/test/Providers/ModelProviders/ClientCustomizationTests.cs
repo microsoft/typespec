@@ -4,11 +4,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
@@ -330,10 +332,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var attributes = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").CustomCodeView!.Attributes;
             Assert.AreEqual(4, attributes.Count);
-            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
-            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
-            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
-            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.TypeSpec.Generator.Customizations.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.TypeSpec.Generator.Customizations.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.TypeSpec.Generator.Customizations.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.TypeSpec.Generator.Customizations.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
 
             // validate that the properties are cached
             Assert.AreSame(attributes[0].Type, attributes[0].Type);
@@ -361,6 +363,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        [Test]
+        public async Task CanRemoveMethodWithGenericTypeConstraintParameter()
+        {
+            var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Create a generic type parameter T
+            var tType = typeof(GenericTemplate<>).GetGenericArguments()[0];
+
+            var methods = new[]
+            {
+                new MethodProvider(new MethodSignature(
+                        "Method1",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", tType)
+                        ],
+                        GenericArguments: [tType],
+                        GenericParameterConstraints: [Where.Implements(tType, typeof(IDisposable))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+            };
+            client.MethodProviders = methods;
+
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+        }
+
+        private class GenericTemplate<T> { }
+
         private class ClientTypeProvider : TypeProvider
         {
             public MethodProvider[] MethodProviders { get; set; } = [];
@@ -370,9 +409,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             protected override string BuildName() => "MockInputClient";
 
-            protected override MethodProvider[] BuildMethods() => MethodProviders;
+            protected internal override MethodProvider[] BuildMethods() => MethodProviders;
 
-            protected override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
 
         private class FooTypeProvider : TypeProvider

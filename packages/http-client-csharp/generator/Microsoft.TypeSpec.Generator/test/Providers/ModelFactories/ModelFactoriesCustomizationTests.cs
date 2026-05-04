@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanReplaceModelMethod()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+               inputNamespaceName: "Sample.Namespace",
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -98,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanChangeAccessibilityOfModelFactory()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -216,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 Assert.AreEqual("data", modelFactoryMethod.Signature.Parameters[0].Name);
                 Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
                 Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
-                        .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalData: null);"),
+                        .Contains("return new global::Sample.Models.MockInputModel(data.ToList(), prop1, additionalData: null);"),
                     modelFactoryMethod.BodyStatements!.ToDisplayString());
             }
             else

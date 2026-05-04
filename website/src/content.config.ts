@@ -1,6 +1,9 @@
 import { docsLoader } from "@astrojs/starlight/loaders";
 import { docsSchema } from "@astrojs/starlight/schema";
-import { defineCollection, z } from "astro:content";
+import { llmstxtSchema } from "@typespec/astro-utils/llmstxt/schema";
+import { glob } from "astro/loaders";
+import { z } from "astro/zod";
+import { defineCollection } from "astro:content";
 
 const authorSchema = z.object({
   name: z.string(),
@@ -20,12 +23,12 @@ export const collections = {
           .describe(
             "A date string or YAML date that is compatible with JavaScript's `new Date()` constructor.",
           ),
+        llmstxt: llmstxtSchema.optional(),
       }),
     }),
   }),
   blog: defineCollection({
-    type: "content",
-    // Type-check frontmatter using a schema
+    loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
     schema: z.object({
       slug: z.string().optional(),
       redirect_slug: z.string().optional(),

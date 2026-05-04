@@ -104,7 +104,7 @@ op listPets(): Pet[];
 #### `@info`
 
 Specify OpenAPI additional information.
-The service `title` and `version` are already specified using `@service`.
+The service `title` is already specified using `@service`.
 
 ```typespec
 @TypeSpec.OpenAPI.info(additionalInfo: valueof TypeSpec.OpenAPI.AdditionalInfo)
@@ -176,6 +176,7 @@ Specify OpenAPI additional information.
     `x-custom`: "string",
   }
 )
+@tagMetadata("Child Tag", #{ description: "Child tag description", parent: "Tag Name" })
 namespace PetStore {
 
 }

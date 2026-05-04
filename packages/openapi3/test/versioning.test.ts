@@ -2,9 +2,9 @@ import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { ApiTester, openApiForVersions } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
+worksFor(supportedVersions, ({ openApiFor, version: specVersion }) => {
   const TesterWithVersioning = ApiTester.importLibraries()
     .using("Http", "Rest", "Versioning")
     .emit("@typespec/openapi3", { "openapi-versions": [specVersion] });
@@ -216,6 +216,55 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
     `,
       );
+    });
+
+    // regression test for https://github.com/microsoft/typespec/issues/8769
+    it("supports example generation for union that contains enums", async () => {
+      const { v1 } = await openApiForVersions(
+        `        
+      namespace MyService {
+        enum Versions {
+          v1
+        }
+      }
+      
+      @versioned(Versions)
+      @service
+      namespace MyService {
+        enum Enum {
+          a: "a",
+          b: "b",
+        }
+      
+        model Foo {
+          entityType: "foo";
+        }
+      
+        model Bar {
+          entityType: "bar";
+          enumValue: Enum;
+        }
+      
+        @opExample(#{ returnType: #[#{ entityType: "bar", enumValue: Enum.a }] })
+        op testOp(): (Foo | Bar)[];
+      }
+    `,
+        ["v1"],
+      );
+
+      strictEqual(v1.info.version, "v1");
+      ok(v1.components?.schemas);
+      ok(v1.paths["/"].get);
+      ok(v1.paths["/"].get.responses);
+      ok("200" in v1.paths["/"].get.responses);
+      ok("content" in v1.paths["/"].get.responses["200"]);
+      ok(v1.paths["/"].get.responses["200"].content);
+      deepStrictEqual(v1.paths["/"].get?.responses["200"].content["application/json"].example, [
+        {
+          entityType: "bar",
+          enumValue: "a",
+        },
+      ]);
     });
   });
 });

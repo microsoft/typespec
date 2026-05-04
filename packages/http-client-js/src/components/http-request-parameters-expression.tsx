@@ -45,7 +45,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
             </>
           );
           return (
-            <NamePolicyContext.Provider value={{ getName: (n) => n }}>
+            <NamePolicyContext.Provider value={{ getName: (n) => n, for: () => (n) => n }}>
               <ts.ObjectProperty name={transportParamName} value={paramValue} />
             </NamePolicyContext.Provider>
           );

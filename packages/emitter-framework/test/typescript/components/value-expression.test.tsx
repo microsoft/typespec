@@ -1,4 +1,5 @@
-import { Output, render } from "@alloy-js/core";
+import { getProgram } from "#test/utils.js";
+import { Output } from "@alloy-js/core";
 import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import {
@@ -13,7 +14,6 @@ import {
 import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
-import { getProgram } from "../test-host.js";
 
 let program: Program;
 beforeAll(async () => {
@@ -221,23 +221,15 @@ it("renders enums", async () => {
  */
 async function testValueExpression(value: Value, expected: string) {
   const prefix = "const val = ";
-  const res = render(
+
+  expect(
     <Output>
       <SourceFile path="test.ts">
         {prefix}
         <ValueExpression value={value} />
       </SourceFile>
     </Output>,
-  );
-  const testFile = res.contents.find((file) => file.path === "test.ts");
-
-  assert.exists(testFile, "test.ts file not rendered");
-
-  assert.equal(
-    testFile.contents,
-    `${prefix}${expected}`,
-    "test.ts file contents do not match expected",
-  );
+  ).toRenderTo(`${prefix}${expected}`);
 }
 
 /**

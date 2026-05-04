@@ -21,7 +21,7 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormContent content = new();
             content.Add("id", Id);
-            content.Add("address", Address, ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
 
             foreach (var picture in Pictures)

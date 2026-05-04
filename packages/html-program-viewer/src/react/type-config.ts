@@ -39,6 +39,7 @@ const HiddenProps = [
   "instantiationParameters",
   "decorators",
   "isFinished",
+  "creating",
 ] as const;
 
 const HiddenPropsConfig = Object.fromEntries(HiddenProps.map((prop) => [prop, "skip"])) as Record<
@@ -56,6 +57,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     unions: "nested-items",
     enums: "nested-items",
     decoratorDeclarations: "nested-items",
+    functionDeclarations: "nested-items",
   },
   Interface: {
     operations: "nested-items",
@@ -147,6 +149,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   },
 
   // Don't want to expose those for now
+  FunctionType: null,
   Intrinsic: null,
 });
 

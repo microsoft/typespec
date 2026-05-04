@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel }) => {
   it("throws diagnostics for empty enum definitions", async () => {
     const diagnostics = await diagnoseOpenApiFor(`enum PetType {}`);
 

@@ -56,6 +56,7 @@ import { writeOutput } from "@typespec/emitter-framework";
 
 export async function $onEmit(context: EmitContext) {
   await writeOutput(
+    context.program,
     <Output>
       <SourceDirectory path="src" />
       <SourceFile path="README.md" filetype="md">

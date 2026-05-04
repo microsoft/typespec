@@ -34,7 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ChangeTrackingDictionaryDefinition()
         {
-            WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
             _IDictionary = new CSharpType(typeof(IDictionary<,>), _tKey, _tValue);
             _dictionary = new CSharpType(typeof(Dictionary<,>), _tKey, _tValue);
@@ -46,6 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, []);
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
+
+        protected override WhereExpression BuildWhereClause() => Where.NotNull(_tKey);
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -61,17 +62,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [_tKey, _tValue];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_innerDictionaryField];
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
         {
             return [_IDictionary, _IReadOnlyDictionary];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             return
             [
@@ -122,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new ConstructorProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return new PropertyProvider[]
             {
@@ -226,7 +227,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(name, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return new MethodProvider[]
             {
@@ -257,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     value.Assign(Default).Terminate(),
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))
+                Return(EnsureDictionary.Invoke("TryGetValue", key, value.AsArgument()))
             },
             this);
         }

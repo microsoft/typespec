@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,6 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputModelTypeConverter : JsonConverter<InputModelType>
     {
+        private const string DynamicModelDecorator = "TypeSpec.HttpClient.CSharp.@dynamicModel";
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public InputModelTypeConverter(TypeSpecReferenceHandler referenceHandler)
@@ -50,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
                 modelAsStruct: false,
-                serializationOptions: null!);
+                serializationOptions: null!,
+                isDynamicModel: false);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -60,15 +63,16 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             string? usageString = null;
-            InputProperty? discriminatorProperty = null;
+            InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
             InputType? additionalProperties = null;
             InputModelType? baseModel = null;
-            IReadOnlyList<InputProperty>? properties = null;
+            IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
+            InputExternalTypeMetadata? external = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -89,6 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("discriminatedSubtypes", options, ref discriminatedSubtypes)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
+                    || reader.TryReadComplexType("external", options, ref external)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -105,6 +110,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Summary = summary;
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
+
+            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml))
+            {
+                parsedUsage |= InputModelTypeUsage.Json;
+            }
             model.Usage = parsedUsage;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
@@ -127,7 +137,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (decorators != null)
             {
                 model.Decorators = decorators;
+                if (model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator)))
+                {
+                    MarkModelsAsDynamicRecursive(model, []);
+                }
             }
+            model.External = external;
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
@@ -136,6 +151,76 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             return model;
+        }
+
+        private static void MarkModelsAsDynamicRecursive(InputType inputType, HashSet<InputType> visited)
+        {
+            if (!visited.Add(inputType))
+            {
+                return;
+            }
+
+            if (inputType is InputModelType modelType)
+            {
+                modelType.IsDynamicModel = true;
+
+                // Mark all derived/discriminated models as dynamic
+                foreach (var derivedModel in modelType.DerivedModels)
+                {
+                    MarkModelsAsDynamicRecursive(derivedModel, visited);
+                }
+                foreach (var discriminatedModel in modelType.DiscriminatedSubtypes.Values)
+                {
+                    MarkModelsAsDynamicRecursive(discriminatedModel, visited);
+                }
+
+                // Mark the base discriminated model as dynamic
+                var baseModel = modelType.BaseModel;
+                if (baseModel?.DiscriminatorProperty != null || baseModel?.DiscriminatorValue != null)
+                {
+                    MarkModelsAsDynamicRecursive(baseModel, visited);
+                }
+
+                foreach (var property in modelType.Properties)
+                {
+                    switch (property.Type)
+                    {
+                        case InputModelType propertyType:
+                            MarkModelsAsDynamicRecursive(propertyType, visited);
+                            break;
+                        case InputArrayType arrayType:
+                            MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
+                            break;
+                        case InputDictionaryType dictionaryType:
+                            MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
+                            break;
+                        case InputNullableType nullableType:
+                            MarkModelsAsDynamicRecursive(nullableType.Type, visited);
+                            break;
+                        case InputUnionType unionType:
+                            foreach (var type in unionType.VariantTypes)
+                            {
+                                MarkModelsAsDynamicRecursive(type, visited);
+                            }
+                            break;
+                    }
+                }
+            }
+            else if (inputType is InputUnionType unionType)
+            {
+                foreach (var type in unionType.VariantTypes)
+                {
+                    MarkModelsAsDynamicRecursive(type, visited);
+                }
+            }
+            else if (inputType is InputArrayType arrayType)
+            {
+                MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
+            }
+            else if (inputType is InputDictionaryType dictionaryType)
+            {
+                MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
+            }
         }
     }
 }

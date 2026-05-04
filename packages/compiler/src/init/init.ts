@@ -3,6 +3,7 @@ import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
+import { parseCliArgsArgOption } from "../core/cli/utils.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
@@ -11,13 +12,17 @@ import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
-import { EmitterTemplate, InitTemplate } from "./init-template.js";
+import { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
 import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
   readonly templatesUrl?: string;
   readonly template?: string;
+  readonly "no-prompt"?: boolean;
+  readonly args?: string[];
+  readonly "project-name"?: string;
+  readonly emitters?: string[];
 }
 
 export async function initTypeSpecProject(
@@ -41,9 +46,10 @@ export async function initTypeSpecProjectWorker(
   directory: string,
   options: InitTypeSpecProjectOptions = {},
 ) {
+  const skipPrompts = options["no-prompt"] ?? false;
   whiteline();
 
-  if (!(await confirmDirectoryEmpty(directory))) {
+  if (!skipPrompts && !(await confirmDirectoryEmpty(directory))) {
     return;
   }
 
@@ -55,11 +61,26 @@ export async function initTypeSpecProjectWorker(
   const result =
     options.templatesUrl === undefined
       ? (typeSpecCoreTemplates as LoadedTemplate)
-      : await downloadTemplates(host, options.templatesUrl);
+      : await downloadTemplates(host, options.templatesUrl, skipPrompts);
+  if (skipPrompts && !options.template) {
+    // A template has to be defined if we're skipping prompts
+    throw new Error(
+      `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: ${Object.keys(
+        result.templates,
+      )
+        .map((t) => `"${t}"`)
+        .join(", ")}`,
+    );
+  }
   const templateName = options.template ?? (await promptTemplateSelection(result.templates));
+
+  if (!result.templates[templateName]) {
+    throw new Error(`Unexpected error: Cannot find template ${templateName}`);
+  }
 
   // Validate minimum compiler version for non built-in templates
   if (
+    !skipPrompts &&
     result !== typeSpecCoreTemplates &&
     !(await validateTemplate(result.templates[templateName], result))
   ) {
@@ -67,13 +88,10 @@ export async function initTypeSpecProjectWorker(
   }
 
   const template = result.templates[templateName] as InitTemplate;
-  const name = await input({
-    message: `Enter a project name:`,
-    default: folderName,
-  });
+  const name = await resolveProjectName(folderName, options);
 
-  const emitters = await selectEmitters(template);
-  const parameters = await promptCustomParameters(template);
+  const emitters = await selectEmitters(template, options);
+  const parameters = await promptCustomParameters(template, options);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
     baseUri: result.baseUri,
     name,
@@ -132,22 +150,61 @@ export async function initTypeSpecProjectWorker(
   }
 }
 
-async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
+async function resolveProjectName(
+  defaultName: string,
+  options: InitTypeSpecProjectOptions,
+): Promise<string> {
+  defaultName = options["project-name"] ?? defaultName;
+
+  if (options["no-prompt"]) return defaultName;
+  return input({
+    message: `Enter a project name:`,
+    default: defaultName,
+  });
+}
+
+async function promptCustomParameters(
+  template: InitTemplate,
+  options: InitTypeSpecProjectOptions,
+): Promise<Record<string, any>> {
   if (!template.inputs) {
     return {};
   }
 
+  const skipPrompts = options["no-prompt"] ?? false;
+
   const results: Record<string, string> = {};
+
   for (const [name, templateInput] of Object.entries(template.inputs)) {
-    if (templateInput.type === "text") {
-      results[name] = await input({
-        message: templateInput.description,
-        default: templateInput.initialValue,
-      });
+    const value = await resolveCustomParameter(templateInput, name, options);
+    if (typeof value === "undefined") {
+      throw new Error(
+        `Missing value for parameter "${name}".${skipPrompts ? ` Provide it using --args ${name}=value` : ""}`,
+      );
     }
+
+    results[name] = value;
   }
 
   return results;
+}
+
+async function resolveCustomParameter(
+  templateInput: InitTemplateInput,
+  name: string,
+  options: InitTypeSpecProjectOptions,
+): Promise<string> {
+  const suppliedArgs = parseCliArgsArgOption(options.args);
+  const defaultValue = suppliedArgs[name] ?? templateInput.initialValue;
+
+  if (options["no-prompt"]) {
+    return defaultValue;
+  }
+
+  return input({
+    message: templateInput.description,
+    default: defaultValue,
+  });
 }
 
 async function isDirectoryEmpty(directory: string) {
@@ -194,11 +251,15 @@ export interface LoadedTemplate {
   readonly templates: Record<string, InitTemplate>;
   readonly file: SourceFile;
 }
-async function downloadTemplates(host: CompilerHost, url: string): Promise<LoadedTemplate> {
+async function downloadTemplates(
+  host: CompilerHost,
+  url: string,
+  skipCheck: boolean,
+): Promise<LoadedTemplate> {
   warning(
     `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
   );
-  if (!(await confirm("Continue"))) {
+  if (!skipCheck && !(await confirm("Continue"))) {
     process.exit(1);
   }
   let file: SourceFile;
@@ -259,11 +320,6 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
     process.exit(1);
   }
 
-  const template = templates[templateName];
-  if (!template) {
-    throw new Error(`Unexpected error: Cannot find template ${templateName}`);
-  }
-
   return templateName;
 }
 
@@ -313,41 +369,52 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
   return true;
 }
 
-async function selectEmitters(template: InitTemplate): Promise<Record<string, EmitterTemplate>> {
+async function selectEmitters(
+  template: InitTemplate,
+  options: InitTypeSpecProjectOptions,
+): Promise<Record<string, EmitterTemplate>> {
   if (!template.emitters) {
     return {};
   }
 
   const emittersList = Object.entries(template.emitters);
+  const suppliedEmitters = options.emitters ?? [];
 
-  const maxLabelLength = emittersList.reduce(
-    (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
-    0,
-  );
-  const emitters = await checkbox({
-    message: "What emitters do you want to use?:",
-    choices: emittersList.map(([name, emitter]) => {
-      return {
-        value: name,
-        name: emitter.label
-          ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
-          : name,
-        description: emitter.description,
-        checked: emitter.selected ?? false,
-      };
-    }),
-    theme: {
-      style: {
-        renderSelectedChoices: (choices: ReadonlyArray<any>) => {
-          if (choices.length === 0) {
-            return "None selected.";
-          } else {
-            return `${choices.map((x) => x.value).join(", ")}`;
-          }
+  let emitters: string[] = [];
+  if (options["no-prompt"]) {
+    emitters = emittersList
+      .filter(([name, emitter]) => emitter.selected || suppliedEmitters.includes(name))
+      .map(([name]) => name);
+  } else {
+    const maxLabelLength = emittersList.reduce(
+      (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
+      0,
+    );
+    emitters = await checkbox({
+      message: "What emitters do you want to use?:",
+      choices: emittersList.map(([name, emitter]) => {
+        return {
+          value: name,
+          name: emitter.label
+            ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
+            : name,
+          description: emitter.description,
+          checked: emitter.selected ?? suppliedEmitters.includes(name),
+        };
+      }),
+      theme: {
+        style: {
+          renderSelectedChoices: (choices: ReadonlyArray<any>) => {
+            if (choices.length === 0) {
+              return "None selected.";
+            } else {
+              return `${choices.map((x) => x.value).join(", ")}`;
+            }
+          },
         },
       },
-    },
-  });
+    });
+  }
 
   const selectedEmitters = [...Object.entries(template.emitters)].filter(([key, value], index) =>
     emitters.includes(key),

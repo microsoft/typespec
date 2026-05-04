@@ -5,15 +5,19 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal class InputOperationExample
+    public class InputOperationExample
     {
-        public InputOperationExample(InputOperation operation, IReadOnlyList<InputParameterExample> parameters)
+        public InputOperationExample(string name, string? description, IReadOnlyList<InputParameterExample> parameters, string filePath)
         {
-            Operation = operation;
+            Name = name;
+            Description = description;
             Parameters = parameters;
+            FilePath = filePath;
         }
 
-        public InputOperation Operation { get; }
+        public string Name { get; }
+        public string? Description { get; }
         public IReadOnlyList<InputParameterExample> Parameters { get; }
+        public string FilePath { get; }
     }
 }

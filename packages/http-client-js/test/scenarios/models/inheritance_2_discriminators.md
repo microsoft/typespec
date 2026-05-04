@@ -58,7 +58,7 @@ export async function getModel(
 ```
 
 ```ts src/models/internal/serializers.ts
-import { Fish, GoblinShark, Salmon, SawShark, Shark } from "../models.js";
+import type { Fish, GoblinShark, Salmon, SawShark, Shark } from "../models.js";
 
 export function decodeBase64(value: string): Uint8Array | undefined {
   if (!value) {

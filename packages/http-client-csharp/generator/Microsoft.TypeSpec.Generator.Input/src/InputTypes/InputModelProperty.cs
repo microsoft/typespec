@@ -1,11 +1,28 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputModelProperty : InputProperty
     {
-        public InputModelProperty(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool isDiscriminator, string serializedName, InputSerializationOptions serializationOptions) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
+        public InputModelProperty(
+            string name,
+            string? summary,
+            string? doc,
+            InputType type,
+            bool isRequired,
+            bool isReadOnly,
+            string? access,
+            bool isDiscriminator,
+            string serializedName,
+            bool isHttpMetadata,
+            bool isApiVersion,
+            InputConstant? defaultValue,
+            InputSerializationOptions serializationOptions,
+            ArrayKnownEncoding? encode = null)
+            : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
             Summary = summary;
@@ -14,11 +31,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             IsDiscriminator = isDiscriminator;
+            IsHttpMetadata = isHttpMetadata;
             SerializationOptions = serializationOptions;
+            Encode = encode;
         }
 
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
+        public bool IsHttpMetadata { get; internal set; }
+        public ArrayKnownEncoding? Encode { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.
@@ -43,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? access = null,
             bool? isDiscriminator = null,
             string? serializedName = null,
+            bool? isHttpMetadata = null,
             InputSerializationOptions? serializationOptions = null)
         {
             if (name != null)
@@ -83,6 +105,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (isDiscriminator.HasValue)
             {
                 IsDiscriminator = isDiscriminator.Value;
+            }
+
+            if (isHttpMetadata.HasValue)
+            {
+                IsHttpMetadata = isHttpMetadata.Value;
             }
 
             if (serializedName != null)

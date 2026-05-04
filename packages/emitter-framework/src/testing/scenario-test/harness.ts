@@ -198,7 +198,12 @@ function describeScenarios(
               );
 
               if (SCENARIOS_UPDATE) {
-                testBlock.content = await languageConfiguration.format(result);
+                try {
+                  testBlock.content = await languageConfiguration.format(result);
+                } catch {
+                  // If formatting fails, we still want to update the content
+                  testBlock.content = result;
+                }
               } else {
                 const expected = await languageConfiguration.format(testBlock.content);
                 const actual = await languageConfiguration.format(result);

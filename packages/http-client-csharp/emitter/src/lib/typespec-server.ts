@@ -2,29 +2,36 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { getClientType } from "@azure-tools/typespec-client-generator-core";
-import { getDoc, getSummary, Value } from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
+  Diagnostic,
+  getDoc,
+  getSummary,
+  Value,
+} from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputConstant } from "../type/input-constant.js";
-import { InputParameterKind } from "../type/input-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
+import { InputParameterScope } from "../type/input-parameter-scope.js";
+import { InputEndpointParameter, InputType } from "../type/input-type.js";
 import { fromSdkType } from "./type-converter.js";
 
 export interface TypeSpecServer {
   url: string;
   description?: string;
-  parameters: InputParameter[];
+  parameters: InputEndpointParameter[];
 }
 
 export function resolveServers(
   sdkContext: CSharpEmitterContext,
   servers: HttpServer[],
-): TypeSpecServer[] {
-  return servers.map((server) => {
-    const parameters: InputParameter[] = [];
+): [TypeSpecServer[], readonly Diagnostic[]] {
+  // Create a diagnostics collector for internal use
+  const diagnostics = createDiagnosticCollector();
+
+  const result = servers.map((server) => {
+    const parameters: InputEndpointParameter[] = [];
     let url: string = server.url;
     const endpoint: string = url.replace("http://", "").replace("https://", "").split("/")[0];
     for (const [name, prop] of server.parameters) {
@@ -37,7 +44,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(sdkContext, getClientType(sdkContext, prop));
+        : diagnostics.pipe(fromSdkType(sdkContext, getClientType(sdkContext, prop)));
 
       if (value) {
         defaultValue = {
@@ -45,46 +52,44 @@ export function resolveServers(
           value: value,
         };
       }
-      const variable: InputParameter = {
+      const variable: InputEndpointParameter = {
+        kind: "endpoint",
         name: name,
-        nameInRequest: name,
+        serializedName: name,
         summary: getSummary(sdkContext.program, prop),
         doc: getDoc(sdkContext.program, prop),
         type: inputType,
-        location: RequestLocation.Uri,
         isApiVersion: name.toLowerCase() === "apiversion" || name.toLowerCase() === "api-version",
-        isContentType: false,
-        isRequired: true,
         isEndpoint: isEndpoint,
+        optional: false,
         skipUrlEncoding:
           // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
           getExtensions(sdkContext.program, prop).get("x-ms-skip-url-encoding") === true,
-        explode: false,
-        kind: InputParameterKind.Client,
+        scope: InputParameterScope.Client,
         defaultValue: defaultValue,
+        readOnly: false,
+        crossLanguageDefinitionId: "",
       };
 
       parameters.push(variable);
     }
     /* add default server. */
     if (server.url && parameters.length === 0) {
-      const variable: InputParameter = {
+      const variable: InputEndpointParameter = {
+        kind: "endpoint",
         name: "host",
-        nameInRequest: "host",
+        serializedName: "host",
         doc: server.description,
         type: {
           kind: "string",
           name: "string",
           crossLanguageDefinitionId: "TypeSpec.string",
         },
-        location: RequestLocation.Uri,
         isApiVersion: false,
-        isContentType: false,
-        isRequired: true,
+        optional: false,
         isEndpoint: true,
         skipUrlEncoding: false,
-        explode: false,
-        kind: InputParameterKind.Client,
+        scope: InputParameterScope.Client,
         defaultValue: {
           type: {
             kind: "string",
@@ -93,6 +98,8 @@ export function resolveServers(
           },
           value: server.url,
         } as InputConstant,
+        readOnly: false,
+        crossLanguageDefinitionId: "",
       };
       url = `{host}`;
       parameters.push(variable);
@@ -103,6 +110,8 @@ export function resolveServers(
       parameters,
     };
   });
+
+  return diagnostics.wrap(result);
 }
 
 function getDefaultValue(value: Value): any {

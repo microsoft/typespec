@@ -108,8 +108,8 @@ public class ArrayType implements IType {
     public String jsonSerializationMethodCall(String jsonWriterName, String fieldName, String valueGetter,
         boolean jsonMergePatch) {
         return fieldName == null
-            ? String.format("%s.writeBinary(%s)", jsonWriterName, valueGetter)
-            : String.format("%s.writeBinaryField(\"%s\", %s)", jsonWriterName, fieldName, valueGetter);
+            ? jsonWriterName + ".writeBinary(" + valueGetter + ")"
+            : jsonWriterName + ".writeBinaryField(\"" + fieldName + "\", " + valueGetter + ")";
     }
 
     @Override

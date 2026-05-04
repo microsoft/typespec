@@ -32,7 +32,7 @@ describe("Test encode duration", () => {
     // validate method parameter
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const methodParamArray = root.clients[0].methods[0].parameters;
     strictEqual(1, methodParamArray.length);
     let type = methodParamArray[0].type;
@@ -74,7 +74,7 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     // validate method parameter
     const methodParamArray = root.clients[0].methods[0].parameters;
     strictEqual(1, methodParamArray.length);
@@ -117,7 +117,7 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     // validate method parameter
     const methodParamArray = root.clients[0].methods[0].parameters;
     strictEqual(1, methodParamArray.length);
@@ -161,7 +161,7 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "ISO8601DurationProperty");
     ok(durationModel);
@@ -190,7 +190,7 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "Int32SecondsDurationProperty");
     ok(durationModel);
@@ -219,7 +219,7 @@ describe("Test encode duration", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "FloatSecondsDurationProperty");
     ok(durationModel);

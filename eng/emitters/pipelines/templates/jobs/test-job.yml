@@ -21,7 +21,7 @@ parameters:
   # Node version
   - name: NodeVersion
     type: string
-    default: "20.x"
+    default: "24.x"
 
   # Operation system to use
   - name: Os
@@ -51,6 +51,10 @@ parameters:
   - name: PythonVersion
     type: string
     default: "3.12"
+
+  - name: UseTypeSpecNext
+    type: boolean
+    default: false
 
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
@@ -83,6 +87,7 @@ jobs:
           CadlRanchName: ${{ parameters.CadlRanchName }}
           EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
           PythonVersion: ${{ parameters.PythonVersion }}
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:

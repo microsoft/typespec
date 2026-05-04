@@ -8,6 +8,7 @@ using System.ClientModel.Primitives;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Payload.MultiPart._FormData.File;
 using Payload.MultiPart._FormData.HttpParts;
 using Payload.MultiPart.Models;
 

@@ -4,7 +4,7 @@ import { runPython3 } from "./run-python3.js";
 async function main() {
   await runPython3("./eng/scripts/setup/build_pygen_wheel.py");
   // remove the venv_build_wheel directory
-  exec("rimraf ./venv_build_wheel", (error, stdout, stderr) => {
+  exec("rimraf ./venv_build_wheel", (error, stdout, _stderr) => {
     if (error) {
       console.error(`Error executing command: ${error.message}`); // eslint-disable-line no-console
       return;

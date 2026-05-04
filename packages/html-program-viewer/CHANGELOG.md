@@ -1,5 +1,77 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9617](https://github.com/microsoft/typespec/pull/9617) Fix type graph viewer to display Symbol-keyed decorator state
+
+
+## 0.79.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Features
+
+- [#8013](https://github.com/microsoft/typespec/pull/8013) Add button to bookmark types in the type graph into `window.vars`
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7899](https://github.com/microsoft/typespec/pull/7899) Handle new `creating` property
+
+
 ## 0.72.0
 
 ### Features

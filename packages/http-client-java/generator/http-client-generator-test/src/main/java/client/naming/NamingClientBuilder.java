@@ -43,10 +43,14 @@ import java.util.Objects;
 @ServiceClientBuilder(
     serviceClients = {
         NamingClient.class,
-        ClientModelClient.class,
+        PropertyClient.class,
+        HeaderClient.class,
+        ModelClient.class,
         UnionEnumClient.class,
         NamingAsyncClient.class,
-        ClientModelAsyncClient.class,
+        PropertyAsyncClient.class,
+        HeaderAsyncClient.class,
+        ModelAsyncClient.class,
         UnionEnumAsyncClient.class })
 public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>,
     ConfigurationTrait<NamingClientBuilder>, EndpointTrait<NamingClientBuilder> {
@@ -281,13 +285,33 @@ public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>
     }
 
     /**
-     * Builds an instance of ClientModelAsyncClient class.
+     * Builds an instance of PropertyAsyncClient class.
      * 
-     * @return an instance of ClientModelAsyncClient.
+     * @return an instance of PropertyAsyncClient.
      */
     @Generated
-    public ClientModelAsyncClient buildClientModelAsyncClient() {
-        return new ClientModelAsyncClient(buildInnerClient().getClientModels());
+    public PropertyAsyncClient buildPropertyAsyncClient() {
+        return new PropertyAsyncClient(buildInnerClient().getProperties());
+    }
+
+    /**
+     * Builds an instance of HeaderAsyncClient class.
+     * 
+     * @return an instance of HeaderAsyncClient.
+     */
+    @Generated
+    public HeaderAsyncClient buildHeaderAsyncClient() {
+        return new HeaderAsyncClient(buildInnerClient().getHeaders());
+    }
+
+    /**
+     * Builds an instance of ModelAsyncClient class.
+     * 
+     * @return an instance of ModelAsyncClient.
+     */
+    @Generated
+    public ModelAsyncClient buildModelAsyncClient() {
+        return new ModelAsyncClient(buildInnerClient().getModelClients());
     }
 
     /**
@@ -311,13 +335,33 @@ public final class NamingClientBuilder implements HttpTrait<NamingClientBuilder>
     }
 
     /**
-     * Builds an instance of ClientModelClient class.
+     * Builds an instance of PropertyClient class.
      * 
-     * @return an instance of ClientModelClient.
+     * @return an instance of PropertyClient.
      */
     @Generated
-    public ClientModelClient buildClientModelClient() {
-        return new ClientModelClient(buildInnerClient().getClientModels());
+    public PropertyClient buildPropertyClient() {
+        return new PropertyClient(buildInnerClient().getProperties());
+    }
+
+    /**
+     * Builds an instance of HeaderClient class.
+     * 
+     * @return an instance of HeaderClient.
+     */
+    @Generated
+    public HeaderClient buildHeaderClient() {
+        return new HeaderClient(buildInnerClient().getHeaders());
+    }
+
+    /**
+     * Builds an instance of ModelClient class.
+     * 
+     * @return an instance of ModelClient.
+     */
+    @Generated
+    public ModelClient buildModelClient() {
+        return new ModelClient(buildInnerClient().getModelClients());
     }
 
     /**

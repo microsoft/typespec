@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+paths:
+  /:
+    get:
+      operationId: extensive
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateSpeechResponseStreamEvent"
+        4XX:
+          description: Client error
+        5XX:
+          description: Server error
+components:
+  schemas:
+    CreateSpeechResponseStreamEvent:
+      anyOf:
+        - $ref: "#/components/schemas/SpeechAudioDeltaEvent"
+        - $ref: "#/components/schemas/SpeechAudioDoneEvent"
+      discriminator:
+        propertyName: type
+    SpeechAudioDeltaEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - speech.audio.delta
+        audio:
+          type: string
+    SpeechAudioDoneEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - speech.audio.done

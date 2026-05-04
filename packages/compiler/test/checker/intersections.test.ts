@@ -1,28 +1,17 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
-import { Model, ModelProperty } from "../../src/index.js";
-import {
-  BasicTestRunner,
-  createTestHost,
-  createTestWrapper,
-  expectDiagnostics,
-  extractSquiggles,
-} from "../../src/testing/index.js";
+import { describe, expect, it } from "vitest";
+import { SyntaxKind } from "../../src/core/types.js";
+import { Model } from "../../src/index.js";
+import { expectDiagnostics, extractSquiggles, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: intersections", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    const host = await createTestHost();
-    runner = createTestWrapper(host);
-  });
-
   it("intersect 2 models", async () => {
-    const { prop } = (await runner.compile(`
+    const { prop } = await Tester.compile(t.code`
       model Foo {
-        @test prop: {a: string} & {b: string};
+        ${t.modelProperty("prop")}: {a: string} & {b: string};
       }
-    `)) as { prop: ModelProperty };
+    `);
 
     const propType = prop.type;
     strictEqual(propType.kind, "Model");
@@ -32,28 +21,25 @@ describe("compiler: intersections", () => {
   });
 
   it("keeps reference to source model in sourceModels", async () => {
-    const { A, B, prop } = (await runner.compile(`
-      @test model A { one: string }
-      @test model B { two: string }
-      model Foo {
-        @test prop: A & B;
-      }
-      `)) as {
-      A: Model;
-      B: Model;
-      prop: ModelProperty;
-    };
-    const intersection = prop.type;
+    const { A, B, intersection, pos } = await Tester.compile(t.code`
+      model ${t.model("A")} { one: string }
+      model ${t.model("B")} { two: string }
+      alias ${t.model("intersection")} = /*ASource*/A & /*BSource*/B;
+      `);
     strictEqual(intersection.kind, "Model");
     expect(intersection.sourceModels).toHaveLength(2);
     strictEqual(intersection.sourceModels[0].model, A);
     strictEqual(intersection.sourceModels[0].usage, "intersection");
+    strictEqual(intersection.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+    strictEqual(intersection.sourceModels[0].node.pos, pos.ASource.pos);
     strictEqual(intersection.sourceModels[1].model, B);
     strictEqual(intersection.sourceModels[1].usage, "intersection");
+    strictEqual(intersection.sourceModels[1].node?.kind, SyntaxKind.TypeReference);
+    strictEqual(intersection.sourceModels[1].node.pos, pos.BSource.pos);
   });
 
   it("intersection type belong to namespace it is declared in", async () => {
-    const { Foo } = (await runner.compile(`
+    const { Foo } = await Tester.compile(t.code`
       namespace A {
         model ModelA {name: string}
       }
@@ -61,11 +47,11 @@ describe("compiler: intersections", () => {
         model ModelB {age: int32}
       }
       namespace C {
-        @test model Foo {
+        model ${t.model("Foo")} {
           prop: A.ModelA & B.ModelB;
         }
       }
-    `)) as { Foo: Model };
+    `);
 
     const prop = Foo.properties.get("prop")!.type as Model;
     strictEqual(prop.kind, "Model");
@@ -74,14 +60,14 @@ describe("compiler: intersections", () => {
   });
 
   it("allow intersections of template params", async () => {
-    const { Foo } = (await runner.compile(`
+    const { Foo } = await Tester.compile(t.code`
       model Bar<A, B> {
         prop: A & B;
       }
-      @test model Foo {
+      model ${t.model("Foo")} {
         prop: Bar<{a: string}, {b: string}>;
       }
-    `)) as { Foo: Model };
+    `);
 
     const Bar = Foo.properties.get("prop")!.type as Model;
     const prop = Bar.properties.get("prop")!.type as Model;
@@ -93,17 +79,51 @@ describe("compiler: intersections", () => {
 
   it("emit diagnostic if one of the intersected type is not a model", async () => {
     const { source, pos, end } = extractSquiggles(`
-      @test model Foo {
+      model Foo {
         prop: {a: string} & ~~~"string literal"~~~
       }
     `);
 
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "intersect-non-model",
       message: "Cannot intersect non-model types (including union types).",
       pos,
       end,
     });
+  });
+});
+
+// https://github.com/microsoft/typespec/issues/2826
+describe("ensure the target model is completely resolved before intersecting", () => {
+  it("declared before", async () => {
+    const { A } = await Tester.compile(t.code`
+      model ${t.model("A")} { ...Alias }
+
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
+  });
+
+  it("declared after", async () => {
+    const { A } = await Tester.compile(t.code`
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+      model ${t.model("A")} { ...Alias }
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
   });
 });

@@ -16,18 +16,18 @@ namespace Microsoft.TypeSpec.Generator
     internal class PostProcessor
     {
         private readonly string? _modelFactoryFullName;
-        private readonly string? _aspExtensionClassName;
+        private readonly HashSet<string> _additionalNonRootTypeNames;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
-            string? aspExtensionClassName = null)
+            IEnumerable<string>? additionalNonRootTypeNames = null)
         {
             _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
-            _aspExtensionClassName = aspExtensionClassName;
+            _additionalNonRootTypeNames = new HashSet<string>(additionalNonRootTypeNames ?? []);
         }
 
         private record TypeSymbols(
@@ -54,10 +54,9 @@ namespace Microsoft.TypeSpec.Generator
             var documentCache = new Dictionary<Document, HashSet<INamedTypeSymbol>>();
 
             if (_modelFactoryFullName != null)
+            {
                 _modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
-            INamedTypeSymbol? aspDotNetExtensionSymbol = null;
-            if (_aspExtensionClassName != null)
-                aspDotNetExtensionSymbol = compilation.GetTypeByMetadataName(_aspExtensionClassName);
+            }
 
             foreach (var document in project.Documents)
             {
@@ -65,7 +64,9 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     var root = await document.GetSyntaxRootAsync();
                     if (root == null)
+                    {
                         continue;
+                    }
 
                     var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
 
@@ -73,22 +74,30 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         var symbol = semanticModel.GetDeclaredSymbol(typeDeclaration);
                         if (symbol == null)
+                        {
                             continue;
-                        if (CodeModelGenerator.Instance.TypesToKeepPublic.Contains(symbol.Name))
-                            continue; //skip types that are explicitly marked to keep public
+                        }
 
                         if (publicOnly && symbol.DeclaredAccessibility != Accessibility.Public &&
                             !document.Name.StartsWith("Internal/", StringComparison.Ordinal))
+                        {
                             continue;
-
-                        // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
-                        if (!SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
-                            && !SymbolEqualityComparer.Default.Equals(symbol, aspDotNetExtensionSymbol))
-                            result.Add(symbol);
+                        }
 
                         AddInList(declarationCache, symbol, typeDeclaration);
                         AddInList(documentCache, document, symbol,
                             () => new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+
+                        // we do not add the model factory and additionalNonRootTypeSymbols to the declared symbol list
+                        // so that it will never be included in any process of internalization or removal
+                        if (SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
+                            || _additionalNonRootTypeNames.Contains(symbol.Name)
+                            || _additionalNonRootTypeNames.Contains(symbol.GetFullyQualifiedName()))
+                        {
+                            continue;
+                        }
+
+                        result.Add(symbol);
                     }
                 }
             }
@@ -341,6 +350,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             // accumulate the definitions from the same document together
             var documents = new Dictionary<Document, HashSet<BaseTypeDeclarationSyntax>>();
+
             foreach (var model in unusedModels)
             {
                 var document = project.GetDocument(model.SyntaxTree);
@@ -356,8 +366,8 @@ namespace Microsoft.TypeSpec.Generator
                 project = await RemoveModelsFromDocumentAsync(project, models);
             }
 
-            // remove what are now invalid usings due to the models being removed
-            project = await RemoveInvalidUsings(project);
+            // remove what are now invalid references due to the models being removed
+            project = await RemoveInvalidRefs(project);
 
             return project;
         }
@@ -403,39 +413,124 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private async Task<Project> RemoveInvalidUsings(Project project)
+        private async Task<Project> RemoveInvalidRefs(Project project)
         {
             var solution = project.Solution;
+
+            // Process each document for invalid usings
             foreach (var documentId in project.DocumentIds)
             {
-                var document = solution.GetDocument(documentId)!;
-                var root = await document.GetSyntaxRootAsync();
-                var model = await document.GetSemanticModelAsync();
+                solution = await RemoveInvalidUsings(solution, documentId);
+            }
 
-                if (root is not CompilationUnitSyntax cu || model == null)
-                {
-                    continue;
-                }
-
-                var invalidUsings = cu.Usings
-                    .Where(u =>
-                    {
-                        var info = model.GetSymbolInfo(u.Name!);
-                        var sym  = info.Symbol;
-                        return sym is null || sym.Kind != SymbolKind.Namespace;
-                    })
-                    .ToList();
-
-                if (invalidUsings.Count == 0)
-                {
-                    continue;
-                }
-
-                var cleaned = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia);
-                solution = solution.WithDocumentSyntaxRoot(documentId, cleaned!);
+            // Process each document for invalid attributes (with fresh semantic models)
+            foreach (var documentId in project.DocumentIds)
+            {
+                solution = await RemoveInvalidAttributes(solution, documentId);
             }
 
             return solution.GetProject(project.Id)!;
+        }
+
+        private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root is not CompilationUnitSyntax cu || model == null)
+                return solution;
+
+            var invalidUsings = cu.Usings
+                .Where(u =>
+                {
+                    var info = model.GetSymbolInfo(u.Name!);
+                    var sym = info.Symbol;
+                    return sym is null || sym.Kind != SymbolKind.Namespace;
+                })
+                .ToList();
+
+            if (invalidUsings.Count > 0)
+            {
+                cu = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+                solution = solution.WithDocumentSyntaxRoot(documentId, cu);
+            }
+
+            return solution;
+        }
+
+        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root is not CompilationUnitSyntax cu || model == null)
+                return solution;
+
+            var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
+            var firstAttribute = attributes.FirstOrDefault();
+
+            var invalidAttributes = attributes
+                .Where(attr => attr.Attributes.Any(attribute =>
+                    attribute.ArgumentList?.Arguments.Any(arg =>
+                        arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
+                        model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
+                .ToHashSet();
+
+            if (invalidAttributes.Count > 0)
+            {
+                cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+
+                if (invalidAttributes.Contains(firstAttribute!))
+                {
+                    var leadingTrivia = firstAttribute!.GetLeadingTrivia();
+                    // Find where XML docs end and indentation begins
+                    var xmlDocTrivia = new List<SyntaxTrivia>();
+                    var lastXmlIndex = -1;
+
+                    for (int i = 0; i < leadingTrivia.Count; i++)
+                    {
+                        var trivia = leadingTrivia[i];
+                        if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
+                        {
+                            lastXmlIndex = i;
+                        }
+                    }
+
+                    // Collect trivia up to and including the last XML doc line's newline
+                    if (lastXmlIndex >= 0)
+                    {
+                        for (int i = 0; i <= lastXmlIndex; i++)
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[i]);
+                        }
+
+                        // Include the newline after the last XML doc if present
+                        if (lastXmlIndex + 1 < leadingTrivia.Count &&
+                            leadingTrivia[lastXmlIndex + 1].IsKind(SyntaxKind.EndOfLineTrivia))
+                        {
+                            xmlDocTrivia.Add(leadingTrivia[lastXmlIndex + 1]);
+                        }
+                    }
+
+                    // Find the updated type and add the XML docs to it
+                    var updatedType = cu.DescendantNodes()
+                        .OfType<TypeDeclarationSyntax>()
+                        .FirstOrDefault();
+
+                    if (updatedType != null && xmlDocTrivia.Any())
+                    {
+                        var existingTrivia = updatedType.GetLeadingTrivia();
+                        cu = cu.ReplaceNode(updatedType,
+                            updatedType.WithLeadingTrivia(xmlDocTrivia.Concat(existingTrivia)));
+                    }
+                }
+
+                solution = solution.WithDocumentSyntaxRoot(documentId, cu);
+            }
+
+            return solution;
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)

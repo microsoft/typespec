@@ -5,13 +5,13 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Managed service identity (system assigned and/or user assigned identities).
@@ -22,13 +22,13 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * The service principal ID of the system assigned identity. This property will only be provided for a system
      * assigned identity.
      */
-    private String principalId;
+    private UUID principalId;
 
     /*
      * The tenant ID of the system assigned identity. This property will only be provided for a system assigned
      * identity.
      */
-    private String tenantId;
+    private UUID tenantId;
 
     /*
      * The type of managed identity assigned to this resource.
@@ -52,7 +52,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the principalId value.
      */
-    public String principalId() {
+    public UUID principalId() {
         return this.principalId;
     }
 
@@ -62,7 +62,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the tenantId value.
      */
-    public String tenantId() {
+    public UUID tenantId() {
         return this.tenantId;
     }
 
@@ -107,27 +107,6 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
     }
 
     /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (type() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Missing required property type in model ManagedServiceIdentity"));
-        }
-        if (userAssignedIdentities() != null) {
-            userAssignedIdentities().values().forEach(e -> {
-                if (e != null) {
-                    e.validate();
-                }
-            });
-        }
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(ManagedServiceIdentity.class);
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -158,9 +137,11 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
                 if ("type".equals(fieldName)) {
                     deserializedManagedServiceIdentity.type = ManagedServiceIdentityType.fromString(reader.getString());
                 } else if ("principalId".equals(fieldName)) {
-                    deserializedManagedServiceIdentity.principalId = reader.getString();
+                    deserializedManagedServiceIdentity.principalId
+                        = reader.getNullable(nonNullReader -> UUID.fromString(nonNullReader.getString()));
                 } else if ("tenantId".equals(fieldName)) {
-                    deserializedManagedServiceIdentity.tenantId = reader.getString();
+                    deserializedManagedServiceIdentity.tenantId
+                        = reader.getNullable(nonNullReader -> UUID.fromString(nonNullReader.getString()));
                 } else if ("userAssignedIdentities".equals(fieldName)) {
                     Map<String, UserAssignedIdentity> userAssignedIdentities
                         = reader.readMap(reader1 -> UserAssignedIdentity.fromJson(reader1));

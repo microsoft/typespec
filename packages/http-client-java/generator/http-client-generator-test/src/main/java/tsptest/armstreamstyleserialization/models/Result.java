@@ -4,28 +4,34 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Immutable;
+import com.azure.core.annotation.Fluent;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import tsptest.armstreamstyleserialization.fluent.models.ResultData;
 
 /**
  * The Result model.
  */
-@Immutable
+@Fluent
 public final class Result implements JsonSerializable<Result> {
     /*
      * The name property.
      */
     private String name;
 
+    /*
+     * The data property.
+     */
+    private ResultData innerData;
+
     /**
      * Creates an instance of Result class.
      */
-    private Result() {
+    public Result() {
     }
 
     /**
@@ -38,6 +44,44 @@ public final class Result implements JsonSerializable<Result> {
     }
 
     /**
+     * Set the name property: The name property.
+     * 
+     * @param name the name value to set.
+     * @return the Result object itself.
+     */
+    public Result withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * Get the innerData property: The data property.
+     * 
+     * @return the innerData value.
+     */
+    private ResultData innerData() {
+        return this.innerData;
+    }
+
+    /**
+     * Get the prop1 property: The prop1 property.
+     * 
+     * @return the prop1 value.
+     */
+    public String prop1() {
+        return this.innerData() == null ? null : this.innerData().prop1();
+    }
+
+    /**
+     * Get the prop2 property: The prop2 property.
+     * 
+     * @return the prop2 value.
+     */
+    public String prop2() {
+        return this.innerData() == null ? null : this.innerData().prop2();
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
@@ -45,6 +89,9 @@ public final class Result implements JsonSerializable<Result> {
     public void validate() {
         if (name() == null) {
             throw LOGGER.atError().log(new IllegalArgumentException("Missing required property name in model Result"));
+        }
+        if (innerData() != null) {
+            innerData().validate();
         }
     }
 
@@ -78,6 +125,8 @@ public final class Result implements JsonSerializable<Result> {
 
                 if ("name".equals(fieldName)) {
                     deserializedResult.name = reader.getString();
+                } else if ("data".equals(fieldName)) {
+                    deserializedResult.innerData = ResultData.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

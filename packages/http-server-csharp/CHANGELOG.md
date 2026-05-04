@@ -1,5 +1,71 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.27
+
+### Bug Fixes
+
+- [#10175](https://github.com/microsoft/typespec/pull/10175) Emit C# class for models that extend another model with no additional properties
+
+
+## 0.58.0-alpha.26
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9896](https://github.com/microsoft/typespec/pull/9896) Fix missing `using` namespace imports in C# files generated from `MergePatchUpdate<T>` when model properties reference enum or named types from a different namespace
+- [#9895](https://github.com/microsoft/typespec/pull/9895) Fix controller generation to use correct ASP.NET Core result methods for non-200/204 status codes. Previously all operations returned `Ok(...)` or `NoContent()` regardless of the declared status code. Now operations returning 202 use `Accepted(...)`, and other status codes use `StatusCode(code, ...)`.
+- [#9894](https://github.com/microsoft/typespec/pull/9894) Fix crash when emitting interfaces that contain template operations. Template operations (e.g. `getItem<T>(): T`) within interfaces will simply be skipped when emitting the interface.
+
+
+## 0.58.0-alpha.25
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.58.0-alpha.24
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.58.0-alpha.23
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.58.0-alpha.22
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.58.0-alpha.21
+
+No changes, version bump only.
+
+## 0.58.0-alpha.20
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.58.0-alpha.19
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.58.0-alpha.18
 
 ### Bump dependencies

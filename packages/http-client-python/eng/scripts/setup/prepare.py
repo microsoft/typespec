@@ -7,14 +7,15 @@
 # --------------------------------------------------------------------------
 import sys
 
-if not sys.version_info >= (3, 9, 0):
+if not sys.version_info >= (3, 10, 0):
     raise Warning(
-        "Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate."
+        "Autorest for Python extension requires Python 3.10 at least. We will run your code with Pyodide since your Python version isn't adequate."
     )
 
 from pathlib import Path
 from package_manager import create_venv_with_package_manager, install_packages
 
+# eng/scripts/setup/prepare.py -> need to go up 4 levels to get to package root
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 
@@ -27,7 +28,7 @@ def main():
     venv_context = create_venv_with_package_manager(venv_path)
 
     try:
-        install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context)
+        install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context, cwd=_ROOT_DIR)
     except FileNotFoundError as e:
         raise ValueError(e.filename)
 

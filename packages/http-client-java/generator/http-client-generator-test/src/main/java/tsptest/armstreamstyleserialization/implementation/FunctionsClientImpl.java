@@ -14,7 +14,6 @@ import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
 import com.azure.core.annotation.UnexpectedResponseExceptionType;
-import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
@@ -23,6 +22,7 @@ import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
 import tsptest.armstreamstyleserialization.fluent.models.FunctionInner;
+import tsptest.armstreamstyleserialization.models.FunctionsCreateFunctionResponse;
 
 /**
  * An instance of this class provides access to all the operations defined in FunctionsClient.
@@ -59,14 +59,14 @@ public final class FunctionsClientImpl implements FunctionsClient {
         @Put("/function")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<FunctionInner>> createFunction(@HostParam("endpoint") String endpoint,
+        Mono<FunctionsCreateFunctionResponse> createFunction(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") FunctionInner function, Context context);
 
         @Put("/function")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<FunctionInner> createFunctionSync(@HostParam("endpoint") String endpoint,
+        FunctionsCreateFunctionResponse createFunctionSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") FunctionInner function, Context context);
     }
@@ -78,10 +78,10 @@ public final class FunctionsClientImpl implements FunctionsClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<FunctionInner>> createFunctionWithResponseAsync(FunctionInner function) {
+    private Mono<FunctionsCreateFunctionResponse> createFunctionWithResponseAsync(FunctionInner function) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
                 new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
@@ -121,10 +121,10 @@ public final class FunctionsClientImpl implements FunctionsClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<FunctionInner> createFunctionWithResponse(FunctionInner function, Context context) {
+    public FunctionsCreateFunctionResponse createFunctionWithResponse(FunctionInner function, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(

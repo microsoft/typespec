@@ -59,7 +59,9 @@ public final class NoEnvelopeCustomDiscriminatorAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -91,7 +93,9 @@ public final class NoEnvelopeCustomDiscriminatorAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -109,7 +113,9 @@ public final class NoEnvelopeCustomDiscriminatorAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -130,7 +136,9 @@ public final class NoEnvelopeCustomDiscriminatorAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -150,7 +158,9 @@ public final class NoEnvelopeCustomDiscriminatorAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return test discriminated union with inline discriminator and custom discriminator property name.
+     * The discriminated union should serialize with custom discriminator property
+     * injected directly into the variant object on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)

@@ -1,4 +1,4 @@
-export type LogLevel = "info" | "warn" | "error" | "debug" | "trace";
+export type LogLevel = "info" | "warning" | "error" | "debug" | "trace";
 
 export type LogOptions = Record<string, any>;
 export interface LogItem {
@@ -38,7 +38,7 @@ export class Logger {
   }
 
   warning(message: string, details?: any[], options?: LogOptions): void {
-    this.logInternal({ message, level: "warn", details, options });
+    this.logInternal({ message, level: "warning", details, options });
   }
 
   info(message: string, details?: any[], options?: LogOptions): void {

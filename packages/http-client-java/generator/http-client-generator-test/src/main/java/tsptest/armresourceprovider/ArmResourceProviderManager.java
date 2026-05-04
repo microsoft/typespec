@@ -37,6 +37,7 @@ import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfac
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ImmutableResourceModelsImpl;
+import tsptest.armresourceprovider.implementation.LroNoBodiesImpl;
 import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
 import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
@@ -45,6 +46,7 @@ import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
 import tsptest.armresourceprovider.models.ImmutableResourceModels;
+import tsptest.armresourceprovider.models.LroNoBodies;
 import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
 import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
@@ -70,6 +72,8 @@ public final class ArmResourceProviderManager {
     private ModelInterfaceSameNames modelInterfaceSameNames;
 
     private ImmutableResourceModels immutableResourceModels;
+
+    private LroNoBodies lroNoBodies;
 
     private final ArmClient clientObject;
 
@@ -387,6 +391,18 @@ public final class ArmResourceProviderManager {
                 = new ImmutableResourceModelsImpl(clientObject.getImmutableResourceModels(), this);
         }
         return immutableResourceModels;
+    }
+
+    /**
+     * Gets the resource collection API of LroNoBodies.
+     * 
+     * @return Resource collection API of LroNoBodies.
+     */
+    public LroNoBodies lroNoBodies() {
+        if (this.lroNoBodies == null) {
+            this.lroNoBodies = new LroNoBodiesImpl(clientObject.getLroNoBodies(), this);
+        }
+        return lroNoBodies;
     }
 
     /**

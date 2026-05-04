@@ -29,6 +29,7 @@ const keywords = [
   "projection",
   "dec",
   "extern",
+  "internal",
   "fn",
 ];
 const namedLiterals = ["true", "false", "null", "unknown", "never"];

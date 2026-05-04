@@ -163,8 +163,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteMethod(method);
-            var declScopes = GetDeclarationScopes(param.AsExpression().Declaration);
+            var declScopes = GetDeclarationScopes(param.AsVariable().Declaration);
             Assert.AreEqual(2, declScopes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeWriter.ToString(false));
+        }
+
+        [Test]
+        public void FieldDeduplicationUpdatesReferencesViaMemberExpression()
+        {
+            var type = new TestTypeProvider();
+            var field1 = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(string), "_scope", type);
+            var field2 = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(string), "_scope", type);
+
+            using var codeWriter = new CodeWriter();
+            // Write both field declarations - the second should be deduped to _scope0
+            codeWriter.WriteField(field1);
+            codeWriter.WriteField(field2);
+            // Write a reference to the second field via AsValueExpression (implicit MemberExpression)
+            field2.AsValueExpression.Write(codeWriter);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeWriter.ToString(false));
+        }
+
+        [Test]
+        public void FieldReferenceBeforeDeclarationUsesRequestedName()
+        {
+            var type = new TestTypeProvider();
+            var field = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(string), "_token", type);
+
+            using var codeWriter = new CodeWriter();
+            // Write a reference BEFORE the field declaration — should use the original name, not create a declaration
+            field.AsValueExpression.Write(codeWriter);
+            codeWriter.WriteField(field);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeWriter.ToString(false));
         }
 

@@ -4,7 +4,13 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputParameterKind } from "../../src/type/input-parameter-kind.js";
+import { InputParameterScope } from "../../src/type/input-parameter-scope.js";
+import {
+  InputBodyParameter,
+  InputHeaderParameter,
+  InputPathParameter,
+  InputQueryParameter,
+} from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -36,7 +42,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -48,9 +54,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -67,7 +72,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -79,9 +84,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -98,7 +102,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -110,9 +114,10 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
-        strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
+        strictEqual(inputParam.kind, "path");
+
+        const inputPathParam = inputParam as InputPathParameter;
+        strictEqual(inputPathParam.explode, true);
       });
     });
 
@@ -131,7 +136,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -143,9 +148,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -162,7 +166,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -174,9 +178,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -193,7 +196,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -205,9 +208,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
 
@@ -226,7 +228,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -238,9 +240,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -257,7 +258,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -269,9 +270,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -288,7 +288,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -300,9 +300,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
 
@@ -321,7 +320,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -333,9 +332,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -352,7 +350,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -364,9 +362,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -383,7 +380,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -395,9 +392,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
   });
@@ -418,7 +414,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -430,7 +426,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -449,7 +445,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -461,7 +457,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -480,7 +476,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -492,7 +488,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -513,7 +509,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -525,7 +521,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -544,7 +540,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -556,7 +552,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -575,7 +571,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -587,7 +583,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -613,8 +609,7 @@ describe("Test Cookie Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const diagnostics = context.program.diagnostics;
-      createModel(sdkContext);
+      const [, diagnostics] = createModel(sdkContext);
 
       const unsupportedCookie = diagnostics.find(
         (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
@@ -657,8 +652,7 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const diagnostics = context.program.diagnostics;
-    createModel(sdkContext);
+    const [, diagnostics] = createModel(sdkContext);
 
     const unsupportedCookie = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
@@ -690,12 +684,16 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
-    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+
+    strictEqual(client.parameters.length, 1);
+
+    const endpointParameter = client.parameters[0];
     ok(endpointParameter);
+    strictEqual(endpointParameter.kind, "endpoint");
     strictEqual(endpointParameter.type.kind, "string");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.string");
     strictEqual(endpointParameter.serverUrlTemplate, "https://{param1}");
@@ -722,12 +720,16 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const [codeModel] = createModel(sdkContext);
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
-    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+
+    strictEqual(client.parameters.length, 1);
+
+    const endpointParameter = client.parameters[0];
     ok(endpointParameter);
+    strictEqual(endpointParameter.kind, "endpoint");
     strictEqual(endpointParameter.type.kind, "url");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.url");
     strictEqual(endpointParameter.serverUrlTemplate, "{param1}");
@@ -755,7 +757,7 @@ describe("Test Spread Parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     ok(root);
 
     // validate service method
@@ -781,8 +783,8 @@ describe("Test Spread Parameters", () => {
 
     const testParam = operation.parameters.find((p) => p.name === "test");
     ok(testParam);
-    strictEqual(testParam.type.kind, "model");
-    strictEqual(testParam.kind, InputParameterKind.Spread);
+    strictEqual(testParam.kind, "body");
+    strictEqual(testParam.scope, InputParameterScope.Spread);
   });
 
   it("Parameters that are constants", async () => {
@@ -798,7 +800,7 @@ describe("Test Spread Parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     ok(root);
 
     // validate service method
@@ -828,6 +830,245 @@ describe("Test Spread Parameters", () => {
     const testParam = operation.parameters.find((p) => p.name === "animal");
     ok(testParam);
     strictEqual(testParam.type.kind, "model");
-    strictEqual(testParam.kind, InputParameterKind.Spread);
+    strictEqual(testParam.kind, "body");
+    strictEqual(testParam.scope, InputParameterScope.Spread);
+  });
+});
+
+describe("Test Operation Parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  describe("Query parameters", () => {
+    it("should return InputQueryParameter for query parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@query queryParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const operation = root.clients[0].methods[0].operation;
+      const queryParam = operation.parameters.find((p) => p.name === "queryParam");
+
+      ok(queryParam);
+      strictEqual(queryParam.kind, "query");
+
+      const typedParam = queryParam as InputQueryParameter;
+      strictEqual(typedParam.explode, false);
+      strictEqual(typedParam.type.kind, "string");
+      strictEqual(typedParam.serializedName, "queryParam");
+    });
+  });
+
+  describe("Path parameters", () => {
+    it("should return InputPathParameter for path parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test/{pathParam}")
+          op test(@path pathParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const operation = root.clients[0].methods[0].operation;
+      const pathParam = operation.parameters.find((p) => p.name === "pathParam");
+
+      ok(pathParam);
+      strictEqual(pathParam.kind, "path");
+
+      const typedParam = pathParam as InputPathParameter;
+      strictEqual(typedParam.explode, false);
+      strictEqual(typedParam.style, "simple");
+      strictEqual(typedParam.allowReserved, false);
+      strictEqual(typedParam.skipUrlEncoding, false);
+      strictEqual(typedParam.type.kind, "string");
+      strictEqual(typedParam.serializedName, "pathParam");
+    });
+  });
+
+  describe("Header parameters", () => {
+    it("should return InputHeaderParameter for header parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@header headerParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const operation = root.clients[0].methods[0].operation;
+      const headerParam = operation.parameters.find((p) => p.name === "headerParam");
+
+      ok(headerParam);
+      strictEqual(headerParam.kind, "header");
+
+      const typedParam = headerParam as InputHeaderParameter;
+      strictEqual(typedParam.isContentType, false);
+      strictEqual(typedParam.type.kind, "string");
+      // Header names are normalized to kebab-case by the SDK
+      strictEqual(typedParam.serializedName, "header-param");
+    });
+
+    it("should identify content-type header parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+          }
+          
+          @route("test")
+          @post
+          op test(@header contentType: "application/json", @body body: TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const operation = root.clients[0].methods[0].operation;
+      const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+
+      ok(contentTypeParam);
+      strictEqual(contentTypeParam.kind, "header");
+
+      const typedParam = contentTypeParam as InputHeaderParameter;
+      strictEqual(typedParam.isContentType, true);
+      strictEqual(typedParam.type.kind, "constant");
+    });
+
+    it("should populate collectionHeaderPrefix from clientOption decorator", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @route("test")
+          @post
+          op test(
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @header("x-ms-meta")
+            @clientOption("collectionHeaderPrefix", "x-ms-meta-", "csharp")
+            metadata: Record<string>): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const metadataParam = operation.parameters.find((p) => p.name === "metadata");
+
+      ok(metadataParam);
+      strictEqual(metadataParam.kind, "header");
+
+      const typedParam = metadataParam as InputHeaderParameter;
+      strictEqual(typedParam.collectionHeaderPrefix, "x-ms-meta-");
+    });
+
+    it("should return undefined for collectionHeaderPrefix when client option value is not a string", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @route("test")
+          @post
+          op test(
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @header("x-ms-meta")
+            @clientOption("collectionHeaderPrefix", 42, "csharp")
+            metadata: Record<string>): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root, modelDiagnostics] = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const metadataParam = operation.parameters.find((p) => p.name === "metadata");
+
+      ok(metadataParam);
+      strictEqual(metadataParam.kind, "header");
+
+      const typedParam = metadataParam as InputHeaderParameter;
+      strictEqual(typedParam.collectionHeaderPrefix, undefined);
+
+      const warningDiagnostic = modelDiagnostics.find(
+        (d) =>
+          d.code === "@typespec/http-client-csharp/general-warning" &&
+          d.message?.includes("collectionHeaderPrefix"),
+      );
+      ok(warningDiagnostic, "A warning diagnostic should be reported for non-string value");
+    });
+
+    it("should return undefined for collectionHeaderPrefix when header parameter is not a dictionary type", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @route("test")
+          @post
+          op test(
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @header("x-ms-name")
+            @clientOption("collectionHeaderPrefix", "x-ms-name-", "csharp")
+            name: string): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const nameParam = operation.parameters.find((p) => p.name === "name");
+
+      ok(nameParam);
+      strictEqual(nameParam.kind, "header");
+
+      const typedParam = nameParam as InputHeaderParameter;
+      strictEqual(typedParam.collectionHeaderPrefix, undefined);
+    });
+  });
+
+  describe("Body parameters", () => {
+    it("should return InputBodyParameter for body parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+            value: int32;
+          }
+          
+          @route("test")
+          op test(@body bodyParam: TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      const operation = root.clients[0].methods[0].operation;
+      const bodyParam = operation.parameters.find((p) => p.name === "bodyParam");
+
+      ok(bodyParam);
+      strictEqual(bodyParam.kind, "body");
+
+      const typedParam = bodyParam as InputBodyParameter;
+      strictEqual(typedParam.type.kind, "model");
+      strictEqual(typedParam.serializedName, "bodyParam");
+      ok(typedParam.contentTypes.includes("application/json"));
+    });
   });
 });

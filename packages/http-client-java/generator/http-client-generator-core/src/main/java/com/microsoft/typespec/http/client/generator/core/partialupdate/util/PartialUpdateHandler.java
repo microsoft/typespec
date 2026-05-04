@@ -27,7 +27,7 @@ import com.github.javaparser.printer.DefaultPrettyPrinterVisitor;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -314,7 +314,7 @@ public class PartialUpdateHandler {
      */
     private static void validateGeneratedClassOrInterface(List<BodyDeclaration<?>> generatedFileMembers) {
         // 1. Verify there is no duplicate methods (methods with same signature are considered duplicate methods)
-        Set<CallableDeclaration.Signature> methodSignatureSet = new HashSet<>();
+        Set<CallableDeclaration.Signature> methodSignatureSet = new LinkedHashSet<>();
         for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
             if (generatedMember.isCallableDeclaration()) {
                 if (methodSignatureSet.contains(generatedMember.asCallableDeclaration().getSignature())) {

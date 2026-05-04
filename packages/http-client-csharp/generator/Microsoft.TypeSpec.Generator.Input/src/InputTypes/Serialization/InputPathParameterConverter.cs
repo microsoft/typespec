@@ -18,12 +18,12 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public override InputPathParameter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputPathParameter>(_referenceHandler.CurrentResolver) ?? ReadInputPathParameter(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputPathParameter>(_referenceHandler.CurrentResolver) ?? ReadInputPathParameter(ref reader, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputPathParameter value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputPathParameter ReadInputPathParameter(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputPathParameter ReadInputPathParameter(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -32,8 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             id = id ?? throw new JsonException();
 
-            // create an empty model property to resolve circular references
-            var property = new InputPathParameter(
+            var parameter = new InputPathParameter(
                 name: null!,
                 summary: null,
                 doc: null,
@@ -42,25 +41,37 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isReadOnly: false,
                 access: null,
                 allowReserved: false,
-                serializedName: null!);
-            resolver.AddReference(id, property);
+                serializedName: null!,
+                isApiVersion: false,
+                defaultValue: null,
+                scope: default,
+                explode: false,
+                skipUrlEncoding: false,
+                serverUrlTemplate: null);
+            resolver.AddReference(id, parameter);
 
-            string? kind = null;
+            string? name = null;
             string? summary = null;
             string? doc = null;
             string? serializedName = null;
+            bool isApiVersion = false;
+            bool explode = false;
+            bool skipUrlEncoding = false;
+            InputConstant? defaultValue = null;
+            string? scope = null;
             InputType? type = null;
             bool isReadOnly = false;
             bool isOptional = false;
             string? access = null;
+            string? serverUrlTemplate = null;
             bool allowReserved = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref type)
@@ -68,8 +79,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("allowReserved", ref allowReserved)
+                    || reader.TryReadString("serverUrlTemplate", ref serverUrlTemplate)
                     || reader.TryReadString("serializedName", ref serializedName)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
+                    || reader.TryReadString("scope", ref scope)
+                    || reader.TryReadBoolean("explode", ref explode)
+                    || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -77,17 +95,25 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            property.Name = name ?? throw new JsonException($"{nameof(InputPathParameter)} must have a name.");
-            property.Summary = summary;
-            property.Doc = doc;
-            property.Type = type ?? throw new JsonException($"{nameof(InputPathParameter)} must have a type.");
-            property.IsRequired = !isOptional;
-            property.IsReadOnly = isReadOnly;
-            property.Access = access;
-            property.AllowReserved = allowReserved;
-            property.Decorators = decorators ?? [];
-            property.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputPathParameter)} must have a serializedName.");
-            return property;
+            parameter.Name = name ?? throw new JsonException($"{nameof(InputPathParameter)} must have a name.");
+            parameter.Summary = summary;
+            parameter.Doc = doc;
+            parameter.Type = type ?? throw new JsonException($"{nameof(InputPathParameter)} must have a type.");
+            parameter.IsRequired = !isOptional;
+            parameter.IsReadOnly = isReadOnly;
+            parameter.Access = access;
+            parameter.AllowReserved = allowReserved;
+            parameter.ServerUrlTemplate = serverUrlTemplate;
+            parameter.Decorators = decorators ?? [];
+            parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputPathParameter)} must have a serializedName.");
+            parameter.IsApiVersion = isApiVersion;
+            parameter.DefaultValue = defaultValue;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
+            parameter.Explode = explode;
+            parameter.SkipUrlEncoding = skipUrlEncoding;
+            parameter.MethodParameterSegments = methodParameterSegments;
+
+            return parameter;
         }
     }
 }

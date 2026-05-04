@@ -13,6 +13,16 @@ model MultiPartRequest {
   profileImage: HttpPart<bytes>;
 }
 
+model MultiPartRequestWithWireName {
+  identifier: HttpPart<string, #{ name: "id" }>;
+  image: HttpPart<bytes, #{ name: "profileImage" }>;
+}
+
+model MultiPartOptionalRequest {
+  id?: HttpPart<string>;
+  profileImage?: HttpPart<bytes>;
+}
+
 model Address {
   city: string;
 }
@@ -107,6 +117,105 @@ namespace FormData {
   op basic(
     @header contentType: "multipart/form-data",
     @multipartBody body: MultiPartRequest,
+  ): NoContentResponse;
+
+  @scenario
+  @scenarioDoc("""
+    Expect request with wire names (
+    - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+    - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+      If there are duplicated filename in same fieldName, server can't parse them all.
+    ):
+    ```
+    POST /upload HTTP/1.1
+    Content-Length: 428
+    Content-Type: multipart/form-data; boundary=abcde12345
+    
+    --abcde12345
+    Content-Disposition: form-data; name="id"
+    Content-Type: text/plain
+    
+    123
+    --abcde12345
+    Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+    Content-Type: application/octet-stream;
+    
+    {…file content of .jpg file…}
+    --abcde12345--
+    ```
+    """)
+  @doc("Test content-type: multipart/form-data with wire names")
+  @post
+  @route("/mixed-parts-with-wire-name")
+  op withWireName(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: MultiPartRequestWithWireName,
+  ): NoContentResponse;
+
+  @scenario
+  @scenarioDoc("""
+    Please send request three times:
+    - First time with only id
+    - Second time with only profileImage
+    - Third time with both id and profileImage
+    
+    Expect requests (
+      - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+      - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+        If there are duplicated filename in same fieldName, server can't parse them all.
+      ):
+    ```
+    POST /upload HTTP/1.1
+    Content-Length: 428
+    Content-Type: multipart/form-data; boundary=abcde12345
+    
+    --abcde12345
+    Content-Disposition: form-data; name="id"
+    Content-Type: text/plain
+    
+    123
+    --abcde12345--
+    ```
+    
+    ```
+    POST /upload HTTP/1.1
+    Content-Length: 428
+    Content-Type: multipart/form-data; boundary=abcde12345
+    
+    --abcde12345
+    Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+    Content-Type: application/octet-stream
+    
+    {…file content of .jpg file…}
+    --abcde12345--
+    ```
+    
+    ```
+    POST /upload HTTP/1.1
+    Content-Length: 428
+    Content-Type: multipart/form-data; boundary=abcde12345
+    
+    --abcde12345
+    Content-Disposition: form-data; name="id"
+    Content-Type: text/plain
+    
+    123
+    --abcde12345
+    Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+    Content-Type: application/octet-stream
+    
+    {…file content of .jpg file…}
+    --abcde12345--
+    ```
+    """)
+  @doc("Test content-type: multipart/form-data with optional parts")
+  @post
+  @route("/optional-parts")
+  op optionalParts(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: MultiPartOptionalRequest,
   ): NoContentResponse;
 
   @scenario
@@ -498,5 +607,92 @@ namespace FormData {
         },
       ): NoContentResponse;
     }
+  }
+
+  @route("/file")
+  namespace File {
+    model FileWithRequiredFilename extends TypeSpec.Http.File<"image/png"> {
+      filename: string;
+    }
+
+    @scenario
+    @scenarioDoc("""
+      Test File type in multipart form data with specific content type.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/specific-content-type HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="file"; filename="image.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/specific-content-type")
+    op uploadFileSpecificContentType(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        file: HttpPart<TypeSpec.Http.File<"image/png">>;
+      },
+    ): NoContentResponse;
+
+    @scenario
+    @scenarioDoc("""
+      Test File type in multipart form data with required filename.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/required-filename HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="file"; filename="image.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/required-filename")
+    op uploadFileRequiredFilename(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        file: HttpPart<FileWithRequiredFilename>;
+      },
+    ): NoContentResponse;
+
+    @scenario
+    @scenarioDoc("""
+      Test multiple File instances in multipart form data.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/file-array HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="files"; filename="image1.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345
+      Content-Disposition: form-data; name="files"; filename="image2.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/file-array")
+    op uploadFileArray(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        files: HttpPart<TypeSpec.Http.File<"image/png">>[];
+      },
+    ): NoContentResponse;
   }
 }

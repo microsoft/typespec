@@ -32,7 +32,12 @@ import payload.pageable.implementation.PageableClientImpl;
  * A builder for creating a new instance of the PageableClient type.
  */
 @ServiceClientBuilder(
-    serviceClients = { ServerDrivenPaginationClient.class, ServerDrivenPaginationContinuationTokenClient.class })
+    serviceClients = {
+        ServerDrivenPaginationClient.class,
+        ServerDrivenPaginationAlternateInitialVerbClient.class,
+        ServerDrivenPaginationContinuationTokenClient.class,
+        PageSizeClient.class,
+        XmlPaginationClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>, ProxyTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -236,6 +241,18 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     }
 
     /**
+     * Builds an instance of ServerDrivenPaginationAlternateInitialVerbClient class.
+     * 
+     * @return an instance of ServerDrivenPaginationAlternateInitialVerbClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ServerDrivenPaginationAlternateInitialVerbClient buildServerDrivenPaginationAlternateInitialVerbClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new ServerDrivenPaginationAlternateInitialVerbClient(
+            innerClient.getServerDrivenPaginationAlternateInitialVerbs(), innerClient.getInstrumentation());
+    }
+
+    /**
      * Builds an instance of ServerDrivenPaginationContinuationTokenClient class.
      * 
      * @return an instance of ServerDrivenPaginationContinuationTokenClient.
@@ -245,5 +262,27 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
         PageableClientImpl innerClient = buildInnerClient();
         return new ServerDrivenPaginationContinuationTokenClient(
             innerClient.getServerDrivenPaginationContinuationTokens(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of PageSizeClient class.
+     * 
+     * @return an instance of PageSizeClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PageSizeClient buildPageSizeClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new PageSizeClient(innerClient.getPageSizes(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of XmlPaginationClient class.
+     * 
+     * @return an instance of XmlPaginationClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public XmlPaginationClient buildXmlPaginationClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new XmlPaginationClient(innerClient.getXmlPaginations(), innerClient.getInstrumentation());
     }
 }

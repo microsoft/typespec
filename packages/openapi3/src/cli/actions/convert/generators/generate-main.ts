@@ -7,15 +7,23 @@ import { generateOperation } from "./generate-operation.js";
 import { generateServiceInformation } from "./generate-service-info.js";
 
 export function generateMain(program: TypeSpecProgram, context: Context): string {
+  const sseImports = context.isSSEUsed()
+    ? `  import "@typespec/streams";
+  import "@typespec/sse";
+  import "@typespec/events";`
+    : "";
+
+  const sseUsings = context.isSSEUsed() ? "\n  using SSE;\n  using Events;" : "";
+
   return `
   import "@typespec/http";
   import "@typespec/openapi";
-  import "@typespec/openapi3";
+  import "@typespec/openapi3";${sseImports}
 
   using Http;
-  using OpenAPI;
+  using OpenAPI;${sseUsings}
 
-  ${generateServiceInformation(program.serviceInfo)}
+  ${generateServiceInformation(program.serviceInfo, program.servers, program.tags, context.rootNamespace)}
 
   ${program.types.map((t) => generateDataType(t, context)).join("\n\n")}
 

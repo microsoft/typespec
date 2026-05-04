@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, List, Any, Optional, Union, TYPE_CHECKING, cast, TypeVar
+from typing import Any, Optional, Union, TYPE_CHECKING, cast, TypeVar
 
 from .operation import Operation, OperationBase
 from .response import PagingResponse, LROPagingResponse, Response
@@ -17,6 +17,7 @@ from .parameter_list import ParameterList
 from .model_type import ModelType
 from .list_type import ListType
 from .parameter import Parameter
+from ...utils import xml_serializable
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -28,16 +29,16 @@ PagingResponseType = TypeVar("PagingResponseType", bound=Union[PagingResponse, L
 class PagingOperationBase(OperationBase[PagingResponseType]):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
         request_builder: RequestBuilder,
         parameters: ParameterList,
-        responses: List[PagingResponseType],
-        exceptions: List[Response],
+        responses: list[PagingResponseType],
+        exceptions: list[Response],
         *,
-        overloads: Optional[List[Operation]] = None,
+        overloads: Optional[list[Operation]] = None,
         override_success_response_to_200: bool = False,
     ) -> None:
         super().__init__(
@@ -59,10 +60,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
-        self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
-        self.next_link_reinjected_parameters: List[Parameter] = [
+        self.continuation_token: dict[str, Any] = yaml_data.get("continuationToken", {})
+        self.next_link_reinjected_parameters: list[Parameter] = [
             Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
         ]
+        self.next_link_verb: str = (yaml_data.get("nextLinkVerb") or "GET").upper()
 
     @property
     def has_continuation_token(self) -> bool:
@@ -71,6 +73,13 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     @property
     def next_variable_name(self) -> str:
         return "_continuation_token" if self.has_continuation_token else "next_link"
+
+    @property
+    def is_xml_paging(self) -> bool:
+        try:
+            return bool(self.responses[0].item_type.xml_metadata)
+        except KeyError:
+            return False
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -97,6 +106,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return wire_name
 
     @property
+    def next_link_is_nested(self) -> bool:
+        return self.yaml_data.get("nextLinkIsNested", False)
+
+    @property
     def item_name(self) -> str:
         wire_name = self.yaml_data["itemName"]
         if self.code_model.options["models-mode"] == "msrest":
@@ -119,19 +132,29 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
         return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
-    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(async_mode, **kwargs)
+    @property
+    def has_optional_return_type(self) -> bool:
+        return False
+
+    @property
+    def enable_import_deserialize_xml(self):
+        return any(xml_serializable(str(r.default_content_type)) for r in self.exceptions)
+
+    def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
+        if self.abstract:
+            return FileImport(self.code_model)
+        file_import = super().imports(async_mode, **kwargs)
         if async_mode:
             default_paging_submodule = f"{'async_' if self.code_model.is_azure_flavor else ''}paging"
             file_import.add_submodule_import(
                 f"{self.code_model.core_library}.{default_paging_submodule}",
                 "AsyncItemPaged",
                 ImportType.SDKCORE,
-                TypingSection.CONDITIONAL,
+                TypingSection.REGULAR,
             )
         else:
             file_import.add_submodule_import(
-                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.REGULAR
             )
         if (
             self.next_request_builder
@@ -139,16 +162,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             and not async_mode
         ):
             file_import.merge(self.next_request_builder.imports(**kwargs))
-        return file_import
-
-    @property
-    def has_optional_return_type(self) -> bool:
-        return False
-
-    def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
-        if self.abstract:
-            return FileImport(self.code_model)
-        file_import = self._imports_shared(async_mode, **kwargs)
         file_import.merge(super().imports(async_mode, **kwargs))
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["tracing"] and self.want_tracing:
@@ -173,8 +186,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 serialize_namespace, module_name="_utils.model_base"
             )
             file_import.merge(self.item_type.imports(**kwargs))
-            if self.default_error_deserialization or self.need_deserialize:
+            if self.default_error_deserialization(serialize_namespace) or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
+            if self.is_xml_paging:
+                file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
         return file_import
 
 

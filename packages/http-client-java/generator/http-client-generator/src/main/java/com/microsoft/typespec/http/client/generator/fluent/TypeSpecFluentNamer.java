@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,7 +38,7 @@ public class TypeSpecFluentNamer extends FluentNamer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         // in case parent class constructor calls this method, e.g. new PluginLogger()
         if (settingsMap == null) {
             return null;
@@ -48,7 +48,7 @@ public class TypeSpecFluentNamer extends FluentNamer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         // in case parent class constructor calls this method, e.g. new PluginLogger()
         if (settingsMap == null) {
             return null;

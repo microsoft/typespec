@@ -1,5 +1,7 @@
 ---
 title: Files
+description: Working with Http.File
+llmstxt: true
 ---
 
 ## About `Http.File`

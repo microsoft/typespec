@@ -1,5 +1,7 @@
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import { printTypeSpecNode } from "../core/formatter.js";
+import { getRawTextWithCache } from "../core/helpers/raw-text-cache.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -10,11 +12,13 @@ import {
   EnumMember,
   FunctionParameter,
   Interface,
+  MixedParameterConstraint,
   Model,
   ModelProperty,
   Operation,
   StringTemplate,
   Sym,
+  SymbolFlags,
   SyntaxKind,
   Type,
   UnionVariant,
@@ -30,17 +34,17 @@ interface GetSymbolSignatureOptions {
 }
 
 /** @internal */
-export function getSymbolSignature(
+export async function getSymbolSignature(
   program: Program,
   sym: Sym,
   options: GetSymbolSignatureOptions = {
     includeBody: false,
   },
-): string {
+): Promise<string> {
   const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
-      return fence(`alias ${getAliasSignature(decl)}`);
+      return fence(`alias ${await getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
   return getEntitySignature(sym, entity, options);
@@ -55,6 +59,15 @@ function getEntitySignature(
     return "(error)";
   }
   if ("valueKind" in entity) {
+    if (sym.flags & SymbolFlags.Function && entity.valueKind === "Function") {
+      const parameters = [...entity.parameters].map(
+        (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
+      );
+      return fence(
+        `fn ${entity.name ?? "<anonymous>"}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
+      );
+    }
+
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
@@ -103,10 +116,34 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
+    case "FunctionType":
+      return `fn (${type.parameters.map((p) => getTypeSignature(p, options)).join(", ")}): ${getMixedConstraintSignature(
+        type.returnType,
+        options,
+      )}`;
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
+}
+
+function getMixedConstraintSignature(
+  constraint: MixedParameterConstraint,
+  options: GetSymbolSignatureOptions,
+) {
+  let result = "";
+
+  if (constraint.type) {
+    result += getTypeSignature(constraint.type, options);
+  }
+
+  if (constraint.valueType) {
+    if (result.length > 0) {
+      result += " | ";
+    }
+    result += "valueof " + getTypeSignature(constraint.valueType, options);
+  }
+  return result;
 }
 
 function getDecoratorSignature(type: Decorator) {
@@ -125,7 +162,7 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
   })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
-function getInterfaceSignature(type: Interface, includeBody: boolean) {
+function getInterfaceSignature(type: Interface, includeBody: boolean): string {
   if (includeBody) {
     const INDENT = "  ";
     const opDesc = Array.from(type.operations).map(
@@ -133,14 +170,26 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
     );
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    if (
+      type.node &&
+      type.node.kind === SyntaxKind.InterfaceStatement &&
+      type.node.templateParameters
+    ) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 /**
  * All properties from 'extends' and 'is' will be included if includeBody is true.
  */
-function getModelSignature(type: Model, includeBody: boolean) {
+function getModelSignature(type: Model, includeBody: boolean): string {
   if (includeBody) {
     const propDesc = [];
     const INDENT = "  ";
@@ -149,8 +198,16 @@ function getModelSignature(type: Model, includeBody: boolean) {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
@@ -192,9 +249,17 @@ function getEnumMemberSignature(member: EnumMember) {
     : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
-function getAliasSignature(alias: AliasStatementNode) {
+async function getAliasSignature(alias: AliasStatementNode): Promise<string> {
   const fullName = getFullyQualifiedSymbolName(alias.symbol);
-  const args = alias.templateParameters.map((t) => t.id.sv);
+  const args = await Promise.all(
+    alias.templateParameters.map(async (t, index) => {
+      if (t.default) {
+        getRawTextWithCache(t.default);
+      }
+      return await printTypeSpecNode(t);
+    }),
+  );
+
   return args.length === 0 ? fullName : `${fullName}<${args.join(", ")}>`;
 }
 
@@ -215,7 +280,7 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
-function getPrintableTypeName(type: Type) {
+function getPrintableTypeName(type: Type): string {
   return getTypeName(type, {
     printable: true,
   });

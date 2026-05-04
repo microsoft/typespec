@@ -19,6 +19,7 @@ import tsptest.patch.implementation.JsonMergePatchHelper;
 import tsptest.patch.implementation.PatchesImpl;
 import tsptest.patch.models.Fish;
 import tsptest.patch.models.Resource;
+import tsptest.patch.models.Salmon;
 
 /**
  * Initializes a new instance of the synchronous PatchClient type.
@@ -251,6 +252,77 @@ public final class PatchClient {
     }
 
     /**
+     * The createOrUpdateSalmon operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param fish The fish parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the second level model in polymorphic multiple levels inheritance which contains references to other
+     * polymorphic instances along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> createOrUpdateSalmonWithResponse(BinaryData fish, RequestOptions requestOptions) {
+        return this.serviceClient.createOrUpdateSalmonWithResponse(fish, requestOptions);
+    }
+
+    /**
      * The createOrUpdateResource operation.
      * 
      * @param resource The resource parameter.
@@ -345,5 +417,31 @@ public final class PatchClient {
         fishInBinaryData.getLength();
         JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, false);
         return createOrUpdateFishWithResponse(fishInBinaryData, requestOptions).getValue().toObject(Fish.class);
+    }
+
+    /**
+     * The createOrUpdateSalmon operation.
+     * 
+     * @param fish The fish parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the second level model in polymorphic multiple levels inheritance which contains references to other
+     * polymorphic instances.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Salmon createOrUpdateSalmon(Salmon fish) {
+        // Generated convenience method for createOrUpdateSalmonWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, true);
+        BinaryData fishInBinaryData = BinaryData.fromObject(fish);
+        // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
+        fishInBinaryData.getLength();
+        JsonMergePatchHelper.getFishAccessor().prepareModelForJsonMergePatch(fish, false);
+        return createOrUpdateSalmonWithResponse(fishInBinaryData, requestOptions).getValue().toObject(Salmon.class);
     }
 }

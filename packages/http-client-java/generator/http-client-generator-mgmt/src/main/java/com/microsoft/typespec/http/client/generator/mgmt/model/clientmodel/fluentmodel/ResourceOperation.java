@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -23,12 +22,13 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,7 +127,7 @@ public abstract class ResourceOperation {
 
     // method parameters
     private List<MethodParameter> getParametersByLocation(RequestParameterLocation parameterLocation) {
-        return getParametersByLocation(new HashSet<>(Collections.singletonList(parameterLocation)));
+        return getParametersByLocation(new LinkedHashSet<>(List.of(parameterLocation)));
     }
 
     private List<MethodParameter> getParametersByLocation(Set<RequestParameterLocation> parameterLocations) {
@@ -157,7 +157,7 @@ public abstract class ResourceOperation {
     public List<ClientMethodParameter> getMiscParameters() {
         // header or query
         return getParametersByLocation(
-            new HashSet<>(Arrays.asList(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY))).stream()
+            new LinkedHashSet<>(List.of(RequestParameterLocation.HEADER, RequestParameterLocation.QUERY))).stream()
                 .map(MethodParameter::getClientMethodParameter)
                 .collect(Collectors.toList());
     }
@@ -166,11 +166,21 @@ public abstract class ResourceOperation {
         return this.getResourceLocalVariables().getLocalVariablesMap().values();
     }
 
+    /**
+     * Gets the method references, filter out those with only required parameters.
+     *
+     * @return the method references returns is sorted by the number of parameters in descending order.
+     */
     protected List<FluentCollectionMethod> getMethodReferencesOfFullParameters() {
         // method references of full parameters (include optional parameters)
         return this.getMethodReferences()
             .stream()
             .filter(m -> !m.getInnerClientMethod().getOnlyRequiredParameters())
+            .sorted((m1, m2) -> {
+                int count1 = m1.getInnerClientMethod().getParameters().size();
+                int count2 = m2.getInnerClientMethod().getParameters().size();
+                return -Integer.compare(count1, count2);
+            })
             .collect(Collectors.toList());
     }
 

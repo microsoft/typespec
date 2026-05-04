@@ -3,8 +3,9 @@
   "continuationToken": {
     "parameter": {
       "$id": "598",
+      "kind": "query",
       "name": "token",
-      "nameInRequest": "token",
+      "serializedName": "token",
       "type": {
         "$id": "599",
         "kind": "string",
@@ -12,15 +13,11 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
-      "location": "Query",
       "isApiVersion": false,
-      "isContentType": false,
-      "isEndpoint": false,
       "explode": false,
       "isRequired": false,
-      "kind": "Method",
-      "decorators": [],
-      "skipUrlEncoding": false
+      "scope": "Method",
+      "decorators": []
     },
     "responseSegments": ["next-token"],
     "responseLocation": "Header"

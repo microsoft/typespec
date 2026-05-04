@@ -1,0 +1,43 @@
+{
+    "$id": "1",
+    "kind": "model",
+    "name": "Friend",
+    "namespace": "SampleTypeSpec",
+    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
+    "usage": "Output,Spread,Json",
+    "doc": "this is not a friendly model but with a friendly name",
+    "decorators": [
+      {
+        "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+        "arguments": {}
+      }
+    ],
+    "properties": [
+      {
+        "$id": "229",
+        "kind": "property",
+        "name": "name",
+        "serializedName": "name",
+        "doc": "name of the NotFriend",
+        "type": {
+          "$id": "230",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+        "serializationOptions": {
+          "json": {
+            "name": "name"
+          }
+        },
+        "isHttpMetadata": false
+      }
+    ]
+}

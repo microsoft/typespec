@@ -9,6 +9,16 @@ import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
+ * Serializes the code model to a JSON string with reference tracking.
+ * @param context - The CSharp emitter context
+ * @param codeModel - The code model to serialize
+ * @beta
+ */
+export function serializeCodeModel(context: CSharpEmitterContext, codeModel: CodeModel): string {
+  return prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2));
+}
+
+/**
  * Writes the code model to the output folder. Should only be used by autorest.csharp.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to write
@@ -22,7 +32,7 @@ export async function writeCodeModel(
 ) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
+    serializeCodeModel(context, codeModel),
   );
 }
 

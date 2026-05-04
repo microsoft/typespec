@@ -14,6 +14,7 @@ describe("versioning: incompatible use of decorators", () => {
   beforeEach(async () => {
     runner = await Tester.import(...imports).createInstance();
   });
+
   it("emit diagnostic when version enum has duplicate values", async () => {
     const diagnostics = await runner.diagnose(`
     @versioned(Versions)
@@ -67,8 +68,7 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("operation", () => {
-    // TODO See: https://github.com/microsoft/typespec/issues/2695
-    it.skip("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
+    it("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -110,8 +110,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    // TODO See: https://github.com/microsoft/typespec/issues/2695
-    it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
+    it("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -230,6 +229,20 @@ describe("versioning: validate incompatible references", () => {
         @added(Versions.v2)
         @removed(Versions.v3)
         op test(): Foo;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("succeed when intersecting model in operation response", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model A { b: B }
+
+        @added(Versions.v2)
+        model B {}
+
+        @added(Versions.v2)
+        op test(): A & { foo: "bar" };
       `);
       expectDiagnosticEmpty(diagnostics);
     });
@@ -829,6 +842,21 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("should not emit diagnostic for templated model with versioned property and type added in same version", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model UsageDetails {
+          data: string;
+        }
+
+        model Widget<T> {
+          @added(Versions.v2)
+          usage: UsageDetails;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("interface templates", () => {
@@ -1043,6 +1071,124 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is 'l2'.",
+      });
+    });
+  });
+
+  describe("nested expressions", () => {
+    it("a model declaration should be the boundary for checking", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v3)
+        model A { b: B }
+        
+        model B { c: C }
+      
+        @added(Versions.v3)
+        model C { }
+      `,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
+    describe("succeed when annotations are correctly defined", () => {
+      it("on property inside model expression", async () => {
+        const diagnostics = await runner.diagnose(`
+          @added(Versions.v3)
+          model A {}
+          model B { prop: { @added(Versions.v3) a: A }}
+        `);
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
+    describe("report issues inside model expression under model", () => {
+      it("when base model is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        @added(Versions.v2)
+        model A {
+          prop: { b: B }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+         @added(Versions.v2)
+          prop: { b: B }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+    });
+
+    describe("report issues inside nested model expression under model", () => {
+      it("when base model is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        @added(Versions.v2)
+        model A {
+          prop: { nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when top parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+          @added(Versions.v2)
+          prop: { nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+          prop: { @added(Versions.v2) nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
       });
     });
   });

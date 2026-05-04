@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: InputRequestLocation.Header, isRequired: true);
+            var param = InputFactory.HeaderParameter("param", InputFactory.Literal.String("bar"), isRequired: true);
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod], parameters: [param]);
@@ -66,6 +66,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             _ = mockOutputLibrary.Object.TypeProviders;
 
             _mockVisitor.Protected().Verify<ClientProvider?>("Visit", Times.Once(), inputClient, ItExpr.IsAny<ClientProvider?>());
+        }
+
+        [Test]
+        public void PreVisitsCreateRequestMethods()
+        {
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
+
+            var inputOperation = InputFactory.Operation("testOperation", responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod]);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
+                "Sample",
+                clients: [inputClient]));
+
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+            _ = restClient.Methods;
+
+            _mockVisitor.Protected().Verify<ScmMethodProvider?>("VisitCreateRequestMethod", Times.Once(), inputServiceMethod, ItExpr.IsAny<RestClientProvider>(), ItExpr.IsAny<ScmMethodProvider?>());
+        }
+
+        [Test]
+        public void PreVisitsCreateNextRequestMethods()
+        {
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
+
+            var inputOperation = InputFactory.Operation("testOperation", responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("test", inputOperation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod]);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
+                "Sample",
+                clients: [inputClient]));
+
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+            _ = restClient.Methods;
+
+            // Verified twice because it is called for CreateRequest and CreateNextRequest
+            _mockVisitor.Protected().Verify<ScmMethodProvider?>("VisitCreateRequestMethod", Times.Exactly(2), inputServiceMethod, ItExpr.IsAny<RestClientProvider>(), ItExpr.IsAny<ScmMethodProvider?>());
         }
     }
 }

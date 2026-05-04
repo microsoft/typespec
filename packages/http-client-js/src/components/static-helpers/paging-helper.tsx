@@ -1,5 +1,6 @@
-import { code, Declaration, refkey } from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { Declaration } from "@alloy-js/typescript";
 
 export function getPagedAsyncIterableIteratorRefkey() {
   return refkey("PagedAsyncIterableIterator", "interface");
@@ -19,7 +20,11 @@ function getBuildPagedAsyncIteratorOptionsRefkey() {
 
 function PagedAsyncIterableIteratorInterfaceDeclaration() {
   return (
-    <Declaration name="PagedAsyncIterableIterator" refkey={getPagedAsyncIterableIteratorRefkey()}>
+    <Declaration
+      name="PagedAsyncIterableIterator"
+      nameKind="interface"
+      refkey={getPagedAsyncIterableIteratorRefkey()}
+    >
       {code`
   /**
 * An interface that allows async iterable iteration both to completion and by page.
@@ -54,7 +59,7 @@ export interface PagedAsyncIterableIterator<
 
 function PagedResultInterfaceDeclaration() {
   return (
-    <Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
+    <Declaration name="PagedResult" nameKind="interface" refkey={getPagedResultRefkey()}>
       {code`
 /**
 * An interface that describes how to communicate with the service.
@@ -92,6 +97,7 @@ function BuildPagedAsyncIteratorOptionsInterfaceDeclaration() {
   return (
     <Declaration
       name="BuildPagedAsyncIteratorOptions"
+      nameKind="interface"
       refkey={getBuildPagedAsyncIteratorOptionsRefkey()}
     >
       {code`
@@ -112,7 +118,11 @@ export interface BuildPagedAsyncIteratorOptions<
 
 function BuildPagedAsyncIteratorInterfaceDeclaration() {
   return (
-    <Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
+    <Declaration
+      name="buildPagedAsyncIterator"
+      nameKind="function"
+      refkey={getBuildPagedAsyncIteratorRefkey()}
+    >
       {code`
 /**
  * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator

@@ -25,17 +25,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         {
             var intType = InputFactory.Int32Enum(
                 "mockInputEnum",
-                [ ("One", 1), ("Two", 2)],
+                [("One", 1), ("Two", 2)],
                 isExtensible: isExtensible);
 
             var floatType = InputFactory.Float32Enum(
                 "mockInputEnum",
-                [ ("One", 1f), ("Two", 2f)],
+                [("One", 1f), ("Two", 2f)],
                 isExtensible: isExtensible);
 
             var stringType = InputFactory.StringEnum(
                 "mockInputEnum",
-                [ ("One", "1"), ("Two", "2")],
+                [("One", "1"), ("Two", "2")],
                 isExtensible: isExtensible);
 
             return [intType, floatType, stringType];

@@ -21,15 +21,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
         }
 
-        public abstract MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options);
-        public abstract MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options);
+        public abstract MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options);
+        public abstract MethodBodyStatement[] SendMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options);
 
-        public abstract ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier);
+        public abstract MethodBodyStatement[] CreateMessage(
+            HttpRequestOptionsApi requestOptions,
+            ValueExpression uri,
+            ScopedApi<string> method,
+            ValueExpression responseClassifier,
+            out HttpMessageApi message,
+            out HttpRequestApi request);
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
         public abstract ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
         public abstract ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes);
+        public virtual ValueExpression? UserAgentPolicy(CSharpType clientType) => null;
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }

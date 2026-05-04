@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -28,13 +26,14 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class ModelExampleWriter {
 
     private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), ModelExampleWriter.class);
 
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
 
     private final Consumer<JavaBlock> assertionWriter;
     private final ExampleNodeModelInitializationVisitor modelInitializationVisitor
@@ -61,9 +60,7 @@ public class ModelExampleWriter {
         assertionVisitor.accept(exampleNode, modelVariableName);
         imports.addAll(assertionVisitor.imports);
 
-        this.assertionWriter = methodBlock -> {
-            assertionVisitor.assertions.forEach(methodBlock::line);
-        };
+        this.assertionWriter = methodBlock -> assertionVisitor.assertions.forEach(methodBlock::line);
 
         modelInitializationCode = modelInitializationVisitor.accept(exampleNode);
         imports.addAll(modelInitializationVisitor.getImports());
@@ -88,7 +85,7 @@ public class ModelExampleWriter {
     public static void writeMapOfMethod(JavaClass classBlock) {
         classBlock.lineComment("Use \"Map.of\" if available");
         classBlock.annotation("SuppressWarnings(\"unchecked\")");
-        classBlock.method(JavaVisibility.Private, Collections.singletonList(JavaModifier.Static),
+        classBlock.method(JavaVisibility.Private, List.of(JavaModifier.Static),
             "<T> Map<String, T> mapOf(Object... inputs)", methodBlock -> {
                 methodBlock.line("Map<String, T> map = new HashMap<>();");
                 methodBlock.line("for (int i = 0; i < inputs.length; i += 2) {");
@@ -104,7 +101,7 @@ public class ModelExampleWriter {
 
     public static class ExampleNodeAssertionVisitor {
 
-        private final Set<String> imports = new HashSet<>();
+        private final Set<String> imports = new LinkedHashSet<>();
 
         private final List<String> assertions = new ArrayList<>();
 
@@ -167,8 +164,8 @@ public class ModelExampleWriter {
 
     public static class ExampleNodeModelInitializationVisitor {
 
-        protected final Set<String> imports = new HashSet<>();
-        protected final Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
+        protected final Set<String> imports = new LinkedHashSet<>();
+        protected final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
 
         /**
          * Extension to write code for deserialize JSON String to Object.
@@ -176,8 +173,8 @@ public class ModelExampleWriter {
          * @param jsonStr the JSON String.
          */
         protected String codeDeserializeJsonString(String jsonStr) {
-            imports.add(com.azure.core.util.serializer.JacksonAdapter.class.getName());
-            imports.add(com.azure.core.util.serializer.SerializerEncoding.class.getName());
+            imports.add(ClassType.JACKSON_ADAPTER.getFullName());
+            imports.add(ClassType.SERIALIZER_ENCODING.getFullName());
 
             return String.format(
                 "JacksonAdapter.createDefaultSerializerAdapter().deserialize(%s, Object.class, SerializerEncoding.JSON)",
@@ -237,7 +234,7 @@ public class ModelExampleWriter {
                     helperFeatures.add(ExampleHelperFeature.ThrowsIOException);
 
                     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                        JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+                        JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
                         jsonWriter.writeUntyped(node.getObjectValue()).flush();
 
                         return codeDeserializeJsonString(outputStream.toString(StandardCharsets.UTF_8));
@@ -249,13 +246,9 @@ public class ModelExampleWriter {
             } else if (node instanceof ListNode) {
                 imports.add(java.util.Arrays.class.getName());
 
-                StringBuilder builder = new StringBuilder();
                 // Arrays.asList(...)
-                builder.append("Arrays.asList(")
-                    .append(node.getChildNodes().stream().map(this::accept).collect(Collectors.joining(", ")))
-                    .append(")");
-
-                return builder.toString();
+                return "Arrays.asList("
+                    + node.getChildNodes().stream().map(this::accept).collect(Collectors.joining(", ")) + ")";
             } else if (node instanceof MapNode) {
                 imports.add(java.util.Map.class.getName());
                 imports.add(java.util.HashMap.class.getName());
@@ -302,7 +295,7 @@ public class ModelExampleWriter {
                         = Stream.concat(requiredParentProperties.stream(), requiredProperties.stream())
                             .map(ModelProperty::ofClientModelProperty)
                             .collect(Collectors.toList());
-                    Map<ModelProperty, Integer> ctorPosition = new HashMap<>();
+                    Map<ModelProperty, Integer> ctorPosition = new LinkedHashMap<>();
                     for (int i = 0; i < properties.size(); ++i) {
                         ctorPosition.put(properties.get(i), i);
                     }
@@ -352,7 +345,7 @@ public class ModelExampleWriter {
                 }
                 return builder.toString();
             } else if (node instanceof BinaryDataNode) {
-                this.imports.add(com.azure.core.util.BinaryData.class.getName());
+                this.imports.add(ClassType.BINARY_DATA.getFullName());
                 this.imports.add(java.nio.charset.StandardCharsets.class.getName());
                 return binaryDataNodeExpression((BinaryDataNode) node);
             }

@@ -1,4 +1,10 @@
-import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import {
+  json,
+  MockRequest,
+  passOnSuccess,
+  ScenarioMockApi,
+  ValidationError,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string, data: any) {
@@ -34,6 +40,11 @@ Scenarios.Parameters_BodyOptionality_OptionalExplicit = passOnSuccess([
     response: {
       status: 204,
     },
+    handler: (req: MockRequest) => {
+      // Validate that Content-Type header is present when body is provided
+      req.expect.containsHeader("content-type", "application/json");
+      return { status: 204 };
+    },
     kind: "MockApiDefinition",
   },
   {
@@ -45,6 +56,15 @@ Scenarios.Parameters_BodyOptionality_OptionalExplicit = passOnSuccess([
     },
     handler: (req: MockRequest) => {
       req.expect.rawBodyEquals(undefined);
+      // Validate that Content-Type header is NOT present when body is omitted
+      const contentTypeHeader = req.headers["content-type"];
+      if (contentTypeHeader !== undefined) {
+        throw new ValidationError(
+          "Content-Type header must NOT be present when body is omitted",
+          undefined,
+          contentTypeHeader,
+        );
+      }
       return { status: 204 };
     },
     kind: "MockApiDefinition",

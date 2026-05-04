@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract CSharpType ClientCollectionResponseOfTType { get; }
         public abstract CSharpType ClientCollectionAsyncResponseOfTType { get; }
+        public abstract string ResponseParameterName { get; }
 
         public abstract TypeProvider CreateClientCollectionResultDefinition(
             ClientProvider client,

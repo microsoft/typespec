@@ -1,4 +1,16 @@
-import { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
+import {
+  Diagnostic,
+  getMediaTypeHint,
+  Model,
+  ModelProperty,
+  Program,
+  Type,
+  TypeKind,
+} from "@typespec/compiler";
+import {
+  type unsafe_MutatorWithNamespace as MutatorWithNamespace,
+  unsafe_mutateSubgraphWithNamespace,
+} from "@typespec/compiler/experimental";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
@@ -9,10 +21,12 @@ import { deepStrictEqual, ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   getMergePatchProperties,
+  getMergePatchPropertySource,
   getMergePatchSource,
   isMergePatch,
 } from "../src/experimental/merge-patch/helpers.js";
-import { getAllHttpServices } from "../src/operations.js";
+import { isMergePatchBody } from "../src/experimental/merge-patch/internal.js";
+import { getAllHttpServices, getHttpService } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
 import { diagnoseOperations, getOperationsWithServiceNamespace, Tester } from "./test-host.js";
 
@@ -20,6 +34,17 @@ let runner: TesterInstance;
 beforeEach(async () => {
   runner = await Tester.createInstance();
 });
+
+const cloneNamespaceMutator: MutatorWithNamespace = {
+  name: "CloneNamespaceForMergePatchRegression",
+  Namespace: { mutate: () => {} },
+  Interface: { mutate: () => {} },
+  Operation: { mutate: () => {} },
+  Model: { mutate: () => {} },
+  ModelProperty: { mutate: () => {} },
+  Union: { mutate: () => {} },
+  UnionVariant: { mutate: () => {} },
+};
 
 function checkNullableUnion(program: Program, union: Type): boolean {
   return (
@@ -75,6 +100,39 @@ async function compileAndDiagnoseWithRunner(
   );
   const [services] = getAllHttpServices(runner.program, options);
   return [services[0].operations, runner.program.diagnostics];
+}
+
+async function compileAndCloneServiceWithRunner(
+  runner: TesterInstance,
+  code: string,
+  options?: RouteResolutionOptions,
+): Promise<[HttpOperation[], readonly Diagnostic[]]> {
+  await runner.compileAndDiagnose(
+    `@service(#{title: "Test Service"}) namespace TestService;
+      ${code}`,
+  );
+
+  const [services, httpDiagnostics] = getAllHttpServices(runner.program, options);
+  const clonedSubgraph = unsafe_mutateSubgraphWithNamespace(
+    runner.program,
+    [cloneNamespaceMutator],
+    services[0].namespace,
+  );
+
+  if (clonedSubgraph.type.kind !== "Namespace") {
+    throw new Error("Expected namespace clone when mutating service");
+  }
+
+  const [clonedService, clonedDiagnostics] = getHttpService(
+    runner.program,
+    clonedSubgraph.type,
+    options,
+  );
+
+  return [
+    clonedService.operations,
+    [...runner.program.diagnostics, ...httpDiagnostics, ...clonedDiagnostics],
+  ];
 }
 
 describe("metadata tests", () => {
@@ -225,7 +283,6 @@ describe("http operation support", () => {
         name: string;
         description?: string;
       }
-      #suppress "@typespec/http/patch-implicit-optional" "For test only ignore correct merge patch"
       @patch op update(@header("Content-type") contentType: "application/json", ...MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
       code: "@typespec/http/merge-patch-content-type",
@@ -246,6 +303,65 @@ describe("http operation support", () => {
   });
 });
 describe("mutator validation", () => {
+  it("sets media type hint on transformed models", async () => {
+    const [program, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Child {
+        id: string;
+      }
+
+      model Foo {
+        id: string;
+        child?: Child;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): void;`,
+    );
+
+    expectDiagnosticEmpty(diag);
+    const bodyType = program[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    expect(getMediaTypeHint(runner.program, bodyType)).toBe("application/merge-patch+json");
+
+    const childProp = bodyType.properties.get("child");
+    ok(childProp);
+    const childType = getNonNullableType(childProp.type);
+    ok(childType);
+    deepStrictEqual(childType.kind, "Model");
+    expect(getMediaTypeHint(runner.program, childType)).toBe("application/merge-patch+json");
+  });
+
+  it("preserves merge-patch metadata for template spread bodies after namespace mutation", async () => {
+    const [operations, diag] = await compileAndCloneServiceWithRunner(
+      runner,
+      `
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+
+      op Wrapper<Parameters extends TypeSpec.Reflection.Model>(...Parameters): void;
+
+      @patch op update is Wrapper<MergePatchUpdate<Foo>>;
+      `,
+    );
+
+    expectDiagnosticEmpty(diag);
+
+    const body = operations[0].parameters?.body;
+    ok(body);
+    expect(body.contentTypes).toEqual(["application/merge-patch+json"]);
+    expect(isMergePatchBody(runner.program, body.type)).toBe(true);
+
+    deepStrictEqual(body.type.kind, "Model");
+    const description = body.type.properties.get("description");
+    ok(description);
+    expect(getMergePatchPropertySource(runner.program, description)).toBeDefined();
+  });
+
   it("handles optional and required properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,

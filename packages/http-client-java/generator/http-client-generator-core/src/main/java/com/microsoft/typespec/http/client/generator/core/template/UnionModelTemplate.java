@@ -3,8 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.annotation.Immutable;
-import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
@@ -12,8 +11,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import java.util.Collections;
-import java.util.HashSet;
+import io.clientcore.core.utils.CoreUtils;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,16 +35,15 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
         final boolean isAbstractClass = CoreUtils.isNullOrEmpty(model.getParentModelName());
         final String superClassName = model.getParentModelName();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         model.addImportsTo(imports);
 
-        imports.add(Immutable.class.getName());
+        imports.add(Annotation.IMMUTABLE.getFullName());
         imports.add("com.fasterxml.jackson.annotation.JsonValue");
 
         javaFile.declareImport(imports);
 
-        List<JavaModifier> modifiers
-            = Collections.singletonList(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
+        List<JavaModifier> modifiers = List.of(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
         String classDeclaration = isAbstractClass ? model.getName() : (model.getName() + " extends " + superClassName);
         javaFile.javadocComment(comment -> comment.description(model.getDescription()));
         if (!isAbstractClass) {
@@ -70,9 +68,8 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
                     = comment -> comment.description("Creates an instance of " + model.getName() + " class.");
 
                 for (ClientModelProperty property : model.getProperties()) {
-                    javadocCommentConsumer = javadocCommentConsumer.andThen(comment -> {
-                        comment.param(property.getName(), "the value");
-                    });
+                    javadocCommentConsumer
+                        = javadocCommentConsumer.andThen(comment -> comment.param(property.getName(), "the value"));
 
                     if (constructorProperties.length() > 0) {
                         constructorProperties.append(", ");
@@ -101,9 +98,8 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
                     comment.methodReturns("the value");
                 });
                 classBlock.annotation("JsonValue");
-                classBlock.publicMethod(clientType + " " + property.getGetterName() + "()", methodBlock -> {
-                    methodBlock.methodReturn("this." + propertyName);
-                });
+                classBlock.publicMethod(clientType + " " + property.getGetterName() + "()",
+                    methodBlock -> methodBlock.methodReturn("this." + propertyName));
             }
         });
     }

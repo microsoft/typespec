@@ -19,7 +19,7 @@ namespace Payload.MultiPart.Models
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("address", Address, ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
 
             return content;

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -31,7 +32,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<Task<Compilation>>? compilation = null,
             Func<Task<Compilation>>? lastContractCompilation = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
-            string? configuration = null)
+            string? configuration = null,
+            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -39,7 +42,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputModels: inputModels,
                 clients: clients,
                 apiVersions: apiVersions,
-                configuration: configuration);
+                configuration: configuration,
+                createCSharpTypeCore: createCSharpTypeCore,
+                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
@@ -68,7 +73,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             HttpMessageApi? httpMessageApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
-            bool includeXmlDocs = false)
+            Func<OutputLibrary>? createOutputLibrary = null,
+            bool includeXmlDocs = false,
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -77,9 +85,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
             InputAuth? inputAuth = auth?.Invoke() ?? null;
 
-            // reset the type cache on TypeReferenceExpression
-            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
-            resetCacheMethod!.Invoke(null, null);
+            ResetCache();
 
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
@@ -108,9 +114,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<IReadOnlyList<TypeProvider>>("CreateSerializationsCore", ItExpr.IsAny<InputType>(), ItExpr.IsAny<TypeProvider>()).Returns(createSerializationsCore);
             }
 
+            if (createModelCore is not null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns(createModelCore);
+            }
+
             if (createCSharpTypeCore is not null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                if (createCSharpTypeCoreFallback is not null)
+                {
+                    mockTypeFactory.Protected()
+                        .Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>())
+                        .Returns((InputType input) =>
+                            createCSharpTypeCoreFallback(input)
+                                ? createCSharpTypeCore(input)
+                                : null!);
+                }
+                else
+                {
+                    mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
+                }
             }
 
             if (createClientCore is not null)
@@ -158,6 +181,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
 
+            if (createOutputLibrary != null)
+            {
+                mockGeneratorInstance.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
+            }
+
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
             mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
@@ -171,6 +199,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             configureMethod!.Invoke(mockGeneratorInstance.Object, null);
 
             return mockGeneratorInstance;
+        }
+
+        private static void ResetCache()
+        {
+            // reset the type cache on TypeReferenceExpression
+            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
+            resetCacheMethod!.Invoke(null, null);
+
+            // Clear the CSharpType static cache
+            var csharpTypeType = typeof(CSharpType);
+            var cacheField = csharpTypeType.GetField("_cache",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            if (cacheField != null)
+            {
+                var cache = cacheField.GetValue(null) as IDictionary;
+                cache?.Clear();
+            }
         }
     }
 }

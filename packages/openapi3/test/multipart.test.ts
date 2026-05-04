@@ -1,9 +1,9 @@
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("create dedicated model for multipart", async () => {
     const res = await openApiFor(
       `
@@ -89,6 +89,33 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     expect(schema.properties.name).toEqual({
       allOf: [{ $ref: "#/components/schemas/Foo" }],
       description: "My doc",
+    });
+  });
+
+  it("named union with bytes variant does not cause 'Duplicate type name' error", async () => {
+    const res = await openApiFor(
+      `
+    union BinaryOrJson {
+      bytes,
+      { file_id: string },
+    }
+    op upload(@header contentType: "multipart/form-data", @multipartBody body: { attachment: HttpPart<BinaryOrJson> }): void;
+    `,
+    );
+    const op = res.paths["/"].post;
+    // The union should be referenced as a $ref (not inlined), and should be available in components
+    expect(op.requestBody.content["multipart/form-data"].schema.properties.attachment.$ref).toEqual(
+      "#/components/schemas/BinaryOrJson",
+    );
+    const schema = res.components.schemas.BinaryOrJson;
+    expect(schema).toBeDefined();
+    // The schema should use anyOf with 2 variants
+    expect(schema.anyOf).toHaveLength(2);
+    // The object variant ({file_id: string}) should appear in the schema regardless of version
+    expect(schema.anyOf).toContainEqual({
+      type: "object",
+      properties: { file_id: { type: "string" } },
+      required: ["file_id"],
     });
   });
 });

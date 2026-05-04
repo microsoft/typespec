@@ -2,6 +2,7 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  getLocationContext,
   getOverloadedOperation,
   getOverloads,
   listOperationsIn,
@@ -13,9 +14,10 @@ import {
 } from "@typespec/compiler";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
+import { isSharedRoute } from "./decorators/shared-route.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
-import { isSharedRoute, resolvePathAndParameters } from "./route.js";
+import { resolvePathAndParameters } from "./route.js";
 import {
   HttpOperation,
   HttpService,
@@ -106,10 +108,18 @@ export function getHttpService(
 }
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
-  if (routes.length === 0) {
+  const services = listServices(program);
+  // Only warn if there are no services defined anywhere in the program
+  if (services.length === 0) {
     navigateProgram(program, {
       namespace: (namespace) => {
-        if (namespace.operations.size > 0) {
+        // Skip the global namespace (it has an empty name)
+        if (namespace.name === "") {
+          return;
+        }
+        // Only warn on user project namespaces with operations, not library namespaces
+        const locationContext = getLocationContext(program, namespace);
+        if (namespace.operations.size > 0 && locationContext.type === "project") {
           reportDiagnostic(program, {
             code: "no-service-found",
             format: {

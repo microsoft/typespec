@@ -3,8 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from copy import deepcopy
-from typing import List
 from ..models.imports import (
     ImportType,
     FileImport,
@@ -14,7 +12,7 @@ from ..models.imports import (
 )
 
 
-def _serialize_package(imports: List[ImportModel], delimiter: str) -> str:
+def _serialize_package(imports: list[ImportModel], delimiter: str) -> str:
     buffer = []
     if any(i for i in imports if i.submodule_name is None):
         buffer.append(f"import {imports[0].module_name}{f' as {imports[0].alias}' if imports[0].alias else ''}")
@@ -47,25 +45,30 @@ def _serialize_versioned_package(i: ImportModel, delimiter: str) -> str:
     return delimiter.join(buffer)
 
 
-def _serialize_import_type(imports: List[ImportModel], delimiter: str) -> str:
+def _serialize_import_type(imports: list[ImportModel], delimiter: str) -> str:
     """Serialize a given import type."""
     import_list = []
     for module_name in sorted(set(i.module_name for i in imports)):
         normal_imports = [i for i in imports if i.module_name == module_name and not i.version_modules]
-        versioned_imports = [i for i in imports if i.module_name == module_name and i.version_modules]
         if normal_imports:
             import_list.append(_serialize_package(normal_imports, delimiter))
-        for i in versioned_imports:
-            import_list.append(_serialize_versioned_package(i, delimiter))
     return delimiter.join(import_list)
 
 
-def _get_import_clauses(imports: List[ImportModel], delimiter: str) -> List[str]:
+def _serialize_versioned_imports(imports: list[ImportModel], delimiter: str) -> str:
+    """Serialize all versioned imports together, to be emitted after all regular imports."""
+    return delimiter.join(_serialize_versioned_package(i, delimiter) for i in imports if i.version_modules)
+
+
+def _get_import_clauses(imports: list[ImportModel], delimiter: str) -> list[str]:
     import_clause = []
     for import_type in ImportType:
-        imports_with_import_type = [i for i in imports if i.import_type == import_type]
+        imports_with_import_type = [i for i in imports if i.import_type == import_type and not i.version_modules]
         if imports_with_import_type:
             import_clause.append(_serialize_import_type(imports_with_import_type, delimiter))
+    versioned = [i for i in imports if i.version_modules]
+    if versioned:
+        import_clause.append(_serialize_versioned_imports(versioned, delimiter))
     return import_clause
 
 
@@ -74,52 +77,45 @@ class FileImportSerializer:
         self.file_import = file_import
         self.async_mode = async_mode
 
-    def _get_imports_list(self, baseline_typing_section: TypingSection, add_conditional_typing: bool):
-        # If this is a python 3 file, our regular imports include the CONDITIONAL category
-        # If this is not a python 3 file, our typing imports include the CONDITIONAL category
-        file_import_copy = deepcopy(self.file_import)
-        if add_conditional_typing and any(self.file_import.get_imports_from_section(TypingSection.CONDITIONAL)):
-            # we switch the TypingSection key for the CONDITIONAL typing imports so we can merge
-            # the imports together
-            for i in file_import_copy.imports:
-                if i.typing_section == TypingSection.CONDITIONAL:
-                    i.typing_section = baseline_typing_section
-        return file_import_copy.get_imports_from_section(baseline_typing_section)
+    def _get_imports_list(self, typing_section: TypingSection):
+        return list(self.file_import.get_imports_from_section(typing_section))
 
     def _add_type_checking_import(self):
         if any(self.file_import.get_imports_from_section(TypingSection.TYPING)):
             self.file_import.add_submodule_import("typing", "TYPE_CHECKING", ImportType.STDLIB)
 
+    def _add_sys_import_if_needed(self):
+        all_imports = list(self.file_import.get_imports_from_section(TypingSection.REGULAR)) + list(
+            self.file_import.get_imports_from_section(TypingSection.TYPING)
+        )
+        if any(i.version_modules for i in all_imports):
+            self.file_import.add_import("sys", ImportType.STDLIB)
+
     def get_typing_definitions(self) -> str:
-        def declare_definition(type_name: str, type_definition: TypeDefinition) -> List[str]:
-            ret: List[str] = []
+        def declare_definition(type_name: str, type_definition: TypeDefinition) -> list[str]:
+            ret: list[str] = []
             definition_value = type_definition.async_definition if self.async_mode else type_definition.sync_definition
             ret.append("{} = {}".format(type_name, definition_value))
             return ret
 
         if not self.file_import.type_definitions:
             return ""
-        declarations: List[str] = [""]
+        declarations: list[str] = [""]
         for type_name, value in self.file_import.type_definitions.items():
             declarations.extend(declare_definition(type_name, value))
         return "\n".join(declarations)
 
     def __str__(self) -> str:
         self._add_type_checking_import()
+        self._add_sys_import_if_needed()
         regular_imports = ""
-        regular_imports_list = self._get_imports_list(
-            baseline_typing_section=TypingSection.REGULAR,
-            add_conditional_typing=True,
-        )
+        regular_imports_list = self._get_imports_list(TypingSection.REGULAR)
 
         if regular_imports_list:
             regular_imports = "\n\n".join(_get_import_clauses(regular_imports_list, "\n"))
 
         typing_imports = ""
-        typing_imports_list = self._get_imports_list(
-            baseline_typing_section=TypingSection.TYPING,
-            add_conditional_typing=False,
-        )
+        typing_imports_list = self._get_imports_list(TypingSection.TYPING)
         if typing_imports_list:
             typing_imports += "\n\nif TYPE_CHECKING:\n    "
             typing_imports += "\n\n    ".join(_get_import_clauses(typing_imports_list, "\n    "))

@@ -1,7 +1,8 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
-  SdkBodyModelPropertyType,
   SdkDurationType,
+  SdkEnumType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   isSdkFloatKind,
@@ -33,7 +34,7 @@ import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 
-export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds"];
+export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds", "milliseconds"];
 export const DATETIME_KNOWN_ENCODING = ["rfc3339", "rfc7231", "unixTimestamp"];
 export const BYTES_KNOWN_ENCODING = ["base64", "base64url"];
 
@@ -136,6 +137,16 @@ export function getDurationFormat(type: SdkDurationType): DurationSchema["format
     } else {
       throw new Error(
         `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`,
+      );
+    }
+  } else if (type.encode === "milliseconds") {
+    if (isSdkIntKind(type.wireType.kind)) {
+      format = "milliseconds-integer";
+    } else if (isSdkFloatKind(type.wireType.kind)) {
+      format = "milliseconds-number";
+    } else {
+      throw new Error(
+        `Unrecognized scalar type used by duration encoded as milliseconds: '${type.kind}'.`,
       );
     }
   }
@@ -352,7 +363,7 @@ export function isArmCommonType(entity: Type): boolean {
  * @param property the model property.
  * @returns the serialized name of the property.
  */
-export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+export function getPropertySerializedName(property: SdkModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
@@ -370,7 +381,7 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
  * @returns the XML serialization format, or undefined if not applicable.
  */
 export function getXmlSerializationFormat(
-  type: SdkModelType | SdkBodyModelPropertyType,
+  type: SdkModelType | SdkModelPropertyType,
 ): XmlSerializationFormat | undefined {
   if (!type.serializationOptions.xml) {
     return undefined;
@@ -392,6 +403,9 @@ export function getXmlSerializationFormat(
     attribute: type.serializationOptions.xml.attribute ?? false,
     wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
     text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
+    itemsName: type.serializationOptions.xml.itemsName ?? undefined,
+    itemsNamespace: type.serializationOptions.xml.itemsNs?.namespace ?? undefined,
+    itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix ?? undefined,
   };
 }
 
@@ -480,4 +494,18 @@ export function scopeImplicitlyIncludeJava(scope: string): boolean {
 function scopeIsNegationOfMultiple(scope: string): boolean {
   const trimmedScope = scope.trim();
   return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
+}
+
+/**
+ * Gets the Java simple class name of the ExternalType type.
+ * @param type the type.
+ * @returns the Java simple class name.
+ */
+export function getExternalJavaClassName(type: SdkModelType | SdkEnumType): string {
+  if (type.external) {
+    const fullyQualifiedClassName = type.external.identity;
+    return fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf(".") + 1);
+  } else {
+    throw new Error(`Type ${type.name} is not an ExternalType.`);
+  }
 }

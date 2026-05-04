@@ -3,19 +3,20 @@ import {
   ResolvedModule,
   resolveModule,
   ResolveModuleError,
-  ResolveModuleHost,
-} from "../module-resolver/module-resolver.js";
+} from "../module-resolver/index.js";
 import { PackageJson } from "../types/package-json.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
+  ModifierFlags,
   ModuleLibraryMetadata,
   NodeFlags,
   NoTarget,
@@ -40,6 +41,9 @@ export interface SourceResolution {
   readonly locationContexts: WeakMap<SourceFile, LocationContext>;
   readonly loadedLibraries: Map<string, TypeSpecLibraryReference>;
 
+  /** List of imports that were marked as external and not loaded. */
+  readonly externals: string[];
+
   readonly diagnostics: readonly Diagnostic[];
 }
 
@@ -52,6 +56,10 @@ export interface LoadSourceOptions {
   readonly parseOptions?: ParseOptions;
   readonly tracer?: Tracer;
   getCachedScript?: (file: SourceFile) => TypeSpecScriptNode | undefined;
+  /**
+   * List or callback to determine if a module is external and should not be loaded.
+   */
+  externals?: string[] | ((path: string) => boolean);
 }
 
 export interface SourceLoader {
@@ -86,11 +94,19 @@ export async function createSourceLoader(
   const sourceFiles = new Map<string, TypeSpecScriptNode>();
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
+  const externals: string[] = [];
+
+  const externalsOpts = options?.externals;
+  const isExternal = externalsOpts
+    ? typeof externalsOpts === "function"
+      ? externalsOpts
+      : (x: string) => externalsOpts.includes(x)
+    : () => false;
 
   async function importFile(
     path: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
-    locationContext: LocationContext,
+    locationContext: LocationContext = { type: "project" },
     kind: "import" | "entrypoint" = "import",
   ) {
     const sourceFileKind = host.getSourceFileKind(path);
@@ -121,6 +137,7 @@ export async function createSourceLoader(
       locationContexts: sourceFileLocationContexts,
       loadedLibraries: loadedLibraries,
       diagnostics: diagnostics.diagnostics,
+      externals,
     },
   };
 
@@ -185,7 +202,11 @@ export async function createSourceLoader(
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
     const locationContext = sourceFileLocationContexts.get(sourcefile);
-    compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
+    compilerAssert(
+      locationContext,
+      `SourceFile ${sourcefile.path} should have a declaration locationContext.`,
+      { file: sourcefile, pos: 0, end: 0 },
+    );
     return locationContext;
   }
 
@@ -206,10 +227,15 @@ export async function createSourceLoader(
     relativeTo: string,
     locationContext: LocationContext = { type: "project" },
   ) {
+    if (isExternal(path)) {
+      externals.push(path);
+      return;
+    }
     const library = await resolveTypeSpecLibrary(path, relativeTo, target);
     if (library === undefined) {
       return;
     }
+
     if (library.type === "module") {
       loadedLibraries.set(library.manifest.name, {
         path: library.path,
@@ -226,8 +252,8 @@ export async function createSourceLoader(
         metadata,
       };
     }
-    const importFilePath = library.type === "module" ? library.mainFile : library.path;
 
+    const importFilePath = library.type === "module" ? library.mainFile : library.path;
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
       await loadDirectory(importFilePath, locationContext, target);
@@ -247,7 +273,7 @@ export async function createSourceLoader(
     target: DiagnosticTarget | typeof NoTarget,
   ): Promise<ModuleResolutionResult | undefined> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, {
+      return await resolveModule(createResolveModuleHost(host), specifier, {
         baseDir,
         directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
@@ -297,17 +323,6 @@ export async function createSourceLoader(
       jsSourceFiles.set(path, file);
     }
     return file;
-  }
-
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
   }
 }
 
@@ -376,6 +391,8 @@ export async function loadJsFile(
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
   return [node, diagnostics];
 }
@@ -386,7 +403,11 @@ export function moduleResolutionErrorToDiagnostic(
   sourceTarget: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
   const target: DiagnosticTarget | typeof NoTarget = e.pkgJson
-    ? { file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path), pos: 0, end: 0 }
+    ? {
+        file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path),
+        pos: 0,
+        end: 0,
+      }
     : sourceTarget;
   switch (e.code) {
     case "MODULE_NOT_FOUND":

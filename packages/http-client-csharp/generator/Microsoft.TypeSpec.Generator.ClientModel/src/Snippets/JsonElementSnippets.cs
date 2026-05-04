@@ -58,6 +58,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ValueExpression GetChar(this ScopedApi<JsonElement> jsonElement)
             => jsonElement.Invoke("GetChar");
+        public static ScopedApi<BinaryData> GetUtf8Bytes(this ScopedApi<JsonElement> jsonElement)
+            => jsonElement.Invoke("GetUtf8Bytes").As<BinaryData>();
 
         public static ValueExpression GetDateTimeOffset(this ScopedApi<JsonElement> jsonElement, string? format)
             => jsonElement.Invoke(nameof(JsonElement.GetDateTimeOffset), format is null ? [] : [Literal(format)]);
@@ -103,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ScopedApi<bool> TryGetSingle(this ScopedApi<JsonElement> jsonElement, out ScopedApi<float> floatValue)
         {
             var floatValueDeclaration = new VariableExpression(typeof(float), "floatValue");
-            floatValue= floatValueDeclaration.As<float>();
+            floatValue = floatValueDeclaration.As<float>();
             var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetSingle), [new DeclarationExpression(floatValueDeclaration, true)]);
             return invocation.As<bool>();
         }

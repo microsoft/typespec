@@ -120,7 +120,9 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getWithResponseAsync(RequestOptions requestOptions) {
@@ -150,7 +152,9 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(RequestOptions requestOptions) {
@@ -182,7 +186,9 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> putWithResponseAsync(BinaryData input, RequestOptions requestOptions) {
@@ -216,7 +222,9 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestOptions requestOptions) {

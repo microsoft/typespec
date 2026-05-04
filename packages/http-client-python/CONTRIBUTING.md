@@ -74,7 +74,7 @@ npm run ci
    ```bash
    # Navigate to the root of the TypeSpec repository
    cd ../../
-   pnpm changeset add
+   pnpm change add
    ```
 
    Follow the prompts to describe your changes. This helps with automated changelog generation and versioning.
@@ -93,7 +93,7 @@ Before creating a pull request:
 - [ ] Ensure all tests pass: `npm run regenerate && npm run ci`
 - [ ] Ensure code is properly formatted: `npm run format`
 - [ ] Ensure code is properly linted: `npm run lint`
-- [ ] Add a changeset: `pnpm changeset add` (from repo root)
+- [ ] Add a changeset: `pnpm change add` (from repo root)
 - [ ] Update documentation if needed
 
 ### 2. Create the PR
@@ -105,40 +105,58 @@ Before creating a pull request:
 
 ## Downstream Testing
 
-Due to the integration with `@azure-tools/typespec-python`, we require downstream testing to ensure compatibility.
+This package (`@typespec/http-client-python`) is the **unbranded emitter**. It is wrapped by the **branded emitter** (`@azure-tools/typespec-python`), which lives in [Azure/typespec-azure](https://github.com/Azure/typespec-azure/tree/main/packages/typespec-python).
 
-### Automatic Downstream PR Creation
+### How CI Works
 
-After your PR is created and CI passes:
+When you open a PR against this package:
 
-1. **Get the build artifact URL**:
+1. **Unbranded emitter CI** runs automatically (build, lint, test, regenerate).
+2. **Branded emitter CI** also runs automatically — it builds `@azure-tools/typespec-python` from [`Azure/typespec-azure`](https://github.com/Azure/typespec-azure/tree/main/packages/typespec-python) against your PR's version of `@typespec/http-client-python` to verify compatibility.
 
-   - In your PR's CI results, click on "5 published; 1 consumed" (or similar)
-   - Navigate to: `Published artifacts` → `build_artifacts_python` → `packages` → `typespec-http-client-python-x.x.x.tgz`
-   - Click the three dots and select "Copy download url"
+Both must pass before your PR can be merged.
 
-2. **Trigger downstream testing**:
+### Manual Regeneration Testing
 
-   - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
-     - `PULL-REQUEST-URL`: Your PR URL from step 1
-     - `ARTIFACTS-URL`: The artifact URL from step 1
+You can manually trigger the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow in `azure-sdk-for-python` to regenerate tests with either emitter:
 
-3. **Review downstream changes**:
+- **Branded** (`@azure-tools/typespec-python`): Select "branded" and optionally specify a version. If no version is given, it uses the version from [`eng/emitter-package.json`](https://github.com/Azure/azure-sdk-for-python/blob/main/eng/emitter-package.json).
+- **Unbranded** (`@typespec/http-client-python`): Select "unbranded" and optionally specify a version. If no version is given, it uses the latest published version on npm.
 
-   - The pipeline will create a PR in [autorest.python](https://github.com/Azure/autorest.python)
-   - Follow the [autorest.python CONTRIBUTING.md](https://github.com/Azure/autorest.python/blob/main/CONTRIBUTING.md) for any additional changes needed
+The workflow checks out `microsoft/typespec` (at the ref you specify, defaulting to `main`), builds the regeneration infrastructure, installs the target emitter from npm, and runs the full regeneration.
 
-4. **Merge process**:
-   - Ensure the downstream PR passes all tests
-   - Merge your original TypeSpec PR once downstream testing is complete
+### Post-Release: Updating azure-sdk-for-python
 
-### Post-Release Updates
+Once a new version of the branded emitter (`@azure-tools/typespec-python`) is released, follow these steps to update `azure-sdk-for-python`:
 
-After your changes are released:
+1. **Update `eng/emitter-package.json`** in [Azure/azure-sdk-for-python](https://github.com/Azure/azure-sdk-for-python):
 
-1. Update the [autorest.python](https://github.com/Azure/autorest.python) repository to use the released version
-2. Run `pnpm install` to update dependency mappings
-3. Release the autorest emitters with your changes
+   Update the `@azure-tools/typespec-python` version to the newly released version:
+
+   ```json
+   {
+     "dependencies": {
+       "@azure-tools/typespec-python": "<new-version>"
+     }
+   }
+   ```
+
+2. **Regenerate config files** using `tsp-client`:
+
+   ```bash
+   tsp-client generate-config-files \
+     --package-json= < path-to-local-typespec-azure > /packages/typespec-python/package.json
+   ```
+
+   This updates the `devDependencies` in `eng/emitter-package.json` to match the branded emitter's peer dependencies.
+
+3. **Create a PR** with the updated `eng/emitter-package.json` and submit it to `azure-sdk-for-python`.
+
+4. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up PR with the updated generated files.
+
+5. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated/`](https://github.com/Azure/azure-sdk-for-python/tree/main/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
+   - `azure/` — Tests generated with the branded emitter (Azure SDK specs)
+   - `unbranded/` — Tests generated with the unbranded emitter (TypeSpec HTTP specs)
 
 ## Getting Help
 

@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
@@ -14,8 +12,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -193,7 +192,7 @@ final class ProxyMethodParameterProcessor {
      */
     private static List<ProxyMethodParameter> getSpecialHeaderParameters(Operation operation) {
         if (!supportsRepeatabilityRequest(operation)) {
-            return Collections.emptyList();
+            return List.of();
         }
         final List<ProxyMethodParameter> parameters = new ArrayList<>();
         parameters.add(ProxyMethodParameter.REPEATABILITY_REQUEST_ID_PARAMETER);

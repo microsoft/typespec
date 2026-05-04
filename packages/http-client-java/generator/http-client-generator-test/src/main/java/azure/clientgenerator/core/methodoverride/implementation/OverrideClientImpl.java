@@ -86,6 +86,34 @@ public final class OverrideClientImpl {
     }
 
     /**
+     * The RequireOptionalParametersImpl object to access its operations.
+     */
+    private final RequireOptionalParametersImpl requireOptionalParameters;
+
+    /**
+     * Gets the RequireOptionalParametersImpl object to access its operations.
+     * 
+     * @return the RequireOptionalParametersImpl object.
+     */
+    public RequireOptionalParametersImpl getRequireOptionalParameters() {
+        return this.requireOptionalParameters;
+    }
+
+    /**
+     * The RemoveOptionalParametersImpl object to access its operations.
+     */
+    private final RemoveOptionalParametersImpl removeOptionalParameters;
+
+    /**
+     * Gets the RemoveOptionalParametersImpl object to access its operations.
+     * 
+     * @return the RemoveOptionalParametersImpl object.
+     */
+    public RemoveOptionalParametersImpl getRemoveOptionalParameters() {
+        return this.removeOptionalParameters;
+    }
+
+    /**
      * Initializes an instance of OverrideClient client.
      * 
      * @param endpoint Service host.
@@ -118,5 +146,7 @@ public final class OverrideClientImpl {
         this.endpoint = endpoint;
         this.reorderParameters = new ReorderParametersImpl(this);
         this.groupParameters = new GroupParametersImpl(this);
+        this.requireOptionalParameters = new RequireOptionalParametersImpl(this);
+        this.removeOptionalParameters = new RemoveOptionalParametersImpl(this);
     }
 }

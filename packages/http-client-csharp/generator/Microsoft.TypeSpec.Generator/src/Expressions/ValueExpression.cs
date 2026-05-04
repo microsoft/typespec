@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -58,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression NullableStructValue(CSharpType candidateType)
             => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public ScopedApi<string> InvokeToString() => Invoke(nameof(ToString)).As<string>();
+        public ScopedApi<string> InvokeToString(ValueExpression culture) => Invoke(nameof(ToString), culture).As<string>();
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
@@ -78,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             => new InvokeMethodExpression(this, methodName, arguments);
 
         public InvokeMethodExpression Invoke(MethodSignature methodSignature)
-            => new InvokeMethodExpression(this, methodSignature, [.. methodSignature.Parameters])
+            => new InvokeMethodExpression(this, methodSignature, [.. methodSignature.Parameters.Select(p => (ValueExpression)p)])
             {
                 CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async)
             };
@@ -124,11 +127,15 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public ScopedApi<bool> Is(ValueExpression other) => new BinaryOperatorExpression("is", this, other).As<bool>();
 
+        public ScopedApi<bool> IsNot(ValueExpression other) => new BinaryOperatorExpression("is not", this, other).As<bool>();
+
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 
         public ValueExpression NullConditional() => new NullConditionalExpression(this);
+
+        public MethodBodyStatement AddAndAssign(ValueExpression value) => new BinaryOperatorExpression("+=", this, value).As<int>().Terminate();
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 

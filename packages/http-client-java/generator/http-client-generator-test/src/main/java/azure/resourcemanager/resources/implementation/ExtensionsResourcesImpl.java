@@ -31,12 +31,8 @@ public final class ExtensionsResourcesImpl implements ExtensionsResources {
         Context context) {
         Response<ExtensionsResourceInner> inner
             = this.serviceClient().getWithResponse(resourceUri, extensionsResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ExtensionsResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ExtensionsResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ExtensionsResource get(String resourceUri, String extensionsResourceName) {

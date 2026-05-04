@@ -22,6 +22,8 @@ export type TypeSpecScope =
   | "keyword.directive.name.tsp"
   | "keyword.other.tsp"
   | "keyword.tag.tspdoc"
+  // Storage
+  | "storage.modifier.tsp"
   // Entities
   | "entity.name.type.tsp"
   | "entity.name.function.tsp"
@@ -65,9 +67,9 @@ const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
 const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const modifierKeyword = `\\b(?:extern)\\b`;
+const modifierKeyword = `\\b(?:extern|internal)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEnd = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
@@ -476,9 +478,10 @@ const spreadExpression: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `\\s*(#${simpleIdentifier})`,
+  begin: `\\s*(#)(${simpleIdentifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.tsp" },
+    "2": { scope: "keyword.directive.name.tsp" },
   },
   end: `$|${universalEnd}`,
   patterns: [stringLiteral, identifierExpression],
@@ -548,9 +551,10 @@ const modelHeritage: BeginEndRule = {
 const modelStatement: BeginEndRule = {
   key: "model-statement",
   scope: meta,
-  begin: "\\b(model)\\b",
+  begin: "(?:(internal)\\s+)?\\b(model)\\b",
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
@@ -615,10 +619,11 @@ const scalarBody: BeginEndRule = {
 const scalarStatement: BeginEndRule = {
   key: "scalar-statement",
   scope: meta,
-  begin: `\\b(scalar)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?\\b(scalar)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "entity.name.type.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
@@ -658,10 +663,11 @@ const enumBody: BeginEndRule = {
 const enumStatement: BeginEndRule = {
   key: "enum-statement",
   scope: meta,
-  begin: `\\b(enum)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?\\b(enum)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "entity.name.type.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
   patterns: [token, enumBody],
@@ -696,10 +702,11 @@ const unionBody: BeginEndRule = {
 const unionStatement: BeginEndRule = {
   key: "union-statement",
   scope: meta,
-  begin: `\\b(union)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?\\b(union)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "entity.name.type.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
   patterns: [token, unionBody],
@@ -719,10 +726,11 @@ const aliasAssignment: BeginEndRule = {
 const aliasStatement: BeginEndRule = {
   key: "alias-statement",
   scope: meta,
-  begin: `\\b(alias)\\b\\s+(${identifier})\\s*`,
+  begin: `(?:(internal)\\s+)?\\b(alias)\\b\\s+(${identifier})\\s*`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "entity.name.type.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "entity.name.type.tsp" },
   },
   end: universalEnd,
   patterns: [aliasAssignment, typeParameters],
@@ -731,10 +739,11 @@ const aliasStatement: BeginEndRule = {
 const constStatement: BeginEndRule = {
   key: "const-statement",
   scope: meta,
-  begin: `\\b(const)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?\\b(const)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "variable.name.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "variable.name.tsp" },
   },
   end: universalEnd,
   patterns: [typeAnnotation, operatorAssignment, expression],
@@ -797,10 +806,11 @@ const operationSignature: IncludeRule = {
 const operationStatement: BeginEndRule = {
   key: "operation-statement",
   scope: meta,
-  begin: `\\b(op)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?\\b(op)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "entity.name.function.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
+    "3": { scope: "entity.name.function.tsp" },
   },
   end: universalEnd,
   patterns: [token, operationSignature],
@@ -846,9 +856,10 @@ const interfaceBody: BeginEndRule = {
 const interfaceStatement: BeginEndRule = {
   key: "interface-statement",
   scope: meta,
-  begin: "\\b(interface)\\b",
+  begin: "(?:(internal)\\s+)?\\b(interface)\\b",
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
+    "2": { scope: "keyword.other.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
@@ -885,11 +896,12 @@ const usingStatement: BeginEndRule = {
 const decoratorDeclarationStatement: BeginEndRule = {
   key: "decorator-declaration-statement",
   scope: meta,
-  begin: `(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
-    "3": { scope: "entity.name.function.tsp" },
+    "3": { scope: "keyword.other.tsp" },
+    "4": { scope: "entity.name.function.tsp" },
   },
   end: universalEnd,
   patterns: [token, operationParameters],
@@ -898,11 +910,12 @@ const decoratorDeclarationStatement: BeginEndRule = {
 const functionDeclarationStatement: BeginEndRule = {
   key: "function-declaration-statement",
   scope: meta,
-  begin: `(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
+  begin: `(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
-    "3": { scope: "entity.name.function.tsp" },
+    "3": { scope: "keyword.other.tsp" },
+    "4": { scope: "entity.name.function.tsp" },
   },
   end: universalEnd,
   patterns: [token, operationParameters, typeAnnotation],

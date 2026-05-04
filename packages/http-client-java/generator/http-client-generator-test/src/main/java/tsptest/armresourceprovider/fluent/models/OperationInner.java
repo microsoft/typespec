@@ -105,17 +105,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
     }
 
     /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (display() != null) {
-            display().validate();
-        }
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override

@@ -10,12 +10,60 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
     internal partial class ListWithContinuationTokenHeaderResponseResponse : IJsonModel<ListWithContinuationTokenHeaderResponseResponse>
     {
         /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/> for deserialization. </summary>
         internal ListWithContinuationTokenHeaderResponseResponse()
         {
+        }
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual ListWithContinuationTokenHeaderResponseResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
+        public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -105,64 +153,6 @@ namespace SampleTypeSpec
                 }
             }
             return new ListWithContinuationTokenHeaderResponseResponse(things, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ListWithContinuationTokenHeaderResponseResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="listWithContinuationTokenHeaderResponseResponse"> The <see cref="ListWithContinuationTokenHeaderResponseResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ListWithContinuationTokenHeaderResponseResponse listWithContinuationTokenHeaderResponseResponse)
-        {
-            if (listWithContinuationTokenHeaderResponseResponse == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(listWithContinuationTokenHeaderResponseResponse, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
-        public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

@@ -28,8 +28,8 @@ The file is a `yaml` document with the following structure. See the [next sectio
 ```typespec
 model TypeSpecProjectSchema {
   extends?: string;
-  parameters?: Record<{default: string}>
-  `environment-variables`?: Record<{default: string}>
+  parameters?: Record<{default: string}>;
+  `environment-variables`?: Record<{default: string}>;
   `warn-as-error`?: boolean;
   `output-dir`?: string;
   `trace`?: string | string[];
@@ -42,7 +42,7 @@ model TypeSpecProjectSchema {
 
 model LinterConfig {
   extends?: RuleRef[];
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, boolean | object>;
   disable?: Record<RuleRef, string>;
 }
 ```
@@ -69,6 +69,55 @@ in `<my-pkg>/proj2/tspconfig.yaml`, enable `emitter1` using the options specifie
 extends: ../tspconfig.yaml
 emit:
   - emitter1
+```
+
+#### What gets extended
+
+The extending logic follows these rules:
+
+- **Root-level properties**: Shallow merge for all properties except `options`
+- **Options property**: Deep merge at one level (per emitter)
+- **Override behavior**: Properties specified in the extending file will completely override those from the extended file
+
+**Root-level merge behavior:**
+When extending a configuration, most properties (like `emit`, `imports`, `trace`, etc.) are merged at the root level. If the same property exists in both files, the extending file's value completely replaces the extended file's value.
+
+**Options merge behavior:**
+The `options` property receives special treatment with a one-level deep merge:
+
+- Different emitters from both files are combined
+- If the same emitter is configured in both files, the extending file's emitter configuration completely overrides the extended file's configuration for that emitter
+- Individual emitter options are not merged - it's all or nothing per emitter
+
+**Example:**
+
+```yaml
+# Base config (parent/tspconfig.yaml)
+emit:
+  - emitter1
+options:
+  emitter1:
+    option-a: value-a
+    option-b: value-b
+  emitter2:
+    option-x: value-x
+
+# Extending config (child/tspconfig.yaml)
+extends: ../tspconfig.yaml
+emit:
+  - emitter3  # Completely replaces the emit array
+options:
+  emitter1:   # Completely replaces emitter1 options
+    option-c: value-c
+  emitter3:   # Added alongside emitter2 from parent
+    option-y: value-y
+
+# Resulting merged config:
+# emit: [emitter3]  # Only emitter3, emitter1 is gone
+# options:
+#   emitter1: { option-c: value-c }  # Only option-c, option-a and option-b are gone
+#   emitter2: { option-x: value-x }  # Inherited from parent
+#   emitter3: { option-y: value-y }  # From extending config
 ```
 
 ### Variable interpolation
@@ -325,7 +374,7 @@ See [output directory configuration for mode details](#configuring-output-direct
 
 ### `linter` - Setting Up Linters
 
-This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>:<ruleName>`.
+This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>/<ruleName>`.
 
 ```yaml
 linter:
@@ -338,6 +387,24 @@ linter:
   disable: # Disable some rules defined in one of the ruleset extended.
     "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
+
+#### Configuring rule options
+
+Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:
+
+```yaml
+linter:
+  enable:
+    # Enable with default options
+    "@typespec/my-linter/required-doc": true
+
+    # Enable with custom options
+    "@typespec/my-linter/naming-convention":
+      style: "PascalCase"
+      allowUnderscores: false
+```
+
+When an object is provided, the values are merged with the rule's default options. See each rule's documentation for available options.
 
 ## CLI Flags for Emitter Control
 

@@ -71,6 +71,7 @@ async function packPackages() {
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/versioning": resolvePackage("typespec-versioning-"),
     "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
+    "@typespec/streams": resolvePackage("typespec-streams-"),
   };
 }
 
@@ -122,6 +123,7 @@ async function testBasicCurrentTgz(packages) {
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/versioning": packages["@typespec/versioning"],
       "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
+      "@typespec/streams": packages["@typespec/streams"],
     },
     private: true,
   };
