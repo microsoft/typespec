@@ -347,9 +347,7 @@ describe("header", () => {
       @info(#{ version: "1.0.0" })
       namespace TestService;
 
-      @route("/")
-      @get
-      op foo(
+      @route("/") @get op foo(
         @header(#{ explode: true }) custom?: {
           id?: string;
         },
@@ -397,9 +395,7 @@ describe("header", () => {
       @info(#{ version: "1.0.0" })
       namespace TestService;
 
-      @route("/")
-      @get
-      op foo(
+      @route("/") @get op foo(
         @header custom1?: {
           id?: string;
         },

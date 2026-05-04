@@ -13,8 +13,7 @@ model FileWithHttpPartSpecificContentTypeRequest {
   profileImage: HttpPart<FileSpecificContentType>;
 }
 
-@post
-op create(
+@post op create(
   @header contentType: "multipart/form-data",
   @multipartBody body: FileWithHttpPartSpecificContentTypeRequest,
 ): NoContentResponse;

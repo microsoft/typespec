@@ -20,8 +20,10 @@ model HasNullables {
 
 @route("/test")
 namespace NullableMethods {
-  @get
-  op read(@query someParam: string | null, @body modelOrNull: AnotherModel | null): HasNullables;
+  @get op read(
+    @query someParam: string | null,
+    @body modelOrNull: AnotherModel | null,
+  ): HasNullables;
 }
 
 model AnotherModel {

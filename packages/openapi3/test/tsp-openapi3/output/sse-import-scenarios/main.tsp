@@ -54,27 +54,21 @@ union ChannelEventWithCustomContentType {
   binary: Base64,
 }
 
-@route("/channel/no-terminal")
-@get
-op subscribeToChannelNoTerminalGet(): SSEStream<ChannelEventsNoTerminal>;
+@route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(
+): SSEStream<ChannelEventsNoTerminal>;
 
-@route("/channel/no-terminal-post")
-@post
-op subscribeToChannelNoTerminalPost(
+@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminalPost(
   /** Request body for subscribing to a channel without terminal event. */
   @body body: {
     channelId?: string;
   },
 ): SSEStream<ChannelEventsNoTerminal>;
 
-@route("/channel/with-terminal")
-@get
-op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
+@route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(
+): SSEStream<ChannelEventsWithTerminal>;
 
-@route("/channel/with-discriminated-terminal")
-@get
-op subscribeToChannelWithDiscriminatedTerminal(): SSEStream<ChannelEventsWithDiscriminatedTerminal>;
+@route("/channel/with-discriminated-terminal") @get op subscribeToChannelWithDiscriminatedTerminal(
+): SSEStream<ChannelEventsWithDiscriminatedTerminal>;
 
-@route("/data/custom-content-type")
-@get
-op subscribeToDataStream(): SSEStream<ChannelEventWithCustomContentType>;
+@route("/data/custom-content-type") @get op subscribeToDataStream(
+): SSEStream<ChannelEventWithCustomContentType>;

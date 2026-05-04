@@ -24,9 +24,7 @@ model SpeechAudioDoneEvent {
   type?: "speech.audio.done";
 }
 
-@route("/")
-@get
-op extensive(): CreateSpeechResponseStreamEvent | {
+@route("/") @get op extensive(): CreateSpeechResponseStreamEvent | {
   @statusCode
   @minValue(400)
   @maxValue(499)

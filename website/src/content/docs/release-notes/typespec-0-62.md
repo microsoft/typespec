@@ -125,8 +125,7 @@ TypeSpec Language server now provide completion for the `tspconfig.yaml` file. I
 Addition of a few new decorators allowing declaring paginated operations
 
 ```tsp
-@list
-op listPets(): {
+@list op listPets(): {
   @pageItems pets: Pet[];
   links: {
     @nextLink next?: url;

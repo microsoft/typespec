@@ -14,9 +14,7 @@ model Thing {
   @format("UUID") id: string;
 }
 
-@route("/thing/{name}")
-@get
-op Operations_getThing(
+@route("/thing/{name}") @get op Operations_getThing(
   @pattern("^[a-zA-Z0-9-]{3,24}$")
   @format("UUID")
   @path
@@ -28,9 +26,10 @@ op Operations_getThing(
   count: int32,
 ): Thing;
 
-@route("/thing/{name}")
-@put
-op Operations_putThing(...Parameters.NameParameter, @body body: Thing): Thing;
+@route("/thing/{name}") @put op Operations_putThing(
+  ...Parameters.NameParameter,
+  @body body: Thing,
+): Thing;
 
 namespace Parameters {
   model NameParameter {

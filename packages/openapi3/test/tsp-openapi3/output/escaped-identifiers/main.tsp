@@ -16,9 +16,7 @@ model `Escaped-Model` {
   `escaped-property`?: string;
 }
 
-@route("/{escaped-property}")
-@get
-op `get-thing`(
+@route("/{escaped-property}") @get op `get-thing`(
   @query(#{ explode: true }) `weird@param`?: `Foo-Bar`,
   ...Parameters.`Escaped-Model`.`escaped-property`,
   @body body: `Escaped-Model`,

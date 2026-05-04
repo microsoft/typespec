@@ -371,8 +371,7 @@ then `content` will have one entry for each value.
 
 ```typespec
 @put op uploadImage(@header contentType: "image/png", @body image: bytes): void;
-@post
-op analyze(
+@post op analyze(
   @header contentType: "application/octet-stream" | "application/pdf" | "image/jpeg",
   @body image: bytes,
 ): string | Error;
@@ -417,8 +416,7 @@ To get the `default` response, specify the `@error` decorator on the return type
 @get op read(@path id: string): Widget; // has "200" response
 @delete op delete(@path id: string): void; // has "204" response
 // has "200" and "201" response
-@put
-op create(@body widget: Widget): {
+@put op create(@body widget: Widget): {
   @statusCode _: "200" | "201";
   @body body: Widget;
 };
@@ -468,8 +466,7 @@ The fields in an OpenAPI response object are specified with the following TypeSp
 | `links` (OAS3)           |                                                     | Not currently supported.                            |
 
 ```typespec
-@get
-op read(@path id: string): {
+@get op read(@path id: string): {
   /** the widget */
   @body
   widget: Widget;
@@ -488,8 +485,7 @@ To get multiple `content` entries with different schemas, use a union type.
 @tag("Response Content")
 @route("/response-content")
 namespace ResponseContent {
-  @get
-  op read(@path id: string): Widget | {
+  @get op read(@path id: string): Widget | {
     @header contentType: "text/html";
     @body _: string;
   } | {

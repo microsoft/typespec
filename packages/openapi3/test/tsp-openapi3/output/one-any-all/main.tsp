@@ -35,34 +35,26 @@ model Pet {
   age: int32;
 }
 
-@route("/any")
-@post
-op putAny(
+@route("/any") @post op putAny(
   @body body: {
     pet: Dog | Cat;
   },
 ): NoContentResponse;
 
-@route("/one")
-@post
-op putOne(
+@route("/one") @post op putOne(
   @body body: {
     @oneOf
     pet: Dog | Cat;
   },
 ): NoContentResponse;
 
-@route("/any/schema")
-@post
-op putAnySchema(
+@route("/any/schema") @post op putAnySchema(
   @body body: {
     pet: Any;
   },
 ): NoContentResponse;
 
-@route("/one/schema")
-@post
-op putOneSchema(
+@route("/one/schema") @post op putOneSchema(
   @body body: {
     pet: One;
   },

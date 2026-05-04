@@ -29,9 +29,7 @@ namespace SubB {
 }
 
 namespace SubC {
-  @route("/")
-  @post
-  op anotherOp(
+  @route("/") @post op anotherOp(
     @body body: {
       thing: SubA.Thing;
       thing2: SubA.Thing;

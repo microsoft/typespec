@@ -4,8 +4,7 @@
 @service
 namespace Test;
 
-@post
-op create(
+@post op create(
   @bodyRoot widget: {
     id: string;
     name: string;

@@ -32,9 +32,7 @@ model PetOwner {
   pet?: Pet;
 }
 
-@route("/")
-@get
-op extensive(): PetOwner | {
+@route("/") @get op extensive(): PetOwner | {
   @statusCode
   @minValue(400)
   @maxValue(499)

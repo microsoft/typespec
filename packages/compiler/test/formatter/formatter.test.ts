@@ -2459,23 +2459,6 @@ namespace Foo {
       `,
       });
     });
-
-    it("split decorators when decorator + op signature exceeds line width", async () => {
-      await assertFormat({
-        code: `
-namespace Foo {
-  @route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
-}
-      `,
-        expected: `
-namespace Foo {
-  @route("/channel/with-terminal")
-  @get
-  op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
-}
-      `,
-      });
-    });
   });
 
   describe("augment decorators", () => {

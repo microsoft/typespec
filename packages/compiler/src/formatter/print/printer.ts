@@ -1341,16 +1341,12 @@ export function printOperationStatement(
 ) {
   const inInterface = (path.getParentNode()?.kind as any) === SyntaxKind.InterfaceStatement;
   const templateParams = printTemplateParameters(path, options, print, "templateParameters");
-  const { decorators, multiline } = printDecorators(
-    path as AstPath<DecorableNode>,
-    options,
-    print,
-    {
-      tryInline: true,
-    },
-  );
+  const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
+    tryInline: true,
+  });
 
-  const signature = [
+  return [
+    decorators,
     printModifiers(path, options, print),
     inInterface ? "" : "op ",
     path.call(print, "id"),
@@ -1358,21 +1354,6 @@ export function printOperationStatement(
     path.call(print, "signature"),
     `;`,
   ];
-
-  if (multiline) {
-    // Decorators already forced to break - just concatenate
-    return [decorators, signature];
-  }
-
-  // Decorators may be inline. Wrap in a group that includes both decorators and
-  // the operation signature so that decorators break to separate lines when the
-  // total line is too long.
-  const node = path.node;
-  if (node.decorators.length === 0) {
-    return signature;
-  }
-  const inlineDecorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
-  return group([inlineDecorators, signature]);
 }
 
 export function printStatementSequence<T extends Node>(

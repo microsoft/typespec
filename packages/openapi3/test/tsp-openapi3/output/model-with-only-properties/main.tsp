@@ -16,9 +16,7 @@ model Dog {
   has_more: boolean;
 }
 
-@route("/")
-@get
-op extensive(): Dog | {
+@route("/") @get op extensive(): Dog | {
   @statusCode
   @minValue(400)
   @maxValue(499)

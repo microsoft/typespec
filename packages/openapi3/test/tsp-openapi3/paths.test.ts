@@ -43,9 +43,7 @@ it("generates operations with no params", async () => {
     @info(#{ version: "1.0.0" })
     namespace TestService;
 
-    @route("/")
-    @get
-    op rootGet(): Body<{
+    @route("/") @get op rootGet(): Body<{
       message?: string;
     }>;
     "
@@ -81,9 +79,7 @@ it("generates operations without common params", async () => {
     @info(#{ version: "1.0.0" })
     namespace TestService;
 
-    @route("/{id}")
-    @get
-    op idGet(@path id: string): Body<{
+    @route("/{id}") @get op idGet(@path id: string): Body<{
       message?: string;
     }>;
     "
@@ -120,9 +116,7 @@ it("generates operations with common params", async () => {
     @info(#{ version: "1.0.0" })
     namespace TestService;
 
-    @route("/{id}")
-    @get
-    op idGet(@path id: string): Body<{
+    @route("/{id}") @get op idGet(@path id: string): Body<{
       message?: string;
     }>;
     "
@@ -159,9 +153,7 @@ it("generates operations with common and specific params", async () => {
     @info(#{ version: "1.0.0" })
     namespace TestService;
 
-    @route("/{id}")
-    @get
-    op idGet(@path id: string, @query(#{ explode: true }) foo?: string): Body<{
+    @route("/{id}") @get op idGet(@path id: string, @query(#{ explode: true }) foo?: string): Body<{
       message?: string;
     }>;
     "
@@ -214,9 +206,7 @@ it("supports overriding common params with operation params", async () => {
     @info(#{ version: "1.0.0" })
     namespace TestService;
 
-    @route("/{id}")
-    @get
-    op idGet(
+    @route("/{id}") @get op idGet(
       @path id: string,
       @query(#{ explode: true }) foo?: string,
       @header \`x-header\`: string,
@@ -224,9 +214,7 @@ it("supports overriding common params with operation params", async () => {
       message?: string;
     }>;
 
-    @route("/{id}")
-    @put
-    op idPut(@path id: string, @header \`x-header\`?: string): Body<{
+    @route("/{id}") @put op idPut(@path id: string, @header \`x-header\`?: string): Body<{
       message?: string;
     }>;
     "
@@ -425,9 +413,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): CreatedResponse & {
+        @route("/") @get op getFoo(): CreatedResponse & {
           @header foo?: string;
         };
         "
@@ -467,9 +453,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): {
+        @route("/") @get op getFoo(): {
           @statusCode statusCode: 201;
           @header foo?: string;
           @body body: string;
@@ -583,9 +567,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): Body<{
+        @route("/") @get op getFoo(): Body<{
           id: string;
           message?: string;
         }>;
@@ -625,9 +607,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): {
+        @route("/") @get op getFoo(): {
           @header foo?: string;
         };
         "
@@ -667,9 +647,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): {
+        @route("/") @get op getFoo(): {
           @header foo?: string;
           @body body: string;
         };
@@ -808,9 +786,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): GeneratedHelpers.DefaultResponse<
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
           Description = "Test Response",
           Headers = {
             @header foo?: string;
@@ -865,9 +841,10 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): GeneratedHelpers.DefaultResponse<Description = "Test Response", Body = string>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Body = string
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -918,9 +895,7 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/")
-        @get
-        op getFoo(): GeneratedHelpers.DefaultResponse<
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
           Description = "Test Response",
           Headers = {
             @header foo?: string;
@@ -995,17 +970,13 @@ model Foo {
 
         scalar Foo extends string;
 
-        @route("/")
-        @get
-        op getFoo(): {
+        @route("/") @get op getFoo(): {
           @statusCode statusCode: 100;
           @header foo?: string;
           @body body: string;
         };
 
-        @route("/")
-        @head
-        op headFoo(): {
+        @route("/") @head op headFoo(): {
           @statusCode statusCode: 100;
           @body body: Foo;
         };
@@ -1056,9 +1027,7 @@ model Foo {
       @info(#{ version: "1.0.0" })
       namespace TestService;
 
-      @route("/")
-      @get
-      op getFoo():
+      @route("/") @get op getFoo():
         | Body<string>
         | {
             @header contentType: "application/xml";
@@ -1216,13 +1185,15 @@ model Foo {
         message?: string;
       }
 
-      @route("/")
-      @get
-      op getFoo(): GeneratedHelpers.DefaultResponse<Description = "Overwritten description", Body = Foo>;
+      @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+        Description = "Overwritten description",
+        Body = Foo
+      >;
 
-      @route("/")
-      @head
-      op headFoo(): GeneratedHelpers.DefaultResponse<Description = "Base description", Body = Foo>;
+      @route("/") @head op headFoo(): GeneratedHelpers.DefaultResponse<
+        Description = "Base description",
+        Body = Foo
+      >;
 
       namespace GeneratedHelpers {
         @doc(Description)
@@ -1306,9 +1277,7 @@ model Foo {
         message?: string;
       }
 
-      @route("/")
-      @get
-      op getFoo(): {
+      @route("/") @get op getFoo(): {
         /** my test header */
         @header("x-test") xTest?: string;
 
@@ -1375,9 +1344,7 @@ describe("requestBody", () => {
         message?: string;
       }
 
-      @route("/")
-      @post
-      op postFoo(
+      @route("/") @post op postFoo(
         /** This is a test */
         @body body: Foo,
       ): OkResponse;
@@ -1444,9 +1411,7 @@ describe("requestBody", () => {
         message?: string;
       }
 
-      @route("/")
-      @post
-      op postFoo(
+      @route("/") @post op postFoo(
         /** This is a test */
         @body body: Foo,
       ): OkResponse;
@@ -1514,9 +1479,7 @@ describe("requestBody", () => {
         message?: string;
       }
 
-      @route("/")
-      @post
-      op postFoo(
+      @route("/") @post op postFoo(
         /** Overwritten description */
         @body body: Foo,
       ): OkResponse;
