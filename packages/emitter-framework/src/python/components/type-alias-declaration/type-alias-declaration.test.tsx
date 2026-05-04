@@ -14,7 +14,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           my_date: TypeAlias = datetime`);
@@ -30,7 +33,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           # Type to represent a date
@@ -48,7 +54,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
         expect(getOutput(program, [<TypeAliasDeclaration doc={"Overridden Doc"} type={MyDate} />]))
           .toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           # Overridden Doc
@@ -63,7 +72,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           my_date: TypeAlias = datetime`);
@@ -77,7 +89,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           my_date: TypeAlias = datetime`);
@@ -91,7 +106,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
-          from typing import TypeAlias
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import TypeAlias
 
 
           my_date: TypeAlias = datetime`);
@@ -108,7 +126,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
       expect(getOutput(program, [<TypeAliasDeclaration type={Handler} />])).toRenderTo(`
         from typing import Callable
-        from typing import TypeAlias
+        from typing import TYPE_CHECKING
+
+        if TYPE_CHECKING:
+          from typing import TypeAlias
 
 
         handle_request: TypeAlias = Callable[[str], str]`);

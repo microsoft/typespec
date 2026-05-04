@@ -1,4 +1,4 @@
-import type { Diagnostic, RuleRef } from "../core/types.js";
+import type { Diagnostic, LinterRuleEnableValue, RuleRef } from "../core/types.js";
 import type { YamlScript } from "../yaml/types.js";
 
 /**
@@ -127,6 +127,6 @@ export type EmitterOptions = Record<string, unknown> & {
 
 export interface LinterConfig {
   extends?: RuleRef[];
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, LinterRuleEnableValue>;
   disable?: Record<RuleRef, string>;
 }

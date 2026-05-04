@@ -19,8 +19,8 @@ import {
   configurationFileName,
   tspOutputFileName,
 } from "./constants.js";
+import { execAsync, execCSharpGenerator } from "./lib/exec-utils.js";
 import { createDiagnostic } from "./lib/lib.js";
-import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 
 export interface GenerateOptions {
