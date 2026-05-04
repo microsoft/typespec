@@ -81,11 +81,11 @@ async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
     return JSON.parse(content);
   } else if (blob.readableStreamBody) {
     const stream = blob.readableStreamBody;
-    let content = "";
+    const chunks: string[] = [];
     for await (const chunk of stream) {
-      content += chunk;
+      chunks.push(chunk as string);
     }
-    return JSON.parse(content);
+    return JSON.parse(chunks.join(""));
   } else {
     throw new Error("Blob has no body");
   }

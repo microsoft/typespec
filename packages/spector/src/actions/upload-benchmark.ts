@@ -2,10 +2,23 @@ import { AzureCliCredential } from "@azure/identity";
 import { CompilerBenchmarkClient, CompilerBenchmarkMetrics } from "@typespec/spec-coverage-sdk";
 import { execFileSync } from "child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "fs";
+import { createRequire } from "module";
 import { tmpdir } from "os";
 import { join } from "path";
 import pc from "picocolors";
 import { logger } from "../logger.js";
+
+const require = createRequire(import.meta.url);
+
+/**
+ * Locate the `tsp` compiler CLI entry-point by resolving the
+ * `@typespec/compiler` package that was installed alongside spector.
+ */
+function resolveLocalTspBin(): string {
+  const compilerPkg = require.resolve("@typespec/compiler/package.json");
+  const compilerDir = join(compilerPkg, "..");
+  return join(compilerDir, "cmd", "tsp.js");
+}
 
 export interface UploadBenchmarkConfig {
   /** Full git commit SHA being benchmarked. */
@@ -93,10 +106,10 @@ function runBenchmark(tspBin?: string): CompilerBenchmarkMetrics {
     writeFileSync(mainFile, FIXTURE);
 
     // Resolve the tsp compiler binary. Prefer an explicitly provided path; otherwise
-    // look for the compiler CLI in the monorepo's node_modules/.bin.
-    const bin =
-      tspBin ??
-      join(new URL("../../../..", import.meta.url).pathname, "node_modules", ".bin", "tsp");
+    // resolve the `tsp` binary that npm/pnpm places on the PATH after `pnpm install`.
+    // The spector package has @typespec/compiler as a dependency, so the binary is
+    // available in the local node_modules/.bin directory.
+    const bin = tspBin ?? resolveLocalTspBin();
 
     let output = "";
     let exitCode = 0;

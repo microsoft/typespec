@@ -17,7 +17,7 @@ const BENCHMARK_HISTORY_BLOB = "compiler-benchmarks/history.json";
 /** Loads and displays the TypeSpec compiler benchmark dashboard from Azure Blob Storage. */
 export const BenchmarkDashboardFromAzureStorage: FunctionComponent<
   BenchmarkDashboardFromAzureStorageProps
-> = ({ storageAccountName, containerName = "coverages" }) => {
+> = ({ storageAccountName, containerName = "coverage" }) => {
   const [history, setHistory] = useState<CompilerBenchmarkHistory | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -117,8 +117,9 @@ const BenchmarkChart: FunctionComponent<BenchmarkChartProps> = ({ results }) => 
   const yMax = Math.ceil(maxValue / 100) * 100 || 100;
 
   const n = results.length;
-  const xStep = n > 1 ? plotWidth / (n - 1) : plotWidth;
-  const xPos = (i: number) => PADDING.left + (n > 1 ? i * xStep : plotWidth / 2);
+  const hasMultipleResults = n > 1;
+  const xStep = hasMultipleResults ? plotWidth / (n - 1) : plotWidth;
+  const xPos = (i: number) => PADDING.left + (hasMultipleResults ? i * xStep : plotWidth / 2);
   const yPos = (v: number) => PADDING.top + plotHeight - (v / yMax) * plotHeight;
 
   // Y-axis grid lines (5 ticks).
