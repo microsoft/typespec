@@ -2,8 +2,9 @@ import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { Model } from "../src/core/types.js";
 import {
-  applyScopedDecorators,
+  applyScopes,
   createEmitterScope,
+  emitter,
   getDecoratorsByScope,
 } from "../src/core/when-scope.js";
 import { getDoc } from "../src/lib/decorators.js";
@@ -28,7 +29,7 @@ describe("compiler: when clause integration", () => {
     strictEqual(doc, "always", "Only unconditional @doc should be applied during checking");
   });
 
-  it("applyScopedDecorators executes matching scoped decorators", async () => {
+  it("applyScopes returns a scoped program with executed scoped decorators", async () => {
     const [{ program }] = await Tester.compileAndDiagnose(`
       @doc("default") 
       @doc("csharp-doc") when emitter("@typespec/http-client-csharp")
@@ -37,18 +38,20 @@ describe("compiler: when clause integration", () => {
 
     const fooType: Model = program.checker.getGlobalNamespaceType().models.get("Foo")!;
 
-    // Before applying scope, only "default" is active
+    // Base program only has unconditional state
     strictEqual(getDoc(program, fooType), "default");
 
-    // Apply the C# scope — this executes the scoped @doc("csharp-doc")
-    const csharpScope = createEmitterScope({ emitter: "@typespec/http-client-csharp" });
-    applyScopedDecorators(program, fooType, csharpScope);
+    // Create a scoped program for C# emitter
+    const scopedProgram = applyScopes(program, [emitter("@typespec/http-client-csharp")]);
 
-    // Now @doc("csharp-doc") has been executed — it overwrites "default" in state
-    strictEqual(getDoc(program, fooType), "csharp-doc");
+    // Scoped program has the scoped @doc executed
+    strictEqual(getDoc(scopedProgram, fooType), "csharp-doc");
+
+    // Original program is NOT affected (isolation)
+    strictEqual(getDoc(program, fooType), "default");
   });
 
-  it("applyScopedDecorators does not execute non-matching scoped decorators", async () => {
+  it("applyScopes does not execute non-matching scoped decorators", async () => {
     const [{ program }] = await Tester.compileAndDiagnose(`
       @doc("default") 
       @doc("csharp-doc") when emitter("@typespec/http-client-csharp")
@@ -57,29 +60,30 @@ describe("compiler: when clause integration", () => {
 
     const bazType: Model = program.checker.getGlobalNamespaceType().models.get("Baz")!;
 
-    // Apply Python scope — the csharp-scoped decorator should NOT execute
-    const pythonScope = createEmitterScope({ emitter: "@typespec/http-client-python" });
-    applyScopedDecorators(program, bazType, pythonScope);
-
-    // Doc stays as "default"
-    strictEqual(getDoc(program, bazType), "default");
+    // Apply Python scope — csharp-scoped decorator should NOT execute
+    const scopedProgram = applyScopes(program, [emitter("@typespec/http-client-python")]);
+    strictEqual(getDoc(scopedProgram, bazType), "default");
   });
 
-  it("applyScopedDecorators is idempotent (no double execution)", async () => {
+  it("two emitters get different state from same program", async () => {
     const [{ program }] = await Tester.compileAndDiagnose(`
       @doc("default")
       @doc("csharp-doc") when emitter("@typespec/http-client-csharp")
-      model Qux {}
+      @doc("python-doc") when emitter("@typespec/http-client-python")
+      model Multi {}
     `);
 
-    const quxType: Model = program.checker.getGlobalNamespaceType().models.get("Qux")!;
-    const csharpScope = createEmitterScope({ emitter: "@typespec/http-client-csharp" });
+    const multiType: Model = program.checker.getGlobalNamespaceType().models.get("Multi")!;
 
-    // Apply twice — should not throw or cause issues
-    applyScopedDecorators(program, quxType, csharpScope);
-    applyScopedDecorators(program, quxType, csharpScope);
+    // Each emitter gets its own scoped view — no pollution
+    const csharpProgram = applyScopes(program, [emitter("@typespec/http-client-csharp")]);
+    const pythonProgram = applyScopes(program, [emitter("@typespec/http-client-python")]);
 
-    strictEqual(getDoc(program, quxType), "csharp-doc");
+    strictEqual(getDoc(csharpProgram, multiType), "csharp-doc");
+    strictEqual(getDoc(pythonProgram, multiType), "python-doc");
+
+    // Base program unchanged
+    strictEqual(getDoc(program, multiType), "default");
   });
 
   it("getDecoratorsByScope filters correctly", async () => {
@@ -92,63 +96,24 @@ describe("compiler: when clause integration", () => {
 
     const fooType: Model = program.checker.getGlobalNamespaceType().models.get("Foo")!;
     ok(fooType, "Foo model should exist");
-
     strictEqual(fooType.decorators.length, 3);
 
-    // C# emitter should see default + csharp-scoped
     const csharpDecs = getDecoratorsByScope(
       fooType,
       createEmitterScope({ emitter: "@typespec/http-client-csharp" }),
     );
     strictEqual(csharpDecs.length, 2);
 
-    // Python emitter should see default + python-scoped
     const pyDecs = getDecoratorsByScope(
       fooType,
       createEmitterScope({ emitter: "@typespec/http-client-python" }),
     );
     strictEqual(pyDecs.length, 2);
 
-    // Java emitter should see only default
     const javaDecs = getDecoratorsByScope(
       fooType,
       createEmitterScope({ emitter: "@typespec/http-client-java" }),
     );
     strictEqual(javaDecs.length, 1);
-  });
-
-  it("demonstrates state pollution issue when multiple scopes applied", async () => {
-    const [{ program }] = await Tester.compileAndDiagnose(`
-      @doc("default")
-      @doc("csharp-doc") when emitter("@typespec/http-client-csharp")
-      @doc("python-doc") when emitter("@typespec/http-client-python")
-      model Multi {}
-    `);
-
-    const multiType: Model = program.checker.getGlobalNamespaceType().models.get("Multi")!;
-
-    // Initially only default
-    strictEqual(getDoc(program, multiType), "default");
-
-    // C# emitter applies its scope
-    applyScopedDecorators(
-      program,
-      multiType,
-      createEmitterScope({ emitter: "@typespec/http-client-csharp" }),
-    );
-    strictEqual(getDoc(program, multiType), "csharp-doc");
-
-    // Python emitter applies its scope — this OVERWRITES the state!
-    // This demonstrates the state pollution issue: shared state maps don't isolate per-scope
-    applyScopedDecorators(
-      program,
-      multiType,
-      createEmitterScope({ emitter: "@typespec/http-client-python" }),
-    );
-    strictEqual(
-      getDoc(program, multiType),
-      "python-doc",
-      "State pollution: python-doc overwrites csharp-doc in shared state",
-    );
   });
 });

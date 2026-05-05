@@ -1,5 +1,6 @@
 import { applyDecoratorToType } from "./checker.js";
 import type { Program } from "./program.js";
+import { navigateProgram } from "./semantic-walker.js";
 import type { DecoratorApplication, Type, WhenCondition } from "./types.js";
 
 /**
@@ -16,42 +17,151 @@ export interface EmitterScope {
 }
 
 /**
- * Tracks which scoped decorators have already been applied to avoid double-execution.
+ * Scope filter constructors for use with `applyScopes`.
  */
-const appliedScopes = new WeakMap<DecoratorApplication, Set<string>>();
+export function emitter(name: string): EmitterScope {
+  return { emitter: name };
+}
+
+export function language(name: string): EmitterScope {
+  return { language: name };
+}
+
+export function target(name: string): EmitterScope {
+  return { target: name };
+}
 
 /**
- * Compute a cache key for a scope to track applied state.
+ * Create a scoped view of a program by applying the given scopes.
+ * Returns a Program with isolated state maps where matching scoped decorators
+ * have been executed.
+ *
+ * Usage in an emitter:
+ * ```ts
+ * export async function $onEmit(context: EmitContext) {
+ *   const scopedProgram = applyScopes(context.program, [emitter("@typespec/openapi3")]);
+ *   // getDoc(scopedProgram, type) now returns scope-appropriate values
+ * }
+ * ```
+ *
+ * @param program The base program
+ * @param scopes The scopes to apply (merged into a single scope for matching)
+ * @returns A Program-compatible object with isolated state
  */
-function scopeKey(scope: EmitterScope): string {
-  return `${scope.emitter ?? ""}|${scope.language ?? ""}|${scope.target ?? ""}`;
+export function applyScopes(program: Program, scopes: EmitterScope[]): Program {
+  // Merge all scope filters into one
+  const mergedScope = mergeScopes(scopes);
+
+  // Clone state maps for isolation
+  const clonedStateMaps = new Map<symbol, Map<Type, unknown>>();
+  for (const [key, map] of program.stateMaps) {
+    clonedStateMaps.set(key, new Map(map));
+  }
+  const clonedStateSets = new Map<symbol, Set<Type>>();
+  for (const [key, set] of program.stateSets) {
+    clonedStateSets.set(key, new Set(set));
+  }
+
+  // Create the scoped program proxy
+  const scopedProgram: Program = Object.create(program);
+  scopedProgram.stateMaps = clonedStateMaps;
+  scopedProgram.stateSets = clonedStateSets;
+  scopedProgram.stateMap = function (key: symbol): Map<Type, any> {
+    let map = clonedStateMaps.get(key);
+    if (!map) {
+      map = new Map();
+      clonedStateMaps.set(key, map);
+    }
+    return map;
+  };
+  scopedProgram.stateSet = function (key: symbol): Set<Type> {
+    let set = clonedStateSets.get(key);
+    if (!set) {
+      set = new Set();
+      clonedStateSets.set(key, set);
+    }
+    return set;
+  };
+
+  // Walk all types and execute matching scoped decorators
+  navigateProgram(program, {
+    model(model) {
+      executeMatchingScopedDecorators(scopedProgram, model, mergedScope);
+    },
+    modelProperty(prop) {
+      executeMatchingScopedDecorators(scopedProgram, prop, mergedScope);
+    },
+    operation(op) {
+      executeMatchingScopedDecorators(scopedProgram, op, mergedScope);
+    },
+    interface(iface) {
+      executeMatchingScopedDecorators(scopedProgram, iface, mergedScope);
+    },
+    enum(en) {
+      executeMatchingScopedDecorators(scopedProgram, en, mergedScope);
+    },
+    enumMember(member) {
+      executeMatchingScopedDecorators(scopedProgram, member, mergedScope);
+    },
+    union(u) {
+      executeMatchingScopedDecorators(scopedProgram, u, mergedScope);
+    },
+    unionVariant(v) {
+      executeMatchingScopedDecorators(scopedProgram, v, mergedScope);
+    },
+    scalar(s) {
+      executeMatchingScopedDecorators(scopedProgram, s, mergedScope);
+    },
+    namespace(ns) {
+      executeMatchingScopedDecorators(scopedProgram, ns, mergedScope);
+    },
+  });
+
+  return scopedProgram;
+}
+
+/**
+ * Execute scoped decorators on a type that match the given scope.
+ */
+function executeMatchingScopedDecorators(
+  scopedProgram: Program,
+  type: Type & { decorators: DecoratorApplication[] },
+  scope: EmitterScope,
+): void {
+  for (const decApp of type.decorators) {
+    if (!decApp.when) continue;
+    if (!decoratorMatchesScope(decApp, scope)) continue;
+    applyDecoratorToType(scopedProgram, decApp, type);
+  }
+}
+
+/**
+ * Merge multiple scope filters into one (union of all constraints).
+ */
+function mergeScopes(scopes: EmitterScope[]): EmitterScope {
+  if (scopes.length === 1) return scopes[0];
+  const merged: EmitterScope = {};
+  for (const s of scopes) {
+    if (s.emitter) (merged as any).emitter = s.emitter;
+    if (s.language) (merged as any).language = s.language;
+    if (s.target) (merged as any).target = s.target;
+  }
+  return merged;
 }
 
 /**
  * Check if a decorator application matches the given scope.
- * A decorator matches if:
- * - It has no `when` conditions (unconditional), OR
- * - All of its `when` conditions are satisfied by the scope
- *
- * @param decorator The decorator application to check
- * @param scope The emitter scope to match against
- * @returns true if the decorator is active in the given scope
  */
 export function decoratorMatchesScope(
   decorator: DecoratorApplication,
   scope: EmitterScope,
 ): boolean {
   if (!decorator.when || decorator.when.length === 0) {
-    return true; // Unconditional decorator always matches
+    return true;
   }
-
-  // All conditions must match (AND semantics)
   return decorator.when.every((condition) => conditionMatchesScope(condition, scope));
 }
 
-/**
- * Check if a single when condition matches the given scope.
- */
 function conditionMatchesScope(condition: WhenCondition, scope: EmitterScope): boolean {
   switch (condition.kind) {
     case "emitter":
@@ -65,12 +175,8 @@ function conditionMatchesScope(condition: WhenCondition, scope: EmitterScope): b
       return condition.rawArgs.includes(scope.target);
     case "since":
     case "between":
-      // Version-based conditions require version projection (mutator-based)
-      // For POC, these always match (would need version context)
       return true;
     case "member":
-      // Enum member conditions require visibility context
-      // For POC, these always match (would need visibility filter)
       return true;
     default:
       return true;
@@ -78,11 +184,7 @@ function conditionMatchesScope(condition: WhenCondition, scope: EmitterScope): b
 }
 
 /**
- * Filter a type's decorators by scope, returning only those that are active.
- *
- * @param type The type whose decorators to filter
- * @param scope The emitter scope
- * @returns Decorators that are unconditional or match the scope
+ * Filter a type's decorators by scope.
  */
 export function getDecoratorsByScope(
   type: Type & { decorators: DecoratorApplication[] },
@@ -92,65 +194,7 @@ export function getDecoratorsByScope(
 }
 
 /**
- * Get the first decorator matching a specific name that's active in the scope.
- *
- * @param type The type to query
- * @param decoratorFn The decorator function or namespace-qualified name
- * @param scope The emitter scope
- * @returns The matching decorator application, or undefined
- */
-export function getScopedDecorator(
-  type: Type & { decorators: DecoratorApplication[] },
-  decoratorFn: Function,
-  scope: EmitterScope,
-): DecoratorApplication | undefined {
-  return type.decorators.find(
-    (d) => d.decorator === decoratorFn && decoratorMatchesScope(d, scope),
-  );
-}
-
-/**
- * Apply scoped decorators to a type for a given scope.
- * This executes the JS implementation of scoped decorators that match the scope.
- * Decorators are only executed once per scope (tracked internally).
- *
- * This is the primary API for emitters to "activate" conditional decorators.
- * Call this in your emitter's `$onEmit` before reading decorator state (e.g., `getDoc`).
- *
- * @param program The program instance
- * @param type The type to apply scoped decorators to
- * @param scope The emitter scope to apply
- */
-export function applyScopedDecorators(
-  program: Program,
-  type: Type & { decorators: DecoratorApplication[] },
-  scope: EmitterScope,
-): void {
-  const key = scopeKey(scope);
-
-  for (const decApp of type.decorators) {
-    if (!decApp.when) continue; // unconditional — already applied during checking
-    if (!decoratorMatchesScope(decApp, scope)) continue; // doesn't match this scope
-
-    // Check if already applied for this scope
-    let applied = appliedScopes.get(decApp);
-    if (applied?.has(key)) continue;
-
-    // Execute the decorator
-    applyDecoratorToType(program, decApp, type);
-
-    // Mark as applied
-    if (!applied) {
-      applied = new Set();
-      appliedScopes.set(decApp, applied);
-    }
-    applied.add(key);
-  }
-}
-
-/**
  * Create an emitter scope from configuration.
- * Used by emitters in their `$onEmit` function.
  */
 export function createEmitterScope(options: EmitterScope): EmitterScope {
   return { ...options };
