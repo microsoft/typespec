@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [System.ClientModel Updates](#systemclientmodel-updates)
+2. [Core Updates](#core-updates)
 3. [Usage Examples](#usage-examples)
 
 ## Motivation
@@ -56,7 +56,9 @@ but with the intention to provide support for both unbranded and azure branded l
 
 - Provide discoverable convenience methods & APIs that simplify creating and sending multipart/form-data requests.
 
-## System.ClientModel Updates
+## Core Updates
+
+### System.ClientModel
 
 A new type can be added to facilitate building multipart/form-data requests and provide a streamlined API for clients that need to send multipart payloads. This type eliminates the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
 
@@ -66,17 +68,16 @@ public partial class MultiPartFormContent : System.ClientModel.BinaryContent
     public MultiPartFormContent() { }
     public MultiPartFormContent(string boundary) { }
     public void Add(string name, System.BinaryData content) { }
-    public void Add(string name, bool content, string? mediaType = "text/plain") { }
     public void Add(string name, byte[] content, string? mediaType = "application/octet-stream") { }
     public void Add(string name, System.ClientModel.FileBinaryContent fileContent) { }
-    public void Add(string name, decimal content, string? mediaType = "text/plain") { }
-    public void Add(string name, double content, string? mediaType = "text/plain") { }
-    public void Add(string name, int content, string? mediaType = "text/plain") { }
-    public void Add(string name, long content, string? mediaType = "text/plain") { }
-    public void Add(string name, float content, string? mediaType = "text/plain") { }
-    public void Add(string name, string content, string? mediaType = "text/plain") { }
+    public void Add(string name, decimal content, string? mediaType = "application/json") { }
+    public void Add(string name, double content, string? mediaType = "application/json") { }
+    public void Add(string name, int content, string? mediaType = "application/json") { }
+    public void Add(string name, long content, string? mediaType = "application/json") { }
+    public void Add(string name, float content, string? mediaType = "application/json") { }
+    public void Add(string name, string content, string? mediaType = "application/json") { }
     public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model) { }
-    public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null, System.ClientModel.Primitives.ModelReaderWriterContext? context = null, string? mediaType = "application/json") { }
+    public void Add<T>(string name, System.ClientModel.Primitives.IPersistableModel<T> model, System.ClientModel.Primitives.ModelReaderWriterContext? context = null, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null, string? mediaType = "application/json") { }
     public override void Dispose() { }
     public override bool TryComputeLength(out long length) { throw null; }
     public override void WriteTo(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { }
@@ -102,7 +103,13 @@ public partial class FileBinaryContent : System.ClientModel.BinaryContent
 }
 ```
 
-</details>
+### Azure.Core
+
+A new factory overload on `RequestContent` is required so that Azure-branded clients can easily adapt a `MultiPartFormContent` into the `RequestContent` type when invoking the generated protocol methods directly.
+
+```csharp
+public static Azure.Core.RequestContent Create(System.ClientModel.BinaryContent content) { throw null; }
+```
 
 ## Usage Examples
 
@@ -239,7 +246,7 @@ public partial class Dog
             MultiPartFormContent content = new();
             content.Add("id", Id);
             content.Add("profileImage", ProfileImage);
-            
+
             return content;
         }
     }
