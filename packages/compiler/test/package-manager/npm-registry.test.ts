@@ -1,7 +1,7 @@
 import * as http from "http";
 import type { AddressInfo } from "net";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { fetchPackageManifest } from "../../src/package-manger/npm-registry-utils.js";
+import { fetchPackageManifest } from "../../src/package-manger/npm-registry.js";
 
 describe("TYPESPEC_NPM_REGISTRY", () => {
   let server: http.Server;

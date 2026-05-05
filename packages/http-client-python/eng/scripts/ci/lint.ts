@@ -169,7 +169,7 @@ async function lintPygenSource(): Promise<boolean> {
     "generator/pygen",
     "--rcfile=eng/scripts/ci/config/pylintrc",
     "--recursive=y",
-    "--py-version=3.9",
+    "--py-version=3.10",
   ]);
 }
 

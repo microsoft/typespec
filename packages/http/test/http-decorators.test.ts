@@ -50,6 +50,26 @@ describe("http: decorators", () => {
         message: `Argument of type '"/test"' is not assignable to parameter of type 'valueof TypeSpec.Http.PatchOptions'`,
       });
     });
+
+    it(`@patch emits deprecation warning when implicitOptionality: true`, async () => {
+      const diagnostics = await Tester.diagnose(`
+        @patch(#{ implicitOptionality: true }) op test(): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/deprecated-implicit-optionality",
+        message:
+          "The implicitOptionality option is deprecated. To preserve previous behavior, use an explicit patch model with optional properties. For actual merge-patch semantics, use MergePatchUpdate<T> for the @body type.",
+      });
+    });
+
+    it(`@patch does not emit deprecation warning when implicitOptionality: false`, async () => {
+      const diagnostics = await Tester.diagnose(`
+        @patch(#{ implicitOptionality: false }) op test(): string;
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("@header", () => {

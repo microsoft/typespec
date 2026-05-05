@@ -34,8 +34,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            List<InputEnumType> inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
-                    .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            List<InputEnumType> inputEnums = [.. _inputClient.Parameters
+                    .Where(p => p.IsApiVersion && p.Type is InputEnumType)
+                    .Select(p => (InputEnumType)p.Type)];
+            if (inputEnums.Count == 0)
+            {
+                inputEnums = [.. ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                        .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+            }
 
             if (inputEnums.Count > 0)
             {
@@ -105,6 +111,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (inputClient.IsMultiServiceClient)
             {
                 return false;
+            }
+
+            // Library spans multiple services (e.g. multiple @service-decorated namespaces without
+            // an explicit @client decorator, producing one single-service root client per service).
+            // Each root client needs its own options type for its service-specific API version.
+            int apiVersionEnumCount = 0;
+            foreach (var inputEnum in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums)
+            {
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    apiVersionEnumCount++;
+                    if (apiVersionEnumCount > 1)
+                    {
+                        return false;
+                    }
+                }
             }
 
             foreach (var parameter in inputClient.Parameters)

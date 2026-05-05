@@ -2,9 +2,7 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Xml.Linq;
 using Sample.Models;
 
@@ -21,7 +19,6 @@ namespace Sample
 
             string prop1 = default;
             string prop2 = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -37,7 +34,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop2);
         }
     }
 }
