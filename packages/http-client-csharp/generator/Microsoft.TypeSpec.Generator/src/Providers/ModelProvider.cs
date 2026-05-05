@@ -127,7 +127,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
         private TypeProvider? _baseTypeProvider;
 
-        private TypeProvider? BuildBaseTypeProvider()
+        /// <summary>
+        /// Builds the <see cref="TypeProvider"/> representing the base type of this model.
+        /// Emitters that need to redirect a model's base class can override this method and/or
+        /// <see cref="BuildBaseModelProvider"/> alongside <see cref="BuildBaseType"/> so that
+        /// <see cref="BaseType"/>, <see cref="BaseTypeProvider"/>, and <see cref="BaseModelProvider"/>
+        /// remain consistent.
+        /// </summary>
+        protected virtual TypeProvider? BuildBaseTypeProvider()
         {
             // First check if there's a generated base model
             if (BaseModelProvider != null)
@@ -291,7 +298,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
         }
 
-        private ModelProvider? BuildBaseModelProvider()
+        /// <summary>
+        /// Builds the <see cref="ModelProvider"/> representing the base model of this model.
+        /// Emitters that override <see cref="BuildBaseType"/> to redirect the generated C# base
+        /// class should also override this method (and/or <see cref="BuildBaseTypeProvider"/>) so
+        /// that <see cref="BaseType"/>, <see cref="BaseTypeProvider"/>, and
+        /// <see cref="BaseModelProvider"/> stay consistent.
+        /// </summary>
+        protected virtual ModelProvider? BuildBaseModelProvider()
         {
             // consider models that have been customized to inherit from a different generated model
             if (CustomCodeView?.BaseType != null)
