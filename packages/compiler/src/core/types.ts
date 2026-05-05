@@ -1176,6 +1176,8 @@ export enum SyntaxKind {
   ScalarConstructor,
   InternalKeyword,
   FunctionTypeExpression,
+  WhenExpression,
+  WhenClause,
 }
 
 export const enum NodeFlags {
@@ -1299,7 +1301,9 @@ export type Node =
   | ObjectLiteralPropertyNode
   | ObjectLiteralSpreadPropertyNode
   | ScalarConstructorNode
-  | ArrayLiteralNode;
+  | ArrayLiteralNode
+  | WhenClauseNode
+  | WhenExpressionNode;
 
 /**
  * Node that can be used as template
@@ -1432,6 +1436,32 @@ export interface DecoratorExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.DecoratorExpression;
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly arguments: readonly Expression[];
+  readonly when?: WhenClauseNode;
+}
+
+/**
+ * A `when` clause that conditionally scopes a decorator, statement, or property.
+ * Contains one or more conditions (AND semantics when multiple).
+ *
+ * Examples:
+ * - `when emitter("@typespec/http-client-csharp")`
+ * - `when emitter("csharp"), target("client")`
+ */
+export interface WhenClauseNode extends BaseNode {
+  readonly kind: SyntaxKind.WhenClause;
+  readonly conditions: readonly WhenExpressionNode[];
+}
+
+/**
+ * A single condition within a `when` clause.
+ * Either a filter call like `emitter("name")` or an enum member reference like `Lifecycle.read`.
+ */
+export interface WhenExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.WhenExpression;
+  /** The filter/predicate identifier (e.g., `emitter`, `language`, `target`, `since`, `between`) or a member expression */
+  readonly target: IdentifierNode | MemberExpressionNode;
+  /** Arguments to the filter call, if any (e.g., the string `"@typespec/http-client-csharp"`) */
+  readonly arguments: readonly Expression[];
 }
 
 export interface AugmentDecoratorStatementNode extends BaseNode {
@@ -1531,6 +1561,7 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly when?: WhenClauseNode;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1643,6 +1674,7 @@ export interface ModelPropertyNode extends BaseNode {
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: Expression;
+  readonly when?: WhenClauseNode;
   readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 

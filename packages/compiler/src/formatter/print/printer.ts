@@ -311,6 +311,8 @@ export function printNode(
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.InvalidStatement:
+    case SyntaxKind.WhenClause:
+    case SyntaxKind.WhenExpression:
       return getRawText(node, options);
     default:
       // Dummy const to ensure we handle all node types.
