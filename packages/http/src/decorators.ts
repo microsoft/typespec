@@ -418,10 +418,18 @@ export const $patch: PatchDecorator = (
 
   if (options) {
     if (options.implicitOptionality === true) {
-      reportDiagnostic(context.program, {
-        code: "deprecated-implicit-optionality",
-        target: entity,
-      });
+      // Only emit the deprecation warning on the original use of the decorator,
+      // not when inherited via `op is`.
+      const decoratorNode = context.decoratorTarget as any;
+      if (
+        decoratorNode.kind !== SyntaxKind.DecoratorExpression ||
+        decoratorNode.parent === entity.node
+      ) {
+        reportDiagnostic(context.program, {
+          code: "deprecated-implicit-optionality",
+          target: entity,
+        });
+      }
     }
     setPatchOptions(context.program, entity, options);
   }
