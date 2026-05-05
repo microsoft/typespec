@@ -6,7 +6,7 @@ parameters:
     type: string
 
 steps:
-  - task: EsrpRelease@9
+  - task: EsrpRelease@11
     displayName: "Publish via ESRP"
     condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
     inputs:
