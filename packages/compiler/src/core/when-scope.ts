@@ -52,7 +52,7 @@ export function applyScopes(program: Program, scopes: EmitterScope[]): Program {
   // Merge all scope filters into one
   const mergedScope = mergeScopes(scopes);
 
-  // Clone state maps for isolation
+  // Clone state maps for isolation (captures state from checking phase)
   const clonedStateMaps = new Map<symbol, Map<Type, unknown>>();
   for (const [key, map] of program.stateMaps) {
     clonedStateMaps.set(key, new Map(map));
@@ -67,20 +67,23 @@ export function applyScopes(program: Program, scopes: EmitterScope[]): Program {
   scopedProgram.stateMaps = clonedStateMaps;
   scopedProgram.stateSets = clonedStateSets;
   scopedProgram.stateMap = function (key: symbol): Map<Type, any> {
+    // If we have a cloned/overlay version, use it
     let map = clonedStateMaps.get(key);
-    if (!map) {
-      map = new Map();
-      clonedStateMaps.set(key, map);
-    }
-    return map;
+    if (map) return map;
+    // Fall back to original program for lazily-initialized state (e.g., HTTP operations)
+    // Clone it on first access so scoped writes don't pollute the original
+    const originalMap = program.stateMap(key);
+    const cloned = new Map(originalMap);
+    clonedStateMaps.set(key, cloned);
+    return cloned;
   };
   scopedProgram.stateSet = function (key: symbol): Set<Type> {
     let set = clonedStateSets.get(key);
-    if (!set) {
-      set = new Set();
-      clonedStateSets.set(key, set);
-    }
-    return set;
+    if (set) return set;
+    const originalSet = program.stateSet(key);
+    const cloned = new Set(originalSet);
+    clonedStateSets.set(key, cloned);
+    return cloned;
   };
 
   // Walk all types and execute matching scoped decorators
