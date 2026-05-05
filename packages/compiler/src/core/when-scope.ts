@@ -63,7 +63,10 @@ export function applyScopes(program: Program, scopes: EmitterScope[]): Program {
   }
 
   // Create the scoped program proxy
+  // Use Object.create for prototype delegation, but set own 'projectRoot' so that
+  // typekit's `Object.hasOwn(arg, "projectRoot")` check correctly identifies this as a Program.
   const scopedProgram: Program = Object.create(program);
+  (scopedProgram as any).projectRoot = program.projectRoot;
   scopedProgram.stateMaps = clonedStateMaps;
   scopedProgram.stateSets = clonedStateSets;
   scopedProgram.stateMap = function (key: symbol): Map<Type, any> {
