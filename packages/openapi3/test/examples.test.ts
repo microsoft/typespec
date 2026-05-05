@@ -171,6 +171,74 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       });
     });
 
+    it("set examples on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } }, #{ title: "ExampleA" })
+        @opExample(#{ returnType: #{ b: "B" } }, #{ title: "ExampleB" })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].examples).toEqual({
+        ExampleA: {
+          summary: "ExampleA",
+          value: { a: "A" },
+        },
+        ExampleB: {
+          summary: "ExampleB",
+          value: { b: "B" },
+        },
+      });
+    });
+
+    it("set single example on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].example).toEqual({
+        a: "A",
+      });
+    });
+
+    it("set example on union of response envelopes with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        @error model Error { @statusCode _: 400; }
+        model Error1 is Error { @body body: { error1: string } }
+        model Error2 is Error { @body body: { error2: string } }
+
+        @opExample(#{ returnType: #{ _: 400, body: #{ error1: "abc" } } })
+        op bad(): Error1 | Error2;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      const resp400 = (res.paths["/"].get.responses as Record<string, any>)["400"];
+      ok(typeof resp400 === "object" && "content" in resp400);
+      expect(resp400.content?.["application/json"].example).toEqual({
+        error1: "abc",
+      });
+    });
+
     it("apply to status code ranges", async () => {
       const res: OpenAPI3Document = await openApiFor(
         `

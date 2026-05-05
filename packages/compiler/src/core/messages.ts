@@ -785,6 +785,12 @@ const diagnostics = {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
     },
   },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
 
   /**
    * Formatter

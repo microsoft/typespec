@@ -125,6 +125,13 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             IReadOnlyList<CSharpType> typeArgs)
             => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs };
 
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter,
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs,
+            CSharpType? extensionType)
+            => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs, ExtensionType = extensionType };
+
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
             => new InvokeMethodExpression(parameter, methodName, args);
 

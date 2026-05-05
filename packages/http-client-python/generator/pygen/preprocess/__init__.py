@@ -132,20 +132,18 @@ HEADERS_HIDE_IN_METHOD = (
     "client-request-id",
     "return-client-request-id",
 )
-HEADERS_CONVERT_IN_METHOD = {
-    "if-match": {
-        "clientName": "etag",
-        "wireName": "etag",
-        "description": "check if resource is changed. Set None to skip checking etag.",
-    },
-    "if-none-match": {
-        "clientName": "match_condition",
-        "wireName": "match-condition",
-        "description": "The match condition to use upon the etag.",
-        "type": {
-            "type": "sdkcore",
-            "name": "MatchConditions",
-        },
+ETAG_MATCH_DATA = {
+    "clientName": "etag",
+    "etagRole": "ifMatch",
+    "description": "check if resource is changed. Set None to skip checking etag.",
+}
+ETAG_NONE_MATCH_DATA = {
+    "clientName": "match_condition",
+    "etagRole": "ifNoneMatch",
+    "description": "The match condition to use upon the etag.",
+    "type": {
+        "type": "sdkcore",
+        "name": "MatchConditions",
     },
 }
 CLOUD_SETTING = {
@@ -164,6 +162,11 @@ CLOUD_SETTING = {
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
     return (parameter.get("wireName") or "").lower()
+
+
+def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
+    """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter."""
+    return parameter.get("etagRole")
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -281,9 +284,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         value["name"] = upper_name
 
         # add type for reference
-        for v in HEADERS_CONVERT_IN_METHOD.values():
-            if isinstance(v, dict) and "type" in v:
-                yaml_data.append(v["type"])
+        if "type" in ETAG_NONE_MATCH_DATA:
+            yaml_data.append(ETAG_NONE_MATCH_DATA["type"])
         yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
     def update_client(self, yaml_data: dict[str, Any]) -> None:
@@ -317,9 +319,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     if p["location"] == "header" and wire_name_lower == "client-request-id":
                         yaml_data["requestIdHeaderName"] = wire_name_lower
                     if self.version_tolerant and p["location"] == "header":
-                        if wire_name_lower == "if-match":
+                        role = _get_etag_role(p)
+                        if role == "ifMatch" and not property_if_match:
                             property_if_match = p
-                        elif wire_name_lower == "if-none-match":
+                        elif role == "ifNoneMatch" and not property_if_none_match:
                             property_if_none_match = p
                 # pylint: disable=line-too-long
                 # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
@@ -327,17 +330,19 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 if not property_if_match and property_if_none_match:
                     property_if_match = property_if_none_match.copy()
                     property_if_match["wireName"] = "if-match"
+                    property_if_match["etagRole"] = "ifMatch"
                 if not property_if_none_match and property_if_match:
                     property_if_none_match = property_if_match.copy()
                     property_if_none_match["wireName"] = "if-none-match"
+                    property_if_none_match["etagRole"] = "ifNoneMatch"
 
                 if property_if_match and property_if_none_match:
                     # arrange if-match and if-none-match to the end of parameters
-                    o["parameters"] = [
-                        item
-                        for item in o["parameters"]
-                        if get_wire_name_lower(item) not in ("if-match", "if-none-match")
-                    ] + [property_if_match, property_if_none_match]
+                    etag_params = {id(property_if_match), id(property_if_none_match)}
+                    o["parameters"] = [item for item in o["parameters"] if id(item) not in etag_params] + [
+                        property_if_match,
+                        property_if_none_match,
+                    ]
 
                     o["hasEtag"] = True
                     yaml_data["hasEtag"] = True
@@ -372,8 +377,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
             wire_name_lower in HEADERS_HIDE_IN_METHOD or yaml_data.get("clientDefaultValue") == "multipart/form-data"
         ):
             yaml_data["hideInMethod"] = True
-        if self.version_tolerant and yaml_data["location"] == "header" and wire_name_lower in HEADERS_CONVERT_IN_METHOD:
-            headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD[wire_name_lower])
+        if self.version_tolerant and yaml_data["location"] == "header":
+            role = _get_etag_role(yaml_data)
+            if role == "ifMatch":
+                headers_convert(yaml_data, ETAG_MATCH_DATA)
+            elif role == "ifNoneMatch":
+                headers_convert(yaml_data, ETAG_NONE_MATCH_DATA)
         if wire_name_lower in ["$host", "content-type", "accept"] and yaml_data["type"]["type"] == "constant":
             yaml_data["clientDefaultValue"] = yaml_data["type"]["value"]
 

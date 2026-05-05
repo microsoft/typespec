@@ -14,14 +14,12 @@ export interface FileChanges {
 export function useFileChanges(
   program: CompileResult["program"],
   outputFiles: string[],
-  highlightChanges: boolean,
 ): FileChanges {
   const [changedFiles, setChangedFiles] = useState<Set<string>>(new Set());
   const [changedLines, setChangedLines] = useState<Map<string, number[]>>(new Map());
   const prevContentsRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
-    if (!highlightChanges) return;
     let cancelled = false;
     async function diffFiles() {
       const changed = new Set<string>();
@@ -74,7 +72,7 @@ export function useFileChanges(
     return () => {
       cancelled = true;
     };
-  }, [program, outputFiles, highlightChanges]);
+  }, [program, outputFiles]);
 
   return useMemo(() => ({ changedFiles, changedLines }), [changedFiles, changedLines]);
 }

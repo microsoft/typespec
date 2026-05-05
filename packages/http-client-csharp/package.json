@@ -25,11 +25,16 @@
       "default": "./dist/emitter/src/index.js"
     }
   },
+  "browser": {
+    "./dist/emitter/src/emit-generate.js": "./dist/emitter/src/emit-generate.browser.js",
+    "./emitter/src/emit-generate.ts": "./emitter/src/emit-generate.browser.ts"
+  },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
+    "dev:playground": "npm run build:emitter && cd ../../website && npm run dev",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -52,7 +57,7 @@
     "emitter/lib/*.tsp"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-client-generator-core": ">=0.67.1 <0.68.0 || ~0.68.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.67.4 <0.68.0 || ~0.68.0-0",
     "@typespec/compiler": "^1.11.0",
     "@typespec/http": "^1.11.0",
     "@typespec/openapi": "^1.11.0",
@@ -63,8 +68,8 @@
   },
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.39",
-    "@azure-tools/typespec-azure-core": "0.67.0",
-    "@azure-tools/typespec-client-generator-core": "0.67.2",
+    "@azure-tools/typespec-azure-core": "0.67.1",
+    "@azure-tools/typespec-client-generator-core": "0.67.4",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.12.0",
     "@typespec/compiler": "1.11.0",
