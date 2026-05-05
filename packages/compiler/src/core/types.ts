@@ -46,6 +46,20 @@ export interface DecoratorApplication {
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
+  /** Conditions under which this decorator applies (from `when` clause). Empty means unconditional. */
+  when?: WhenCondition[];
+}
+
+/**
+ * A resolved condition from a `when` clause, ready for runtime filtering.
+ */
+export interface WhenCondition {
+  /** The kind of filter: emitter name, language, target kind, version predicate, or enum member */
+  readonly kind: "emitter" | "language" | "target" | "since" | "between" | "member";
+  /** The argument values (e.g., emitter name string, version refs) */
+  readonly args: (Type | Value)[];
+  /** Raw string values for simple string args (for efficient matching) */
+  readonly rawArgs?: string[];
 }
 
 /**
@@ -1178,6 +1192,7 @@ export enum SyntaxKind {
   FunctionTypeExpression,
   WhenExpression,
   WhenClause,
+  WhenBlockStatement,
 }
 
 export const enum NodeFlags {
@@ -1303,7 +1318,8 @@ export type Node =
   | ScalarConstructorNode
   | ArrayLiteralNode
   | WhenClauseNode
-  | WhenExpressionNode;
+  | WhenExpressionNode
+  | WhenBlockStatementNode;
 
 /**
  * Node that can be used as template
@@ -1392,7 +1408,8 @@ export type Statement =
   | ConstStatementNode
   | CallExpressionNode
   | EmptyStatementNode
-  | InvalidStatementNode;
+  | InvalidStatementNode
+  | WhenBlockStatementNode;
 
 export interface DeclarationNode {
   /**
@@ -1462,6 +1479,19 @@ export interface WhenExpressionNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   /** Arguments to the filter call, if any (e.g., the string `"@typespec/http-client-csharp"`) */
   readonly arguments: readonly Expression[];
+}
+
+/**
+ * A `when` block statement that conditionally includes declarations.
+ * `when condition { ...statements }`
+ *
+ * Semantically equivalent to applying the `when` clause to each statement in the block.
+ */
+export interface WhenBlockStatementNode extends BaseNode {
+  readonly kind: SyntaxKind.WhenBlockStatement;
+  readonly when: WhenClauseNode;
+  readonly statements: readonly Statement[];
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 export interface AugmentDecoratorStatementNode extends BaseNode {

@@ -6,6 +6,7 @@ import {
   ModelPropertyNode,
   ModelStatementNode,
   SyntaxKind,
+  WhenBlockStatementNode,
   WhenClauseNode,
 } from "../src/core/types.js";
 
@@ -124,6 +125,51 @@ describe("compiler: when clause", () => {
       const prop = model.properties[0] as ModelPropertyNode;
       strictEqual(prop.id.sv, "when");
       strictEqual(prop.when, undefined);
+    });
+  });
+
+  describe("when block statement", () => {
+    it("parses when block with single model", () => {
+      const ast = parseSuccessfully(`when since(Version.v2) { model Foo {} }`);
+      const block = ast.statements[0] as WhenBlockStatementNode;
+      strictEqual(block.kind, SyntaxKind.WhenBlockStatement);
+      ok(block.when);
+      strictEqual(block.when.conditions.length, 1);
+      strictEqual(block.statements.length, 1);
+      strictEqual(block.statements[0].kind, SyntaxKind.ModelStatement);
+    });
+
+    it("parses when block with multiple declarations", () => {
+      const ast = parseSuccessfully(`when emitter("csharp") {
+        model Foo {}
+        model Bar {}
+        op doStuff(): void;
+      }`);
+      const block = ast.statements[0] as WhenBlockStatementNode;
+      strictEqual(block.statements.length, 3);
+    });
+
+    it("parses nested when blocks", () => {
+      const ast = parseSuccessfully(`when emitter("csharp") {
+        when target("client") {
+          model Foo {}
+        }
+      }`);
+      const outer = ast.statements[0] as WhenBlockStatementNode;
+      strictEqual(outer.statements.length, 1);
+      const inner = outer.statements[0] as WhenBlockStatementNode;
+      strictEqual(inner.kind, SyntaxKind.WhenBlockStatement);
+      strictEqual(inner.statements.length, 1);
+    });
+
+    it("parses when block with decorators on contained declarations", () => {
+      const ast = parseSuccessfully(`when since(Version.v2) {
+        @doc("A new model")
+        model Foo {}
+      }`);
+      const block = ast.statements[0] as WhenBlockStatementNode;
+      const model = block.statements[0] as ModelStatementNode;
+      strictEqual(model.decorators.length, 1);
     });
   });
 });

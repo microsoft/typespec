@@ -172,6 +172,8 @@ import {
   Value,
   ValueWithTemplate,
   VoidType,
+  WhenCondition,
+  WhenExpressionNode,
 } from "./types.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
@@ -5759,8 +5761,62 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorator: sym.value ?? ((...args: any[]) => {}),
       node: decNode,
       args,
+      when: resolveWhenConditions(decNode),
     };
   }
+
+  /**
+   * Resolve the `when` clause on a decorator into structured conditions.
+   * Returns undefined if no `when` clause is present.
+   */
+  function resolveWhenConditions(
+    decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
+  ): WhenCondition[] | undefined {
+    if (decNode.kind !== SyntaxKind.DecoratorExpression || !decNode.when) {
+      return undefined;
+    }
+    const conditions: WhenCondition[] = [];
+    for (const condNode of decNode.when.conditions) {
+      const condition = resolveWhenExpression(condNode);
+      if (condition) {
+        conditions.push(condition);
+      }
+    }
+    return conditions.length > 0 ? conditions : undefined;
+  }
+
+  /**
+   * Resolve a single when condition expression into a WhenCondition.
+   */
+  function resolveWhenExpression(
+    node: WhenExpressionNode,
+  ): WhenCondition | undefined {
+    // Determine the filter kind from the target identifier
+    if (node.target.kind === SyntaxKind.Identifier) {
+      const name = node.target.sv;
+      const knownFilters = ["emitter", "language", "target", "since", "between"];
+      if (knownFilters.includes(name)) {
+        // Extract raw string args for simple matching
+        const rawArgs: string[] = [];
+        for (const arg of node.arguments) {
+          if (arg.kind === SyntaxKind.StringLiteral) {
+            rawArgs.push(arg.value);
+          }
+        }
+        return {
+          kind: name as WhenCondition["kind"],
+          args: [],
+          rawArgs: rawArgs.length > 0 ? rawArgs : undefined,
+        };
+      }
+    }
+    // Treat as enum member reference (e.g., Lifecycle.read)
+    return {
+      kind: "member",
+      args: [],
+    };
+  }
+
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {

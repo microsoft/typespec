@@ -313,6 +313,7 @@ export function printNode(
     case SyntaxKind.InvalidStatement:
     case SyntaxKind.WhenClause:
     case SyntaxKind.WhenExpression:
+    case SyntaxKind.WhenBlockStatement:
       return getRawText(node, options);
     default:
       // Dummy const to ensure we handle all node types.

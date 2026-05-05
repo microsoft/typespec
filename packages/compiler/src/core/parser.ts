@@ -108,6 +108,7 @@ import {
   UsingStatementNode,
   ValueOfExpressionNode,
   VoidKeywordNode,
+  WhenBlockStatementNode,
   WhenClauseNode,
   WhenExpressionNode,
 } from "./types.js";
@@ -468,6 +469,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseDeclaration(pos, decorators, docs, directives);
           break;
         default:
+          if (isWhenKeyword()) {
+            reportInvalidDecorators(decorators, "when block statement");
+            item = parseWhenBlockStatement(pos);
+            break;
+          }
           item = parseInvalidStatement(pos, decorators);
           break;
       }
@@ -501,7 +507,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return stmts;
   }
 
-  function parseStatementList(): Statement[] {
+   function parseStatementList(): Statement[] {
     const stmts: Statement[] = [];
 
     while (token() !== Token.CloseBrace) {
@@ -546,6 +552,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseEmptyStatement(pos);
           break;
         default:
+          if (isWhenKeyword()) {
+            reportInvalidDecorators(decorators, "when block statement");
+            item = parseWhenBlockStatement(pos);
+            break;
+          }
           item = parseInvalidStatement(pos, decorators);
           break;
       }
@@ -1668,6 +1679,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       kind: SyntaxKind.WhenExpression,
       target,
       arguments: args,
+      ...finishNode(pos),
+    };
+  }
+
+  /**
+   * Parse a `when` block statement: `when condition { ...statements }`
+   * The 'when' identifier has already been verified but not consumed.
+   */
+  function parseWhenBlockStatement(pos: number): WhenBlockStatementNode {
+    // parseOptionalWhenClause will consume 'when' and parse conditions
+    const whenClause = parseOptionalWhenClause()!;
+
+    // Parse the block body: { ...statements }
+    parseExpected(Token.OpenBrace);
+    const statements = parseStatementList();
+    parseExpected(Token.CloseBrace);
+
+    return {
+      kind: SyntaxKind.WhenBlockStatement,
+      when: whenClause,
+      statements,
       ...finishNode(pos),
     };
   }
@@ -3229,6 +3261,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.conditions);
     case SyntaxKind.WhenExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.WhenBlockStatement:
+      return visitNode(cb, node.when) || visitEach(cb, node.statements);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
