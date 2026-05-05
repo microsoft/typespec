@@ -15,35 +15,35 @@ namespace Payload.MultiPart
     /// <summary> The BinaryArrayPartsRequest. </summary>
     public partial class BinaryArrayPartsRequest
     {
-        /// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of file paths. </summary>
-        public BinaryArrayPartsRequest(string id, IEnumerable<string> picturePaths)
-        {
-            Argument.AssertNotNull(id, nameof(id));
-            Argument.AssertNotNull(picturePaths, nameof(picturePaths));
+        // For array of pictures, only generate the FileBinaryContent ctor
+        //public BinaryArrayPartsRequest(string id, IEnumerable<string> picturePaths)
+        //{
+        //    Argument.AssertNotNull(id, nameof(id));
+        //    Argument.AssertNotNull(picturePaths, nameof(picturePaths));
 
-            Id = id;
-            Pictures = picturePaths.Select(path => new FileBinaryContent(path)).ToList();
-        }
+        //    Id = id;
+        //    Pictures = picturePaths.Select(path => new FileBinaryContent(path)).ToList();
+        //}
 
-        /// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of streams. </summary>
-        public BinaryArrayPartsRequest(string id, IEnumerable<Stream> pictures)
-        {
-            Argument.AssertNotNull(id, nameof(id));
-            Argument.AssertNotNull(pictures, nameof(pictures));
+        ///// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of streams. </summary>
+        //public BinaryArrayPartsRequest(string id, IEnumerable<Stream> pictures)
+        //{
+        //    Argument.AssertNotNull(id, nameof(id));
+        //    Argument.AssertNotNull(pictures, nameof(pictures));
 
-            Id = id;
-            Pictures = pictures.Select(stream => new FileBinaryContent(stream)).ToList();
-        }
+        //    Id = id;
+        //    Pictures = pictures.Select(stream => new FileBinaryContent(stream)).ToList();
+        //}
 
-        /// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of <see cref="BinaryData"/> instances. </summary>
-        public BinaryArrayPartsRequest(string id, IEnumerable<BinaryData> pictures)
-        {
-            Argument.AssertNotNull(id, nameof(id));
-            Argument.AssertNotNull(pictures, nameof(pictures));
+        ///// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of <see cref="BinaryData"/> instances. </summary>
+        //public BinaryArrayPartsRequest(string id, IEnumerable<BinaryData> pictures)
+        //{
+        //    Argument.AssertNotNull(id, nameof(id));
+        //    Argument.AssertNotNull(pictures, nameof(pictures));
 
-            Id = id;
-            Pictures = pictures.Select(data => new FileBinaryContent(data)).ToList();
-        }
+        //    Id = id;
+        //    Pictures = pictures.Select(data => new FileBinaryContent(data)).ToList();
+        //}
 
         /// <summary> Initializes a new instance of <see cref="BinaryArrayPartsRequest"/> from a sequence of pre-built <see cref="FileBinaryContent"/> instances. </summary>
         public BinaryArrayPartsRequest(string id, IEnumerable<FileBinaryContent> pictures)

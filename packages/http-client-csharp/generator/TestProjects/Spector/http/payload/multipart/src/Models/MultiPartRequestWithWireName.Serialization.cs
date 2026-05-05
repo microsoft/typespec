@@ -12,7 +12,7 @@ namespace Payload.MultiPart
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("id", Identifier);
+            content.Add("id", Identifier, "text/plain");
             content.Add("profileImage", Image);
 
             return content;

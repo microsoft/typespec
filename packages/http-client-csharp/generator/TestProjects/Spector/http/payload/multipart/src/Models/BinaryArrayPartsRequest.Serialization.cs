@@ -19,7 +19,7 @@ namespace Payload.MultiPart
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("id", Id);
+            content.Add("id", Id, "text/plain");
             foreach (var picture in Pictures)
             {
                 content.Add("pictures", picture);

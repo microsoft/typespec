@@ -14,7 +14,7 @@ namespace Payload.MultiPart
             MultiPartFormContent content = new();
             if (Id != null)
             {
-                content.Add("id", Id);
+                content.Add("id", Id, "text/plain");
             }
             if (ProfileImage != null)
             {

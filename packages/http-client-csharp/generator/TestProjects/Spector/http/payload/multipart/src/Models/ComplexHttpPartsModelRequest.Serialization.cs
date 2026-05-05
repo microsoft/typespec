@@ -19,14 +19,15 @@ namespace Payload.MultiPart
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("id", Id);
+            content.Add("id", Id, "text/plain");
             content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
 
-            foreach (Address item in PreviousAddresses)
-            {
-                content.Add("previousAddresses", item);
-            }
+            BinaryData previousAddressesData = ModelReaderWriter.Write(
+                (IList<Address>)PreviousAddresses,
+                ModelSerializationExtensions.WireOptions,
+                PayloadMultiPartContext.Default);
+            content.Add("previousAddresses", previousAddressesData);
             foreach (var picture in Pictures)
             {
                 content.Add("pictures", picture);

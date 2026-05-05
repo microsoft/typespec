@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>TestProjects.Spector.Tests</RootNamespace>
+    <NoWarn>$(NoWarn);SCME0004</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
