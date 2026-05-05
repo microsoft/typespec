@@ -70,6 +70,16 @@ describe("http: decorators", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it(`@patch does not emit deprecation warning when inherited via 'op is'`, async () => {
+      const diagnostics = await Tester.diagnose(`
+        #suppress "@typespec/http/deprecated-implicit-optionality" "testing"
+        @patch(#{ implicitOptionality: true }) op base(): string;
+        op derived is base;
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("@header", () => {
