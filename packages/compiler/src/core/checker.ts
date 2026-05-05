@@ -6886,6 +6886,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): ValidatorFn[] {
     const postSelfValidators: ValidatorFn[] = [];
     for (const decApp of typeDef.decorators) {
+      // Skip scoped decorators — they are deferred until an emitter applies a scope view
+      if (decApp.when) {
+        continue;
+      }
       const validators = applyDecoratorToType(program, decApp, typeDef);
       if (validators?.onTargetFinish) {
         postSelfValidators.push(validators.onTargetFinish);
@@ -7586,7 +7590,7 @@ function getDocContent(content: readonly DocContent[]) {
   return docs.join("");
 }
 
-function applyDecoratorToType(
+export function applyDecoratorToType(
   program: Program,
   decApp: DecoratorApplication,
   target: Type,

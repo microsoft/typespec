@@ -1,3 +1,5 @@
+import { applyDecoratorToType } from "./checker.js";
+import type { Program } from "./program.js";
 import type { DecoratorApplication, Type, WhenCondition } from "./types.js";
 
 /**
@@ -11,6 +13,18 @@ export interface EmitterScope {
   readonly language?: string;
   /** The emitter kind (e.g., "client", "server") */
   readonly target?: string;
+}
+
+/**
+ * Tracks which scoped decorators have already been applied to avoid double-execution.
+ */
+const appliedScopes = new WeakMap<DecoratorApplication, Set<string>>();
+
+/**
+ * Compute a cache key for a scope to track applied state.
+ */
+function scopeKey(scope: EmitterScope): string {
+  return `${scope.emitter ?? ""}|${scope.language ?? ""}|${scope.target ?? ""}`;
 }
 
 /**
@@ -81,7 +95,7 @@ export function getDecoratorsByScope(
  * Get the first decorator matching a specific name that's active in the scope.
  *
  * @param type The type to query
- * @param decoratorName The decorator function or namespace-qualified name
+ * @param decoratorFn The decorator function or namespace-qualified name
  * @param scope The emitter scope
  * @returns The matching decorator application, or undefined
  */
@@ -93,6 +107,45 @@ export function getScopedDecorator(
   return type.decorators.find(
     (d) => d.decorator === decoratorFn && decoratorMatchesScope(d, scope),
   );
+}
+
+/**
+ * Apply scoped decorators to a type for a given scope.
+ * This executes the JS implementation of scoped decorators that match the scope.
+ * Decorators are only executed once per scope (tracked internally).
+ *
+ * This is the primary API for emitters to "activate" conditional decorators.
+ * Call this in your emitter's `$onEmit` before reading decorator state (e.g., `getDoc`).
+ *
+ * @param program The program instance
+ * @param type The type to apply scoped decorators to
+ * @param scope The emitter scope to apply
+ */
+export function applyScopedDecorators(
+  program: Program,
+  type: Type & { decorators: DecoratorApplication[] },
+  scope: EmitterScope,
+): void {
+  const key = scopeKey(scope);
+
+  for (const decApp of type.decorators) {
+    if (!decApp.when) continue; // unconditional — already applied during checking
+    if (!decoratorMatchesScope(decApp, scope)) continue; // doesn't match this scope
+
+    // Check if already applied for this scope
+    let applied = appliedScopes.get(decApp);
+    if (applied?.has(key)) continue;
+
+    // Execute the decorator
+    applyDecoratorToType(program, decApp, type);
+
+    // Mark as applied
+    if (!applied) {
+      applied = new Set();
+      appliedScopes.set(decApp, applied);
+    }
+    applied.add(key);
+  }
 }
 
 /**
