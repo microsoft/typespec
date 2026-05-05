@@ -5,13 +5,12 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Threading;
 using System.Threading.Tasks;
-using Payload.MultiPart.Models;
+using Payload.MultiPart;
 
 namespace Payload.MultiPart._FormData.HttpParts.NonString
 {
-    /// <summary></summary>
+    /// <summary> The FormDataHttpPartsNonString sub-client. </summary>
     public partial class FormDataHttpPartsNonString
     {
         private readonly Uri _endpoint;
@@ -21,6 +20,9 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         {
         }
 
+        /// <summary> Initializes a new instance of FormDataHttpPartsNonString. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
         internal FormDataHttpPartsNonString(ClientPipeline pipeline, Uri endpoint)
         {
             _endpoint = endpoint;
@@ -30,42 +32,48 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public ClientPipeline Pipeline { get; }
 
+        /// <summary>
+        /// [Protocol Method] Test content-type: multipart/form-data for non string
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
-            // CUSTOM: AssertNotNull for required contentType
-            Argument.AssertNotNull(contentType, nameof(contentType));
 
             using PipelineMessage message = CreateFloatRequest(content, contentType, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
+        /// <summary>
+        /// [Protocol Method] Test content-type: multipart/form-data for non string
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="contentType"> The contentType to use which has the multipart/form-data boundary. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
-            // CUSTOM: AssertNotNull for required contentType
-            Argument.AssertNotNull(contentType, nameof(contentType));
 
             using PipelineMessage message = CreateFloatRequest(content, contentType, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        // CUSTOM: Convenience method
-        public virtual ClientResult Float(FloatRequest body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            using MultiPartFormContent content = body.ToMultipartContent();
-            return Float(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-        }
-
-        // CUSTOM: Convenience method
-        public virtual async Task<ClientResult> FloatAsync(FloatRequest body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            using MultiPartFormContent content = body.ToMultipartContent();
-            return await FloatAsync(content, content.MediaType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }

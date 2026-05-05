@@ -7,27 +7,19 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
-    public partial class ComplexPartsRequest
+    public partial class FileWithHttpPartRequiredContentTypeRequest
     {
-        internal ComplexPartsRequest()
+        internal FileWithHttpPartRequiredContentTypeRequest()
         {
         }
 
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("id", Id);
-            content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
-
-            foreach (var picture in Pictures)
-            {
-                content.Add("pictures", picture);
-            }
 
             return content;
         }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>This is the Payload.MultiPart client library for developing .NET applications with rich experience.</Description>
     <AssemblyTitle>SDK Code Generation Payload.MultiPart</AssemblyTitle>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.11.0-alpha.20260504.1" />
+    <PackageReference Include="System.ClientModel" Version="1.10.0" />
   </ItemGroup>
 
   <ItemGroup>

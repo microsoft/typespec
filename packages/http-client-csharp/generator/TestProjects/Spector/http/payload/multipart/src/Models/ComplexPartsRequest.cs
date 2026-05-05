@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
     public partial class ComplexPartsRequest
     {
@@ -34,7 +34,9 @@ namespace Payload.MultiPart.Models
             Argument.AssertNotNull(pictures, nameof(pictures));
 
             Id = id;
+            Address = address;
             ProfileImage = new(profileImage);
+            Pictures = pictures.ToList();
         }
 
         public ComplexPartsRequest(string id, Address address, BinaryData profileImage, IEnumerable<FileBinaryContent> pictures)
@@ -45,7 +47,9 @@ namespace Payload.MultiPart.Models
             Argument.AssertNotNull(pictures, nameof(pictures));
 
             Id = id;
+            Address = address;
             ProfileImage = new(profileImage);
+            Pictures = pictures.ToList();
         }
 
         public ComplexPartsRequest(string id, Address address, FileBinaryContent profileImage, IEnumerable<FileBinaryContent> pictures)
@@ -64,6 +68,6 @@ namespace Payload.MultiPart.Models
         public string Id { get; }
         public Address Address { get; }
         public FileBinaryContent ProfileImage { get; }
-        public IList<FileBinaryContent> Pictures { get; }
+        public IReadOnlyList<FileBinaryContent> Pictures { get; }
     }
 }

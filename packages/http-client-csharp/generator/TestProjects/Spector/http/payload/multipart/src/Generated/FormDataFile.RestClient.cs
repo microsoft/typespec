@@ -6,20 +6,20 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using Payload.MultiPart;
 
-namespace Payload.MultiPart._FormData.HttpParts.ContentType
+namespace Payload.MultiPart._FormData.File
 {
     /// <summary></summary>
-    public partial class FormDataHttpPartsContentType
+    public partial class FormDataFile
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
-        internal PipelineMessage CreateImageJpegContentTypeRequest(BinaryContent content, string contentType, RequestOptions options)
+        internal PipelineMessage CreateUploadFileSpecificContentTypeRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/multipart/form-data/check-filename-and-specific-content-type-with-httppart", false);
+            uri.AppendPath("/multipart/form-data/file/specific-content-type", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", contentType);
@@ -28,11 +28,11 @@ namespace Payload.MultiPart._FormData.HttpParts.ContentType
             return message;
         }
 
-        internal PipelineMessage CreateRequiredContentTypeRequest(BinaryContent content, string contentType, RequestOptions options)
+        internal PipelineMessage CreateUploadFileRequiredFilenameRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/multipart/form-data/check-filename-and-required-content-type-with-httppart", false);
+            uri.AppendPath("/multipart/form-data/file/required-filename", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", contentType);
@@ -41,11 +41,11 @@ namespace Payload.MultiPart._FormData.HttpParts.ContentType
             return message;
         }
 
-        internal PipelineMessage CreateOptionalContentTypeRequest(BinaryContent content, string contentType, RequestOptions options)
+        internal PipelineMessage CreateUploadFileArrayRequest(BinaryContent content, string contentType, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/multipart/form-data/file-with-http-part-optional-content-type", false);
+            uri.AppendPath("/multipart/form-data/file/file-array", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", contentType);

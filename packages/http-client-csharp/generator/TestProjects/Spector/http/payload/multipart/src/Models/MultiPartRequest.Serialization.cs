@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
     public partial class MultiPartRequest : IJsonModel<MultiPartRequest>
     {

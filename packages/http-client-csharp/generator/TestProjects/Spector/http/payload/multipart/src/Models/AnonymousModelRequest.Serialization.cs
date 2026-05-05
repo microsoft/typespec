@@ -7,15 +7,13 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart._FormData
 {
-    public partial class FileWithHttpPartRequiredContentTypeRequest
+    public partial class AnonymousModelRequest
     {
-        internal FileWithHttpPartRequiredContentTypeRequest()
-        {
-        }
-
+        internal AnonymousModelRequest() { }
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();

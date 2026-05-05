@@ -2,15 +2,20 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
+    /// <summary> The Address. </summary>
     public partial class Address
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
+        /// <summary> Initializes a new instance of <see cref="Address"/>. </summary>
+        /// <param name="city"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="city"/> is null. </exception>
         public Address(string city)
         {
             Argument.AssertNotNull(city, nameof(city));
@@ -18,12 +23,16 @@ namespace Payload.MultiPart.Models
             City = city;
         }
 
+        /// <summary> Initializes a new instance of <see cref="Address"/>. </summary>
+        /// <param name="city"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal Address(string city, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             City = city;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
+        /// <summary> Gets the City. </summary>
         public string City { get; }
     }
 }

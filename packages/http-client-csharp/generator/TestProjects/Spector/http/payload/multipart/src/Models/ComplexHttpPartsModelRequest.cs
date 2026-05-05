@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
     public partial class ComplexHttpPartsModelRequest
     {
@@ -75,7 +75,7 @@ namespace Payload.MultiPart.Models
         public string Id { get; }
         public Address Address { get; }
         public FileBinaryContent ProfileImage { get; }
-        public IList<Address> PreviousAddresses { get; }
-        public IList<FileBinaryContent> Pictures { get; }
+        public IReadOnlyList<Address> PreviousAddresses { get; }
+        public IReadOnlyList<FileBinaryContent> Pictures { get; }
     }
 }

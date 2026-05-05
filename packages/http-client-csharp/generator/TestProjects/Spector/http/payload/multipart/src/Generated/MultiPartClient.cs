@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Payload.MultiPart._FormData;
 
@@ -21,17 +22,39 @@ namespace Payload.MultiPart
         }
 
         /// <summary> Initializes a new instance of MultiPartClient. </summary>
+        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public MultiPartClient(Uri endpoint, MultiPartClientOptions options)
+        internal MultiPartClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultiPartClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
 
             options ??= new MultiPartClientOptions();
 
             _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+            if (authenticationPolicy != null)
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(MultiPartClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(MultiPartClient).Assembly) }, Array.Empty<PipelinePolicy>());
+            }
+        }
+
+        /// <summary> Initializes a new instance of MultiPartClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) : this(null, endpoint, options)
+        {
+        }
+
+        /// <summary> Initializes a new instance of MultiPartClient from a <see cref="MultiPartClientSettings"/>. </summary>
+        /// <param name="settings"> The settings for MultiPartClient. </param>
+        [Experimental("SCME0002")]
+        public MultiPartClient(MultiPartClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
+        {
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>

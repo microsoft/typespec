@@ -13,6 +13,23 @@ namespace Payload.MultiPart
     /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
     /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
     /// </summary>
+    [ModelReaderWriterBuildable(typeof(Address))]
+    [ModelReaderWriterBuildable(typeof(AnonymousModelRequest))]
+    [ModelReaderWriterBuildable(typeof(BinaryArrayPartsRequest))]
+    [ModelReaderWriterBuildable(typeof(ComplexHttpPartsModelRequest))]
+    [ModelReaderWriterBuildable(typeof(ComplexPartsRequest))]
+    [ModelReaderWriterBuildable(typeof(FileWithHttpPartOptionalContentTypeRequest))]
+    [ModelReaderWriterBuildable(typeof(FileWithHttpPartRequiredContentTypeRequest))]
+    [ModelReaderWriterBuildable(typeof(FileWithHttpPartSpecificContentTypeRequest))]
+    [ModelReaderWriterBuildable(typeof(FloatRequest))]
+    [ModelReaderWriterBuildable(typeof(JsonPartRequest))]
+    [ModelReaderWriterBuildable(typeof(MultiBinaryPartsRequest))]
+    [ModelReaderWriterBuildable(typeof(MultiPartOptionalRequest))]
+    [ModelReaderWriterBuildable(typeof(MultiPartRequest))]
+    [ModelReaderWriterBuildable(typeof(MultiPartRequestWithWireName))]
+    [ModelReaderWriterBuildable(typeof(UploadFileArrayRequest))]
+    [ModelReaderWriterBuildable(typeof(UploadFileRequiredFilenameRequest))]
+    [ModelReaderWriterBuildable(typeof(UploadFileSpecificContentTypeRequest))]
     public partial class PayloadMultiPartContext : ModelReaderWriterContext
     {
     }

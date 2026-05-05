@@ -5,36 +5,37 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart._FormData
 {
-    /// <summary> The MultiBinaryPartsRequest. </summary>
-    public partial class MultiBinaryPartsRequest
+    /// <summary> The AnonymousModelRequest. </summary>
+    public partial class AnonymousModelRequest
     {
-        public MultiBinaryPartsRequest(string profileImagePath)
+        public AnonymousModelRequest(string profileImagePath)
         {
             Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
 
             ProfileImage = new(profileImagePath);
 
         }
-        public MultiBinaryPartsRequest(Stream profileImage)
+        public AnonymousModelRequest(Stream profileImage)
+        {
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+            ProfileImage = new(profileImage);
+        }
+
+        public AnonymousModelRequest(BinaryData profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
             ProfileImage = new(profileImage);
         }
 
-        public MultiBinaryPartsRequest(BinaryData profileImage)
-        {
-            Argument.AssertNotNull(profileImage, nameof(profileImage));
-
-            ProfileImage = new(profileImage);
-        }
-
-        public MultiBinaryPartsRequest(FileBinaryContent profileImage)
+        /// <summary> Initializes a new instance of <see cref="AnonymousModelRequest"/>. </summary>
+        /// <param name="profileImage"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="profileImage"/> is null. </exception>
+        public AnonymousModelRequest(FileBinaryContent profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -43,7 +44,5 @@ namespace Payload.MultiPart.Models
 
         /// <summary> Gets the profile image. </summary>
         public FileBinaryContent ProfileImage { get; }
-        /// <summary> Gets or sets the picture. </summary>
-        public FileBinaryContent Picture { get; set; }
     }
 }

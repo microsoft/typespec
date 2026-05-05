@@ -189,7 +189,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         {
             using MultiPartFormContent content = new();
             content.Add("id", "123");
-            content.Add("address", new Address("X"), ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("address", new Address("X"));
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
             content.Add("profileImage", new FileBinaryContent(imageStream1) { Filename = "profileImage.jpg" });
 
@@ -372,7 +372,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         {
             using MultiPartFormContent content = new();
             content.Add("id", "123");
-            content.Add("address", new Address("X"), ModelSerializationExtensions.WireOptions, new PayloadMultiPartContext());
+            content.Add("address", new Address("X"));
 
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
             content.Add("profileImage", new FileBinaryContent(imageStream1) { Filename = "profileImage.jpg" });

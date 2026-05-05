@@ -7,17 +7,20 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
+using System.Text.Json;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart._FormData.HttpParts.NonString
 {
-    public partial class AnonymousModelRequest
+    public partial class FloatRequest
     {
-        internal AnonymousModelRequest() { }
+        internal FloatRequest()
+        {
+        }
+
         internal virtual MultiPartFormContent ToMultipartContent()
         {
             MultiPartFormContent content = new();
-            content.Add("profileImage", ProfileImage);
+            content.Add("temperature", Temperature, "text/plain");
 
             return content;
         }

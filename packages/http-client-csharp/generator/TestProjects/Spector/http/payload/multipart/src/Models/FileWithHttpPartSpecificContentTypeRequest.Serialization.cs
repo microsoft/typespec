@@ -7,13 +7,12 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
-    public partial class FileWithHttpPartOptionalContentTypeRequest
+    public partial class FileWithHttpPartSpecificContentTypeRequest
     {
-        internal FileWithHttpPartOptionalContentTypeRequest()
+        internal FileWithHttpPartSpecificContentTypeRequest()
         {
         }
 

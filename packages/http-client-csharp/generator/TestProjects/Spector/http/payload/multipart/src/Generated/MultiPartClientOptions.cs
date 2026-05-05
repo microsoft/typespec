@@ -11,9 +11,20 @@ namespace Payload.MultiPart
     /// <summary> Client options for <see cref="MultiPartClient"/>. </summary>
     public partial class MultiPartClientOptions : ClientPipelineOptions
     {
-        public MultiPartClientOptions() => throw null;
+        /// <summary> Initializes a new instance of MultiPartClientOptions. </summary>
+        public MultiPartClientOptions()
+        {
+        }
 
+        /// <summary> Initializes a new instance of MultiPartClientOptions from configuration. </summary>
+        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal MultiPartClientOptions(IConfigurationSection section) : base(section) => throw null;
+        internal MultiPartClientOptions(IConfigurationSection section) : base(section)
+        {
+            if (section is null || !section.Exists())
+            {
+                return;
+            }
+        }
     }
 }

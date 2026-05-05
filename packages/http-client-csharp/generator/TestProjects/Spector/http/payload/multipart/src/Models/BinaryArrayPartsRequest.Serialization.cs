@@ -8,11 +8,11 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
-    public partial class ComplexHttpPartsModelRequest
+    public partial class BinaryArrayPartsRequest
     {
-        internal ComplexHttpPartsModelRequest()
+        internal BinaryArrayPartsRequest()
         {
         }
 
@@ -20,13 +20,6 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormContent content = new();
             content.Add("id", Id);
-            content.Add("address", Address);
-            content.Add("profileImage", ProfileImage);
-
-            foreach (Address item in PreviousAddresses)
-            {
-                content.Add("previousAddresses", item);
-            }
             foreach (var picture in Pictures)
             {
                 content.Add("pictures", picture);

@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
     public partial class JsonPartRequest
     {

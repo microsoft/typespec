@@ -2,15 +2,34 @@
 
 #nullable disable
 
-namespace Payload.MultiPart.Models
+using System;
+using System.Collections.Generic;
+
+namespace Payload.MultiPart._FormData.HttpParts.NonString
 {
+    /// <summary> The FloatRequest. </summary>
     public partial class FloatRequest
     {
-        public FloatRequest(float temperature)
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+
+        /// <summary> Initializes a new instance of <see cref="FloatRequest"/>. </summary>
+        /// <param name="temperature"></param>
+        public FloatRequest(double temperature)
         {
             Temperature = temperature;
         }
 
-        public float Temperature { get; }
+        /// <summary> Initializes a new instance of <see cref="FloatRequest"/>. </summary>
+        /// <param name="temperature"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal FloatRequest(double temperature, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Temperature = temperature;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        }
+
+        /// <summary> Gets the Temperature. </summary>
+        public double Temperature { get; }
     }
 }

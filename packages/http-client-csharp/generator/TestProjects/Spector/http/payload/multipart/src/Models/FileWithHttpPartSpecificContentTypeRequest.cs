@@ -6,7 +6,7 @@ using System;
 using System.ClientModel;
 using System.IO;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
     public partial class FileWithHttpPartSpecificContentTypeRequest
     {

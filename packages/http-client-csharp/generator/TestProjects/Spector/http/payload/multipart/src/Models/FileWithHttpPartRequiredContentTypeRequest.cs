@@ -2,42 +2,45 @@
 
 #nullable disable
 
-using System.IO;
 using System;
 using System.ClientModel;
+using System.IO;
 
-namespace Payload.MultiPart.Models
+namespace Payload.MultiPart
 {
-    public partial class FileWithHttpPartOptionalContentTypeRequest
+    public partial class FileWithHttpPartRequiredContentTypeRequest
     {
-        public FileWithHttpPartOptionalContentTypeRequest(string filename, string profileImagePath)
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, string profileImagePath)
         {
             Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
             Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
 
-            ProfileImage = new(profileImagePath)
+            ProfileImage = new(profileImagePath, contentType)
             {
                 Filename = filename,
             };
         }
 
-        public FileWithHttpPartOptionalContentTypeRequest(string filename, Stream profileImage)
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, Stream profileImage)
         {
             Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, contentType)
             {
                 Filename = filename,
             };
         }
 
-        public FileWithHttpPartOptionalContentTypeRequest(string filename, BinaryData profileImage)
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, BinaryData profileImage)
         {
             Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = new(profileImage)
+            ProfileImage = new(profileImage, contentType)
             {
                 Filename = filename,
             };
