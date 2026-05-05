@@ -102,6 +102,7 @@ class TypesSerializer(BaseSerializer):
             return f"{prop.wire_name}: {type_annotation}"
         return f"{prop.wire_name}: Required[{type_annotation}]"
 
+
     @staticmethod
     def variable_documentation_string(prop: Property) -> list[str]:
         return _documentation_string(prop, "ivar", "vartype")
