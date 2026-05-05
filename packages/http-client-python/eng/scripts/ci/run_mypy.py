@@ -12,7 +12,7 @@ from subprocess import check_call, CalledProcessError
 import os
 import logging
 import sys
-from util import run_check
+from util import run_check, get_package_namespace_dir
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -26,26 +26,34 @@ def get_config_file_location():
     return os.path.join(os.path.dirname(__file__), "config/mypy.ini")
 
 
-def _single_dir_mypy(mod):
-    # Exclude "build" directories to avoid mypy "Duplicate module" errors caused by
-    # stale build/lib/ artifacts from previous setup.py builds.
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.stem != "build")
-    try:
-        check_call(
-            [
-                sys.executable,
-                "-m",
-                "mypy",
-                "--config-file",
-                get_config_file_location(),
-                "--ignore-missing",
-                str(inner_class.absolute()),
-            ]
-        )
+def _single_dir_mypy(mod, retries=2):
+    inner_class = get_package_namespace_dir(mod)
+    if not inner_class:
+        logging.info(f"No package directory found in {mod}, skipping")
         return True
-    except CalledProcessError as e:
-        logging.error("{} exited with mypy error {}".format(inner_class.stem, e.returncode))
-        return False
+    for attempt in range(1, retries + 2):
+        try:
+            check_call(
+                [
+                    sys.executable,
+                    "-m",
+                    "mypy",
+                    "--config-file",
+                    get_config_file_location(),
+                    "--ignore-missing",
+                    str(inner_class.absolute()),
+                ]
+            )
+            return True
+        except CalledProcessError as e:
+            if attempt <= retries:
+                logging.warning(
+                    "{} mypy attempt {} failed (exit {}), retrying...".format(inner_class.stem, attempt, e.returncode)
+                )
+            else:
+                logging.error("{} exited with mypy error {}".format(inner_class.stem, e.returncode))
+                return False
+    return False
 
 
 if __name__ == "__main__":

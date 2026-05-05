@@ -93,7 +93,9 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           type: "object",
           required: [],
           nullable: true,
-          additionalProperties: { type: "boolean" },
+          additionalProperties: {
+            oneOf: [{ type: "boolean" }, { type: "object" }],
+          },
         },
         disable: {
           type: "object",

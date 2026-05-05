@@ -1124,8 +1124,10 @@ function createOAPIEmitter(
         if (contents.length === 1) {
           obj.content[contentType] = contents[0];
         } else {
+          const { schema: _, ...rest } = contents[0];
           obj.content[contentType] = {
             schema: { anyOf: contents.map((x) => x.schema) as any },
+            ...rest,
           };
         }
       }

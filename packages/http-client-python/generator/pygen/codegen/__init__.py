@@ -13,7 +13,6 @@ from ..utils import parse_args
 from .models.code_model import CodeModel
 from .serializers import JinjaSerializer
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

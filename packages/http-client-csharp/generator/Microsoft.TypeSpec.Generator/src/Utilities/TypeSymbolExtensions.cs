@@ -48,6 +48,17 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type is null)
             {
+                // Resolve Nullable<T> of a known framework type to a nullable framework CSharpType.
+                if (namedTypeSymbol?.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T &&
+                    namedTypeSymbol.TypeArguments.Length == 1)
+                {
+                    var underlying = GetCSharpType(namedTypeSymbol.TypeArguments[0]);
+                    if (underlying.IsFrameworkType)
+                    {
+                        return underlying.WithNullable(true);
+                    }
+                }
+
                 return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
             }
 
