@@ -15,8 +15,6 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
-    public class MyFrameworkBase { }
-
     public class ModelProviderTests
     {
         [SetUp]
@@ -424,8 +422,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
 
-        // Verifies that overriding BuildBaseType together with BuildBaseModelProvider keeps
-        // BaseType and BaseModelProvider in agreement.
+        // Verifies an emitter can override BuildBaseType and BuildBaseModelProvider together to
+        // redirect the C# base class to a custom ModelProvider, keeping BaseType and
+        // BaseModelProvider in agreement.
         [Test]
         public void OverridingBuildBaseTypeAndBuildBaseModelProvider_KeepsBaseTypeConsistent()
         {
@@ -433,28 +432,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
             CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
 
-            var redirectedBaseType = new CSharpType(typeof(MyFrameworkBase));
-            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, redirectedBaseType);
+            var customBaseProvider = new CustomBaseModelProvider(inputBase);
+            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, customBaseProvider);
 
-            Assert.AreEqual(redirectedBaseType, derivedProvider.BaseType);
-            // The emitter explicitly returned null from BuildBaseModelProvider, so it agrees with
-            // BaseType (no in-spec ModelProvider matches the redirected framework type).
-            Assert.IsNull(derivedProvider.BaseModelProvider);
+            Assert.AreEqual(customBaseProvider.Type, derivedProvider.BaseType);
+            Assert.AreSame(customBaseProvider, derivedProvider.BaseModelProvider);
+        }
+
+        private class CustomBaseModelProvider : ModelProvider
+        {
+            public CustomBaseModelProvider(InputModelType inputModel) : base(inputModel) { }
+
+            protected override string BuildName() => "CustomBase";
         }
 
         private class BuildBaseTypeOverridingModelProvider : ModelProvider
         {
-            private readonly CSharpType _redirectedBaseType;
+            private readonly ModelProvider _redirectedBaseProvider;
 
-            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, CSharpType redirectedBaseType) : base(inputModel)
+            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, ModelProvider redirectedBaseProvider) : base(inputModel)
             {
-                _redirectedBaseType = redirectedBaseType;
+                _redirectedBaseProvider = redirectedBaseProvider;
             }
 
-            protected override CSharpType? BuildBaseType() => _redirectedBaseType;
+            protected override CSharpType? BuildBaseType() => _redirectedBaseProvider?.Type;
 
             // The emitter overrides BuildBaseModelProvider to keep it in sync with the redirected BaseType.
-            protected override ModelProvider? BuildBaseModelProvider() => null;
+            protected override ModelProvider? BuildBaseModelProvider() => _redirectedBaseProvider;
         }
 
         [Test]
