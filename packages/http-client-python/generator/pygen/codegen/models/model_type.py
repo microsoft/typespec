@@ -311,7 +311,7 @@ class GeneratedModelType(ModelType):
         alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
         called_by_property = kwargs.get("called_by_property", False)
-        # add import for models in operations or _types file
+        # add import for models in operations, types, or unions file
         if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import(
                 relative_path,
@@ -326,7 +326,7 @@ class GeneratedModelType(ModelType):
                     ImportType.LOCAL,
                     alias="_Model",
                 )
-        elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
+        elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
             file_import.add_submodule_import(

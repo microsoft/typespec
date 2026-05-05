@@ -124,7 +124,7 @@ class Response(BaseModel):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )

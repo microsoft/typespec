@@ -255,7 +255,7 @@ class EnumType(BaseType):
                     alias=alias,
                     typing_section=TypingSection.REGULAR,
                 )
-            elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
+            elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
                 serialize_namespace_type == NamespaceType.MODEL and called_by_property
             ):
                 file_import.add_submodule_import(

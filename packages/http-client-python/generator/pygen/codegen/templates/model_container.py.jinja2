@@ -9,11 +9,9 @@
 
 {{ imports }}
 {% for model in models %}
-{% if model.base == "dpg" %}
+{% if model.base == "dpg" or model.base == "typeddict" %}
 {% include "model_dpg.py.jinja2" %}
 {% elif model.base == "msrest" %}
 {% include "model_msrest.py.jinja2" %}
-{% elif model.base == "typeddict" %}
-{% include "model_typeddict.py.jinja2" %}
 {% endif %}
 {% endfor %}

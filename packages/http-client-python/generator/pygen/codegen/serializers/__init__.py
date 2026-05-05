@@ -22,11 +22,10 @@ from ..models import (
     ModelType,
     EnumType,
 )
-from ..models.primitive_types import DatetimeType, ByteArraySchema, BinaryType
 from .enum_serializer import EnumSerializer
 from .general_serializer import GeneralSerializer
 from .model_init_serializer import ModelInitSerializer
-from .model_serializer import DpgModelSerializer, MsrestModelSerializer, TypedDictModelSerializer
+from .model_serializer import DpgModelSerializer, MsrestModelSerializer
 from .operations_init_serializer import OperationsInitSerializer
 from .operation_groups_serializer import OperationGroupsSerializer
 from .request_builders_serializer import RequestBuildersSerializer
@@ -34,6 +33,7 @@ from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
+from .unions_serializer import UnionsSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
 from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
@@ -119,55 +119,8 @@ class JinjaSerializer(ReaderAndWriter):
             # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
-    @staticmethod
-    def _validate_typeddict_models(code_model: CodeModel) -> None:
-        """Validate that models are compatible with typeddict mode.
-
-        Raises ValueError if any model uses unsupported features:
-        readonly properties, datetime types, bytes types,
-        or additional properties (extends Record).
-        """
-        unsupported: list[str] = []
-        for model in code_model.model_types:
-            if model.base != "typeddict":
-                continue
-            model_name = model.name
-
-            for prop in model.properties:
-                # Readonly
-                if prop.readonly:
-                    unsupported.append(
-                        f"Model '{model_name}' has readonly property '{prop.client_name}', "
-                        "which is not supported in typeddict mode."
-                    )
-                # Datetime
-                if isinstance(prop.type, DatetimeType):
-                    unsupported.append(
-                        f"Model '{model_name}' has datetime property '{prop.client_name}', "
-                        "which is not supported in typeddict mode."
-                    )
-                # Bytes
-                if isinstance(prop.type, (ByteArraySchema, BinaryType)):
-                    unsupported.append(
-                        f"Model '{model_name}' has bytes property '{prop.client_name}', "
-                        "which is not supported in typeddict mode."
-                    )
-                # Additional properties (extends Record)
-                if prop.client_name == "additional_properties":
-                    unsupported.append(
-                        f"Model '{model_name}' has additional properties (extends Record), "
-                        "which is not supported in typeddict mode."
-                    )
-
-        if unsupported:
-            raise ValueError("The following models are not compatible with typeddict mode:\n" + "\n".join(unsupported))
-
     # pylint: disable=too-many-branches
     def serialize(self) -> None:
-        # Validate typeddict mode constraints
-        if self.code_model.options.get("models-mode") == "typeddict":
-            self._validate_typeddict_models(self.code_model)
-
         # remove existing folders when generate from tsp
         if self.code_model.is_tsp and self.code_model.options.get("clear-output-folder"):
             # remove generated_samples and generated_tests folder
@@ -244,7 +197,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _utils/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_unions.py/types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
@@ -343,10 +296,8 @@ class JinjaSerializer(ReaderAndWriter):
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
         models_mode = self.code_model.options["models-mode"]
-        if models_mode == "dpg":
+        if models_mode in ("dpg", "typeddict"):
             serializer = DpgModelSerializer
-        elif models_mode == "typeddict":
-            serializer = TypedDictModelSerializer
         else:
             serializer = MsrestModelSerializer
         if self.code_model.has_non_json_models(models):
@@ -537,7 +488,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
         # write _model_base.py
-        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+        if self.code_model.options["models-mode"] == "dpg":
             self.write_file(
                 utils_folder_path / Path("model_base.py"),
                 general_serializer.serialize_model_base_file(),
@@ -570,11 +521,27 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_validation_file(),
             )
 
-        # write _types.py
-        if self.code_model.named_unions:
+        # write _unions.py
+        has_discriminated_bases = any(m for m in self.code_model.model_types if m.base != "json" and m.discriminated_subtypes)
+        if self.code_model.named_unions or has_discriminated_bases:
             self.write_file(
-                generation_dir / Path("_types.py"),
-                TypesSerializer(code_model=self.code_model, env=env).serialize(),
+                generation_dir / Path("_unions.py"),
+                UnionsSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                    models=self.code_model.model_types,
+                ).serialize(),
+            )
+
+        # write types.py
+        if self.code_model.model_types:
+            self.write_file(
+                generation_dir / Path("types.py"),
+                TypesSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                    models=self.code_model.model_types,
+                ).serialize(),
             )
 
     # pylint: disable=line-too-long

@@ -29,7 +29,6 @@ from ..models import (
     CombinedType,
     JSONModelType,
     DPGModelType,
-    TypedDictModelType,
     ParameterListType,
     ByteArraySchema,
 )
@@ -712,7 +711,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
                 f"'{serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
-        elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+        elif self.code_model.options["models-mode"] == "dpg":
             if json_serializable(body_param.default_content_type):
                 if hasattr(body_param.type, "encode") and body_param.type.encode:  # type: ignore
                     create_body_call = (
@@ -791,10 +790,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
         all_dpg_model_overloads = False
-        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and builder.overloads:
+        if self.code_model.options["models-mode"] == "dpg" and builder.overloads:
             all_dpg_model_overloads = all(
-                isinstance(o.parameters.body_parameter.type, (DPGModelType, TypedDictModelType))
-                for o in builder.overloads
+                isinstance(o.parameters.body_parameter.type, DPGModelType) for o in builder.overloads
             )
         if not all_dpg_model_overloads:
             for v in sorted(set(client_names), key=client_names.index):
@@ -999,13 +997,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
-            elif self.code_model.options["models-mode"] == "typeddict":
-                if builder.has_stream_response:
-                    deserialize_code.append("deserialized = response.content")
-                else:
-                    response_attr = "json" if json_serializable(str(response.default_content_type)) else "text"
-                    deserialize_code.append(f"deserialized = response.{response_attr}()")
-            elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+            elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
                 else:
@@ -1079,7 +1071,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         type_annotation = e.type.type_annotation(  # type: ignore
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
-                        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+                        if self.code_model.options["models-mode"] == "dpg":
                             if xml_serializable(str(e.default_content_type)):
                                 fn = "_failsafe_deserialize_xml"
                             else:
@@ -1121,7 +1113,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     type_annotation = e.type.type_annotation(  # type: ignore
                         is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                     )
-                    if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+                    if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
                                 "        error = _failsafe_deserialize_xml("
@@ -1149,7 +1141,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             indent = "        " if builder.non_default_errors else "    "
             if builder.non_default_errors:
                 retval.append("    else:")
-            if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+            if self.code_model.options["models-mode"] == "dpg":
                 default_exception = next(e for e in builder.exceptions if "default" in e.status_codes and e.type)
                 if xml_serializable(str(default_exception.default_content_type)):
                     fn = "_failsafe_deserialize_xml"
@@ -1418,7 +1410,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 f"self._deserialize(\n    {deserialize_type},{pylint_disable}\n    pipeline_response{suffix}\n)"
             )
             retval.append(f"    deserialized = {deserialized}")
-        elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+        elif self.code_model.options["models-mode"] == "dpg":
             # we don't want to generate paging models for DPG
             retval.append(f"    deserialized = {deserialized}")
         else:
@@ -1436,7 +1428,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
             )
         pylint_disable = ""
-        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
+        if self.code_model.options["models-mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
@@ -1613,7 +1605,7 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
                 retval.append("    response_headers = {}")
             if (
                 not self.code_model.options["models-mode"]
-                or self.code_model.options["models-mode"] in ("dpg", "typeddict")
+                or self.code_model.options["models-mode"] == "dpg"
                 or builder.lro_response.headers
             ):
                 retval.append("    response = pipeline_response.http_response")

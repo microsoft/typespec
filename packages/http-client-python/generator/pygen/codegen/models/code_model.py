@@ -251,7 +251,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return (
             self.need_utils_utils(async_mode, client_namespace)
             or self.need_utils_serialization
-            or self.options["models-mode"] in ("dpg", "typeddict")
+            or self.options["models-mode"] == "dpg"
         )
 
     @property
@@ -271,7 +271,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             (not async_mode)
             and self.is_top_namespace(client_namespace)
             and self.has_form_data
-            and self.options["models-mode"] in ("dpg", "typeddict")
+            and self.options["models-mode"] == "dpg"
         )
 
     def need_utils_etag(self, client_namespace: str) -> bool:

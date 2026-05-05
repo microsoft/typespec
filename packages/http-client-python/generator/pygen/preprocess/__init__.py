@@ -216,7 +216,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             model_type = (
                 body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
             )
-            is_dpg_model = model_type.get("base") in ("dpg", "typeddict")
+            is_dpg_model = model_type.get("base") == "dpg"
             body_parameter["type"] = {
                 "type": "combined",
                 "types": [body_parameter["type"]],
