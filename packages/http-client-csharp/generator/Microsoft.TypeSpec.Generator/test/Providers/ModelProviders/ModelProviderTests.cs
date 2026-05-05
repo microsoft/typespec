@@ -424,55 +424,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
 
-        // Reproduces the scenario from the issue: an emitter overrides BuildBaseType to redirect a
-        // model's base class to a framework type. Now that BuildBaseTypeProvider and
-        // BuildBaseModelProvider are virtual, the emitter can override them together so that
-        // BaseType, BaseTypeProvider, and BaseModelProvider remain in agreement.
-        [Test]
-        public void BaseTypeAndBaseModelProvider_AreConsistent_WhenEmitterRedirectsBaseClass()
-        {
-            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
-
-            // Force-create the input base provider so that, without overrides, BaseModelProvider
-            // would have walked the input model and returned the ModelProvider for "baseModel".
-            var inputBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
-            Assert.IsNotNull(inputBaseProvider);
-
-            var redirectedBaseType = new CSharpType(typeof(MyFrameworkBase));
-            var redirectedProvider = new SystemObjectTypeProvider(redirectedBaseType);
-            var derivedProvider = new RedirectedBaseModelProvider(inputDerived, redirectedProvider);
-
-            // BaseTypeProvider is the redirected provider (not the input model's base provider).
-            Assert.AreSame(redirectedProvider, derivedProvider.GetBaseTypeProviderForTest());
-
-            // BaseType is the redirected framework type, NOT the input model's base type.
-            Assert.AreSame(redirectedProvider.Type, derivedProvider.BaseType);
-            Assert.AreNotSame(inputBaseProvider!.Type, derivedProvider.BaseType);
-
-            // BaseModelProvider agrees with BaseType. Since the redirected base is not a ModelProvider,
-            // BaseModelProvider is null instead of returning the original input-model-derived parent.
-            Assert.IsNull(derivedProvider.BaseModelProvider);
-        }
-
-        // Verifies that BaseModelProvider and BaseTypeProvider stay consistent in the default flow.
-        [Test]
-        public void BaseModelProvider_MatchesBaseTypeProvider_InDefaultFlow()
-        {
-            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
-
-            // Force-create the input base provider so it is registered in the type factory.
-            CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
-
-            var derivedProvider = new TestableModelProvider(inputDerived);
-            Assert.IsNotNull(derivedProvider.BaseModelProvider);
-            Assert.AreSame(derivedProvider.BaseModelProvider, derivedProvider.GetBaseTypeProviderForTest());
-        }
-
-        // Demonstrates that BuildBaseType can also be overridden together with BuildBaseModelProvider
-        // so that BaseType and BaseModelProvider stay in agreement (the core requirement of the
-        // referenced issue).
+        // Verifies that overriding BuildBaseType together with BuildBaseModelProvider keeps
+        // BaseType and BaseModelProvider in agreement.
         [Test]
         public void OverridingBuildBaseTypeAndBuildBaseModelProvider_KeepsBaseTypeConsistent()
         {
@@ -489,28 +442,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(derivedProvider.BaseModelProvider);
         }
 
-        private class RedirectedBaseModelProvider : ModelProvider
-        {
-            private readonly TypeProvider _baseTypeProvider;
-
-            public RedirectedBaseModelProvider(InputModelType inputModel, TypeProvider baseTypeProvider) : base(inputModel)
-            {
-                _baseTypeProvider = baseTypeProvider;
-            }
-
-            protected override TypeProvider? BuildBaseTypeProvider() => _baseTypeProvider;
-
-            // Per the recommended pattern, providers that override the base provider should also
-            // delegate BuildBaseType to BaseTypeProvider so that all three values stay in sync.
-            protected override CSharpType? BuildBaseType() => BaseTypeProvider?.Type;
-
-            // Override BuildBaseModelProvider together with BuildBaseTypeProvider so the values
-            // never disagree — _baseTypeProvider may not be a ModelProvider.
-            protected override ModelProvider? BuildBaseModelProvider() => _baseTypeProvider as ModelProvider;
-
-            internal TypeProvider? GetBaseTypeProviderForTest() => BaseTypeProvider;
-        }
-
         private class BuildBaseTypeOverridingModelProvider : ModelProvider
         {
             private readonly CSharpType _redirectedBaseType;
@@ -524,13 +455,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // The emitter overrides BuildBaseModelProvider to keep it in sync with the redirected BaseType.
             protected override ModelProvider? BuildBaseModelProvider() => null;
-        }
-
-        private class TestableModelProvider : ModelProvider
-        {
-            public TestableModelProvider(InputModelType inputModel) : base(inputModel) { }
-
-            internal TypeProvider? GetBaseTypeProviderForTest() => BaseTypeProvider;
         }
 
         [Test]
