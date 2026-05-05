@@ -47,26 +47,3 @@ If set to `true`, this emitter will not write any files. It will still validate 
 **Type:** `boolean`
 
 By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.
-
-### Optional fields
-
-When a TypeSpec property uses `?`, the protobuf emitter writes the proto3 `optional` label for singular scalar and enum fields.
-
-```typespec
-model Example {
-  @field(1)
-  count?: int32;
-
-  @field(2)
-  name?: string;
-}
-```
-
-```protobuf
-message Example {
-  optional int32 count = 1;
-  optional string name = 2;
-}
-```
-
-Optional message fields are emitted without the `optional` label because message-typed fields already have presence in protobuf. Optional `repeated` and `map` fields are emitted without `optional` and produce a warning because protobuf cannot distinguish between _unset_ and _empty_ for those shapes.
