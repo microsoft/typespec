@@ -80,12 +80,36 @@ interface ToxResult {
   success: boolean;
   duration: number;
   error?: string;
+  failedTests?: string[];
 }
 
 interface RunningTask {
   env: string;
   proc: ChildProcess;
   promise: Promise<ToxResult>;
+}
+
+function extractFailedTests(output: string): string[] {
+  const lines = output.split("\n");
+  const failedTests: string[] = [];
+  let inSummary = false;
+
+  for (const line of lines) {
+    if (line.includes("short test summary info")) {
+      inSummary = true;
+      continue;
+    }
+    if (inSummary) {
+      const match = line.match(/^FAILED\s+(.+)/);
+      if (match) {
+        failedTests.push(match[1].trim());
+      } else if (line.match(/^={3,}/) || line.match(/^\d+ failed/)) {
+        break;
+      }
+    }
+  }
+
+  return failedTests;
 }
 
 function startToxEnv(env: string, pythonPath: string, name?: string): RunningTask {
@@ -102,14 +126,28 @@ function startToxEnv(env: string, pythonPath: string, name?: string): RunningTas
 
   const proc: ChildProcess = spawn(pythonPath, args, {
     cwd: testsDir,
-    stdio: !argv.values.quiet ? "inherit" : "pipe",
+    stdio: "pipe",
     env: { ...process.env, FOLDER: env.split("-")[1] || "azure" },
   });
 
   let stderr = "";
-  if (argv.values.quiet && proc.stderr) {
+  let stdout = "";
+  if (proc.stdout) {
+    proc.stdout.on("data", (data) => {
+      const chunk = data.toString();
+      stdout += chunk;
+      if (!argv.values.quiet) {
+        process.stdout.write(chunk);
+      }
+    });
+  }
+  if (proc.stderr) {
     proc.stderr.on("data", (data) => {
-      stderr += data.toString();
+      const chunk = data.toString();
+      stderr += chunk;
+      if (!argv.values.quiet) {
+        process.stderr.write(chunk);
+      }
     });
   }
 
@@ -124,11 +162,14 @@ function startToxEnv(env: string, pythonPath: string, name?: string): RunningTas
         console.log(`${pc.red("[FAIL]")} ${env} (${duration.toFixed(1)}s)`);
       }
 
+      const failedTests = extractFailedTests(stdout);
+
       resolve({
         env,
         success,
         duration,
         error: success ? undefined : stderr || `Exit code: ${code}`,
+        failedTests: failedTests.length > 0 ? failedTests : undefined,
       });
     });
 
@@ -218,7 +259,8 @@ async function _runSequential(
 ): Promise<ToxResult[]> {
   const results: ToxResult[] = [];
   for (const env of envs) {
-    const result = await runToxEnv(env, pythonPath, name);
+    const task = startToxEnv(env, pythonPath, name);
+    const result = await task.promise;
     results.push(result);
   }
   return results;
@@ -251,7 +293,11 @@ function printSummary(results: ToxResult[]): void {
     console.log(pc.red("Failed environments:"));
     for (const result of failed) {
       console.log(`  - ${result.env}`);
-      if (result.error && !argv.values.quiet) {
+      if (result.failedTests && result.failedTests.length > 0) {
+        for (const test of result.failedTests) {
+          console.log(`    ${pc.red("FAILED")} ${test}`);
+        }
+      } else if (result.error && !argv.values.quiet) {
         console.log(`    ${result.error.split("\n").slice(0, 5).join("\n    ")}`);
       }
     }

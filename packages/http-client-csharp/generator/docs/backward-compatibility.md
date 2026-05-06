@@ -21,6 +21,8 @@
     - [Method Parameter Name Preserved from Last Contract](#scenario-method-parameter-name-preserved-from-last-contract)
   - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
+  - [Client Methods](#client-methods)
+    - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
 
 ## Overview
 
@@ -216,11 +218,11 @@ public static PublicModel1 PublicModel1(
 
 ### Model Properties
 
-The generator attempts to maintain backward compatibility for model property types, particularly for collection types.
+The generator preserves the previous property type whenever it differs from the type produced by the current spec. This applies to all public model properties (scalars, enums, models, and collections), so any property type change is non-source-breaking by default. Users who want the new spec's type to take effect can override this behavior with custom code.
 
 #### Scenario: Collection Property Type Changed
 
-**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
+**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator preserves the previous property type to avoid breaking changes.
 
 **Example:**
 
@@ -242,11 +244,31 @@ public IList<string> Items { get; set; }
 public IReadOnlyList<string> Items { get; }
 ```
 
-**Implementation Details:**
+#### Scenario: Scalar/Model Property Type Changed
 
-- The generator compares property types against the `LastContractView`
-- For read-write lists and dictionaries, if the previous type was different, the previous type is retained
-- A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
+**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec — whether the change is in nullability, the underlying type, or anything else — the generator preserves the last contract's type.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public int? Count { get; set; }
+```
+
+Current TypeSpec would generate:
+
+```csharp
+public int Count { get; set; }
+```
+
+**Result:** The generator detects the type mismatch and preserves the previous nullable type:
+
+```csharp
+public int? Count { get; set; }
+```
+
+A diagnostic message is logged for every overridden property: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation
 
@@ -784,3 +806,65 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Client Methods
+
+#### Scenario: New Optional Non-Body Parameter Added to a Service Method
+
+**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
+
+**Rules:**
+
+- The previous method's parameters must appear, in the same relative order and matching by name and type, within the current method's parameters.
+- Every "extra" parameter on the current method must be optional (i.e. have a default value).
+- No "extra" parameter on the current method may be a body parameter; if any extra parameter is a body parameter, no back-compat overload is added.
+- The back-compat overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]` and has all default values stripped from its parameters to avoid ambiguous call sites.
+
+**Example:**
+
+Previous version of the client:
+
+```csharp
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options = null);
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options = null);
+```
+
+Current TypeSpec adds an optional query parameter `p2`:
+
+```typespec
+op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): string;
+```
+
+**Generated Client:**
+
+The generated client includes the current methods (with the new optional `p2` parameter) and the hidden back-compat overloads that match the previous contract's signature. Required parameters come first, followed by optional parameters, with `RequestOptions` last — matching the [Azure SDK parameter ordering guidelines](https://azure.github.io/azure-sdk/dotnet_implementation.html#parameter-presence-and-ordering).
+
+```csharp
+// Current sync method generated from the updated TypeSpec.
+public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Current async method generated from the updated TypeSpec.
+public virtual async Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat sync overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetData(p1: p1, body: body, p2: default, options: options);
+}
+
+// Back-compat async overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetDataAsync(p1: p1, body: body, p2: default, options: options);
+}
+```
+
+The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.

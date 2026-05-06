@@ -15,6 +15,7 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/events",
     "@typespec/sse",
     "@typespec/xml",
+    "@typespec/http-client-js",
   ],
   samples,
 } as const;

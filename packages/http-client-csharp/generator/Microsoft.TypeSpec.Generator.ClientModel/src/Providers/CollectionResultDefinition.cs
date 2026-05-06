@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in RequestFields)
             {
-                if (field.AsParameter.Name == Paging.ContinuationToken?.Parameter.Name)
+                if (string.Equals(field.AsParameter.Name, Paging.ContinuationToken?.Parameter.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     NextTokenField = field;
                 }
