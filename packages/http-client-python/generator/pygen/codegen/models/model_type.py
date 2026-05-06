@@ -374,21 +374,17 @@ class TypedDictModelType(DPGModelType):
     base = "typeddict"
 
     def type_annotation(self, **kwargs: Any) -> str:
-        if kwargs.pop("is_response", False):
-            return "JSON"
+        kwargs.pop("is_response", None)
         return super().type_annotation(**kwargs)
 
     def docstring_type(self, **kwargs: Any) -> str:
-        if kwargs.pop("is_response", False):
-            return "JSON"
+        kwargs.pop("is_response", None)
         return super().docstring_type(**kwargs)
 
     def docstring_text(self, **kwargs: Any) -> str:
-        if kwargs.pop("is_response", False):
-            return "JSON"
+        kwargs.pop("is_response", None)
         return super().docstring_text(**kwargs)
 
     def imports(self, **kwargs: Any) -> FileImport:
-        file_import = super().imports(**kwargs)
-        file_import.define_mutable_mapping_type()
-        return file_import
+        kwargs.pop("is_response", None)
+        return super().imports(**kwargs)
