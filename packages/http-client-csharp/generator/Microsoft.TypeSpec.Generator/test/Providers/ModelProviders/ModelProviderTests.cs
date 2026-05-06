@@ -453,11 +453,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
-            var customBaseProvider = new CustomBaseModelProvider(inputBase);
+            var customBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            Assert.IsNotNull(customBaseProvider);
 
-            var derivedProvider = new ExplicitBaseModelProviderOverridingModelProvider(inputDerived, customBaseProvider);
+            var derivedProvider = new ExplicitBaseModelProviderOverridingModelProvider(inputDerived, customBaseProvider!);
 
-            Assert.AreEqual(customBaseProvider.Type, derivedProvider.BaseType);
+            Assert.AreEqual(customBaseProvider!.Type, derivedProvider.BaseType);
             Assert.AreSame(customBaseProvider, derivedProvider.BaseModelProvider);
         }
 
@@ -502,13 +503,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             protected override string BuildRelativeFilePath() => ".";
             protected override string BuildName() => "NonModelBase";
             protected override string BuildNamespace() => "Custom.Namespace";
-        }
-
-        private class CustomBaseModelProvider : ModelProvider
-        {
-            public CustomBaseModelProvider(InputModelType inputModel) : base(inputModel) { }
-
-            protected override string BuildName() => "CustomBase";
         }
 
         private class BuildBaseTypeOverridingModelProvider : ModelProvider
