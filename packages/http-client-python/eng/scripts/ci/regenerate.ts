@@ -861,6 +861,30 @@ async function regenerateFlavor(
   return pySuccess;
 }
 
+
+/**
+ * Deletes a couple of fully-generated package folders from the baseline so that
+ * regeneration has to recreate them from scratch.
+ */
+function deleteSomeGeneratedFiles() {
+  const testsGeneratedDir = resolve(GENERATED_FOLDER, "../tests/generated");
+  const targets = [
+    join(testsGeneratedDir, "azure", "authentication-http-custom"),
+    join(testsGeneratedDir, "unbranded", "encode-array"),
+  ];
+  for (const target of targets) {
+    if (existsSync(target)) {
+      console.log(pc.dim(`Deleting ${target}`));
+      rmSync(target, { recursive: true, force: true });
+    }
+  }
+}
+
+async function preProcess() {
+  await resetBaselineFromSdkRepo(GENERATED_FOLDER);
+  deleteSomeGeneratedFiles();
+}
+
 async function main() {
   const isWindows = platform() === "win32";
   const flavor = argv.values.flavor;
@@ -883,7 +907,7 @@ async function main() {
   const startTime = performance.now();
   let success: boolean;
 
-  await resetBaselineFromSdkRepo(GENERATED_FOLDER);
+  await preProcess();
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);
