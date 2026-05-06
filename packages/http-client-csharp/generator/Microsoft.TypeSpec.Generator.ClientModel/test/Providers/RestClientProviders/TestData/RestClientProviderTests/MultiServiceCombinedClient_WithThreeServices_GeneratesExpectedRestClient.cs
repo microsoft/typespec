@@ -16,7 +16,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendQuery("apiVersion", _sampleKeyVaultApiVersion, true);
+            uri.AppendQuery("apiVersion", _keyVaultApiVersion, true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
@@ -27,7 +27,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendQuery("apiVersion", _sampleStorageApiVersion, true);
+            uri.AppendQuery("apiVersion", _storageApiVersion, true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
@@ -38,7 +38,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendQuery("apiVersion", _sampleComputeApiVersion, true);
+            uri.AppendQuery("apiVersion", _computeApiVersion, true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);

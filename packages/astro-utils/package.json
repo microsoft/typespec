@@ -23,20 +23,20 @@
     "watch": "tsc -p ./tsconfig.build.json --watch"
   },
   "devDependencies": {
-    "@types/react": "~19.2.14",
-    "astro": "^6.0.4"
+    "@types/react": "catalog:",
+    "astro": "catalog:"
   },
   "peerDependencies": {
-    "astro": "^6.0.4"
+    "astro": "catalog:"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.7",
-    "@astrojs/starlight": "^0.38.1",
-    "@expressive-code/core": "^0.41.7",
+    "@astrojs/check": "catalog:",
+    "@astrojs/starlight": "catalog:",
+    "@expressive-code/core": "catalog:",
     "@typespec/playground": "workspace:^",
-    "astro-expressive-code": "^0.41.7",
-    "pathe": "^2.0.3",
-    "react": "~19.2.4",
-    "typescript": "~5.9.3"
+    "astro-expressive-code": "catalog:",
+    "pathe": "catalog:",
+    "react": "catalog:",
+    "typescript": "catalog:"
   }
 }

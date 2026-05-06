@@ -39,16 +39,6 @@ SPECIAL_HEADER_SERIALIZATION: dict[str, list[str]] = {
     "client-request-id": [],
     "x-ms-client-request-id": [],
     "return-client-request-id": [],
-    "etag": [
-        """if_match = prep_if_match(etag, match_condition)""",
-        """if if_match is not None:""",
-        """    _headers["If-Match"] = _SERIALIZER.header("if_match", if_match, "str")""",
-    ],
-    "match-condition": [
-        """if_none_match = prep_if_none_match(etag, match_condition)""",
-        """if if_none_match is not None:""",
-        """    _headers["If-None-Match"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
-    ],
 }
 
 
@@ -157,6 +147,20 @@ class ParameterSerializer:
         ):
             return SPECIAL_HEADER_SERIALIZATION[param.wire_name.lower()]
 
+        if not is_legacy and param.location == ParameterLocation.HEADER and param.etag_role is not None:
+            header_name = param.wire_name
+            if param.etag_role == "ifMatch":
+                return [
+                    """if_match = prep_if_match(etag, match_condition)""",
+                    """if if_match is not None:""",
+                    f"""    _headers["{header_name}"] = _SERIALIZER.header("if_match", if_match, "str")""",
+                ]
+            return [
+                """if_none_match = prep_if_none_match(etag, match_condition)""",
+                """if if_none_match is not None:""",
+                f"""    _headers["{header_name}"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
+            ]
+
         set_parameter = "_{}['{}'] = {}".format(
             kwarg_name,
             param.wire_name,
@@ -202,11 +206,13 @@ class ParameterSerializer:
                 if is_content_type_optional and not type_annotation.startswith("Optional[")
                 else type_annotation
             )
-            if kwarg.client_default_value is not None or kwarg.optional or kwarg.constant:
+            if kwarg.client_default_value is not None or kwarg.optional or kwarg.constant or kwarg.is_api_version:
                 if check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
                 elif kwarg.constant:
                     default_value = kwarg.type.get_declaration(None)
+                elif kwarg.is_api_version and kwarg.client_default_value is None and kwarg.api_versions:
+                    default_value = f'"{kwarg.api_versions[-1]}"'
                 else:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):

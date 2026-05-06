@@ -130,6 +130,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void TestPropertyNameConflictsWithTypeNameAfterPascalCase()
+        {
+            var testTypeProvider = new TestTypeProvider(name: "Filter");
+            InputModelProperty inputModelProperty = InputFactory.Property("filter", InputPrimitiveType.String);
+            InputFactory.Model("Filter", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+            Assert.AreEqual("FilterProperty", property.Name);
+        }
+
+        [Test]
         public void CanUpdatePropertyProvider()
         {
             var propertyProvider = new PropertyProvider(

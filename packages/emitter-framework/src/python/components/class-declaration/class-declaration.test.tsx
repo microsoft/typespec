@@ -32,8 +32,11 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(
       `
           from dataclasses import dataclass
-          from typing import Literal
-          from typing import Optional
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import Literal
+            from typing import Optional
 
 
           @dataclass(kw_only=True)
@@ -67,7 +70,10 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(
       `
           from dataclasses import dataclass
-          from typing import Optional
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import Optional
 
 
           @dataclass(kw_only=True)
@@ -91,7 +97,10 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(
       `
           from dataclasses import dataclass
-          from typing import Optional
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import Optional
 
 
           @dataclass(kw_only=True)
@@ -369,7 +378,10 @@ describe("Python Class from model", () => {
       `
       from dataclasses import dataclass
       from enum import StrEnum
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       class Color(StrEnum):
@@ -407,7 +419,10 @@ describe("Python Class from model", () => {
       `
       from dataclasses import dataclass
       from enum import StrEnum
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       class Color(StrEnum):
@@ -436,7 +451,10 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(
       `
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       @dataclass(kw_only=True)
@@ -459,7 +477,10 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(
       `
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       @dataclass(kw_only=True)
@@ -490,7 +511,10 @@ describe("Python Class from model", () => {
       `
       from dataclasses import dataclass
       from enum import StrEnum
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       class Color(StrEnum):
@@ -516,7 +540,10 @@ describe("Python Class from model", () => {
 
     expect(getOutput(program, [<ClassDeclaration type={Widget} />])).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Never
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Never
 
 
       @dataclass(kw_only=True)
@@ -538,7 +565,10 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration name="MyOperations" type={Widget} />]))
       .toRenderTo(`
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       @dataclass(kw_only=True)
@@ -570,7 +600,10 @@ describe("Python Class from model", () => {
       ]),
     ).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       @dataclass(kw_only=True)
@@ -603,7 +636,10 @@ describe("Python Class from model", () => {
       ]),
     ).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       @dataclass(kw_only=True)
@@ -718,7 +754,10 @@ describe("Python Class from interface", () => {
       from abc import ABC
       from abc import abstractmethod
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       class WidgetOperations(ABC):
@@ -772,7 +811,10 @@ describe("Python Class from interface", () => {
       from abc import ABC
       from abc import abstractmethod
       from dataclasses import dataclass
-      from typing import Literal
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Literal
 
 
       class WidgetOperations(ABC):
@@ -1230,7 +1272,10 @@ describe("Python Class overrides", () => {
     // CanadaAddress is a concrete type with all properties from Address<never>.
     expect(getOutput(program, [<ClassDeclaration type={CanadaAddress} />])).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Never
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Never
 
 
       @dataclass(kw_only=True)
@@ -1378,7 +1423,10 @@ describe("Python Class overrides", () => {
     // to be emitted, which is not supported since templates are macros.
     expect(getOutput(program, [<ClassDeclaration type={CanadaAddress} />])).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Never
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Never
 
 
       @dataclass(kw_only=True)

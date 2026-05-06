@@ -13,29 +13,20 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
-import tsptest.visibility.VisibilityClient;
 import tsptest.visibility.VisibilityClientBuilder;
+import tsptest.visibility.VisibilityOpClient;
 import tsptest.visibility.VisibilityReadClient;
 import tsptest.visibility.VisibilityWriteClient;
 
 class VisibilityClientTestBase extends TestProxyTestBase {
-    protected VisibilityClient visibilityClient;
-
     protected VisibilityReadClient visibilityReadClient;
 
     protected VisibilityWriteClient visibilityWriteClient;
 
+    protected VisibilityOpClient visibilityOpClient;
+
     @Override
     protected void beforeTest() {
-        VisibilityClientBuilder visibilityClientbuilder
-            = new VisibilityClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
-                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.RECORD) {
-            visibilityClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
-        }
-        visibilityClient = visibilityClientbuilder.buildClient();
-
         VisibilityClientBuilder visibilityReadClientbuilder
             = new VisibilityClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
@@ -53,6 +44,15 @@ class VisibilityClientTestBase extends TestProxyTestBase {
             visibilityWriteClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         visibilityWriteClient = visibilityWriteClientbuilder.buildVisibilityWriteClient();
+
+        VisibilityClientBuilder visibilityOpClientbuilder
+            = new VisibilityClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
+                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            visibilityOpClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        visibilityOpClient = visibilityOpClientbuilder.buildVisibilityOpClient();
 
     }
 }

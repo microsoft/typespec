@@ -130,7 +130,12 @@ export function createLinterRuleTester(
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
-    const context = createLinterRuleContext(runner.program, rule, diagnostics);
+    const context = createLinterRuleContext(
+      runner.program,
+      rule,
+      rule.defaultOptions ?? ({} as any),
+      diagnostics,
+    );
     const listener = ruleDef.create(context);
     navigateProgram(runner.program, listener);
     if (listener.exit) {

@@ -2,6 +2,7 @@ import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../config/types.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
+import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import {
@@ -110,19 +111,27 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
     return;
   }
 
-  const dependencies: Record<string, string> = {};
+  const versionResolutions: Array<Promise<[string, string]>> = [];
 
   if (!config.template.skipCompilerPackage) {
-    dependencies["@typespec/compiler"] = "latest";
+    versionResolutions.push(
+      resolvePackageVersion("@typespec/compiler").then((v) => ["@typespec/compiler", v]),
+    );
   }
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getPackageVersion(library);
+    versionResolutions.push(
+      getPackageVersion(library.name, library).then((v) => [library.name, v]),
+    );
   }
 
   for (const key of Object.keys(config.emitters)) {
-    dependencies[key] = await getPackageVersion(config.emitters[key]);
+    versionResolutions.push(getPackageVersion(key, config.emitters[key]).then((v) => [key, v]));
   }
+
+  const dependencies: Record<string, string> = Object.fromEntries(
+    await Promise.all(versionResolutions),
+  );
 
   const packageJson: PackageJson = {
     name: config.name,
@@ -188,11 +197,6 @@ async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("main.tsp", config.template.files ?? [])) {
     return;
   }
-  const dependencies: Record<string, string> = {};
-
-  for (const library of config.libraries) {
-    dependencies[library.name] = await getPackageVersion(library);
-  }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
   const content = lines.join("\n");
@@ -246,7 +250,21 @@ async function writeFile(
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
-async function getPackageVersion(packageInfo: { version?: string }): Promise<string> {
-  // TODO: Resolve 'latest' version from npm, issue #1919
-  return packageInfo.version ?? "latest";
+async function getPackageVersion(
+  packageName: string,
+  templatePackageConfig: { version?: string },
+): Promise<string> {
+  if (templatePackageConfig.version !== undefined) {
+    return templatePackageConfig.version;
+  }
+  return resolvePackageVersion(packageName);
+}
+
+async function resolvePackageVersion(packageName: string): Promise<string> {
+  try {
+    const manifest = await fetchLatestPackageManifest(packageName);
+    return `^${manifest.version}`;
+  } catch {
+    return "latest";
+  }
 }

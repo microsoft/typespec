@@ -1776,6 +1776,17 @@ Scenario that returns a different file encoding depending on the accept header.
 - image/png return a png image
 - image/jpeg return a jpeg image
 
+### Payload_Head_contentTypeHeaderInResponse
+
+- Endpoint: `head /payload/head/content-type-header-in-response`
+
+A HEAD operation that returns response headers including Content-Type and x-ms-meta.
+
+Expected response headers:
+
+- Content-Type: text/plain; charset=utf-8
+- x-ms-meta: hello
+
 ### Payload_JsonMergePatch_createResource
 
 - Endpoint: `put /json-merge-patch/create/resource`
@@ -5154,6 +5165,19 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 - Endpoint: `get /special-words/parameters/yield`
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
+
+### SpecialWords_ReservedOperationBodyParams_withItems
+
+- Endpoint: `post /special-words/operations/body-param-reserved`
+
+Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+not mangled to "items_property" or similar.
+
+Send
+
+```json
+{ "items": ["item"] }
+```
 
 ### Streaming_Jsonl_Basic_receive
 

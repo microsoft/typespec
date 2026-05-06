@@ -822,7 +822,7 @@ export function createServer(
       // Avoid showing full definition in other cases which can be long and not useful
       let includeExpandedDefinition = false;
       const sn = getSymNode(sym[0]);
-      if (sn.kind !== SyntaxKind.AliasStatement) {
+      if (sn && sn.kind !== SyntaxKind.AliasStatement) {
         const type = sym[0].type ?? program.checker.getTypeOrValueForNode(sn);
         if (type && "kind" in type) {
           const modelHasExtendOrIs: boolean =

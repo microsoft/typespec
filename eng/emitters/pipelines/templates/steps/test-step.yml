@@ -44,6 +44,10 @@ parameters:
     type: string
     default: "3.12"
 
+  - name: UseTypeSpecNext
+    type: boolean
+    default: false
+
 steps:
   - checkout: self
 
@@ -69,7 +73,7 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
+      arguments: -BuildArtifactsPath '$(buildArtifactsPath)' -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
       workingDirectory: $(selfRepositoryPath)
 
   - task: PowerShell@2
