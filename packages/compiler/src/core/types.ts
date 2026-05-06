@@ -847,8 +847,9 @@ export interface Sym {
 
   /**
    * Node which resulted in this symbol, present if SymbolFlags.Declaration is not set.
+   * May be undefined if the symbol was created without a node (e.g. built-in symbols like `null`).
    */
-  readonly node: Node;
+  readonly node: Node | undefined;
 
   /**
    * The name of the symbol

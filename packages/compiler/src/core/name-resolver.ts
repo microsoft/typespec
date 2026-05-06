@@ -715,6 +715,10 @@ export function createResolver(program: Program): NameResolver {
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
 
+    if (!baseNode) {
+      return failedResult(ResolutionResultFlags.NotFound);
+    }
+
     const prototype = metaTypePrototypes.get(baseNode.kind);
 
     if (!prototype) {
@@ -1322,7 +1326,8 @@ export function createResolver(program: Program): NameResolver {
     // model properties
     const modelPropertyPrototype: TypePrototype = new Map();
     modelPropertyPrototype.set("type", (baseSym) => {
-      const node = baseSym.node as ModelPropertyNode;
+      const node = getSymNode(baseSym) as ModelPropertyNode | undefined;
+      compilerAssert(node, "Expected model property symbol to have a node");
       return resolveExpression(node.value);
     });
     nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
