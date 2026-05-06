@@ -484,6 +484,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelProvider.BaseModelProvider);
         }
 
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForNonModelTypeProvider()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var nonModelTypeProvider = new NonModelTypeProvider();
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[nonModelTypeProvider.Type] = nonModelTypeProvider;
+
+            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, nonModelTypeProvider.Type);
+
+            Assert.AreEqual(nonModelTypeProvider.Type, derivedProvider.BaseType);
+            Assert.IsNull(derivedProvider.BaseModelProvider);
+        }
+
+        private class NonModelTypeProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+            protected override string BuildName() => "NonModelBase";
+            protected override string BuildNamespace() => "Custom.Namespace";
+        }
+
         private class CustomBaseModelProvider : ModelProvider
         {
             public CustomBaseModelProvider(InputModelType inputModel) : base(inputModel) { }
