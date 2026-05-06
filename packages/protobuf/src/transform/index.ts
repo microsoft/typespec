@@ -862,9 +862,9 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     switch (property.type.kind) {
       case "Scalar":
-      case "Intrinsic":
       case "Enum":
         return true;
+      case "Intrinsic":
       case "Model":
       case "Union":
         return false;
