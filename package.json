@@ -70,5 +70,10 @@
     "typescript-eslint": "catalog:",
     "vitest": "catalog:",
     "yaml": "catalog:"
+  },
+  "pnpm": {
+    "overrides": {
+      "@alloy-js/core": "file:../alloy/packages/core/alloy-js-core-0.22.0.tgz"
+    }
   }
 }
