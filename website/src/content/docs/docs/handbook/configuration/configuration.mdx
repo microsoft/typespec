@@ -28,8 +28,8 @@ The file is a `yaml` document with the following structure. See the [next sectio
 ```typespec
 model TypeSpecProjectSchema {
   extends?: string;
-  parameters?: Record<{default: string}>
-  `environment-variables`?: Record<{default: string}>
+  parameters?: Record<{default: string}>;
+  `environment-variables`?: Record<{default: string}>;
   `warn-as-error`?: boolean;
   `output-dir`?: string;
   `trace`?: string | string[];
@@ -42,7 +42,7 @@ model TypeSpecProjectSchema {
 
 model LinterConfig {
   extends?: RuleRef[];
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, boolean | object>;
   disable?: Record<RuleRef, string>;
 }
 ```
@@ -374,7 +374,7 @@ See [output directory configuration for mode details](#configuring-output-direct
 
 ### `linter` - Setting Up Linters
 
-This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>:<ruleName>`.
+This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>/<ruleName>`.
 
 ```yaml
 linter:
@@ -387,6 +387,24 @@ linter:
   disable: # Disable some rules defined in one of the ruleset extended.
     "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
+
+#### Configuring rule options
+
+Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:
+
+```yaml
+linter:
+  enable:
+    # Enable with default options
+    "@typespec/my-linter/required-doc": true
+
+    # Enable with custom options
+    "@typespec/my-linter/naming-convention":
+      style: "PascalCase"
+      allowUnderscores: false
+```
+
+When an object is provided, the values are merged with the rule's default options. See each rule's documentation for available options.
 
 ## CLI Flags for Emitter Control
 

@@ -2,8 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, EmitContext, Program } from "@typespec/compiler";
-import { resolve } from "path";
+import {
+  createDiagnosticCollector,
+  Diagnostic,
+  EmitContext,
+  Program,
+  resolvePath,
+} from "@typespec/compiler";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -49,7 +54,7 @@ export async function emitCodeModel(
 
   // Resolve plugin paths to absolute if specified
   if (options["plugins"]) {
-    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
+    options["plugins"] = options["plugins"].map((p) => resolvePath(outputFolder, p));
   }
 
   /* set the log level. */
