@@ -334,6 +334,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task ValidatePartialMethodIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var partial = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsTrue(partial.IsPartialMethod, "Expected DoIt to be detected as partial.");
+            Assert.IsTrue(partial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            var nonPartial = provider.Methods.Single(m => m.Signature.Name == "NonPartial");
+            Assert.IsFalse(nonPartial.IsPartialMethod, "Expected NonPartial to not be detected as partial.");
+            Assert.IsFalse(nonPartial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+        }
+
+        [Test]
+        public async Task ValidatePartialMethodWithBodyIsNotDetectedAsPartialDeclaration()
+        {
+            // A partial method *with* a body is the implementation half - not the declaration we
+            // want to treat as a customization signal.
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var doIt = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
+        }
+
+        [Test]
         public void ValidateMethods()
         {
             Dictionary<string, MethodProvider> methods = _namedTypeSymbolProvider.Methods.ToDictionary(p => p.Signature.Name);

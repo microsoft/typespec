@@ -37,7 +37,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       libraries={imports}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       emitterOptions={{
-        "@typespec/http-client-python": { debounce: 500 },
+        "@typespec/http-client-python": { debounce: 1000 },
         "@typespec/http-client-csharp": { debounce: 500 },
       }}
       importConfig={{ useShim: true }}

@@ -46,7 +46,7 @@ export async function getSymbolSignature(
     case SyntaxKind.AliasStatement:
       return fence(`alias ${await getAliasSignature(decl)}`);
   }
-  const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
+  const entity = sym.type ?? (decl ? program.checker.getTypeOrValueForNode(decl) : null);
   return getEntitySignature(sym, entity, options);
 }
 

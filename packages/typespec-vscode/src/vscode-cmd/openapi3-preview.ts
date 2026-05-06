@@ -150,6 +150,9 @@ async function loadOpenApi3PreviewPanel(
               showOutput: true,
               showPopup: true,
             });
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: "Failed to create temporary folder for OpenAPI3 files",
+            });
             return undefined;
           }
           await clearOutputFolder(outputFolder);
