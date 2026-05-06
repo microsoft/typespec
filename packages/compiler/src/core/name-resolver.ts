@@ -1326,9 +1326,9 @@ export function createResolver(program: Program): NameResolver {
     // model properties
     const modelPropertyPrototype: TypePrototype = new Map();
     modelPropertyPrototype.set("type", (baseSym) => {
-      const node = getSymNode(baseSym) as ModelPropertyNode | undefined;
+      const node = getSymNode(baseSym);
       compilerAssert(node, "Expected model property symbol to have a node");
-      return resolveExpression(node.value);
+      return resolveExpression((node as ModelPropertyNode).value);
     });
     nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
 
