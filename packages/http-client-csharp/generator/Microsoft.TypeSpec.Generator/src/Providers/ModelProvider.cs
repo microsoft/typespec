@@ -337,7 +337,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
         }
 
-        protected virtual ModelProvider? BuildBaseModelProvider()
+        private ModelProvider? BuildBaseModelProvider()
         {
             var baseType = BaseType;
             if (baseType is null)

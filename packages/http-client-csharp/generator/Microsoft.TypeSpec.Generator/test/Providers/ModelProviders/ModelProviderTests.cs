@@ -466,34 +466,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void OverridingBuildBaseModelProvider_IsRespected()
-        {
-            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
-            ModelProvider? baseProvider = null;
-            MockHelpers.LoadMockGenerator(createModelCore: input =>
-            {
-                if (input == inputBase)
-                {
-                    return baseProvider = new ModelProvider(input);
-                }
-                if (input == inputDerived)
-                {
-                    return new ExplicitBaseModelProviderOverridingModelProvider(input, baseProvider!);
-                }
-                return null;
-            });
-
-            var actualBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
-            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
-
-            Assert.IsNotNull(actualBase);
-            Assert.IsNotNull(actualDerived);
-            Assert.AreEqual(actualBase!.Type, actualDerived!.BaseType);
-            Assert.AreSame(actualBase, actualDerived.BaseModelProvider);
-        }
-
-        [Test]
         public void BaseModelProvider_DefaultResolvesViaCSharpTypeMap()
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
@@ -549,20 +521,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
 
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
-        }
-
-        private class ExplicitBaseModelProviderOverridingModelProvider : ModelProvider
-        {
-            private readonly ModelProvider _redirectedBaseProvider;
-
-            public ExplicitBaseModelProviderOverridingModelProvider(InputModelType inputModel, ModelProvider redirectedBaseProvider) : base(inputModel)
-            {
-                _redirectedBaseProvider = redirectedBaseProvider;
-            }
-
-            protected override CSharpType? BuildBaseType() => _redirectedBaseProvider?.Type;
-
-            protected override ModelProvider? BuildBaseModelProvider() => _redirectedBaseProvider;
         }
 
         [Test]
