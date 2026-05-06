@@ -525,7 +525,9 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
         # write _unions.py
-        has_discriminated_bases = any(m for m in self.code_model.model_types if m.base != "json" and m.discriminated_subtypes)
+        has_discriminated_bases = any(
+            m for m in self.code_model.model_types if m.base != "json" and m.discriminated_subtypes
+        )
         if self.code_model.named_unions or has_discriminated_bases:
             self.write_file(
                 generation_dir / Path("_unions.py"),
