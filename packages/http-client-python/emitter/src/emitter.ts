@@ -235,11 +235,21 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   if (typeof window !== "undefined") {
     // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
-    const pyodide = await setupPyodideCallBrowser();
+    const pyodide = await browserPyodidePromise;
+
+    if (!pyodide) {
+      reportDiagnostic(program, {
+        code: "browser-runtime-load-failed",
+        target: NoTarget,
+        format: { details: "" },
+      });
+      return;
+    }
 
     const yamlFilePath = "/yaml/python-yaml-path.yaml";
     pyodide.FS.mkdirTree("/yaml");
     pyodide.FS.mkdirTree("/output");
+    clearMemfsDirectory(pyodide, "/output");
     pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
 
     await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
@@ -321,6 +331,25 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         );
         await checkForPylintIssues(outputDir, excludePattern);
       }
+    }
+  }
+}
+
+const browserPyodidePromise: Promise<PyodideInterface> | null =
+  typeof window !== "undefined" ? setupPyodideCallBrowser() : null;
+
+function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
+  const entries: string[] = pyodide.FS.readdir(dir).filter(
+    (entry: string) => entry !== "." && entry !== "..",
+  );
+  for (const entry of entries) {
+    const fullPath = `${dir}/${entry}`;
+    const stats = pyodide.FS.stat(fullPath);
+    if (pyodide.FS.isDir(stats.mode)) {
+      clearMemfsDirectory(pyodide, fullPath);
+      pyodide.FS.rmdir(fullPath);
+    } else {
+      pyodide.FS.unlink(fullPath);
     }
   }
 }
