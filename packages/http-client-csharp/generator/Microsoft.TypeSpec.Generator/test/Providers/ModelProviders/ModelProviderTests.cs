@@ -422,9 +422,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
 
-        // Verifies an emitter that overrides BuildBaseType to redirect to another generated
-        // ModelProvider gets a consistent BaseModelProvider automatically (resolved via CSharpTypeMap)
-        // without having to override BuildBaseModelProvider.
         [Test]
         public void OverridingBuildBaseType_AutoResolvesBaseModelProviderForGeneratedModel()
         {
@@ -439,9 +436,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreSame(baseProvider, derivedProvider.BaseModelProvider);
         }
 
-        // Verifies an emitter that overrides BuildBaseType to redirect to a framework / external
-        // type (not present in CSharpTypeMap as a ModelProvider) gets BaseModelProvider == null
-        // automatically — BaseType and BaseModelProvider stay consistent without an extra override.
         [Test]
         public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForFrameworkType()
         {
@@ -454,9 +448,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(derivedProvider.BaseModelProvider);
         }
 
-        // Verifies an emitter can still explicitly override BuildBaseModelProvider (e.g., to point
-        // at a custom ModelProvider instance not registered in CSharpTypeMap) and have its override
-        // honored in addition to BuildBaseType.
         [Test]
         public void OverridingBuildBaseModelProvider_IsRespected()
         {
@@ -470,8 +461,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreSame(customBaseProvider, derivedProvider.BaseModelProvider);
         }
 
-        // Default case: when no overrides and no customizations are involved, BaseType and
-        // BaseModelProvider both resolve to the generated base model.
         [Test]
         public void BaseModelProvider_DefaultResolvesViaCSharpTypeMap()
         {
@@ -484,8 +473,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(derivedProvider.BaseModelProvider!.Type, derivedProvider.BaseType);
         }
 
-        // When the input model has no base model and there are no overrides, both BaseType and
-        // BaseModelProvider are null.
         [Test]
         public void BaseModelProvider_NullWhenNoBase()
         {
@@ -513,7 +500,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 _redirectedBaseType = redirectedBaseType;
             }
 
-            // Only BuildBaseType is overridden — BuildBaseModelProvider is left to resolve via CSharpTypeMap.
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
         }
 
