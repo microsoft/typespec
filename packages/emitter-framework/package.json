@@ -75,8 +75,8 @@
   },
   "devDependencies": {
     "@alloy-js/cli": "catalog:",
-    "@alloy-js/core": "catalog:",
-    "@alloy-js/python": "catalog:",
+    "@alloy-js/core": "file:../../../alloy/packages/core/alloy-js-core-0.22.0.tgz",
+    "@alloy-js/python": "file:../../../alloy/packages/python/alloy-js-python-0.3.0.tgz",
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",

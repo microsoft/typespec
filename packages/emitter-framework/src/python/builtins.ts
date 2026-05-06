@@ -29,8 +29,10 @@ export const typingModule = createModule({
   name: "typing",
   descriptor: {
     ".": [
+      "Annotated",
       "Any",
       "Callable",
+      "ClassVar",
       "Generic",
       "Literal",
       "Never",
@@ -38,6 +40,42 @@ export const typingModule = createModule({
       "Protocol",
       "TypeAlias",
       "TypeVar",
+      "Union",
     ],
+  },
+});
+
+export const pydanticModule = createModule({
+  name: "pydantic",
+  descriptor: {
+    ".": [
+      "AfterValidator",
+      "BaseModel",
+      "BeforeValidator",
+      "ConfigDict",
+      "EmailStr",
+      "Field",
+      "HttpUrl",
+      "PlainSerializer",
+      "RootModel",
+      "SecretStr",
+      "TypeAdapter",
+      "ValidationError",
+      "WrapValidator",
+      "computed_field",
+      "field_serializer",
+      "field_validator",
+      "model_serializer",
+      "model_validator",
+    ],
+    alias_generators: ["to_camel", "to_pascal", "to_snake"],
+    types: ["PositiveFloat", "PositiveInt"],
+  },
+});
+
+export const pydanticSettingsModule = createModule({
+  name: "pydantic_settings",
+  descriptor: {
+    ".": ["BaseSettings", "SettingsConfigDict"],
   },
 });
