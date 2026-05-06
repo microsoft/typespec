@@ -861,7 +861,6 @@ async function regenerateFlavor(
   return pySuccess;
 }
 
-
 /**
  * Deletes a couple of fully-generated package folders from the baseline so that
  * regeneration has to recreate them from scratch.
