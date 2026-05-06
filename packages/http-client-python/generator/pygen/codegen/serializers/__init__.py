@@ -304,10 +304,14 @@ class JinjaSerializer(ReaderAndWriter):
             serializer = DpgModelSerializer
         else:
             serializer = MsrestModelSerializer
-        if self.code_model.has_non_json_models(models):
+        # Filter out typed-dict-only models — they only appear in types.py, not as model classes
+        class_models = [m for m in models if not m.is_typed_dict_only]
+        if self.code_model.has_non_json_models(class_models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env, client_namespace=namespace, models=models).serialize(),
+                serializer(
+                    code_model=self.code_model, env=env, client_namespace=namespace, models=class_models
+                ).serialize(),
             )
         if enums:
             self.write_file(
@@ -318,7 +322,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
         self.write_file(
             models_path / Path("__init__.py"),
-            ModelInitSerializer(code_model=self.code_model, env=env, models=models, enums=enums).serialize(),
+            ModelInitSerializer(code_model=self.code_model, env=env, models=class_models, enums=enums).serialize(),
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)

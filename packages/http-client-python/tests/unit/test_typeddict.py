@@ -169,3 +169,78 @@ def test_unions_serializer_no_unions():
     output = us.serialize()
     assert "TypedDict" not in output
     assert "Union" not in output
+
+
+# ---------- typed-dict-only ----------
+
+
+def _make_typed_dict_only_model(code_model, name, **extra_yaml):
+    """Create a TypedDictModelType with typedDictOnly=True."""
+    yaml_data = {
+        "name": name,
+        "type": "model",
+        "snakeCaseName": name.lower(),
+        "usage": 2,
+        "typedDictOnly": True,
+        **extra_yaml,
+    }
+    return TypedDictModelType(
+        yaml_data=yaml_data,
+        code_model=code_model,
+        properties=[],
+    )
+
+
+def test_typed_dict_only_property():
+    """is_typed_dict_only should be True when yaml_data has typedDictOnly=True."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_typed_dict_only_model(code_model, "Foo")
+    assert model.is_typed_dict_only is True
+
+    normal_model = _make_model(code_model, "Bar", model_cls=TypedDictModelType)
+    assert normal_model.is_typed_dict_only is False
+
+
+def test_typed_dict_only_excluded_from_public_model_types():
+    """Typed-dict-only models should not appear in public_model_types."""
+    code_model = _make_code_model(models_mode="typeddict")
+    normal = _make_model(code_model, "Normal", model_cls=TypedDictModelType)
+    td_only = _make_typed_dict_only_model(code_model, "TdOnly")
+    code_model.model_types = [normal, td_only]
+
+    public = code_model.public_model_types
+    assert normal in public
+    assert td_only not in public
+
+
+def test_typed_dict_only_still_in_types_file():
+    """Typed-dict-only models should still appear in types.py as TypedDicts."""
+    code_model = _make_code_model(models_mode="typeddict")
+    td_only = _make_typed_dict_only_model(code_model, "MyModel")
+    code_model.model_types = [td_only]
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[td_only])
+    output = ts.serialize()
+    assert "class MyModel(TypedDict, total=False):" in output
+
+
+def test_typed_dict_only_type_annotation():
+    """Typed-dict-only models should use types.Name, not _models.Name."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_typed_dict_only_model(code_model, "Foo")
+
+    # In operation files, should be types.Name
+    annotation = model.type_annotation(is_operation_file=True)
+    assert annotation == "types.Foo"
+    assert "_models" not in annotation
+
+
+def test_typed_dict_only_docstring_type():
+    """Typed-dict-only models should reference types module, not models."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_typed_dict_only_model(code_model, "Foo")
+
+    docstring = model.docstring_type()
+    assert "types.Foo" in docstring
+    assert "models.Foo" not in docstring

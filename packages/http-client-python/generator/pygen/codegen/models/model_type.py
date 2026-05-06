@@ -77,6 +77,10 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
+        self.is_typed_dict_only: bool = (
+            self.yaml_data.get("typedDictOnly", False)
+            or self.name in code_model.options.get("typed-dict-only-models", [])
+        )
 
     @property
     def is_usage_output(self) -> bool:
@@ -352,6 +356,22 @@ class MsrestModelType(GeneratedModelType):
 class DPGModelType(GeneratedModelType):
     base = "dpg"
 
+    def type_annotation(self, **kwargs: Any) -> str:
+        if self.is_typed_dict_only:
+            is_operation_file = kwargs.pop("is_operation_file", False)
+            skip_quote = kwargs.get("skip_quote", False)
+            retval = f"types.{self.name}"
+            return retval if is_operation_file or skip_quote else f'"{retval}"'
+        return super().type_annotation(**kwargs)
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        if self.is_typed_dict_only:
+            client_namespace = self.client_namespace
+            if self.code_model.options.get("generation-subdir"):
+                client_namespace += f".{self.code_model.options['generation-subdir']}"
+            return f"~{client_namespace}.types.{self.name}"
+        return super().docstring_type(**kwargs)
+
     def serialization_type(self, **kwargs: Any) -> str:
         return (
             self.type_annotation(skip_quote=True, **kwargs)
@@ -364,6 +384,28 @@ class DPGModelType(GeneratedModelType):
         return "isinstance({}, " + f"_models.{self.name})"
 
     def imports(self, **kwargs: Any) -> FileImport:
+        if self.is_typed_dict_only:
+            file_import = FileImport(self.code_model)
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+            if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+                file_import.add_submodule_import(
+                    relative_path,
+                    "types",
+                    ImportType.LOCAL,
+                )
+            elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
+                serialize_namespace_type == NamespaceType.MODEL
+                and kwargs.get("called_by_property", False)
+            ):
+                file_import.add_submodule_import(
+                    relative_path,
+                    "types",
+                    ImportType.LOCAL,
+                    typing_section=TypingSection.TYPING,
+                )
+            return file_import
         file_import = super().imports(**kwargs)
         if self.flattened_property:
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)

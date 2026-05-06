@@ -349,7 +349,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @staticmethod
     def get_public_model_types(models: list[ModelType]) -> list[ModelType]:
-        return [m for m in models if not m.internal and not m.base == "json"]
+        return [m for m in models if not m.internal and not m.base == "json" and not m.is_typed_dict_only]
 
     @property
     def public_model_types(self) -> list[ModelType]:

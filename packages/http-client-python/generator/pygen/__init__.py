@@ -181,6 +181,8 @@ class OptionsDict(MutableMapping):
                 raise ValueError(
                     f"--package-mode can only be {' or '.join(TYPESPEC_PACKAGE_MODE)} or directory which contains template files"  # pylint: disable=line-too-long
                 )
+        if key == "typed-dict-only-models" and isinstance(value, str):
+            value = [v.strip() for v in value.split(",") if v.strip()]
         return value
 
     def setdefault(self, key: str, default: Any, /) -> Any:  # type: ignore # pylint: disable=arguments-differ

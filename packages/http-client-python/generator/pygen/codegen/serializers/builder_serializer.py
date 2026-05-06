@@ -1000,6 +1000,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
+                elif isinstance(response.type, ModelType) and response.type.is_typed_dict_only:
+                    # Typed-dict-only models skip deserialization — return raw JSON
+                    deserialize_code.append("if response.content:")
+                    deserialize_code.append("    deserialized = response.json()")
+                    deserialize_code.append("else:")
+                    deserialize_code.append("    deserialized = None")
                 else:
                     format_filed = (
                         f', format="{response.type.encode}"'
@@ -1429,18 +1435,23 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             )
         pylint_disable = ""
         if self.code_model.options["models-mode"] == "dpg":
-            item_type = builder.item_type.type_annotation(
-                is_operation_file=True, serialize_namespace=self.serialize_namespace
-            )
-            pylint_disable = (
-                "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
-            )
-            list_of_elem_deserialized = [
-                "_deserialize(",
-                f"{item_type},{pylint_disable}",
-                f"deserialized{access},",
-                ")",
-            ]
+            is_item_typed_dict_only = isinstance(builder.item_type, ModelType) and builder.item_type.is_typed_dict_only
+            if is_item_typed_dict_only:
+                # Typed-dict-only models skip deserialization — return raw JSON items
+                list_of_elem_deserialized = [f"deserialized{access}"]
+            else:
+                item_type = builder.item_type.type_annotation(
+                    is_operation_file=True, serialize_namespace=self.serialize_namespace
+                )
+                pylint_disable = (
+                    "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
+                )
+                list_of_elem_deserialized = [
+                    "_deserialize(",
+                    f"{item_type},{pylint_disable}",
+                    f"deserialized{access},",
+                    ")",
+                ]
         else:
             list_of_elem_deserialized = [f"deserialized{access}"]
         list_of_elem_deserialized_str = "\n    ".join(list_of_elem_deserialized)

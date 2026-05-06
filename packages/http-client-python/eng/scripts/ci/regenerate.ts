@@ -307,10 +307,18 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
       "clear-output-folder": "true",
     },
   ],
-  "type/model/usage": {
-    "package-name": "typetest-model-usage",
-    namespace: "typetest.model.usage",
-  },
+  "type/model/usage": [
+    {
+      "package-name": "typetest-model-usage",
+      namespace: "typetest.model.usage",
+    },
+    {
+      "package-name": "typetest-model-usage-typeddictonly",
+      namespace: "typetest.model.usage.typeddictonly",
+      "models-mode": "typeddict",
+      "typed-dict-only-models": "InputRecord,OutputRecord,InputOutputRecord",
+    },
+  ],
   "type/model/visibility": [
     {
       "package-name": "typetest-model-visibility",
