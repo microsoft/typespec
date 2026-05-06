@@ -422,21 +422,79 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
 
-        // Verifies an emitter can override BuildBaseType and BuildBaseModelProvider together to
-        // redirect the C# base class to a custom ModelProvider, keeping BaseType and
-        // BaseModelProvider in agreement.
+        // Verifies an emitter that overrides BuildBaseType to redirect to another generated
+        // ModelProvider gets a consistent BaseModelProvider automatically (resolved via CSharpTypeMap)
+        // without having to override BuildBaseModelProvider.
         [Test]
-        public void OverridingBuildBaseTypeAndBuildBaseModelProvider_KeepsBaseTypeConsistent()
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderForGeneratedModel()
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
-            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
-            CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            Assert.IsNotNull(baseProvider);
 
+            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, baseProvider!.Type);
+
+            Assert.AreEqual(baseProvider.Type, derivedProvider.BaseType);
+            Assert.AreSame(baseProvider, derivedProvider.BaseModelProvider);
+        }
+
+        // Verifies an emitter that overrides BuildBaseType to redirect to a framework / external
+        // type (not present in CSharpTypeMap as a ModelProvider) gets BaseModelProvider == null
+        // automatically — BaseType and BaseModelProvider stay consistent without an extra override.
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForFrameworkType()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var frameworkBase = new CSharpType(typeof(InvalidOperationException));
+
+            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, frameworkBase);
+
+            Assert.AreEqual(frameworkBase, derivedProvider.BaseType);
+            Assert.IsNull(derivedProvider.BaseModelProvider);
+        }
+
+        // Verifies an emitter can still explicitly override BuildBaseModelProvider (e.g., to point
+        // at a custom ModelProvider instance not registered in CSharpTypeMap) and have its override
+        // honored in addition to BuildBaseType.
+        [Test]
+        public void OverridingBuildBaseModelProvider_IsRespected()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
             var customBaseProvider = new CustomBaseModelProvider(inputBase);
-            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, customBaseProvider);
+
+            var derivedProvider = new ExplicitBaseModelProviderOverridingModelProvider(inputDerived, customBaseProvider);
 
             Assert.AreEqual(customBaseProvider.Type, derivedProvider.BaseType);
             Assert.AreSame(customBaseProvider, derivedProvider.BaseModelProvider);
+        }
+
+        // Default case: when no overrides and no customizations are involved, BaseType and
+        // BaseModelProvider both resolve to the generated base model.
+        [Test]
+        public void BaseModelProvider_DefaultResolvesViaCSharpTypeMap()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
+
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsNotNull(derivedProvider!.BaseModelProvider);
+            Assert.AreEqual(derivedProvider.BaseModelProvider!.Type, derivedProvider.BaseType);
+        }
+
+        // When the input model has no base model and there are no overrides, both BaseType and
+        // BaseModelProvider are null.
+        [Test]
+        public void BaseModelProvider_NullWhenNoBase()
+        {
+            var inputModel = InputFactory.Model("standaloneModel", usage: InputModelTypeUsage.Input, properties: []);
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNull(modelProvider!.BaseType);
+            Assert.IsNull(modelProvider.BaseModelProvider);
         }
 
         private class CustomBaseModelProvider : ModelProvider
@@ -448,16 +506,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         private class BuildBaseTypeOverridingModelProvider : ModelProvider
         {
+            private readonly CSharpType? _redirectedBaseType;
+
+            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, CSharpType? redirectedBaseType) : base(inputModel)
+            {
+                _redirectedBaseType = redirectedBaseType;
+            }
+
+            // Only BuildBaseType is overridden — BuildBaseModelProvider is left to resolve via CSharpTypeMap.
+            protected override CSharpType? BuildBaseType() => _redirectedBaseType;
+        }
+
+        private class ExplicitBaseModelProviderOverridingModelProvider : ModelProvider
+        {
             private readonly ModelProvider _redirectedBaseProvider;
 
-            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, ModelProvider redirectedBaseProvider) : base(inputModel)
+            public ExplicitBaseModelProviderOverridingModelProvider(InputModelType inputModel, ModelProvider redirectedBaseProvider) : base(inputModel)
             {
                 _redirectedBaseProvider = redirectedBaseProvider;
             }
 
             protected override CSharpType? BuildBaseType() => _redirectedBaseProvider?.Type;
 
-            // The emitter overrides BuildBaseModelProvider to keep it in sync with the redirected BaseType.
             protected override ModelProvider? BuildBaseModelProvider() => _redirectedBaseProvider;
         }
 
