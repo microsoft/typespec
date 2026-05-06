@@ -427,13 +427,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
-            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
-            Assert.IsNotNull(baseProvider);
+            ModelProvider? baseProvider = null;
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+            {
+                if (input == inputBase)
+                {
+                    return baseProvider = new ModelProvider(input);
+                }
+                if (input == inputDerived)
+                {
+                    return new BuildBaseTypeOverridingModelProvider(input, baseProvider!.Type);
+                }
+                return null;
+            });
 
-            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, baseProvider!.Type);
+            var actualBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
-            Assert.AreEqual(baseProvider.Type, derivedProvider.BaseType);
-            Assert.AreSame(baseProvider, derivedProvider.BaseModelProvider);
+            Assert.IsNotNull(actualBase);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(actualBase!.Type, actualDerived!.BaseType);
+            Assert.AreSame(actualBase, actualDerived.BaseModelProvider);
         }
 
         [Test]
@@ -441,11 +455,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
             var frameworkBase = new CSharpType(typeof(InvalidOperationException));
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, frameworkBase) : null);
 
-            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, frameworkBase);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
-            Assert.AreEqual(frameworkBase, derivedProvider.BaseType);
-            Assert.IsNull(derivedProvider.BaseModelProvider);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(frameworkBase, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
         }
 
         [Test]
@@ -453,13 +470,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
-            var customBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
-            Assert.IsNotNull(customBaseProvider);
+            ModelProvider? baseProvider = null;
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+            {
+                if (input == inputBase)
+                {
+                    return baseProvider = new ModelProvider(input);
+                }
+                if (input == inputDerived)
+                {
+                    return new ExplicitBaseModelProviderOverridingModelProvider(input, baseProvider!);
+                }
+                return null;
+            });
 
-            var derivedProvider = new ExplicitBaseModelProviderOverridingModelProvider(inputDerived, customBaseProvider!);
+            var actualBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
-            Assert.AreEqual(customBaseProvider!.Type, derivedProvider.BaseType);
-            Assert.AreSame(customBaseProvider, derivedProvider.BaseModelProvider);
+            Assert.IsNotNull(actualBase);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(actualBase!.Type, actualDerived!.BaseType);
+            Assert.AreSame(actualBase, actualDerived.BaseModelProvider);
         }
 
         [Test]
@@ -490,12 +521,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
             var nonModelTypeProvider = new NonModelTypeProvider();
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, nonModelTypeProvider.Type) : null);
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[nonModelTypeProvider.Type] = nonModelTypeProvider;
 
-            var derivedProvider = new BuildBaseTypeOverridingModelProvider(inputDerived, nonModelTypeProvider.Type);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
-            Assert.AreEqual(nonModelTypeProvider.Type, derivedProvider.BaseType);
-            Assert.IsNull(derivedProvider.BaseModelProvider);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(nonModelTypeProvider.Type, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
         }
 
         private class NonModelTypeProvider : TypeProvider
