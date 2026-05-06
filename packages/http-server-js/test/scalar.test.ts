@@ -209,6 +209,27 @@ describe("scalar", () => {
     expect(serverRaw).toMatch(/response\.end\(globalThis\.JSON\.stringify\(__result_\d+\)\);/);
   });
 
+  it("emits direct bytes send for binary body with custom content-type", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @post op download(): {
+          @statusCode statusCode: 200;
+          @header contentType: "application/zip";
+          @body content: bytes;
+        };
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).not.toContain('"application/json"');
+    expect(serverRaw).not.toContain("Uint8Array.toJsonObject");
+    expect(serverRaw).toMatch(/response\.end\(__result_\d+\.content\);/);
+  });
+
   describe("date/time/duration types", () => {
     describe("mode: temporal", () => {
       const options: JsEmitterOptions = {

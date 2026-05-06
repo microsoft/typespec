@@ -641,24 +641,30 @@ function* emitResultProcessingForType(
 
   if (body) {
     const bodyCase = parseCase(body.name);
-    const serializationRequired = isSerializationRequired(
-      ctx,
-      module,
-      body.type,
-      "application/json",
-    );
-    requireSerialization(ctx, body.type, "application/json");
 
-    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
-
-    if (serializationRequired) {
-      const typeReference = emitTypeReference(ctx, body.type, body, module, {
-        altName: namer.getAltName("Body"),
-        requireDeclaration: true,
-      });
-      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
+    if (ctx.program.checker.isStdType(body.type, "bytes")) {
+      // Binary response: content-type already set by @header above, send bytes directly.
+      yield `${names.ctx}.response.end(${names.result}.${bodyCase.camelCase});`;
     } else {
-      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
+      const serializationRequired = isSerializationRequired(
+        ctx,
+        module,
+        body.type,
+        "application/json",
+      );
+      requireSerialization(ctx, body.type, "application/json");
+
+      yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+      if (serializationRequired) {
+        const typeReference = emitTypeReference(ctx, body.type, body, module, {
+          altName: namer.getAltName("Body"),
+          requireDeclaration: true,
+        });
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
+      } else {
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
+      }
     }
   } else if (isArrayModelType(target)) {
     const itemType = target.indexer.value;
