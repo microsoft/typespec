@@ -77,10 +77,9 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
-        self.is_typed_dict_only: bool = (
-            self.yaml_data.get("typedDictOnly", False)
-            or self.name in code_model.options.get("typed-dict-only-models", [])
-        )
+        self.is_typed_dict_only: bool = self.yaml_data.get(
+            "typedDictOnly", False
+        ) or self.name in code_model.options.get("typed-dict-only-models", [])
 
     @property
     def is_usage_output(self) -> bool:
@@ -396,8 +395,7 @@ class DPGModelType(GeneratedModelType):
                     ImportType.LOCAL,
                 )
             elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
-                serialize_namespace_type == NamespaceType.MODEL
-                and kwargs.get("called_by_property", False)
+                serialize_namespace_type == NamespaceType.MODEL and kwargs.get("called_by_property", False)
             ):
                 file_import.add_submodule_import(
                     relative_path,

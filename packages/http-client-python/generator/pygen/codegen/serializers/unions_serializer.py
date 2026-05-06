@@ -43,11 +43,19 @@ class UnionsSerializer(BaseSerializer):
                     serialize_namespace_type=NamespaceType.UNIONS_FILE,
                 )
             )
+        for model in self.discriminated_base_models:
+            for subtype in model.discriminated_subtypes.values():
+                file_import.merge(
+                    subtype.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.UNIONS_FILE,
+                    )
+                )
         return file_import
 
     def discriminated_subtypes_union(self, model: ModelType) -> str:
         subtypes = list(model.discriminated_subtypes.values())
-        subtype_names = [s.name for s in subtypes]
+        subtype_names = [s.type_annotation(skip_quote=True) for s in subtypes]
         return f"{model.name} = Union[{', '.join(subtype_names)}]"
 
     def serialize(self) -> str:
