@@ -96,7 +96,10 @@ class TypesSerializer(BaseSerializer):
         return properties_to_declare
 
     def declare_property(self, prop: Property) -> str:
-        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        type_annotation = prop.type_annotation(
+            serialize_namespace=self.serialize_namespace,
+            serialize_namespace_type=NamespaceType.TYPES_FILE,
+        )
         is_optional = prop.optional or prop.client_default_value is not None
         if is_optional:
             return f"{prop.wire_name}: {type_annotation}"

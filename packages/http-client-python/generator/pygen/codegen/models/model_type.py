@@ -278,8 +278,12 @@ class GeneratedModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.pop("is_operation_file", False)
         skip_quote = kwargs.get("skip_quote", False)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
         module_name = ""
-        if kwargs.get("need_model_alias", True):
+        # In types.py, use bare name to avoid pyright "variable in type expression" errors
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            pass  # no module prefix
+        elif kwargs.get("need_model_alias", True):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
             module_name = f"{model_alias}."
@@ -323,7 +327,16 @@ class GeneratedModelType(ModelType):
                     ImportType.LOCAL,
                     alias="_Model",
                 )
-        elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
+        elif serialize_namespace_type == NamespaceType.TYPES_FILE:
+            # In types.py, import model names directly to avoid pyright
+            # "variable not allowed in type expression" errors with dotted forward refs
+            file_import.add_submodule_import(
+                f"{relative_path}models" if relative_path != "." else ".models",
+                self.name,
+                ImportType.LOCAL,
+                typing_section=TypingSection.TYPING,
+            )
+        elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
             file_import.add_submodule_import(

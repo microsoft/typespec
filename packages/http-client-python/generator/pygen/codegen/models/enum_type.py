@@ -176,7 +176,10 @@ class EnumType(BaseType):
         if self.code_model.options["models-mode"]:
 
             module_name = ""
-            if kwargs.get("need_model_alias", True):
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                pass  # no module prefix for types.py
+            elif kwargs.get("need_model_alias", True):
                 serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
                 model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
                 module_name = f"{model_alias}."
@@ -255,7 +258,15 @@ class EnumType(BaseType):
                     alias=alias,
                     typing_section=TypingSection.REGULAR,
                 )
-            elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
+            elif serialize_namespace_type == NamespaceType.TYPES_FILE:
+                # Import enum name directly to avoid dotted forward refs in TypedDict annotations
+                file_import.add_submodule_import(
+                    f"{relative_path}models" if relative_path != "." else ".models",
+                    self.name,
+                    ImportType.LOCAL,
+                    typing_section=TypingSection.TYPING,
+                )
+            elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
                 serialize_namespace_type == NamespaceType.MODEL and called_by_property
             ):
                 file_import.add_submodule_import(

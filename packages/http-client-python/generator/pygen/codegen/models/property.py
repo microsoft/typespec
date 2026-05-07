@@ -10,7 +10,7 @@ from .constant_type import ConstantType
 from .enum_type import EnumType
 from .base import BaseType
 from .imports import FileImport, ImportType
-from .utils import add_to_description, add_to_pylint_disable
+from .utils import add_to_description, add_to_pylint_disable, NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -155,12 +155,14 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models-mode"] == "dpg":
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
-                "rest_discriminator" if self.is_discriminator else "rest_field",
-                ImportType.LOCAL,
-            )
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            if serialize_namespace_type != NamespaceType.TYPES_FILE:
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                    "rest_discriminator" if self.is_discriminator else "rest_field",
+                    ImportType.LOCAL,
+                )
         return file_import
 
     @classmethod
