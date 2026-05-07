@@ -421,20 +421,20 @@ async function addIdentifierCompletion(
     let kind: CompletionItemKind;
     let deprecated = false;
     const symNode = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(symNode);
+    const type = sym.type ?? (symNode ? program.checker.getTypeForNode(symNode) : undefined);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
     } else if (
       sym.flags & SymbolFlags.Namespace &&
-      symNode.kind !== SyntaxKind.NamespaceStatement
+      symNode?.kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
     } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
       deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
-      kind = getCompletionItemKind(program, type);
-      deprecated = getDeprecationDetails(program, type) !== undefined;
+      kind = type ? getCompletionItemKind(program, type) : CompletionItemKind.Variable;
+      deprecated = type ? getDeprecationDetails(program, type) !== undefined : false;
     }
     const documentation = await getSymbolDetails(program, sym);
 

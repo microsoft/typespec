@@ -39,8 +39,21 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         output_dir = config["outputDir"]
 
         # Pass command args directly to pygen - pygen expects hyphenated keys
-        # Remove keys that shouldn't be passed to pygen
-        pygen_args = {k: v for k, v in command_args.items() if k not in ["emit-yaml-only"]}
+        # Remove keys that shouldn't be passed to pygen.
+        # Also coerce the string values "true"/"false" to real booleans, matching the behavior
+        # of pygen.utils.parse_args (the CLI path). Without this, the emitter passes string
+        # "false" for flags like keep-setup-py, which is truthy in Python and causes pygen to
+        # take the wrong branch (e.g. generating setup.py instead of pyproject.toml).
+        def _coerce(value):
+            if value == "true":
+                return True
+            if value == "false":
+                return False
+            return value
+
+        pygen_args = {
+            k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]
+        }
 
         # Run preprocess and codegen (black is batched at the end for performance)
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()

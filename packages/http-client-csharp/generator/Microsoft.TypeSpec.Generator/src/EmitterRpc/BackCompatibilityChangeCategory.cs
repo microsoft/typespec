@@ -39,5 +39,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A back-compat model factory method could not be created and was skipped.</summary>
         ModelFactoryMethodSkipped,
+
+        /// <summary>A back-compat overload of a client method was added because new optional non-body parameter(s) were introduced relative to the last contract.</summary>
+        SvcMethodNewOptionalParameterOverloadAdded,
     }
 }
