@@ -129,8 +129,35 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
+          BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+          NodeVersion: 24.x
+          Os: linux
+          EmitArtifacts: true # Emit artifacts only for the first job
+          PythonVersion: ${{ parameters.PythonVersion }}
+          RunSDLTools: true
+      - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+        parameters:
+          BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          Publish: ${{ parameters.Publish }}
+          AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+          Packages: ${{ parameters.Packages }}
+          PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 22.x
           Os: linux
+          PythonVersion: ${{ parameters.PythonVersion }}
+      - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+        parameters:
+          BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          Publish: ${{ parameters.Publish }}
+          AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+          Packages: ${{ parameters.Packages }}
+          PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
+          NodeVersion: 24.x
+          Os: windows
           PythonVersion: ${{ parameters.PythonVersion }}
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
         parameters:
@@ -177,8 +204,33 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 24.x
+                  Os: linux
+                  EmitArtifacts: true # Emit artifacts only for the first job
+                  CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
+                  EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
+                  PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   NodeVersion: 22.x
                   Os: linux
+                  PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 24.x
+                  Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
