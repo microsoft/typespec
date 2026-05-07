@@ -18,7 +18,10 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={MyModel} />])).toRenderTo(
         `
           from dataclasses import dataclass
-          from typing import Optional
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import Optional
 
 
           @dataclass(kw_only=True)
@@ -43,7 +46,10 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={BooleanModel} />])).toRenderTo(
         `
           from dataclasses import dataclass
-          from typing import Optional
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from typing import Optional
 
 
           @dataclass(kw_only=True)
@@ -140,7 +146,10 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={NumericDefaults} />])).toRenderTo(
         `
           from dataclasses import dataclass
-          from decimal import Decimal
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from decimal import Decimal
 
 
           @dataclass(kw_only=True)
@@ -176,7 +185,10 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={MixedNumeric} />])).toRenderTo(
         `
           from dataclasses import dataclass
-          from decimal import Decimal
+          from typing import TYPE_CHECKING
+
+          if TYPE_CHECKING:
+            from decimal import Decimal
 
 
           @dataclass(kw_only=True)

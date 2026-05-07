@@ -367,7 +367,10 @@ describe("Python Function Declaration", () => {
     `);
 
     expect(getOutput(program, [<FunctionDeclaration type={abort} />])).toRenderTo(`
-      from typing import Never
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import Never
 
 
       def abort() -> Never:

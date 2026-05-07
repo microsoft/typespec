@@ -31,5 +31,9 @@ export async function installCompilerGlobally(
       return result;
     },
     args?.activityId,
+    (e) => {
+      logger.error(`Unexpected error when installing compiler globally.`, [e]);
+      return { code: ResultCode.Fail };
+    },
   );
 }
