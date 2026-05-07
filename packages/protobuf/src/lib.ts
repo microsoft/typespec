@@ -112,6 +112,20 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         union: "a message field's type may not be a union",
       },
     },
+    "optional-array-field": {
+      severity: "warning",
+      messages: {
+        default:
+          "optional array fields cannot preserve unset versus empty in protobuf; emitting a repeated field without the 'optional' label",
+      },
+    },
+    "optional-map-field": {
+      severity: "warning",
+      messages: {
+        default:
+          "optional map fields cannot preserve unset versus empty in protobuf; emitting a map field without the 'optional' label",
+      },
+    },
     "namespace-collision": {
       severity: "error",
       messages: {
