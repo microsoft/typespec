@@ -73,7 +73,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@alloy-js/core": "file:../alloy/packages/core/alloy-js-core-0.22.0.tgz"
+      "@alloy-js/core": "0.23.1"
     }
   }
 }

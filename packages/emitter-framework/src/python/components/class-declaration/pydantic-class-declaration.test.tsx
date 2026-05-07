@@ -1,11 +1,11 @@
-import { code } from "@alloy-js/core";
 import { Tester } from "#test/test-host.js";
+import { code } from "@alloy-js/core";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { pydanticModule, pydanticSettingsModule } from "../../builtins.js";
 import { getOutput } from "../../test-utils.js";
-import { Method } from "./class-method.js";
 import { ClassDeclaration } from "./class-declaration.js";
+import { Method } from "./class-method.js";
 import { PydanticClassDeclaration } from "./pydantic-class-declaration.js";
 
 describe("Python PydanticClassDeclaration", () => {
