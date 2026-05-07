@@ -157,6 +157,112 @@ describe("compiler: imports", () => {
     });
   });
 
+  it("emit warning for multiple duplicate imports of the same file", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./b.tsp";
+      import "./b.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "duplicate-import",
+        severity: "warning",
+        message: `Duplicate import of "./b.tsp"`,
+      },
+      {
+        code: "duplicate-import",
+        severity: "warning",
+        message: `Duplicate import of "./b.tsp"`,
+      },
+    ]);
+  });
+
+  it("emit warning for duplicate imports of different files independently", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+      "c.tsp": `model C { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./c.tsp";
+      import "./b.tsp";
+      import "./c.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "duplicate-import",
+        severity: "warning",
+        message: `Duplicate import of "./b.tsp"`,
+      },
+      {
+        code: "duplicate-import",
+        severity: "warning",
+        message: `Duplicate import of "./c.tsp"`,
+      },
+    ]);
+  });
+
+  it("emit warning only for duplicates when mixed with other imports", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+      "c.tsp": `model C { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./c.tsp";
+      import "./b.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "duplicate-import",
+        severity: "warning",
+        message: `Duplicate import of "./b.tsp"`,
+      },
+    ]);
+  });
+
+  it("emit self-import warning alongside other valid imports", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+    }).diagnose(`
+      import "./b.tsp";
+      import "./main.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "self-import",
+        severity: "warning",
+        message: "A file cannot import itself.",
+      },
+    ]);
+  });
+
+  // We don't need to create extra noise
+  it("self-import is not counted as duplicate", async () => {
+    const diagnostics = await Tester.files({
+      "b.tsp": `model B { }`,
+    }).diagnose(`
+      import "./main.tsp";
+      import "./main.tsp";
+      import "./b.tsp";
+      model A extends B { }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "self-import",
+        severity: "warning",
+      },
+      {
+        code: "self-import",
+        severity: "warning",
+      },
+    ]);
+  });
+
   it("does not emit duplicate warning for different paths to the same file", async () => {
     const diagnostics = await Tester.files({
       "b.tsp": `model B { }`,
