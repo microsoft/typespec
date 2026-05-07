@@ -1,4 +1,4 @@
-import { For, type Children, createContext, splitProps, useContext } from "@alloy-js/core";
+import { createContext, For, splitProps, useContext, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
@@ -20,7 +20,9 @@ export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps,
   replaceParameters?: boolean;
 }
 
-export type MethodProps = MethodPropsWithType | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
+export type MethodProps =
+  | MethodPropsWithType
+  | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
 
 /**
  * Get the method component based on the resolved method type.

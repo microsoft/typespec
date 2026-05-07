@@ -5,10 +5,10 @@ import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
 import { pydanticModule } from "../../builtins.js";
 import { declarationRefkeys } from "../../utils/refkey.js";
-import { ClassMember } from "./class-member.js";
 import { DocElement } from "../doc-element/doc-element.js";
-import { ClassDeclaration } from "./class-declaration.js";
 import { ClassBases } from "./class-bases.js";
+import { ClassDeclaration } from "./class-declaration.js";
+import { ClassMember } from "./class-member.js";
 import { MethodProvider } from "./class-method.js";
 
 export interface PydanticModelConfigDictProps {
@@ -29,8 +29,10 @@ export interface PydanticClassDeclarationBaseProps extends Omit<py.ClassDeclarat
   modelConfigExpression?: Children;
 }
 
-export interface PydanticClassDeclarationPropsWithType
-  extends Omit<PydanticClassDeclarationBaseProps, "name"> {
+export interface PydanticClassDeclarationPropsWithType extends Omit<
+  PydanticClassDeclarationBaseProps,
+  "name"
+> {
   type: Model;
   name?: string;
   methodType?: "method" | "class" | "static";
@@ -60,7 +62,8 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
       }
     }
   }
-  const hasStructuredModelConfig = props.modelConfigExpression === undefined && configEntries.length > 0;
+  const hasStructuredModelConfig =
+    props.modelConfigExpression === undefined && configEntries.length > 0;
   const hasExpressionModelConfig = props.modelConfigExpression !== undefined;
   const configLine = hasExpressionModelConfig ? (
     <>
@@ -87,10 +90,7 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
 
   if (!isTypedPydanticClassDeclarationProps(props)) {
     return (
-      <ClassDeclaration
-        {...props}
-        bases={props.bases ?? [pydanticModule["."].BaseModel]}
-      >
+      <ClassDeclaration {...props} bases={props.bases ?? [pydanticModule["."].BaseModel]}>
         {configLine}
         {props.children}
       </ClassDeclaration>
@@ -121,9 +121,7 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
     bases: props.bases,
   });
   const resolvedBases =
-    props.bases === undefined && bases.length === 0
-      ? [pydanticModule["."].BaseModel]
-      : bases;
+    props.bases === undefined && bases.length === 0 ? [pydanticModule["."].BaseModel] : bases;
 
   return (
     <MethodProvider value={props.methodType}>
@@ -135,14 +133,10 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
       >
         {configLine}
         <For each={modelMembers} line>
-          {(typeMember) => (
-            <ClassMember type={typeMember} methodType={props.methodType} />
-          )}
+          {(typeMember) => <ClassMember type={typeMember} methodType={props.methodType} />}
         </For>
         {/* Allow callers to append custom class content after generated members. */}
-        <>
-          {props.children}
-        </>
+        <>{props.children}</>
       </py.ClassDeclaration>
     </MethodProvider>
   );
