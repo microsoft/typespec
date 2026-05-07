@@ -136,7 +136,7 @@ function main() {
   connection.onHover(profile(s.getHover));
   connection.onSignatureHelp(profile(s.getSignatureHelp));
   connection.onCodeAction(profile(s.getCodeActions));
-  connection.onExecuteCommand(profile(s.executeCommand));
+  connection.onCodeActionResolve(profile(s.resolveCodeAction));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
