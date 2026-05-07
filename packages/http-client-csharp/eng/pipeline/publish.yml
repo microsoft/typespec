@@ -34,6 +34,12 @@ parameters:
     type: boolean
     default: false
 
+  # Primary Node.js version used by the artifact-emitting Build_linux job. Must match
+  # the PrimaryNodeVersion default in eng/emitters/pipelines/templates/stages/emitter-stages.yml.
+  - name: PrimaryNodeVersion
+    type: string
+    default: "24.x"
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -47,6 +53,7 @@ extends:
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          PrimaryNodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Packages:
             - name: typespec-http-client-csharp
               file: typespec-http-client-csharp-*.tgz
@@ -102,9 +109,7 @@ extends:
           - CSharp_Build
         condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
-          # Must match the primary Node.js version used by the Build_linux job in emitter-stages.yml
-          # (parameters.PrimaryNodeVersion). Update both together when bumping the primary Node version.
-          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_24.outputs['ci_build.emitterVersion'] ]
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}.outputs['ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
