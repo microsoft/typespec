@@ -160,9 +160,38 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> AdditionalRootTypes { get; } = [];
+        private readonly HashSet<string> _additionalRootTypeNames = [];
+        private readonly HashSet<string> _nonRootTypeNames = [];
+        private readonly HashSet<TypeProvider> _additionalRootTypeProviders = [];
+        private readonly HashSet<TypeProvider> _nonRootTypeProviders = [];
 
-        internal HashSet<string> NonRootTypes { get; } = [];
+        /// <summary>
+        /// The set of fully qualified type names to keep as roots. Resolved lazily so that
+        /// <see cref="TypeProvider"/> entries added via <see cref="AddTypeToKeep(TypeProvider, bool)"/>
+        /// are not forced to materialize their <see cref="TypeProvider.Type"/> at registration time
+        /// (which would dispatch virtual <c>Build*</c> methods on partially constructed providers).
+        /// </summary>
+        internal HashSet<string> AdditionalRootTypes => MaterializeKeepSet(_additionalRootTypeNames, _additionalRootTypeProviders);
+
+        /// <summary>
+        /// The set of fully qualified type names to keep as non-roots. Resolved lazily; see
+        /// <see cref="AdditionalRootTypes"/> for rationale.
+        /// </summary>
+        internal HashSet<string> NonRootTypes => MaterializeKeepSet(_nonRootTypeNames, _nonRootTypeProviders);
+
+        private static HashSet<string> MaterializeKeepSet(HashSet<string> names, HashSet<TypeProvider> providers)
+        {
+            if (providers.Count == 0)
+            {
+                return names;
+            }
+            var result = new HashSet<string>(names);
+            foreach (var provider in providers)
+            {
+                result.Add(provider.Type.FullyQualifiedName);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -174,21 +203,38 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (isRoot)
             {
-                AdditionalRootTypes.Add(typeName);
+                _additionalRootTypeNames.Add(typeName);
             }
             else
             {
-                NonRootTypes.Add(typeName);
+                _nonRootTypeNames.Add(typeName);
             }
         }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
+        /// <remarks>
+        /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
+        /// post-processing. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// constructor (including base constructors that run before the derived constructor body), since
+        /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
+        /// <c>Build*</c> methods on a not-yet-fully-constructed instance.
+        /// </remarks>
         /// <param name="type">The type provider representing the type.</param>
         /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
         /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
-        public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
+        public void AddTypeToKeep(TypeProvider type, bool isRoot = true)
+        {
+            if (isRoot)
+            {
+                _additionalRootTypeProviders.Add(type);
+            }
+            else
+            {
+                _nonRootTypeProviders.Add(type);
+            }
+        }
 
         /// <summary>
         /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.

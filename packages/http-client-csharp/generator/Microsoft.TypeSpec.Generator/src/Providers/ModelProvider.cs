@@ -77,11 +77,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
-
-            if (_inputModel.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(this);
-            }
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;

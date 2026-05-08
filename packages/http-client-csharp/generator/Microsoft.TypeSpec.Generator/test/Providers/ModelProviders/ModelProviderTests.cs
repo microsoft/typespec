@@ -1480,6 +1480,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
+        // Regression test for two complementary fixes:
+        //
+        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;
+        //    registration is performed by TypeFactory.CreateModel after construction completes.
+        //    This mirrors the EnumProvider lifecycle and prevents a virtual call chain
+        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) from
+        //    being dispatched on a partially-constructed derived ModelProvider whose override
+        //    reads derived-class fields that are still uninitialized.
+        //
+        // 2. AddTypeToKeep(TypeProvider) defers FQN resolution until the keep set is consumed,
+        //    so even ctor-time callers cannot force premature TypeProvider.Type evaluation.
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceTypeEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            // (1) Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            //     must not throw.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(inputModel));
+
+            // (2) AddTypeToKeep(TypeProvider) must not throw and the provider's FQN must appear
+            //     once the keep set is materialized.
+            Assert.DoesNotThrow(() => CodeModelGenerator.Instance.AddTypeToKeep(provider!));
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains(provider!.Type.FullyQualifiedName));
+        }
+
+        private sealed class DerivedModelProviderReadingOwnField : ModelProvider
+        {
+            private readonly InputModelType _derivedInputModel;
+
+            public DerivedModelProviderReadingOwnField(InputModelType inputModel) : base(inputModel)
+            {
+                _derivedInputModel = inputModel;
+            }
+
+            protected override CSharpType? BuildBaseType()
+            {
+                // Reading a derived-class field that base(...) cannot have populated yet.
+                // If the framework forces Type evaluation during base ctor, this NREs.
+                _ = _derivedInputModel.DiscriminatorValue;
+                return base.BuildBaseType();
+            }
+        }
+
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
