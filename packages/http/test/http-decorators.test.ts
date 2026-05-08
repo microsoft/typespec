@@ -80,6 +80,19 @@ describe("http: decorators", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it(`@patch does not emit deprecation warning when inherited via 'interface extends'`, async () => {
+      const diagnostics = await Tester.diagnose(`
+        #suppress "@typespec/http/deprecated-implicit-optionality" "testing"
+        interface Base {
+          @route("/test") @patch(#{ implicitOptionality: true }) test(): string;
+        }
+        @route("/derived")
+        interface Derived extends Base {}
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("@header", () => {

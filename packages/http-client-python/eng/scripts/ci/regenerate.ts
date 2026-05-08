@@ -9,8 +9,8 @@
 import { compile, NodeHost } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
-import { access, mkdir, readdir, writeFile } from "fs/promises";
-import { platform } from "os";
+import { access, cp, mkdir, mkdtemp, readdir, writeFile } from "fs/promises";
+import { platform, tmpdir } from "os";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
@@ -424,6 +424,62 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
   return subdirectories;
 }
 
+/**
+ * Resets the local `tests/generated` folder to the baseline checked into
+ * Azure/azure-sdk-for-python at `eng/tools/emitter/gen`. This ensures
+ * regeneration starts from a clean, known-good baseline which also contains
+ * necessary customized code.
+ */
+async function resetBaselineFromSdkRepo(generatedFolder: string): Promise<void> {
+  const repoUrl = "https://github.com/Azure/azure-sdk-for-python.git";
+  const branch = "main";
+  const sourceSubdir = "eng/tools/emitter/gen";
+  const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
+
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Resetting baseline from ${repoUrl} (${branch}/${sourceSubdir})`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  // Wipe tests/generated
+  if (existsSync(testsGeneratedDir)) {
+    console.log(pc.dim(`Removing ${testsGeneratedDir}`));
+    rmSync(testsGeneratedDir, { recursive: true, force: true });
+  }
+  await mkdir(testsGeneratedDir, { recursive: true });
+
+  // Sparse-checkout the baseline folder into a temp directory
+  const tempDir = await mkdtemp(join(tmpdir(), "azsdk-baseline-"));
+  try {
+    console.log(pc.dim(`Cloning into ${tempDir}`));
+    const run = (cmd: string) =>
+      execSync(cmd, { cwd: tempDir, stdio: ["ignore", "ignore", "inherit"] });
+
+    run(`git init`);
+    run(`git remote add origin ${repoUrl}`);
+    run(`git config core.sparseCheckout true`);
+    run(`git sparse-checkout init --cone`);
+    run(`git sparse-checkout set ${sourceSubdir}`);
+    run(`git fetch --depth 1 origin ${branch}`);
+    run(`git checkout FETCH_HEAD`);
+
+    const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
+    for (const flavor of ["azure", "unbranded"]) {
+      const src = join(sourceRoot, flavor);
+      const dest = join(testsGeneratedDir, flavor);
+      if (!existsSync(src)) {
+        console.warn(pc.yellow(`Baseline folder not found: ${src}`));
+        continue;
+      }
+      console.log(pc.dim(`Copying ${flavor}/ -> ${dest}`));
+      await cp(src, dest, { recursive: true });
+    }
+
+    console.log(pc.green(`Baseline reset complete.\n`));
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 async function preprocess(flavor: string, generatedFolder: string): Promise<void> {
   if (flavor === "azure") {
     const testsGeneratedDir = resolve(generatedFolder, "../tests/generated/azure");
@@ -805,6 +861,29 @@ async function regenerateFlavor(
   return pySuccess;
 }
 
+/**
+ * Deletes a couple of fully-generated package folders from the baseline so that
+ * regeneration has to recreate them from scratch.
+ */
+function deleteSomeGeneratedFiles() {
+  const testsGeneratedDir = resolve(GENERATED_FOLDER, "../tests/generated");
+  const targets = [
+    join(testsGeneratedDir, "azure", "authentication-http-custom"),
+    join(testsGeneratedDir, "unbranded", "encode-array"),
+  ];
+  for (const target of targets) {
+    if (existsSync(target)) {
+      console.log(pc.dim(`Deleting ${target}`));
+      rmSync(target, { recursive: true, force: true });
+    }
+  }
+}
+
+async function preProcess() {
+  await resetBaselineFromSdkRepo(GENERATED_FOLDER);
+  deleteSomeGeneratedFiles();
+}
+
 async function main() {
   const isWindows = platform() === "win32";
   const flavor = argv.values.flavor;
@@ -826,6 +905,8 @@ async function main() {
 
   const startTime = performance.now();
   let success: boolean;
+
+  await preProcess();
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);
