@@ -114,7 +114,7 @@ jobs:
       - uses: docker://rhysd/actionlint:1.7.12
         name: Lint workflows
         with:
-          args: "-color -verbose -ignore 'shellcheck reported issue in this script: SC2016'"
+          args: -color -verbose -ignore SC2016
 
   # Check that all dependencies use the pnpm catalog
   version-consistency:
