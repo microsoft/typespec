@@ -72,16 +72,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _inputModel = inputModel;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
-            _discriminatorValueExpression = new Lazy<ValueExpression?>(() =>
-                _inputModel.BaseModel is not null ? EnsureDiscriminatorValueExpression() : null);
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
-        private readonly Lazy<ValueExpression?> _discriminatorValueExpression;
-        public ValueExpression? DiscriminatorValueExpression => _discriminatorValueExpression.Value;
+        private ValueExpression? _discriminatorValueExpression;
+        public ValueExpression? DiscriminatorValueExpression =>
+            _inputModel.BaseModel is not null
+                ? _discriminatorValueExpression ??= EnsureDiscriminatorValueExpression()
+                : null;
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
