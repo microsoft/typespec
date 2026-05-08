@@ -1527,6 +1527,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
+        // eagerly compute DiscriminatorValueExpression, which read BaseModelProvider and thus
+        // virtually dispatched BuildBaseType()/BuildBaseModel() onto a partially-constructed
+        // derived class. Surfaced while validating the Cdn provisioning migration (the keep-set
+        // fix alone was not sufficient when the model has a base + discriminator value).
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceDiscriminatorEvaluation()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                ]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInputModel, derivedInputModel]);
+
+            // Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            // must not throw, even when the input model has a base + discriminator value.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(derivedInputModel));
+
+            // The discriminator expression must still be available once consumed lazily
+            // (callers under emission/serialization rely on it).
+            Assert.DoesNotThrow(() => { _ = provider!.DiscriminatorValueExpression; });
+        }
+
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
