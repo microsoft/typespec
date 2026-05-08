@@ -16,7 +16,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FileChangeType,
   FoldingRange,
   FoldingRangeParams,
@@ -104,7 +103,6 @@ import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { Commands } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -177,7 +175,7 @@ export function createServer(
     log,
     clientConfigsProvider,
   });
-  const currentDiagnosticIndex = new Map<number, Diagnostic>();
+  let currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -214,7 +212,7 @@ export function createServer(
     getSignatureHelp,
     getDocumentSymbols,
     getCodeActions,
-    executeCommand,
+    resolveCodeAction,
     log,
     reportDiagnostics,
 
@@ -283,9 +281,7 @@ export function createServer(
       },
       codeActionProvider: {
         codeActionKinds: ["quickfix"],
-      },
-      executeCommandProvider: {
-        commands: [Commands.APPLY_CODE_FIX],
+        resolveProvider: true,
       },
     };
 
@@ -716,7 +712,7 @@ export function createServer(
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
-    currentDiagnosticIndex.clear();
+    const newDiagnosticIndex = new Map<number, Diagnostic>();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -789,9 +785,13 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        currentDiagnosticIndex.set(diagnostic.data.id, each);
+        newDiagnosticIndex.set(diagnostic.data.id, each);
       }
     }
+
+    // Atomically swap the diagnostic index so that in-flight code action resolves
+    // referencing old diagnostic IDs can still find their entries until new diagnostics are sent.
+    currentDiagnosticIndex = newDiagnosticIndex;
 
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
@@ -822,7 +822,7 @@ export function createServer(
       // Avoid showing full definition in other cases which can be long and not useful
       let includeExpandedDefinition = false;
       const sn = getSymNode(sym[0]);
-      if (sn.kind !== SyntaxKind.AliasStatement) {
+      if (sn && sn.kind !== SyntaxKind.AliasStatement) {
         const type = sym[0].type ?? program.checker.getTypeOrValueForNode(sn);
         if (type && "kind" in type) {
           const modelHasExtendOrIs: boolean =
@@ -1303,16 +1303,10 @@ export function createServer(
 
       for (const fix of tspDiag.codefixes ?? []) {
         const codeAction: CodeAction = {
-          ...CodeAction.create(
-            fix.label,
-            {
-              title: fix.label,
-              command: Commands.APPLY_CODE_FIX,
-              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
-            },
-            CodeActionKind.QuickFix,
-          ),
+          title: fix.label,
+          kind: CodeActionKind.QuickFix,
           diagnostics: [vsDiag],
+          data: { diagId: vsDiag.data?.id, fixId: fix.id },
         };
         actions.push(codeAction);
       }
@@ -1321,19 +1315,17 @@ export function createServer(
     return actions;
   }
 
-  async function executeCommand(params: ExecuteCommandParams) {
-    if (params.command === Commands.APPLY_CODE_FIX) {
-      const [, diagId, fixId] = params.arguments ?? [];
-      if (diagId && fixId) {
-        const diag = currentDiagnosticIndex.get(diagId);
-        const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
-        if (codeFix) {
-          const edits = await resolveCodeFix(codeFix);
-          const vsEdits = convertCodeFixEdits(edits);
-          await host.applyEdit({ documentChanges: vsEdits });
-        }
+  async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
+    const { diagId, fixId } = codeAction.data ?? {};
+    if (diagId !== undefined && fixId) {
+      const diag = currentDiagnosticIndex.get(diagId);
+      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
+      if (codeFix) {
+        const edits = await resolveCodeFix(codeFix);
+        codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
       }
     }
+    return codeAction;
   }
 
   function convertCodeFixEdits(edits: CodeFixEdit[]) {
