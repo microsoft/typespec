@@ -70,7 +70,11 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = ["type/file", "service/multiple-services"];
+export const SKIP_SPECS: string[] = [
+  "type/file",
+  "service/multiple-services",
+  "azure/client-generator-core/response-as-bool",
+];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -211,10 +215,7 @@ export const AZURE_EMITTER_OPTIONS: Record<
   },
 };
 
-export const EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
     namespace: "resiliency.srv.driven1",
@@ -398,8 +399,8 @@ export function getEmitterOptions(
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
-  const emitterOpts =
-    EMITTER_OPTIONS[key] || (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
+  const emitterOpts = EMITTER_OPTIONS[key] ||
+    (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
   return Array.isArray(emitterOpts) ? emitterOpts : [emitterOpts];
 }
 
