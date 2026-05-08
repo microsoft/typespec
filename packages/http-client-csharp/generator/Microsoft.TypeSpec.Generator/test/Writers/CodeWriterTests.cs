@@ -624,17 +624,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("rg"))]);
 
             using var codeWriter = new CodeWriter();
+            codeWriter.AppendRaw("(");
             codeWriter.WriteParameter(parameter1);
             codeWriter.AppendRaw(", ");
             codeWriter.WriteParameter(parameter2);
+            codeWriter.AppendRaw(")");
 
+            var expected = Helpers.GetExpectedFromFile();
             var result = codeWriter.ToString(false);
 
-            // Per-parameter attributes must remain glued to their parameter on the same line,
-            // not break across lines between attribute and parameter.
-            Assert.AreEqual(
-                "[global::System.ObsoleteAttribute(\"name\")] string subscriptionId, [global::System.ObsoleteAttribute(\"rg\")] string resourceGroupName",
-                result);
+            Assert.AreEqual(expected, result);
         }
 
         [Test]

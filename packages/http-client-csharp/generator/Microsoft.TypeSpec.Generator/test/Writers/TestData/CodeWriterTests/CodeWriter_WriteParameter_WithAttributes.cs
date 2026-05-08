@@ -1,0 +1,1 @@
+([global::System.ObsoleteAttribute("name")] string subscriptionId, [global::System.ObsoleteAttribute("rg")] string resourceGroupName)

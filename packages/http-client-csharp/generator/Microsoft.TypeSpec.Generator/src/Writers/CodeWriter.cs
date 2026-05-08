@@ -31,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
+        internal bool IsAtBeginningOfLine => _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
         internal CodeWriter()
@@ -470,7 +471,7 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     AppendRaw(" ");
                 }
-                parameter.Attributes[i].WriteInline(this);
+                parameter.Attributes[i].Write(this);
             }
             if (parameter.Attributes.Count > 0)
             {

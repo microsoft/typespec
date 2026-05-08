@@ -58,16 +58,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            WriteInline(writer);
-            writer.WriteRawLine(string.Empty);
-        }
+            // Track whether we started at the beginning of a line so we can decide whether
+            // the attribute should terminate with a newline (block context, e.g. on a
+            // method/property/field/type) or remain inline (e.g. on a parameter).
+            var startedAtBeginningOfLine = writer.IsAtBeginningOfLine;
 
-        /// <summary>
-        /// Writes the attribute without a trailing newline so it can be placed
-        /// inline (e.g. on a parameter declaration).
-        /// </summary>
-        internal void WriteInline(CodeWriter writer)
-        {
             writer.Append($"[{Type}");
             var hasArguments = Arguments.Count > 0 || PositionalArguments.Count > 0;
             if (hasArguments)
@@ -100,7 +95,15 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 writer.AppendRaw(")");
             }
-            writer.AppendRaw("]");
+
+            if (startedAtBeginningOfLine)
+            {
+                writer.WriteRawLine("]");
+            }
+            else
+            {
+                writer.AppendRaw("]");
+            }
         }
     }
 }
