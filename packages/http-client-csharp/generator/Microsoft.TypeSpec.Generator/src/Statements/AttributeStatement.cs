@@ -58,6 +58,16 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
+            WriteInline(writer);
+            writer.WriteRawLine(string.Empty);
+        }
+
+        /// <summary>
+        /// Writes the attribute without a trailing newline so it can be placed
+        /// inline (e.g. on a parameter declaration).
+        /// </summary>
+        internal void WriteInline(CodeWriter writer)
+        {
             writer.Append($"[{Type}");
             var hasArguments = Arguments.Count > 0 || PositionalArguments.Count > 0;
             if (hasArguments)
@@ -90,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 writer.AppendRaw(")");
             }
-            writer.WriteRawLine("]");
+            writer.AppendRaw("]");
         }
     }
 }

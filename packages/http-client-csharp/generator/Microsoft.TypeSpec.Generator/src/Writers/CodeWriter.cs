@@ -464,14 +464,17 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteParameter(ParameterProvider parameter)
         {
-            if (parameter.Attributes.Count > 0)
+            for (int i = 0; i < parameter.Attributes.Count; i++)
             {
-                parameter.Attributes[0].Write(this);
-                for (int i = 1; i < parameter.Attributes.Count; i++)
+                if (i > 0)
                 {
                     AppendRaw(" ");
-                    parameter.Attributes[i].Write(this);
                 }
+                parameter.Attributes[i].WriteInline(this);
+            }
+            if (parameter.Attributes.Count > 0)
+            {
+                AppendRaw(" ");
             }
 
             AppendRawIf("out ", parameter.IsOut);

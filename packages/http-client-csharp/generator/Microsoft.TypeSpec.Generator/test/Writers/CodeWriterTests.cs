@@ -610,6 +610,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteParameter_WithAttributes()
+        {
+            var parameter1 = new ParameterProvider(
+                "subscriptionId",
+                $"The subscription id.",
+                typeof(string),
+                attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("name"))]);
+            var parameter2 = new ParameterProvider(
+                "resourceGroupName",
+                $"The resource group name.",
+                typeof(string),
+                attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("rg"))]);
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteParameter(parameter1);
+            codeWriter.AppendRaw(", ");
+            codeWriter.WriteParameter(parameter2);
+
+            var result = codeWriter.ToString(false);
+
+            // Per-parameter attributes must remain glued to their parameter on the same line,
+            // not break across lines between attribute and parameter.
+            Assert.AreEqual(
+                "[global::System.ObsoleteAttribute(\"name\")] string subscriptionId, [global::System.ObsoleteAttribute(\"rg\")] string resourceGroupName",
+                result);
+        }
+
+        [Test]
         public void CodeWriter_WriteParameter_WithInModifier()
         {
             var parameter = new ParameterProvider(
