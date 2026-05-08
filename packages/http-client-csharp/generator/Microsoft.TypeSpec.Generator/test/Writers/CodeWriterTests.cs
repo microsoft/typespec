@@ -623,12 +623,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 typeof(string),
                 attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("rg"))]);
 
+            var methodSignature = new MethodSignature(
+                "GetAsync",
+                $"Gets a resource.",
+                MethodSignatureModifiers.Public,
+                null,
+                null,
+                [parameter1, parameter2]);
+            var method = new MethodProvider(
+                methodSignature,
+                MethodBodyStatement.Empty,
+                new TestTypeProvider());
+
             using var codeWriter = new CodeWriter();
-            codeWriter.AppendRaw("(");
-            codeWriter.WriteParameter(parameter1);
-            codeWriter.AppendRaw(", ");
-            codeWriter.WriteParameter(parameter2);
-            codeWriter.AppendRaw(")");
+            codeWriter.WriteMethod(method);
 
             var expected = Helpers.GetExpectedFromFile();
             var result = codeWriter.ToString(false);

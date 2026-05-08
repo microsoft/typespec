@@ -31,7 +31,6 @@ namespace Microsoft.TypeSpec.Generator
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
-        internal bool IsAtBeginningOfLine => _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
         internal CodeWriter()
@@ -327,6 +326,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in property.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -500,6 +500,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in field.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -806,6 +807,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
+                WriteLine();
             }
 
             foreach (var disabledWarning in disabledWarnings)
