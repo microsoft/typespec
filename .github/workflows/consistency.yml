@@ -114,22 +114,7 @@ jobs:
       - uses: docker://rhysd/actionlint:1.7.12
         name: Lint workflows
         with:
-          args: >-
-            -color -verbose
-            .github/workflows/check-agentic-workflows.yml
-            .github/workflows/ci.yml
-            .github/workflows/codeql.yml
-            .github/workflows/commenter.yml
-            .github/workflows/consistency.yml
-            .github/workflows/copilot-setup-steps.yml
-            .github/workflows/core-ci.yml
-            .github/workflows/external-integration.yml
-            .github/workflows/merge-release-in-main.yml
-            .github/workflows/preview.yml
-            .github/workflows/python-integration.yml
-            .github/workflows/sync-labels.yml
-            .github/workflows/verify-labels.yml
-            .github/workflows/website-gh-pages.yml
+          args: -color -verbose
 
   # Check that all dependencies use the pnpm catalog
   version-consistency:
