@@ -326,6 +326,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in property.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -464,14 +465,17 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteParameter(ParameterProvider parameter)
         {
-            if (parameter.Attributes.Count > 0)
+            for (int i = 0; i < parameter.Attributes.Count; i++)
             {
-                parameter.Attributes[0].Write(this);
-                for (int i = 1; i < parameter.Attributes.Count; i++)
+                if (i > 0)
                 {
                     AppendRaw(" ");
-                    parameter.Attributes[i].Write(this);
                 }
+                parameter.Attributes[i].Write(this);
+            }
+            if (parameter.Attributes.Count > 0)
+            {
+                AppendRaw(" ");
             }
 
             AppendRawIf("out ", parameter.IsOut);
@@ -496,6 +500,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in field.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -802,6 +807,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
+                WriteLine();
             }
 
             foreach (var disabledWarning in disabledWarnings)
