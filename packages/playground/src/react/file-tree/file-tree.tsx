@@ -8,10 +8,12 @@ export interface FileTreeExplorerProps {
   readonly files: string[];
   readonly selected: string;
   readonly onSelect: (file: string) => void;
+  readonly changedFiles?: Set<string>;
 }
 
 interface FileTreeNode extends TreeNode {
   readonly isDirectory: boolean;
+  readonly changed?: boolean;
 }
 
 const FileNodeIcon: FC<{ node: FileTreeNode }> = ({ node }) => {
@@ -21,10 +23,22 @@ const FileNodeIcon: FC<{ node: FileTreeNode }> = ({ node }) => {
   return <DocumentRegular />;
 };
 
+const FileNodeLabel: FC<{ node: FileTreeNode }> = ({ node }) => {
+  return (
+    <span
+      style={
+        node.changed ? { fontWeight: 600, color: "var(--colorPaletteGreenForeground1)" } : undefined
+      }
+    >
+      {node.name}
+    </span>
+  );
+};
+
 /**
  * Builds a tree structure from a flat list of file paths.
  */
-function buildTree(files: string[]): FileTreeNode {
+function buildTree(files: string[], changedFiles?: Set<string>): FileTreeNode {
   const root: FileTreeNode = { id: "__root__", name: "root", isDirectory: true, children: [] };
   const dirMap = new Map<string, FileTreeNode>();
   dirMap.set("", root);
@@ -54,6 +68,7 @@ function buildTree(files: string[]): FileTreeNode {
         id: file,
         name: file,
         isDirectory: false,
+        changed: changedFiles?.has(file),
       });
     } else {
       const dirPath = file.substring(0, lastSlash);
@@ -63,6 +78,7 @@ function buildTree(files: string[]): FileTreeNode {
         id: file,
         name: fileName,
         isDirectory: false,
+        changed: changedFiles?.has(file),
       });
     }
   }
@@ -90,8 +106,9 @@ export const FileTreeExplorer: FunctionComponent<FileTreeExplorerProps> = ({
   files,
   selected,
   onSelect,
+  changedFiles,
 }) => {
-  const tree = useMemo(() => buildTree(files), [files]);
+  const tree = useMemo(() => buildTree(files, changedFiles), [files, changedFiles]);
 
   return (
     <div className={style["file-tree"]}>
@@ -101,6 +118,7 @@ export const FileTreeExplorer: FunctionComponent<FileTreeExplorerProps> = ({
         selected={selected}
         onSelect={onSelect}
         nodeIcon={FileNodeIcon}
+        nodeLabel={FileNodeLabel}
       />
     </div>
   );

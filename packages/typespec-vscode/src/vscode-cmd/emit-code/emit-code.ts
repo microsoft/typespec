@@ -481,6 +481,9 @@ async function doEmit(
             showOutput: true,
             showPopup: true,
           });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            error: "LSP client is not started when emitting.",
+          });
           return ResultCode.Fail;
         }
 
@@ -494,6 +497,9 @@ async function doEmit(
           logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
             showOutput: true,
             showPopup: true,
+          });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            error: "Compile result is empty.",
           });
           return ResultCode.Fail;
         }
@@ -573,6 +579,10 @@ export async function emitCode(
         showPopup: true,
       },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "LSP client is not started.",
+    });
+    tel.lastStep = "Check LSP client";
     return ResultCode.Cancelled;
   }
   const isSupport = await isCompilerSupport(tspLanguageClient);

@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -783,6 +795,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
+    },
+  },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
     },
   },
 

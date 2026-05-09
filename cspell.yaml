@@ -5,15 +5,16 @@ dictionaries:
   - node
   - typescript
 words:
+  - Ablack
   - Adoptium
   - agentic
+  - agentics
   - aiohttp
   - alzimmer
   - amqp
   - AQID
   - Arize
   - arizeaiobservabilityeval
-  - Ablack
   - arraya
   - astimezone
   - astro
@@ -36,11 +37,11 @@ words:
   - cadl
   - cadleditor
   - cadleng
-  - Cblack
-  - Cbrown
   - cadlplayground
   - canidae
   - canonicalizer
+  - Cblack
+  - Cbrown
   - clsx
   - cobertura
   - codehaus
@@ -49,6 +50,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - Creds
   - CRUDL
   - ctxt
   - dbaeumer
@@ -92,7 +94,6 @@ words:
   - genproto
   - getpgid
   - giacamo
-  - globby
   - graalvm
   - Gson
   - Hdvcmxk
@@ -129,6 +130,7 @@ words:
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -158,9 +160,9 @@ words:
   - mspaint
   - MSRC
   - msrest
-  - muscidae
   - multis
   - munge
+  - muscidae
   - mylib
   - myname
   - mypy
@@ -195,8 +197,8 @@ words:
   - openapiv
   - Packument
   - Perfolizer
-  - pkgs
   - picocolors
+  - pkgs
   - pnpx
   - posargs
   - primitivea
@@ -247,6 +249,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -269,6 +272,7 @@ words:
   - tspwebsitepr
   - tsvs
   - typespec
+  - typespecacr
   - typespecvs
   - tzname
   - Uhoh
@@ -276,6 +280,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -289,6 +294,7 @@ words:
   - unprojected
   - unrepresentable
   - unsourced
+  - unstub
   - unstubbed
   - unversioned
   - venv
@@ -307,6 +313,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
@@ -336,6 +344,7 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - "**/*.lock.yml"
   - pnpm-workspace.yaml
   - "**/dependabot.yml"
   - "**/*.mp4"
@@ -360,7 +369,7 @@ patterns:
     pattern: "/Authorization: Basic\\s+\\S+/g"
   - name: Todo
     description: Ignore TODO comments with usernames
-    pattern: "/TODO[\\/\\s\\(][a-zA-Z0-9_-]+/g"
+    pattern: /TODO[\/\s\(][a-zA-Z0-9_-]+/g
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic

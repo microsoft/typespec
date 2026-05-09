@@ -832,8 +832,45 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     // Determine if the property type is an array
     if (isArray(property.type)) field.repeated = true;
+    field.optional = shouldEmitOptionalLabel(property);
 
     return field;
+  }
+
+  function shouldEmitOptionalLabel(property: ModelProperty): boolean {
+    if (!property.optional) {
+      return false;
+    }
+
+    if (isArray(property.type)) {
+      reportDiagnostic.once(program, {
+        code: "optional-array-field",
+        format: {},
+        target: property,
+      });
+      return false;
+    }
+
+    if (isMap(program, property.type)) {
+      reportDiagnostic.once(program, {
+        code: "optional-map-field",
+        format: {},
+        target: property,
+      });
+      return false;
+    }
+
+    switch (property.type.kind) {
+      case "Scalar":
+      case "Enum":
+        return true;
+      case "Intrinsic":
+      case "Model":
+      case "Union":
+        return false;
+      default:
+        return false;
+    }
   }
 
   /**

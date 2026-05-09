@@ -345,6 +345,33 @@ worksFor(supportedVersions, ({ checkFor, openApiFor }) => {
     ]);
   });
 
+  it("includes all variants in discriminator mapping when first union variant causes circular emit", async () => {
+    const openApi = await openApiFor(`
+      @discriminator("kind")
+      model Pet { kind: string; }
+
+      model Cat extends Pet { kind: "cat"; }
+      model Dog extends Pet { kind: "dog"; }
+      model Bird extends Pet { kind: "bird"; }
+
+      union PetVariant {
+        cat: Cat,
+        dog: Dog,
+        bird: Bird,
+      }
+
+      op read(): { @body body: PetVariant };
+      `);
+    deepStrictEqual(openApi.components.schemas.Pet.discriminator, {
+      propertyName: "kind",
+      mapping: {
+        cat: "#/components/schemas/Cat",
+        dog: "#/components/schemas/Dog",
+        bird: "#/components/schemas/Bird",
+      },
+    });
+  });
+
   it("discriminator always needs to be marked as required", async () => {
     const openApi = await openApiFor(`
      @discriminator("kind")

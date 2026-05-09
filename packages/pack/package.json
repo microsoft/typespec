@@ -26,7 +26,7 @@
     "tsp-pack": "cmd/cli.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "bundle": "node ./dist/src/cli.js",
@@ -52,7 +52,6 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "source-map-support": "catalog:",
     "typescript": "catalog:",

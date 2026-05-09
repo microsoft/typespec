@@ -22,5 +22,6 @@ await bundleAndUploadPackages({
     "@typespec/events",
     "@typespec/sse",
     "@typespec/xml",
+    "@typespec/http-client-js",
   ],
 });

@@ -5,8 +5,7 @@
 /**
  * <!-- start generated doc -->
  * Package containing the classes for Service.
- * Test that we can use &#064;client and &#064;operationGroup decorators to customize client side code structure, such
- * as:
+ * Test that we can use &#064;client decorators to customize client side code structure, such as:
  * 1. have everything as default.
  * 2. to rename client or operation group
  * 3. one client can have more than one operations groups

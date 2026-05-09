@@ -213,7 +213,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
     if (parameter.clientDefaultValue) {
-      type = getSimpleTypeResult({
+      type = getSimpleTypeResult(context, {
         type: "constant",
         value: parameter.clientDefaultValue,
         valueType: type,
@@ -317,7 +317,7 @@ function parseToken(token: Token): string {
     case "codespan":
       parsed += `\`\`${token.text}\`\``;
       break;
-    case "code":
+    case "code": {
       let codeBlockStyle = token.codeBlockStyle;
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
@@ -328,6 +328,7 @@ function parseToken(token: Token): string {
       }
       parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
+    }
     case "link":
       if (token.href !== undefined) {
         parsed += `\`${token.text} <${token.href}>\`_`;

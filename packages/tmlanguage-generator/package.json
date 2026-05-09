@@ -19,7 +19,7 @@
   ],
   "main": "dist/tmlanguage-generator.js",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -33,7 +33,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "onigasm": "catalog:",
+    "vscode-oniguruma": "catalog:",
     "plist": "catalog:"
   },
   "devDependencies": {

@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.36
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+
 ## 0.1.0-alpha.35
 
 ### Features

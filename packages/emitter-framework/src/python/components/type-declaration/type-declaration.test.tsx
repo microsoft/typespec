@@ -37,7 +37,10 @@ describe("Python TypeDeclaration dispatcher", () => {
     const output = getOutput(program, [<TypeDeclaration type={MyDate} />]);
     expect(output).toRenderTo(d`
       from datetime import datetime
-      from typing import TypeAlias
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import TypeAlias
 
 
       my_date: TypeAlias = datetime`);
@@ -50,7 +53,10 @@ describe("Python TypeDeclaration dispatcher", () => {
 
     const output = getOutput(program, [<TypeDeclaration type={Items} />]);
     expect(output).toRenderTo(d`
-      from typing import TypeAlias
+      from typing import TYPE_CHECKING
+
+      if TYPE_CHECKING:
+        from typing import TypeAlias
 
 
       items: TypeAlias = list[int]`);
