@@ -40,22 +40,35 @@ def build_wheels(flavor, tests_dir):
 
     print(f"Building {len(packages)} wheels for {flavor}...")
 
-    batch_size = 50
-    for i in range(0, len(packages), batch_size):
-        batch = packages[i:i + batch_size]
+    failed = []
+    for pkg in packages:
         try:
             subprocess.run(
-                ["uv", "pip", "wheel", "--no-deps", "--wheel-dir", wheel_dir] + batch,
+                ["uv", "build", "--wheel", "--no-build-logs", "--out-dir", wheel_dir, pkg],
                 check=True,
+                capture_output=True,
             )
         except FileNotFoundError:
-            subprocess.run(
-                [sys.executable, "-m", "pip", "wheel", "--no-deps", "--wheel-dir", wheel_dir] + batch,
-                check=True,
-            )
+            # uv not available — fall back to `pip wheel` for the rest.
+            try:
+                subprocess.run(
+                    [sys.executable, "-m", "pip", "wheel", "--no-deps",
+                     "--wheel-dir", wheel_dir, pkg],
+                    check=True,
+                )
+            except subprocess.CalledProcessError:
+                pkg_name = os.path.basename(pkg)
+                print(f"Warning: Failed to build wheel for {pkg_name}, will install from source")
+                failed.append(pkg)
+        except subprocess.CalledProcessError:
+            pkg_name = os.path.basename(pkg)
+            print(f"Warning: Failed to build wheel for {pkg_name}, will install from source")
+            failed.append(pkg)
 
     wheel_count = len(glob.glob(os.path.join(wheel_dir, "*.whl")))
-    print(f"Built {wheel_count} wheels for {flavor}")
+    print(f"Built {wheel_count}/{len(packages)} wheels for {flavor}")
+    if failed:
+        print(f"  Skipped {len(failed)}: {', '.join(os.path.basename(p) for p in failed)}")
 
 
 def install_packages(flavor, tests_dir):
