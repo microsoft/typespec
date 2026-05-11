@@ -3466,6 +3466,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // The back-compat overloads must keep the trailing CancellationToken optional.
             StringAssert.Contains("CancellationToken cancellationToken = default)", content);
             StringAssert.DoesNotContain("CancellationToken cancellationToken)", content);
+
+            // The non-trailing parameters of the back-compat overload must have their defaults stripped
+            // so they are required (param1 is `int` and param2 is `string`, neither should carry `= default`).
+            StringAssert.Contains("GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)", content);
+            StringAssert.Contains("GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)", content);
         }
 
         [Test]
