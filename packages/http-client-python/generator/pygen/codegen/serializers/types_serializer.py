@@ -32,8 +32,29 @@ class TypesSerializer(BaseSerializer):
 
     @property
     def discriminated_base_models(self) -> list[ModelType]:
-        """Discriminated base models that become Union type aliases in types.py."""
-        return [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
+        """Discriminated base models that become Union type aliases in types.py.
+
+        Topologically sorted so that nested discriminated bases (e.g. Shark)
+        are defined before their parents (e.g. Fish = Union[Salmon, Shark]).
+        """
+        bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
+        base_names = {m.name for m in bases}
+        # Sort: models whose subtypes include other discriminated bases must come after them
+        sorted_bases: list[ModelType] = []
+        visited: set[str] = set()
+
+        def visit(model: ModelType) -> None:
+            if model.name in visited:
+                return
+            visited.add(model.name)
+            for subtype in model.discriminated_subtypes.values():
+                if subtype.name in base_names:
+                    visit(subtype)
+            sorted_bases.append(model)
+
+        for m in bases:
+            visit(m)
+        return sorted_bases
 
     def discriminated_subtypes_union(self, model: ModelType) -> str:
         """Generate a Union alias for a discriminated base using TypedDict subtype names."""
