@@ -54,7 +54,7 @@ export interface PlaygroundStateResult {
   // State setters
   onSelectedEmitterChange: (emitter: string) => void;
   onCompilerOptionsChange: (compilerOptions: CompilerOptions) => void;
-  onSelectedSampleNameChange: (sampleName: string) => void;
+  onSelectedSampleNameChange: (sampleName: string, emitter?: string) => void;
   onSelectedViewerChange: (selectedViewer: string) => void;
   onViewerStateChange: (viewerState: Record<string, any>) => void;
   onContentChange: (content: string) => void;
@@ -123,9 +123,33 @@ export function usePlaygroundState({
     (compilerOptions: CompilerOptions) => updateState({ compilerOptions }),
     [updateState],
   );
+
+  // Track last processed sample to avoid re-processing
+  const lastProcessedSample = useRef<string>("");
+
   const onSelectedSampleNameChange = useCallback(
-    (sampleName: string) => updateState({ sampleName }),
-    [updateState],
+    (sampleName: string, emitter?: string) => {
+      const config = samples?.[sampleName];
+      if (config?.content) {
+        const updates: Partial<PlaygroundState> = {
+          sampleName,
+          content: config.content,
+        };
+        // Use the explicit emitter if provided, otherwise fall back to preferredEmitter
+        const resolvedEmitter = emitter ?? config.preferredEmitter;
+        if (resolvedEmitter) {
+          updates.emitter = resolvedEmitter;
+        }
+        if (config.compilerOptions) {
+          updates.compilerOptions = config.compilerOptions;
+        }
+        lastProcessedSample.current = sampleName;
+        updateState(updates);
+      } else {
+        updateState({ sampleName });
+      }
+    },
+    [updateState, samples],
   );
   const onSelectedViewerChange = useCallback(
     (selectedViewer: string) => updateState({ selectedViewer }),
@@ -137,10 +161,7 @@ export function usePlaygroundState({
   );
   const onContentChange = useCallback((content: string) => updateState({ content }), [updateState]);
 
-  // Track last processed sample to avoid re-processing
-  const lastProcessedSample = useRef<string>("");
-
-  // Handle sample changes
+  // Handle sample changes (for initial load / controlled state)
   useEffect(() => {
     if (selectedSampleName && samples && selectedSampleName !== lastProcessedSample.current) {
       const config = samples[selectedSampleName];

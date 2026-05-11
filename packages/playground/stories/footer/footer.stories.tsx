@@ -9,12 +9,14 @@ const storyHost = createBrowserHostInternal({
     lib1: {
       name: "lib1",
       isEmitter: false,
+      emitterTags: [],
       packageJson: { name: "lib1", version: "1.0.0" },
       _TypeSpecLibrary_: { typespecSourceFiles: {}, jsSourceFiles: {} },
     },
     lib2: {
       name: "lib2",
       isEmitter: false,
+      emitterTags: [],
       packageJson: { name: "lib2", version: "1.0.1" },
       _TypeSpecLibrary_: { typespecSourceFiles: {}, jsSourceFiles: {} },
     },

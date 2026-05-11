@@ -1,5 +1,6 @@
 import { createSourceFile, getSourceFileKindFromExt, resolvePath } from "@typespec/compiler";
 import { importLibrary, importTypeSpecCompiler, type LibraryImportOptions } from "./core.js";
+import { resolveEmitterTags } from "./react/emitter-utils.js";
 import type { BrowserHost, PlaygroundTspLibrary } from "./types.js";
 
 export function resolveVirtualPath(path: string, ...paths: string[]) {
@@ -201,6 +202,7 @@ export async function loadLibraries(
       const lib: PlaygroundTspLibrary & { _TypeSpecLibrary_: any } = {
         name: libName,
         isEmitter: $lib?.emitter,
+        emitterTags: resolveEmitterTags(libName),
         definition: $lib,
         packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
         linter: $linter,

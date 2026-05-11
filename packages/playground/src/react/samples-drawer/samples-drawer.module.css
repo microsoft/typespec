@@ -97,6 +97,53 @@
   margin: 0;
 }
 
+.emitter-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.emitter-badge-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--fontSizeBase200);
+  font-family: inherit;
+  line-height: 1.4;
+  border: 1px solid var(--colorNeutralStroke1);
+  border-radius: var(--borderRadiusMedium);
+  background: var(--colorNeutralBackground1);
+  color: var(--colorNeutralForeground2);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.emitter-badge-button:hover {
+  background: var(--colorBrandBackground2);
+  border-color: var(--colorBrandStroke1);
+  color: var(--colorBrandForeground1);
+}
+
+.emitter-badge-button:focus-visible {
+  outline: 2px solid var(--colorBrandStroke1);
+  outline-offset: 1px;
+}
+
+.emitter-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+}
+
+.emitter-filter-chip {
+  min-width: auto;
+}
+
 .sample-description {
   font-size: var(--fontSizeBase200);
   color: var(--colorNeutralForeground2);

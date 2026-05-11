@@ -7,6 +7,7 @@ import {
 } from "@fluentui/react-icons";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
+import { getEmitterDisplayName } from "../react/emitter-utils.js";
 import type { CommandBarItem } from "../react/responsive-command-bar/index.js";
 import { ResponsiveCommandBar } from "../react/responsive-command-bar/index.js";
 import { SamplesDrawerOverlay, SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
@@ -25,7 +26,7 @@ export interface EditorCommandBarProps {
 
   samples?: Record<string, PlaygroundSample>;
   selectedSampleName: string;
-  onSelectedSampleNameChange: (sampleName: string) => void;
+  onSelectedSampleNameChange: (sampleName: string, emitter?: string) => void;
 }
 
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props) => {
@@ -83,6 +84,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
         toolbarItem: (
           <SamplesDrawerTrigger
             samples={samples}
+            emitters={host.libraries}
             onSelectedSampleNameChange={onSelectedSampleNameChange}
           />
         ),
@@ -101,7 +103,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
       ),
       children: emitters.map((emitter) => ({
         id: `emitter-${emitter}`,
-        label: emitter,
+        label: getEmitterDisplayName(emitter),
         icon: emitter === selectedEmitter ? <Checkmark16Regular /> : undefined,
         onClick: () => onSelectedEmitterChange(emitter),
       })),
@@ -127,6 +129,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
     formatCode,
     samples,
     onSelectedSampleNameChange,
+    host.libraries,
     emitters,
     selectedEmitter,
     onSelectedEmitterChange,
@@ -141,6 +144,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
       {isMobile && samples && (
         <SamplesDrawerOverlay
           samples={samples}
+          emitters={host.libraries}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
           open={samplesDrawerOpen}
           onOpenChange={setSamplesDrawerOpen}
