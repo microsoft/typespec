@@ -232,3 +232,9 @@ def test_xml_error_value(client: XmlClient, core_library):
     assert ex.value.status_code == 400
     assert ex.value.model.message == "Something went wrong"
     assert ex.value.model.code == 400
+
+
+def test_xml_error_value_content_type(client: XmlClient, core_library):
+    with pytest.raises(core_library.exceptions.HttpResponseError) as ex:
+        client.xml_error_value.get()
+    assert ex.value.response.headers["content-type"].startswith("application/xml")
