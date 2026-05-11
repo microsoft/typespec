@@ -80,6 +80,8 @@ export type EmitterOptionRefDoc = {
   readonly doc: string;
   readonly default?: string;
   readonly allowedValues?: readonly string[];
+  /** If set, the option is deprecated. Contains the deprecation message or empty string. */
+  readonly deprecated?: string;
   /** Nested options for object-typed options. */
   readonly nestedOptions?: readonly EmitterOptionRefDoc[];
   /** When present, this option is a union of multiple variants (oneOf). */

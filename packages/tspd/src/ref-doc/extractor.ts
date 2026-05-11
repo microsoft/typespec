@@ -760,7 +760,9 @@ function extractEmitterOptionInfo(name: string, prop: any): EmitterOptionRefDoc 
     option.default = JSON.stringify(prop.default);
   }
 
-  // Nested object properties
+  if (prop.deprecated !== undefined) {
+    option.deprecated = typeof prop.deprecated === "string" ? prop.deprecated : "";
+  }
   if (prop.type === "object" && prop.properties) {
     option.nestedOptions = Object.entries(prop.properties).map(
       ([subName, subProp]: [string, any]) => extractEmitterOptionInfo(subName, subProp),

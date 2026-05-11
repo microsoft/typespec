@@ -425,18 +425,16 @@ export class MarkdownRenderer {
     return inlinecode(option.type);
   }
 
-  emitterOptionTypeDisplayInTable(option: {
-    type: string;
-    allowedValues?: readonly string[];
-  }): string {
-    if (option.allowedValues && option.allowedValues.length > 0) {
-      return inlinecode(option.allowedValues.join(" | "));
-    }
-    return inlinecode(option.type);
-  }
+
 
   emitterOption(option: EmitterOptionRefDoc): MarkdownDoc {
     const content: MarkdownDoc = [];
+
+    // Deprecation notice
+    if (option.deprecated !== undefined) {
+      const message = option.deprecated || "This option is deprecated.";
+      content.push(this.deprecationNotice({ message }), "");
+    }
 
     // Type line
     content.push(`**Type:** ${this.emitterOptionTypeDisplay(option)}`);
@@ -466,7 +464,7 @@ export class MarkdownRenderer {
       for (const nested of option.nestedOptions) {
         rows.push([
           inlinecode(nested.name),
-          this.emitterOptionTypeDisplayInTable(nested),
+          this.emitterOptionTypeDisplay(nested),
           nested.default !== undefined ? inlinecode(nested.default) : "",
           nested.doc,
         ]);
@@ -500,7 +498,7 @@ export class MarkdownRenderer {
       for (const nested of variant.nestedOptions) {
         rows.push([
           inlinecode(nested.name),
-          this.emitterOptionTypeDisplayInTable(nested),
+          this.emitterOptionTypeDisplay(nested),
           nested.default !== undefined ? inlinecode(nested.default) : "",
           nested.doc,
         ]);
