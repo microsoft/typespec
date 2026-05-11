@@ -111,6 +111,12 @@ class TypesSerializer(BaseSerializer):
             return f"class {model.name}({basename}):{model.pylint_disable()}"
         return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
 
+    # Python builtin type names that can be shadowed by TypedDict field names
+    _BUILTIN_TYPE_NAMES = frozenset({
+        "int", "str", "float", "bool", "list", "dict", "tuple", "set",
+        "bytes", "type", "object", "complex", "frozenset", "bytearray", "memoryview",
+    })
+
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> list[Property]:
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
@@ -127,7 +133,12 @@ class TypesSerializer(BaseSerializer):
                 )
             ]
         else:
-            properties_to_declare = model.properties
+            properties_to_declare = list(model.properties)
+        # Move properties whose wire_name shadows a Python builtin type to the end,
+        # so they don't shadow the builtin in subsequent type annotations.
+        properties_to_declare.sort(
+            key=lambda p: p.wire_name in TypesSerializer._BUILTIN_TYPE_NAMES
+        )
         return properties_to_declare
 
     def declare_property(self, prop: Property) -> str:
