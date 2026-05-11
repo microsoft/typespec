@@ -103,21 +103,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     return false;
                 }
 
-                if (x.Parameters.Count != y.Parameters.Count || GetFullMethodName(x) != GetFullMethodName(y))
+                if (x.Parameters.Count != y.Parameters.Count)
+                {
+                    return false;
+                }
+
+                bool xIsOperator = x.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                bool yIsOperator = y.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                if (xIsOperator != yIsOperator)
                 {
                     return false;
                 }
 
                 // For operators, we need to also check the return type and operator type (explicit vs implicit)
                 // since operators can have the same "name" (the target type) but different signatures
-                if (x.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                if (xIsOperator)
                 {
-                    // Check if both are operators and of the same type (explicit or implicit)
-                    if (!y.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-                    {
-                        return false;
-                    }
-
                     // Check explicit vs implicit - both flags must match
                     bool xIsExplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                     bool yIsExplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
@@ -140,6 +141,28 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     {
                         return false;
                     }
+
+                    // For conversion operators (implicit/explicit), the operator is fully identified
+                    // by its modifiers, return type, and parameter types. The Name field is not
+                    // standardized between generated providers (which may use string.Empty or the
+                    // target type name) and customization partials (which use the return type name
+                    // via NamedTypeSymbolProvider). Skip the name comparison for conversion operators.
+                    if (!xIsImplicit && !xIsExplicit)
+                    {
+                        // For user-defined operators (==, !=, +, -, etc.), differentiate by
+                        // operator symbol. Generated providers use the operator symbol directly
+                        // (e.g. "==") as the Name, while customization partials produced from
+                        // Roslyn symbols may include an "operator " prefix (e.g. "operator ==").
+                        // Normalize before comparing so both forms are treated as equal.
+                        if (NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else if (GetFullMethodName(x) != GetFullMethodName(y))
+                {
+                    return false;
                 }
 
                 for (int i = 0; i < x.Parameters.Count; i++)
@@ -166,6 +189,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
 
                 return method.Name;
+            }
+
+            private static string NormalizeOperatorName(string name)
+            {
+                // Roslyn's SymbolDisplay renders user-defined operator methods as "operator <symbol>"
+                // (for example "operator ==" / "operator !="), while generated providers use just
+                // the operator symbol (for example "==") as the Name. Strip the prefix so both forms
+                // compare equal.
+                const string operatorPrefix = "operator ";
+                return name.StartsWith(operatorPrefix, StringComparison.Ordinal)
+                    ? name.Substring(operatorPrefix.Length)
+                    : name;
             }
         }
     }
