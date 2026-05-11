@@ -36,6 +36,7 @@ import {
   Type,
   TypeSpecLibrary,
   Union,
+  UnionVariant,
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
@@ -46,6 +47,7 @@ import {
   DecoratorRefDoc,
   DeprecationNotice,
   EmitterOptionRefDoc,
+  EmitterOptionVariantRefDoc,
   EnumMemberRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
@@ -61,9 +63,11 @@ import {
   RefDocEntity,
   ReferencableElement,
   ScalarRefDoc,
+  SubExportRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDocBase,
   UnionRefDoc,
+  UnionVariantRefDoc,
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
@@ -123,12 +127,61 @@ export async function extractLibraryRefDocs(
     }
   }
 
+  // Extract sub-exports
+  const subExports = await extractSubExports(libraryPath, pkgJson, diagnostics);
+  if (subExports.size > 0) {
+    refDoc.subExports = subExports;
+  }
+
   return diagnostics.wrap(refDoc);
 }
 
 async function readPackageJson(libraryPath: string): Promise<PackageJson> {
   const buffer = await readFile(joinPaths(libraryPath, "package.json"));
   return JSON.parse(buffer.toString());
+}
+
+async function extractSubExports(
+  libraryPath: string,
+  pkgJson: PackageJson,
+  diagnostics: { pipe: <T>(result: [T, readonly Diagnostic[]]) => T; add: (d: Diagnostic) => void },
+): Promise<Map<string, SubExportRefDoc>> {
+  const subExports = new Map<string, SubExportRefDoc>();
+  const exports = (pkgJson as any).exports;
+  if (!exports || typeof exports !== "object") {
+    return subExports;
+  }
+
+  for (const [exportPath, exportValue] of Object.entries<any>(exports)) {
+    // Skip the main export — already handled
+    if (exportPath === ".") continue;
+
+    // Only process exports that have a typespec condition
+    const tspEntry = exportValue?.typespec;
+    if (!tspEntry) continue;
+
+    const main = resolvePath(libraryPath, tspEntry);
+    try {
+      const program = await compile(NodeHost, main, {
+        parseOptions: { comments: true, docs: true },
+      });
+      const subRefDoc = diagnostics.pipe(extractRefDocs(program));
+      // Only include if it actually has content
+      if (subRefDoc.namespaces.length > 0) {
+        subExports.set(exportPath, {
+          path: exportPath,
+          ...subRefDoc,
+        });
+      }
+      for (const diag of program.diagnostics ?? []) {
+        diagnostics.add(diag);
+      }
+    } catch {
+      // Skip sub-exports that fail to compile
+    }
+  }
+
+  return subExports;
 }
 
 export interface ExtractRefDocOptions {
@@ -525,6 +578,25 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
     templateParameters: extractTemplateParameterDocs(program, type),
     doc: doc,
     examples: extractExamples(type),
+    variants: new Map(
+      [...type.variants.values()]
+        .filter((v): v is UnionVariant & { name: string } => typeof v.name === "string")
+        .map((v) => [v.name, extractUnionVariantRefDocs(program, v)]),
+    ),
+  };
+}
+
+function extractUnionVariantRefDocs(
+  program: Program,
+  type: UnionVariant & { name: string },
+): UnionVariantRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    ...extractBase(program, type),
+    signature: getTypeSignature(type),
+    type,
+    doc: doc,
+    examples: extractExamples(type),
   };
 }
 
@@ -658,14 +730,129 @@ function extractEmitterOptionsRefDoc(
   options: JSONSchemaType<Record<string, never>>,
 ): EmitterOptionRefDoc[] {
   return Object.entries(options.properties).map(([name, value]: [string, any]) => {
-    return {
-      name,
-      type: value.enum
-        ? value.enum.map((x: string | number) => (typeof x === "string" ? `"${x}"` : x)).join(" | ")
-        : value.type,
-      doc: value.description ?? "",
-    };
+    return extractEmitterOptionInfo(name, value);
   });
+}
+
+function extractEmitterOptionInfo(name: string, prop: any): EmitterOptionRefDoc {
+  // Handle oneOf: extract variants
+  if (prop.oneOf) {
+    return extractOneOfEmitterOption(name, prop);
+  }
+
+  const option: Mutable<EmitterOptionRefDoc> = {
+    name,
+    type: resolveEmitterOptionType(prop),
+    doc: resolveDescription(prop.description),
+  };
+
+  if (prop.enum) {
+    option.allowedValues = prop.enum.map((x: string | number) =>
+      typeof x === "string" ? `"${x}"` : String(x),
+    );
+  } else if (prop.type === "array" && prop.items?.enum) {
+    option.allowedValues = prop.items.enum.map((x: string | number) =>
+      typeof x === "string" ? `"${x}"` : String(x),
+    );
+  }
+
+  if (prop.default !== undefined) {
+    option.default = JSON.stringify(prop.default);
+  }
+
+  // Nested object properties
+  if (prop.type === "object" && prop.properties) {
+    option.nestedOptions = Object.entries(prop.properties).map(
+      ([subName, subProp]: [string, any]) => extractEmitterOptionInfo(subName, subProp),
+    );
+  }
+
+  return option;
+}
+
+function extractOneOfEmitterOption(name: string, prop: any): EmitterOptionRefDoc {
+  const rawVariants: any[] = prop.oneOf;
+
+  const variants: EmitterOptionVariantRefDoc[] = [];
+
+  for (const variant of rawVariants) {
+    const v: Mutable<EmitterOptionVariantRefDoc> = {
+      type: resolveEmitterOptionType(variant),
+    };
+
+    if (variant.enum) {
+      v.allowedValues = variant.enum.map((x: string | number) =>
+        typeof x === "string" ? `"${x}"` : String(x),
+      );
+    }
+
+    if (variant.default !== undefined) {
+      v.default = JSON.stringify(variant.default);
+    }
+
+    if (variant.description) {
+      v.doc = resolveDescription(variant.description);
+    }
+
+    if (variant.type === "object" && variant.properties) {
+      v.nestedOptions = Object.entries(variant.properties).map(
+        ([subName, subProp]: [string, any]) => extractEmitterOptionInfo(subName, subProp),
+      );
+    }
+
+    variants.push(v);
+  }
+
+  const option: Mutable<EmitterOptionRefDoc> = {
+    name,
+    type: rawVariants.map((v: any) => resolveEmitterOptionType(v)).join(" | "),
+    doc: resolveDescription(prop.description),
+    variants,
+  };
+
+  if (prop.default !== undefined) {
+    option.default = JSON.stringify(prop.default);
+  }
+
+  return option;
+}
+
+function resolveEmitterOptionType(prop: any): string {
+  if (prop.oneOf) {
+    return prop.oneOf.map((s: any) => resolveEmitterOptionType(s)).join(" | ");
+  }
+
+  if (prop.type === "array") {
+    if (prop.items) {
+      if (prop.items.enum) {
+        const values = prop.items.enum
+          .map((x: string | number) => (typeof x === "string" ? `"${x}"` : String(x)))
+          .join(" | ");
+        return `(${values})[]`;
+      }
+      const itemType = prop.items.type ?? "unknown";
+      return `${itemType}[]`;
+    }
+    return "array";
+  }
+
+  if (prop.type === "object" && prop.properties) {
+    const keys = Object.keys(prop.properties);
+    return `object { ${keys.join(", ")} }`;
+  }
+
+  if (prop.enum) {
+    return prop.enum
+      .map((x: string | number) => (typeof x === "string" ? `"${x}"` : String(x)))
+      .join(" | ");
+  }
+
+  return prop.type ?? "unknown";
+}
+
+function resolveDescription(description: string | string[] | undefined): string {
+  if (description === undefined) return "";
+  return Array.isArray(description) ? description.join("\n") : description;
 }
 
 function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
