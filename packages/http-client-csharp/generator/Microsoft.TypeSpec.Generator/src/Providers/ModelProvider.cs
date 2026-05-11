@@ -1015,14 +1015,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             : DiscriminatorLiteral;
 
                         var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor));
+                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
                         constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                     }
                 }
                 else
@@ -1100,7 +1100,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
+        private ValueExpression GetExpressionForCtor(
+            ParameterProvider parameter,
+            HashSet<PropertyProvider> overriddenProperties,
+            bool isPrimaryConstructor,
+            IReadOnlyList<ParameterProvider>? availableParameters = null)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
@@ -1119,8 +1123,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var paramToUse = parameter.Property is not null && overriddenProperties.Contains(parameter.Property) ? Properties.First(p => p.Name == parameter.Property.Name).AsParameter : parameter;
+            if (availableParameters is not null && paramToUse.Property is not null)
+            {
+                paramToUse = availableParameters.FirstOrDefault(p => p.Property == paramToUse.Property)
+                    ?? availableParameters.FirstOrDefault(p => p.Property?.Name == paramToUse.Property.Name)
+                    ?? paramToUse;
+            }
 
-            return paramToUse.Property is not null ? GetConversion(paramToUse.Property) : paramToUse;
+            return paramToUse.Property is not null ? GetConversion(paramToUse.Property, paramToUse) : paramToUse;
         }
 
         private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)
@@ -1316,6 +1326,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return property?.AsParameter ?? field!.AsParameter;
+        }
+
+        private static ValueExpression GetConversion(PropertyProvider property, ValueExpression source)
+        {
+            CSharpType to = property.BackingField is null ? property.Type : property.BackingField.Type;
+            CSharpType from = property.Type;
+
+            if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
+            {
+                return from.ToSerial(source);
+            }
+
+            return source;
         }
 
         /// <summary>
