@@ -794,10 +794,8 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         `,
       );
       expect(res.paths["/"].get.responses["200"].content["text/plain"].schema).toEqual({
-        anyOf: [
-          { type: "string", enum: ["a"] },
-          { type: "string", enum: ["b"] },
-        ],
+        type: "string",
+        enum: ["a", "b"],
       });
     });
   });

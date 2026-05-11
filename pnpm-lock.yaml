@@ -9,9 +9,6 @@ catalogs:
     '@alloy-js/cli':
       specifier: ^0.23.0
       version: 0.23.0
-    '@alloy-js/core':
-      specifier: ^0.23.0
-      version: 0.23.0
     '@alloy-js/csharp':
       specifier: ^0.23.0
       version: 0.23.0
@@ -522,6 +519,7 @@ overrides:
   diff@>=6.0.0 <8.0.3: '>=8.0.3'
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  '@alloy-js/core': 0.23.1
 
 importers:
 
@@ -898,8 +896,8 @@ importers:
         specifier: 'catalog:'
         version: 0.23.0
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/python':
         specifier: 'catalog:'
         version: 0.4.0
@@ -1153,8 +1151,8 @@ importers:
         specifier: 'catalog:'
         version: 0.23.0
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.1(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.60.1)
@@ -1189,8 +1187,8 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.23.0
@@ -1978,6 +1976,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/http-client-js':
+        specifier: workspace:^
+        version: link:../http-client-js
       '@typespec/json-schema':
         specifier: workspace:^
         version: link:../json-schema
@@ -2677,8 +2678,8 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.23.0
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/markdown':
         specifier: 'catalog:'
         version: 0.23.0
@@ -3110,8 +3111,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.23.0':
-    resolution: {integrity: sha512-pbr0a1vMLQgdgUUponGQ6tzZ63fo20yjAANr+FH6OSs8yih1C16fU3Jc02ok247jah7r1obwbzcwwpqi3IAb8w==}
+  '@alloy-js/core@0.23.1':
+    resolution: {integrity: sha512-zbPXbiWjF3BvgO+a6dyDiA9uI19x5cHKDy5iC3U2/DIimIB0/j1/ObT9BNIzcM69h5pYt7ADDGXx5eNyb8j7bw==}
 
   '@alloy-js/csharp@0.23.0':
     resolution: {integrity: sha512-z/uc3PP0toaBkP8GoWM0SSVZ8TiC0KO9g8O/hFnBKcWZGpmA7JT0Oe5moRn2QDBf+OZZzuCH5XGDwcMPWTS5PQ==}
@@ -13735,7 +13736,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.23.0':
+  '@alloy-js/core@0.23.1':
     dependencies:
       '@types/ws': 8.18.1
       '@vue/reactivity': 3.5.30
@@ -13751,7 +13752,7 @@ snapshots:
 
   '@alloy-js/csharp@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': 0.23.1
       '@alloy-js/msbuild': 0.23.0
       change-case: 5.4.4
       marked: 16.4.2
@@ -13762,7 +13763,7 @@ snapshots:
 
   '@alloy-js/markdown@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': 0.23.1
       yaml: 2.8.3
     transitivePeerDependencies:
       - bufferutil
@@ -13770,7 +13771,7 @@ snapshots:
 
   '@alloy-js/msbuild@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       marked: 16.4.2
       pathe: 2.0.3
@@ -13780,7 +13781,7 @@ snapshots:
 
   '@alloy-js/python@0.4.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -13800,7 +13801,7 @@ snapshots:
 
   '@alloy-js/typescript@0.23.0':
     dependencies:
-      '@alloy-js/core': 0.23.0
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:

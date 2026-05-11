@@ -362,5 +362,10 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
         return await spawnExecutionAndLogToOutput("npm", args, folder);
       }
     },
+    undefined,
+    (e) => {
+      logger.error(`Unexpected error when importing from OpenAPI 3.`, [e]);
+      return ResultCode.Fail;
+    },
   );
 }

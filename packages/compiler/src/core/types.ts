@@ -2488,18 +2488,22 @@ export interface FunctionImplementations {
 export interface PackageFlags {}
 
 export interface LinterDefinition {
-  rules: LinterRuleDefinition<string, DiagnosticMessages>[];
+  rules: LinterRuleDefinition<string, DiagnosticMessages, any>[];
   ruleSets?: Record<string, LinterRuleSet>;
 }
 
 export interface LinterResolvedDefinition {
-  readonly rules: LinterRule<string, DiagnosticMessages>[];
+  readonly rules: LinterRule<string, DiagnosticMessages, any>[];
   readonly ruleSets: {
     [name: string]: LinterRuleSet;
   };
 }
 
-interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessages> {
+interface LinterRuleDefinitionBase<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   /** Rule name (without the library name) */
   name: N;
   /** Rule default severity. */
@@ -2510,60 +2514,85 @@ interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessag
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /**
+   * JSON Schema for the rule options.
+   * When provided, options will be validated against this schema before the rule runs.
+   */
+  optionSchema?: Record<string, unknown>;
+  /** Default options for the rule, used when enabled with `true` and no options are specified. */
+  defaultOptions?: Options;
 }
 
 interface LinterRuleDefinitionSync<
   N extends string,
   DM extends DiagnosticMessages,
-> extends LinterRuleDefinitionBase<N, DM> {
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
   /** Whether this is an async rule. Default is false */
   async?: false;
   /** Creator */
   create(
-    context: LinterRuleContext<DM>,
+    context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
 }
 
 interface LinterRuleDefinitionAsync<
   N extends string,
   DM extends DiagnosticMessages,
-> extends LinterRuleDefinitionBase<N, DM> {
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
   /** Whether this is an async rule. Default is false */
   async: true;
   /** Creator */
   create(
-    context: LinterRuleContext<DM>,
+    context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
 }
 
-export type LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> =
-  | LinterRuleDefinitionSync<N, DM>
-  | LinterRuleDefinitionAsync<N, DM>;
+export type LinterRuleDefinition<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinitionSync<N, DM, Options> | LinterRuleDefinitionAsync<N, DM, Options>;
 
 /** Resolved instance of a linter rule that will run. */
-export type LinterRule<N extends string, DM extends DiagnosticMessages> = LinterRuleDefinition<
-  N,
-  DM
-> & {
+export type LinterRule<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinition<N, DM, Options> & {
   /** Expanded rule id in format `<library-name>:<rule-name>` */
   id: string;
 };
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
 export type RuleRef = `${string}/${string}`;
+
+/**
+ * Value for enabling a linter rule.
+ * - `true` enables the rule with default options.
+ * - An object enables the rule with the specified options.
+ */
+export type LinterRuleEnableValue = boolean | Record<string, unknown>;
+
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
   extends?: RuleRef[];
 
   /** Rules to enable/configure */
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, LinterRuleEnableValue>;
 
   /** Rules to disable. A rule CANNOT be in enable and disable map. */
   disable?: Record<RuleRef, string>;
 }
 
-export interface LinterRuleContext<DM extends DiagnosticMessages> {
+export interface LinterRuleContext<
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   readonly program: Program;
+  /** Options configured for this rule. */
+  readonly options: Options;
   reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void;
 }
 
