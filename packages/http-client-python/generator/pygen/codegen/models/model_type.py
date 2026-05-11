@@ -328,14 +328,17 @@ class GeneratedModelType(ModelType):
                     alias="_Model",
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE:
-            # In types.py, import model names directly to avoid pyright
-            # "variable not allowed in type expression" errors with dotted forward refs
-            file_import.add_submodule_import(
-                f"{relative_path}models" if relative_path != "." else ".models",
-                self.name,
-                ImportType.LOCAL,
-                typing_section=TypingSection.TYPING,
-            )
+            # Don't import models that will be defined as TypedDicts in the same types.py file.
+            # The forward reference string will resolve to the local TypedDict class definition.
+            same_namespace = relative_path == "."
+            will_be_local_typeddict = self.base != "json" and not self.discriminated_subtypes
+            if not (same_namespace and will_be_local_typeddict):
+                file_import.add_submodule_import(
+                    f"{relative_path}models" if relative_path != "." else ".models",
+                    self.name,
+                    ImportType.LOCAL,
+                    typing_section=TypingSection.TYPING,
+                )
         elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
