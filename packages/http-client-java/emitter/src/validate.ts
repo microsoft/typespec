@@ -51,6 +51,47 @@ export async function validateDependencies(
     }
   }
 
+  // Check Java Runtime and version
+  try {
+    const result = await spawnAsync("java", ["-version"], { stdio: "pipe" });
+    const javaRuntimeVersion =
+      findJavaRuntimeVersion(result.stdout) ?? findJavaRuntimeVersion(result.stderr);
+    if (javaRuntimeVersion) {
+      if (program && logDiagnostic) {
+        trace(program, `Java Runtime in PATH is version ${javaRuntimeVersion}.`);
+      }
+      const javaMajorVersion = getJavaMajorVersion(javaRuntimeVersion);
+      if (javaMajorVersion < 11) {
+        if (program && logDiagnostic) {
+          reportDiagnostic(program, {
+            code: "invalid-java-sdk-dependency",
+            messageId: "javaVersion",
+            format: { javaVersion: javaRuntimeVersion },
+            target: NoTarget,
+          });
+        }
+      }
+    }
+  } catch (error: any) {
+    if (error && "code" in error && error["code"] === "ENOENT") {
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "invalid-java-sdk-dependency",
+          messageId: "java",
+          target: NoTarget,
+        });
+      }
+    } else {
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: { errorMessage: error.message },
+          target: NoTarget,
+        });
+      }
+    }
+  }
+
   // Check Maven
   // nodejs does not allow spawn of .cmd on win32
   const shell = process.platform === "win32";
@@ -111,6 +152,15 @@ export function getJavaMajorVersion(version: string): number {
     }
   }
   return 0;
+}
+
+export function findJavaRuntimeVersion(output: string): string | undefined {
+  // "java version "21.0.3"" or "openjdk version "17.0.11""
+  const matches = output.match(/version "?([\d.]+)"?.*/);
+  if (matches && matches.length > 1) {
+    return matches[1];
+  }
+  return undefined;
 }
 
 function findMavenVersion(output: string): string | undefined {

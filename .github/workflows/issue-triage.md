@@ -14,6 +14,7 @@ on:
       issue-number:
         description: "Issue number to triage"
         required: true
+  roles: all
   reaction: eyes
 
 permissions: read-all
@@ -32,10 +33,10 @@ tools:
   web-fetch:
   github:
     toolsets: [issues, repos]
-    # If in a public repo, setting `lockdown: false` allows
-    # reading issues, pull requests and comments from 3rd-parties
-    # If in a private repo this has no particular effect.
-    lockdown: false
+    # Triage must read issues from all users, including external
+    # contributors; without this, the auto-applied "approved" integrity
+    # policy filters out content from non-org members in public repos.
+    min-integrity: none
 
 timeout-minutes: 10
 source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
