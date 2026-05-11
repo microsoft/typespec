@@ -151,7 +151,6 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     constraint: "value",
     base: "skip",
     path: "skip",
-    cacheKey: "skip",
   },
 
   // Don't want to expose those for now
