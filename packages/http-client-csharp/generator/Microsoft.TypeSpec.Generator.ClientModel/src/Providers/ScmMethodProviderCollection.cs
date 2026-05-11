@@ -74,8 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
-            _generateConvenienceMethod = ServiceMethod.Operation is
-            { GenerateConvenienceMethod: true, IsMultipartFormData: false };
+            _generateConvenienceMethod = ServiceMethod.Operation.GenerateConvenienceMethod;
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -155,7 +154,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     protocolMethod.Signature.Modifiers,
                     GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
                     null,
-                    signatureParameters);
+                    signatureParameters,
+                    Attributes: BuildConvenienceMethodAttributes());
             }
 
             // Recompute the response body type so we can branch the body accordingly.
@@ -280,9 +280,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         // Check if this is a dual-format model that needs explicit serialization
                         ModelProvider? bodyModel = null;
                         InputModelType? bodyInputModel = null;
+                        InputMethodParameter? inputParam = null;
                         if (parameter.Type is { IsFrameworkType: false })
                         {
-                            var inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
                             if (inputParam?.Type is InputModelType model)
                             {
                                 bodyInputModel = model;
@@ -295,6 +296,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             // Create using declaration for BinaryContent
                             var methodName = $"To{requestContentType.Name}";
                             statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            declarations["content"] = content;
+                        }
+                        else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
+                        {
+                            var bodyExpression = inputParam is { IsRequired: false }
+                                ? parameter.NullConditional()
+                                : parameter;
+                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression), out var content));
                             declarations["content"] = content;
                         }
                         // else rely on implicit operator to convert to BinaryContent
@@ -753,6 +762,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    type.Equals(typeof(TimeSpan?));
         }
 
+        private IReadOnlyList<AttributeStatement>? BuildConvenienceMethodAttributes()
+        {
+            var bodyInputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+            if (bodyInputParam?.Type is InputModelType bodyModel
+                && bodyModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
+            {
+                return [new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmModelProvider.FileBinaryContentDiagnosticId)])];
+            }
+
+            return null;
+        }
+
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
@@ -819,6 +840,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (convenienceParam == null)
                     {
+                        // When the convenience surface drops a literal Content-Type header (which
+                        // can happen for multipart operations where the actual wire value includes
+                        // a boundary computed at runtime), forward the value from the multipart
+                        // content's MediaType property to the protocol method.
+                        if (ServiceMethod.Operation.IsMultipartFormData
+                            && string.Equals(protocolParam.Name, ScmKnownParameters.ContentType.Name, StringComparison.Ordinal)
+                            && declarations.TryGetValue("content", out ValueExpression? multipartContent))
+                        {
+                            // When the body is optional, `content` may be null, so we forward `content?.MediaType`.
+                            var bodyInputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            var mediaTypeExpression = bodyInputParam is { IsRequired: false }
+                                ? new MemberExpression(new NullConditionalExpression(multipartContent), "MediaType")
+                                : multipartContent.Property("MediaType");
+                            AddArgument(protocolParam, mediaTypeExpression);
+                            continue;
+                        }
+
                         if (TryGetNonBodyModelPropertyConversion(protocolParam, out var conversion))
                         {
                             AddArgument(protocolParam, conversion);

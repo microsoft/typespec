@@ -12,7 +12,6 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -25,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
-        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
+        protected internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }

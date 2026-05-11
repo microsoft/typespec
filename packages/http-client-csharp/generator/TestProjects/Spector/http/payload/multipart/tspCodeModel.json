@@ -694,7 +694,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -771,7 +772,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -848,7 +850,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": true,
           "readOnly": false,
@@ -989,7 +992,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -1025,7 +1029,8 @@
               "kind": "bytes",
               "name": "bytes",
               "crossLanguageDefinitionId": "TypeSpec.bytes",
-              "decorators": []
+              "decorators": [],
+              "isFileType": true
             },
             "crossLanguageDefinitionId": "TypeSpec.Array",
             "decorators": []
@@ -1104,7 +1109,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -1185,7 +1191,8 @@
               "kind": "bytes",
               "name": "bytes",
               "crossLanguageDefinitionId": "TypeSpec.bytes",
-              "decorators": []
+              "decorators": [],
+              "isFileType": true
             },
             "crossLanguageDefinitionId": "TypeSpec.Array",
             "decorators": []
@@ -1233,7 +1240,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -1265,7 +1273,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": true,
           "readOnly": false,
@@ -1310,7 +1319,8 @@
             "kind": "bytes",
             "name": "bytes",
             "crossLanguageDefinitionId": "TypeSpec.bytes",
-            "decorators": []
+            "decorators": [],
+            "isFileType": true
           },
           "optional": false,
           "readOnly": false,
@@ -1420,6 +1430,7 @@
             "decorators": [],
             "serializationOptions": {},
             "isExactName": false,
+            "isFileType": true,
             "baseModel": {
               "$id": "126",
               "kind": "model",
@@ -1432,6 +1443,7 @@
               "decorators": [],
               "serializationOptions": {},
               "isExactName": false,
+              "isFileType": true,
               "properties": [
                 {
                   "$id": "127",
@@ -1750,6 +1762,7 @@
             "decorators": [],
             "serializationOptions": {},
             "isExactName": false,
+            "isFileType": true,
             "properties": [
               {
                 "$id": "148",
@@ -1946,6 +1959,7 @@
             "decorators": [],
             "serializationOptions": {},
             "isExactName": false,
+            "isFileType": true,
             "baseModel": {
               "$ref": "147"
             },
@@ -2115,6 +2129,7 @@
             "decorators": [],
             "serializationOptions": {},
             "isExactName": false,
+            "isFileType": true,
             "baseModel": {
               "$ref": "126"
             },
@@ -2334,6 +2349,7 @@
             "decorators": [],
             "serializationOptions": {},
             "isExactName": false,
+            "isFileType": true,
             "baseModel": {
               "$ref": "126"
             },

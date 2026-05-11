@@ -21,6 +21,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { createDiagnosticCollector, Diagnostic, Model, NoTarget } from "@typespec/compiler";
+import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -216,6 +217,8 @@ function fromSdkModelType(
     external: fromSdkExternalTypeInfo(modelType),
     serializationOptions: modelType.serializationOptions,
     isExactName: modelType.isExactName,
+    isFileType:
+      modelType.crossLanguageDefinitionId === _httpFileCrossLanguageDefinitionId ? true : undefined,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -294,6 +297,17 @@ function fromSdkModelProperty(
     encode: sdkProperty.encode,
     isExactName: sdkProperty.isExactName,
   } as InputModelProperty;
+
+  if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
+    if (property.type.kind === "model" || property.type.kind === "bytes") {
+      property.type.isFileType = true;
+    } else if (
+      property.type.kind === "array" &&
+      (property.type.valueType.kind === "model" || property.type.valueType.kind === "bytes")
+    ) {
+      property.type.valueType.isFileType = true;
+    }
+  }
 
   if (property) {
     sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);

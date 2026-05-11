@@ -1313,3 +1313,146 @@ describe("Test isExactName propagation", () => {
     strictEqual(regularValue.isExactName, false);
   });
 });
+
+describe("Test isFileType propagation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("sets isFileType on a multipart File part (model type)", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "profileImage");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "model");
+    strictEqual((fileProperty.type as InputModelType).isFileType, true);
+  });
+
+  it("sets isFileType on a multipart bytes part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          fileData: HttpPart<bytes>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "bytes");
+    strictEqual((fileProperty.type as { isFileType?: boolean }).isFileType, true);
+  });
+
+  it("sets isFileType on the element type of a multipart array of File parts", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          files: HttpPart<File>[];
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const filesProperty = requestModel.properties.find((p) => p.name === "files");
+    ok(filesProperty);
+    strictEqual(filesProperty.type.kind, "array");
+    strictEqual(filesProperty.type.valueType.kind, "model");
+    strictEqual((filesProperty.type.valueType as InputModelType).isFileType, true);
+  });
+
+  it("does not set isFileType on a non-file multipart part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          name: HttpPart<string>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const nameProperty = requestModel.properties.find((p) => p.name === "name");
+    ok(nameProperty);
+    strictEqual((nameProperty.type as { isFileType?: boolean }).isFileType, undefined);
+  });
+
+  it("sets isFileType on the Http.File model itself", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/upload")
+        @post
+        op upload(@bodyRoot data: File): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    const bodyType = bodyParam.type as InputModelType;
+    strictEqual(bodyType.kind, "model");
+    strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Http.File");
+    strictEqual(bodyType.isFileType, true);
+  });
+});
