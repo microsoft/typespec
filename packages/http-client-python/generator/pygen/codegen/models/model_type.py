@@ -329,10 +329,10 @@ class GeneratedModelType(ModelType):
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE:
             # Don't import models that will be defined as TypedDicts in the same types.py file.
-            # The forward reference string will resolve to the local TypedDict class definition.
-            same_namespace = relative_path == "."
-            will_be_local_typeddict = self.base != "json" and not self.discriminated_subtypes
-            if not (same_namespace and will_be_local_typeddict):
+            # All non-json, non-discriminated-base models generate TypedDicts in types.py,
+            # regardless of namespace, so the bare forward reference resolves locally.
+            will_be_typeddict = self.base != "json" and not self.discriminated_subtypes
+            if not will_be_typeddict:
                 file_import.add_submodule_import(
                     f"{relative_path}models" if relative_path != "." else ".models",
                     self.name,
