@@ -3,6 +3,8 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import keyword
+import re
 from typing import Optional
 from ..models import ModelType, CodeModel
 from ..models.imports import FileImport, ImportType
@@ -11,6 +13,23 @@ from ..models.property import Property
 from .model_serializer import _documentation_string
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
+
+# Python builtin type names that can be shadowed by TypedDict field wire_names.
+# When a field name matches one of these, all references to that builtin in type
+# annotations within the same class are qualified as builtins.X.
+_BUILTIN_TYPE_NAMES = frozenset({
+    "int", "str", "float", "bool", "list", "dict", "tuple", "set",
+    "bytes", "type", "object", "complex", "frozenset", "bytearray", "memoryview",
+})
+
+
+def _qualify_shadowed_builtins(annotation: str, shadowed: frozenset[str]) -> str:
+    """Replace bare builtin type references with builtins.X when shadowed by a field name."""
+    if not shadowed:
+        return annotation
+    for name in shadowed:
+        annotation = re.sub(rf"\b{name}\b", f"builtins.{name}", annotation)
+    return annotation
 
 
 class TypesSerializer(BaseSerializer):
@@ -39,7 +58,6 @@ class TypesSerializer(BaseSerializer):
         """
         bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
         base_names = {m.name for m in bases}
-        # Sort: models whose subtypes include other discriminated bases must come after them
         sorted_bases: list[ModelType] = []
         visited: set[str] = set()
 
@@ -62,6 +80,30 @@ class TypesSerializer(BaseSerializer):
         subtype_names = [s.name for s in subtypes]
         return f"{model.name} = Union[{', '.join(subtype_names)}]"
 
+    @staticmethod
+    def has_keyword_wire_names(model: ModelType) -> bool:
+        """Whether any property wire_name is a Python keyword (requires functional TypedDict form)."""
+        return any(keyword.iskeyword(p.wire_name) for p in model.properties)
+
+    @staticmethod
+    def get_shadowed_builtins(model: ModelType) -> frozenset[str]:
+        """Return the set of builtin type names shadowed by property wire_names in this model.
+
+        Only includes a builtin if it is both used as a wire_name AND referenced
+        in a type annotation within the same model (otherwise no shadowing occurs).
+        """
+        wire_builtins = {p.wire_name for p in model.properties if p.wire_name in _BUILTIN_TYPE_NAMES}
+        if not wire_builtins:
+            return frozenset()
+        # Check which of these builtins actually appear in type annotations
+        used = set()
+        for prop in model.properties:
+            annotation = prop.type_annotation()
+            for name in wire_builtins:
+                if re.search(rf"\b{name}\b", annotation):
+                    used.add(name)
+        return frozenset(used)
+
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
 
@@ -72,6 +114,7 @@ class TypesSerializer(BaseSerializer):
             if self.discriminated_base_models:
                 file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             has_required = False
+            needs_builtins = False
             for model in td_models:
                 file_import.merge(
                     model.imports(
@@ -90,6 +133,8 @@ class TypesSerializer(BaseSerializer):
                     )
                     if not (prop.optional or prop.client_default_value is not None):
                         has_required = True
+                if self.get_shadowed_builtins(model):
+                    needs_builtins = True
                 for parent in model.parents:
                     if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
                         file_import.add_submodule_import(
@@ -102,27 +147,55 @@ class TypesSerializer(BaseSerializer):
                         )
             if has_required:
                 file_import.add_submodule_import("typing_extensions", "Required", ImportType.STDLIB)
+            if needs_builtins:
+                file_import.add_import("builtins", ImportType.STDLIB)
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
+        """Generate the class declaration or functional form for a TypedDict model.
+
+        Uses functional form when any property wire_name is a Python keyword
+        (e.g. 'and', 'class') since keywords can't be identifiers in class bodies.
+        """
+        if self.has_keyword_wire_names(model):
+            return ""  # functional form is rendered separately
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
         if non_discriminated_parents:
             basename = ", ".join([m.name for m in non_discriminated_parents])
             return f"class {model.name}({basename}):{model.pylint_disable()}"
         return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
 
-    # Python builtin type names that can be shadowed by TypedDict field names
-    _BUILTIN_TYPE_NAMES = frozenset({
-        "int", "str", "float", "bool", "list", "dict", "tuple", "set",
-        "bytes", "type", "object", "complex", "frozenset", "bytearray", "memoryview",
-    })
+    def declare_functional_model(self, model: ModelType) -> str:
+        """Generate a functional-form TypedDict for models with keyword wire_names.
+
+        Functional form is required when any field name is a Python keyword.
+        All fields (including inherited) are included since functional form
+        can't specify a base class.
+        """
+        shadowed = self.get_shadowed_builtins(model)
+        entries: list[str] = []
+        for prop in model.properties:
+            type_annotation = prop.type_annotation(
+                serialize_namespace=self.serialize_namespace,
+                serialize_namespace_type=NamespaceType.TYPES_FILE,
+            )
+            type_annotation = _qualify_shadowed_builtins(type_annotation, shadowed)
+            is_optional = prop.optional or prop.client_default_value is not None
+            if is_optional:
+                entries.append(f'    "{prop.wire_name}": {type_annotation},')
+            else:
+                entries.append(f'    "{prop.wire_name}": Required[{type_annotation}],')
+        fields = "\n".join(entries)
+        return f'{model.name} = TypedDict("{model.name}", {{\n{fields}\n}}, total=False)'
 
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> list[Property]:
+        if TypesSerializer.has_keyword_wire_names(model):
+            return []  # functional form handles all properties
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
         if non_discriminated_parents:
             parent_properties = [p for bm in non_discriminated_parents for p in bm.properties]
-            properties_to_declare = [
+            return [
                 p
                 for p in model.properties
                 if not any(
@@ -132,20 +205,14 @@ class TypesSerializer(BaseSerializer):
                     for pp in parent_properties
                 )
             ]
-        else:
-            properties_to_declare = list(model.properties)
-        # Move properties whose wire_name shadows a Python builtin type to the end,
-        # so they don't shadow the builtin in subsequent type annotations.
-        properties_to_declare.sort(
-            key=lambda p: p.wire_name in TypesSerializer._BUILTIN_TYPE_NAMES
-        )
-        return properties_to_declare
+        return list(model.properties)
 
-    def declare_property(self, prop: Property) -> str:
+    def declare_property(self, prop: Property, shadowed_builtins: frozenset[str]) -> str:
         type_annotation = prop.type_annotation(
             serialize_namespace=self.serialize_namespace,
             serialize_namespace_type=NamespaceType.TYPES_FILE,
         )
+        type_annotation = _qualify_shadowed_builtins(type_annotation, shadowed_builtins)
         is_optional = prop.optional or prop.client_default_value is not None
         if is_optional:
             return f"{prop.wire_name}: {type_annotation}"
