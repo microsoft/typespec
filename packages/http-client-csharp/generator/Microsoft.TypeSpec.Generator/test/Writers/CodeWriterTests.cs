@@ -610,6 +610,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteParameter_WithAttributes()
+        {
+            var parameter1 = new ParameterProvider(
+                "subscriptionId",
+                $"The subscription id.",
+                typeof(string),
+                attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("name"))]);
+            var parameter2 = new ParameterProvider(
+                "resourceGroupName",
+                $"The resource group name.",
+                typeof(string),
+                attributes: [new AttributeStatement(typeof(ObsoleteAttribute), Literal("rg"))]);
+
+            var methodSignature = new MethodSignature(
+                "GetAsync",
+                $"Gets a resource.",
+                MethodSignatureModifiers.Public,
+                null,
+                null,
+                [parameter1, parameter2]);
+            var method = new MethodProvider(
+                methodSignature,
+                MethodBodyStatement.Empty,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
         public void CodeWriter_WriteParameter_WithInModifier()
         {
             var parameter = new ParameterProvider(
