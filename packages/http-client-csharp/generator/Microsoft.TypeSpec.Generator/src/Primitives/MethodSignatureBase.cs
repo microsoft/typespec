@@ -142,22 +142,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         return false;
                     }
 
-                    // For conversion operators (implicit/explicit), the operator is fully identified
-                    // by its modifiers, return type, and parameter types. The Name field is not
-                    // standardized between generated providers (which may use string.Empty or the
-                    // target type name) and customization partials (which use the return type name
-                    // via NamedTypeSymbolProvider). Skip the name comparison for conversion operators.
-                    if (!xIsImplicit && !xIsExplicit)
+                    // Compare user-defined operators by symbol; conversion operators are fully identified by modifiers/return type/params.
+                    if (!xIsImplicit && !xIsExplicit
+                        && NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
                     {
-                        // For user-defined operators (==, !=, +, -, etc.), differentiate by
-                        // operator symbol. Generated providers use the operator symbol directly
-                        // (e.g. "==") as the Name, while customization partials produced from
-                        // Roslyn symbols may include an "operator " prefix (e.g. "operator ==").
-                        // Normalize before comparing so both forms are treated as equal.
-                        if (NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
                 else if (GetFullMethodName(x) != GetFullMethodName(y))
@@ -193,10 +182,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
             private static string NormalizeOperatorName(string name)
             {
-                // Roslyn's SymbolDisplay renders user-defined operator methods as "operator <symbol>"
-                // (for example "operator ==" / "operator !="), while generated providers use just
-                // the operator symbol (for example "==") as the Name. Strip the prefix so both forms
-                // compare equal.
+                // Strip Roslyn's "operator " prefix so "operator ==" matches "==".
                 const string operatorPrefix = "operator ";
                 return name.StartsWith(operatorPrefix, StringComparison.Ordinal)
                     ? name.Substring(operatorPrefix.Length)
