@@ -1130,7 +1130,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ?? paramToUse;
             }
 
-            return paramToUse.Property is not null ? GetConversion(paramToUse.Property, paramToUse) : paramToUse;
+            return paramToUse.Property is not null ? GetConversion(paramToUse.Property, source: paramToUse) : paramToUse;
         }
 
         private ValueExpression? GetUnknownDiscriminatorExpression(PropertyProvider property)
@@ -1313,25 +1313,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default)
+        private static ValueExpression GetConversion(PropertyProvider? property = default, FieldProvider? field = default, ValueExpression? source = default)
         {
             CSharpType to = property != null
                 ? property.BackingField is null ? property.Type : property.BackingField.Type
                 : field!.Type;
             CSharpType from = property?.Type ?? field!.Type;
-
-            if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
-            {
-                return from.ToSerial(property?.AsParameter ?? field!.AsParameter);
-            }
-
-            return property?.AsParameter ?? field!.AsParameter;
-        }
-
-        private static ValueExpression GetConversion(PropertyProvider property, ValueExpression source)
-        {
-            CSharpType to = property.BackingField is null ? property.Type : property.BackingField.Type;
-            CSharpType from = property.Type;
+            source ??= property?.AsParameter ?? field!.AsParameter;
 
             if (from.IsEnum && to.Equals(from.UnderlyingEnumType))
             {
