@@ -565,7 +565,7 @@ function printAugmentDecoratorArgs(
     group([
       indent(
         join(", ", [
-          path.call(print, "targetType"),
+          [softline, path.call(print, "targetType")],
           ...path.map((arg) => [softline, print(arg)], "arguments"),
         ]),
       ),
