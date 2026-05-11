@@ -1812,6 +1812,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                // Skip generating the back-compat overload when the previous method's trailing parameter is a
+                // CancellationToken. There is no way to emit a correct overload in that situation:
+                //   - Keeping the trailing CancellationToken optional (preserving the SDK guideline) introduces
+                //     a CS0121 ambiguity at basic call sites between the back-compat overload and the new
+                //     method (which also ends in an optional CancellationToken with extra optional params
+                //     before it).
+                //   - Making the trailing CancellationToken required avoids the ambiguity but violates the
+                //     SDK guideline that CancellationToken parameters must be optional.
+                // In this case the library author must address the gap via custom code or by updating the spec.
+                if (PreviousMethodEndsWithCancellationToken(previousSignature))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Skipped back-compat overload for '{Name}.{previousSignature.Name}' because the previous method's trailing CancellationToken parameter would result in either an ambiguous reference or a violation of the CancellationToken-must-be-optional SDK guideline.",
+                        BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
+                    continue;
+                }
+
                 var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedCurrent);
                 if (overload == null || !currentMethodSignatures.TryAdd(overload.Signature, overload))
                 {
@@ -1823,6 +1840,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
                     BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
             }
+        }
+
+        private static bool PreviousMethodEndsWithCancellationToken(MethodSignature previousSignature)
+        {
+            if (previousSignature.Parameters.Count == 0)
+            {
+                return false;
+            }
+
+            var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
+            return lastParam.Type.Equals(typeof(CancellationToken));
         }
 
         // Returns true when currentSignature contains all parameters of previousSignature in the same

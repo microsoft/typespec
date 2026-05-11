@@ -3407,52 +3407,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
-        // The current TypeSpec adds new optional non-body query parameters whose raw input names start
-        // with reserved characters (e.g. OData "$select", "$top"). The generated back-compat overload
-        // must use the C# variable name (e.g. "select", "top") for the named-argument labels in the
-        // delegating call; it must NOT use the raw "$select"/"$top" names which would produce invalid
-        // C#.
-        [Test]
-        public async Task BackCompatibility_NewOptionalParameterWithReservedName()
-        {
-            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
-            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
-            var selectParam = InputFactory.QueryParameter("$select", InputPrimitiveType.String, isRequired: false);
-            var topParam = InputFactory.QueryParameter("$top", InputPrimitiveType.Int32, isRequired: false);
-
-            var operation = InputFactory.Operation(
-                "GetData",
-                parameters: [param1, param2, selectParam, topParam],
-                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
-
-            List<InputMethodParameter> methodParameters =
-            [
-                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
-                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
-                InputFactory.MethodParameter("$select", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
-                InputFactory.MethodParameter("$top", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: false),
-            ];
-
-            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
-            var client = InputFactory.Client(TestClientName, methods: [method]);
-
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                clients: () => [client],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
-            Assert.IsNotNull(clientProvider);
-            Assert.IsNotNull(clientProvider!.LastContractView);
-
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
-
-            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
         [Test]
         public void ServerTemplateWithBasePathOnly_DoesNotDuplicateBasePath()
         {

@@ -4,7 +4,6 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Sample.Models;
@@ -43,18 +42,6 @@ namespace Sample
 
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, body, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
-        }
-
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, global::Sample.Models.SampleModel body, global::System.Threading.CancellationToken cancellationToken)
-        {
-            return this.GetData(param1: param1, body: body, param3: default, cancellationToken: cancellationToken);
-        }
-
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, global::Sample.Models.SampleModel body, global::System.Threading.CancellationToken cancellationToken)
-        {
-            return this.GetDataAsync(param1: param1, body: body, param3: default, cancellationToken: cancellationToken);
         }
     }
 }

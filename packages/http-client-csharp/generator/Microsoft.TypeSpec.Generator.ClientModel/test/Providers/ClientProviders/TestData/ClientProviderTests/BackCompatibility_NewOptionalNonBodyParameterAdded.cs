@@ -5,7 +5,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,18 +44,6 @@ namespace Sample
             using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param2));
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
-        }
-
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
-        {
-            return this.GetData(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
-        }
-
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
-        {
-            return this.GetDataAsync(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
         }
     }
 }
