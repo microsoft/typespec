@@ -370,10 +370,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
         }
 
-        // Validates that operator method signatures parsed from a customization partial by
-        // NamedTypeSymbolProvider compare equal (via MethodSignatureBase.SignatureComparer) to
-        // the operator signatures produced by generated providers (e.g., ExtensibleEnumProvider).
-        // This is the dedup path that prevents CS0111 when both partials declare the same operator.
+        // Operator signatures parsed from a customization partial must compare equal to the corresponding generated signatures.
         [Test]
         public async Task ValidateOperatorSignaturesMatchGenerated()
         {
