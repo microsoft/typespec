@@ -48,13 +48,13 @@ namespace Sample
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
+        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.GetData(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)
         {
             return this.GetDataAsync(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
         }

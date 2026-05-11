@@ -1882,19 +1882,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousSignature = previousMethod.Signature;
             var currentSignature = currentMethod.Signature;
 
+            // Match parameters by their C# variable name (which is what is rendered in C# source) so
+            // that previous parameters whose raw input name differs only by reserved characters such as
+            // a leading '$' (e.g. OData "$select"/"$top") are matched to the corresponding current
+            // parameter. The named-argument label below must also use the C# variable name.
             var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
-                previousParamsByName.TryAdd(p.Name, p);
+                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
             }
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
-                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name, out var prevParam)
+                var currentParamVariableName = currentParam.Name.ToVariableName();
+                ValueExpression value = previousParamsByName.TryGetValue(currentParamVariableName, out var prevParam)
                     ? prevParam
                     : (currentParam.DefaultValue ?? Default);
-                arguments.Add(PositionalReference(currentParam.Name, value));
+                arguments.Add(PositionalReference(currentParamVariableName, value));
             }
 
             return new ScmMethodProvider(
