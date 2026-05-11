@@ -1821,7 +1821,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 //   - Making the trailing CancellationToken required avoids the ambiguity but violates the
                 //     SDK guideline that CancellationToken parameters must be optional.
                 // In this case the library author must address the gap via custom code or by updating the spec.
-                if (PreviousMethodEndsWithCancellationToken(previousSignature))
+                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Skipped back-compat overload for '{Name}.{previousSignature.Name}' because the previous method's trailing CancellationToken parameter would result in either an ambiguous reference or a violation of the CancellationToken-must-be-optional SDK guideline.",
@@ -1842,7 +1842,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool PreviousMethodEndsWithCancellationToken(MethodSignature previousSignature)
+        private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
         {
             if (previousSignature.Parameters.Count == 0)
             {
