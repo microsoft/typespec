@@ -134,9 +134,10 @@ For example, given the following TypeSpec namespace `Users` within the `Todo` se
 namespace Users {
   @route("/users")
   @post
-  op create(
-    user: User,
-  ): WithStandardErrors<UserCreatedResponse | UserExistsResponse | InvalidUserResponse>;
+  op create(user: User): WithStandardErrors<
+    | UserCreatedResponse
+    | UserExistsResponse
+    | InvalidUserResponse>;
 }
 ```
 
