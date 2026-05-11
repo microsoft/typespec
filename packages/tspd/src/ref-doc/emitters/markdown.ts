@@ -425,8 +425,6 @@ export class MarkdownRenderer {
     return inlinecode(option.type);
   }
 
-
-
   emitterOption(option: EmitterOptionRefDoc): MarkdownDoc {
     const content: MarkdownDoc = [];
 
