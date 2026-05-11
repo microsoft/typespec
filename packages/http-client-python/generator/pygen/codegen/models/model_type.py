@@ -328,11 +328,11 @@ class GeneratedModelType(ModelType):
                     alias="_Model",
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE:
-            # Don't import models that will be defined as TypedDicts in the same types.py file.
-            # All non-json, non-discriminated-base models generate TypedDicts in types.py,
-            # regardless of namespace, so the bare forward reference resolves locally.
-            will_be_typeddict = self.base != "json" and not self.discriminated_subtypes
-            if not will_be_typeddict:
+            # Don't import models that will be defined in types.py — either as TypedDict
+            # classes (non-discriminated) or as Union aliases (discriminated bases).
+            # All non-json models appear in types.py, so the bare forward reference resolves locally.
+            will_be_in_types_file = self.base != "json"
+            if not will_be_in_types_file:
                 file_import.add_submodule_import(
                     f"{relative_path}models" if relative_path != "." else ".models",
                     self.name,
