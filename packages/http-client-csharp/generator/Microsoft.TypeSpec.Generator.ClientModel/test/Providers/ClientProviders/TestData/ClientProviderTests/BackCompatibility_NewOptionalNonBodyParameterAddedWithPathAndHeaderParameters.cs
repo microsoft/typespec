@@ -49,13 +49,13 @@ namespace Sample
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.ClientModel.ClientResult<string> GetData(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult<string> GetData(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken)
         {
             return this.GetData(itemId: itemId, filter: filter, region: region, sort: default, cancellationToken: cancellationToken);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken)
         {
             return this.GetDataAsync(itemId: itemId, filter: filter, region: region, sort: default, cancellationToken: cancellationToken);
         }

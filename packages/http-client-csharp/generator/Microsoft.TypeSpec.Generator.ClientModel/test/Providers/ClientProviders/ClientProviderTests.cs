@@ -3410,15 +3410,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
         // The current TypeSpec adds new optional non-body query parameters whose raw input names start
         // with reserved characters (e.g. OData "$select", "$top"). The generated back-compat overload
-        // must:
-        //   1. Use the C# variable name (e.g. "select", "top") for the named-argument labels in the
-        //      delegating call; it must NOT use the raw "$select"/"$top" names which would produce
-        //      invalid C#.
-        //   2. Keep the trailing `CancellationToken cancellationToken` parameter optional so the
-        //      generated method does not violate the SDK guideline that requires client methods to end
-        //      with an optional CancellationToken (or a RequestContext context).
+        // must use the C# variable name (e.g. "select", "top") for the named-argument labels in the
+        // delegating call; it must NOT use the raw "$select"/"$top" names which would produce invalid
+        // C#.
         [Test]
-        public async Task BackCompatibility_NewOptionalParameterWithReservedNameAndCancellationToken()
+        public async Task BackCompatibility_NewOptionalParameterWithReservedName()
         {
             var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
             var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
@@ -3454,23 +3450,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
-            var content = file.Content;
-
-            // The named-argument labels in the back-compat body must use the C# variable names, NOT the
-            // raw "$select"/"$top" names, which would produce invalid C#.
-            StringAssert.Contains("select: default", content);
-            StringAssert.Contains("top: default", content);
-            StringAssert.DoesNotContain("$select:", content);
-            StringAssert.DoesNotContain("$top:", content);
-
-            // The back-compat overloads must keep the trailing CancellationToken optional.
-            StringAssert.Contains("CancellationToken cancellationToken = default)", content);
-            StringAssert.DoesNotContain("CancellationToken cancellationToken)", content);
-
-            // The non-trailing parameters of the back-compat overload must have their defaults stripped
-            // so they are required (param1 is `int` and param2 is `string`, neither should carry `= default`).
-            StringAssert.Contains("GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)", content);
-            StringAssert.Contains("GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken = default)", content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

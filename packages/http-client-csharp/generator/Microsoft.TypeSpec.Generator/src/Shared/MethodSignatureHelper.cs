@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -58,17 +57,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (hideMethod)
             {
-                // make all parameter required to avoid ambiguous call sites if necessary, except for a
-                // trailing CancellationToken named "cancellationToken" which must remain optional to
-                // satisfy the SDK guideline that requires client methods to end with an optional
-                // CancellationToken parameter (or a RequestContext context).
-                for (int i = 0; i < previousMethodSignature.Parameters.Count; i++)
+                // make all parameter required to avoid ambiguous call sites if necessary
+                foreach (var param in previousMethodSignature.Parameters)
                 {
-                    var param = previousMethodSignature.Parameters[i];
-                    if (i == previousMethodSignature.Parameters.Count - 1 && IsOptionalCancellationTokenParameter(param))
-                    {
-                        continue;
-                    }
                     param.DefaultValue = null;
                 }
             }
@@ -84,13 +75,6 @@ namespace Microsoft.TypeSpec.Generator
                 previousMethodSignature.ReturnDescription,
                 previousMethodSignature.Parameters,
                 Attributes: attributes);
-        }
-
-        internal static bool IsOptionalCancellationTokenParameter(ParameterProvider parameter)
-        {
-            return parameter.DefaultValue is not null
-                && parameter.Name.ToVariableName() == "cancellationToken"
-                && parameter.Type.AreNamesEqual(typeof(CancellationToken));
         }
 
         private sealed class ParameterProviderVariableNameComparer : IEqualityComparer<ParameterProvider>

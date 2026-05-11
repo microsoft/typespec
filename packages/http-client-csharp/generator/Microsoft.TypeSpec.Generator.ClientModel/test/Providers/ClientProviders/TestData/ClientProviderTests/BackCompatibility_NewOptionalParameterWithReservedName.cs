@@ -13,50 +13,50 @@ namespace Sample
 {
     public partial class TestClient
     {
-        public virtual global::System.ClientModel.ClientResult GetData(int param1, global::System.ClientModel.BinaryContent content, bool? param3 = default, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual global::System.ClientModel.ClientResult GetData(int param1, global::System.ClientModel.BinaryContent content, string @select = default, int? top = default, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             global::Sample.Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetDataRequest(param1, content, param3, options);
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetDataRequest(param1, content, @select, top, options);
             return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetDataAsync(int param1, global::System.ClientModel.BinaryContent content, bool? param3 = default, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetDataAsync(int param1, global::System.ClientModel.BinaryContent content, string @select = default, int? top = default, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             global::Sample.Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetDataRequest(param1, content, param3, options);
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetDataRequest(param1, content, @select, top, options);
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, bool? param3 = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, string @select = default, int? top = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(param2, nameof(param2));
 
             using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param2));
-            global::System.ClientModel.ClientResult result = this.GetData(param1, content, param3, cancellationToken.ToRequestOptions());
+            global::System.ClientModel.ClientResult result = this.GetData(param1, content, @select, top, cancellationToken.ToRequestOptions());
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, bool? param3 = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, string @select = default, int? top = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNullOrEmpty(param2, nameof(param2));
 
             using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param2));
-            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content, @select, top, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.ClientResult<string> GetData(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
         {
-            return this.GetData(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
+            return this.GetData(param1: param1, param2: param2, @select: default, top: default, cancellationToken: cancellationToken);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string param2, global::System.Threading.CancellationToken cancellationToken)
         {
-            return this.GetDataAsync(param1: param1, param2: param2, param3: default, cancellationToken: cancellationToken);
+            return this.GetDataAsync(param1: param1, param2: param2, @select: default, top: default, cancellationToken: cancellationToken);
         }
     }
 }

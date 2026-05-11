@@ -868,7 +868,3 @@ public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, Reque
 ```
 
 The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.
-
-A trailing `CancellationToken cancellationToken` parameter is preserved as optional (`= default`) on the back-compat overload so that the generated method continues to satisfy the [Azure SDK guideline](https://azure.github.io/azure-sdk/dotnet_implementation.html#parameter-presence-and-ordering) that requires client convenience methods to end with an optional `CancellationToken` parameter.
-
-When the previous method's parameter has a raw input name that contains characters that are not valid in a C# identifier (for example OData query parameters such as `$select`, `$top`, `$skip`, `$count`), the named-argument labels in the delegating call use the C# variable name (e.g. `select: default`, `top: default`) rather than the raw input name.
