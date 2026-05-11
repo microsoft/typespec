@@ -421,11 +421,11 @@ function createMutatorEngine(
         continue;
       }
 
-      let mutationFn: MutatorFn<T> | null = null;
+      let mutationFn: MutatorFn<T> | null;
       let replaceFn: MutatorReplaceFn<T> | null = null;
 
-      let mutate = false;
-      let recurse = false;
+      let mutate;
+      let recurse;
 
       if (typeof record === "function") {
         mutationFn = record;

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +17,12 @@ namespace Server.Path.Single
 
         public SingleClient(Uri endpoint) : this(endpoint, new SingleClientOptions()) => throw null;
 
-        public SingleClient(Uri endpoint, SingleClientOptions options) => throw null;
+        internal SingleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SingleClientOptions options) => throw null;
+
+        public SingleClient(Uri endpoint, SingleClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public SingleClient(SingleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

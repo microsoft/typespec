@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
@@ -8,11 +8,8 @@ import {
   type LinterDefinition,
   type LinterRuleContext,
 } from "../../src/index.js";
-import {
-  createTestHost,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 const noModelFoo = createLinterRule({
   name: "no-model-foo",
@@ -93,18 +90,44 @@ const noInterfaceFooAsync = createLinterRule({
   },
 });
 
+const noModelWithName = createLinterRule({
+  name: "no-model-with-name",
+  description: "Prevents models with a configurable name",
+  severity: "warning",
+  messages: {
+    default: "Cannot use this model name",
+  },
+  defaultOptions: { bannedName: "Blocked" },
+  create(context) {
+    return {
+      model: (target) => {
+        if (target.name === context.options.bannedName) {
+          context.reportDiagnostic({
+            target,
+          });
+        }
+      },
+    };
+  },
+});
+
 describe("compiler: linter", () => {
   async function createTestLinter(
     code: string | Record<string, string>,
     linterDef: LinterDefinition,
   ): Promise<Linter> {
-    const host = await createTestHost();
+    let result;
     if (typeof code === "string") {
-      host.addTypeSpecFile("main.tsp", code);
+      result = await Tester.compile(code);
     } else {
-      for (const [name, content] of Object.entries(code)) {
-        host.addTypeSpecFile(name, content);
-      }
+      const mainCode = code["main.tsp"];
+      const otherFiles = Object.fromEntries(
+        Object.entries(code).filter(([name]) => name !== "main.tsp"),
+      );
+      result =
+        Object.keys(otherFiles).length > 0
+          ? await Tester.files(otherFiles).compile(mainCode)
+          : await Tester.compile(mainCode);
     }
 
     const library: LibraryInstance = {
@@ -118,9 +141,7 @@ describe("compiler: linter", () => {
       linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
     };
 
-    await host.compile("main.tsp");
-
-    const linter = createLinter(host.program, (libName) =>
+    const linter = createLinter(result.program, (libName) =>
       Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
     );
     return linter;
@@ -351,23 +372,20 @@ describe("compiler: linter", () => {
 
   describe("(integration) loading in program", () => {
     async function diagnoseReal(code: string) {
-      const host = await createTestHost();
-      host.addTypeSpecFile("main.tsp", code);
-      host.addTypeSpecFile(
-        "node_modules/my-lib/package.json",
-        JSON.stringify({ name: "my-lib", main: "index.js" }),
-      );
-      host.addJsFile("node_modules/my-lib/index.js", {
-        $lib: createTypeSpecLibrary({
-          name: "my-lib",
-          diagnostics: {},
+      return await Tester.files({
+        "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", main: "index.js" }),
+        "node_modules/my-lib/index.js": mockFile.js({
+          $lib: createTypeSpecLibrary({
+            name: "my-lib",
+            diagnostics: {},
+          }),
+          $linter: { rules: [noModelFoo] },
         }),
-        $linter: { rules: [noModelFoo] },
-      });
-
-      return await host.diagnose("main.tsp", {
-        linterRuleSet: {
-          enable: { "my-lib/no-model-foo": true },
+      }).diagnose(code, {
+        compilerOptions: {
+          linterRuleSet: {
+            enable: { "my-lib/no-model-foo": true },
+          },
         },
       });
     }
@@ -426,6 +444,275 @@ describe("compiler: linter", () => {
           strict: true,
         },
       );
+    });
+  });
+
+  describe("rule options", () => {
+    it("uses default options when enabled with true", async () => {
+      const linter = await createTestLinter(`model Blocked {}`, {
+        rules: [noModelWithName],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: { "@typespec/test-linter/no-model-with-name": true },
+        }),
+      );
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-with-name",
+        message: "Cannot use this model name",
+      });
+    });
+
+    it("uses custom options when provided as object", async () => {
+      const linter = await createTestLinter(`model CustomBanned {}`, {
+        rules: [noModelWithName],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/no-model-with-name": { bannedName: "CustomBanned" },
+          },
+        }),
+      );
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-with-name",
+        message: "Cannot use this model name",
+      });
+    });
+
+    it("custom options override default options", async () => {
+      // "Blocked" is the default banned name, but we override to "Other"
+      // so "Blocked" should NOT trigger the rule
+      const linter = await createTestLinter(`model Blocked {}`, {
+        rules: [noModelWithName],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/no-model-with-name": { bannedName: "Other" },
+          },
+        }),
+      );
+      expectDiagnosticEmpty((await linter.lint()).diagnostics);
+    });
+
+    it("options are accessible in the rule context", async () => {
+      let capturedOptions: any;
+      const ruleWithCapture = createLinterRule({
+        name: "capture-options",
+        description: "",
+        severity: "warning",
+        messages: { default: "test" },
+        defaultOptions: { key1: "val1", key2: 42 },
+        create(context) {
+          capturedOptions = context.options;
+          return {};
+        },
+      });
+
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [ruleWithCapture],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: { "@typespec/test-linter/capture-options": { key1: "override" } },
+        }),
+      );
+      await linter.lint();
+      expect(capturedOptions).toEqual({ key1: "override", key2: 42 });
+    });
+
+    it("rule without options gets empty object in context", async () => {
+      let capturedOptions: any;
+      const ruleNoOptions = createLinterRule({
+        name: "no-options-rule",
+        description: "",
+        severity: "warning",
+        messages: { default: "test" },
+        create(context) {
+          capturedOptions = context.options;
+          return {};
+        },
+      });
+
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [ruleNoOptions],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: { "@typespec/test-linter/no-options-rule": true },
+        }),
+      );
+      await linter.lint();
+      expect(capturedOptions).toEqual({});
+    });
+
+    it("options from enable value override ruleset defaults", async () => {
+      const linter = await createTestLinter(`model Foo {} model Bar {}`, {
+        rules: [noModelWithName],
+        ruleSets: {
+          custom: {
+            enable: {
+              "@typespec/test-linter/no-model-with-name": { bannedName: "Foo" },
+            },
+          },
+        },
+      });
+
+      // Extend with the ruleset that bans "Foo"
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({ extends: ["@typespec/test-linter/custom"] }),
+      );
+      expectDiagnostics((await linter.lint()).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-with-name",
+      });
+    });
+
+    describe("option schema validation", () => {
+      const ruleWithSchema = createLinterRule({
+        name: "with-schema",
+        description: "Rule with option schema validation",
+        severity: "warning",
+        messages: { default: "test" },
+        optionSchema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            count: { type: "number" },
+          },
+          required: ["name"],
+          additionalProperties: false,
+        },
+        create() {
+          return {};
+        },
+      });
+
+      it("reports diagnostic when options fail schema validation", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: 123 } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("reports diagnostic when required option is missing", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { count: 5 } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("reports diagnostic when additional properties are provided", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: "test", extra: true } as any,
+          },
+        });
+        expectDiagnostics(diagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+      });
+
+      it("accepts valid options matching the schema", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": { name: "valid", count: 10 },
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not validate options when enabled with true (uses defaults)", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithSchema],
+        });
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/with-schema": true,
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not validate when rule has no optionSchema", async () => {
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [noModelWithName],
+        });
+        // noModelWithName has no optionSchema, so any object should be accepted
+        const diagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/no-model-with-name": { anything: "goes" } as any,
+          },
+        });
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("does not run the rule when options are invalid", async () => {
+        const modelListener = vi.fn();
+        const ruleWithRequiredOption = createLinterRule({
+          name: "required-option-rule",
+          description: "Rule that requires a name option",
+          severity: "warning",
+          messages: { default: "always fires" },
+          optionSchema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+            },
+            required: ["name"],
+          },
+          create() {
+            return {
+              model: modelListener,
+            };
+          },
+        });
+
+        const linter = await createTestLinter(`model Foo {}`, {
+          rules: [ruleWithRequiredOption],
+        });
+
+        // Provide invalid options (missing required "name")
+        const configDiagnostics = await linter.extendRuleSet({
+          enable: {
+            "@typespec/test-linter/required-option-rule": { notName: "value" } as any,
+          },
+        });
+        expectDiagnostics(configDiagnostics, {
+          code: "invalid-rule-options",
+          severity: "error",
+        });
+
+        // Rule should not have run
+        await linter.lint();
+        expect(modelListener).not.toHaveBeenCalled();
+      });
     });
   });
 });

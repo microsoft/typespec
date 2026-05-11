@@ -1,10 +1,10 @@
-import { css } from "@emotion/react";
-import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
+import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
 import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
-import { Colors } from "../constants.js";
+import { getCompletedRatio } from "../utils/coverage-utils.js";
+import style from "./dashboard-table.module.css";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 import { ScenarioStatusBox } from "./scenario-status.js";
@@ -13,6 +13,7 @@ import { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
 
 export interface DashboardTableProps {
   coverageSummary: CoverageSummary;
+  emitterDisplayNames?: Record<string, string>;
 }
 
 function buildTreeRows(
@@ -52,7 +53,10 @@ function buildTreeRows(
   return rows;
 }
 
-export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverageSummary }) => {
+export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
+  coverageSummary,
+  emitterDisplayNames,
+}) => {
   const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
   const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
 
@@ -76,9 +80,12 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
   });
 
   return (
-    <table css={TableStyles}>
+    <table className={style["table"]}>
       <thead>
-        <DashboardHeaderRow coverageSummary={coverageSummary} />
+        <DashboardHeaderRow
+          coverageSummary={coverageSummary}
+          emitterDisplayNames={emitterDisplayNames}
+        />
       </thead>
       <tbody>{rows}</tbody>
     </table>
@@ -101,7 +108,7 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
     <tr>
       <RowLabelCell manifest={coverageSummary.manifest} row={row} />
       {languages.map((lang) => (
-        <td key={lang} css={ScenarioStatusCellStyles}>
+        <td key={lang} className={style["scenario-status-cell"]}>
           {scenarioData ? (
             <ScenarioStatusBox
               status={coverageSummary.generatorReports[lang]?.results[scenarioData.name]}
@@ -134,28 +141,15 @@ const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = (
   return <ScenarioGroupRatioStatusBox ratio={ratio} />;
 };
 
-function getCompletedRatio(
-  scenarios: ScenarioData[],
-  report: GeneratorCoverageSuiteReport,
-  scope: string = "",
-) {
-  const filtered = scenarios.filter((x) => x.name.startsWith(scope));
-  let coveredCount = 0;
-  for (const scenario of filtered) {
-    const status = report.results[scenario.name];
-    if (status === "pass" || status === "not-applicable" || status === "not-supported") {
-      coveredCount++;
-    }
-  }
-
-  return coveredCount / filtered.length;
-}
-
 interface DashboardHeaderRowProps {
   coverageSummary: CoverageSummary;
+  emitterDisplayNames?: Record<string, string>;
 }
 
-const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ coverageSummary }) => {
+const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
+  coverageSummary,
+  emitterDisplayNames,
+}) => {
   const data: [string, number, GeneratorCoverageSuiteReport | undefined][] = Object.entries(
     coverageSummary.generatorReports,
   ).map(([language, report]) => {
@@ -171,74 +165,38 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
     <tr>
       {tableHeader}
       {data.map(([lang, status, report]) => (
-        <GeneratorHeaderCell key={lang} status={status} report={report} language={lang} />
+        <GeneratorHeaderCell
+          key={lang}
+          status={status}
+          report={report}
+          language={lang}
+          displayName={emitterDisplayNames?.[lang as string]}
+        />
       ))}
     </tr>
   );
 };
-const TableStyles = css({
-  borderCollapse: "collapse",
-  "& tr:nth-of-type(2n)": {
-    backgroundColor: tokens.colorNeutralBackground3,
-  },
-  "& td, & th": {
-    border: `1px solid ${Colors.borderDefault}`,
-    height: "32px",
-  },
-  "& th": {
-    padding: "6px 13px",
-    backgroundColor: tokens.colorNeutralBackground1,
-  },
-});
-
-const ScenarioStatusCellStyles = css({
-  padding: 0,
-  width: 120,
-});
 
 export interface GeneratorHeaderCellProps {
   status: number;
   report: GeneratorCoverageSuiteReport | undefined;
   language: string;
+  displayName?: string;
 }
 
 export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = ({
   status,
   report,
   language,
+  displayName,
 }) => {
   return (
-    <th css={{ padding: "0 !important" }}>
-      <div
-        css={{
-          display: "grid",
-          height: "100%",
-          gridTemplateRows: "auto 26px 32px",
-          gridTemplateColumns: "1fr 1fr",
-          borderBottom: `2px solid ${Colors.borderDefault}`,
-          gridTemplateAreas: `
-            "name name"
-            "gen-version spec-version"
-            "status status"
-          `,
-        }}
-      >
-        <div
-          title="Generator name"
-          css={{
-            gridArea: "name",
-            borderBottom: `1px solid ${Colors.borderDefault}`,
-            padding: 5,
-            textAlign: "center",
-            cursor: "pointer",
-            "&:hover": {
-              background: Colors.borderDefault,
-            },
-          }}
-        >
+    <th className={style["header-cell"]}>
+      <div className={style["header-grid"]}>
+        <div title="Generator name" className={style["header-name"]}>
           <Popover withArrow>
             <PopoverTrigger>
-              <div>{report?.generatorMetadata?.name ?? language}</div>
+              <div>{displayName ?? report?.generatorMetadata?.name ?? language}</div>
             </PopoverTrigger>
             <PopoverSurface>
               {report && <GeneratorInformation status={status} report={report} />}
@@ -247,56 +205,26 @@ export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = 
         </div>
         <div
           title="Generator version used in this coverage."
-          css={[
-            versionStyles,
-            {
-              gridArea: "gen-version",
-              borderRight: `1px solid ${Colors.borderDefault}`,
-            },
-          ]}
+          className={mergeClasses(style["version"], style["gen-version"])}
         >
-          <Print16Filled css={{ marginRight: 5, flex: "0 0 auto" }} />
+          <Print16Filled className={style["version-icon"]} />
 
           {report?.generatorMetadata?.version ?? "?"}
         </div>
         <div
           title="Scenario version used in this coverage."
-          css={[
-            versionStyles,
-            {
-              gridArea: "spec-version",
-            },
-          ]}
+          className={mergeClasses(style["version"], style["spec-version"])}
         >
-          <CodeBlock16Filled css={{ marginRight: 5, flex: "0 0 auto" }} />
+          <CodeBlock16Filled className={style["version-icon"]} />
           {report?.scenariosMetadata?.version ?? "?"}
         </div>
-        <div
-          title="Coverage stats"
-          css={{
-            gridArea: "status",
-            borderTop: `1px solid ${Colors.borderDefault}`,
-            height: 32,
-          }}
-        >
+        <div title="Coverage stats" className={style["header-status"]}>
           <ScenarioGroupRatioStatusBox ratio={status} />
         </div>
       </div>
     </th>
   );
 };
-
-const versionStyles = css({
-  fontSize: "9pt",
-  fontWeight: "normal",
-  color: Colors.lightText,
-  padding: 5,
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-  display: "flex",
-  width: 60,
-  overflow: "hidden",
-});
 
 function createTree(manifest: ScenarioManifest): ManifestTreeNode {
   const root: ManifestTreeNode = { name: "", fullName: "", children: {} };
@@ -320,18 +248,5 @@ function createTree(manifest: ScenarioManifest): ManifestTreeNode {
     current.scenario = scenario;
   }
 
-  return cutTillMultipleChildren(root);
-}
-
-function cutTillMultipleChildren(node: ManifestTreeNode): ManifestTreeNode {
-  let newRoot: ManifestTreeNode = node;
-  while (newRoot.children) {
-    if (Object.keys(newRoot.children).length === 1) {
-      newRoot = Object.values(newRoot.children)[0];
-    } else {
-      break;
-    }
-  }
-
-  return newRoot;
+  return root;
 }

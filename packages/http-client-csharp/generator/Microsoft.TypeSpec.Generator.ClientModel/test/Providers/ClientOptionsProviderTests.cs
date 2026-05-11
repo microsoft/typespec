@@ -137,21 +137,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(clientOptionsProvider);
 
             var ctors = clientOptionsProvider.Constructors;
+            // IConfigurationSection constructor is always generated
+            var configSectionCtor = ctors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor, "IConfigurationSection constructor should always be generated");
+
             if (containsApiVersions)
             {
-                Assert.AreEqual(1, ctors.Count);
-                var ctor = ctors[0];
-                var signature = ctor.Signature;
+                Assert.AreEqual(2, ctors.Count);
+                var versionCtor = ctors.First(c => c.Signature.Parameters.Any(p => p.Name == "version"));
+                var signature = versionCtor.Signature;
                 Assert.AreEqual(1, signature.Parameters.Count);
                 var versionParam = signature.Parameters[0];
                 Assert.AreEqual("version", versionParam.Name);
                 Assert.AreEqual(clientOptionsProvider.NestedTypes[0].Type, versionParam.Type);
                 Assert.IsNotNull(versionParam.DefaultValue);
-                Assert.IsNotNull(ctor.BodyStatements);
+                Assert.IsNotNull(versionCtor.BodyStatements);
             }
             else
             {
-                Assert.AreEqual(0, ctors.Count);
+                Assert.AreEqual(2, ctors.Count);
+                var defaultCtor = ctors.First(c => !c.Signature.Parameters.Any());
+                Assert.IsNotNull(defaultCtor, "Default parameterless constructor should be generated");
+            }
+        }
+
+        [TestCase(true, Category = ApiVersionsCategory)]
+        [TestCase(false)]
+        public void TestConfigurationSectionConstructorBody(bool containsApiVersions)
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
+
+            var ctors = clientOptionsProvider.Constructors;
+            var configSectionCtor = ctors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            // Validate it's internal
+            Assert.AreEqual(MethodSignatureModifiers.Internal, configSectionCtor!.Signature.Modifiers);
+
+            // Validate it has the base(section) initializer
+            Assert.IsNotNull(configSectionCtor.Signature.Initializer);
+            Assert.IsTrue(configSectionCtor.Signature.Initializer!.IsBase);
+
+            // Validate the body is not empty
+            var body = configSectionCtor.BodyStatements;
+            Assert.IsNotNull(body);
+
+            var bodyString = body!.ToDisplayString();
+
+            // Always has a guard statement
+            Assert.IsTrue(bodyString.Contains("section is null") || bodyString.Contains("Exists"),
+                "Configuration section constructor should have a guard statement");
+
+            if (containsApiVersions)
+            {
+                // When API versions exist, Version should be set to latest before guard
+                Assert.IsTrue(bodyString.Contains("Version ="),
+                    "Configuration constructor should set Version when API versions exist");
+                // After guard, should read version from config
+                Assert.IsTrue(bodyString.Contains("section[\"Version\"]"),
+                    "Configuration constructor should read Version from config section");
             }
         }
 
@@ -330,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var body = constructor?.BodyStatements?.ToDisplayString();
             Assert.IsNotNull(body);
-            
+
             // Verify the switch statement contains custom enum members with their correct string values
             Assert.IsTrue(body?.Contains("ServiceVersion.V2023_10_01_Preview_1 => \"2023-10-01-preview-1\""));
             Assert.IsTrue(body?.Contains("ServiceVersion.V2023_11_01 => \"2023-11-01\""));
@@ -368,17 +414,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void SingleClientCreatesClientSpecificOptions()
         {
             var client = InputFactory.Client("TestClient", clientNamespace: "TestNamespace");
-            
+
             MockHelpers.LoadMockGenerator(clients: () => [client]);
 
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
 
             Assert.IsNotNull(clientProvider);
-            
+
             var options = clientProvider!.ClientOptions;
 
             Assert.IsNotNull(options);
-            
+
             // The name should be based on the client name
             Assert.AreEqual("TestClientOptions", options!.Name);
         }
@@ -418,6 +464,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // ClientB should have namespace-based options (since it has only standard parameters)
             // Note: InputNamespace in MockHelpers is set to "Sample" by default
             Assert.AreEqual("SampleClientOptions", options2!.Name);
+        }
+
+        [Test]
+        public void MultipleClientsWithRequiredCustomParametersShareSingletonOptions()
+        {
+            // Required parameters (no DefaultValue) should NOT trigger a separate client-specific options type.
+            // They are inlined as constructor parameters on the client, not as properties on ClientOptions.
+            var requiredParam = InputFactory.MethodParameter(
+                "knowledgeBaseName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var client1 = InputFactory.Client("KnowledgeBaseRetrievalClient", clientNamespace: "TestNamespace", parameters: [requiredParam]);
+            var client2 = InputFactory.Client("SearchClient", clientNamespace: "TestNamespace");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
+
+            Assert.IsNotNull(clientProvider1);
+            Assert.IsNotNull(clientProvider2);
+
+            var options1 = clientProvider1!.ClientOptions;
+            var options2 = clientProvider2!.ClientOptions;
+
+            Assert.IsNotNull(options1);
+            Assert.IsNotNull(options2);
+
+            // Both clients should share the same singleton ClientOptions instance
+            // because the required parameter does not become a property on the options class
+            Assert.AreSame(options1, options2);
+
+            // The name should be based on the InputNamespace (singleton naming)
+            Assert.AreEqual("SampleClientOptions", options1!.Name);
         }
 
         [Test]
@@ -665,6 +747,527 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_SameLastSegment_ProducesUniqueVersionEnums()
+        {
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, the generated service version enums should still have distinct names.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Different full namespaces, same last segment ("Tests")
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_UniqueNamespaces_ProducesUniqueVersionEnums()
+        {
+            List<string> serviceOneVersions = ["2024-01-01"];
+            List<string> serviceTwoVersions = ["2024-06-01"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            var serviceOneEnum = InputFactory.StringEnum(
+                "Versions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "ServiceOne");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "Versions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "ServiceTwo");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "ServiceOne");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "ServiceTwo");
+
+            var client = InputFactory.Client(
+                "MultiServiceClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Validate that Fields access does not crash (the original issue crashed here)
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // Validate that Methods access does not crash (original crash site: Fields.ToDictionary in BuildMethods)
+            Assert.DoesNotThrow(() => _ = clientProvider!.Methods);
+
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            // Verify enum names follow the XServiceVersion pattern
+            Assert.AreEqual("ServiceOneServiceVersion", nestedTypes[0].Name);
+            Assert.AreEqual("ServiceTwoServiceVersion", nestedTypes[1].Name);
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_SameNamespace_ProducesUniqueVersionEnums()
+        {
+            // Regression test for the scenario where both enums share the exact same namespace
+            // (e.g., when tspconfig remaps both services to the same C# output namespace).
+            List<string> serviceOneVersions = ["2024-01-01"];
+            List<string> serviceTwoVersions = ["2024-06-01"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Both enums have the EXACT SAME namespace (simulates tspconfig namespace override)
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var client = InputFactory.Client(
+                "MultiServiceClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+            Assert.DoesNotThrow(() => _ = clientProvider!.Methods);
+
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultipleRootClients_WithoutClientDecorator_EachGeneratesItsOwnClientOptions()
+        {
+            // Simulates a library with two @service-decorated namespaces and no @client
+            // decorator, where TCGC produces a separate single-service root client per
+            // service. Each root client should generate its own ClientOptions class that
+            // exposes its own service-specific ApiVersion enum (not the first one in the
+            // library).
+            List<string> serviceAVersions = ["2024-01-01"];
+            List<string> serviceBVersions = ["2024-06-01"];
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceAVersions",
+                serviceAVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Service.MultipleServices.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceBVersions",
+                serviceBVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Service.MultipleServices.ServiceB");
+
+            InputParameter serviceAApiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                serviceAEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+            InputParameter serviceBApiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                serviceBEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [serviceAApiVersionParameter],
+                ns: "Service.MultipleServices.ServiceA");
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [serviceBApiVersionParameter],
+                ns: "Service.MultipleServices.ServiceB");
+
+            var serviceAClient = InputFactory.Client(
+                "ServiceAClient",
+                clientNamespace: "Service.MultipleServices.ServiceA",
+                methods: [InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation)],
+                parameters: [serviceAApiVersionParameter]);
+            var serviceBClient = InputFactory.Client(
+                "ServiceBClient",
+                clientNamespace: "Service.MultipleServices.ServiceB",
+                methods: [InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)],
+                parameters: [serviceBApiVersionParameter]);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [serviceAClient, serviceBClient],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var serviceAClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(serviceAClient);
+            var serviceBClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(serviceBClient);
+            Assert.IsNotNull(serviceAClientProvider);
+            Assert.IsNotNull(serviceBClientProvider);
+
+            var serviceAClientOptions = serviceAClientProvider!.ClientOptions;
+            var serviceBClientOptions = serviceBClientProvider!.ClientOptions;
+
+            Assert.IsNotNull(serviceAClientOptions);
+            Assert.IsNotNull(serviceBClientOptions);
+
+            // Each root client should get its own distinct ClientOptions type.
+            Assert.AreNotSame(serviceAClientOptions, serviceBClientOptions);
+            Assert.AreEqual("ServiceAClientOptions", serviceAClientOptions!.Type.Name);
+            Assert.AreEqual("ServiceBClientOptions", serviceBClientOptions!.Type.Name);
+
+            // Each options class should expose its own service-specific ApiVersion enum
+            // as a nested type (verified by the original namespace of the enum).
+            Assert.AreEqual(1, serviceAClientOptions.NestedTypes.Count,
+                "ServiceAClientOptions should have one nested api version enum");
+            Assert.AreEqual(1, serviceBClientOptions.NestedTypes.Count,
+                "ServiceBClientOptions should have one nested api version enum");
+            Assert.AreEqual("Service.MultipleServices.ServiceA",
+                ((Microsoft.TypeSpec.Generator.Providers.EnumProvider)serviceAClientOptions.NestedTypes[0]).InputNamespace,
+                "ServiceAClientOptions should nest ServiceA's api version enum");
+            Assert.AreEqual("Service.MultipleServices.ServiceB",
+                ((Microsoft.TypeSpec.Generator.Providers.EnumProvider)serviceBClientOptions.NestedTypes[0]).InputNamespace,
+                "ServiceBClientOptions should nest ServiceB's api version enum");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithBoolProperty()
+        {
+            var boolParam = InputFactory.MethodParameter(
+                "enableRetry",
+                InputPrimitiveType.Boolean,
+                isRequired: false,
+                defaultValue: new InputConstant(true, InputPrimitiveType.Boolean),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [boolParam]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [client]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("bool.TryParse"),
+                "IConfigurationSection constructor should use bool.TryParse for bool property binding");
+            Assert.IsTrue(bodyString.Contains("EnableRetry"),
+                "IConfigurationSection constructor should assign to EnableRetry property");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithIntProperty()
+        {
+            var intParam = InputFactory.MethodParameter(
+                "maxRetries",
+                InputPrimitiveType.Int32,
+                isRequired: false,
+                defaultValue: new InputConstant(3, InputPrimitiveType.Int32),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [intParam]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [client]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("int.TryParse"),
+                "IConfigurationSection constructor should use int.TryParse for int property binding");
+            Assert.IsTrue(bodyString.Contains("MaxRetries"),
+                "IConfigurationSection constructor should assign to MaxRetries property");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithEnumProperty()
+        {
+            var enumType = InputFactory.StringEnum(
+                "AppAudience",
+                [("Public", "public"), ("Private", "private")],
+                isExtensible: true);
+
+            var enumParam = InputFactory.MethodParameter(
+                "audience",
+                enumType,
+                isRequired: false,
+                defaultValue: new InputConstant("public", enumType),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [enumParam]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [client],
+                inputEnums: () => [enumType]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("is string"),
+                "IConfigurationSection constructor should use 'is string' pattern for extensible enum property binding");
+            Assert.IsTrue(bodyString.Contains("new"),
+                "IConfigurationSection constructor should create new enum instance");
+            Assert.IsTrue(bodyString.Contains("Audience"),
+                "IConfigurationSection constructor should assign to Audience property");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithStringProperty()
+        {
+            var stringParam = InputFactory.MethodParameter(
+                "tenantId",
+                InputPrimitiveType.String,
+                isRequired: false,
+                defaultValue: InputFactory.Constant.String("default"),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [stringParam]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [client]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("IsNullOrEmpty"),
+                "IConfigurationSection constructor should use string.IsNullOrEmpty for string property binding");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "IConfigurationSection constructor should assign to TenantId property");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithComplexObjectProperty()
+        {
+            var complexModel = InputFactory.Model(
+                "CustomOptions",
+                properties: new[]
+                {
+                    InputFactory.Property("setting1", InputPrimitiveType.String, isRequired: true, wireName: "setting1"),
+                    InputFactory.Property("setting2", InputPrimitiveType.Int32, isRequired: false, wireName: "setting2")
+                });
+
+            var complexParam = InputFactory.MethodParameter(
+                "customOptions",
+                complexModel,
+                isRequired: false,
+                defaultValue: new InputConstant(null, complexModel),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [complexParam]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [client],
+                inputModels: () => [complexModel]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("GetSection"),
+                "IConfigurationSection constructor should use GetSection for complex object property binding");
+            Assert.IsTrue(bodyString.Contains("Exists"),
+                "IConfigurationSection constructor should check Exists for complex object property binding");
+            Assert.IsTrue(bodyString.Contains("CustomOptions") && bodyString.Contains("new"),
+                "IConfigurationSection constructor should create new CustomOptions instance for complex object property binding");
+        }
+
+        [Test]
+        public void TestConfigurationSectionConstructorBody_WithFixedEnumProperty()
+        {
+            var enumType = InputFactory.StringEnum(
+                "ClientMode",
+                [("Default", "default"), ("MultiClient", "multi-client")],
+                isExtensible: false);
+
+            var enumParam = InputFactory.MethodParameter(
+                "mode",
+                enumType,
+                isRequired: false,
+                defaultValue: new InputConstant("default", enumType),
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client("TestClient", parameters: [enumParam]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [client],
+                inputEnums: () => [enumType]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var configSectionCtor = clientOptionsProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Enum.TryParse"),
+                "IConfigurationSection constructor should use Enum.TryParse for fixed enum property binding");
+            Assert.IsTrue(bodyString.Contains("Mode"),
+                "IConfigurationSection constructor should assign to Mode property");
+            Assert.IsFalse(bodyString.Contains("new ClientMode"),
+                "IConfigurationSection constructor should NOT use new for fixed enum property binding");
+        }
+
+        [Test]
+        public async Task TestConfigurationSectionConstructorBody_BindsCustomCodeProperties()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+            Assert.IsNotNull(clientOptionsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var configSectionCtor = clientOptionsProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            var bodyString = configSectionCtor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Audience"),
+                "IConfigurationSection constructor should bind the custom code 'Audience' property from configuration");
         }
     }
 }

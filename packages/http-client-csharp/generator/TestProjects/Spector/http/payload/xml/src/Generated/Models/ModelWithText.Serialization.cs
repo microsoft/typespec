@@ -5,7 +5,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Xml;
 
 namespace Payload.Xml
 {
@@ -26,7 +25,5 @@ namespace Payload.Xml
         public static implicit operator BinaryContent(ModelWithText modelWithText) => throw null;
 
         public static explicit operator ModelWithText(ClientResult result) => throw null;
-
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -92,7 +93,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
-            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+            => _lastContractPropertiesMap ??= LastContractView?.Properties
+                .Where(p => IsPublicApi(p.Modifiers))
+                .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
 
@@ -226,7 +229,53 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
-            return BaseModelProvider?.Type;
+            if (CustomCodeView?.BaseType != null)
+            {
+                var customBase = CustomCodeView.BaseType;
+
+                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
+                // This will happen if a model is customized to inherit from another generated model, but that generated model
+                // was not also defined in custom code so Roslyn does not recognize it.
+                if (string.IsNullOrEmpty(customBase.Namespace))
+                {
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out var resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedModel)
+                    {
+                        return resolvedModel.Type;
+                    }
+
+                    // Force-create all input models so that visitors run (which may rename models
+                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
+                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                    }
+
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            customBase.Name, out resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedAfterCreate)
+                    {
+                        return resolvedAfterCreate.Type;
+                    }
+                }
+
+                if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                        customBase, out var mappedProvider) &&
+                    mappedProvider is ModelProvider mappedModel)
+                {
+                    return mappedModel.Type;
+                }
+
+                return customBase;
+            }
+
+            if (_inputModel.BaseModel == null)
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -332,58 +381,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private ModelProvider? BuildBaseModelProvider()
         {
-            // consider models that have been customized to inherit from a different generated model
-            if (CustomCodeView?.BaseType != null)
-            {
-                var baseType = CustomCodeView.BaseType;
-
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
-                if (string.IsNullOrEmpty(baseType.Namespace))
-                {
-                    if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
-                    {
-                        baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
-                    }
-                }
-
-                // Try to find the base type in the CSharpTypeMap
-                if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                        baseType,
-                        out var customBaseType) &&
-                    customBaseType is ModelProvider customBaseModel)
-                {
-                    return customBaseModel;
-                }
-
-                // If the custom base type has a namespace (external type), try name+namespace based
-                // lookup as a fallback. This handles the case where CSharpType equality fails due to
-                // framework vs non-framework type mismatch (e.g., a CSharpType from Roslyn with
-                // _type=typeof(T) vs a CSharpType from a model provider with _type=null).
-                if (!string.IsNullOrEmpty(baseType?.Namespace))
-                {
-                    foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
-                    {
-                        if (mapValue is ModelProvider mp &&
-                            mapKey.Name == baseType.Name &&
-                            mapKey.Namespace == baseType.Namespace)
-                        {
-                            // Cache with the custom code's CSharpType for future lookups
-                            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = mp;
-                            return mp;
-                        }
-                    }
-                    return null;
-                }
-            }
-
-            if (_inputModel.BaseModel == null)
+            var baseType = BaseType;
+            if (baseType is null)
             {
                 return null;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
+            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var provider)
+                && provider is ModelProvider modelProvider)
+            {
+                return modelProvider;
+            }
+
+            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(baseType.Namespace))
+            {
+                foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+                {
+                    if (mapValue is ModelProvider model
+                        && mapKey.Name == baseType.Name
+                        && mapKey.Namespace == baseType.Namespace)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = model;
+                        return model;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
@@ -588,16 +612,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
-                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+                // Apply back-compat type replacement only for properties on the public API
+                // surface: changing the type of an internal/private generated property is not
+                // a source-breaking change, and the last-contract map already excludes
+                // non-public-API entries.
+                if (IsPublicApi(outputProperty.Modifiers) &&
+                    LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
+                    !lastContractPropertyType.Equals(outputProperty.Type))
                 {
-                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
-                            out CSharpType? lastContractPropertyType) &&
-                        !outputProperty.Type.Equals(lastContractPropertyType))
-                    {
-                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
-                    }
+                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                        BackCompatibilityChangeCategory.PropertyTypePreserved);
                 }
 
                 if (!isDiscriminator)
@@ -845,6 +871,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                         {
                             currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                            CodeModelGenerator.Instance.Emitter.Debug(
+                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                         }
                     }
                 }
@@ -1295,6 +1324,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         protected virtual FieldProvider? BuildRawDataField()
         {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return null;
+            }
+
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
             while (baseModelProvider != null)
@@ -1396,5 +1430,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
+
+        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }

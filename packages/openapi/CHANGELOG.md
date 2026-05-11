@@ -1,5 +1,24 @@
 # Change Log - @typespec/openapi
 
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Features
+
+- [#9577](https://github.com/microsoft/typespec/pull/9577) Add support for OpenAPI 3.2 nested tags via `parent` field in `@tagMetadata` decorator
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9686](https://github.com/microsoft/typespec/pull/9686) [API] Expose `setOperationId`
+
+
 ## 1.9.0
 
 No changes, version bump only.

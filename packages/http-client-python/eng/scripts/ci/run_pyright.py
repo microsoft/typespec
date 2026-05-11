@@ -13,21 +13,25 @@ from subprocess import check_output, CalledProcessError
 import logging
 import sys
 import time
-from util import run_check
+from util import run_check, get_package_namespace_dir
 
 logging.getLogger().setLevel(logging.INFO)
 
 
 def get_pyright_config_file_location():
-    pyright_config = os.path.join(os.getcwd(), "../../eng/scripts/ci/pyrightconfig.json")
+    # When running from tests/ directory via tox
+    pyright_config = os.path.join(os.getcwd(), "../eng/scripts/ci/config/pyrightconfig.json")
     if os.path.exists(pyright_config):
         return pyright_config
-    else:
-        return os.path.join(os.getcwd(), "../../../eng/scripts/ci/pyrightconfig.json")
+    # Fallback for running from different directories
+    return os.path.join(os.path.dirname(__file__), "config/pyrightconfig.json")
 
 
 def _single_dir_pyright(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    inner_class = get_package_namespace_dir(mod)
+    if not inner_class:
+        logging.info(f"No package directory found in {mod}, skipping")
+        return True
     retries = 3
     while retries:
         try:

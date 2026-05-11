@@ -57,26 +57,25 @@ public class TypeConversionUtils {
             expression
                 = String.format("%1$s.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, %2$s -> %3$s))",
                     variableName, nestedPropertyName, conversionExpression(type.getValueType(), valuePropertyName));
-        } else if (clientType instanceof GenericType) {
+        } else if (isPagedIterable(clientType)) {
             GenericType type = (GenericType) clientType;
-            if (ClassType.PAGED_ITERABLE.getName().equals(type.getName())) {
-                IType valueType = type.getTypeArguments()[0];
-                if (valueType instanceof ClassType) {
-                    String nestedPropertyName = nextPropertyName(variableName);
-                    expression = String.format("%1$s.mapPage(%2$s, %3$s -> new %4$s(%5$s, this.%6$s()))",
-                        ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, variableName, nestedPropertyName,
-                        getModelImplName((ClassType) valueType), nestedPropertyName, ModelNaming.METHOD_MANAGER);
-                }
-            } else if (ClassType.RESPONSE.getName().equals(type.getName())) {
-                IType valueType = type.getTypeArguments()[0];
-                if (valueType instanceof ClassType || valueType instanceof GenericType) {
-                    String valuePropertyName = variableName + ".getValue()";
-                    expression = String.format(
-                        "new SimpleResponse<>(%1$s.getRequest(), %1$s.getStatusCode(), %1$s.getHeaders(), %2$s)",
-                        variableName, conversionExpression(valueType, valuePropertyName));
-                } else {
-                    expression = variableName;
-                }
+            IType valueType = type.getTypeArguments()[0];
+            if (valueType instanceof ClassType) {
+                String nestedPropertyName = nextPropertyName(variableName);
+                expression = String.format("%1$s.mapPage(%2$s, %3$s -> new %4$s(%5$s, this.%6$s()))",
+                    ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, variableName, nestedPropertyName,
+                    getModelImplName((ClassType) valueType), nestedPropertyName, ModelNaming.METHOD_MANAGER);
+            }
+        } else if (isResponse(clientType)) {
+            GenericType type = (GenericType) clientType;
+            IType valueType = type.getTypeArguments()[0];
+            if (valueType instanceof ClassType || valueType instanceof GenericType) {
+                String valuePropertyName = variableName + ".getValue()";
+                expression = String.format(
+                    "new SimpleResponse<>(%1$s.getRequest(), %1$s.getStatusCode(), %1$s.getHeaders(), %2$s)",
+                    variableName, conversionExpression(valueType, valuePropertyName));
+            } else {
+                expression = variableName;
             }
         }
         Objects.requireNonNull(expression,
@@ -111,6 +110,17 @@ public class TypeConversionUtils {
         if (clientType instanceof GenericType) {
             GenericType type = (GenericType) clientType;
             if (ClassType.PAGED_ITERABLE.getName().equals(type.getName())) {
+                ret = true;
+            }
+        }
+        return ret;
+    }
+
+    public static boolean isResponse(IType clientType) {
+        boolean ret = false;
+        if (clientType instanceof GenericType) {
+            GenericType type = (GenericType) clientType;
+            if (ClassType.RESPONSE.getName().equals(type.getName())) {
                 ret = true;
             }
         }

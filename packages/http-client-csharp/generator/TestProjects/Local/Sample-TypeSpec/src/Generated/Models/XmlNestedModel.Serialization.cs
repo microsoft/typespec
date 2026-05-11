@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -96,7 +95,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -123,7 +122,6 @@ namespace SampleTypeSpec
 
             string value = default;
             int nestedId = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -144,7 +142,7 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
-            return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties);
+            return new XmlNestedModel(value, nestedId);
         }
     }
 }

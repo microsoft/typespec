@@ -26,7 +26,7 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      external: externals,
+      external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },
   plugins: [

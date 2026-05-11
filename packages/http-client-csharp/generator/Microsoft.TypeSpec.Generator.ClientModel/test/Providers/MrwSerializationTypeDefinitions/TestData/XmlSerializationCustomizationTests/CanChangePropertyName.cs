@@ -4,7 +4,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using Sample.Models;
@@ -13,7 +12,7 @@ namespace Sample
 {
     public partial class Model
     {
-        protected virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
@@ -37,7 +36,6 @@ namespace Sample
             }
 
             string prop2 = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -48,7 +46,7 @@ namespace Sample
                     continue;
                 }
             }
-            return new global::Sample.Models.Model(prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.Model(prop2);
         }
     }
 }

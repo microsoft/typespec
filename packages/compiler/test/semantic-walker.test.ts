@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   NavigationOptions,
   getProperty,
@@ -22,21 +22,19 @@ import {
   UnionVariant,
   getNamespaceFullName,
 } from "../src/index.js";
-import {
-  BasicTestRunner,
-  TestHost,
-  createTestHost,
-  createTestRunner,
-} from "../src/testing/index.js";
+import { mockFile, t } from "../src/testing/index.js";
+import { Tester } from "./tester.js";
 
 describe("compiler: semantic walker", () => {
-  let host: TestHost;
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    host = await createTestHost();
-    runner = await createTestRunner();
-  });
+  const NavigatorTester = Tester.files({
+    "main.js": mockFile.js({
+      $functions: {
+        Extern: {
+          foo() {},
+        },
+      },
+    }),
+  }).import("./main.js");
 
   function createCollector(customListener?: SemanticNodeListener) {
     const result = {
@@ -147,30 +145,22 @@ describe("compiler: semantic walker", () => {
     customListener?: SemanticNodeListener,
     options?: NavigationOptions,
   ) {
-    host.addJsFile("main.js", {
-      $functions: {
-        Extern: {
-          foo() {},
-        },
-      },
+    const { program } = await NavigatorTester.compile(typespec, {
+      compilerOptions: { nostdlib: true },
     });
-    host.addTypeSpecFile("main.tsp", `import "./main.js";\n\n${typespec}`);
-
-    await host.compile("main.tsp", { nostdlib: true });
 
     const [result, listener] = createCollector(customListener);
-    navigateProgram(host.program, listener, options);
+    navigateProgram(program, listener, options);
 
     return result;
   }
 
   it("finds derived models", async () => {
-    const { Bird } = (await runner.compile(`
+    const { Bird } = await Tester.compile(t.code`
       namespace Test;
 
       @discriminator("kind")
-      @test 
-      model Bird {
+      model ${t.model("Bird")} {
         kind: string;
         wingspan: int32;
       }
@@ -193,7 +183,7 @@ describe("compiler: semantic walker", () => {
         hate?: Record<Bird>;
         partner?: Bird;
       }
-      `)) as { Bird: Model };
+      `);
 
     const visitedModels: Model[] = [];
     navigateType(
@@ -214,12 +204,11 @@ describe("compiler: semantic walker", () => {
   });
 
   it("doesn't visit derived models without the option", async () => {
-    const { Bird } = (await runner.compile(`
+    const { Bird } = await Tester.compile(t.code`
       namespace Test;
 
       @discriminator("kind")
-      @test 
-      model Bird {
+      model ${t.model("Bird")} {
         kind: string;
         wingspan: int32;
       }
@@ -242,7 +231,7 @@ describe("compiler: semantic walker", () => {
         hate?: Record<Bird>;
         partner?: Bird;
       }
-      `)) as { Bird: Model };
+      `);
 
     const visitedModels: Model[] = [];
     navigateType(
@@ -615,10 +604,11 @@ describe("compiler: semantic walker", () => {
 
   describe("findInNamespace", () => {
     async function runFindInNamespace(code: string) {
-      host.addTypeSpecFile("main.tsp", code);
-      await host.compile("main.tsp", { nostdlib: true });
+      const { program } = await Tester.compile(code, {
+        compilerOptions: { nostdlib: true },
+      });
 
-      const TargetNs = host.program.getGlobalNamespaceType().namespaces.get("TargetNs");
+      const TargetNs = program.getGlobalNamespaceType().namespaces.get("TargetNs");
       ok(TargetNs, "Should have a namespace called TargetNs");
       const [result, listener] = createCollector();
       navigateTypesInNamespace(TargetNs, listener);

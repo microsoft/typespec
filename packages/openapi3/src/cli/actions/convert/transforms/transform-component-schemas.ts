@@ -316,8 +316,13 @@ function unwrapSingleAnyOfOneOf(
     return (member as any).type !== "null";
   });
 
-  // If there's exactly one meaningful inline member AND it's an object type, unwrap it
-  if (meaningfulInlineMembers.length === 1) {
+  // Check if there are any $ref members in the union alongside the inline members
+  const hasRefMembers = unionMembers.some((member) => "$ref" in member);
+
+  // If there's exactly one meaningful inline member AND it's an object type
+  // AND there are no $ref members alongside it, unwrap it.
+  // If $ref members are present, the schema is truly a union (e.g. $ref + object).
+  if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
     const member = meaningfulInlineMembers[0];
     // Only unwrap if the member is an object schema
     if (!("$ref" in member) && (member.type === "object" || member.properties)) {
@@ -386,8 +391,13 @@ function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataT
         return (member as any).type !== "null";
       });
 
-      // If there's exactly one meaningful inline member AND it's an object type, treat it as a model
-      if (meaningfulInlineMembers.length === 1) {
+      // Check if there are any $ref members in the union alongside the inline members
+      const hasRefMembers = unionMembers.some((member) => "$ref" in member);
+
+      // If there's exactly one meaningful inline member AND it's an object type
+      // AND there are no $ref members alongside it, treat it as a model.
+      // If $ref members are present, the schema is truly a union (e.g. $ref + object).
+      if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
         const member = meaningfulInlineMembers[0];
         // Only unwrap if the member is an object schema
         if (!("$ref" in member) && (member.type === "object" || member.properties)) {

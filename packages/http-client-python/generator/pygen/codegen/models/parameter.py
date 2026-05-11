@@ -61,6 +61,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.wire_name: str = yaml_data.get("wireName", "")
+        self.etag_role: Optional[str] = yaml_data.get("etagRole", None)
         self.client_name: str = self.yaml_data["clientName"]
         self.optional: bool = self.yaml_data["optional"]
         self.implementation: Optional[str] = yaml_data.get("implementation", None)
@@ -108,19 +109,24 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         type_description = self.type.description(is_operation_file=True)
         if type_description:
             base_description = add_to_description(base_description, type_description)
-        if self.optional and isinstance(self.type, ConstantType):
+        if (self.optional or self.is_api_version) and isinstance(self.type, ConstantType):
             base_description = add_to_description(
                 base_description,
                 f"Known values are {self.get_declaration()} and None.",
             )
         if not (self.optional or self.client_default_value):
             base_description = add_to_description(base_description, "Required.")
-        if self.client_default_value is not None:
+        if self.is_api_version:
+            base_description = add_to_description(
+                base_description,
+                "Default value is None. If not set, the operation's default API version will be used.",
+            )
+        elif self.client_default_value is not None:
             base_description = add_to_description(
                 base_description,
                 f"Default value is {self.client_default_value_declaration}.",
             )
-        if self.optional and self.client_default_value is None:
+        elif self.optional:
             base_description = add_to_description(
                 base_description,
                 f"Default value is {self.client_default_value_declaration}.",
@@ -372,6 +378,8 @@ class ClientParameter(Parameter):
     def method_location(self) -> ParameterMethodLocation:
         if self.constant:
             return ParameterMethodLocation.KWARG
+        if self.is_api_version:
+            return ParameterMethodLocation.KWARG
         if (
             self.is_host
             and (self.code_model.options["version-tolerant"] or self.code_model.options["low-level-client"])
@@ -403,6 +411,6 @@ class ConfigParameter(Parameter):
 
     @property
     def method_location(self) -> ParameterMethodLocation:
-        if self.constant:
+        if self.constant or self.is_api_version:
             return ParameterMethodLocation.KWARG
         return ParameterMethodLocation.POSITIONAL

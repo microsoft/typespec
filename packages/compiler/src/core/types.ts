@@ -1065,6 +1065,11 @@ export const enum SymbolFlags {
    */
   LateBound = 1 << 22,
 
+  /**
+   * An internal symbol that can only be referenced from a source file in the same package.
+   */
+  Internal = 1 << 23,
+
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
@@ -1169,6 +1174,7 @@ export enum SyntaxKind {
   ConstStatement,
   CallExpression,
   ScalarConstructor,
+  InternalKeyword,
   FunctionTypeExpression,
 }
 
@@ -1350,8 +1356,9 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
-export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
+export interface TypeSpecScriptNode extends BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
+  readonly id: IdentifierNode;
   readonly statements: readonly Statement[];
   readonly file: SourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
@@ -1384,22 +1391,23 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
+  /**
+   * Identifier that this node declares.
+   */
   readonly id: IdentifierNode;
+
+  /**
+   * Modifier nodes applied to this declaration.
+   */
+  readonly modifiers: Modifier[];
+
+  /**
+   * Combined modifier flags for this declaration.
+   */
+  readonly modifierFlags: ModifierFlags;
 }
 
-export type Declaration =
-  | ModelStatementNode
-  | ScalarStatementNode
-  | InterfaceStatementNode
-  | UnionStatementNode
-  | NamespaceStatementNode
-  | OperationStatementNode
-  | TemplateParameterDeclarationNode
-  | EnumStatementNode
-  | AliasStatementNode
-  | ConstStatementNode
-  | DecoratorDeclarationStatementNode
-  | FunctionDeclarationStatementNode;
+export type Declaration = Extract<Statement, DeclarationNode>;
 
 export type ScopeNode =
   | NamespaceStatementNode
@@ -1729,6 +1737,10 @@ export interface ExternKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.ExternKeyword;
 }
 
+export interface InternalKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.InternalKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1773,19 +1785,23 @@ export interface TemplateArgumentNode extends BaseNode {
   readonly argument: Expression;
 }
 
-export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
+export interface TemplateParameterDeclarationNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
   readonly parent?: TemplateableNode;
+  readonly id: IdentifierNode;
 }
 
 export const enum ModifierFlags {
   None,
   Extern = 1 << 1,
+  Internal = 1 << 2,
+
+  All = Extern | Internal,
 }
 
-export type Modifier = ExternKeywordNode;
+export type Modifier = ExternKeywordNode | InternalKeywordNode;
 
 /**
  * Represent a decorator declaration
@@ -1796,8 +1812,6 @@ export type Modifier = ExternKeywordNode;
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.DecoratorDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   /**
    * Decorator target. First parameter.
    */
@@ -1836,8 +1850,6 @@ export interface FunctionParameterNode extends BaseNode {
  */
 export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
@@ -2476,18 +2488,22 @@ export interface FunctionImplementations {
 export interface PackageFlags {}
 
 export interface LinterDefinition {
-  rules: LinterRuleDefinition<string, DiagnosticMessages>[];
+  rules: LinterRuleDefinition<string, DiagnosticMessages, any>[];
   ruleSets?: Record<string, LinterRuleSet>;
 }
 
 export interface LinterResolvedDefinition {
-  readonly rules: LinterRule<string, DiagnosticMessages>[];
+  readonly rules: LinterRule<string, DiagnosticMessages, any>[];
   readonly ruleSets: {
     [name: string]: LinterRuleSet;
   };
 }
 
-interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessages> {
+interface LinterRuleDefinitionBase<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   /** Rule name (without the library name) */
   name: N;
   /** Rule default severity. */
@@ -2498,60 +2514,85 @@ interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessag
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /**
+   * JSON Schema for the rule options.
+   * When provided, options will be validated against this schema before the rule runs.
+   */
+  optionSchema?: Record<string, unknown>;
+  /** Default options for the rule, used when enabled with `true` and no options are specified. */
+  defaultOptions?: Options;
 }
 
 interface LinterRuleDefinitionSync<
   N extends string,
   DM extends DiagnosticMessages,
-> extends LinterRuleDefinitionBase<N, DM> {
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
   /** Whether this is an async rule. Default is false */
   async?: false;
   /** Creator */
   create(
-    context: LinterRuleContext<DM>,
+    context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
 }
 
 interface LinterRuleDefinitionAsync<
   N extends string,
   DM extends DiagnosticMessages,
-> extends LinterRuleDefinitionBase<N, DM> {
+  Options extends Record<string, unknown> = Record<string, never>,
+> extends LinterRuleDefinitionBase<N, DM, Options> {
   /** Whether this is an async rule. Default is false */
   async: true;
   /** Creator */
   create(
-    context: LinterRuleContext<DM>,
+    context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
 }
 
-export type LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> =
-  | LinterRuleDefinitionSync<N, DM>
-  | LinterRuleDefinitionAsync<N, DM>;
+export type LinterRuleDefinition<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinitionSync<N, DM, Options> | LinterRuleDefinitionAsync<N, DM, Options>;
 
 /** Resolved instance of a linter rule that will run. */
-export type LinterRule<N extends string, DM extends DiagnosticMessages> = LinterRuleDefinition<
-  N,
-  DM
-> & {
+export type LinterRule<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> = LinterRuleDefinition<N, DM, Options> & {
   /** Expanded rule id in format `<library-name>:<rule-name>` */
   id: string;
 };
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
 export type RuleRef = `${string}/${string}`;
+
+/**
+ * Value for enabling a linter rule.
+ * - `true` enables the rule with default options.
+ * - An object enables the rule with the specified options.
+ */
+export type LinterRuleEnableValue = boolean | Record<string, unknown>;
+
 export interface LinterRuleSet {
   /** Other ruleset this ruleset extends */
   extends?: RuleRef[];
 
   /** Rules to enable/configure */
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, LinterRuleEnableValue>;
 
   /** Rules to disable. A rule CANNOT be in enable and disable map. */
   disable?: Record<RuleRef, string>;
 }
 
-export interface LinterRuleContext<DM extends DiagnosticMessages> {
+export interface LinterRuleContext<
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown> = Record<string, never>,
+> {
   readonly program: Program;
+  /** Options configured for this rule. */
+  readonly options: Options;
   reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void;
 }
 

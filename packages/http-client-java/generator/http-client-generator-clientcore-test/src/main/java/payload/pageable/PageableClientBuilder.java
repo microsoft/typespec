@@ -34,6 +34,7 @@ import payload.pageable.implementation.PageableClientImpl;
 @ServiceClientBuilder(
     serviceClients = {
         ServerDrivenPaginationClient.class,
+        ServerDrivenPaginationAlternateInitialVerbClient.class,
         ServerDrivenPaginationContinuationTokenClient.class,
         PageSizeClient.class,
         XmlPaginationClient.class })
@@ -237,6 +238,18 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
         PageableClientImpl innerClient = buildInnerClient();
         return new ServerDrivenPaginationClient(innerClient.getServerDrivenPaginations(),
             innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ServerDrivenPaginationAlternateInitialVerbClient class.
+     * 
+     * @return an instance of ServerDrivenPaginationAlternateInitialVerbClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ServerDrivenPaginationAlternateInitialVerbClient buildServerDrivenPaginationAlternateInitialVerbClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new ServerDrivenPaginationAlternateInitialVerbClient(
+            innerClient.getServerDrivenPaginationAlternateInitialVerbs(), innerClient.getInstrumentation());
     }
 
     /**

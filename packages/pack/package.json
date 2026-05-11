@@ -26,7 +26,7 @@
     "tsp-pack": "cmd/cli.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "bundle": "node ./dist/src/cli.js",
@@ -46,17 +46,16 @@
   ],
   "dependencies": {
     "@typespec/compiler": "workspace:^",
-    "picocolors": "~1.1.1"
+    "picocolors": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
-    "@vitest/coverage-v8": "^4.0.15",
-    "@vitest/ui": "^4.0.15",
-    "c8": "^10.1.3",
-    "rimraf": "~6.1.2",
-    "source-map-support": "~0.5.21",
-    "typescript": "~5.9.2",
-    "vite": "^7.2.7",
-    "vitest": "^4.0.15"
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "rimraf": "catalog:",
+    "source-map-support": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

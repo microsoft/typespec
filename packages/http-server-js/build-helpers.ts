@@ -5,6 +5,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { parse as parseYaml } from "yaml";
 
 const GENERATED_DEFS = path.resolve("generated-defs");
 
@@ -23,16 +24,48 @@ async function* visitAllFiles(base: string): AsyncIterable<string> {
   }
 }
 
+async function loadPnpmCatalog(): Promise<Record<string, string>> {
+  const workspaceYamlPath = path.resolve("..", "..", "pnpm-workspace.yaml");
+  const content = await fs.readFile(workspaceYamlPath, "utf-8");
+  const parsed = parseYaml(content);
+  return parsed.catalog ?? {};
+}
+
+function resolveCatalogVersions(
+  dependencies: Record<string, string>,
+  catalog: Record<string, string>,
+): Record<string, string> {
+  const resolved: Record<string, string> = {};
+  for (const [name, version] of Object.entries(dependencies)) {
+    if (version === "catalog:" || version === "catalog:default") {
+      const catalogVersion = catalog[name];
+      if (!catalogVersion) {
+        throw new Error(
+          `Dependency "${name}" uses catalog: but no version found in pnpm-workspace.yaml catalog`,
+        );
+      }
+      resolved[name] = catalogVersion;
+    } else {
+      resolved[name] = version;
+    }
+  }
+  return resolved;
+}
+
 async function buildPackageJsonTs() {
   console.log("Building package.json.ts");
   const packageJson = await fs.readFile(path.resolve("package.json"), "utf-8");
 
   const parsed = JSON.parse(packageJson);
+  const catalog = await loadPnpmCatalog();
 
-  const mergedDependencies: Record<string, string> = {
-    ...parsed.devDependencies,
-    ...parsed.dependencies,
-  };
+  const mergedDependencies: Record<string, string> = resolveCatalogVersions(
+    {
+      ...parsed.devDependencies,
+      ...parsed.dependencies,
+    },
+    catalog,
+  );
 
   const fileText = [
     "// Copyright (c) Microsoft Corporation",

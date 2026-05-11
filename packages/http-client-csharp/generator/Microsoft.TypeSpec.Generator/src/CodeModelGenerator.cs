@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
@@ -108,6 +109,12 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal virtual void Configure()
         {
+            if (string.IsNullOrEmpty(Configuration.PackageName))
+            {
+                Configuration.PackageName = TypeFactory.PrimaryNamespace;
+                Emitter.Info($"'package-name' was not specified. Defaulting to namespace '{Configuration.PackageName}'.");
+            }
+
             foreach (var type in CustomCodeAttributeProviders)
             {
                 AddTypeToKeep(type);
@@ -117,6 +124,25 @@ namespace Microsoft.TypeSpec.Generator
         public virtual void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        /// <summary>
+        /// Removes all visitors of the specified type from the list of visitors.
+        /// </summary>
+        /// <typeparam name="T">The type of visitor to remove.</typeparam>
+        public virtual void RemoveVisitor<T>() where T : LibraryVisitor
+        {
+            _visitors.RemoveAll(v => v.GetType() == typeof(T));
+        }
+
+        /// <summary>
+        /// Removes all visitors whose type name matches the specified name from the list of visitors.
+        /// This overload is useful when the visitor type is not publicly accessible.
+        /// </summary>
+        /// <param name="visitorTypeName">The name of the visitor type to remove.</param>
+        public virtual void RemoveVisitor(string visitorTypeName)
+        {
+            _visitors.RemoveAll(v => v.GetType().Name == visitorTypeName);
         }
 
         public virtual void AddRewriter(LibraryRewriter rewriter)
@@ -163,5 +189,12 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
         /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
         public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
+
+        /// <summary>
+        /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.
+        /// Override this method to generate non-C# output files.
+        /// </summary>
+        /// <param name="outputPath">The root output directory.</param>
+        public virtual Task WriteAdditionalFiles(string outputPath) => Task.CompletedTask;
     }
 }

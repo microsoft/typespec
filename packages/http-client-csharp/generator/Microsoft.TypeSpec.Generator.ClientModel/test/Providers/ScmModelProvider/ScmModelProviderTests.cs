@@ -62,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { {"cat", catModel } });
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
@@ -157,6 +157,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            // Dynamic models with Record<unknown> (BinaryData additional properties) should generate
+            // JsonPatch instead of AdditionalProperties.
+            Assert.IsNotNull(model.JsonPatchProperty, "Dynamic models with Record<unknown> should generate JsonPatch");
+            Assert.IsFalse(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Dynamic models with Record<unknown> should not generate AdditionalProperties");
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
+
+            var writer = new TypeProviderWriter(model);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task TestDynamicModelWithBinaryDataAdditionalPropsBackCompat()
+        {
+            // Scenario: A model was previously shipped with AdditionalProperties (IDictionary<string, BinaryData>)
+            // but the model has now been updated to use @dynamicModel. Both JsonPatch and AdditionalProperties
+            // should be generated to maintain backward compatibility.
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                additionalProperties: InputPrimitiveType.Any,
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            // Backcompat: both JsonPatch and AdditionalProperties should be generated
+            Assert.IsNotNull(model.JsonPatchProperty, "Dynamic model should generate JsonPatch");
+            Assert.IsTrue(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Dynamic model should still generate AdditionalProperties for backcompat");
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);

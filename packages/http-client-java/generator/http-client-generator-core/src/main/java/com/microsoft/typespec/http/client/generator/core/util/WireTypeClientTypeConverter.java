@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.microsoft.typespec.http.client.generator.core.Javagen;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -10,11 +13,15 @@ import io.clientcore.core.utils.DateTimeRfc1123;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import org.slf4j.Logger;
 
 /**
  * Class to group conversion logic between client type and wire type.
  */
 public class WireTypeClientTypeConverter {
+
+    private final static Logger LOGGER
+        = new PluginLogger(Javagen.getPluginInstance(), WireTypeClientTypeConverter.class);
 
     private WireTypeClientTypeConverter() {
     }
@@ -43,6 +50,10 @@ public class WireTypeClientTypeConverter {
             expression = "Duration.ofSeconds(" + expression + ")";
         } else if (wireType == ClassType.DURATION_DOUBLE) {
             expression = "Duration.ofNanos((long) (" + expression + " * 1000_000_000L))";
+        } else if (wireType == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = "Duration.ofMillis(" + expression + ")";
+        } else if (wireType == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "Duration.ofNanos((long) (" + expression + " * 1000_000L))";
         }
 
         return expression;
@@ -72,6 +83,10 @@ public class WireTypeClientTypeConverter {
             expression = expression + ".getSeconds()";
         } else if (clientType == ClassType.DURATION_DOUBLE) {
             expression = "(double) " + expression + ".toNanos() / 1000_000_000L";
+        } else if (clientType == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = expression + ".toMillis()";
+        } else if (clientType == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "(double) " + expression + ".toNanos() / 1000_000L";
         }
 
         return expression;
@@ -99,6 +114,10 @@ public class WireTypeClientTypeConverter {
             expression = String.format("Duration.ofSeconds(%s)", expression);
         } else if (wireType == PrimitiveType.DURATION_DOUBLE) {
             expression = String.format("Duration.ofNanos((long) (%s * 1000_000_000L))", expression);
+        } else if (wireType == PrimitiveType.DURATION_MILLISECONDS_LONG) {
+            expression = String.format("Duration.ofMillis(%s)", expression);
+        } else if (wireType == PrimitiveType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = String.format("Duration.ofNanos((long) (%s * 1000_000L))", expression);
         }
         return expression;
     }
@@ -124,6 +143,10 @@ public class WireTypeClientTypeConverter {
             expression = String.format("%s.getSeconds()", expression);
         } else if (clientType == PrimitiveType.DURATION_DOUBLE) {
             expression = String.format("(double) %s.toNanos() / 1000_000_000L", expression);
+        } else if (clientType == PrimitiveType.DURATION_MILLISECONDS_LONG) {
+            expression = String.format("%s.toMillis()", expression);
+        } else if (clientType == PrimitiveType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = String.format("(double) %s.toNanos() / 1000_000L", expression);
         }
         return expression;
     }
@@ -142,16 +165,27 @@ public class WireTypeClientTypeConverter {
      */
     public static String convertLiteralToClientValue(IType wireType, String literalInWireType) {
         String literalValue = literalInWireType;
-        if (wireType == ClassType.DATE_TIME_RFC_1123) {
-            literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
-        } else if (wireType == ClassType.BASE_64_URL) {
-            literalValue = new Base64Uri(literalValue).toString();
-        } else if (wireType.asNullable() == ClassType.UNIX_TIME_LONG) {
-            literalValue = Instant.ofEpochSecond(Long.parseLong(literalValue)).atOffset(ZoneOffset.UTC).toString();
-        } else if (wireType.asNullable() == ClassType.DURATION_LONG) {
-            literalValue = Duration.ofSeconds(Long.parseLong(literalValue)).toString();
-        } else if (wireType.asNullable() == ClassType.DURATION_DOUBLE) {
-            literalValue = Duration.ofNanos((long) (Double.parseDouble(literalInWireType) * 1000_000_000L)).toString();
+        try {
+            if (wireType == ClassType.DATE_TIME_RFC_1123) {
+                literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
+            } else if (wireType == ClassType.BASE_64_URL) {
+                literalValue = new Base64Uri(literalValue).toString();
+            } else if (wireType.asNullable() == ClassType.UNIX_TIME_LONG) {
+                literalValue = Instant.ofEpochSecond(Long.parseLong(literalValue)).atOffset(ZoneOffset.UTC).toString();
+            } else if (wireType.asNullable() == ClassType.DURATION_LONG) {
+                literalValue = Duration.ofSeconds(Long.parseLong(literalValue)).toString();
+            } else if (wireType.asNullable() == ClassType.DURATION_DOUBLE) {
+                literalValue
+                    = Duration.ofNanos((long) (Double.parseDouble(literalInWireType) * 1000_000_000L)).toString();
+            } else if (wireType.asNullable() == ClassType.DURATION_MILLISECONDS_LONG) {
+                literalValue = Duration.ofMillis(Long.parseLong(literalValue)).toString();
+            } else if (wireType.asNullable() == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+                literalValue = Duration.ofNanos((long) (Double.parseDouble(literalInWireType) * 1000_000L)).toString();
+            }
+        } catch (RuntimeException e) {
+            LOGGER.warn(
+                "Failed to convert literal value '{}' from wire type to client type. Return the original literal value. Error: {}",
+                literalInWireType, e.getMessage());
         }
         return literalValue;
     }

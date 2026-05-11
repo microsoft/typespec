@@ -289,3 +289,86 @@ namespace ModelProperties {
   @route("list")
   op withList(@body body: ModelWithList): void;
 }
+
+/**
+ * Verify that operation parameters whose names match Python Mapping protocol methods
+ * (e.g., items, keys, values) are sent with the original name on the wire, not mangled.
+ */
+@route("/operations")
+namespace ReservedOperationBodyParams {
+  @scenario
+  @scenarioDoc("""
+    Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+    not mangled to "items_property" or similar.
+    
+    Send
+    
+    ```json
+    {"items": ["item"]}
+    ```
+    """)
+  @post
+  @route("/body-param-reserved")
+  op withItems(items: string[]): void;
+}
+
+/**
+ * Verify enum member names that are special words.
+ */
+@route("/extensible-strings")
+namespace ExtensibleStrings {
+  /**
+   * Verify enum member names that are special words using extensible enum (union).
+   */
+  union ExtensibleString {
+    string,
+    and: "and",
+    as: "as",
+    assert: "assert",
+    async: "async",
+    await: "await",
+    break: "break",
+    class: "class",
+    constructor: "constructor",
+    continue: "continue",
+    def: "def",
+    del: "del",
+    elif: "elif",
+    `else`: "else",
+    except: "except",
+    exec: "exec",
+    finally: "finally",
+    for: "for",
+    from: "from",
+    global: "global",
+    `if`: "if",
+    `import`: "import",
+    in: "in",
+    `is`: "is",
+    lambda: "lambda",
+    not: "not",
+    or: "or",
+    pass: "pass",
+    raise: "raise",
+    `return`: "return",
+    try: "try",
+    while: "while",
+    with: "with",
+    yield: "yield",
+  }
+
+  @scenario
+  @scenarioDoc("""
+    Verify that enum members with special word names can be sent and received properly.
+    Send 'class' and expect the same value back.
+    """)
+  @put
+  @route("/string")
+  op putExtensibleStringValue(
+    @header contentType: "application/json",
+    @body body: ExtensibleString,
+  ): {
+    @header contentType: "application/json";
+    @body body: ExtensibleString;
+  };
+}

@@ -39,20 +39,6 @@ namespace Microsoft.TypeSpec.Generator
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
-        internal IDictionary<string, InputModelType> InputModelTypeNameMap
-        {
-            get
-            {
-                if (_inputModelTypeNameMap == null)
-                {
-                    _inputModelTypeNameMap = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.ToDictionary(m => m.Name.ToIdentifierName(), m => m);
-                }
-
-                return _inputModelTypeNameMap;
-            }
-        }
-        private IDictionary<string, InputModelType>? _inputModelTypeNameMap;
-
         protected internal TypeFactory()
         {
         }
@@ -65,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            TypeCache[inputType] = type;
             return type;
         }
 
@@ -190,6 +176,10 @@ namespace Microsoft.TypeSpec.Generator
             if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
+            // Add sentinel before construction to prevent re-entrant creation of the same model
+            // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
+            InputTypeToModelProvider[model] = null;
+
             modelProvider = CreateModelCore(model);
 
             foreach (var visitor in Visitors)
@@ -197,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator
                 modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
-            InputTypeToModelProvider.Add(model, modelProvider);
+            InputTypeToModelProvider[model] = modelProvider;
 
             if (modelProvider != null)
             {
@@ -394,6 +384,25 @@ namespace Microsoft.TypeSpec.Generator
             },
             _ => SerializationFormat.Default
         };
+
+        /// <summary>
+        /// Retrieves the serialization format for a given input property. For array-typed properties
+        /// this checks the property-level <see cref="InputModelProperty.Encode"/> before falling
+        /// back to <see cref="GetSerializationFormat(InputType)"/>.
+        /// </summary>
+        /// <param name="inputProperty">The <see cref="InputProperty"/> to retrieve the serialization format for.</param>
+        /// <returns>The <see cref="SerializationFormat"/> for the input property.</returns>
+        internal SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                modelProperty.Encode.HasValue)
+            {
+                return modelProperty.Encode.Value.ToSerializationFormat();
+            }
+
+            return GetSerializationFormat(inputProperty.Type);
+        }
 
         /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.

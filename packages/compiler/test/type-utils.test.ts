@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import {
   Enum,
   Interface,
@@ -11,34 +11,29 @@ import {
   isTemplateDeclarationOrInstance,
   isTemplateInstance,
 } from "../src/index.js";
-import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
+import { t } from "../src/testing/index.js";
+import { Tester } from "./tester.js";
 
 describe("compiler: type-utils", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   describe("template utils", () => {
     it("check model is a template declaration", async () => {
-      await runner.compile(`
+      const { program } = await Tester.compile(`
        model Foo<T> {t: T};
     `);
-      const Foo = runner.program.checker.getGlobalNamespaceType().models.get("Foo")!;
+      const Foo = program.checker.getGlobalNamespaceType().models.get("Foo")!;
       ok(isTemplateDeclarationOrInstance(Foo));
       ok(isTemplateDeclaration(Foo), "Should BE a template declaration");
       ok(!isTemplateInstance(Foo), "Should NOT be a template instance");
     });
 
     it("check model reference is a template instance", async () => {
-      const { Bar } = (await runner.compile(`
+      const { Bar } = await Tester.compile(t.code`
       model Foo<T> {t: T};
 
-      @test model Bar {
+      model ${t.model("Bar")} {
         foo: Foo<string> 
       }
-      `)) as { Bar: Model };
+      `);
       const Foo = Bar.properties.get("foo")!.type as Model;
 
       ok(isTemplateDeclarationOrInstance(Foo));
@@ -47,13 +42,13 @@ describe("compiler: type-utils", () => {
     });
 
     it("check model expression inside a template instance is also a template instance", async () => {
-      const { Bar } = (await runner.compile(`
+      const { Bar } = await Tester.compile(t.code`
       model Foo<T> {a: { b: T }};
 
-      @test model Bar {
+      model ${t.model("Bar")} {
         foo: Foo<string> 
       }
-      `)) as { Bar: Model };
+      `);
       const Foo = Bar.properties.get("foo")!.type as Model;
       const expr = Foo.properties.get("a")!.type;
 
@@ -62,13 +57,13 @@ describe("compiler: type-utils", () => {
     });
 
     it("check union expression inside a template instance is also a template instance", async () => {
-      const { Bar } = (await runner.compile(`
+      const { Bar } = await Tester.compile(t.code`
       model Foo<T> {a: int32 | T};
 
-      @test model Bar {
+      model ${t.model("Bar")} {
         foo: Foo<string> 
       }
-      `)) as { Bar: Model };
+      `);
       const Foo = Bar.properties.get("foo")!.type as Model;
       const expr = Foo.properties.get("a")!.type;
 
@@ -89,34 +84,21 @@ describe("compiler: type-utils", () => {
         BarOperation,
         FooNamespace,
         FooInterface,
-      } = (await runner.compile(`
-          @test
-          namespace Alpha {
-            @test
-            namespace SubAlpha {
-              @test model FooModel {}
-              @test enum FooEnum {}
-              @test op FooOperation(): unknown;
-              @test namespace FooNamespace {}
-              @test interface FooInterface {
-                @test op BarOperation(): unknown;
+      } = await Tester.compile(t.code`
+          namespace ${t.namespace("Alpha")} {
+            namespace ${t.namespace("SubAlpha")} {
+              model ${t.model("FooModel")} {}
+              enum ${t.enum("FooEnum")} {}
+              op ${t.op("FooOperation")}(): unknown;
+              namespace ${t.namespace("FooNamespace")} {}
+              interface ${t.interface("FooInterface")} {
+                op ${t.op("BarOperation")}(): unknown;
               }
             }
           }
 
-          @test
-          namespace Beta {}
-`)) as {
-        Alpha: Namespace;
-        SubAlpha: Namespace;
-        Beta: Namespace;
-        FooModel: Model;
-        FooEnum: Enum;
-        FooOperation: Operation;
-        BarOperation: Operation;
-        FooNamespace: Namespace;
-        FooInterface: Interface;
-      };
+          namespace ${t.namespace("Beta")} {}
+`);
 
       const candidates: [string, Model | Enum | Operation | Namespace | Interface][] = [
         ["FooModel", FooModel],

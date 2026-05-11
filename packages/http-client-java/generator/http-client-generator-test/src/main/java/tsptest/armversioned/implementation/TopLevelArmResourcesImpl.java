@@ -66,24 +66,16 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         Response<TopLevelArmResourceInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter,
                 newParameter, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
     }
 
     public Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, Context context) {
         Response<TopLevelArmResourceInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
     }
 
     public TopLevelArmResource getByResourceGroup(String resourceGroupName, String topLevelArmResourcePropertiesName) {

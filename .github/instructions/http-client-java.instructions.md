@@ -16,14 +16,17 @@ Steps:
 5. Commit the changes to `package.json` and `package-lock.json`.
 6. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
 7. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
-8. Call `pnpm change add @typespec/http-client-java`, select "Bump dependencies" in terminal, then input a summary in terminal. Commit the new md file in ".chronus" folder of repository root.
+8. Call `pnpm change add @typespec/http-client-java --kind=dependencies --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
 
 # Prepare for minor/patch release
 
 Steps:
 
-1. Bump the minor or patch version of `@typespec/http-client-java` in the three `package.json` files.
-2. Save the files and run `npm install` in the root so that `package-lock.json` is updated.
+1. Checkout "main" branch, pull the latest changes.
+2. Create a new branch. The name must follow the pattern "publish/http-client-java-<version>". Remind user that this branch must be pushed to remote upstream.
+3. Invoke `pnpm prepare-publish --only @typespec/http-client-java` in repository root. Commit the changes.
+4. Invoke `npm install` in the root to update `package-lock.json`. Commit the changes.
+5. Update the two `package.json` files in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test` to match the new version in the root `package.json`. Commit the changes.
 
 The publish workflow (to NPM) will be automatically triggered after the PR is merged: https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294
 
@@ -46,4 +49,8 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 9. Start Spector server by `npm run spector-start`.
 10. Run the tests (`mvn test`). Make sure all tests pass.
 11. Stop Spector server by `npm run spector-stop`.
-12. Call `pnpm change add @typespec/http-client-java`, select "Internal" in terminal, then input a summary in terminal. Commit the new md file in ".chronus" folder of repository root.
+12. Call `pnpm change add @typespec/http-client-java --kind=internal --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
+
+# Add feature or fix bug
+
+- Run `npm run format` and commit the formatted code, before finalizing. Do not include any other changes in the commit.

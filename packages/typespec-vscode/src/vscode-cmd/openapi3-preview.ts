@@ -150,6 +150,9 @@ async function loadOpenApi3PreviewPanel(
               showOutput: true,
               showPopup: true,
             });
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: "Failed to create temporary folder for OpenAPI3 files",
+            });
             return undefined;
           }
           await clearOutputFolder(outputFolder);
@@ -283,7 +286,7 @@ async function getOutputFolder(mainTspFile: string, tmpRoot: string): Promise<st
 }
 
 async function clearOutputFolder(outputFolder: string) {
-  let files: string[] = [];
+  let files: string[];
   // Clear the contents of the existing tmpFolder
   try {
     files = await readdir(outputFolder);

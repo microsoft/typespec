@@ -870,9 +870,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        var defaultValue = (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
-                           ? Literal(_model.DiscriminatorValue)
-                           : Default;
+                        ValueExpression defaultValue;
+                        if (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
+                        {
+                            defaultValue = Literal(_model.DiscriminatorValue);
+                        }
+                        else if (IsXmlUnwrappedRequiredCollection(property))
+                        {
+                            defaultValue = New.List(property.Type.ElementType);
+                        }
+                        else
+                        {
+                            defaultValue = Default;
+                        }
                         propertyDeclarationStatements.Add(Declare(variableRef, defaultValue));
                     }
                 }
@@ -895,6 +905,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             return propertyDeclarationStatements;
+        }
+
+        private static bool IsXmlUnwrappedRequiredCollection(PropertyProvider property)
+        {
+            var wireInfo = property.WireInfo;
+            if (wireInfo == null || !wireInfo.IsRequired || wireInfo.IsNullable || !property.Type.IsCollection)
+            {
+                return false;
+            }
+
+            var xmlWireInfo = (wireInfo.SerializationOptions as ScmSerializationOptions)?.Xml;
+            return xmlWireInfo?.Unwrapped == true;
         }
 
         private MethodBodyStatement[] BuildPersistableModelWriteCoreMethodBody()
@@ -1054,7 +1076,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, parameter.Property?.SerializationFormat)
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -1734,7 +1756,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.SerializationFormat));
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat));
             }
 
             foreach (var field in _model.CanonicalView.Fields)

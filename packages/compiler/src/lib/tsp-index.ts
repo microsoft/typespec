@@ -1,4 +1,4 @@
-import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
+import { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
 import {
   $discriminator,
   $doc,
@@ -59,7 +59,17 @@ import {
   $withUpdateableProperties,
   $withVisibility,
   $withVisibilityFilter,
+  applyLifecycleUpdate,
+  applyVisibilityFilter,
 } from "./visibility.js";
+
+/** @internal */
+export const $functions = {
+  TypeSpec: {
+    applyVisibilityFilter,
+    applyLifecycleUpdate,
+  } satisfies TypeSpecFunctions,
+};
 
 /** @internal */
 export const $decorators = {

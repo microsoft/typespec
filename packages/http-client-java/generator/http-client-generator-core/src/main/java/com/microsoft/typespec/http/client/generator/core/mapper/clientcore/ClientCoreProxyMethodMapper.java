@@ -60,7 +60,9 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
     private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS
         = Arrays.asList(ClassType.BASE_64_URL, ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG,
             PrimitiveType.DURATION_DOUBLE, ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE,
-            PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
+            PrimitiveType.DURATION_MILLISECONDS_LONG, PrimitiveType.DURATION_MILLISECONDS_DOUBLE,
+            ClassType.DURATION_MILLISECONDS_LONG, ClassType.DURATION_MILLISECONDS_DOUBLE, PrimitiveType.UNIX_TIME_LONG,
+            ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
 
     private final Map<Request, List<ProxyMethod>> parsed = new ConcurrentHashMap<>();
 

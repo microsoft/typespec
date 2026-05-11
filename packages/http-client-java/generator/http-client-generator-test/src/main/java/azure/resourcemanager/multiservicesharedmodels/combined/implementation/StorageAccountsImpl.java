@@ -30,12 +30,8 @@ public final class StorageAccountsImpl implements StorageAccounts {
         Context context) {
         Response<StorageAccountInner> inner
             = this.serviceClient().getByResourceGroupWithResponse(resourceGroupName, accountName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new StorageAccountImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new StorageAccountImpl(inner.getValue(), this.manager()));
     }
 
     public StorageAccount getByResourceGroup(String resourceGroupName, String accountName) {

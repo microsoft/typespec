@@ -103,6 +103,7 @@ const sidebar: SidebarItem[] = [
       "language-basics/alias",
       "language-basics/values",
       "language-basics/type-relations",
+      "language-basics/access-modifiers",
       "language-basics/visibility",
     ],
   },
@@ -247,13 +248,6 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/emitter-metadata-handling",
       "extending-typespec/writing-scaffolding-template",
     ],
-  },
-  {
-    label: "🚀 Release Notes",
-    autogenerate: {
-      order: "desc",
-      directory: "release-notes",
-    },
   },
 ];
 

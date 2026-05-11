@@ -217,6 +217,14 @@ namespace Microsoft.TypeSpec.Generator
                         suppression.RestoreStatement.Write(this);
                     }
                 }
+                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                {
+                    using (WriteMethodDeclarationNoScope(method.Signature))
+                    {
+                        WriteRawLine(";");
+                    }
+                }
             }
         }
 
@@ -318,6 +326,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in property.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -456,14 +465,17 @@ namespace Microsoft.TypeSpec.Generator
 
         public void WriteParameter(ParameterProvider parameter)
         {
-            if (parameter.Attributes.Count > 0)
+            for (int i = 0; i < parameter.Attributes.Count; i++)
             {
-                parameter.Attributes[0].Write(this);
-                for (int i = 1; i < parameter.Attributes.Count; i++)
+                if (i > 0)
                 {
                     AppendRaw(" ");
-                    parameter.Attributes[i].Write(this);
                 }
+                parameter.Attributes[i].Write(this);
+            }
+            if (parameter.Attributes.Count > 0)
+            {
+                AppendRaw(" ");
             }
 
             AppendRawIf("out ", parameter.IsOut);
@@ -488,6 +500,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var attr in field.Attributes)
                 {
                     attr.Write(this);
+                    WriteLine();
                 }
             }
 
@@ -786,9 +799,15 @@ namespace Microsoft.TypeSpec.Generator
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
+            if (methodBase.NonDocumentComment is { } comment)
+            {
+                WriteLine($"// {comment}");
+            }
+
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
+                WriteLine();
             }
 
             foreach (var disabledWarning in disabledWarnings)
@@ -800,11 +819,13 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static))
+                .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
 
             if (methodBase is MethodSignature method)
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
+                    .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -989,11 +1010,15 @@ namespace Microsoft.TypeSpec.Generator
             return codeWriterScope;
         }
 
-        internal void Append(CodeWriterDeclaration declaration)
+        internal void Append(CodeWriterDeclaration declaration, bool referenceOnly = false)
         {
             if (declaration.HasBeenDeclared(_scopes))
             {
                 WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
+            }
+            else if (referenceOnly)
+            {
+                WriteIdentifier(declaration.RequestedName);
             }
             else
             {
