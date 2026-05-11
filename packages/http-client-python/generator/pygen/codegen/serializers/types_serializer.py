@@ -30,12 +30,26 @@ class TypesSerializer(BaseSerializer):
         """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions)."""
         return [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
 
+    @property
+    def discriminated_base_models(self) -> list[ModelType]:
+        """Discriminated base models that become Union type aliases in types.py."""
+        return [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
+
+    def discriminated_subtypes_union(self, model: ModelType) -> str:
+        """Generate a Union alias for a discriminated base using TypedDict subtype names."""
+        subtypes = list(model.discriminated_subtypes.values())
+        subtype_names = [s.name for s in subtypes]
+        return f"{model.name} = Union[{', '.join(subtype_names)}]"
+
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
 
         td_models = self.typeddict_models
-        if td_models:
-            file_import.add_submodule_import("typing_extensions", "TypedDict", ImportType.STDLIB)
+        if td_models or self.discriminated_base_models:
+            if td_models:
+                file_import.add_submodule_import("typing_extensions", "TypedDict", ImportType.STDLIB)
+            if self.discriminated_base_models:
+                file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             has_required = False
             for model in td_models:
                 file_import.merge(
@@ -116,4 +130,5 @@ class TypesSerializer(BaseSerializer):
             imports=FileImportSerializer(self.imports()),
             serializer=self,
             models=self.typeddict_models,
+            discriminated_bases=self.discriminated_base_models,
         )

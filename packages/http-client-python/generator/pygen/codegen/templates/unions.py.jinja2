@@ -7,6 +7,3 @@
 {% for nu in code_model.named_unions %}
 {{nu.name}} = {{nu.type_definition()}}
 {% endfor %}
-{% for model in discriminated_bases %}
-{{ serializer.discriminated_subtypes_union(model) }}
-{% endfor %}

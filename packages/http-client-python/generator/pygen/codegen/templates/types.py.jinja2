@@ -29,3 +29,6 @@
         {% endif %}
     {% endfor %}
 {% endfor %}
+{% for model in discriminated_bases %}
+{{ serializer.discriminated_subtypes_union(model) }}
+{% endfor %}
