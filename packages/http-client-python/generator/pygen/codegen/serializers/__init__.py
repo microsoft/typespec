@@ -217,6 +217,19 @@ class JinjaSerializer(ReaderAndWriter):
                     enums=client_namespace_type.enums,
                 )
 
+            # write types.py per namespace (alongside models/)
+            if self.code_model.has_non_json_models(client_namespace_type.models):
+                generation_dir = self.code_model.get_generation_dir(client_namespace)
+                self.write_file(
+                    generation_dir / Path("types.py"),
+                    TypesSerializer(
+                        code_model=self.code_model,
+                        env=env,
+                        client_namespace=client_namespace,
+                        models=client_namespace_type.models,
+                    ).serialize(),
+                )
+
             if not self.code_model.options["models-mode"]:
                 # keep models file if users ended up just writing a models file
                 model_path = generation_path / Path("models.py")
@@ -535,17 +548,6 @@ class JinjaSerializer(ReaderAndWriter):
                 UnionsSerializer(
                     code_model=self.code_model,
                     env=env,
-                ).serialize(),
-            )
-
-        # write types.py
-        if self.code_model.model_types:
-            self.write_file(
-                generation_dir / Path("types.py"),
-                TypesSerializer(
-                    code_model=self.code_model,
-                    env=env,
-                    models=self.code_model.model_types,
                 ).serialize(),
             )
 
