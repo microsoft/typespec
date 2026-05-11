@@ -12,8 +12,7 @@ pipelines:
       binary:
         binskim:
           lastModifiedDate: 2026-05-11
-  6871:
-    usedNonDefaultBranch: true
+  3226:
     retail:
       source:
         eslint:
