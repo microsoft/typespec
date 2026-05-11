@@ -1480,6 +1480,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
+        [Test]
+        public void KeepSetsReflectTypeProvidersAddedAfterFirstAccess()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+            var provider = new DerivedModelProviderReadingOwnField(inputModel);
+
+            _ = CodeModelGenerator.Instance.AdditionalRootTypes;
+            _ = CodeModelGenerator.Instance.NonRootTypes;
+
+            CodeModelGenerator.Instance.AddTypeToKeep(provider);
+            CodeModelGenerator.Instance.AddTypeToKeep(provider, isRoot: false);
+
+            var fullyQualifiedName = provider.Type.FullyQualifiedName;
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(fullyQualifiedName));
+            Assert.IsTrue(CodeModelGenerator.Instance.NonRootTypes.Contains(fullyQualifiedName));
+        }
+
         // Regression test for two complementary fixes:
         //
         // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;

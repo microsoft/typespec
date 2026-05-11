@@ -160,10 +160,13 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        private readonly HashSet<string> _additionalRootTypeNames = [];
-        private readonly HashSet<string> _nonRootTypeNames = [];
-        private readonly HashSet<TypeProvider> _additionalRootTypeProviders = [];
-        private readonly HashSet<TypeProvider> _nonRootTypeProviders = [];
+        private record KeptTypesInfo(HashSet<string> TypeNames, HashSet<TypeProvider> TypeProviders);
+
+        private readonly KeptTypesInfo _additionalRootTypeInfo = new([], []);
+        private readonly KeptTypesInfo _nonRootTypeInfo = new([], []);
+
+        private HashSet<string>? _additionalRootTypes;
+        private HashSet<string>? _nonRootTypes;
 
         /// <summary>
         /// The set of fully qualified type names to keep as roots. Resolved lazily so that
@@ -171,22 +174,22 @@ namespace Microsoft.TypeSpec.Generator
         /// are not forced to materialize their <see cref="TypeProvider.Type"/> at registration time
         /// (which would dispatch virtual <c>Build*</c> methods on partially constructed providers).
         /// </summary>
-        internal HashSet<string> AdditionalRootTypes => MaterializeKeepSet(_additionalRootTypeNames, _additionalRootTypeProviders);
+        internal HashSet<string> AdditionalRootTypes => _additionalRootTypes ??= MaterializeKeepSet(_additionalRootTypeInfo);
 
         /// <summary>
         /// The set of fully qualified type names to keep as non-roots. Resolved lazily; see
         /// <see cref="AdditionalRootTypes"/> for rationale.
         /// </summary>
-        internal HashSet<string> NonRootTypes => MaterializeKeepSet(_nonRootTypeNames, _nonRootTypeProviders);
+        internal HashSet<string> NonRootTypes => _nonRootTypes ??= MaterializeKeepSet(_nonRootTypeInfo);
 
-        private static HashSet<string> MaterializeKeepSet(HashSet<string> names, HashSet<TypeProvider> providers)
+        private static HashSet<string> MaterializeKeepSet(KeptTypesInfo info)
         {
-            if (providers.Count == 0)
+            if (info.TypeProviders.Count == 0)
             {
-                return names;
+                return info.TypeNames;
             }
-            var result = new HashSet<string>(names);
-            foreach (var provider in providers)
+            var result = new HashSet<string>(info.TypeNames);
+            foreach (var provider in info.TypeProviders)
             {
                 result.Add(provider.Type.FullyQualifiedName);
             }
@@ -203,11 +206,17 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (isRoot)
             {
-                _additionalRootTypeNames.Add(typeName);
+                if (_additionalRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _additionalRootTypes = null;
+                }
             }
             else
             {
-                _nonRootTypeNames.Add(typeName);
+                if (_nonRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _nonRootTypes = null;
+                }
             }
         }
 
@@ -228,11 +237,17 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (isRoot)
             {
-                _additionalRootTypeProviders.Add(type);
+                if (_additionalRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _additionalRootTypes = null;
+                }
             }
             else
             {
-                _nonRootTypeProviders.Add(type);
+                if (_nonRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _nonRootTypes = null;
+                }
             }
         }
 
