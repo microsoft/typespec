@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -46,5 +47,21 @@ namespace Sample
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(itemId, filter, region, sort, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
         }
+
+#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public virtual global::System.ClientModel.ClientResult<string> GetData(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken)
+        {
+            return this.GetData(itemId: itemId, filter: filter, region: region, sort: default, cancellationToken: cancellationToken);
+        }
+#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+
+#pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(string itemId, int filter, string region, global::System.Threading.CancellationToken cancellationToken)
+        {
+            return this.GetDataAsync(itemId: itemId, filter: filter, region: region, sort: default, cancellationToken: cancellationToken);
+        }
+#pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
     }
 }

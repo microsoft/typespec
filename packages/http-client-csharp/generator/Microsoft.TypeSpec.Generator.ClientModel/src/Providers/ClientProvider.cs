@@ -1812,18 +1812,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
-                {
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Skipped back-compat overload for '{Name}.{previousSignature.Name}' because the previous method's trailing CancellationToken parameter would result in either an ambiguous reference or a violation of the CancellationToken-must-be-optional SDK guideline.",
-                        BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
-                    continue;
-                }
-
                 var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedCurrent);
                 if (overload == null || !currentMethodSignatures.TryAdd(overload.Signature, overload))
                 {
                     continue;
+                }
+
+                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
+                {
+                    overload.Update(suppressions:
+                    [
+                        new SuppressionStatement(
+                            inner: null,
+                            code: Literal("AZC0002"),
+                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
+                    ]);
                 }
 
                 methods.Add(overload);
