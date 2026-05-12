@@ -40,8 +40,7 @@ class TypesSerializer(BaseSerializer):
         client_namespace: Optional[str] = None,
         models: Optional[list[ModelType]] = None,
     ):
-        super().__init__(code_model=code_model, env=env)
-        self._client_namespace = client_namespace
+        super().__init__(code_model=code_model, env=env, client_namespace=client_namespace)
         self._models = models or []
 
     @property

@@ -328,17 +328,28 @@ class GeneratedModelType(ModelType):
                     alias="_Model",
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE:
-            # Don't import models that will be defined in types.py — either as TypedDict
-            # classes (non-discriminated) or as Union aliases (discriminated bases).
-            # All non-json models appear in types.py, so the bare forward reference resolves locally.
-            will_be_in_types_file = self.base != "json"
+            # Don't import models that will be defined in this namespace's types.py —
+            # either as TypedDict classes (non-discriminated) or as Union aliases (discriminated bases).
+            # Only same-namespace non-json models are in the same types.py file.
+            same_namespace = relative_path == "."
+            will_be_in_types_file = self.base != "json" and same_namespace
             if not will_be_in_types_file:
-                file_import.add_submodule_import(
-                    f"{relative_path}models" if relative_path != "." else ".models",
-                    self.name,
-                    ImportType.LOCAL,
-                    typing_section=TypingSection.TYPING,
-                )
+                if same_namespace:
+                    # json models from same namespace — import from .models
+                    file_import.add_submodule_import(
+                        ".models",
+                        self.name,
+                        ImportType.LOCAL,
+                        typing_section=TypingSection.TYPING,
+                    )
+                else:
+                    # Cross-namespace model — import from sibling namespace's types module
+                    file_import.add_submodule_import(
+                        f"{relative_path}types",
+                        self.name,
+                        ImportType.LOCAL,
+                        typing_section=TypingSection.TYPING,
+                    )
         elif serialize_namespace_type == NamespaceType.UNIONS_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
