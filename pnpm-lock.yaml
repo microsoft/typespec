@@ -159,6 +159,9 @@ catalogs:
     '@types/plist':
       specifier: ^3.0.5
       version: 3.0.5
+    '@types/pluralize':
+      specifier: ^0.0.33
+      version: 0.0.33
     '@types/react':
       specifier: ^19.2.14
       version: 19.2.14
@@ -366,6 +369,9 @@ catalogs:
     plist:
       specifier: ^3.1.0
       version: 3.1.0
+    pluralize:
+      specifier: ^8.0.0
+      version: 8.0.0
     postject:
       specifier: 1.0.0-alpha.6
       version: 1.0.0-alpha.6
@@ -1177,6 +1183,64 @@ importers:
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.3(@types/node@25.5.2)(@vitest/coverage-v8@4.1.3)(@vitest/ui@4.1.3)(happy-dom@20.9.0)(jsdom@25.0.1)(vite@8.0.8(@types/node@25.5.2)(esbuild@0.28.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/http-client-generator-core:
+    dependencies:
+      change-case:
+        specifier: 'catalog:'
+        version: 5.4.4
+      pluralize:
+        specifier: 'catalog:'
+        version: 8.0.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.5.2
+      '@types/pluralize':
+        specifier: 'catalog:'
+        version: 0.0.33
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
+      '@typespec/openapi':
+        specifier: workspace:^
+        version: link:../openapi
+      '@typespec/rest':
+        specifier: workspace:^
+        version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
+      '@typespec/versioning':
+        specifier: workspace:^
+        version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:^
+        version: link:../xml
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.3(vitest@4.1.3)
+      '@vitest/ui':
+        specifier: 'catalog:'
+        version: 4.1.3(vitest@4.1.3)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -6905,6 +6969,9 @@ packages:
 
   '@types/plist@3.0.5':
     resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
+
+  '@types/pluralize@0.0.33':
+    resolution: {integrity: sha512-JOqsl+ZoCpP4e8TDke9W79FDcSgPAR0l6pixx2JHkhnRjvShyYiAYw2LVsnA7K08Y6DeOnaU6ujmENO4os/cYg==}
 
   '@types/prismjs@1.26.6':
     resolution: {integrity: sha512-vqlvI7qlMvcCBbVe0AKAb4f97//Hy0EBTaiW8AalRnG/xAN5zOiWWyrNqNXeq8+KAuvRewjCVY1+IPxk4RdNYw==}
@@ -18976,6 +19043,8 @@ snapshots:
     dependencies:
       '@types/node': 25.5.2
       xmlbuilder: 15.1.1
+
+  '@types/pluralize@0.0.33': {}
 
   '@types/prismjs@1.26.6': {}
 
