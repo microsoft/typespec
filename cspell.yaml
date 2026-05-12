@@ -27,6 +27,7 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azuresdkengkeyvault
   - azurev
   - azurevnext
   - bifilter
@@ -93,6 +94,7 @@ words:
   - fslib
   - genproto
   - getpgid
+  - ghapp
   - giacamo
   - graalvm
   - Gson
@@ -117,6 +119,7 @@ words:
   - IOHTTP
   - isdigit
   - isinstance
+  - issecret
   - issubclass
   - itertype
   - itor
@@ -260,6 +263,7 @@ words:
   - stubbed
   - swaggerui
   - TCGC
+  - TEAMPROJECTID
   - terlson
   - timegm
   - tomli
