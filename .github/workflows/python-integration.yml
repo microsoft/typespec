@@ -44,6 +44,12 @@ jobs:
 
       - uses: ./.github/actions/setup-python
 
+      - name: Install pnpm workspace dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build http-client-generator-core dependency
+        run: pnpm -r --filter "@typespec/http-client-generator-core..." build
+
       - name: Build and pack http-client-python from PR
         run: |
           cd core/packages/http-client-python
