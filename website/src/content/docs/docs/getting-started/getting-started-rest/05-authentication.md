@@ -68,13 +68,15 @@ namespace Pets {
   };
 
   @get
-  op getPet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-    @body error: NotFoundError;
-  };
+  op getPet(@path petId: int32, ...CommonParameters):
+    | {
+        @statusCode statusCode: 200;
+        @body pet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+        @body error: NotFoundError;
+      };
 
   @post
   @useAuth(BearerAuth)
@@ -122,12 +124,14 @@ namespace Pets {
 
   @delete
   @useAuth(BearerAuth)
-  op deletePet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 204;
-  } | {
-    @statusCode statusCode: 401;
-    @body error: UnauthorizedError;
-  };
+  op deletePet(@path petId: int32, ...CommonParameters):
+    | {
+        @statusCode statusCode: 204;
+      }
+    | {
+        @statusCode statusCode: 401;
+        @body error: UnauthorizedError;
+      };
 }
 
 @error

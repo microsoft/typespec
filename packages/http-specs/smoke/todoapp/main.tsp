@@ -175,9 +175,10 @@ namespace Users {
 
   @route("/users")
   @post
-  op create(
-    @body user: User,
-  ): WithStandardErrors<UserCreatedResponse | UserExistsResponse | InvalidUserResponse>;
+  op create(@body user: User): WithStandardErrors<
+    | UserCreatedResponse
+    | UserExistsResponse
+    | InvalidUserResponse>;
 }
 
 @route("items")
@@ -264,15 +265,15 @@ namespace TodoItems {
     @path id: TodoItem.id,
     @body patch: TodoItemPatch,
   ): TodoItem;
-  @delete op delete(
-    @path id: TodoItem.id,
-  ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+  @delete op delete(@path id: TodoItem.id): WithStandardErrors<
+    | NoContentResponse
+    | NotFoundErrorResponse>;
 
   @route("{itemId}/attachments")
   namespace Attachments {
-    @list op list(
-      @path itemId: TodoItem.id,
-    ): WithStandardErrors<Page<TodoAttachment> | NotFoundErrorResponse>;
+    @list op list(@path itemId: TodoItem.id): WithStandardErrors<
+      | Page<TodoAttachment>
+      | NotFoundErrorResponse>;
 
     @sharedRoute
     @post

@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -126,7 +125,7 @@ export interface Server {
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  resolveCodeAction(codeAction: CodeAction): Promise<CodeAction>;
   reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 

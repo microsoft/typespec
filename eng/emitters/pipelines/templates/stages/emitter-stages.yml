@@ -82,6 +82,19 @@ parameters:
     type: string
     default: "3.12"
 
+  # Primary Node.js version used in the build/test matrix. Artifacts are emitted from the
+  # job that uses this version. Changing this default automatically updates the dynamically
+  # generated job name (Build_linux_<major>) referenced by DetectApiChanges and downstream
+  # stages, so callers do not need to update DependsOn references separately.
+  - name: PrimaryNodeVersion
+    type: string
+    default: "24.x"
+
+  # Secondary Node.js version used in the build/test matrix.
+  - name: SecondaryNodeVersion
+    type: string
+    default: "22.x"
+
   # Whether to bundle and upload the emitter package to the playground package storage.
   - name: UploadPlaygroundBundle
     type: boolean
@@ -130,7 +143,7 @@ stages:
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
           BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-          NodeVersion: 20.x
+          NodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Os: linux
           EmitArtifacts: true # Emit artifacts only for the first job
           PythonVersion: ${{ parameters.PythonVersion }}
@@ -144,7 +157,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 22.x
+          NodeVersion: ${{ parameters.SecondaryNodeVersion }}
           Os: linux
           PythonVersion: ${{ parameters.PythonVersion }}
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -156,7 +169,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 20.x
+          NodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Os: windows
           PythonVersion: ${{ parameters.PythonVersion }}
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -168,14 +181,14 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 22.x
+          NodeVersion: ${{ parameters.SecondaryNodeVersion }}
           Os: windows
           PythonVersion: ${{ parameters.PythonVersion }}
       - ${{ if eq(parameters.Publish, 'none') }}:
           - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
             parameters:
               LanguageShortName: ${{ parameters.LanguageShortName }}
-              DependsOn: Build_linux_20
+              DependsOn: Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}
               BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
               Artifacts:
                 - ${{ each package in parameters.Packages }}:
@@ -204,7 +217,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 20.x
+                  NodeVersion: ${{ parameters.PrimaryNodeVersion }}
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
                   CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
@@ -218,7 +231,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 22.x
+                  NodeVersion: ${{ parameters.SecondaryNodeVersion }}
                   Os: linux
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -229,7 +242,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 20.x
+                  NodeVersion: ${{ parameters.PrimaryNodeVersion }}
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -240,7 +253,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 22.x
+                  NodeVersion: ${{ parameters.SecondaryNodeVersion }}
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
