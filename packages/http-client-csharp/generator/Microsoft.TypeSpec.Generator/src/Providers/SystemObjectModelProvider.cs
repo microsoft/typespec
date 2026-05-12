@@ -61,6 +61,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;
 
+        /// <inheritdoc/>
+        public override bool ShouldSkipDerivedSerializationMethodOverrides => true;
+
         /// <summary>
         /// Framework types manage their own fields; no generated fields needed.
         /// </summary>

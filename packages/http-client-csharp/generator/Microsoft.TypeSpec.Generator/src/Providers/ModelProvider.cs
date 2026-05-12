@@ -185,6 +185,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        /// <summary>
+        /// Gets whether derived models should skip overriding serialization methods from this base model.
+        /// </summary>
+        public virtual bool ShouldSkipDerivedSerializationMethodOverrides => false;
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
         protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
