@@ -40,7 +40,7 @@ try {
 
     Write-Host "Installing npm dependencies..."
     Invoke-LoggedCommand "npm ci"
-    Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    # Invoke-LoggedCommand "npm ls -a" -GroupOutput
 
     # Copy lock files to artifacts for CI caching (if running in Azure DevOps)
     $artifactStagingDirectory = $env:BUILD_ARTIFACTSTAGINGDIRECTORY
