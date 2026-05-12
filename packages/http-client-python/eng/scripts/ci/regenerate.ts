@@ -157,9 +157,15 @@ const AZURE_EMITTER_OPTIONS: Record<
     "package-name": "client-structure-twooperationgroup",
     namespace: "client.structure.twooperationgroup",
   },
-  "client/naming": {
-    namespace: "client.naming.main",
-  },
+  "client/naming": [
+    {
+      namespace: "client.naming.main",
+    },
+    {
+      "package-name": "client-naming-typeddict",
+      namespace: "client.naming.typeddict",
+    },
+  ],
   "client/overload": {
     namespace: "client.overload",
   },
