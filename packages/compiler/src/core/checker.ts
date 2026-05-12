@@ -19,7 +19,11 @@ import {
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
-import { typeReferenceToString } from "./helpers/syntax-utils.js";
+import {
+  printIdentifier,
+  printMemberExpressionPath,
+  typeReferenceToString,
+} from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
@@ -4212,7 +4216,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       kind: "TemplateParameterAccess",
       node,
       base,
-      path: getTemplateAccessPath(base) + node.selector + node.id.sv,
+      path: printMemberExpressionPath(getTemplateAccessPath(base), node.selector, node.id.sv),
       constraint,
     });
     templateAccessCacheKeys.set(type, cacheKey);
@@ -4227,7 +4231,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /** Compute the user-facing access path for a template access chain. */
   function getTemplateAccessPath(base: TemplateParameter | TemplateParameterAccess): string {
-    return base.kind === "TemplateParameterAccess" ? base.path : base.node.id.sv;
+    return base.kind === "TemplateParameterAccess" ? base.path : printIdentifier(base.node.id.sv);
   }
 
   /** Build a stable cache key for a template access symbol/type chain. */

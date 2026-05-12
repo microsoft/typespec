@@ -32,7 +32,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "TemplateParameter":
       return getIdentifierName(type.node.id.sv, options);
     case "TemplateParameterAccess":
-      return getIdentifierName(type.path, options);
+      return type.path;
     case "Scalar":
       return getScalarName(type, options);
     case "Model":

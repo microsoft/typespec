@@ -735,7 +735,7 @@ export interface TemplateParameterAccess extends BaseType {
    */
   base: TemplateParameter | TemplateParameterAccess;
   /**
-   * User-facing access path like `T.id` or `T::returnType`.
+   * Valid source-form access path like `T.id`, `T::returnType`, or `T.\`model\`::type`.
    *
    * @internal
    */
