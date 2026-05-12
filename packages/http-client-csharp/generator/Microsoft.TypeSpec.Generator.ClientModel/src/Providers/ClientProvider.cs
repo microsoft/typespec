@@ -1812,15 +1812,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Skip generating the back-compat overload when the previous method's trailing parameter is a
-                // CancellationToken. There is no way to emit a correct overload in that situation:
-                //   - Keeping the trailing CancellationToken optional (preserving the SDK guideline) introduces
-                //     a CS0121 ambiguity at basic call sites between the back-compat overload and the new
-                //     method (which also ends in an optional CancellationToken with extra optional params
-                //     before it).
-                //   - Making the trailing CancellationToken required avoids the ambiguity but violates the
-                //     SDK guideline that CancellationToken parameters must be optional.
-                // In this case the library author must address the gap via custom code or by updating the spec.
                 if (PreviousSignatureEndsWithCancellationToken(previousSignature))
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
@@ -1842,6 +1833,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        private static readonly IEqualityComparer<CSharpType> s_ignoreNullableTypeComparer = new CSharpType.CSharpTypeIgnoreNullableComparer();
+        private static readonly CSharpType s_cancellationTokenType = new(typeof(CancellationToken));
+
         private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
         {
             if (previousSignature.Parameters.Count == 0)
@@ -1850,7 +1844,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
-            return lastParam.Type.Equals(typeof(CancellationToken));
+            return s_ignoreNullableTypeComparer.Equals(lastParam.Type, s_cancellationTokenType);
         }
 
         // Returns true when currentSignature contains all parameters of previousSignature in the same
@@ -1910,10 +1904,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousSignature = previousMethod.Signature;
             var currentSignature = currentMethod.Signature;
 
-            // Match parameters by their C# variable name (which is what is rendered in C# source) so
-            // that previous parameters whose raw input name differs only by reserved characters such as
-            // a leading '$' (e.g. OData "$select"/"$top") are matched to the corresponding current
-            // parameter. The named-argument label below must also use the C# variable name.
             var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
