@@ -30,6 +30,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
+
+            // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
+            // Clear those cached values so Name/Namespace/BaseType are rebuilt from the wrapped type.
+            Reset();
         }
 
         /// <summary>
@@ -53,6 +57,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
+
+        /// <inheritdoc/>
+        protected override bool ShouldSkipDerivedModelProperties => true;
 
         /// <summary>
         /// Framework types manage their own fields; no generated fields needed.

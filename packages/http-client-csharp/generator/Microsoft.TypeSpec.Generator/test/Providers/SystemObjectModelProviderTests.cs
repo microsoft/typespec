@@ -136,6 +136,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void DerivedModel_OnlySkipsPropertiesFromSkippingBaseProvider()
+        {
+            var systemBaseProp = InputFactory.Property("Name", InputPrimitiveType.String);
+            var systemBaseInputModel = InputFactory.Model("Resource", properties: [systemBaseProp]);
+
+            var regularBaseProp = InputFactory.Property("MiddleName", InputPrimitiveType.String);
+            var regularBaseInputModel = InputFactory.Model("MiddleResource", properties: [regularBaseProp], baseModel: systemBaseInputModel);
+
+            var derivedSystemBaseProp = InputFactory.Property("Name", InputPrimitiveType.String);
+            var derivedRegularBaseProp = InputFactory.Property("MiddleName", InputPrimitiveType.String);
+            var derivedLocationProp = InputFactory.Property("Location", InputPrimitiveType.String);
+            var derivedInputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [derivedSystemBaseProp, derivedRegularBaseProp, derivedLocationProp],
+                baseModel: regularBaseInputModel);
+
+            var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [systemBaseInputModel, regularBaseInputModel, derivedInputModel],
+                createModelCore: (model) =>
+                {
+                    if (model.Name == "Resource")
+                        return new SystemObjectModelProvider(systemType, model);
+                    return new ModelProvider(model);
+                });
+
+            var derived = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derived);
+
+            var propertyNames = derived!.Properties.Select(p => p.Name).ToList();
+            Assert.IsFalse(propertyNames.Contains("Name"),
+                "Property 'Name' should be skipped because it is defined by the SystemObjectModelProvider ancestor");
+            Assert.IsTrue(propertyNames.Contains("MiddleName"),
+                "Property 'MiddleName' should not be skipped because it is defined by the regular immediate base provider");
+            Assert.IsTrue(propertyNames.Contains("Location"));
+        }
+
+        [Test]
         public void RegularBaseModel_DoesNotSkipMatchingProperties()
         {
             // Same setup but with a regular ModelProvider base (not SystemObjectModelProvider)
