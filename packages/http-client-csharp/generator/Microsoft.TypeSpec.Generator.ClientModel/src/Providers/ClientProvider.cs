@@ -1833,9 +1833,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static readonly IEqualityComparer<CSharpType> s_ignoreNullableTypeComparer = new CSharpType.CSharpTypeIgnoreNullableComparer();
-        private static readonly CSharpType s_cancellationTokenType = new(typeof(CancellationToken));
-
         private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
         {
             if (previousSignature.Parameters.Count == 0)
@@ -1844,7 +1841,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
-            return s_ignoreNullableTypeComparer.Equals(lastParam.Type, s_cancellationTokenType);
+            return new CSharpType.CSharpTypeIgnoreNullableComparer().Equals(lastParam.Type, new CSharpType(typeof(CancellationToken)));
         }
 
         // Returns true when currentSignature contains all parameters of previousSignature in the same
