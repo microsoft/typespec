@@ -11,8 +11,8 @@ pipelines:
           lastModifiedDate: 2026-05-11
       binary:
         binskim:
-          lastModifiedDate: 2026-05-12
-  4704:
+          lastModifiedDate: 2026-05-11
+  6871:
     usedNonDefaultBranch: true
     retail:
       source:
