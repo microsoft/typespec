@@ -227,13 +227,15 @@ namespace Pets {
   };
 
   @get
-  op getPet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-    @body error: NotFoundError;
-  };
+  op getPet(@path petId: int32, ...CommonParameters):
+    | {
+        @statusCode statusCode: 200;
+        @body pet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+        @body error: NotFoundError;
+      };
 
   @post
   @useAuth(BearerAuth)
@@ -281,38 +283,45 @@ namespace Pets {
 
   @delete
   @useAuth(BearerAuth)
-  op deletePet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 204;
-  } | {
-    @statusCode statusCode: 401;
-    @body error: UnauthorizedError;
-  };
+  op deletePet(@path petId: int32, ...CommonParameters):
+    | {
+        @statusCode statusCode: 204;
+      }
+    | {
+        @statusCode statusCode: 401;
+        @body error: UnauthorizedError;
+      };
 
   @route("{petId}/toys")
   namespace Toys {
     @added(Versions.v2)
     @get
-    op listToys(@path petId: int32, ...CommonParameters): {
-      @statusCode statusCode: 200;
-      @body toys: Toy[];
-    } | {
-      @statusCode statusCode: 404;
-      @body error: NotFoundError;
-    };
+    op listToys(@path petId: int32, ...CommonParameters):
+      | {
+          @statusCode statusCode: 200;
+          @body toys: Toy[];
+        }
+      | {
+          @statusCode statusCode: 404;
+          @body error: NotFoundError;
+        };
 
     @added(Versions.v2)
     @post
     @useAuth(BearerAuth)
-    op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters): {
-      @statusCode statusCode: 201;
-      @body newToy: Toy;
-    } | {
-      @statusCode statusCode: 400;
-      @body error: ValidationError;
-    } | {
-      @statusCode statusCode: 401;
-      @body error: UnauthorizedError;
-    };
+    op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters):
+      | {
+          @statusCode statusCode: 201;
+          @body newToy: Toy;
+        }
+      | {
+          @statusCode statusCode: 400;
+          @body error: ValidationError;
+        }
+      | {
+          @statusCode statusCode: 401;
+          @body error: UnauthorizedError;
+        };
 
     @added(Versions.v2)
     @put
@@ -337,12 +346,14 @@ namespace Pets {
     @added(Versions.v2)
     @delete
     @useAuth(BearerAuth)
-    op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters): {
-      @statusCode statusCode: 204;
-    } | {
-      @statusCode statusCode: 401;
-      @body error: UnauthorizedError;
-    };
+    op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters):
+      | {
+          @statusCode statusCode: 204;
+        }
+      | {
+          @statusCode statusCode: 401;
+          @body error: UnauthorizedError;
+        };
   }
 }
 
