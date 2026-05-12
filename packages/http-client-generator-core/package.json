@@ -1,0 +1,84 @@
+{
+  "name": "@typespec/http-client-generator-core",
+  "version": "0.1.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec HTTP Client Generator Core library - protocol-agnostic client generation infrastructure",
+  "homepage": "https://github.com/microsoft/typespec",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/typespec-azure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/typespec-azure/issues"
+  },
+  "keywords": [
+    "typespec",
+    "sdk",
+    "ClientGenerator"
+  ],
+  "main": "dist/src/index.js",
+  "tspMain": "./lib/main.tsp",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "typespec": "./lib/main.tsp",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "change-case": "catalog:",
+    "pluralize": "catalog:"
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/versioning": "workspace:^",
+    "@typespec/xml": "workspace:^",
+    "@typespec/events": "workspace:^",
+    "@typespec/sse": "workspace:^",
+    "@typespec/streams": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pluralize": "catalog:",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/versioning": "workspace:^",
+    "@typespec/xml": "workspace:^",
+    "@typespec/events": "workspace:^",
+    "@typespec/sse": "workspace:^",
+    "@typespec/streams": "workspace:^",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
