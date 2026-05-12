@@ -66,10 +66,7 @@ const SpecialFlags: Record<string, Record<string, any>> = {
 
 // ---- Spec-specific emitter option overrides ----
 
-const AZURE_EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
@@ -404,10 +401,7 @@ function getEmitterOptions(
   return Array.isArray(emitterOpts) ? emitterOpts : [emitterOpts];
 }
 
-async function getSubdirectories(
-  baseDir: string,
-  flags: RegenerateFlags,
-): Promise<string[]> {
+async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promise<string[]> {
   const subdirectories: string[] = [];
 
   async function searchDir(currentDir: string) {

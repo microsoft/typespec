@@ -15,19 +15,17 @@ def client():
 
 def test_client(client: NamingClient):
     """TypedDict uses wire name 'defaultName', not client name 'client_name'."""
-    client.property.client(models.ClientNameModel(defaultName=True))
+    client.property.client({"defaultName": True})
 
 
 def test_language(client: NamingClient):
     """TypedDict uses wire name 'defaultName', not language-specific name 'python_name'."""
-    client.property.language(models.LanguageClientNameModel(defaultName=True))
+    client.property.language({"defaultName": True})
 
 
 def test_compatible_with_encoded_name(client: NamingClient):
     """TypedDict uses encoded wire name 'wireName', not client name 'client_name'."""
-    client.property.compatible_with_encoded_name(
-        models.ClientNameAndJsonEncodedNameModel(wireName=True)
-    )
+    client.property.compatible_with_encoded_name({"wireName": True})
 
 
 def test_operation(client: NamingClient):
@@ -48,12 +46,12 @@ def test_header_response(client: NamingClient):
 
 def test_model_client(client: NamingClient):
     """TypedDict uses wire name 'defaultName', not client name 'default_name'."""
-    client.model_client.client(models.ClientModel(defaultName=True))
+    client.model_client.client({"defaultName": True})
 
 
 def test_model_language(client: NamingClient):
     """TypedDict uses wire name 'defaultName', not client name 'default_name'."""
-    client.model_client.language(models.PythonModel(defaultName=True))
+    client.model_client.language({"defaultName": True})
 
 
 def test_union_enum_member_name(client: NamingClient):

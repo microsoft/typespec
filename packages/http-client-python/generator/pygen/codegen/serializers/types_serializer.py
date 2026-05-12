@@ -17,10 +17,25 @@ from .base_serializer import BaseSerializer
 # Python builtin type names that can be shadowed by TypedDict field wire_names.
 # When a field name matches one of these, all references to that builtin in type
 # annotations within the same class are qualified as builtins.X.
-_BUILTIN_TYPE_NAMES = frozenset({
-    "int", "str", "float", "bool", "list", "dict", "tuple", "set",
-    "bytes", "type", "object", "complex", "frozenset", "bytearray", "memoryview",
-})
+_BUILTIN_TYPE_NAMES = frozenset(
+    {
+        "int",
+        "str",
+        "float",
+        "bool",
+        "list",
+        "dict",
+        "tuple",
+        "set",
+        "bytes",
+        "type",
+        "object",
+        "complex",
+        "frozenset",
+        "bytearray",
+        "memoryview",
+    }
+)
 
 
 def _qualify_shadowed_builtins(annotation: str, shadowed: frozenset[str]) -> str:
