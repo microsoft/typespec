@@ -440,19 +440,3 @@ class DPGModelType(GeneratedModelType):
 
 class TypedDictModelType(DPGModelType):
     base = "typeddict"
-
-    def type_annotation(self, **kwargs: Any) -> str:
-        kwargs.pop("is_response", None)
-        return super().type_annotation(**kwargs)
-
-    def docstring_type(self, **kwargs: Any) -> str:
-        kwargs.pop("is_response", None)
-        return super().docstring_type(**kwargs)
-
-    def docstring_text(self, **kwargs: Any) -> str:
-        kwargs.pop("is_response", None)
-        return super().docstring_text(**kwargs)
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        kwargs.pop("is_response", None)
-        return super().imports(**kwargs)
