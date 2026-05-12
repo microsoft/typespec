@@ -9,8 +9,7 @@ pipelines:
           lastModifiedDate: 2026-05-11
         armory:
           lastModifiedDate: 2026-05-11
-  4704:
-    usedNonDefaultBranch: true
+  6871:
     retail:
       source:
         eslint:
