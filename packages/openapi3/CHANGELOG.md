@@ -1,5 +1,13 @@
 # Change Log - @typespec/openapi3
 
+## 1.12.0
+
+### Bug Fixes
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) Fix examples when operation return type have union of response mapping to same status code
+- [#10268](https://github.com/microsoft/typespec/pull/10268) Fix missing discriminator mapping entry when the first union variant causes a circular emit, affecting both the OpenAPI 3.0 and 3.2 emitters.
+
+
 ## 1.11.0
 
 ### Bug Fixes
