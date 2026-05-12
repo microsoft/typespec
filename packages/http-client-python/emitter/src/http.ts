@@ -1,6 +1,10 @@
 import { getNamespaceFullName, NoTarget } from "@typespec/compiler";
 
 import {
+  SdkType,
+  UsageFlags,
+} from "@typespec/http-client-generator-core";
+import {
   getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -19,8 +23,6 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
-  SdkType,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { PythonSdkContext, reportDiagnostic } from "./lib.js";

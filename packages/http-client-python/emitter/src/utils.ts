@@ -1,5 +1,8 @@
 import {
   InitializedByFlags,
+  SdkType,
+} from "@typespec/http-client-generator-core";
+import {
   SdkCredentialParameter,
   SdkEndpointParameter,
   SdkHeaderParameter,
@@ -11,7 +14,6 @@ import {
   SdkServiceMethod,
   SdkServiceOperation,
   SdkServiceResponseHeader,
-  SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
 import { marked, Token } from "marked";

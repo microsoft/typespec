@@ -1,5 +1,4 @@
 import {
-  isHttpMetadata,
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -15,7 +14,8 @@ import {
   SdkType,
   SdkUnionType,
   UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+} from "@typespec/http-client-generator-core";
+import { isHttpMetadata } from "@azure-tools/typespec-client-generator-core";
 import { Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
