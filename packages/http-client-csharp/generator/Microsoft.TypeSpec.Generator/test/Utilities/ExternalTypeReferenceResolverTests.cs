@@ -180,21 +180,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
             Directory.CreateDirectory(pkgDir);
 
-            // Embed the version as AssemblyVersionAttribute so tests can verify which dll was loaded.
-            var syntaxTree = CSharpSyntaxTree.ParseText($@"
-using System.Reflection;
-[assembly: AssemblyVersion(""{version}"")]
-namespace {packageName}
-{{
-    public class LoadableType {{ }}
-    public class SomeType {{ }}
-    public class RefType {{ }}
-    public class PreWalkType {{ }}
-    public class Placeholder {{ }}
-}}");
+            // Load the source template from TestData and substitute the package name + version.
+            // The template embeds an [assembly: AssemblyVersion("$VERSION$")] attribute so tests
+            // can verify which dll was loaded by inspecting Assembly.GetName().Version.
+            var template = Helpers.GetExpectedFromFile(method: "PackageSource");
+            var source = template
+                .Replace("$PACKAGE$", packageName)
+                .Replace("$VERSION$", version);
+
             var compilation = CSharpCompilation.Create(
                 packageName,
-                [syntaxTree],
+                [CSharpSyntaxTree.ParseText(source)],
                 [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
