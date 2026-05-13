@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.29.1
+
+### Bug Fixes
+
+- [#10563](https://github.com/microsoft/typespec/pull/10563) Fix TypeSpec `numeric` scalar type being emitted as `int` in Python; it is now emitted as `float`.
+- [#10525](https://github.com/microsoft/typespec/pull/10525) Fix typing in generated paging operations when an operation is named `list` and the page item is a collection type. The return type annotation now correctly uses the `List` alias (e.g. `AsyncItemPaged[List[str]]`) instead of the built-in `list` (which would shadow the operation name) to stay consistent with other annotations in the same file.
+
+
 ## 0.29.0
 
 ### Deprecations
