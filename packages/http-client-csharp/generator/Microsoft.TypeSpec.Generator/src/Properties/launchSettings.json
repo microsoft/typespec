@@ -110,6 +110,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-payload-head": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/head -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-payload-json-merge-patch": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/json-merge-patch -g StubLibraryGenerator",
       "commandName": "Executable",

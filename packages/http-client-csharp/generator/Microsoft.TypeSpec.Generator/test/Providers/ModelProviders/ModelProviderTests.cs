@@ -423,6 +423,107 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderForGeneratedModel()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            ModelProvider? baseProvider = null;
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+            {
+                if (input == inputBase)
+                {
+                    return baseProvider = new ModelProvider(input);
+                }
+                if (input == inputDerived)
+                {
+                    return new BuildBaseTypeOverridingModelProvider(input, baseProvider!.Type);
+                }
+                return null;
+            });
+
+            var actualBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualBase);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(actualBase!.Type, actualDerived!.BaseType);
+            Assert.AreSame(actualBase, actualDerived.BaseModelProvider);
+        }
+
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForFrameworkType()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var frameworkBase = new CSharpType(typeof(InvalidOperationException));
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, frameworkBase) : null);
+
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(frameworkBase, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
+        }
+
+        [Test]
+        public void BaseModelProvider_DefaultResolvesViaCSharpTypeMap()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
+
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsNotNull(derivedProvider!.BaseModelProvider);
+            Assert.AreEqual(derivedProvider.BaseModelProvider!.Type, derivedProvider.BaseType);
+        }
+
+        [Test]
+        public void BaseModelProvider_NullWhenNoBase()
+        {
+            var inputModel = InputFactory.Model("standaloneModel", usage: InputModelTypeUsage.Input, properties: []);
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNull(modelProvider!.BaseType);
+            Assert.IsNull(modelProvider.BaseModelProvider);
+        }
+
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForNonModelTypeProvider()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var nonModelTypeProvider = new NonModelTypeProvider();
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, nonModelTypeProvider.Type) : null);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[nonModelTypeProvider.Type] = nonModelTypeProvider;
+
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(nonModelTypeProvider.Type, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
+        }
+
+        private class NonModelTypeProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+            protected override string BuildName() => "NonModelBase";
+            protected override string BuildNamespace() => "Custom.Namespace";
+        }
+
+        private class BuildBaseTypeOverridingModelProvider : ModelProvider
+        {
+            private readonly CSharpType? _redirectedBaseType;
+
+            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, CSharpType? redirectedBaseType) : base(inputModel)
+            {
+                _redirectedBaseType = redirectedBaseType;
+            }
+
+            protected override CSharpType? BuildBaseType() => _redirectedBaseType;
+        }
+
+        [Test]
         public void BuildModelAsStruct()
         {
             var properties = new List<InputModelProperty>
@@ -1377,6 +1478,106 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [Test]
+        public void KeepSetsReflectTypeProvidersAddedAfterFirstAccess()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+            var provider = new DerivedModelProviderReadingOwnField(inputModel);
+
+            _ = CodeModelGenerator.Instance.AdditionalRootTypes;
+            _ = CodeModelGenerator.Instance.NonRootTypes;
+
+            CodeModelGenerator.Instance.AddTypeToKeep(provider);
+            CodeModelGenerator.Instance.AddTypeToKeep(provider, isRoot: false);
+
+            var fullyQualifiedName = provider.Type.FullyQualifiedName;
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(fullyQualifiedName));
+            Assert.IsTrue(CodeModelGenerator.Instance.NonRootTypes.Contains(fullyQualifiedName));
+        }
+
+        // Regression test for two complementary fixes:
+        //
+        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;
+        //    registration is performed by TypeFactory.CreateModel after construction completes.
+        //    This mirrors the EnumProvider lifecycle and prevents a virtual call chain
+        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) from
+        //    being dispatched on a partially-constructed derived ModelProvider whose override
+        //    reads derived-class fields that are still uninitialized.
+        //
+        // 2. AddTypeToKeep(TypeProvider) defers FQN resolution until the keep set is consumed,
+        //    so even ctor-time callers cannot force premature TypeProvider.Type evaluation.
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceTypeEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            // (1) Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            //     must not throw.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(inputModel));
+
+            // (2) AddTypeToKeep(TypeProvider) must not throw and the provider's FQN must appear
+            //     once the keep set is materialized.
+            Assert.DoesNotThrow(() => CodeModelGenerator.Instance.AddTypeToKeep(provider!));
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains(provider!.Type.FullyQualifiedName));
+        }
+
+        private sealed class DerivedModelProviderReadingOwnField : ModelProvider
+        {
+            private readonly InputModelType _derivedInputModel;
+
+            public DerivedModelProviderReadingOwnField(InputModelType inputModel) : base(inputModel)
+            {
+                _derivedInputModel = inputModel;
+            }
+
+            protected override CSharpType? BuildBaseType()
+            {
+                // Reading a derived-class field that base(...) cannot have populated yet.
+                // If the framework forces Type evaluation during base ctor, this NREs.
+                _ = _derivedInputModel.DiscriminatorValue;
+                return base.BuildBaseType();
+            }
+        }
+
+        // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
+        // eagerly compute DiscriminatorValueExpression, which read BaseModelProvider and thus
+        // virtually dispatched BuildBaseType()/BuildBaseModel() onto a partially-constructed
+        // derived class. Surfaced while validating the Cdn provisioning migration (the keep-set
+        // fix alone was not sufficient when the model has a base + discriminator value).
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceDiscriminatorEvaluation()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                ]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInputModel, derivedInputModel]);
+
+            // Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            // must not throw, even when the input model has a base + discriminator value.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(derivedInputModel));
+
+            // The discriminator expression must still be available once consumed lazily
+            // (callers under emission/serialization rely on it).
+            Assert.DoesNotThrow(() => { _ = provider!.DiscriminatorValueExpression; });
         }
 
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]

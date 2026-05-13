@@ -784,6 +784,52 @@ describe("operations", () => {
   });
 });
 
+describe("meta-member helper APIs", () => {
+  it("list Reflection meta-members without resolving projection-backed symbols directly", () => {
+    const {
+      ReflectionModelProperty: reflectionModelProperty,
+      ReflectionOperation: reflectionOperation,
+    } = getResolutions(
+      [
+        `
+          namespace TypeSpec.Reflection {
+            model ModelProperty {}
+            model Operation {}
+          }
+
+          alias ReflectionModelProperty = TypeSpec.Reflection.ModelProperty;
+          alias ReflectionOperation = TypeSpec.Reflection.Operation;
+        `,
+      ],
+      "ReflectionModelProperty",
+      "ReflectionOperation",
+    );
+
+    ok(reflectionModelProperty.finalSymbol);
+    ok(reflectionOperation.finalSymbol);
+
+    ok(resolver.getMetaMemberNames(reflectionModelProperty.finalSymbol).includes("type"));
+    ok(resolver.getMetaMemberNames(reflectionOperation.finalSymbol).includes("parameters"));
+    ok(resolver.getMetaMemberNames(reflectionOperation.finalSymbol).includes("returnType"));
+
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionModelProperty.finalSymbol, "type")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionOperation.finalSymbol, "parameters")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+    strictEqual(
+      resolver.resolveMetaMemberByName(reflectionOperation.finalSymbol, "returnType")
+        .resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+  });
+});
+
 describe("accessing non members resolve to NotFound", () => {
   it("accessing property on ModelProperty", () => {
     const { "Foo.bar.doesNotExists": x } = getResolutions(

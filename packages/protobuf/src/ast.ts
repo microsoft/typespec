@@ -262,6 +262,10 @@ export interface ProtoFieldDeclaration extends ProtoDeclarationCommon {
    * Whether or not the field is repeated (i.e. an array).
    */
   repeated?: boolean;
+  /**
+   * Whether or not the field uses the proto3 `optional` label.
+   */
+  optional?: boolean;
   options?: Partial<DefaultFieldOptions>;
   type: ProtoType;
   index: number;

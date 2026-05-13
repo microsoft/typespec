@@ -1,5 +1,67 @@
 # Change Log - @typespec/compiler
 
+## 1.12.0
+
+### Features
+
+- [#10558](https://github.com/microsoft/typespec/pull/10558) Improve formatting of union expressions
+- [#10352](https://github.com/microsoft/typespec/pull/10352) Add support for configurable options on linter rules
+  
+  Linter rules can now define typed options with defaults using `defaultOptions`, and users can pass options when enabling rules in `tspconfig.yaml` or rulesets.
+  
+  **Defining a rule with options:**
+  
+  ```ts
+  const myRule = createRule({
+    name: "no-model-with-name",
+    severity: "warning",
+    description: "Bans models with a specific name",
+    messages: { default: "This model name is not allowed" },
+    defaultOptions: { bannedName: "Foo" },
+    create(context) {
+      return {
+        model: (target) => {
+          if (target.name === context.options.bannedName) {
+            context.reportDiagnostic({ target });
+          }
+        },
+      };
+    },
+  });
+  ```
+  
+  **Configuring options in `tspconfig.yaml`:**
+  
+  ```yaml
+  linter:
+    enable:
+      # Enable with default options
+      "@typespec/my-lib/no-model-with-name": true
+      # Enable with custom options
+      "@typespec/my-lib/no-model-with-name":
+        bannedName: "Bar"
+  ```
+- [#10431](https://github.com/microsoft/typespec/pull/10431) [init] Package dependencies are now populated with the actual latest version at the time (e.g. `^1.11.0`)
+- [#10581](https://github.com/microsoft/typespec/pull/10581) Added warnings for duplicate imports and self-imports in the same file
+  
+  The compiler now warns when a file imports itself or contains duplicate import statements. These are likely mistakes and while they don't cause errors, they add unnecessary noise.
+  
+  ```tsp
+  import "./main.tsp"; // Warning: A file cannot import itself.
+  
+  import "./other.tsp";
+  import "./other.tsp"; // Warning: Duplicate import of "./other.tsp"
+  ```
+
+### Bug Fixes
+
+- [#10618](https://github.com/microsoft/typespec/pull/10618) [LSP] Fix code fixes often not running when selected
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Fix server crashes caused by undefined symbol declarations: add null checks for `getSymNode()` in hover, completion, type-details, and type-signature handlers, and use fallback name for empty DocumentSymbol names
+- [#10351](https://github.com/microsoft/typespec/pull/10351) Fix formatter crash when an operation's parameter list contains only a block comment (e.g. `op find(/* conditions */): unknown;`). Dangling comments in empty parameter lists are now preserved instead of being dropped.
+- [#10556](https://github.com/microsoft/typespec/pull/10556) Fix formatting of decorators on operations and augment decorators. Decorators on operations now break to separate lines when the total line exceeds the print width. Augment decorator arguments are now consistently indented when the line breaks, matching TypeScript/prettier function call formatting.
+- [#10580](https://github.com/microsoft/typespec/pull/10580) Hide cursor during spinner animation to prevent flicker on Windows
+
+
 ## 1.11.0
 
 ### Features

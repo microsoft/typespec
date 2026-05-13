@@ -642,6 +642,14 @@ class Model(_MyMutableMapping):
                     if v is not None
                 }
             )
+        # Apply client default values for fields the caller didn't set so that
+        # defaults are part of `_data` and therefore included during serialization.
+        for rf in self._attr_to_rest_field.values():
+            if rf._default is _UNSET:
+                continue
+            if rf._rest_name in dict_to_pass:
+                continue
+            dict_to_pass[rf._rest_name] = _create_value(rf, rf._default)
         super().__init__(dict_to_pass)
 
     def _init_from_xml(self, element: ET.Element) -> dict[str, typing.Any]:

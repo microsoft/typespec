@@ -39,6 +39,7 @@ export enum OperationDetailPropertyName {
   emitResult,
   compilerLocation,
   compilerVersion,
+  compilerStartType,
   CompileStartTime,
   CompileEndTime,
 }

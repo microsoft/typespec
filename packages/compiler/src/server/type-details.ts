@@ -80,9 +80,12 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   // Add @doc(...) API docs
   let type = symbol.type;
   if (!type) {
-    const entity = program.checker.getTypeOrValueForNode(getSymNode(symbol));
-    if (entity && isType(entity)) {
-      type = entity;
+    const symNode = getSymNode(symbol);
+    if (symNode) {
+      const entity = program.checker.getTypeOrValueForNode(symNode);
+      if (entity && isType(entity)) {
+        type = entity;
+      }
     }
   }
   if (type) {
