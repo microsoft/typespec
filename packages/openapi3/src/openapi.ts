@@ -300,6 +300,7 @@ function createOAPIEmitter(
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
   let sseModule: SSEModule | undefined;
+  let jsonSchemaModule: JsonSchemaModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -417,6 +418,7 @@ function createOAPIEmitter(
     diagnostics = createDiagnosticCollector();
     currentService = service;
     sseModule = optionalDependencies.sseModule;
+    jsonSchemaModule = optionalDependencies.jsonSchemaModule;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -1900,6 +1902,13 @@ function createOAPIEmitter(
     const maxItems = getMaxItems(program, typespecType);
     if (!target.maxItems && maxItems !== undefined) {
       newTarget.maxItems = maxItems;
+    }
+
+    if (jsonSchemaModule) {
+      const uniqueItems = jsonSchemaModule.getUniqueItems(program, typespecType);
+      if (uniqueItems !== undefined) {
+        newTarget.uniqueItems = uniqueItems;
+      }
     }
 
     if (isSecret(program, typespecType)) {
