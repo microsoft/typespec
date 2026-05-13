@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -272,18 +273,37 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
         private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties)
         {
-            // Try to create a framework type from the fully qualified name
+            // 1. Try to create a framework type from the fully qualified name. This stays as the
+            // first attempt because it's free (no I/O) and is the source of truth for BCL types.
             var frameworkType = CreateFrameworkType(externalProperties.Identity);
             if (frameworkType != null)
             {
                 return new CSharpType(frameworkType);
             }
 
-            // External types that cannot be resolved as framework types are not supported
-            // Report a diagnostic to inform the user
+            // 2. Fallback: dynamically resolve the type from the NuGet package named in the metadata.
+            // ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
+            // pre-walk in CSharpGen.ExecuteAsync; on a miss it resolves on-demand.
+            if (!string.IsNullOrEmpty(externalProperties.Package))
+            {
+                var resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
+                if (resolvedType != null)
+                {
+                    return new CSharpType(resolvedType);
+                }
+            }
+
+            // 3. Neither path worked — emit a diagnostic that explains what was attempted.
+            var packageInfo = string.IsNullOrEmpty(externalProperties.Package)
+                ? "no package metadata was provided"
+                : $"package '{externalProperties.Package}'"
+                  + (string.IsNullOrEmpty(externalProperties.MinVersion)
+                      ? " could not be resolved"
+                      : $" (>= {externalProperties.MinVersion}) could not be resolved");
+
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' is not currently supported.");
+                $"External type '{externalProperties.Identity}' could not be resolved: {packageInfo}.");
 
             return null;
         }
