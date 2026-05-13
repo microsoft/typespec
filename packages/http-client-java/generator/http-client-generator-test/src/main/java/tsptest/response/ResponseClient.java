@@ -20,7 +20,6 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.TypeReference;
 import java.util.List;
 import tsptest.response.implementation.ResponseClientImpl;
-import tsptest.response.models.GetUnionResponseContentType;
 import tsptest.response.models.OperationDetails1;
 import tsptest.response.models.OperationDetails2;
 import tsptest.response.models.Resource;
@@ -363,7 +362,6 @@ public final class ResponseClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -373,8 +371,8 @@ public final class ResponseClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getUnionResponseWithResponse(String accept, RequestOptions requestOptions) {
-        return this.serviceClient.getUnionResponseWithResponse(accept, requestOptions);
+    public Response<BinaryData> getUnionResponseWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getUnionResponseWithResponse(requestOptions);
     }
 
     /**
@@ -760,8 +758,6 @@ public final class ResponseClient {
     /**
      * The getUnionResponse operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -771,10 +767,10 @@ public final class ResponseClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getUnionResponse(GetUnionResponseContentType accept) {
+    public BinaryData getUnionResponse() {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getUnionResponseWithResponse(accept.toString(), requestOptions).getValue();
+        return getUnionResponseWithResponse(requestOptions).getValue();
     }
 
     /**

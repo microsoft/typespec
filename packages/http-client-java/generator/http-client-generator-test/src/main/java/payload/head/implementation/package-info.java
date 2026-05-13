@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for File.
- * Test for File type usage in request and response bodies.
+ * Package containing the implementations for Head.
+ * Test scenario for HEAD operation returning response headers.
  * <!-- end generated doc -->
  */
-package type.file.models;
+package payload.head.implementation;
