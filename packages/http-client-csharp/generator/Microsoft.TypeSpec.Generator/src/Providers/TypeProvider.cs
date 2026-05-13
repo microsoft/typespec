@@ -703,17 +703,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            IReadOnlyList<MethodProvider>? newMethods = null;
-            if (hasMethods)
-            {
-                newMethods = BuildMethodsForBackCompatibility(Methods);
-            }
-
-            IReadOnlyList<ConstructorProvider>? newConstructors = null;
-            if (hasConstructors)
-            {
-                newConstructors = BuildConstructorsForBackCompatibility(Constructors);
-            }
+            var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
+            var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
             if (newFields != null || newMethods != null || newConstructors != null)
             {

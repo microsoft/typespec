@@ -1156,7 +1156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[0].Name);
@@ -1179,7 +1179,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[1].Name);
@@ -2787,9 +2787,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var protocolMethods = methods
@@ -2874,9 +2872,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var convenienceMethods = methods
@@ -2956,9 +2952,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var protocolMethods = methods
@@ -3055,9 +3049,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var processDataMethods = methods
@@ -3143,10 +3135,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
             // This should not throw even when there are duplicate method signatures
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
+            Assert.DoesNotThrow(() => clientProvider!.ProcessTypeForBackCompatibility());
         }
 
         // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
@@ -3183,8 +3173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3226,8 +3215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3272,8 +3260,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3312,8 +3299,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3353,8 +3339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3399,8 +3384,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
