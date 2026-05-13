@@ -603,7 +603,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     .Where(m => m.Signature.Name.StartsWith("Deserialize") || m.Signature.Name.StartsWith("PersistableModelCreateCore"))];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
 
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "((int)foo)")]
