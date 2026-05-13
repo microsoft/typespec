@@ -103,21 +103,22 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     return false;
                 }
 
-                if (x.Parameters.Count != y.Parameters.Count || GetFullMethodName(x) != GetFullMethodName(y))
+                if (x.Parameters.Count != y.Parameters.Count)
+                {
+                    return false;
+                }
+
+                bool xIsOperator = x.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                bool yIsOperator = y.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                if (xIsOperator != yIsOperator)
                 {
                     return false;
                 }
 
                 // For operators, we need to also check the return type and operator type (explicit vs implicit)
                 // since operators can have the same "name" (the target type) but different signatures
-                if (x.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                if (xIsOperator)
                 {
-                    // Check if both are operators and of the same type (explicit or implicit)
-                    if (!y.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-                    {
-                        return false;
-                    }
-
                     // Check explicit vs implicit - both flags must match
                     bool xIsExplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                     bool yIsExplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
@@ -140,6 +141,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     {
                         return false;
                     }
+
+                    // Compare user-defined operators by symbol; conversion operators are fully identified by modifiers/return type/params.
+                    if (!xIsImplicit && !xIsExplicit
+                        && NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
+                    {
+                        return false;
+                    }
+                }
+                else if (GetFullMethodName(x) != GetFullMethodName(y))
+                {
+                    return false;
                 }
 
                 for (int i = 0; i < x.Parameters.Count; i++)
@@ -166,6 +178,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
 
                 return method.Name;
+            }
+
+            private static string NormalizeOperatorName(string name)
+            {
+                // Strip Roslyn's "operator " prefix so "operator ==" matches "==".
+                const string operatorPrefix = "operator ";
+                return name.StartsWith(operatorPrefix, StringComparison.Ordinal)
+                    ? name.Substring(operatorPrefix.Length)
+                    : name;
             }
         }
     }
