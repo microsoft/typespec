@@ -30,6 +30,9 @@ function IsFullyUpperCase(identifier: string, maxUppercasePreserve: number) {
       if (i.toUpperCase() === i) {
         return true;
       }
+      if (i.toLocaleLowerCase() === i) {
+        return true;
+      }
     }
   }
   return false;
