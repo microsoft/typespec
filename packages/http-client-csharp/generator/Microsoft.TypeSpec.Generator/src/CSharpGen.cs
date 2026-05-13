@@ -144,11 +144,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void FilterCustomizedMembers(TypeProvider typeProvider)
         {
+            // Update applies customization filtering internally, so passing the current cached members
+            // is sufficient to apply the filter (e.g., after EnsureBuilt populated unfiltered caches).
             typeProvider.Update(
-                typeProvider.FilterCustomizedMethods(typeProvider.Methods),
-                typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
-                typeProvider.FilterCustomizedProperties(typeProvider.Properties),
-                typeProvider.FilterCustomizedFields(typeProvider.Fields));
+                typeProvider.Methods,
+                typeProvider.Constructors,
+                typeProvider.Properties,
+                typeProvider.Fields);
         }
 
         /// <summary>

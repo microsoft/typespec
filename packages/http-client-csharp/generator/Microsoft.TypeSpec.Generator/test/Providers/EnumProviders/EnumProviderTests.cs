@@ -498,6 +498,62 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Default", fields[1].Name);
         }
 
+        // Verifies that back-compat does NOT re-introduce enum values that have been suppressed
+        // via [CodeGenSuppress] or that already exist in user-provided custom code. Without
+        // filtering in ProcessTypeForBackCompatibility, the back-compat code would rebuild the
+        // field set from EnumValues (which is unfiltered) and overwrite the previously-filtered
+        // fields, causing the suppressed/customized values to reappear.
+        [Test]
+        public async Task BackCompat_FixedEnumSuppressedValueNotReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("One", 1),
+                ("Two", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Sanity check: the custom code view must be matched.
+            Assert.IsNotNull(enumType.CustomCodeView, "CustomCodeView should be loaded from the (Custom) directory.");
+            Assert.AreEqual("MockInputEnum", enumType.CustomCodeView!.Name);
+            // Custom code: enum { Two = 2 } with [CodeGenSuppress("One")]
+            Assert.IsTrue(enumType.CustomCodeView.Fields.Any(f => f.Name == "Two"));
+            Assert.IsTrue(enumType.CustomCodeView.Attributes.Any(a => a.Type.Name == "CodeGenSuppressAttribute"));
+
+            // Simulate the production pipeline (CSharpGen.ExecuteAsync):
+            // 1) EnsureBuilt to populate caches from the spec (no filtering),
+            // 2) Update through the FilterAllCustomizedMembers pass to apply [CodeGenSuppress] and
+            //    custom-code filtering,
+            // 3) ProcessTypeForBackCompatibility to add back-compat members from the last contract.
+            enumType.EnsureBuilt();
+            enumType.Update(
+                enumType.Methods,
+                enumType.Constructors,
+                enumType.Properties,
+                enumType.Fields);
+
+            // After filtering, the generated provider should not emit any enum fields:
+            // 'One' is suppressed and 'Two' is provided by the user's custom enum.
+            Assert.AreEqual(0, enumType.Fields.Count);
+
+            enumType.ProcessTypeForBackCompatibility();
+
+            // After back-compat, suppressed/customized fields must NOT be re-introduced.
+            // The generated provider should still emit no fields, letting the user's custom enum
+            // be the source of truth.
+            Assert.AreEqual(0, enumType.Fields.Count);
+
+            // _enumValues is kept in sync so back-compat does not leak suppressed values via the
+            // EnumValues collection either.
+            Assert.AreEqual(0, enumType.EnumValues.Count);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");

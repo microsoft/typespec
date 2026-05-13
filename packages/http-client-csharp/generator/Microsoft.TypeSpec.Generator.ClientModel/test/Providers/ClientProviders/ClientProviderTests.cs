@@ -3407,6 +3407,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Verifies that a back-compat overload added by ProcessTypeForBackCompatibility is removed
+        // when the user has explicitly suppressed it via [CodeGenSuppress] in custom code. Without
+        // filtering in ProcessTypeForBackCompatibility, the suppressed overload would be re-introduced
+        // after the FilterAllCustomizedMembers pass, leaking into the generated client.
+        [Test]
+        public async Task BackCompatibility_BackCompatOverloadSuppressedByCustomCode()
+        {
+            // Last contract had a GetData(int param1, string param2, CancellationToken) method.
+            // Current method adds an optional non-body parameter `param3`, which would normally
+            // cause a back-compat overload matching the previous signature to be added.
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+            Assert.IsNotNull(clientProvider.CustomCodeView);
+
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", BindingFlags.NonPublic | BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            // The current spec method has param3, the back-compat overload would NOT have param3.
+            // With the fix, the suppressed back-compat overload should not appear in the methods.
+            var getDataOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetData" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+            var getDataAsyncOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetDataAsync" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+
+            Assert.AreEqual(0, getDataOverloads.Count, "Back-compat overload of GetData should be suppressed by [CodeGenSuppress] in custom code.");
+            Assert.AreEqual(0, getDataAsyncOverloads.Count, "Back-compat overload of GetDataAsync should be suppressed by [CodeGenSuppress] in custom code.");
+
+            // The current methods (with param3) must still be present.
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetData" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetDataAsync" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+        }
+
         [Test]
         public void ServerTemplateWithBasePathOnly_DoesNotDuplicateBasePath()
         {
