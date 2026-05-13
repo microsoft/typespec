@@ -16,7 +16,8 @@ public class HeadTests {
     @Test
     public void testResponseHeaders() {
         Response<Void> response = client.contentTypeHeaderInResponseWithResponse(new RequestOptions());
-        Assertions.assertEquals("text/plain; charset=utf-8", response.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+        Assertions.assertEquals("text/plain; charset=utf-8",
+            response.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
         Assertions.assertEquals("hello", response.getHeaders().getValue("x-ms-meta"));
     }
 }
