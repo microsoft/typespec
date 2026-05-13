@@ -532,12 +532,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            var baseModelProviders = EnumerateBaseModelProviders().ToArray();
-            Dictionary<string, (InputModelProperty Property, bool ShouldSkip)> baseProperties = baseModelProviders
-                .SelectMany(m => m._inputModel.Properties.Select(p => (Property: p, m.ShouldSkipDerivedModelProperties)))
-                .GroupBy(x => x.Property.Name)
-                .Select(g => g.First())
-                .ToDictionary(p => p.Property.Name);
+            Dictionary<string, InputModelProperty> baseProperties = [];
+            HashSet<string> skippedBasePropertyNames = [];
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
+            {
+                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                {
+                    if (baseProperties.ContainsKey(baseProperty.Name) || skippedBasePropertyNames.Contains(baseProperty.Name))
+                    {
+                        continue;
+                    }
+
+                    if (baseModelProvider.ShouldSkipDerivedModelProperties)
+                    {
+                        skippedBasePropertyNames.Add(baseProperty.Name);
+                    }
+                    else
+                    {
+                        baseProperties.Add(baseProperty.Name, baseProperty);
+                    }
+                }
+            }
             // Build a set of serialized names for base discriminator properties to handle cases where
             // the derived model has a discriminator with a different C# name but the same wire name
             HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
@@ -553,7 +568,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Skip discriminator properties that already exist in the base class
                 // Check both by C# property name and by serialized name to handle cases where
                 // the derived model has a discriminator with a different C# name but the same wire name
-                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
+                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || skippedBasePropertyNames.Contains(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
                 {
                     continue;
                 }
@@ -594,27 +609,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
+                    if (skippedBasePropertyNames.Contains(property.Name))
+                    {
+                        continue;
+                    }
+
                     if (baseProperties.TryGetValue(property.Name, out var baseProperty))
                     {
-                        if (baseProperty.ShouldSkip)
-                        {
-                            continue;
-                        }
-
-                        if (DomainEqual(baseProperty.Property, property))
+                        if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
                         else
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                            var fieldName = $"_{baseProperty.Property.Name.ToVariableName()}";
+                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
                             outputProperty.Body = new ExpressionPropertyBody(
                                 This.Property(fieldName).NullCoalesce(Default),
                                 outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
                             outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
-                        outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty.Property, BaseModelProvider!);
+                        outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                     }
                 }
                 properties.Add(outputProperty);
