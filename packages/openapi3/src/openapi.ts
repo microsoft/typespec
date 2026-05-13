@@ -1780,8 +1780,14 @@ function createOAPIEmitter(
     }
 
     function processUnreferencedSchemas() {
+      const authSchemeModels = new Set<Type>(serviceAuth.schemes.map((s) => s.model));
       const addSchema = (type: Type) => {
         if (isOrExtendsHttpFile(program, type)) {
+          return;
+        }
+        if (authSchemeModels.has(type)) {
+          // Auth scheme models are emitted under components.securitySchemes
+          // and should not also appear as payload schemas in components.schemas.
           return;
         }
         if (

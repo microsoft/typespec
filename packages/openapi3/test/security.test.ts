@@ -589,4 +589,35 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     ]);
   });
+
+  it("does not emit a custom auth scheme model under components.schemas", async () => {
+    // A custom auth scheme model declared inside the service namespace
+    // belongs only in `components.securitySchemes`. Previously
+    // `processUnreferencedSchemas` also emitted it under
+    // `components.schemas` because no payload references it, which
+    // caused downstream validators to reject auth-only attributes
+    // (e.g. `bearerFormat`) that propagated to the schemas-side copy.
+    const res = await openApiFor(
+      `
+      @useAuth(customBearer)
+      @service
+      namespace MyService;
+
+      model customBearer {
+        type: AuthType.http;
+        scheme: "bearer";
+      }
+
+      @route("/ping")
+      op ping(): { @statusCode _: 200; ok: boolean };
+      `,
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      customBearer: {
+        type: "http",
+        scheme: "bearer",
+      },
+    });
+    expect(res.components.schemas?.customBearer).toBeUndefined();
+  });
 });
