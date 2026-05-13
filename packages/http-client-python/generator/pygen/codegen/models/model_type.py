@@ -285,12 +285,16 @@ class GeneratedModelType(ModelType):
         module_name = ""
         # In types.py, use bare name to avoid pyright "variable in type expression" errors
         if serialize_namespace_type == NamespaceType.TYPES_FILE:
-            pass  # no module prefix
+            pass  # no module prefix, no internal file prefix
         elif kwargs.get("need_model_alias", True):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
             module_name = f"{model_alias}."
-        file_name = f"{self.code_model.models_filename}." if self.internal else ""
+        file_name = (
+            f"{self.code_model.models_filename}."
+            if self.internal and serialize_namespace_type != NamespaceType.TYPES_FILE
+            else ""
+        )
         retval = module_name + file_name + self.name
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
@@ -338,9 +342,10 @@ class GeneratedModelType(ModelType):
             will_be_in_types_file = self.base != "json" and same_namespace
             if not will_be_in_types_file:
                 if same_namespace:
-                    # json models from same namespace — import from .models
+                    # json models from same namespace — import from .models (or .models._models for internal)
+                    import_path = f".models.{self.code_model.models_filename}" if self.internal else ".models"
                     file_import.add_submodule_import(
-                        ".models",
+                        import_path,
                         self.name,
                         ImportType.LOCAL,
                         typing_section=TypingSection.TYPING,
