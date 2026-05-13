@@ -194,7 +194,7 @@ async function runValidation(
 async function findTspProjects(wd: string, suite: IntegrationTestSuite): Promise<string[]> {
   const result: string[] = [];
   const pattern = suite.pattern ?? "**/tspconfig.yaml";
-  for await (const file of glob(pattern, { cwd: wd })) {
+  for await (const file of glob(pattern, { cwd: wd, exclude: suite.exclude })) {
     const projectDir = dirname(resolve(wd, file));
     const entrypoints = await findTspEntrypoints(projectDir, suite);
     if (entrypoints.length > 0) {
