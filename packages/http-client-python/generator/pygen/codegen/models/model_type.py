@@ -418,12 +418,15 @@ class DPGModelType(GeneratedModelType):
             serialize_namespace_type = kwargs.get("serialize_namespace_type")
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+            same_namespace = relative_path == "."
             if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
                 file_import.add_submodule_import(
                     relative_path,
                     "types",
                     ImportType.LOCAL,
                 )
+            elif serialize_namespace_type == NamespaceType.TYPES_FILE and same_namespace:
+                pass  # model is defined in this types.py — no import needed
             elif serialize_namespace_type in [NamespaceType.TYPES_FILE, NamespaceType.UNIONS_FILE] or (
                 serialize_namespace_type == NamespaceType.MODEL and kwargs.get("called_by_property", False)
             ):
