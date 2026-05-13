@@ -2,6 +2,10 @@
 
 ## 0.29.1
 
+### Bump dependencies
+
+- [#10668](https://github.com/microsoft/typespec/pull/10668) Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
 ### Bug Fixes
 
 - [#10563](https://github.com/microsoft/typespec/pull/10563) Fix TypeSpec `numeric` scalar type being emitted as `int` in Python; it is now emitted as `float`.
