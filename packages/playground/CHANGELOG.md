@@ -1,5 +1,20 @@
 # Change Log - @typespec/playground
 
+## 0.15.0
+
+### Breaking Changes
+
+- [#10468](https://github.com/microsoft/typespec/pull/10468) Remove the `newChangeDiff` emitter option. Diff highlighting of changed files and lines is now always enabled in the output viewer.
+
+### Features
+
+- [#10349](https://github.com/microsoft/typespec/pull/10349) Add compilation spinner, diff highlighting, and output preservation
+
+### Bug Fixes
+
+- [#10442](https://github.com/microsoft/typespec/pull/10442) Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompilations triggered while a compile is already running.
+
+
 ## 0.14.0
 
 ### Features
