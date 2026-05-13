@@ -9,6 +9,17 @@ pipelines:
           lastModifiedDate: 2026-05-11
         armory:
           lastModifiedDate: 2026-05-11
+  3226:
+    retail:
+      source:
+        eslint:
+          lastModifiedDate: 2026-05-13
+        psscriptanalyzer:
+          lastModifiedDate: 2026-05-13
+        armory:
+          lastModifiedDate: 2026-05-13
       binary:
         binskim:
+          lastModifiedDate: 2026-05-13
+        spotbugs:
           lastModifiedDate: 2026-05-13
