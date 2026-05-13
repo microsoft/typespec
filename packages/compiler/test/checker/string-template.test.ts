@@ -142,3 +142,25 @@ it("emit error if interpolating template parameter that is a value but using tem
     end,
   });
 });
+
+it("emit error if interpolating template access that mixes values and types", async () => {
+  const { source, pos, end } = extractSquiggles(`
+      const prefix = "value";
+
+      model Input {
+        prop: string;
+      }
+
+      alias Template<T extends Input | (valueof Input)> = {
+        a: ~~~"\${prefix} \${T.prop::type}"~~~;
+      };
+    `);
+  const diagnostics = await Tester.diagnose(source);
+  expectDiagnostics(diagnostics, {
+    code: "mixed-string-template",
+    message:
+      "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    pos,
+    end,
+  });
+});

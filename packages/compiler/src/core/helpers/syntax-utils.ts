@@ -30,6 +30,10 @@ export function printIdentifier(
   }
 }
 
+export function printMemberExpressionPath(base: string, selector: "." | "::", id: string): string {
+  return `${base}${selector}${printIdentifier(id)}`;
+}
+
 function needBacktick(sv: string, context: "allow-reserved" | "disallow-reserved"): boolean {
   if (sv.length === 0) {
     return false;
