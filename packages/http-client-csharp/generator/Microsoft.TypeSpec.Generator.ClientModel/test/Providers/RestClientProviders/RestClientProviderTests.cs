@@ -1643,7 +1643,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             }
 
             protected override FieldProvider[] BuildFields() => [];
-            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected internal override ConstructorProvider[] BuildConstructors() => [];
             protected override PropertyProvider[] BuildProperties() => [];
 
             protected override TypeProvider[] BuildNestedTypes() => [];

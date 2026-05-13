@@ -785,7 +785,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.Name == "WriteXml" || m.Signature.Name == "Write")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
 
         private class MockIPersistableModelMrwProvider : MrwSerializationTypeDefinition
@@ -803,7 +803,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.ExplicitInterface.Name == "IPersistableModel")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
     }
 }
