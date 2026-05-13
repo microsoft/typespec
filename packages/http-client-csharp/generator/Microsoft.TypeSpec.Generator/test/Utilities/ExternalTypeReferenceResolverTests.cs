@@ -5,8 +5,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -14,6 +12,10 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {
+    // Tests in this fixture mutate process-global state (NUGET_PACKAGES env var, the static resolver
+    // cache and CodeModelGenerator.Instance), so they must not run in parallel with each other or
+    // with any other fixture that touches those globals.
+    [NonParallelizable]
     public class ExternalTypeReferenceResolverTests
     {
         private string? _tempDirectory;
@@ -32,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             _originalNugetPackageDir = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
 
-            ExternalTypeReferenceResolver.ResetForTests();
+            ExternalTypeReferenceResolver.Reset();
             MockHelpers.LoadMockGenerator(
                 outputPath: _projectDir,
                 configuration: "{}");
@@ -41,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TearDown]
         public void Cleanup()
         {
-            ExternalTypeReferenceResolver.ResetForTests();
+            ExternalTypeReferenceResolver.Reset();
             Directory.Delete(_tempDirectory!, true);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", _originalNugetPackageDir, EnvironmentVariableTarget.Process);
         }
@@ -176,31 +178,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
         private static string CreateFakeNuGetPackage(string nugetCacheDir, string packageName, string version)
         {
-            var pkgDir = Path.Combine(
-                nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
-            Directory.CreateDirectory(pkgDir);
-
-            // Load the source template from TestData and substitute the package name + version.
-            // The template embeds an [assembly: AssemblyVersion("$VERSION$")] attribute so tests
-            // can verify which dll was loaded by inspecting Assembly.GetName().Version.
+            // Load the source template from TestData and substitute the package name + version. The
+            // template embeds an [assembly: AssemblyVersion("$VERSION$")] attribute so tests can verify
+            // which dll was loaded by inspecting Assembly.GetName().Version. Disk + compile + emit are
+            // delegated to the shared FakeNuGetPackage helper.
             var template = Helpers.GetExpectedFromFile(method: "PackageSource");
             var source = template
                 .Replace("$PACKAGE$", packageName)
                 .Replace("$VERSION$", version);
-
-            var compilation = CSharpCompilation.Create(
-                packageName,
-                [CSharpSyntaxTree.ParseText(source)],
-                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            var dllPath = Path.Combine(pkgDir, $"{packageName}.dll");
-            using (var fs = new FileStream(dllPath, FileMode.Create))
-            {
-                var result = compilation.Emit(fs);
-                Assert.IsTrue(result.Success, $"Failed to emit fake assembly for {packageName}");
-            }
-            return dllPath;
+            return FakeNuGetPackage.Create(nugetCacheDir, packageName, version, source);
         }
     }
 }

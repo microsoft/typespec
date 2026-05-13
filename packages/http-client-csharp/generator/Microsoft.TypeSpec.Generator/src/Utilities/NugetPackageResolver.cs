@@ -21,8 +21,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     {
         /// <summary>
         /// Searches the NuGet global packages folder for an assembly belonging to <paramref name="packageName"/>.
-        /// When <paramref name="minVersion"/> is provided, only versions greater than or equal to it are considered.
-        /// Returns the highest qualifying version's assembly path, or <c>null</c> if none is cached.
+        /// When <paramref name="minVersion"/> is provided, only versions greater than or equal to it are considered
+        /// (so directory names that do not parse as <see cref="NuGetVersion"/> are skipped). When it is omitted, all
+        /// version directories are probed: parseable names first in semantic-descending order, then any remaining
+        /// directories in lexicographic-descending order so callers that pre-date the SemVer-aware overload (e.g.
+        /// the package-reference walker) keep their original probe set.
         /// </summary>
         public static string? FindPackageAssembly(string globalPackagesFolder, string packageName, string? minVersion = null)
         {
@@ -38,28 +41,54 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 minParsed = null;
             }
 
-            var candidateDirs = Directory.GetDirectories(packageDir)
-                .Select(dir =>
-                {
-                    var name = Path.GetFileName(dir);
-                    return NuGetVersion.TryParse(name, out var parsed) ? (Dir: dir, Version: parsed) : (Dir: dir, Version: (NuGetVersion?)null);
-                })
+            var allDirs = Directory.GetDirectories(packageDir);
+
+            var parseableDirs = allDirs
+                .Select(dir => (Dir: dir, Version: NuGetVersion.TryParse(Path.GetFileName(dir), out var v) ? v : null))
                 .Where(t => t.Version != null && (minParsed == null || t.Version >= minParsed))
                 .OrderByDescending(t => t.Version)
-                .ToList();
+                .Select(t => t.Dir);
 
-            foreach (var candidate in candidateDirs)
+            foreach (var dir in parseableDirs)
             {
-                foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                var found = TryFindAssemblyInVersionDir(dir, packageName);
+                if (found != null)
                 {
-                    var assemblyPath = Path.Combine(candidate.Dir, "lib", tfm, $"{packageName}.dll");
-                    if (File.Exists(assemblyPath))
+                    return found;
+                }
+            }
+
+            // Back-compat fallback: when no MinVersion was supplied, also probe directories whose names do
+            // not parse as NuGetVersion (e.g. exotic pre-release labels) in lexicographic-descending order
+            // so the original PR #10229 behavior for AddPackageReferencesFromProject is preserved.
+            if (minParsed == null)
+            {
+                var unparseableDirs = allDirs
+                    .Where(d => !NuGetVersion.TryParse(Path.GetFileName(d), out _))
+                    .OrderByDescending(Path.GetFileName, StringComparer.Ordinal);
+                foreach (var dir in unparseableDirs)
+                {
+                    var found = TryFindAssemblyInVersionDir(dir, packageName);
+                    if (found != null)
                     {
-                        return assemblyPath;
+                        return found;
                     }
                 }
             }
 
+            return null;
+        }
+
+        private static string? TryFindAssemblyInVersionDir(string versionDir, string packageName)
+        {
+            foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+            {
+                var assemblyPath = Path.Combine(versionDir, "lib", tfm, $"{packageName}.dll");
+                if (File.Exists(assemblyPath))
+                {
+                    return assemblyPath;
+                }
+            }
             return null;
         }
 

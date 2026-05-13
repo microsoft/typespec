@@ -5,8 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -22,21 +22,37 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     /// as a fallback after <c>CreateFrameworkType</c> returns <c>null</c>.
     /// </summary>
     /// <remarks>
-    /// The cache is process-wide so that a single external type referenced from many input types only
-    /// triggers one NuGet probe and one assembly load. <see cref="ResolveAllAsync"/> performs an eager
-    /// pre-walk of the input library and registers each resolved assembly as a Roslyn metadata reference
-    /// before the generated/custom code workspaces are constructed; <see cref="TryResolve"/> serves as a
-    /// synchronous lookup (with on-demand resolution as a defensive fallback) from the type factory.
+    /// Resolution state is keyed off the active <see cref="CodeModelGenerator"/> instance via a
+    /// <see cref="ConditionalWeakTable{TKey, TValue}"/>, so a single external type referenced from many
+    /// input types only triggers one NuGet probe and one assembly load per generator, while a fresh
+    /// generator (e.g. installed by the next emit) automatically starts with an empty cache.
+    /// <see cref="ResolveAllAsync"/> performs an eager pre-walk of the input library and registers each
+    /// resolved assembly as a Roslyn metadata reference before the generated/custom code workspaces are
+    /// constructed; <see cref="TryResolve"/> serves as a synchronous lookup (with on-demand resolution
+    /// as a defensive fallback) from the type factory.
     /// </remarks>
     internal static class ExternalTypeReferenceResolver
     {
-        // Cached resolution per (Package, Identity, MinVersion) key. Value is the loaded Type, or null
-        // if resolution was attempted and failed (so we don't keep re-trying).
-        private static readonly ConcurrentDictionary<string, Lazy<Type?>> _resolved = new(StringComparer.Ordinal);
+        // Per-generator cache state. Using ConditionalWeakTable means a new CodeModelGenerator instance
+        // (e.g. a fresh mock installed by the next test) starts with an empty cache automatically, and
+        // the entries are released when the generator is collected.
+        private static readonly ConditionalWeakTable<CodeModelGenerator, CacheState> _cacheStates = new();
 
-        // Tracks assembly file paths that we've already added as Roslyn metadata references, so the
-        // same dll isn't registered twice when it contains multiple referenced types.
-        private static readonly ConcurrentDictionary<string, byte> _addedAssemblyRefs = new(StringComparer.OrdinalIgnoreCase);
+        private sealed class CacheState
+        {
+            // Cached resolution per (Package, Identity, MinVersion) key. Value is the loaded Type, or
+            // null if resolution was attempted and failed (so we don't keep re-trying).
+            public readonly ConcurrentDictionary<string, Lazy<Type?>> Resolved =
+                new(StringComparer.Ordinal);
+
+            // Tracks assembly file paths that have already been added as Roslyn metadata references, so
+            // the same dll isn't registered twice when it contains multiple referenced types.
+            public readonly ConcurrentDictionary<string, byte> AddedAssemblyRefs =
+                new(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static CacheState GetState(CodeModelGenerator generator) =>
+            _cacheStates.GetValue(generator, _ => new CacheState());
 
         /// <summary>
         /// Walks all <see cref="InputType"/> instances reachable from
@@ -48,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public static async Task ResolveAllAsync()
         {
             var generator = CodeModelGenerator.Instance;
-            if (generator?.InputLibrary == null)
+            if (generator.InputLibrary == null)
             {
                 return;
             }
@@ -100,21 +116,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return null;
             }
 
+            var state = GetState(CodeModelGenerator.Instance);
             var key = MakeKey(external);
-            var lazy = _resolved.GetOrAdd(key, _ => new Lazy<Type?>(
+            var lazy = state.Resolved.GetOrAdd(key, _ => new Lazy<Type?>(
                 () => Task.Run(() => ResolveAsync(external)).GetAwaiter().GetResult(),
                 LazyThreadSafetyMode.ExecutionAndPublication));
             return lazy.Value;
         }
 
         /// <summary>
-        /// Test-only: clears all caches so a fresh test can exercise the resolver without leakage from
-        /// earlier tests in the same process. Not intended for production use.
+        /// Clears the cached resolution state for the active <see cref="CodeModelGenerator"/> instance.
         /// </summary>
-        internal static void ResetForTests()
+        internal static void Reset()
         {
-            _resolved.Clear();
-            _addedAssemblyRefs.Clear();
+            // Drop the entry entirely; the next call rebuilds a fresh CacheState on demand.
+            _cacheStates.Remove(CodeModelGenerator.Instance);
         }
 
         private static string MakeKey(InputExternalTypeMetadata external) =>
@@ -122,16 +138,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static async Task<Type?> ResolveAsync(InputExternalTypeMetadata external)
         {
+            var generator = CodeModelGenerator.Instance;
+            var state = GetState(generator);
+
             // Populate the cache slot (creating the Lazy with the value we compute here) so that a
             // concurrent TryResolve doesn't kick off duplicate work for the same key.
             var key = MakeKey(external);
-            if (_resolved.TryGetValue(key, out var existing) && existing.IsValueCreated)
+            if (state.Resolved.TryGetValue(key, out var existing) && existing.IsValueCreated)
             {
                 return existing.Value;
             }
 
-            var generator = CodeModelGenerator.Instance;
-            var configurationDir = generator?.Configuration?.ProjectDirectory;
+            var configurationDir = generator.Configuration?.ProjectDirectory;
             ISettings nugetSettings;
             string globalPackagesFolder;
             try
@@ -143,8 +161,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                generator?.Emitter?.Debug($"Could not load NuGet settings while resolving '{external.Identity}': {ex.Message}");
-                CacheResult(key, null);
+                generator.Emitter?.Debug($"Could not load NuGet settings while resolving '{external.Identity}': {ex.Message}");
+                CacheResult(state, key, null);
                 return null;
             }
 
@@ -172,14 +190,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
                 catch (Exception ex)
                 {
-                    generator?.Emitter?.Debug(
+                    generator.Emitter?.Debug(
                         $"Could not download package '{external.Package}' for external type '{external.Identity}': {ex.Message}");
                 }
             }
 
             if (assemblyPath == null || !File.Exists(assemblyPath))
             {
-                CacheResult(key, null);
+                CacheResult(state, key, null);
                 return null;
             }
 
@@ -190,9 +208,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                generator?.Emitter?.Debug(
+                generator.Emitter?.Debug(
                     $"Failed to read assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(key, null);
+                CacheResult(state, key, null);
                 return null;
             }
 
@@ -206,42 +224,42 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                generator?.Emitter?.Debug(
+                generator.Emitter?.Debug(
                     $"Failed to load assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(key, null);
+                CacheResult(state, key, null);
                 return null;
             }
 
             if (loadedType == null)
             {
-                generator?.Emitter?.Debug(
+                generator.Emitter?.Debug(
                     $"Assembly '{assemblyPath}' does not contain external type '{external.Identity}'.");
-                CacheResult(key, null);
+                CacheResult(state, key, null);
                 return null;
             }
 
             // Register the dll as a Roslyn metadata reference exactly once per assembly path so that
             // generated and custom code that uses the type compiles inside the workspace.
             // Use CreateFromImage with the in-memory bytes to avoid holding the dll open.
-            if (_addedAssemblyRefs.TryAdd(assemblyPath, 0) && generator != null)
+            if (state.AddedAssemblyRefs.TryAdd(assemblyPath, 0))
             {
                 generator.AddMetadataReference(MetadataReference.CreateFromImage(assemblyBytes));
                 generator.Emitter?.Debug(
                     $"Added metadata reference for external type '{external.Identity}' from {assemblyPath}");
             }
 
-            CacheResult(key, loadedType);
+            CacheResult(state, key, loadedType);
             return loadedType;
         }
 
-        private static void CacheResult(string key, Type? result)
+        private static void CacheResult(CacheState state, string key, Type? result)
         {
             // Replace whatever Lazy is in the slot with one that already has the computed value.
             // AddOrUpdate ensures we don't lose a concurrent write.
             var precomputed = new Lazy<Type?>(() => result, LazyThreadSafetyMode.PublicationOnly);
             // Force the value to be materialized so IsValueCreated is true.
             _ = precomputed.Value;
-            _resolved.AddOrUpdate(key, precomputed, (_, _) => precomputed);
+            state.Resolved.AddOrUpdate(key, precomputed, (_, _) => precomputed);
         }
 
         private static void CollectExternalTypes(InputLibrary library, IDictionary<string, InputExternalTypeMetadata> collected)

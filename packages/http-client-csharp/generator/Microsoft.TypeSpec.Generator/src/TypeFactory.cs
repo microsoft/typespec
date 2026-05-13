@@ -294,16 +294,17 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // 3. Neither path worked — emit a diagnostic that explains what was attempted.
-            var packageInfo = string.IsNullOrEmpty(externalProperties.Package)
+            // Each branch is a self-contained sentence so the final message reads naturally and
+            // doesn't repeat "could not be resolved".
+            var details = string.IsNullOrEmpty(externalProperties.Package)
                 ? "no package metadata was provided"
-                : $"package '{externalProperties.Package}'"
-                  + (string.IsNullOrEmpty(externalProperties.MinVersion)
-                      ? " could not be resolved"
-                      : $" (>= {externalProperties.MinVersion}) could not be resolved");
+                : string.IsNullOrEmpty(externalProperties.MinVersion)
+                    ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
+                    : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";
 
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' could not be resolved: {packageInfo}.");
+                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
 
             return null;
         }

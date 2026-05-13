@@ -1728,22 +1728,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(props.FirstOrDefault(p => p.Name == "Expression"));
         }
 
-        [Test]
+        [Test, NonParallelizable]
         public async Task ExternalTypePropertyResolvedFromNuGetCache()
         {
             // External type whose Identity is not a framework type but whose Package can be located in the
             // NuGet cache: the dynamic-loading fallback resolves the type and the property is emitted.
+            // Marked NonParallelizable because the test mutates the process-wide NUGET_PACKAGES env var
+            // and the static external-type resolver state.
             var tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
             var nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
             Directory.CreateDirectory(nugetCacheDir);
 
             const string pkgName = "Test.ModelProvider.External";
             const string typeName = "Test.ModelProvider.External.MyExternalType";
-            CreateFakeNugetPackageForTest(nugetCacheDir, pkgName, "1.0.0");
+            FakeNuGetPackage.Create(
+                nugetCacheDir,
+                pkgName,
+                "1.0.0",
+                $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
 
             var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
-            ExternalTypeReferenceResolver.ResetForTests();
+            ExternalTypeReferenceResolver.Reset();
             try
             {
                 var external = new InputExternalTypeMetadata(typeName, pkgName, null);
@@ -1773,33 +1779,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
             finally
             {
-                ExternalTypeReferenceResolver.ResetForTests();
+                ExternalTypeReferenceResolver.Reset();
                 Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
                 Directory.Delete(tempDir, true);
             }
-        }
-
-        private static void CreateFakeNugetPackageForTest(string nugetCacheDir, string packageName, string version)
-        {
-            var pkgDir = Path.Combine(
-                nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
-            Directory.CreateDirectory(pkgDir);
-
-            var syntaxTree = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText($@"
-namespace {packageName}
-{{
-    public class MyExternalType {{ }}
-}}");
-            var compilation = Microsoft.CodeAnalysis.CSharp.CSharpCompilation.Create(
-                packageName,
-                [syntaxTree],
-                [Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
-                new Microsoft.CodeAnalysis.CSharp.CSharpCompilationOptions(Microsoft.CodeAnalysis.OutputKind.DynamicallyLinkedLibrary));
-
-            var dllPath = Path.Combine(pkgDir, $"{packageName}.dll");
-            using var fs = new FileStream(dllPath, FileMode.Create);
-            var result = compilation.Emit(fs);
-            Assert.IsTrue(result.Success, $"Failed to emit fake assembly for {packageName}");
         }
 
         [Test]
