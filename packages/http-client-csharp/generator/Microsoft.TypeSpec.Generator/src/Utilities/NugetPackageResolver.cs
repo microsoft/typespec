@@ -63,10 +63,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // so the original PR #10229 behavior for AddPackageReferencesFromProject is preserved.
             if (minParsed == null)
             {
-                var unparseableDirs = allDirs
+                var notParseableDirs = allDirs
                     .Where(d => !NuGetVersion.TryParse(Path.GetFileName(d), out _))
                     .OrderByDescending(Path.GetFileName, StringComparer.Ordinal);
-                foreach (var dir in unparseableDirs)
+                foreach (var dir in notParseableDirs)
                 {
                     var found = TryFindAssemblyInVersionDir(dir, packageName);
                     if (found != null)
