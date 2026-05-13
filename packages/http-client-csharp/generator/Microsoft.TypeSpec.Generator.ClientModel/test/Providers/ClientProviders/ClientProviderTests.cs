@@ -3446,8 +3446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider!.LastContractView);
             Assert.IsNotNull(clientProvider.CustomCodeView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", BindingFlags.NonPublic | BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider.ProcessTypeForBackCompatibility();
 
             // The current spec method has param3, the back-compat overload would NOT have param3.
             // With the fix, the suppressed back-compat overload should not appear in the methods.
@@ -3464,6 +3463,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // The current methods (with param3) must still be present.
             Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetData" && m.Signature.Parameters.Any(p => p.Name == "param3")));
             Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetDataAsync" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+        }
+
+        // Last contract has only protocol methods: GetData(int param1, BinaryContent content, RequestOptions options = null).
+        // The current TypeSpec adds a new optional non-body query parameter "$select" whose raw input name
+        // starts with a reserved character.
+        // Expected: a hidden back-compat protocol overload matching the previous signature is added. The
+        // delegating call body must use the C# variable name ("select") for the named-argument label, not
+        // the raw "$select" name (which would produce invalid C#).
+        [Test]
+        public async Task BackCompatibility_NewOptionalParameterWithReservedName()
+        {
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var content = InputFactory.BodyParameter("content", InputPrimitiveType.String, isRequired: true);
+            var selectParam = InputFactory.QueryParameter("$select", InputPrimitiveType.String, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, content, selectParam],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("content", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("$select", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
