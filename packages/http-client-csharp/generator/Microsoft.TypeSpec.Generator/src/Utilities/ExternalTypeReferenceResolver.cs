@@ -264,7 +264,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static void CollectExternalTypes(InputLibrary library, IDictionary<string, InputExternalTypeMetadata> collected)
         {
-            var visited = new HashSet<InputType>(ReferenceEqualityComparer.Instance);
+            // InputType uses default reference equality (no Equals/GetHashCode overrides),
+            // so the default HashSet comparer is already reference-based and is what we want
+            // for cycle detection during the type-graph walk.
+            var visited = new HashSet<InputType>();
             var ns = library.InputNamespace;
             if (ns == null)
             {
@@ -371,13 +374,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     VisitType(enumType.ValueType, visited, collected);
                     break;
             }
-        }
-
-        private sealed class ReferenceEqualityComparer : IEqualityComparer<InputType>
-        {
-            public static readonly ReferenceEqualityComparer Instance = new();
-            public bool Equals(InputType? x, InputType? y) => ReferenceEquals(x, y);
-            public int GetHashCode(InputType obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
         }
     }
 }
