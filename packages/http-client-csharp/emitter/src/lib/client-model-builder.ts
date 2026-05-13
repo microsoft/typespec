@@ -67,10 +67,12 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // response models for protocol-only paging operations where TCGC does not include the
   // response model in sdkPackage.models, or enums only reachable through nested property
   // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
-  // by crossLanguageDefinitionId when available, falling back to namespace + name for
+  // by crossLanguageDefinitionId when available, falling back to a name-only key for
   // anonymous types (empty crossLanguageDefinitionId). This avoids duplicates when TCGC
-  // produces a different reference for the same logical type, while still preserving
-  // distinct types that share a name across different namespaces.
+  // produces a different reference for the same logical anonymous type (e.g. inline-union
+  // operation-parameter enums) where the namespace can be inconsistent across emission
+  // paths. Distinct named types that share a name across different namespaces still have
+  // distinct crossLanguageDefinitionIds and are preserved.
   const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
@@ -191,11 +193,21 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 
 /**
  * Returns a key for a model or enum type. Prefers `crossLanguageDefinitionId`
- * because it is the canonical identity TCGC assigns. Falls back to `namespace.name`
- * for anonymous/constant-derived types whose `crossLanguageDefinitionId` is empty.
+ * because it is the canonical identity TCGC assigns. Falls back to a name-only
+ * key for anonymous/constant-derived types whose `crossLanguageDefinitionId` is
+ * empty. The `namespace` field is intentionally not used in the fallback because
+ * TCGC can emit the same logical anonymous type with an inconsistent namespace
+ * across emission paths (e.g. `undefined` in `typesBeforeClients` and the actual
+ * namespace in `__typeCache.types`), which would otherwise defeat dedupe and
+ * produce duplicate entries in the code model. The `anon:` prefix guards against
+ * any theoretical collision with a real `crossLanguageDefinitionId` that happens
+ * to equal the bare name.
  */
 function typeDedupeKey(type: InputModelType | InputEnumType): string {
-  return type.crossLanguageDefinitionId || `${type.namespace}.${type.name}`;
+  if (type.crossLanguageDefinitionId) {
+    return type.crossLanguageDefinitionId;
+  }
+  return `anon:${type.name}`;
 }
 
 function navigateModels(sdkContext: CSharpEmitterContext): [void, readonly Diagnostic[]] {
