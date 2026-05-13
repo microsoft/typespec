@@ -21,10 +21,10 @@ export async function validateSpecs(
   suite: IntegrationTestSuite,
   options: ValidateSpecsOptions = {},
 ): Promise<void> {
-  const tspConfigDirs = await findTspProjects(dir, suite.pattern ?? "**/tspconfig.yaml");
+  const tspConfigDirs = await findTspProjects(dir, suite);
 
   if (tspConfigDirs.length === 0) {
-    log("No tspconfig.yaml files found in specification directory");
+    log("No TypeSpec projects found in specification directory");
     return;
   }
 
