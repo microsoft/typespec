@@ -705,6 +705,6 @@ export function createSymbol(
  * If a declaration symbol get the first one `.declarations[0]`
  * Otherwise get `.node`
  */
-export function getSymNode(sym: Sym): Node {
+export function getSymNode(sym: Sym): Node | undefined {
   return sym.flags & SymbolFlags.Declaration ? sym.declarations[0] : sym.node;
 }
