@@ -133,6 +133,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(FluentUtils.getArtifactId())
                 .flavor(emitterOptions.getFlavor())
                 .apiVersions(codeModel.getApiVersionMap())
+                .crossLanguagePackageId(codeModel.getCrossLanguagePackageId())
+                .crossLanguageVersion(codeModel.getCrossLanguageVersion())
                 .crossLanguageDefinitions(collectCrossLanguageDefinitions(client))
                 .generatedFiles(
                     FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)))
