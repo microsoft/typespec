@@ -4,6 +4,7 @@
 using System;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -39,6 +40,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var parameter = ScmKnownParameters.RepeatabilityFirstSent;
             var expectedDefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now));
             Assert.AreEqual(expectedDefaultValue, parameter.DefaultValue);
+        }
+
+        [Test]
+        public void KeyCredentialHasExpectedType()
+        {
+            Assert.AreEqual("ApiKeyCredential", ScmKnownParameters.KeyCredential.Type.Name);
+        }
+
+        [Test]
+        public void TokenCredentialHasExpectedType()
+        {
+            Assert.AreEqual("AuthenticationTokenProvider", ScmKnownParameters.TokenCredential.Type.Name);
         }
     }
 }
