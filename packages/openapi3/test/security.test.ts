@@ -649,9 +649,8 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     });
     expect(res.components.schemas?.customBearer).toBeDefined();
-    deepStrictEqual(
-      res.paths["/echo"]["get"].responses["200"].content["application/json"].schema,
-      { $ref: "#/components/schemas/customBearer" },
-    );
+    deepStrictEqual(res.paths["/echo"]["get"].responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/customBearer",
+    });
   });
 });
