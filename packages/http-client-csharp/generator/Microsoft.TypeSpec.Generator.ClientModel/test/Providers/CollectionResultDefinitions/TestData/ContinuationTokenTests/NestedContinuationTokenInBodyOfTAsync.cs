@@ -30,7 +30,7 @@ namespace Sample
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                global::System.ClientModel.ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
                 nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
@@ -62,6 +62,11 @@ namespace Sample
                 yield return item;
                 await global::System.Threading.Tasks.Task.Yield();
             }
+        }
+
+        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }
