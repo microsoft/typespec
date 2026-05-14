@@ -9,6 +9,9 @@ pipelines:
           lastModifiedDate: 2026-05-11
         armory:
           lastModifiedDate: 2026-05-11
+      binary:
+        binskim:
+          lastModifiedDate: 2026-05-14
   6871:
     retail:
       source:
