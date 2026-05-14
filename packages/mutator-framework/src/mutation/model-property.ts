@@ -21,20 +21,29 @@ export abstract class ModelPropertyMutation<
    * Mutates this model property.
    *
    * @param newOptions - Mutation options to apply. Defaults to the current options.
-   * @param typeOverride - When provided, the property's type edge is wired to this explicit
-   *   type instead of the source property's type. Uses `engine.replaceAndMutateReference()`
-   *   internally, which bypasses normal reference-chain resolution. This is an additive
-   *   escape hatch for callers that need to redirect a single edge without overriding
-   *   `buildTypeEdges()`. For multi-subgraph routing, prefer overriding `buildTypeEdges()`.
+   * @param typeOverride - When provided, this single edge spec replaces the entire
+   *   `buildTypeEdges()` result, allowing callers to redirect the type edge as a
+   *   self-contained codec — including the half-edge — without subclassing. Use
+   *   `referenceToFollow` to preserve reference-chain context, or `typeToFollow`
+   *   to mutate an explicit type directly. For multi-subgraph routing prefer
+   *   overriding `buildTypeEdges()` instead.
    */
-  mutate(newOptions: MutationOptions = this.options, typeOverride?: Type) {
+  mutate(newOptions: MutationOptions = this.options, typeOverride?: TypeEdgeSpec) {
     if (typeOverride) {
-      this.type = this.engine.replaceAndMutateReference(
-        this.sourceType,
-        typeOverride,
-        newOptions,
-        this.startTypeEdge(),
-      ) as MutationFor<TCustomMutations, Type["kind"]>;
+      const { typeToFollow, referenceToFollow, halfEdge } = typeOverride;
+      if (referenceToFollow !== undefined) {
+        this.type = this.engine.mutateReference(
+          referenceToFollow as MemberType,
+          newOptions,
+          halfEdge,
+        ) as unknown as MutationFor<TCustomMutations, Type["kind"]>;
+      } else {
+        this.type = this.engine.mutate(
+          typeToFollow!,
+          newOptions,
+          halfEdge,
+        ) as unknown as MutationFor<TCustomMutations, Type["kind"]>;
+      }
       return;
     }
 
