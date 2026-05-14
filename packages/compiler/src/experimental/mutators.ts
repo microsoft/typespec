@@ -393,10 +393,19 @@ function createMutatorEngine(
   if (options.mutateNamespaces) {
     preparingNamespace = true;
     // Prepare namespaces first
-    mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
+    const globalNs = program.getGlobalNamespaceType();
+    const mutatedGlobal = mutateSubgraphWorker(globalNs, muts);
     preparingNamespace = false;
 
     postVisits.forEach((visit) => visit());
+
+    // Record the cloned global namespace on the realm so realm.asProgram() can
+    // return a Program-shaped view rooted at the mutated tree. If no mutator
+    // touched the global namespace, mutatedGlobal === globalNs and we leave the
+    // realm's globalNamespace unset so the facade falls through to the parent.
+    if (mutatedGlobal !== globalNs && mutatedGlobal.kind === "Namespace") {
+      realm.setGlobalNamespace(mutatedGlobal);
+    }
   }
 
   return {
