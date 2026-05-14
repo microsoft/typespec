@@ -140,6 +140,15 @@ export abstract class MutationNode<T extends Type> {
    * Replace this node with a new type. This creates a new mutation node for the
    * replacement type and updates all edges to point to the new node.
    *
+   * **When to use `replace()`**: only when the replacement type is structurally
+   * different from the source type such that rewiring parent edges to a different
+   * type node is genuinely necessary — for example, substituting a `Model` with a
+   * synthetic `Union` that wraps it. Do **not** use `replace()` for field-value
+   * changes (name, type pointer, defaultValue, etc.); use `mutate()` for those.
+   * Misusing `replace()` for value-level changes introduces unnecessary edge
+   * churn and can cause stale-reference issues for nodes that already held
+   * references to the original node.
+   *
    * When a node is replaced:
    * 1. A new mutation node is created for the replacement type
    * 2. The original node is marked as replaced and will ignore future mutations
@@ -151,7 +160,8 @@ export abstract class MutationNode<T extends Type> {
    *    which updates the edge to point to the replacement node and invokes the
    *    head's `onTailReplaced` callback.
    *
-   * @param newType - The type to replace this node with
+   * @param newType - The type to replace this node with. Must be structurally
+   *   different from the source type. For same-shape mutations use `mutate()`.
    * @returns The new mutation node for the replacement type
    */
   replace(newType: Type) {

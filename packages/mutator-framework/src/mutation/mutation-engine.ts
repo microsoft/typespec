@@ -296,6 +296,31 @@ export class MutationOptions {
 }
 
 /**
+ * Specifies a type edge to create during mutation of a ModelProperty.
+ * Exactly one of `typeToFollow` or `referenceToFollow` must be provided.
+ *
+ * - Use `typeToFollow` when you need to explicitly control which type is followed,
+ *   such as in multi-subgraph scenarios where each subgraph may follow a different type.
+ *   The type is mutated directly via `engine.mutate()`.
+ * - Use `referenceToFollow` to resolve a MemberType via the standard reference chain,
+ *   which preserves the `referenceTypes` context passed to `mutationInfo` overrides.
+ */
+export interface TypeEdgeSpec {
+  /**
+   * The type whose canonicalization to connect as the tail.
+   * Mutated directly via `engine.mutate()` without reference-chain resolution.
+   */
+  typeToFollow?: Type;
+  /**
+   * A MemberType reference to resolve via the standard reference chain.
+   * Mutated via `engine.mutateReference()`, preserving `referenceTypes` context.
+   */
+  referenceToFollow?: MemberType;
+  /** Half-edge that wires the connection when the tail mutation is resolved. */
+  halfEdge: MutationHalfEdge;
+}
+
+/**
  * Half-edge used to link mutations together. This represents the head-end of a
  * mutation. When the tail is created, it is set on the half-edge and allows the
  * head mutation to connect its nodes to the tail mutation.
