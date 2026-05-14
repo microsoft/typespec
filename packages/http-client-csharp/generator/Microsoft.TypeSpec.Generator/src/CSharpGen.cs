@@ -28,13 +28,22 @@ namespace Microsoft.TypeSpec.Generator
             CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
             CodeModelGenerator.Instance.Stopwatch.Start();
 
-            GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
             // Resolve PackageReference items from the .csproj so custom code referencing
             // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+
+            // Pre-walk the input library and resolve any external types that point at NuGet packages.
+            // This populates ExternalTypeReferenceResolver's cache and registers each resolved assembly
+            // as an additional metadata reference *before* the generated/custom code workspaces are
+            // constructed, so their cached Roslyn projects pick the references up.
+            await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+            // Initialize the workspace project AFTER all metadata references have been added so the
+            // eagerly-cached project sees them.
+            GeneratedCodeWorkspace.Initialize();
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,

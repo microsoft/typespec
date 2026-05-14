@@ -18,8 +18,6 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
-using NuGet.Protocol;
-using NuGet.Protocol.Core.Types;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -327,14 +325,14 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Search the NuGet global packages folder for any cached version of this package.
-                string? resolvedAssemblyPath = FindPackageAssembly(globalPackagesFolder, refPackageName);
+                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName);
 
                 // If not found in cache, download the latest version from NuGet feeds
                 if (resolvedAssemblyPath == null)
                 {
                     try
                     {
-                        var latestVersion = await ResolveLatestPackageVersion(refPackageName, nugetSettings);
+                        var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
                         if (latestVersion != null)
                         {
                             var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
@@ -361,67 +359,6 @@ namespace Microsoft.TypeSpec.Generator
                         $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
                 }
             }
-        }
-
-        /// <summary>
-        /// Searches the NuGet global packages folder for a package assembly across all cached versions.
-        /// Returns the first matching assembly found, preferring newer versions.
-        /// </summary>
-        private static string? FindPackageAssembly(string globalPackagesFolder, string packageName)
-        {
-            var packageDir = Path.Combine(globalPackagesFolder, packageName.ToLowerInvariant());
-
-            if (!Directory.Exists(packageDir))
-            {
-                return null;
-            }
-
-            foreach (var versionDir in Directory.GetDirectories(packageDir).OrderDescending())
-            {
-                foreach (var tfm in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
-                {
-                    var assemblyPath = Path.Combine(versionDir, "lib", tfm, $"{packageName}.dll");
-                    if (File.Exists(assemblyPath))
-                    {
-                        return assemblyPath;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Queries configured NuGet feeds to resolve the latest stable version of a package.
-        /// </summary>
-        private static async Task<string?> ResolveLatestPackageVersion(string packageName, ISettings nugetSettings)
-        {
-            var sources = SettingsUtility.GetEnabledSources(nugetSettings);
-            using var cacheContext = new SourceCacheContext();
-            foreach (var source in sources)
-            {
-                try
-                {
-                    var repository = Repository.Factory.GetCoreV3(source.Source);
-                    var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
-                    var versions = await resource.GetAllVersionsAsync(
-                        packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None);
-                    var latest = versions?
-                        .Where(v => !v.IsPrerelease)
-                        .OrderByDescending(v => v)
-                        .FirstOrDefault();
-                    if (latest != null)
-                    {
-                        return latest.ToString();
-                    }
-                }
-                catch
-                {
-                    // Skip sources that fail (auth, network, etc.)
-                }
-            }
-
-            return null;
         }
 
         internal static async Task<Compilation?> LoadBaselineContract()
