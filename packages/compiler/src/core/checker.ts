@@ -6475,6 +6475,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    // Ancestors are models that already depend on this model via spread.
     const modelAncestors = spreadResolutionAncestors.get(modelSymId);
     if (targetSym && modelAncestors?.has(targetSym)) {
       if (ctx.mapper === undefined) {
@@ -6490,8 +6491,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (targetSym) {
-      const targetAncestors = spreadResolutionAncestors.get(targetSym) ?? new Set<Sym>();
-      if (!spreadResolutionAncestors.has(targetSym)) {
+      let targetAncestors = spreadResolutionAncestors.get(targetSym);
+      if (!targetAncestors) {
+        targetAncestors = new Set<Sym>();
         spreadResolutionAncestors.set(targetSym, targetAncestors);
       }
       targetAncestors.add(modelSymId);
