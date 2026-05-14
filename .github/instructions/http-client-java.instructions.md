@@ -36,6 +36,7 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 
 - The execution of `mvn` and `npm` command should be done in the test directory `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
 - Only commit Java files written by you. Do not commit any generated files.
+- If no scenario URL provided, search the related files in either https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs or https://github.com/Azure/typespec-azure/tree/main/packages/azure-http-specs/specs
 
 0. Run `pwsh Setup.ps1` in `generator/http-client-generator-test` to set up the environment if not done before.
 1. The source files for the generated client under test are located in `generator/http-client-generator-test/src/main/java/<package>`.

@@ -1818,11 +1818,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
+                {
+                    overload.Update(suppressions:
+                    [
+                        new SuppressionStatement(
+                            inner: null,
+                            code: Literal("AZC0002"),
+                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
+                    ]);
+                }
+
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
                     BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
             }
+        }
+
+        private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
+        {
+            if (previousSignature.Parameters.Count == 0)
+            {
+                return false;
+            }
+
+            var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
+            return new CSharpType.CSharpTypeIgnoreNullableComparer().Equals(lastParam.Type, new CSharpType(typeof(CancellationToken)));
         }
 
         // Returns true when currentSignature contains all parameters of previousSignature in the same
@@ -1885,16 +1907,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
-                previousParamsByName.TryAdd(p.Name, p);
+                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
             }
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
-                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name, out var prevParam)
+                var currentParamVariableName = currentParam.Name.ToVariableName();
+                ValueExpression value = previousParamsByName.TryGetValue(currentParamVariableName, out var prevParam)
                     ? prevParam
                     : (currentParam.DefaultValue ?? Default);
-                arguments.Add(PositionalReference(currentParam.Name, value));
+                arguments.Add(PositionalReference(currentParamVariableName, value));
             }
 
             return new ScmMethodProvider(

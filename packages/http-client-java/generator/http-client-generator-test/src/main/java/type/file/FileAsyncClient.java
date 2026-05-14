@@ -18,7 +18,6 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.file.implementation.BodiesImpl;
-import type.file.models.DownloadFileMultipleContentTypesContentType;
 
 /**
  * Initializes a new instance of the asynchronous FileClient type.
@@ -172,7 +171,6 @@ public final class FileAsyncClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -182,9 +180,8 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestOptions requestOptions) {
-        return this.serviceClient.downloadFileMultipleContentTypesWithResponseAsync(accept, requestOptions);
+    public Mono<Response<BinaryData>> downloadFileMultipleContentTypesWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.downloadFileMultipleContentTypesWithResponseAsync(requestOptions);
     }
 
     /**
@@ -314,8 +311,6 @@ public final class FileAsyncClient {
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -325,11 +320,10 @@ public final class FileAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType accept) {
+    public Mono<BinaryData> downloadFileMultipleContentTypes() {
         // Generated convenience method for downloadFileMultipleContentTypesWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return downloadFileMultipleContentTypesWithResponse(accept.toString(), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        return downloadFileMultipleContentTypesWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
