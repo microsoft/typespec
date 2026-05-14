@@ -620,4 +620,38 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     });
     expect(res.components.schemas?.customBearer).toBeUndefined();
   });
+
+  it("still emits an auth scheme model under components.schemas if referenced by an operation", async () => {
+    // The filter in `processUnreferencedSchemas` only skips auth scheme
+    // models that are otherwise unreachable. If the same model is also
+    // referenced from a payload (e.g. returned by an operation), it must
+    // continue to appear under `components.schemas` so the operation can
+    // $ref it, while still being emitted under `components.securitySchemes`.
+    const res = await openApiFor(
+      `
+      @useAuth(customBearer)
+      @service
+      namespace MyService;
+
+      model customBearer {
+        type: AuthType.http;
+        scheme: "bearer";
+      }
+
+      @route("/echo")
+      op echo(): customBearer;
+      `,
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      customBearer: {
+        type: "http",
+        scheme: "bearer",
+      },
+    });
+    expect(res.components.schemas?.customBearer).toBeDefined();
+    deepStrictEqual(
+      res.paths["/echo"]["get"].responses["200"].content["application/json"].schema,
+      { $ref: "#/components/schemas/customBearer" },
+    );
+  });
 });
