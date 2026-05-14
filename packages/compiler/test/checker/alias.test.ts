@@ -202,7 +202,7 @@ describe("compiler: aliases", () => {
       alias ${t.model("Tree")} = { children: Tree[]; value: string };
     `);
     const childrenProp = Tree.properties.get("children")!;
-    strictEqual(childrenProp.type, "Model"); // Array model
+    strictEqual(childrenProp.type.kind, "Model"); // Array model
   });
 
   // REGRESSION TEST: https://github.com/Azure/typespec-azure/issues/3365
