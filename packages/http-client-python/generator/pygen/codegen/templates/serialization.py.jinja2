@@ -1411,6 +1411,27 @@ class Deserializer:
         :return: Deserialized object.
         :rtype: object
         """
+        # Fast path for header deserialization: response_data is a plain str or None
+        # and target_obj is a simple scalar type. This avoids the expensive
+        # _unpack_content → _deserialize → _classify_target → deserialize_data chain.
+        if response_data is None:
+            return None
+        if target_obj == "str" and isinstance(response_data, str):
+            return response_data
+        if isinstance(response_data, str):
+            if target_obj == "int":
+                return int(response_data)
+            if target_obj == "bool":
+                if response_data in ("true", "1", "True"):
+                    return True
+                if response_data in ("false", "0", "False"):
+                    return False
+                return bool(response_data)
+            if target_obj == "rfc-1123":
+                return Deserializer.deserialize_rfc(response_data)
+            if target_obj == "bytearray":
+                return Deserializer.deserialize_bytearray(response_data)
+
         data = self._unpack_content(response_data, content_type)
         return self._deserialize(target_obj, data)
 
