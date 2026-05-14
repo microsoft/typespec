@@ -1033,5 +1033,13 @@ describe("compiler: models", () => {
         message: "Property 'a' recursively references itself.",
       });
     });
+
+    it("allow cross-model member access without circular error", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A { a: B; }
+        model B { a: A.a; }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 });
