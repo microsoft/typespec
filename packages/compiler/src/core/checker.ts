@@ -529,6 +529,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const pendingModelPropertyTypes = new Map<Sym, Sym | undefined>();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -695,6 +696,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const type = symbolLinks.declaredType ?? symbolLinks.type;
 
     if (type) {
+      if (
+        type.kind === "ModelProperty" &&
+        pendingResolutions.has(sym, ResolutionKind.Type) &&
+        ctx.mapper === undefined &&
+        !canUsePendingModelPropertyType(sym)
+      ) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: type.name },
+            target: getSymNode(sym),
+          }),
+        );
+        type.type = errorType;
+        return errorType;
+      }
       return type;
     } else {
       return checkMember(
@@ -1758,6 +1775,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           symNode as TemplateParameterDeclarationNode,
         );
         baseType = mapped as any;
+      } else if (
+        sym.flags & SymbolFlags.Member &&
+        symNode.kind === SyntaxKind.ModelProperty &&
+        pendingResolutions.has(sym, ResolutionKind.Type) &&
+        ctx.mapper === undefined &&
+        !canUsePendingModelPropertyType(sym)
+      ) {
+        const propertyType = symbolLinks.declaredType ?? symbolLinks.type;
+        if (propertyType?.kind === "ModelProperty") {
+          propertyType.type = errorType;
+        }
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: sym.name },
+            target: symNode,
+          }),
+        );
+        baseType = errorType;
       } else if (symbolLinks.type) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
@@ -5010,7 +5046,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return type;
   }
 
-  function checkModelExpression(ctx: CheckContext, node: ModelExpressionNode) {
+  function checkModelExpression(
+    ctx: CheckContext,
+    node: ModelExpressionNode,
+    aliasLinks?: SymbolLinks,
+  ) {
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && ctx.mapper === undefined) {
@@ -5021,6 +5061,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const type = initModel(node);
     const properties = type.properties;
     linkType(ctx, links, type);
+    if (aliasLinks) {
+      linkType(ctx, aliasLinks, type);
+    }
     linkMapper(type, ctx.mapper);
 
     ensureResolved(
@@ -6553,8 +6596,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkModelProperty(ctx: CheckContext, prop: ModelPropertyNode): ModelProperty {
     const sym = getSymbolForMember(prop)!;
     const links = getSymbolLinksForMember(prop);
+    const isPending = pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined;
 
-    if (links && links.declaredType && ctx.mapper === undefined) {
+    if (
+      links &&
+      links.declaredType &&
+      ctx.mapper === undefined &&
+      (!isPending || canUsePendingModelPropertyType(sym))
+    ) {
       return links.declaredType as ModelProperty;
     }
     const name = prop.id.sv;
@@ -6568,7 +6617,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
+    if (links && ctx.mapper === undefined) {
+      linkType(ctx, links, type);
+    }
+
+    if (isPending) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "circular-prop",
@@ -6579,15 +6632,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type.type = errorType;
     } else {
       pendingResolutions.start(sym, ResolutionKind.Type);
-      type.type = getTypeForNode(prop.value, ctx);
-      if (prop.default) {
-        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
-        if (defaultValue !== null) {
-          type.defaultValue = defaultValue;
+      pendingModelPropertyTypes.set(sym, getPendingModelPropertyTypeTarget(ctx, prop.value));
+      try {
+        type.type = getTypeForNode(prop.value, ctx);
+        if (prop.default) {
+          const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
+          if (defaultValue !== null) {
+            type.defaultValue = defaultValue;
+          }
         }
-      }
-      if (links) {
-        linkType(ctx, links, type);
+      } finally {
+        pendingModelPropertyTypes.delete(sym);
+        pendingResolutions.finish(sym, ResolutionKind.Type);
       }
     }
 
@@ -6603,8 +6659,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    pendingResolutions.finish(sym, ResolutionKind.Type);
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  function canUsePendingModelPropertyType(sym: Sym): boolean {
+    const target = pendingModelPropertyTypes.get(sym);
+    if (!target || target.flags & SymbolFlags.Member) {
+      return false;
+    }
+
+    return getSymbolLinks(target).declaredType?.kind === "Model";
+  }
+
+  function getPendingModelPropertyTypeTarget(ctx: CheckContext, node: Expression): Sym | undefined {
+    switch (node.kind) {
+      case SyntaxKind.TypeReference:
+        return node.target.kind === SyntaxKind.Identifier
+          ? resolveTypeReferenceSym(ctx, node)
+          : undefined;
+      case SyntaxKind.ArrayExpression:
+        return getPendingModelPropertyTypeTarget(ctx, node.elementType);
+      default:
+        return undefined;
+    }
   }
 
   function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
@@ -7281,20 +7358,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = checkNode(ctx, node.value);
-    if (type === null) {
-      links.declaredType = errorType;
-      return errorType;
-    }
-    if (isValue(type)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
-      links.declaredType = errorType;
-      return errorType;
-    }
-    linkType(ctx, links, type as any);
-    pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+    try {
+      const type =
+        node.value.kind === SyntaxKind.ModelExpression
+          ? checkModelExpression(ctx, node.value, links)
+          : checkNode(ctx, node.value);
+      if (type === null) {
+        links.declaredType = errorType;
+        return errorType;
+      }
+      if (isValue(type)) {
+        reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
+        links.declaredType = errorType;
+        return errorType;
+      }
+      if (node.value.kind !== SyntaxKind.ModelExpression) {
+        linkType(ctx, links, type as any);
+      }
 
-    return type;
+      return type;
+    } finally {
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+    }
   }
 
   function checkConst(node: ConstStatementNode): Value | null {
