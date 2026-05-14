@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Validate circular model spread chains without over-reporting recursive model-expression aliases.
+Fixed the compiler to correctly detect circular model spread chains while preserving support for recursive model-expression aliases.
