@@ -26,7 +26,8 @@ pipelines:
           lastModifiedDate: 2026-05-13
         spotbugs:
           lastModifiedDate: 2026-05-13
-  3226:
+  4704:
+    usedNonDefaultBranch: true
     retail:
       source:
         eslint:
