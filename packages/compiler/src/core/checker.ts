@@ -6568,26 +6568,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "circular-prop",
-          format: { propName: name },
-          target: prop,
-        }),
-      );
-      type.type = errorType;
-    } else {
-      pendingResolutions.start(sym, ResolutionKind.Type);
-      type.type = getTypeForNode(prop.value, ctx);
-      if (prop.default) {
-        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
-        if (defaultValue !== null) {
-          type.defaultValue = defaultValue;
-        }
+    // Link the property early so that re-entrant access (e.g., A.a from another model)
+    // finds this property via checkMemberSym without re-entering checkModelProperty.
+    if (links) {
+      linkType(ctx, links, type);
+    }
+
+    type.type = getTypeForNode(prop.value, ctx);
+
+    // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
+    if (hasPropertyTypeCycle(type)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: name },
+            target: prop,
+          }),
+        );
       }
-      if (links) {
-        linkType(ctx, links, type);
+      type.type = errorType;
+    }
+
+    if (prop.default) {
+      const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
+      if (defaultValue !== null) {
+        type.defaultValue = defaultValue;
       }
     }
 
@@ -6603,8 +6609,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    pendingResolutions.finish(sym, ResolutionKind.Type);
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  /**
+   * Detect cycles in the property type chain. Follows `.type` links as long as
+   * they point to other ModelProperty types and checks whether we loop back to
+   * the starting property.
+   */
+  function hasPropertyTypeCycle(prop: ModelProperty): boolean {
+    let current: Type | undefined = prop.type;
+    while (current !== undefined && current.kind === "ModelProperty") {
+      if (current === prop) return true;
+      current = (current as ModelProperty).type;
+    }
+    return false;
   }
 
   function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
@@ -7267,6 +7286,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const aliasSymId = getNodeSym(node);
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+      // Re-entrant resolution detected. Check if the alias value node has already produced
+      // a type (e.g., a model expression that creates and links its type before resolving
+      // properties). In that case, the circular reference is safe.
+      const valueSym = node.value.symbol;
+      if (valueSym) {
+        const valueLinks = getSymbolLinks(valueSym);
+        const inProgressType =
+          ctx.mapper === undefined
+            ? valueLinks.declaredType
+            : valueLinks.instantiations?.get(ctx.mapper.args);
+        if (inProgressType) {
+          linkType(ctx, links, inProgressType);
+          return inProgressType;
+        }
+      }
+
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
