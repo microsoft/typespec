@@ -732,6 +732,29 @@ describe("compiler: models", () => {
         message: "Model `is` cannot specify a model expression.",
       });
     });
+    it("emit only is-model error for model expression and later reference", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A is { x: int32 };
+        model B is A;
+        `);
+      strictEqual(diagnostics.length, 1);
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
+    it("emit only is-model error for non-model expression and later reference", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A is "hello";
+        model B is A;
+        `);
+      strictEqual(diagnostics.length, 1);
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` must specify another model.",
+      });
+    });
 
     it("emit error when is model expression via alias", async () => {
       const diagnostics = await Tester.diagnose(`
