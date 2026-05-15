@@ -11,6 +11,7 @@ catalog:
   "@alloy-js/core": ^0.22.0
   "@alloy-js/csharp": ^0.22.0
   "@alloy-js/markdown": ^0.22.0
+  "@alloy-js/msbuild": ^0.22.0
   "@alloy-js/python": ^0.3.0
   "@alloy-js/rollup-plugin": ^0.1.0
   "@alloy-js/typescript": ^0.22.0
@@ -184,13 +185,6 @@ minimumReleaseAgeExclude:
   - "@alloy-js/*"
 
 overrides:
-  "@alloy-js/cli": 0.23.0-dev.5
-  "@alloy-js/core": 0.23.0-dev.16
-  "@alloy-js/csharp": https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@391
-  "@alloy-js/markdown": 0.23.0-dev.2
-  "@alloy-js/msbuild": 0.23.0-dev.2
-  "@alloy-js/rollup-plugin": 0.1.1-dev.2
-  "@alloy-js/typescript": 0.23.0-dev.9
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
