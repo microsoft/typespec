@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AspNetMvc } from "./csharp-libs.jsx";
 import {
   getControllerReturnStatement,
   getCSharpStatusCode,
@@ -8,21 +9,21 @@ import {
 
 describe("getHttpVerbAttribute", () => {
   it.each([
-    ["delete", "HttpDelete"],
-    ["get", "HttpGet"],
-    ["patch", "HttpPatch"],
-    ["post", "HttpPost"],
-    ["put", "HttpPut"],
-  ] as const)("maps %s to %s", (verb, expected) => {
-    expect(getHttpVerbAttribute(verb)).toBe(expected);
+    ["delete", AspNetMvc.HttpDeleteAttribute],
+    ["get", AspNetMvc.HttpGetAttribute],
+    ["patch", AspNetMvc.HttpPatchAttribute],
+    ["post", AspNetMvc.HttpPostAttribute],
+    ["put", AspNetMvc.HttpPutAttribute],
+  ] as const)("maps %s to the correct library ref", (verb, expected) => {
+    expect(getHttpVerbAttribute(verb as any)).toBe(expected);
   });
 
   it("maps head to HttpHead", () => {
-    expect(getHttpVerbAttribute("head")).toBe("HttpHead");
+    expect(getHttpVerbAttribute("head")).toBe(AspNetMvc.HttpHeadAttribute);
   });
 
   it("defaults to HttpGet for unknown verbs", () => {
-    expect(getHttpVerbAttribute("trace" as any)).toBe("HttpGet");
+    expect(getHttpVerbAttribute("trace" as any)).toBe(AspNetMvc.HttpGetAttribute);
   });
 });
 

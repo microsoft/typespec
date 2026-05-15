@@ -1128,7 +1128,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "public int? Weight { get; set; }",
           "public string Color { get; set; }",
@@ -1165,7 +1165,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "public int? Weight { get; set; }",
           "public WidgetColor? Color { get; set; }",
@@ -1207,7 +1207,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "WidgetColor? Color { get; set; }",
           "WidgetSize? Size { get; set; }",
@@ -1238,7 +1238,7 @@ model Widget {
       [
         "Widget.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "public Colors.WidgetColor Color { get; set; }",
         ],
@@ -1275,7 +1275,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "public WidgetColor? Color { get; set; }",
         ],
@@ -1312,7 +1312,7 @@ interface Widgets {
     [
       [
         "WidgetMergePatchUpdate.cs",
-        ["namespace Microsoft.Contoso;", "public string Id { get; set; }", "Color { get; set; }"],
+        ["namespace Contoso;", "public string Id { get; set; }", "Color { get; set; }"],
       ],
     ],
   );
@@ -1345,7 +1345,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public string Id { get; set; }",
           "TagMergePatchUpdateReplaceOnly[] Tags { get; set; }",
         ],
@@ -1380,7 +1380,7 @@ model Widget extends Models.ParentWidget {
       [
         "Widget.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public Colors.WidgetColor Color { get; set; }",
           ": Models.ParentWidget",
         ],
@@ -1412,7 +1412,7 @@ model Widget {
       [
         "Widget.cs",
         [
-          "namespace Microsoft.Contoso;",
+          "namespace Contoso;",
           "public Colors.WidgetColor Color { get; set; }",
           "public Colors.BorderColor BorderColor { get; set; }",
         ],
@@ -1672,7 +1672,7 @@ it("generates appropriate types for records", async () => {
       [
         "BarResponse.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           "public partial class BarResponse",
           "public IDictionary<string, string> RecordProp { get; set; }",
           "public IDictionary<string, string> StringMap { get; set; }",
@@ -1681,7 +1681,7 @@ it("generates appropriate types for records", async () => {
       [
         "ContosoOperationsFooRequest.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           "public partial class ContosoOperationsFooRequest",
           "public IDictionary<string, string> RecordProp { get; set; }",
         ],
@@ -1689,7 +1689,7 @@ it("generates appropriate types for records", async () => {
       [
         "ContosoOperationsController.cs",
         [
-          "namespace Microsoft.Contoso.Controllers",
+          "namespace Contoso.Controllers",
           "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(JsonObject))]",
           `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
           `public virtual async Task<IActionResult> Bar()`,
@@ -1698,7 +1698,7 @@ it("generates appropriate types for records", async () => {
       [
         "IContosoOperations.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           `Task<JsonObject> FooAsync(IDictionary<string, string> recordProp);`,
           `Task<BarResponse> BarAsync();`,
         ],
@@ -1725,7 +1725,7 @@ it("generates appropriate types for inherited instantiated models", async () => 
       [
         "ContosoOperationsFooRequest.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           "public partial class ContosoOperationsFooRequest",
           "public IDictionary<string, string> RecordProp { get; set; }",
         ],
@@ -1733,7 +1733,7 @@ it("generates appropriate types for inherited instantiated models", async () => 
       [
         "ContosoOperationsController.cs",
         [
-          "namespace Microsoft.Contoso.Controllers",
+          "namespace Contoso.Controllers",
           "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(JsonObject))]",
           `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
           `public virtual async Task<IActionResult> Bar()`,
@@ -1742,7 +1742,7 @@ it("generates appropriate types for inherited instantiated models", async () => 
       [
         "IContosoOperations.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           `Task<JsonObject> FooAsync(IDictionary<string, string> recordProp);`,
           `Task<BarResponse> BarAsync();`,
         ],
@@ -2027,7 +2027,7 @@ it("handles implicit request body models correctly", async () => {
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync(int? intProp, string[]? arrayProp);`]],
-      ["ContosoOperationsFooRequest.cs", ["namespace Microsoft.Contoso;"]],
+      ["ContosoOperationsFooRequest.cs", ["namespace Contoso;"]],
     ],
   );
 });
@@ -2185,7 +2185,7 @@ it("handles complex multipartBody requests", async () => {
         [
           "using Microsoft.AspNetCore.WebUtilities;",
           "using Microsoft.AspNetCore.Http.Extensions;",
-          "using Microsoft.Contoso;",
+          "using Contoso;",
           `[Consumes("multipart/form-data")]`,
           "public virtual async Task<IActionResult> FooBinary(",
           "string id",
@@ -2491,7 +2491,7 @@ it("Handles spread parameters", async () => {
           "public Task<Widget> CreateAsync(string id, string color, string? kind)",
         ],
       ],
-      ["ContosoOperationsCreateRequest.cs", ["namespace Microsoft.Contoso;"]],
+      ["ContosoOperationsCreateRequest.cs", ["namespace Contoso;"]],
       [
         "ContosoOperationsController.cs",
         [
@@ -2579,7 +2579,7 @@ it("Initializes enum types", async () => {
       [
         "IContosoOperations.cs",
         [
-          "namespace Microsoft.Contoso",
+          "namespace Contoso",
           "Task<Widget> CreateAsync(Widget body);",
           "Task<Color> GetDefaultColorAsync();",
         ],

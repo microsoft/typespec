@@ -100,7 +100,6 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
                     "System.Text.Json",
                     "System.Text.Json.Nodes",
                     "System.Text.Json.Serialization",
-                    "Microsoft.AspNetCore.Mvc",
                     ...(hasMultipart
                       ? [
                           "Microsoft.AspNetCore.WebUtilities",

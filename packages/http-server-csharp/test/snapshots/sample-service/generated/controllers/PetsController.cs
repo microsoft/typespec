@@ -21,6 +21,7 @@ public partial class PetsController : ControllerBase
     {
         PetsImpl = operations;
     }
+
     /// <summary>
     /// List all pets
     /// </summary>

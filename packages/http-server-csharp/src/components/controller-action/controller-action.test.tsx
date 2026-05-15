@@ -52,6 +52,8 @@ describe("ControllerAction", () => {
         <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
       </Wrapper>,
     ).toRenderTo(`
+      using Microsoft.AspNetCore.Mvc;
+
       class TestController
       {
           [HttpGet]
@@ -80,6 +82,8 @@ describe("ControllerAction", () => {
         <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
       </Wrapper>,
     ).toRenderTo(`
+      using Microsoft.AspNetCore.Mvc;
+
       class TestController
       {
           [HttpDelete]

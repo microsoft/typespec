@@ -49,6 +49,8 @@ describe("Controller", () => {
         <Controller type={PetStore} operations={[canonOp]} />
       </Wrapper>,
     ).toRenderTo(`
+      using Microsoft.AspNetCore.Mvc;
+
       public interface IPetStore
       {
           Task<string[]> ListPetsAsync();
@@ -61,6 +63,7 @@ describe("Controller", () => {
           {
               PetStoreImpl = operations;
           }
+
           [HttpGet]
           [Route("/pets")]
           [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string[]))]

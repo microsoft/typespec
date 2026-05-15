@@ -1,24 +1,26 @@
+import type { Refkeyable } from "@alloy-js/core";
 import type { HttpStatusCodesEntry, HttpVerb } from "@typespec/http";
+import { AspNetMvc } from "./csharp-libs.jsx";
 
 /**
- * Maps an HTTP verb to its ASP.NET Core attribute name.
+ * Maps an HTTP verb to its ASP.NET Core attribute library reference.
  */
-export function getHttpVerbAttribute(verb: HttpVerb): string {
+export function getHttpVerbAttribute(verb: HttpVerb): Refkeyable {
   switch (verb) {
     case "delete":
-      return "HttpDelete";
+      return AspNetMvc.HttpDeleteAttribute;
     case "get":
-      return "HttpGet";
+      return AspNetMvc.HttpGetAttribute;
     case "patch":
-      return "HttpPatch";
+      return AspNetMvc.HttpPatchAttribute;
     case "post":
-      return "HttpPost";
+      return AspNetMvc.HttpPostAttribute;
     case "put":
-      return "HttpPut";
+      return AspNetMvc.HttpPutAttribute;
     case "head":
-      return "HttpHead";
+      return AspNetMvc.HttpHeadAttribute;
     default:
-      return "HttpGet";
+      return AspNetMvc.HttpGetAttribute;
   }
 }
 

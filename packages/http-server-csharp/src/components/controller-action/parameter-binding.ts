@@ -1,5 +1,7 @@
+import type { AttributeProps } from "@alloy-js/csharp";
 import type { Type } from "@typespec/compiler";
 import type { CanonicalHttpProperty } from "@typespec/http-canonicalization";
+import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 
 /**
  * Maps a canonical HTTP property to an ASP.NET parameter binding attribute.
@@ -10,7 +12,7 @@ import type { CanonicalHttpProperty } from "@typespec/http-canonicalization";
 export function getBindingAttribute(
   prop: CanonicalHttpProperty,
   paramName?: string,
-): string | undefined {
+): AttributeProps | undefined {
   switch (prop.kind) {
     case "path":
       // FromRoute is the default binding for path params in ASP.NET;
@@ -18,11 +20,11 @@ export function getBindingAttribute(
       if (paramName !== undefined && paramName === prop.options.name) {
         return undefined;
       }
-      return `FromRoute(Name="${prop.options.name}")`;
+      return { name: AspNetMvc.FromRouteAttribute, args: [`Name="${prop.options.name}"`] };
     case "query":
-      return `FromQuery(Name="${prop.options.name}")`;
+      return { name: AspNetMvc.FromQueryAttribute, args: [`Name="${prop.options.name}"`] };
     case "header":
-      return `FromHeader(Name="${prop.options.name}")`;
+      return { name: AspNetMvc.FromHeaderAttribute, args: [`Name="${prop.options.name}"`] };
     default:
       return undefined;
   }
