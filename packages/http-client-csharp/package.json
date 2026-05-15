@@ -94,8 +94,5 @@
   },
   "dependencies": {
     "@azure/identity": "^4.13.0"
-  },
-  "overrides": {
-    "glob": "^13.0.3"
   }
 }
