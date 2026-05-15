@@ -6713,6 +6713,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type.type = errorType;
     } else {
       pendingResolutions.start(sym, ResolutionKind.Type);
+      if (ctx.mapper === undefined) {
+        typeResolver.startResolution({
+          kind: NewResolutionKind.PropertyType,
+          sym: sym,
+          node: prop,
+          description: `Property '${name}'`,
+        });
+      }
       type.type = getTypeForNode(prop.value, ctx);
       if (prop.default) {
         const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
@@ -6738,6 +6746,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.finish(sym, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.PropertyType,
+        sym: sym,
+        node: prop,
+        description: `Property '${name}'`,
+      });
+    }
     return finishType(type, { skipDecorators: !shouldRunDecorators });
   }
 
@@ -7450,18 +7466,53 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: aliasSymId,
+        node: node,
+        description: `Alias '${node.id.sv}'`,
+      });
+    }
     const type = checkNode(ctx, node.value);
     if (type === null) {
       links.declaredType = errorType;
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.AliasTarget,
+          sym: aliasSymId,
+          node: node,
+          description: `Alias '${node.id.sv}'`,
+        });
+      }
       return errorType;
     }
     if (isValue(type)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
       links.declaredType = errorType;
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.AliasTarget,
+          sym: aliasSymId,
+          node: node,
+          description: `Alias '${node.id.sv}'`,
+        });
+      }
       return errorType;
     }
     linkType(ctx, links, type as any);
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: aliasSymId,
+        node: node,
+        description: `Alias '${node.id.sv}'`,
+      });
+    }
 
     return type;
   }
@@ -7487,8 +7538,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(node.symbol, ResolutionKind.Value);
+    // Also track on the stack-based resolver for richer diagnostics
+    typeResolver.startResolution({
+      kind: NewResolutionKind.ConstValue,
+      sym: node.symbol,
+      node: node,
+      description: `Const '${node.id.sv}'`,
+    });
     const value = getValueForNode(node.value, undefined, type && { kind: "assignment", type });
     pendingResolutions.finish(node.symbol, ResolutionKind.Value);
+    typeResolver.finishResolution({
+      kind: NewResolutionKind.ConstValue,
+      sym: node.symbol,
+      node: node,
+      description: `Const '${node.id.sv}'`,
+    });
     if (value === null || (type && !checkValueOfType(value, type, node.id))) {
       links.value = null;
       return links.value;
