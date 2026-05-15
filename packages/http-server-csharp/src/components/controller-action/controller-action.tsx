@@ -47,9 +47,10 @@ export function ControllerAction(props: ControllerActionProps): Children {
     const isOptional = p.property.sourceType.optional;
     const literalDefault = getLiteralDefaultValue(p.property.sourceType.type);
     if (p.kind === "path") {
-      const attr = getBindingAttribute(p);
+      const paramName = namePolicy.getName(p.property.sourceType.name, "parameter");
+      const attr = getBindingAttribute(p, paramName);
       pathParams.push({
-        name: namePolicy.getName(p.property.sourceType.name, "parameter"),
+        name: paramName,
         type: <TypeExpression type={p.property.sourceType.type} />,
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
@@ -175,11 +176,17 @@ export function ControllerAction(props: ControllerActionProps): Children {
   }
   if (responseTypeExpr) {
     attributes.push(
-      code`[ProducesResponseType((int)HttpStatusCode.${responseStatusCode}, Type = typeof(${responseTypeExpr}))]`,
+      <Attribute
+        name="ProducesResponseType"
+        args={[code`(int)HttpStatusCode.${responseStatusCode}`, code`Type = typeof(${responseTypeExpr})`]}
+      />,
     );
   } else {
     attributes.push(
-      code`[ProducesResponseType((int)HttpStatusCode.${responseStatusCode}, Type = typeof(void))]`,
+      <Attribute
+        name="ProducesResponseType"
+        args={[code`(int)HttpStatusCode.${responseStatusCode}`, `Type = typeof(void)`]}
+      />,
     );
   }
 

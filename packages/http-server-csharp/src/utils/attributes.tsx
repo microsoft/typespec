@@ -1,4 +1,4 @@
-import { code, type Children } from "@alloy-js/core";
+import { type Children } from "@alloy-js/core";
 import { Attribute } from "@alloy-js/csharp";
 import { JsonSerialization } from "./csharp-libs.jsx";
 import {
@@ -195,7 +195,7 @@ function getNumericConstraintAttribute(
   if (minExcl !== undefined) params.push(`MinValueExclusive = true`);
   if (maxExcl !== undefined) params.push(`MaxValueExclusive = true`);
 
-  return code`[NumericConstraint<${csharpType}>(${params.join(", ")})]`;
+  return <Attribute name={`NumericConstraint<${csharpType}>`} args={params} />;
 }
 
 function getStringConstraintAttribute(
@@ -236,7 +236,7 @@ function getArrayConstraintAttribute(
   if (minItems !== undefined) params.push(`MinItems = ${minItems}`);
   if (maxItems !== undefined) params.push(`MaxItems = ${maxItems}`);
 
-  return code`[ArrayConstraint<${csharpType}>(${params.join(", ")})]`;
+  return <Attribute name={`ArrayConstraint<${csharpType}>`} args={params} />;
 }
 
 function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
@@ -250,5 +250,5 @@ function getEncodedNameAttribute(program: Program, property: ModelProperty): Chi
 function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {
   const stdBase = getStdBase(program, scalar);
   if (!stdBase || stdBase.name !== "safeint") return undefined;
-  return code`[NumericConstraint<long>(MinValue = -9007199254740991, MaxValue = 9007199254740991)]`;
+  return <Attribute name="NumericConstraint<long>" args={["MinValue = -9007199254740991", "MaxValue = 9007199254740991"]} />;
 }

@@ -1,4 +1,5 @@
 import {
+  getNamespaceFullName,
   isStdNamespace,
   isTemplateDeclaration,
   type Enum,
@@ -288,7 +289,7 @@ function shouldEmitModel($: Typekit, model: Model): boolean {
   if (isMultipartBodyContainer(model)) return false;
   if (model.templateMapper) return true;
   if (model.namespace && isStdNamespace(model.namespace)) return false;
-  const nsName = getFullNamespaceName(model.namespace);
+  const nsName = model.namespace ? getNamespaceFullName(model.namespace) : "";
   if (nsName.startsWith("TypeSpec.Http") || nsName.startsWith("TypeSpec.Rest")) return false;
   return true;
 }
@@ -312,12 +313,4 @@ function isHttpPartType(type: Type): boolean {
   return false;
 }
 
-function getFullNamespaceName(ns: TspNamespace | undefined): string {
-  const parts: string[] = [];
-  let current = ns;
-  while (current && current.name) {
-    parts.unshift(current.name);
-    current = current.namespace;
-  }
-  return parts.join(".");
-}
+

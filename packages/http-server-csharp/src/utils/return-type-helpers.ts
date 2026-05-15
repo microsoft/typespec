@@ -40,10 +40,22 @@ export function getSuccessReturnType(program: Program, returnType: Type): Type |
   return returnType;
 }
 
-/** Returns true if the model only has statusCode-related properties (no body). */
+/** Returns true if the model only has statusCode-related properties (no body). Walks inherited properties too. */
 function isStatusCodeOnlyModel(model: Model): boolean {
-  for (const prop of model.properties.values()) {
+  let count = 0;
+  for (const prop of walkPropertiesInherited(model)) {
     if (prop.name !== "statusCode") return false;
+    count++;
   }
-  return model.properties.size > 0;
+  return count > 0;
+}
+
+/** Yields all properties from a model and its base models. */
+function* walkPropertiesInherited(model: Model): Iterable<import("@typespec/compiler").ModelProperty> {
+  for (const prop of model.properties.values()) {
+    yield prop;
+  }
+  if (model.baseModel) {
+    yield* walkPropertiesInherited(model.baseModel);
+  }
 }

@@ -76,7 +76,7 @@ export function TypeExpression(props: TypeExpressionProps): Children {
       if (type.name === "unknown") return code`object`;
       if (type.name === "void") return code`void`;
       if (type.name === "null") return code`object`;
-      if (type.name === "never") return code`object`;
+      if (type.name === "never") return code`void`;
       return code`object`;
     case "TemplateParameter":
       return code`${(type.node as any)?.id?.sv ?? "T"}`;

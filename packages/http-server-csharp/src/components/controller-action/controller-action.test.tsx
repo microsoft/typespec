@@ -85,10 +85,7 @@ describe("ControllerAction", () => {
           [HttpDelete]
           [Route("/pets/{petId}")]
           [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
-          public virtual async Task<IActionResult> DeletePet(
-              [FromRoute(Name="petId")]
-              string petId
-          )
+          public virtual async Task<IActionResult> DeletePet(string petId)
           {
               await PetStoreImpl.DeletePetAsync(petId);
               return NoContent();

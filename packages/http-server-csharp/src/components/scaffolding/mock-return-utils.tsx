@@ -25,6 +25,7 @@ export function getMockReturnStatement(program: Program, returnType: Type): Chil
 
   if (successType.kind === "Scalar") {
     if (successType.name === "string") {
+      // Empty string is the simplest non-null default for string scalars in mock implementations
       return `return Task.FromResult("");`;
     }
     return code`return Task.FromResult<${(<TypeExpression type={successType} />)}>(default);`;

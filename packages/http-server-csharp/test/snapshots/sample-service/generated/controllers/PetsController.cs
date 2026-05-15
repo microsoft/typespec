@@ -44,10 +44,7 @@ public partial class PetsController : ControllerBase
     [HttpGet]
     [Route("/pets/{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Pet))]
-    public virtual async Task<IActionResult> Read(
-        [FromRoute(Name="id")]
-        long id
-    )
+    public virtual async Task<IActionResult> Read(long id)
     {
         var result = await PetsImpl.ReadAsync(id);
         return Ok(result);
@@ -75,7 +72,6 @@ public partial class PetsController : ControllerBase
     [Route("/pets/{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Pet))]
     public virtual async Task<IActionResult> Update(
-        [FromRoute(Name="id")]
         long id,
         [FromBody]
         Pet body
@@ -91,10 +87,7 @@ public partial class PetsController : ControllerBase
     [HttpDelete]
     [Route("/pets/{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(void))]
-    public virtual async Task<IActionResult> Delete(
-        [FromRoute(Name="id")]
-        long id
-    )
+    public virtual async Task<IActionResult> Delete(long id)
     {
         var result = await PetsImpl.DeleteAsync(id);
         return Ok(result);

@@ -39,10 +39,7 @@ public partial class DogsController : ControllerBase
     [HttpGet]
     [Route("/dogs/{id}")]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(Dog))]
-    public virtual async Task<IActionResult> Read(
-        [FromRoute(Name="id")]
-        long id
-    )
+    public virtual async Task<IActionResult> Read(long id)
     {
         var result = await DogsImpl.ReadAsync(id);
         return Ok(result);

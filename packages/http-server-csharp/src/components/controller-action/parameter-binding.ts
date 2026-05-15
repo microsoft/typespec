@@ -3,10 +3,21 @@ import type { CanonicalHttpProperty } from "@typespec/http-canonicalization";
 
 /**
  * Maps a canonical HTTP property to an ASP.NET parameter binding attribute.
+ * FromRoute is omitted when the parameter name matches the route template variable,
+ * since ASP.NET infers route binding by default.
+ * Query and header bindings always include the Name to ensure correct wire-name mapping.
  */
-export function getBindingAttribute(prop: CanonicalHttpProperty): string | undefined {
+export function getBindingAttribute(
+  prop: CanonicalHttpProperty,
+  paramName?: string,
+): string | undefined {
   switch (prop.kind) {
     case "path":
+      // FromRoute is the default binding for path params in ASP.NET;
+      // only emit when the C# parameter name differs from the route variable name
+      if (paramName !== undefined && paramName === prop.options.name) {
+        return undefined;
+      }
       return `FromRoute(Name="${prop.options.name}")`;
     case "query":
       return `FromQuery(Name="${prop.options.name}")`;
