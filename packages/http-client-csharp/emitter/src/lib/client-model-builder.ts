@@ -192,16 +192,9 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 }
 
 /**
- * Returns a key for a model or enum type. Prefers `crossLanguageDefinitionId`
- * because it is the canonical identity TCGC assigns. Falls back to a name-only
- * key for anonymous/constant-derived types whose `crossLanguageDefinitionId` is
- * empty. The `namespace` field is intentionally not used in the fallback because
- * TCGC can emit the same logical anonymous type with an inconsistent namespace
- * across emission paths (e.g. `undefined` in `typesBeforeClients` and the actual
- * namespace in `__typeCache.types`), which would otherwise defeat dedupe and
- * produce duplicate entries in the code model. The `anon:` prefix guards against
- * any theoretical collision with a real `crossLanguageDefinitionId` that happens
- * to equal the bare name.
+ * Dedupe key for a model or enum. Uses `crossLanguageDefinitionId` when present;
+ * otherwise falls back to `anon:${name}` since TCGC may report inconsistent
+ * namespaces for the same anonymous type across emission paths.
  */
 function typeDedupeKey(type: InputModelType | InputEnumType): string {
   if (type.crossLanguageDefinitionId) {

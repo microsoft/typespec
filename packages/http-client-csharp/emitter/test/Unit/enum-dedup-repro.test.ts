@@ -18,12 +18,6 @@ describe("Anonymous enum dedupe", () => {
     runner = await createEmitterTestHost();
   });
 
-  // Regression test for https://github.com/microsoft/typespec/issues/<this issue>.
-  // After microsoft/typespec#10584, anonymous enums synthesized for inline-union
-  // operation parameters were emitted twice in root.enums because TCGC produces
-  // two references to the same logical enum with different `namespace` fields
-  // (undefined vs the actual namespace) and an empty crossLanguageDefinitionId,
-  // defeating the previous `namespace.name` fallback dedupe key.
   it("does not duplicate anonymous enums synthesized from inline union operation parameters", async () => {
     const program = await typeSpecCompile(
       `
