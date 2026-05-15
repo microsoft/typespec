@@ -307,6 +307,69 @@ describe("compiler: references", () => {
         },
       ]);
     });
+
+    describe("late-bound member from template spread via `is`", () =>
+      itCanReference({
+        code: `
+          model Template<T> {...T}
+          @test("target") model MyModel is Template<{y: string}> {}
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("late-bound member from template spread via `is` (forward reference)", () =>
+      itCanReference({
+        code: `
+          @test("target") model MyModel is Template<{y: string}> {}
+          model Template<T> {...T}
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("late-bound member from template parameter spread", () =>
+      itCanReference({
+        code: `
+          model Template<T> {...T}
+          @test("target") model MyModel { ...Template<{y: string}> }
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("circular reference with late-bound members", () => {
+      it("model referencing its own late-bound member doesn't crash", async () => {
+        const diagnostics = await Tester.diagnose(`
+          model Template<T> {...T}
+          model A is Template<{self: A}> {}
+          alias Test = A.self;
+        `);
+        // Should resolve without crashing — self-referencing is allowed
+        expectDiagnostics(diagnostics, []);
+      });
+
+      it("mutual reference between late-bound models", async () => {
+        const { A, B } = await Tester.compile(t.code`
+          model Template<T> {...T}
+          model ${t.model("A")} is Template<{b: B}> {}
+          model ${t.model("B")} is Template<{a: A}> {}
+        `);
+        ok(A.properties.has("b"), "A should have property b");
+        ok(B.properties.has("a"), "B should have property a");
+        strictEqual(A.properties.get("b")!.type, B);
+        strictEqual(B.properties.get("a")!.type, A);
+      });
+
+      it("accessing late-bound member that refers back to the container", async () => {
+        const { A } = await Tester.compile(t.code`
+          model Template<T> {...T}
+          model ${t.model("A")} is Template<{self: A}> {}
+          model Ref { prop: A.self }
+        `);
+        strictEqual(A.properties.get("self")!.type, A);
+      });
+    });
   });
 
   describe("enum members", () => {

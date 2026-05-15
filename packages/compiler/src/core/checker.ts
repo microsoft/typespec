@@ -4430,6 +4430,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return symbol;
     }
 
+    // When the member wasn't found but the container has unknown members (e.g. from
+    // template spreads or `is`), force-check the container type so that late-bound
+    // members become available, then retry the lookup.
+    if (node.selector === "." && base.flags & SymbolFlags.MemberContainer) {
+      const resolvedMember = tryForceResolveLateBoundMember(ctx, base, node);
+      if (resolvedMember) {
+        return resolvedMember;
+      }
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4484,6 +4494,52 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
     return undefined;
+  }
+
+  /**
+   * Attempt to resolve a late-bound member by force-checking the container type.
+   * This handles the case where a model has `hasUnknownMembers` (e.g. from template
+   * spreads or `is`) and the member only becomes known after the type is fully checked.
+   */
+  function tryForceResolveLateBoundMember(
+    ctx: CheckContext,
+    base: Sym,
+    node: MemberExpressionNode,
+  ): Sym | undefined {
+    const links = getSymbolLinks(base);
+    if (!links.hasUnknownMembers) {
+      return undefined;
+    }
+
+    // Don't force-check if the container is currently being resolved (cycle).
+    if (pendingResolutions.has(base, ResolutionKind.Type)) {
+      return undefined;
+    }
+
+    // Force-check the container type to populate its members.
+    pendingResolutions.start(base, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(ctx, base, node.base);
+    pendingResolutions.finish(base, ResolutionKind.Type);
+
+    if (isErrorType(type)) {
+      return undefined;
+    }
+
+    // Late-bind the container and its members.
+    switch (type.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+      case "Enum":
+      case "Scalar":
+        lateBindMemberContainer(type);
+        lateBindMembers(type);
+        break;
+      default:
+        return undefined;
+    }
+
+    return getCanonicalResolvedMemberSymbol(type, node.id.sv);
   }
 
   function getMemberKindName(node: Node) {
@@ -6768,34 +6824,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "circular-prop",
-          format: { propName: name },
-          target: prop,
-        }),
-      );
-      type.type = errorType;
-    } else {
-      pendingResolutions.start(sym, ResolutionKind.Type);
+    // Link the property early so that re-entrant access (e.g., A.a from another model)
+    // finds this property via checkMemberSym without re-entering checkModelProperty.
+    if (links) {
+      linkType(ctx, links, type);
+    }
+
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.PropertyType,
+        sym: sym,
+        node: prop,
+        description: `Property '${name}'`,
+      });
+    }
+    type.type = getTypeForNode(prop.value, ctx);
+
+    // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
+    if (hasPropertyTypeCycle(type)) {
       if (ctx.mapper === undefined) {
-        typeResolver.startResolution({
-          kind: NewResolutionKind.PropertyType,
-          sym: sym,
-          node: prop,
-          description: `Property '${name}'`,
-        });
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: name },
+            target: prop,
+          }),
+        );
       }
-      type.type = getTypeForNode(prop.value, ctx);
-      if (prop.default) {
-        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
-        if (defaultValue !== null) {
-          type.defaultValue = defaultValue;
-        }
-      }
-      if (links) {
-        linkType(ctx, links, type);
+      type.type = errorType;
+    }
+
+    if (prop.default) {
+      const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
+      if (defaultValue !== null) {
+        type.defaultValue = defaultValue;
       }
     }
 
@@ -6811,7 +6873,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    pendingResolutions.finish(sym, ResolutionKind.Type);
     if (ctx.mapper === undefined) {
       typeResolver.finishResolution({
         kind: NewResolutionKind.PropertyType,
@@ -6821,6 +6882,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       });
     }
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  /**
+   * Detect cycles in the property type chain. Follows `.type` links as long as
+   * they point to other ModelProperty types and checks whether we loop back to
+   * the starting property.
+   */
+  function hasPropertyTypeCycle(prop: ModelProperty): boolean {
+    let current: Type | undefined = prop.type;
+    while (current !== undefined && current.kind === "ModelProperty") {
+      if (current === prop) return true;
+      current = (current as ModelProperty).type;
+    }
+    return false;
   }
 
   function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
@@ -7518,6 +7593,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const aliasSymId = getNodeSym(node);
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+      // Re-entrant resolution detected. Check if the alias value node has already produced
+      // a type (e.g., a model expression that creates and links its type before resolving
+      // properties). In that case, the circular reference is safe.
+      const valueSym = node.value.symbol;
+      if (valueSym) {
+        const valueLinks = getSymbolLinks(valueSym);
+        const inProgressType =
+          ctx.mapper === undefined
+            ? valueLinks.declaredType
+            : valueLinks.instantiations?.get(ctx.mapper.args);
+        if (inProgressType) {
+          linkType(ctx, links, inProgressType);
+          return inProgressType;
+        }
+      }
+
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
