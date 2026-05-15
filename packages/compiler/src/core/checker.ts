@@ -4864,8 +4864,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     });
 
     // Items remaining after fixpoint are true circular dependencies.
-    // Force-check them to produce the existing circular error diagnostics.
+    // Report cycle diagnostics using SCC analysis, then force-check
+    // to produce per-site error diagnostics and error types.
     for (const cycle of queueResult.cycles) {
+      if (cycle.length > 1) {
+        // Multi-item SCC: report a cycle diagnostic for each participant
+        const names = cycle.map((item) => `'${item.sym.name}'`);
+        const cycleStr = names.join(", ");
+        for (const item of cycle) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-dependency-cycle",
+              format: { typeName: item.sym.name, cycle: cycleStr },
+              target: item.node,
+            }),
+          );
+        }
+      }
+      // Force-check to produce per-site circular errors and set error types
       for (const item of cycle) {
         if (item.status !== CheckItemStatus.Done && item.status !== CheckItemStatus.Error) {
           checkNode(CheckContext.DEFAULT, item.node, undefined);
