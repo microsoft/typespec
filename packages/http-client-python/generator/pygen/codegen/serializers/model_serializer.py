@@ -65,6 +65,14 @@ def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disa
     return None
 
 
+def _get_xml_deserializer_enum_type(prop: Property) -> Optional[EnumType]:
+    """Return the EnumType for an XML enum property (unwrapping ConstantType), or None."""
+    prop_type = prop.type
+    if isinstance(prop_type, ConstantType):
+        prop_type = prop_type.value_type
+    return prop_type if isinstance(prop_type, EnumType) else None
+
+
 def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> list[str]:
     retval: list[str] = []
     sphinx_prefix = f":{description_keyword} {prop.client_name}:"
@@ -307,6 +315,7 @@ class DpgModelSerializer(_ModelSerializer):
             )
         # Collect XML deserializer functions needed by models in this file
         xml_deser_names: set[str] = set()
+        xml_deser_enums: dict[str, EnumType] = {}
         for model in self.models:
             if model.base == "json":
                 continue
@@ -330,6 +339,10 @@ class DpgModelSerializer(_ModelSerializer):
                     deser_name = _get_xml_deserializer_name(prop)
                     if deser_name:
                         xml_deser_names.add(deser_name)
+                    if deser_name and deser_name.startswith("enum:"):
+                        enum_type = _get_xml_deserializer_enum_type(prop)
+                        if enum_type is not None:
+                            xml_deser_enums[enum_type.name] = enum_type
             for parent in model.parents:
                 if parent.client_namespace != model.client_namespace:
                     file_import.add_submodule_import(
@@ -362,6 +375,20 @@ class DpgModelSerializer(_ModelSerializer):
                 "_xml_deser_enum_or_str",
                 ImportType.LOCAL,
             )
+            # Ensure each referenced enum class is imported at runtime (not just
+            # under TYPE_CHECKING), so functools.partial can bind the class at
+            # class-body evaluation time.
+            for enum_name, enum_type in xml_deser_enums.items():
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(
+                        self.serialize_namespace,
+                        enum_type.client_namespace,
+                        module_name=self.code_model.enums_filename,
+                    ),
+                    enum_name,
+                    ImportType.LOCAL,
+                    TypingSection.REGULAR,
+                )
         # if there is a property named `list` we have to make sure there's no conflict with the built-in `list`
         if self.code_model.has_property_named_list:
             file_import.define_mypy_type("List", "list")
