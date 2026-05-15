@@ -385,6 +385,37 @@ try {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
 
+        # Patch any leftover @typespec/openapi3 devDependency in the existing target
+        # emitter-package.json so its version matches the source emitter's pinned
+        # @typespec/openapi version. tsp-client generate-config-files preserves
+        # unknown devDependencies, and a stale @typespec/openapi3 (with a peerOptional
+        # on an older @typespec/streams) can break tsp-client's internal npm install
+        # with ERESOLVE once the new compiler/http/streams versions are merged in.
+        if (Test-Path $emitterPackageJsonPath) {
+            try {
+                $targetEmitterJson = Get-Content $emitterPackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $sourcePackageJson = Get-Content $TypeSpecSourcePackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+
+                $sourceOpenApiVersion = $null
+                if ($sourcePackageJson.ContainsKey("devDependencies") -and $sourcePackageJson["devDependencies"].ContainsKey("@typespec/openapi")) {
+                    $sourceOpenApiVersion = $sourcePackageJson["devDependencies"]["@typespec/openapi"]
+                }
+
+                if ($sourceOpenApiVersion -and $targetEmitterJson.ContainsKey("devDependencies") -and $targetEmitterJson["devDependencies"].ContainsKey("@typespec/openapi3")) {
+                    $oldOpenApi3Version = $targetEmitterJson["devDependencies"]["@typespec/openapi3"]
+                    if ($oldOpenApi3Version -ne $sourceOpenApiVersion) {
+                        Write-Host "Patching @typespec/openapi3 in $emitterPackageJsonPath : $oldOpenApi3Version -> $sourceOpenApiVersion (matching source @typespec/openapi)"
+                        $targetEmitterJson["devDependencies"]["@typespec/openapi3"] = $sourceOpenApiVersion
+                        ($targetEmitterJson | ConvertTo-Json -Depth 100) | Set-Content -Path $emitterPackageJsonPath -NoNewline
+                    } else {
+                        Write-Host "@typespec/openapi3 in target emitter-package.json already matches source @typespec/openapi ($sourceOpenApiVersion); no patch needed."
+                    }
+                }
+            } catch {
+                Write-Warning "Failed to patch @typespec/openapi3 in target emitter-package.json: $_"
+            }
+        }
+
         try {
             Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
             if ($LASTEXITCODE -ne 0) {
