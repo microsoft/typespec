@@ -4645,8 +4645,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(sym, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: sym,
+        node: node,
+        description: `Template container '${sym.name}'`,
+      });
+    }
     const type = checkTypeReferenceSymbol(ctx, sym, node);
     pendingResolutions.finish(sym, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: sym,
+        node: node,
+        description: `Template container '${sym.name}'`,
+      });
+    }
 
     return lateBindContainer(type, sym);
   }
