@@ -26,6 +26,19 @@ from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType
 
 
+_SCALAR_XML_DESERIALIZERS: tuple[tuple[type, str], ...] = (
+    (StringType, "_xml_deser_str"),
+    (IntegerType, "_xml_deser_int"),
+    (FloatType, "_xml_deser_float"),
+    (BooleanType, "_xml_deser_bool"),
+    (DecimalType, "_xml_deser_decimal"),
+    (UnixTimeType, "_xml_deser_datetime_unix_timestamp"),
+    (TimeType, "_xml_deser_time"),
+    (DateType, "_xml_deser_date"),
+    (DurationType, "_xml_deser_duration"),
+)
+
+
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:
     """Return the _xml_deser_* function name for a scalar XML property, or None."""
     prop_type = prop.type
@@ -33,33 +46,14 @@ def _get_xml_deserializer_name(prop: Property) -> Optional[str]:
     if isinstance(prop_type, ConstantType):
         prop_type = prop_type.value_type
 
-    if isinstance(prop_type, StringType):
-        return "_xml_deser_str"
-    if isinstance(prop_type, IntegerType):
-        return "_xml_deser_int"
-    if isinstance(prop_type, FloatType):
-        return "_xml_deser_float"
-    if isinstance(prop_type, BooleanType):
-        return "_xml_deser_bool"
-    if isinstance(prop_type, DecimalType):
-        return "_xml_deser_decimal"
+    for type_cls, name in _SCALAR_XML_DESERIALIZERS:
+        if isinstance(prop_type, type_cls):
+            return name
     if isinstance(prop_type, DatetimeType):
-        if prop_type.encode == "rfc7231":
-            return "_xml_deser_datetime_rfc7231"
-        return "_xml_deser_datetime"
-    if isinstance(prop_type, UnixTimeType):
-        return "_xml_deser_datetime_unix_timestamp"
-    if isinstance(prop_type, TimeType):
-        return "_xml_deser_time"
-    if isinstance(prop_type, DateType):
-        return "_xml_deser_date"
-    if isinstance(prop_type, DurationType):
-        return "_xml_deser_duration"
+        return "_xml_deser_datetime_rfc7231" if prop_type.encode == "rfc7231" else "_xml_deser_datetime"
     if isinstance(prop_type, ByteArraySchema):
         encode = getattr(prop_type, "encode", None) or getattr(prop, "encode", None)
-        if encode == "base64url":
-            return "_xml_deser_bytes_base64url"
-        return "_xml_deser_bytes"
+        return "_xml_deser_bytes_base64url" if encode == "base64url" else "_xml_deser_bytes"
     if isinstance(prop_type, EnumType):
         return f"enum:{prop_type.name}"
     return None
