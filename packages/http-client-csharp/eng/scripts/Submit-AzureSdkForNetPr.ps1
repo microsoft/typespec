@@ -385,31 +385,21 @@ try {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
 
-        # Patch any leftover @typespec/openapi3 devDependency in the existing target
-        # emitter-package.json so its version matches the source emitter's pinned
-        # @typespec/openapi version. tsp-client generate-config-files preserves
-        # unknown devDependencies, and a stale @typespec/openapi3 (with a peerOptional
-        # on an older @typespec/streams) can break tsp-client's internal npm install
-        # with ERESOLVE once the new compiler/http/streams versions are merged in.
+        # Align any leftover @typespec/openapi3 in the target emitter-package.json with
+        # the source emitter's @typespec/openapi version. tsp-client generate-config-files
+        # preserves unknown devDependencies, so a stale @typespec/openapi3 (peerOptional
+        # @typespec/streams ^X.Y.0) breaks the internal npm install with ERESOLVE once
+        # the source bumps the typespec family.
         if (Test-Path $emitterPackageJsonPath) {
             try {
-                $targetEmitterJson = Get-Content $emitterPackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
-                $sourcePackageJson = Get-Content $TypeSpecSourcePackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
-
-                $sourceOpenApiVersion = $null
-                if ($sourcePackageJson.ContainsKey("devDependencies") -and $sourcePackageJson["devDependencies"].ContainsKey("@typespec/openapi")) {
-                    $sourceOpenApiVersion = $sourcePackageJson["devDependencies"]["@typespec/openapi"]
-                }
-
-                if ($sourceOpenApiVersion -and $targetEmitterJson.ContainsKey("devDependencies") -and $targetEmitterJson["devDependencies"].ContainsKey("@typespec/openapi3")) {
-                    $oldOpenApi3Version = $targetEmitterJson["devDependencies"]["@typespec/openapi3"]
-                    if ($oldOpenApi3Version -ne $sourceOpenApiVersion) {
-                        Write-Host "Patching @typespec/openapi3 in $emitterPackageJsonPath : $oldOpenApi3Version -> $sourceOpenApiVersion (matching source @typespec/openapi)"
-                        $targetEmitterJson["devDependencies"]["@typespec/openapi3"] = $sourceOpenApiVersion
-                        ($targetEmitterJson | ConvertTo-Json -Depth 100) | Set-Content -Path $emitterPackageJsonPath -NoNewline
-                    } else {
-                        Write-Host "@typespec/openapi3 in target emitter-package.json already matches source @typespec/openapi ($sourceOpenApiVersion); no patch needed."
-                    }
+                $target = Get-Content $emitterPackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $source = Get-Content $TypeSpecSourcePackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $newVersion = $source.devDependencies.'@typespec/openapi'
+                $oldVersion = $target.devDependencies.'@typespec/openapi3'
+                if ($newVersion -and $oldVersion -and $oldVersion -ne $newVersion) {
+                    Write-Host "Patching @typespec/openapi3 in target emitter-package.json: $oldVersion -> $newVersion"
+                    $target.devDependencies.'@typespec/openapi3' = $newVersion
+                    ($target | ConvertTo-Json -Depth 100) | Set-Content -Path $emitterPackageJsonPath -NoNewline
                 }
             } catch {
                 Write-Warning "Failed to patch @typespec/openapi3 in target emitter-package.json: $_"
