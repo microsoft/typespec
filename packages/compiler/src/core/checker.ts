@@ -2096,11 +2096,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    const description = `${awaitingType.kind}${
+      "name" in awaitingType ? ` '${awaitingType.name}'` : ""
+    }`;
+
     function check() {
       if (waitingFor.size === 0) {
+        typeResolver.resolveDeferredCompletion(description);
         callback();
       }
     }
+
+    if (waitingFor.size > 0) {
+      typeResolver.trackDeferredCompletion(description, waitingFor.size);
+    }
+
     for (const type of waitingFor) {
       waitingForResolution.set(type, [
         ...(waitingForResolution.get(type) || []),
@@ -4125,7 +4135,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     let memberSymbol = getMemberSymbol(containerSymbol, memberName);
     if (!memberSymbol?.type && containerSymbol.flags & SymbolFlags.LateBound) {
+      // Late-bind members on demand — track this in the resolver for visibility
+      const containerName = "name" in containerType ? containerType.name : containerSymbol.name;
+      const request = {
+        kind: NewResolutionKind.MemberType,
+        sym: containerSymbol,
+        node: containerType.node!,
+        description: `Member '${memberName}' of ${containerType.kind} '${containerName}'`,
+      };
+      const result = typeResolver.startResolution(request);
+      if (result.cycle) {
+        // Cycle in member resolution — return undefined to propagate the error
+        typeResolver.finishResolution(request);
+        return undefined;
+      }
       lateBindMembers(containerType);
+      typeResolver.finishResolution(request);
       memberSymbol = getMemberSymbol(containerSymbol, memberName);
     }
 
@@ -4880,6 +4905,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return;
     }
 
+    const unresolvedDeferred = typeResolver.unresolvedDeferredCompletions;
     const message = [
       "Unexpected pending resolutions found",
       ...[...waitingForResolution.entries()].flatMap(([type, items]) => {
@@ -4888,6 +4914,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           ([item], index) => `${index === 0 ? base : " ".repeat(base.length)}${getTypeName(item)}`,
         );
       }),
+      ...(unresolvedDeferred.length > 0
+        ? [
+            "  Deferred completions still pending:",
+            ...unresolvedDeferred.map(
+              (d) => `    ${d.description} (waiting for ${d.dependencyCount} dependencies)`,
+            ),
+          ]
+        : []),
     ].join("\n");
     compilerAssert(false, message);
   }

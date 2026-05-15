@@ -245,11 +245,46 @@ export class TypeResolver {
   }
 
   /**
+   * Track a deferred completion. This records that a type's finalization
+   * is waiting for one or more dependencies to finish being created.
+   * Used for integration with the ensureResolved/waitingForResolution system.
+   */
+  trackDeferredCompletion(description: string, dependencyCount: number): void {
+    this.#deferredCompletions.push({ description, dependencyCount, resolved: false });
+  }
+
+  /**
+   * Mark a deferred completion as resolved.
+   */
+  resolveDeferredCompletion(description: string): void {
+    const entry = this.#deferredCompletions.find(
+      (d) => d.description === description && !d.resolved,
+    );
+    if (entry) {
+      entry.resolved = true;
+    }
+  }
+
+  /**
+   * Get all unresolved deferred completions (for debugging/assertions).
+   */
+  get unresolvedDeferredCompletions(): readonly { description: string; dependencyCount: number }[] {
+    return this.#deferredCompletions.filter((d) => !d.resolved);
+  }
+
+  readonly #deferredCompletions: {
+    description: string;
+    dependencyCount: number;
+    resolved: boolean;
+  }[] = [];
+
+  /**
    * Reset the resolver state. Used between compilations or for testing.
    */
   reset(): void {
     this.#stack.length = 0;
     this.#stackKeys.clear();
     this.#cache.clear();
+    this.#deferredCompletions.length = 0;
   }
 }

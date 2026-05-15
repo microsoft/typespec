@@ -341,5 +341,46 @@ describe("TypeResolver", () => {
       expect(resolver.getCached(sym, ResolutionKind.BaseType)).toBeUndefined();
       expect(resolver.isResolving(sym, ResolutionKind.BaseType)).toBe(false);
     });
+
+    it("clears deferred completions", () => {
+      const resolver = new TypeResolver();
+      resolver.trackDeferredCompletion("Model 'A'", 2);
+      expect(resolver.unresolvedDeferredCompletions).toHaveLength(1);
+
+      resolver.reset();
+      expect(resolver.unresolvedDeferredCompletions).toHaveLength(0);
+    });
+  });
+
+  describe("deferred completions", () => {
+    it("tracks deferred completions", () => {
+      const resolver = new TypeResolver();
+      resolver.trackDeferredCompletion("Model 'A'", 2);
+      resolver.trackDeferredCompletion("Model 'B'", 1);
+
+      expect(resolver.unresolvedDeferredCompletions).toHaveLength(2);
+      expect(resolver.unresolvedDeferredCompletions[0]).toMatchObject({
+        description: "Model 'A'",
+        dependencyCount: 2,
+      });
+    });
+
+    it("resolves deferred completions", () => {
+      const resolver = new TypeResolver();
+      resolver.trackDeferredCompletion("Model 'A'", 2);
+      resolver.trackDeferredCompletion("Model 'B'", 1);
+
+      resolver.resolveDeferredCompletion("Model 'A'");
+
+      expect(resolver.unresolvedDeferredCompletions).toHaveLength(1);
+      expect(resolver.unresolvedDeferredCompletions[0].description).toBe("Model 'B'");
+    });
+
+    it("resolving non-existent completion is a no-op", () => {
+      const resolver = new TypeResolver();
+      resolver.trackDeferredCompletion("Model 'A'", 1);
+      resolver.resolveDeferredCompletion("Model 'X'");
+      expect(resolver.unresolvedDeferredCompletions).toHaveLength(1);
+    });
   });
 });
