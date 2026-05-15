@@ -18,8 +18,6 @@ export function getMockReturnStatement(program: Program, returnType: Type): Chil
   }
 
   if (successType.kind === "Model" && successType.indexer) {
-    // Array-like type
-    const elementType = successType.indexer.value;
     return code`return Task.FromResult<${(<TypeExpression type={successType} />)}>([]);`;
   }
 

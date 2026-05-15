@@ -145,7 +145,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
 
   // Determine response type for ProducesResponseType attribute
   const returnType = props.operation.sourceType.returnType;
-  let responseStatusCode = hasBody ? "OK" : "NoContent";
+  const responseStatusCode = hasBody ? "OK" : "NoContent";
   let responseTypeExpr: Children | undefined = undefined;
 
   if (hasBody) {
@@ -178,7 +178,10 @@ export function ControllerAction(props: ControllerActionProps): Children {
     attributes.push(
       <Attribute
         name="ProducesResponseType"
-        args={[code`(int)HttpStatusCode.${responseStatusCode}`, code`Type = typeof(${responseTypeExpr})`]}
+        args={[
+          code`(int)HttpStatusCode.${responseStatusCode}`,
+          code`Type = typeof(${responseTypeExpr})`,
+        ]}
       />,
     );
   } else {
@@ -195,8 +198,8 @@ export function ControllerAction(props: ControllerActionProps): Children {
   if (isMultipart) {
     // Multipart body: parse boundary and create MultipartReader
     const implCall = hasBody
-      ? code`var result = await ${props.implFieldName}.${opName}Async(${callArgs});${"\n"}return ${responseStatusCode === "Accepted" ? "Accepted" : "Ok"}(result);`
-      : code`await ${props.implFieldName}.${opName}Async(${callArgs});${"\n"}return ${responseStatusCode === "NoContent" ? "NoContent" : "Ok"}();`;
+      ? code`var result = await ${props.implFieldName}.${opName}Async(${callArgs});${"\n"}return ${statusCode === 202 ? "Accepted" : "Ok"}(result);`
+      : code`await ${props.implFieldName}.${opName}Async(${callArgs});${"\n"}return ${!hasBody ? "NoContent" : "Ok"}();`;
     methodBody = code`var boundary = Request.GetMultipartBoundary();
 if (boundary == null)
 {
