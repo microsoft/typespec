@@ -4839,6 +4839,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const deferredStatements: Statement[] = [];
     seedCheckQueue(deferredStatements);
 
+    // Phase 1b: Create shells for all queued declarations.
+    // This ensures that cross-references between declarations can resolve
+    // to a shell type even before population. Enables DeferralSignal-based
+    // deferral without partial-state corruption.
+    // DISABLED: Shell creation breaks circular-extends detection because
+    // references resolve to shells immediately without triggering
+    // pendingResolutions tracking. Need a different approach to detect cycles.
+    // createDeclarationShells();
+
     // Phase 2: Process declarations via the worklist/fixpoint queue.
     // DeferralSignal is caught by the queue's processUntilFixpoint when a
     // declaration's DFS encounters an unchecked queued dependency.
@@ -4910,6 +4919,150 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     for (const file of program.sourceFiles.values()) {
       seedStatementsIntoQueue(file.statements, deferredStatements);
     }
+  }
+
+  /**
+   * Create shell types for all queued declarations upfront.
+   * Shells are minimal type objects with `creating=true` that can be
+   * referenced by other declarations during the populate pass.
+   * Alias and Const don't have shells (they resolve directly to a value/type).
+   */
+  function createDeclarationShells() {
+    for (const item of checkQueue.allItems()) {
+      const node = item.node;
+      // Skip template declarations — they have complex interactions with
+      // instantiation that aren't compatible with shell-based deferral yet
+      if ("templateParameters" in node && (node as any).templateParameters?.length > 0) {
+        continue;
+      }
+      switch (node.kind) {
+        case SyntaxKind.ModelStatement:
+          createModelShell(node as ModelStatementNode);
+          break;
+        case SyntaxKind.ScalarStatement:
+          createScalarShell(node as ScalarStatementNode);
+          break;
+        case SyntaxKind.InterfaceStatement:
+          createInterfaceShell(node as InterfaceStatementNode);
+          break;
+        case SyntaxKind.UnionStatement:
+          createUnionShell(node as UnionStatementNode);
+          break;
+        case SyntaxKind.OperationStatement:
+          createOperationShell(node as OperationStatementNode);
+          break;
+        case SyntaxKind.EnumStatement:
+          createEnumShell(node as EnumStatementNode);
+          break;
+        // Alias and Const don't create shells
+        default:
+          break;
+      }
+    }
+  }
+
+  function createModelShell(node: ModelStatementNode) {
+    const links = getSymbolLinks(node.symbol);
+    if (links.declaredType) return; // Already has a type (shouldn't happen)
+
+    const type: Model = createType({
+      kind: "Model",
+      name: node.id.sv,
+      node: node,
+      properties: createRekeyableMap<string, ModelProperty>(),
+      namespace: getParentNamespaceType(node),
+      decorators: [],
+      sourceModels: [],
+      derivedModels: [],
+    });
+    linkType(CheckContext.DEFAULT, links, type);
+  }
+
+  function createScalarShell(node: ScalarStatementNode) {
+    const links = getSymbolLinks(node.symbol);
+    if (links.declaredType) return;
+
+    const type: Scalar = createType({
+      kind: "Scalar",
+      name: node.id.sv,
+      node: node,
+      constructors: new Map(),
+      namespace: getParentNamespaceType(node),
+      decorators: [],
+      derivedScalars: [],
+    });
+    linkType(CheckContext.DEFAULT, links, type);
+  }
+
+  function createInterfaceShell(node: InterfaceStatementNode) {
+    const links = getSymbolLinks(node.symbol);
+    if (links.declaredType) return;
+
+    const type: Interface = createType({
+      kind: "Interface",
+      decorators: [],
+      node,
+      namespace: getParentNamespaceType(node),
+      sourceInterfaces: [],
+      operations: createRekeyableMap(),
+      name: node.id.sv,
+    });
+    linkType(CheckContext.DEFAULT, links, type);
+  }
+
+  function createUnionShell(node: UnionStatementNode) {
+    const links = getSymbolLinks(node.symbol);
+    if (links.declaredType) return;
+
+    const variants = createRekeyableMap<string, UnionVariant>();
+    const type: Union = createType({
+      kind: "Union",
+      decorators: [],
+      node,
+      namespace: getParentNamespaceType(node),
+      name: node.id.sv,
+      variants,
+      get options() {
+        return Array.from(this.variants.values()).map((v: UnionVariant) => v.type);
+      },
+      expression: false,
+    });
+    linkType(CheckContext.DEFAULT, links, type);
+  }
+
+  function createOperationShell(node: OperationStatementNode) {
+    // Only create shell for top-level operations, not interface members
+    if (node.parent?.kind === SyntaxKind.InterfaceStatement) return;
+
+    const links = getSymbolLinks(node.symbol);
+    if (links?.declaredType) return;
+
+    const type: Operation = createType({
+      kind: "Operation",
+      name: node.id.sv,
+      node,
+      parameters: undefined!,
+      returnType: undefined!,
+      decorators: [],
+      namespace: getParentNamespaceType(node),
+    });
+    if (links) {
+      linkType(CheckContext.DEFAULT, links, type);
+    }
+  }
+
+  function createEnumShell(node: EnumStatementNode) {
+    const links = getSymbolLinks(node.symbol);
+    if (links.type) return; // Enum uses links.type, not links.declaredType
+
+    const type: Enum = createType({
+      kind: "Enum",
+      name: node.id.sv,
+      node,
+      members: createRekeyableMap<string, EnumMember>(),
+      decorators: [],
+    });
+    links.type = type;
   }
 
   /**
@@ -7286,12 +7439,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
-      // This is a templated declaration and we are not instantiating it, so we need to update the flags.
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this model and we've already checked it
+      // we're not instantiating this scalar and we've already checked it
       return links.declaredType as any;
     }
     if (ctx.mapper === undefined) {
@@ -7592,7 +7744,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
-      // This is a templated declaration and we are not instantiating it, so we need to update the flags.
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
@@ -7614,7 +7765,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       operations: createRekeyableMap(),
       name: node.id.sv,
     });
-
     linkType(ctx, links, interfaceType);
 
     interfaceType.decorators = checkDecorators(ctx, interfaceType, node);

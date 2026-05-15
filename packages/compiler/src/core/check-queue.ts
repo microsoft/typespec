@@ -158,6 +158,13 @@ export class CheckQueue {
   }
 
   /**
+   * Iterate over all registered items.
+   */
+  allItems(): IterableIterator<CheckItem> {
+    return this.#items.values();
+  }
+
+  /**
    * Check whether a symbol has been registered and is done.
    */
   isDone(sym: Sym): boolean {
