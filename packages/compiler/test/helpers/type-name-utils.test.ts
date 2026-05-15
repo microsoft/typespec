@@ -58,4 +58,16 @@ describe("compiler: TypeNameUtils", () => {
       );
     });
   });
+
+  describe("template parameter access", () => {
+    it("returns the stored source path in printable mode", () => {
+      const access = {
+        kind: "TemplateParameterAccess",
+        path: "T.`model`::type.x",
+      } as any;
+
+      strictEqual(getTypeName(access), "T.`model`::type.x");
+      strictEqual(getTypeName(access, { printable: true }), "T.`model`::type.x");
+    });
+  });
 });

@@ -8,7 +8,3 @@ export const serverOptions: CompilerOptions = {
     docs: true,
   },
 };
-
-export const Commands = {
-  APPLY_CODE_FIX: "typespec.applyCodeFix",
-};

@@ -321,6 +321,9 @@ export class CodeModelBuilder {
         this.sdkContext.sdkPackage.metadata.apiVersions,
       );
     }
+    // cross-language metadata
+    this.codeModel.crossLanguagePackageId = this.sdkContext.sdkPackage.crossLanguagePackageId;
+    this.codeModel.crossLanguageVersion = this.sdkContext.sdkPackage.crossLanguageVersion;
 
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {

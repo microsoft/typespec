@@ -8,6 +8,8 @@ import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const rootOptions = [
   "extends",
+  "kind",
+  "entrypoint",
   "environment-variables",
   "parameters",
   "output-dir",
@@ -437,8 +439,10 @@ describe("Test completion items for extends", () => {
       config: `extends:  \n┆`,
       expected: [
         "emit",
+        "entrypoint",
         "environment-variables",
         "imports",
+        "kind",
         "linter",
         "options",
         "output-dir",

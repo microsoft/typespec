@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -125,7 +126,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
+            // Report a summary-level change only if the relative order of shared members
+            // was actually altered to match the last contract.
+            if (!EnumMemberOrderMatches(currentValues, allMembers))
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Reordered members of enum '{Name}' to match last contract.",
+                    BackCompatibilityChangeCategory.EnumMemberReordering);
+            }
+
             return allMembers;
+        }
+
+        private static bool EnumMemberOrderMatches(
+            IReadOnlyList<EnumTypeMember> left,
+            IReadOnlyList<EnumTypeMember> right)
+        {
+            if (left.Count != right.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < left.Count; i++)
+            {
+                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         protected internal override FieldProvider[] BuildFields()

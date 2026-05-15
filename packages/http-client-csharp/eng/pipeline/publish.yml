@@ -34,6 +34,12 @@ parameters:
     type: boolean
     default: false
 
+  # Primary Node.js version used by the artifact-emitting Build_linux job. Must match
+  # the PrimaryNodeVersion default in eng/emitters/pipelines/templates/stages/emitter-stages.yml.
+  - name: PrimaryNodeVersion
+    type: string
+    default: "24.x"
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -47,6 +53,7 @@ extends:
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          PrimaryNodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Packages:
             - name: typespec-http-client-csharp
               file: typespec-http-client-csharp-*.tgz
@@ -102,7 +109,7 @@ extends:
           - CSharp_Build
         condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
-          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}.outputs['ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -211,6 +218,11 @@ extends:
                 displayName: "Log npm configuration"
                 condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+                parameters:
+                  TokenOwners:
+                    - Azure
+
               - task: PowerShell@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
@@ -219,7 +231,7 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                    -AuthToken '$(azuresdk-github-pat)'
+                    -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}

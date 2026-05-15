@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -10,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
 using NUnit.Framework;
 
@@ -420,6 +422,107 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
+        }
+
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderForGeneratedModel()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            ModelProvider? baseProvider = null;
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+            {
+                if (input == inputBase)
+                {
+                    return baseProvider = new ModelProvider(input);
+                }
+                if (input == inputDerived)
+                {
+                    return new BuildBaseTypeOverridingModelProvider(input, baseProvider!.Type);
+                }
+                return null;
+            });
+
+            var actualBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualBase);
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(actualBase!.Type, actualDerived!.BaseType);
+            Assert.AreSame(actualBase, actualDerived.BaseModelProvider);
+        }
+
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForFrameworkType()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var frameworkBase = new CSharpType(typeof(InvalidOperationException));
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, frameworkBase) : null);
+
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(frameworkBase, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
+        }
+
+        [Test]
+        public void BaseModelProvider_DefaultResolvesViaCSharpTypeMap()
+        {
+            var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: []);
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: [], baseModel: inputBase);
+
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsNotNull(derivedProvider!.BaseModelProvider);
+            Assert.AreEqual(derivedProvider.BaseModelProvider!.Type, derivedProvider.BaseType);
+        }
+
+        [Test]
+        public void BaseModelProvider_NullWhenNoBase()
+        {
+            var inputModel = InputFactory.Model("standaloneModel", usage: InputModelTypeUsage.Input, properties: []);
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNull(modelProvider!.BaseType);
+            Assert.IsNull(modelProvider.BaseModelProvider);
+        }
+
+        [Test]
+        public void OverridingBuildBaseType_AutoResolvesBaseModelProviderToNullForNonModelTypeProvider()
+        {
+            var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
+            var nonModelTypeProvider = new NonModelTypeProvider();
+            MockHelpers.LoadMockGenerator(createModelCore: input =>
+                input == inputDerived ? new BuildBaseTypeOverridingModelProvider(input, nonModelTypeProvider.Type) : null);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[nonModelTypeProvider.Type] = nonModelTypeProvider;
+
+            var actualDerived = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+
+            Assert.IsNotNull(actualDerived);
+            Assert.AreEqual(nonModelTypeProvider.Type, actualDerived!.BaseType);
+            Assert.IsNull(actualDerived.BaseModelProvider);
+        }
+
+        private class NonModelTypeProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+            protected override string BuildName() => "NonModelBase";
+            protected override string BuildNamespace() => "Custom.Namespace";
+        }
+
+        private class BuildBaseTypeOverridingModelProvider : ModelProvider
+        {
+            private readonly CSharpType? _redirectedBaseType;
+
+            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, CSharpType? redirectedBaseType) : base(inputModel)
+            {
+                _redirectedBaseType = redirectedBaseType;
+            }
+
+            protected override CSharpType? BuildBaseType() => _redirectedBaseType;
         }
 
         [Test]
@@ -1090,6 +1193,164 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NullableScalarPropertyTypeIsRetained()
+        {
+            // Regression: when a scalar property was previously generated as nullable
+            // but the current spec marks it as non-nullable, the previous nullable type
+            // should be preserved to avoid a source-breaking change.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // The current spec says non-nullable int, but the last contract had int? – the
+            // generator should preserve the nullable type for backwards compatibility.
+            Assert.IsTrue(countProperty!.Type.Equals(new CSharpType(typeof(int), isNullable: true)));
+        }
+
+        [Test]
+        public async Task BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Last contract has `string Count { get; set; }` and the new spec says int – the
+            // generator preserves the last contract's type for backwards compatibility.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(string)));
+        }
+
+        [Test]
+        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers()
+        {
+            // A scalar (non-collection) enum property whose nullability changed between the
+            // last contract and the current spec should retain the last contract's nullability.
+            var statusEnum = InputFactory.StringEnum(
+                "StatusEnum",
+                [("Active", "Active"), ("Inactive", "Inactive")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("status", statusEnum, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [statusEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var statusProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Status");
+            Assert.IsNotNull(statusProperty);
+            Assert.IsTrue(statusProperty!.Type.IsNullable);
+            Assert.AreEqual("StatusEnum", statusProperty.Type.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainProperty()
+        {
+            // Negative test: the last contract has a MockInputModel but with a different property
+            // name, so the back-compat lookup for "Count" misses and the spec type is preserved.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because the last contract has no matching property.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeNotChangedWhenLastContractDoesNotContainModel()
+        {
+            // Negative test: the last contract has no MockInputModel at all, so LastContractView
+            // is null, the property map is empty, and the spec type is preserved as-is.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            // Sanity: there is no last-contract view for this model.
+            Assert.IsNull(modelProvider!.LastContractView);
+
+            var countProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // Spec type (non-nullable int) is preserved because there is no last contract to compare to.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+            Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_InternalPropertyInLastContractIsIgnored()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+        }
+
+        [Test]
         public async Task BackCompat_NonAbstractTypeIsRespected()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
@@ -1221,6 +1482,106 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
+        [Test]
+        public void KeepSetsReflectTypeProvidersAddedAfterFirstAccess()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+            var provider = new DerivedModelProviderReadingOwnField(inputModel);
+
+            _ = CodeModelGenerator.Instance.AdditionalRootTypes;
+            _ = CodeModelGenerator.Instance.NonRootTypes;
+
+            CodeModelGenerator.Instance.AddTypeToKeep(provider);
+            CodeModelGenerator.Instance.AddTypeToKeep(provider, isRoot: false);
+
+            var fullyQualifiedName = provider.Type.FullyQualifiedName;
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(fullyQualifiedName));
+            Assert.IsTrue(CodeModelGenerator.Instance.NonRootTypes.Contains(fullyQualifiedName));
+        }
+
+        // Regression test for two complementary fixes:
+        //
+        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;
+        //    registration is performed by TypeFactory.CreateModel after construction completes.
+        //    This mirrors the EnumProvider lifecycle and prevents a virtual call chain
+        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) from
+        //    being dispatched on a partially-constructed derived ModelProvider whose override
+        //    reads derived-class fields that are still uninitialized.
+        //
+        // 2. AddTypeToKeep(TypeProvider) defers FQN resolution until the keep set is consumed,
+        //    so even ctor-time callers cannot force premature TypeProvider.Type evaluation.
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceTypeEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            // (1) Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            //     must not throw.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(inputModel));
+
+            // (2) AddTypeToKeep(TypeProvider) must not throw and the provider's FQN must appear
+            //     once the keep set is materialized.
+            Assert.DoesNotThrow(() => CodeModelGenerator.Instance.AddTypeToKeep(provider!));
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains(provider!.Type.FullyQualifiedName));
+        }
+
+        private sealed class DerivedModelProviderReadingOwnField : ModelProvider
+        {
+            private readonly InputModelType _derivedInputModel;
+
+            public DerivedModelProviderReadingOwnField(InputModelType inputModel) : base(inputModel)
+            {
+                _derivedInputModel = inputModel;
+            }
+
+            protected override CSharpType? BuildBaseType()
+            {
+                // Reading a derived-class field that base(...) cannot have populated yet.
+                // If the framework forces Type evaluation during base ctor, this NREs.
+                _ = _derivedInputModel.DiscriminatorValue;
+                return base.BuildBaseType();
+            }
+        }
+
+        // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
+        // eagerly compute DiscriminatorValueExpression, which read BaseModelProvider and thus
+        // virtually dispatched BuildBaseType()/BuildBaseModel() onto a partially-constructed
+        // derived class. Surfaced while validating the Cdn provisioning migration (the keep-set
+        // fix alone was not sufficient when the model has a base + discriminator value).
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceDiscriminatorEvaluation()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                ]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInputModel, derivedInputModel]);
+
+            // Constructing a derived ModelProvider whose BuildBaseType reads a derived field
+            // must not throw, even when the input model has a base + discriminator value.
+            DerivedModelProviderReadingOwnField? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnField(derivedInputModel));
+
+            // The discriminator expression must still be available once consumed lazily
+            // (callers under emission/serialization rely on it).
+            Assert.DoesNotThrow(() => { _ = provider!.DiscriminatorValueExpression; });
+        }
+
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
@@ -1333,7 +1694,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void UnsupportedExternalTypeEmitsDiagnostic()
         {
-            // Test an external type that cannot be resolved (non-framework type)
+            // External type whose Identity is not a known framework type AND whose Package is null:
+            // resolution fails immediately and the property is skipped.
             var externalType = InputFactory.Union(
                 [InputPrimitiveType.String],
                 "ExternalUnion",
@@ -1361,6 +1723,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The value property should exist
             var valueProp = props.FirstOrDefault(p => p.Name == "Value");
             Assert.IsNotNull(valueProp);
+
+            // The unresolvable external property should have been dropped.
+            Assert.IsNull(props.FirstOrDefault(p => p.Name == "Expression"));
+        }
+
+        [Test, NonParallelizable]
+        public async Task ExternalTypePropertyResolvedFromNuGetCache()
+        {
+            // External type whose Identity is not a framework type but whose Package can be located in the
+            // NuGet cache: the dynamic-loading fallback resolves the type and the property is emitted.
+            // Marked NonParallelizable because the test mutates the process-wide NUGET_PACKAGES env var
+            // and the static external-type resolver state.
+            var tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
+            var nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
+            Directory.CreateDirectory(nugetCacheDir);
+
+            const string pkgName = "Test.ModelProvider.External";
+            const string typeName = "Test.ModelProvider.External.MyExternalType";
+            FakeNuGetPackage.Create(
+                nugetCacheDir,
+                pkgName,
+                "1.0.0",
+                $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
+
+            var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+            ExternalTypeReferenceResolver.Reset();
+            try
+            {
+                var external = new InputExternalTypeMetadata(typeName, pkgName, null);
+                var externalUnion = InputFactory.Union([InputPrimitiveType.String], "ExternalUnion", external);
+                var model = InputFactory.Model(
+                    "ModelWithResolvableExternal",
+                    properties:
+                    [
+                        InputFactory.Property("dynamic", externalUnion),
+                        InputFactory.Property("name", InputPrimitiveType.String)
+                    ]);
+
+                MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+                var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                    .SingleOrDefault(t => t.Name == "ModelWithResolvableExternal") as ModelProvider;
+                Assert.IsNotNull(modelProvider);
+
+                var dynamicProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Dynamic");
+                Assert.IsNotNull(dynamicProp, "Dynamically-resolved external property should be emitted, not skipped.");
+                Assert.IsNotNull(dynamicProp!.Type.FrameworkType);
+                Assert.AreEqual(typeName, dynamicProp.Type.FrameworkType.FullName);
+
+                var nameProp = modelProvider.Properties.FirstOrDefault(p => p.Name == "Name");
+                Assert.IsNotNull(nameProp);
+            }
+            finally
+            {
+                ExternalTypeReferenceResolver.Reset();
+                Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
+                Directory.Delete(tempDir, true);
+            }
         }
 
         [Test]
@@ -1792,7 +2214,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Without ProcessTypeForBackCompatibility, constructor should be private protected
             var privateProtectedConstructor = modelProvider!.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
                     && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
@@ -1802,7 +2224,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
             var publicConstructor = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
@@ -1838,6 +2260,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(2, propertyType.Arguments.Count, "Dictionary should have 2 type arguments");
             Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
             Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
+        }
+
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_OutputOnly_NoField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_Input_NoField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_InputAndOutput_NoField")]
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml, true, TestName = "JsonAndXml_Output_HasField")]
+        [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml, true, TestName = "JsonAndXml_InputAndOutput_HasField")]
+        [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Json, true, TestName = "JsonOnly_Output_HasField")]
+        public void TestBuildRawDataField_BasedOnUsage(InputModelTypeUsage usage, bool shouldHaveField)
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: usage,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            var rawDataField = modelProvider.Fields.FirstOrDefault(f => f.Name == "_additionalBinaryDataProperties");
+            if (shouldHaveField)
+            {
+                Assert.IsNotNull(rawDataField, "Expected _additionalBinaryDataProperties field to be generated");
+            }
+            else
+            {
+                Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
         }
     }
 }

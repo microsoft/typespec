@@ -962,14 +962,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             protected override string BuildName() => "TestMrwSerialization";
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 return _implementsPersistableModel
                     ? [new CSharpType(typeof(IPersistableModel<object>))]
                     : [new CSharpType(typeof(IJsonModel<object>))];
             }
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 if (!_includeTypeWithDepModelProperty)
                 {
@@ -1021,7 +1021,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
             }
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 // Don't implement MRW interfaces
                 return [];
@@ -1040,7 +1040,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
             }
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 // Implement a framework type that does not implement MRW interfaces
                 return
@@ -1492,7 +1492,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             protected override string BuildName() => "CustomSerializationProvider";
             protected override string BuildRelativeFilePath() => "CustomSerializationProvider.cs";
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 return [new CSharpType(_usePersistableModel ? typeof(IPersistableModel<object>) : typeof(IJsonModel<object>))];
             }
@@ -1529,7 +1529,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             protected override string BuildRelativeFilePath() => "TestClient.cs";
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_returnTypeModel);
                 var returnType = new CSharpType(typeof(System.Threading.Tasks.Task<>), modelProvider!);
@@ -1560,7 +1560,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             protected override string BuildRelativeFilePath() => "TestClient.cs";
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var returnType = new CSharpType(typeof(FrameworkModelWithMRW));
 

@@ -12,7 +12,7 @@ catalog:
   "@alloy-js/csharp": ^0.23.0
   "@alloy-js/markdown": ^0.23.0
   "@alloy-js/msbuild": ^0.23.0
-  "@alloy-js/python": ^0.3.0
+  "@alloy-js/python": ^0.4.0
   "@alloy-js/rollup-plugin": ^0.1.1
   "@alloy-js/typescript": ^0.23.0
   "@astrojs/check": ^0.9.8
@@ -89,7 +89,7 @@ catalog:
   "@yarnpkg/plugin-pnp": ^4.1.3
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
-  astro: ^6.1.8
+  astro: ^6.1.10
   astro-expressive-code: ^0.41.7
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^11.0.0
@@ -112,7 +112,7 @@ catalog:
   eslint-plugin-unicorn: ^64.0.0
   execa: ^9.6.1
   express: ^5.2.1
-  fast-xml-parser: ^5.5.9
+  fast-xml-parser: ^5.7.0
   happy-dom: ^20.9.0
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
@@ -146,7 +146,7 @@ catalog:
   rollup-plugin-visualizer: 7.0.1
   semver: ^7.7.4
   sharp: ^0.34.5
-  simple-git: ^3.35.2
+  simple-git: ^3.36.0
   source-map-support: ^0.5.21
   storybook: ^10.3.5
   strip-json-comments: ^5.0.3
@@ -189,3 +189,4 @@ overrides:
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"
+  "@alloy-js/core": 0.23.1

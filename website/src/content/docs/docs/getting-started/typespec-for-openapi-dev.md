@@ -485,13 +485,16 @@ To get multiple `content` entries with different schemas, use a union type.
 @tag("Response Content")
 @route("/response-content")
 namespace ResponseContent {
-  @get op read(@path id: string): Widget | {
-    @header contentType: "text/html";
-    @body _: string;
-  } | {
-    @header contentType: "image/jpeg";
-    @body _: bytes;
-  };
+  @get op read(@path id: string):
+    | Widget
+    | {
+        @header contentType: "text/html";
+        @body _: string;
+      }
+    | {
+        @header contentType: "image/jpeg";
+        @body _: bytes;
+      };
 }
 ```
 
