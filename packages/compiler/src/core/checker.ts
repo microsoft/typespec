@@ -40,6 +40,10 @@ import {
 import type { Program } from "./program.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
+  ResolutionKind as NewResolutionKind,
+  TypeResolver,
+} from "./type-resolver.js";
+import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isArrayModelType,
@@ -529,6 +533,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const typeResolver = new TypeResolver();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -2729,6 +2734,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (opSymId) {
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (opSymId && ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: opSymId,
+        node: opReference,
+        description: `Operation '${opSymId.name}' is`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-op-signature",
+            format: { typeName: opSymId.name },
+            target: opReference,
+          }),
+        );
+        if (opSymId) {
+          pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+        }
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(opReference).resolvedSymbol;
 
@@ -2742,8 +2769,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: opReference,
           }),
         );
-      }
 
+        if (opSymId) {
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.BaseType,
+            sym: opSymId,
+            node: opReference,
+            description: `Operation '${opSymId.name}' is`,
+          });
+        }
+      }
+      if (opSymId) {
+        pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+      }
       return undefined;
     }
 
@@ -2751,6 +2789,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const baseOperation = getTypeForNode(opReference, ctx);
     if (opSymId) {
       pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+    }
+    if (opSymId && ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: opSymId,
+        node: opReference,
+        description: `Operation '${opSymId.name}' is`,
+      });
     }
 
     if (isErrorType(baseOperation)) {
@@ -6355,6 +6401,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: heritageRef,
+        description: `Model '${modelSymId.name}' extends`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: modelSymId.name },
+            target: heritageRef,
+          }),
+        );
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(heritageRef).resolvedSymbol;
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
@@ -6366,11 +6432,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: target,
           }),
         );
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: heritageRef,
+          description: `Model '${modelSymId.name}' extends`,
+        });
       }
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
     const heritageType = getTypeForNode(heritageRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: heritageRef,
+        description: `Model '${modelSymId.name}' extends`,
+      });
+    }
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -6403,6 +6484,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: isExpr,
+        description: `Model '${modelSymId.name}' is`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: modelSymId.name },
+            target: isExpr,
+          }),
+        );
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
     let isType;
     if (isExpr.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
@@ -6412,6 +6513,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: isExpr,
         }),
       );
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: isExpr,
+          description: `Model '${modelSymId.name}' is`,
+        });
+      }
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(ctx, isExpr);
@@ -6426,16 +6536,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               target: target,
             }),
           );
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.BaseType,
+            sym: modelSymId,
+            node: isExpr,
+            description: `Model '${modelSymId.name}' is`,
+          });
         }
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
       }
       isType = getTypeForNode(isExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: isExpr,
+          description: `Model '${modelSymId.name}' is`,
+        });
+      }
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
 
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: isExpr,
+        description: `Model '${modelSymId.name}' is`,
+      });
+    }
 
     if (isType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
@@ -7155,6 +7289,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Scalar | undefined {
     const symId = getNodeSym(scalar);
     pendingResolutions.start(symId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: symId,
+        node: extendsRef,
+        description: `Scalar '${symId.name}' extends`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: symId.name },
+            target: extendsRef,
+          }),
+        );
+        pendingResolutions.finish(symId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
 
@@ -7167,11 +7321,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: target,
           }),
         );
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: symId,
+          node: extendsRef,
+          description: `Scalar '${symId.name}' extends`,
+        });
       }
+      pendingResolutions.finish(symId, ResolutionKind.BaseType);
       return undefined;
     }
     const extendsType = getTypeForNode(extendsRef, ctx);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: symId,
+        node: extendsRef,
+        description: `Scalar '${symId.name}' extends`,
+      });
+    }
     if (isErrorType(extendsType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", extendsRef);
       return undefined;
