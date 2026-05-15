@@ -26,7 +26,7 @@ from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType
 
 
-def _get_xml_deserializer_name(prop: Property) -> Optional[str]:
+def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
     """Return the _xml_deser_* function name for a scalar XML property, or None."""
     prop_type = prop.type
     # Unwrap ConstantType to get the underlying value type
