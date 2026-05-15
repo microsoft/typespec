@@ -2097,7 +2097,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const description = `${awaitingType.kind}${
-      "name" in awaitingType ? ` '${awaitingType.name}'` : ""
+      "name" in awaitingType ? ` '${String(awaitingType.name)}'` : ""
     }`;
 
     function check() {
@@ -4144,7 +4144,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         description: `Member '${memberName}' of ${containerType.kind} '${containerName}'`,
       };
       const result = typeResolver.startResolution(request);
-      if (result.cycle) {
+      if (result.status === "cycle") {
         // Cycle in member resolution — return undefined to propagate the error
         typeResolver.finishResolution(request);
         return undefined;
