@@ -2,6 +2,18 @@ import { compilerAssert } from "./diagnostics.js";
 import type { Node, Sym, Type } from "./types.js";
 
 /**
+ * Signal thrown when a check function encounters a dependency that isn't
+ * resolved yet and should be deferred via the queue. This is caught by the
+ * queue's processUntilFixpoint loop — it must never escape to user code.
+ */
+export class DeferralSignal {
+  readonly stalledOn: Sym[];
+  constructor(stalledOn: Sym[]) {
+    this.stalledOn = stalledOn;
+  }
+}
+
+/**
  * Represents the status of a check item in the queue.
  */
 export enum CheckItemStatus {
@@ -102,6 +114,18 @@ export class CheckQueue {
   readonly #ready: CheckItem[] = [];
   #readyIndex = 0;
 
+  /** The item currently being processed by the queue, if any. */
+  #activeItem: CheckItem | undefined;
+
+  /**
+   * Returns the queue item currently being processed, or undefined if
+   * no queue processing is in progress. Used by check functions to
+   * determine whether they can throw DeferralSignal.
+   */
+  get activeItem(): CheckItem | undefined {
+    return this.#activeItem;
+  }
+
   /**
    * Register a declaration to be checked.
    * @returns The created CheckItem
@@ -200,7 +224,6 @@ export class CheckQueue {
       item.status === CheckItemStatus.InProgress,
       `Cannot defer item: status is '${item.status}', expected 'in-progress'`,
     );
-    compilerAssert(stalledOn.length > 0, "Cannot defer with empty stalledOn list");
 
     item.status = CheckItemStatus.Deferred;
     item.stalledOn.clear();
@@ -211,14 +234,11 @@ export class CheckQueue {
         item.stalledOn.add(depSym);
         depItem.dependents.add(item);
       }
-      // If the dependency is already done or not in the queue, don't stall on it
     }
 
-    // If all dependencies were actually already resolved, re-queue immediately
-    if (item.stalledOn.size === 0) {
-      item.status = CheckItemStatus.Pending;
-      this.#ready.push(item);
-    }
+    // If all specified dependencies were already resolved (or none specified),
+    // the item stays deferred — it will be re-queued by the outer fixpoint
+    // loop if progress was made in the current iteration.
   }
 
   /**
@@ -226,8 +246,8 @@ export class CheckQueue {
    */
   markError(item: CheckItem): void {
     compilerAssert(
-      item.status === CheckItemStatus.InProgress,
-      `Cannot mark item as error: status is '${item.status}', expected 'in-progress'`,
+      item.status === CheckItemStatus.InProgress || item.status === CheckItemStatus.Deferred,
+      `Cannot mark item as error: status is '${item.status}', expected 'in-progress' or 'deferred'`,
     );
     item.status = CheckItemStatus.Error;
     item.stalledOn.clear();
@@ -259,7 +279,9 @@ export class CheckQueue {
    * Process the queue until fixpoint using a checker callback.
    *
    * The callback receives a CheckItem and should attempt to check it.
-   * It must call markDone, markDeferred, or markError on the item before returning.
+   * It must call markDone, markDeferred, or markError on the item before returning,
+   * OR the check function may throw a DeferralSignal which the queue catches and
+   * converts to a markDeferred call.
    *
    * @returns Result containing completed items, errored items, and cycle groups
    */
@@ -267,18 +289,55 @@ export class CheckQueue {
     const completed: CheckItem[] = [];
     const errored: CheckItem[] = [];
 
-    // Process ready items until none remain
-    let item: CheckItem | undefined;
-    while ((item = this.dequeue()) !== undefined) {
-      this.markInProgress(item);
-      check(item);
+    // Outer fixpoint loop: keep iterating as long as progress is made.
+    // "Progress" means at least one item completed in this iteration.
+    let madeProgress = true;
+    while (madeProgress) {
+      madeProgress = false;
 
-      if (item.status === CheckItemStatus.Done) {
-        completed.push(item);
-      } else if (item.status === CheckItemStatus.Error) {
-        errored.push(item);
+      // Process all ready items in this iteration
+      let item: CheckItem | undefined;
+      while ((item = this.dequeue()) !== undefined) {
+        this.markInProgress(item);
+        this.#activeItem = item;
+
+        try {
+          check(item);
+        } catch (e) {
+          if (e instanceof DeferralSignal) {
+            // The check function detected a dependency it can't resolve yet.
+            if (item.status === CheckItemStatus.InProgress) {
+              this.markDeferred(item, e.stalledOn);
+            }
+          } else {
+            this.#activeItem = undefined;
+            throw e;
+          }
+        }
+
+        this.#activeItem = undefined;
+
+        if (item.status === CheckItemStatus.Done) {
+          completed.push(item);
+          madeProgress = true;
+        } else if (item.status === CheckItemStatus.Error) {
+          errored.push(item);
+          madeProgress = true;
+        }
       }
-      // Deferred items will be re-queued when their dependencies complete
+
+      // If we made progress, re-queue all deferred items for another attempt.
+      // Their dependencies may have been resolved in this iteration.
+      if (madeProgress) {
+        for (const entry of this.#items.values()) {
+          if (entry.status === CheckItemStatus.Deferred) {
+            entry.status = CheckItemStatus.Pending;
+            entry.stalledOn.clear();
+            this.#ready.push(entry);
+          }
+        }
+        this.#readyIndex = 0;
+      }
     }
 
     // Anything still deferred at this point is part of a circular dependency

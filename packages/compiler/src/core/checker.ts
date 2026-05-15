@@ -4,7 +4,7 @@ import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
-import { CheckItemStatus, CheckQueue } from "./check-queue.js";
+import { CheckItemStatus, CheckQueue, DeferralSignal } from "./check-queue.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
   createModelToObjectValueCodeFix,
@@ -539,6 +539,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * and retried until a fixpoint is reached.
    */
   const checkQueue = new CheckQueue();
+
+  /**
+   * When inside a queue-managed check, check whether a declaration should be
+   * deferred rather than checked inline via DFS. Returns true and throws
+   * DeferralSignal if the target declaration is in the queue but not yet done.
+   *
+   * @param sym The symbol of the declaration about to be checked via DFS
+   * @returns false if DFS should proceed as normal
+   * @throws DeferralSignal if the active queue item should defer on this symbol
+   */
+  function maybeDeferOnQueuedDeclaration(sym: Sym): false {
+    const activeItem = checkQueue.activeItem;
+    if (activeItem === undefined) {
+      // Not inside queue processing — fall through to DFS
+      return false;
+    }
+
+    if (sym === activeItem.sym) {
+      // We're checking the active item itself — don't defer on ourselves
+      return false;
+    }
+
+    const depItem = checkQueue.get(sym);
+    if (depItem === undefined) {
+      // Not a queue-managed declaration
+      return false;
+    }
+
+    if (depItem.status === CheckItemStatus.Done || depItem.status === CheckItemStatus.Error) {
+      // Already completed — DFS will find cached type
+      return false;
+    }
+
+    // The target declaration hasn't been checked yet. Defer the active
+    // queue item so the queue can process the dependency first.
+    throw new DeferralSignal([sym]);
+  }
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -4803,12 +4840,39 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     seedCheckQueue(deferredStatements);
 
     // Phase 2: Process declarations via the worklist/fixpoint queue.
-    checkQueue.processUntilFixpoint((item) => {
-      checkNode(CheckContext.DEFAULT, item.node, undefined);
-      if (item.status === CheckItemStatus.InProgress) {
-        checkQueue.markDone(item);
+    // DeferralSignal is caught by the queue's processUntilFixpoint when a
+    // declaration's DFS encounters an unchecked queued dependency.
+    // We snapshot pendingResolutions before each item so we can restore on deferral.
+    const queueResult = checkQueue.processUntilFixpoint((item) => {
+      pendingResolutions.snapshot();
+      try {
+        checkNode(CheckContext.DEFAULT, item.node, undefined);
+        if (item.status === CheckItemStatus.InProgress) {
+          checkQueue.markDone(item);
+        }
+        pendingResolutions.discardSnapshot();
+      } catch (e) {
+        if (e instanceof DeferralSignal) {
+          // Restore pendingResolutions to pre-check state since the
+          // DFS was interrupted and start/finish pairs didn't balance.
+          pendingResolutions.restore();
+          throw e; // Re-throw so processUntilFixpoint can handle the deferral
+        }
+        pendingResolutions.discardSnapshot();
+        throw e;
       }
     });
+
+    // Items remaining after fixpoint are true circular dependencies.
+    // Force-check them to produce the existing circular error diagnostics.
+    for (const cycle of queueResult.cycles) {
+      for (const item of cycle) {
+        if (item.status !== CheckItemStatus.Done && item.status !== CheckItemStatus.Error) {
+          checkNode(CheckContext.DEFAULT, item.node, undefined);
+          checkQueue.markError(item);
+        }
+      }
+    }
 
     // Phase 3: Process non-declaration statements (augment decorators,
     // call expressions, etc.) that may reference the checked declarations.
@@ -8763,6 +8827,7 @@ enum ResolutionKind {
 
 class PendingResolutions {
   #data = new Map<Sym, Set<ResolutionKind>>();
+  #snapshots: Map<Sym, Set<ResolutionKind>>[] = [];
 
   start(symId: Sym, kind: ResolutionKind) {
     let existing = this.#data.get(symId);
@@ -8786,6 +8851,28 @@ class PendingResolutions {
     if (existing.size === 0) {
       this.#data.delete(symId);
     }
+  }
+
+  /** Save a snapshot of the current state. Used before queue item processing. */
+  snapshot(): void {
+    const copy = new Map<Sym, Set<ResolutionKind>>();
+    for (const [sym, kinds] of this.#data) {
+      copy.set(sym, new Set(kinds));
+    }
+    this.#snapshots.push(copy);
+  }
+
+  /** Restore the last snapshot (discard changes since snapshot). Used on deferral. */
+  restore(): void {
+    const snap = this.#snapshots.pop();
+    if (snap) {
+      this.#data = snap;
+    }
+  }
+
+  /** Discard the last snapshot without restoring. Used on successful completion. */
+  discardSnapshot(): void {
+    this.#snapshots.pop();
   }
 }
 

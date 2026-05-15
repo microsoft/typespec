@@ -3,6 +3,7 @@ import {
   CheckItemStatus,
   CheckQueue,
   CheckResult,
+  DeferralSignal,
   type CheckItem,
 } from "../../src/core/check-queue.js";
 import type { Node, Sym } from "../../src/core/types.js";
@@ -174,14 +175,13 @@ describe("CheckQueue", () => {
       queue.markInProgress(itemA);
       queue.markDone(itemA);
 
-      // B tries to defer on A, but A is already done
+      // B tries to defer on A, but A is already done.
+      // B stays deferred; the fixpoint loop will re-queue it.
       queue.dequeue(); // B
       queue.markInProgress(itemB);
       queue.markDeferred(itemB, [symA]);
 
-      // B should be re-queued immediately
-      expect(itemB.status).toBe(CheckItemStatus.Pending);
-      expect(queue.dequeue()).toBe(itemB);
+      expect(itemB.status).toBe(CheckItemStatus.Deferred);
     });
   });
 
@@ -469,6 +469,133 @@ describe("CheckQueue", () => {
 
       queue.register(createMockSym("B"), createMockNode());
       expect(queue.size).toBe(2);
+    });
+  });
+
+  describe("DeferralSignal", () => {
+    it("catches DeferralSignal and marks item as deferred", () => {
+      const queue = new CheckQueue();
+      const symA = createMockSym("A");
+      const symB = createMockSym("B");
+      queue.register(symA, createMockNode());
+      queue.register(symB, createMockNode());
+
+      let aAttempts = 0;
+      const result = queue.processUntilFixpoint((item) => {
+        if (item.sym === symA) {
+          aAttempts++;
+          if (aAttempts === 1) {
+            // First attempt: A can't resolve because B isn't done
+            throw new DeferralSignal([symB]);
+          }
+          // Second attempt: B is done now, A can complete
+          queue.markDone(item);
+        } else {
+          queue.markDone(item);
+        }
+      });
+
+      expect(aAttempts).toBe(2);
+      expect(result.completed.length).toBe(2);
+      expect(result.cycles.length).toBe(0);
+    });
+
+    it("detects fixpoint when all items defer on each other", () => {
+      const queue = new CheckQueue();
+      const symA = createMockSym("A");
+      const symB = createMockSym("B");
+      queue.register(symA, createMockNode());
+      queue.register(symB, createMockNode());
+
+      const result = queue.processUntilFixpoint((item) => {
+        // Both items always defer — true cycle
+        if (item.sym === symA) {
+          throw new DeferralSignal([symB]);
+        } else {
+          throw new DeferralSignal([symA]);
+        }
+      });
+
+      expect(result.completed.length).toBe(0);
+      expect(result.cycles.length).toBeGreaterThan(0);
+    });
+
+    it("retries deferred items when progress is made", () => {
+      const queue = new CheckQueue();
+      const symA = createMockSym("A");
+      const symB = createMockSym("B");
+      const symC = createMockSym("C");
+      queue.register(symA, createMockNode());
+      queue.register(symB, createMockNode());
+      queue.register(symC, createMockNode());
+
+      // A defers on first try, B defers on first try, C succeeds.
+      // After C succeeds, A and B should be retried.
+      let aAttempts = 0;
+      let bAttempts = 0;
+      const result = queue.processUntilFixpoint((item) => {
+        if (item.sym === symA) {
+          aAttempts++;
+          if (aAttempts === 1) throw new DeferralSignal([]);
+          queue.markDone(item);
+        } else if (item.sym === symB) {
+          bAttempts++;
+          if (bAttempts === 1) throw new DeferralSignal([]);
+          queue.markDone(item);
+        } else {
+          queue.markDone(item);
+        }
+      });
+
+      expect(aAttempts).toBe(2);
+      expect(bAttempts).toBe(2);
+      expect(result.completed.length).toBe(3);
+      expect(result.cycles.length).toBe(0);
+    });
+
+    it("sets activeItem during check callback", () => {
+      const queue = new CheckQueue();
+      const symA = createMockSym("A");
+      queue.register(symA, createMockNode());
+
+      let capturedActiveItem: CheckItem | undefined;
+      queue.processUntilFixpoint((item) => {
+        capturedActiveItem = queue.activeItem;
+        queue.markDone(item);
+      });
+
+      expect(capturedActiveItem).toBeDefined();
+      expect(capturedActiveItem!.sym).toBe(symA);
+      // After processing, activeItem should be cleared
+      expect(queue.activeItem).toBeUndefined();
+    });
+
+    it("clears activeItem after DeferralSignal", () => {
+      const queue = new CheckQueue();
+      const symA = createMockSym("A");
+      queue.register(symA, createMockNode());
+
+      let attempt = 0;
+      queue.processUntilFixpoint((item) => {
+        attempt++;
+        if (attempt === 1) {
+          throw new DeferralSignal([]);
+        }
+        // Won't reach here — item defers and no progress means fixpoint
+      });
+
+      expect(queue.activeItem).toBeUndefined();
+    });
+
+    it("re-throws non-DeferralSignal errors", () => {
+      const queue = new CheckQueue();
+      queue.register(createMockSym("A"), createMockNode());
+
+      expect(() => {
+        queue.processUntilFixpoint(() => {
+          throw new Error("unexpected");
+        });
+      }).toThrow("unexpected");
     });
   });
 });
