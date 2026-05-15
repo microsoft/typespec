@@ -4525,6 +4525,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    // If the type is still being created (e.g., model A is Template<{t: B}> where B
+    // references A.t), check if we can find the member from its `is` base or spreads
+    // that are already resolved.
+    if (type.creating && type.kind === "Model") {
+      const memberFromCreating = tryResolveMemberFromCreatingModel(ctx, type, node.id.sv);
+      if (memberFromCreating) {
+        return memberFromCreating;
+      }
+    }
+
     // Late-bind the container and its members.
     switch (type.kind) {
       case "Model":
@@ -4540,6 +4550,178 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return getCanonicalResolvedMemberSymbol(type, node.id.sv);
+  }
+
+  /**
+   * Try to resolve a member from a model that is still being created.
+   * This handles the case where `model A is Template<{t: B}>` and B references `A.t`.
+   * The member 't' comes from the `is` base (the template instantiation) which may
+   * already have its properties resolved even though A hasn't copied them yet.
+   */
+  function tryResolveMemberFromCreatingModel(
+    ctx: CheckContext,
+    model: Model,
+    memberName: string,
+  ): Sym | undefined {
+    // First check if the model already has the property (from its own declared properties)
+    const existingProp = model.properties.get(memberName);
+    if (existingProp) {
+      return getTypeSymbol(existingProp) ?? undefined;
+    }
+
+    // Check the model's AST node for `is` base and spreads
+    const modelNode = model.node;
+    if (!modelNode || modelNode.kind !== SyntaxKind.ModelStatement) {
+      return undefined;
+    }
+
+    // If there's an `is` clause, resolve the `is` expression type.
+    // getTypeForNode will return a cached type if the `is` target was already checked.
+    if (modelNode.is) {
+      const isBaseType = getTypeForNode(modelNode.is, ctx);
+      if (isBaseType && isBaseType.kind === "Model") {
+        // First check if the is-base already has the member (even if creating)
+        const prop = isBaseType.properties.get(memberName);
+        if (prop) {
+          return createLateBoundMemberSym(model, prop, memberName, modelNode);
+        }
+        // If the is-base is still creating, look at ITS spread sources recursively
+        if (isBaseType.creating) {
+          const found = findMemberInCreatingModelSources(ctx, isBaseType, memberName);
+          if (found) {
+            return createLateBoundMemberSym(model, found, memberName, modelNode);
+          }
+        }
+      }
+    }
+
+    // Check spread targets
+    for (const propNode of modelNode.properties) {
+      if (propNode.kind === SyntaxKind.ModelSpreadProperty) {
+        const spreadType = getTypeForNode(propNode.target, ctx);
+        if (spreadType && spreadType.kind === "Model") {
+          const prop = spreadType.properties.get(memberName);
+          if (prop) {
+            return createLateBoundMemberSym(model, prop, memberName, modelNode);
+          }
+          if (spreadType.creating) {
+            const found = findMemberInCreatingModelSources(ctx, spreadType, memberName);
+            if (found) {
+              return createLateBoundMemberSym(model, found, memberName, modelNode);
+            }
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  function createLateBoundMemberSym(
+    model: Model,
+    prop: ModelProperty,
+    memberName: string,
+    containerNode: Node,
+  ): Sym | undefined {
+    const sym = createSymbol(
+      prop.node ?? containerNode,
+      memberName,
+      SymbolFlags.Member | SymbolFlags.Declaration | SymbolFlags.LateBound,
+      model.symbol,
+    );
+    mutate(sym).type = prop;
+    if (model.symbol?.members) {
+      const containerMembers: Mutable<SymbolTable> = resolver.getAugmentedSymbolTable(
+        model.symbol.members,
+      );
+      containerMembers.set(memberName, sym);
+    }
+    return sym;
+  }
+
+  /**
+   * Search for a member in a model that's still being created by looking at its
+   * source models (spreads and `is` targets). This handles the case where:
+   *   model Template<T> {...T}
+   *   model A is Template<{t: B}>
+   * When A is creating and its properties haven't been copied yet, we can look
+   * at Template<{t:B}>'s spread sources to find property `t`.
+   */
+  function findMemberInCreatingModelSources(
+    ctx: CheckContext,
+    model: Model,
+    memberName: string,
+    visited: Set<Model> = new Set(),
+  ): ModelProperty | undefined {
+    if (visited.has(model)) return undefined;
+    visited.add(model);
+
+    // Check own properties first (already resolved)
+    const ownProp = model.properties.get(memberName);
+    if (ownProp) return ownProp;
+
+    // Look at the model's AST node for spread sources.
+    // Use the model's templateMapper when resolving references in its body,
+    // since template instances share the same AST node as the template declaration.
+    const modelNode = model.node;
+    if (!modelNode) return undefined;
+
+    const resolveCtx = model.templateMapper ? ctx.withMapper(model.templateMapper) : ctx;
+
+    if (
+      modelNode.kind === SyntaxKind.ModelStatement ||
+      modelNode.kind === SyntaxKind.ModelExpression
+    ) {
+      // Check direct property declarations that might not be resolved yet.
+      // If the model expression has `t: B` as a declared property but hasn't
+      // been fully checked, we can still resolve the property from its member symbol.
+      // Due to early linkType on properties, the symbol may already have a type.
+      if (model.creating) {
+        const memberSym = model.node?.symbol?.members
+          ? getMemberSymbol(model.node.symbol, memberName)
+          : undefined;
+        if (memberSym) {
+          const memberLinks = resolver.getSymbolLinks(memberSym);
+          if (memberLinks.declaredType && memberLinks.declaredType.kind === "ModelProperty") {
+            return memberLinks.declaredType as ModelProperty;
+          }
+        }
+      }
+
+      for (const propNode of modelNode.properties) {
+        if (propNode.kind === SyntaxKind.ModelSpreadProperty) {
+          const spreadType = getTypeForNode(propNode.target, resolveCtx);
+          if (spreadType && spreadType.kind === "Model") {
+            const prop = spreadType.properties.get(memberName);
+            if (prop) return prop;
+            if (spreadType.creating) {
+              const found = findMemberInCreatingModelSources(ctx, spreadType, memberName, visited);
+              if (found) return found;
+            }
+          }
+        }
+      }
+
+      // For model statements, also check the `is` base
+      if (modelNode.kind === SyntaxKind.ModelStatement && modelNode.is) {
+        const isBaseType = getTypeForNode(modelNode.is, resolveCtx);
+        if (isBaseType && isBaseType.kind === "Model") {
+          const prop = isBaseType.properties.get(memberName);
+          if (prop) return prop;
+          if (isBaseType.creating) {
+            const found = findMemberInCreatingModelSources(
+              ctx,
+              isBaseType,
+              memberName,
+              visited,
+            );
+            if (found) return found;
+          }
+        }
+      }
+    }
+
+    return undefined;
   }
 
   function getMemberKindName(node: Node) {
@@ -5092,6 +5274,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       derivedModels: [],
     });
     linkType(ctx, links, type);
+    // Set templateMapper early so that member lookups on this creating model
+    // can resolve spread targets through the correct mapper context.
+    linkMapper(type, ctx.mapper);
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
@@ -5157,7 +5342,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
         decorators.push(...checkDecorators(ctx, type, node));
 
-        linkMapper(type, ctx.mapper);
         finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
 
         lateBindMemberContainer(type);
