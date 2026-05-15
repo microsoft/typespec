@@ -4,6 +4,7 @@ import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
+import { CheckItemStatus, CheckQueue } from "./check-queue.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
   createModelToObjectValueCodeFix,
@@ -135,6 +136,7 @@ import {
   SignatureFunctionParameter,
   StdTypeName,
   StdTypes,
+  Statement,
   StringLiteral,
   StringLiteralNode,
   StringTemplate,
@@ -530,6 +532,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   const pendingResolutions = new PendingResolutions();
   const postCheckValidators: ValidatorFn[] = [];
+
+  /**
+   * Queue for worklist-based type checking of top-level declarations.
+   * Declarations that can't be checked due to unresolved dependencies are deferred
+   * and retried until a fixpoint is reached.
+   */
+  const checkQueue = new CheckQueue();
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -4788,13 +4797,109 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    for (const file of program.sourceFiles.values()) {
-      checkSourceFile(file);
+    // Phase 1: Seed the check queue with all declaration statements
+    // and collect non-declaration statements for later processing.
+    const deferredStatements: Statement[] = [];
+    seedCheckQueue(deferredStatements);
+
+    // Phase 2: Process declarations via the worklist/fixpoint queue.
+    checkQueue.processUntilFixpoint((item) => {
+      checkNode(CheckContext.DEFAULT, item.node, undefined);
+      if (item.status === CheckItemStatus.InProgress) {
+        checkQueue.markDone(item);
+      }
+    });
+
+    // Phase 3: Process non-declaration statements (augment decorators,
+    // call expressions, etc.) that may reference the checked declarations.
+    for (const statement of deferredStatements) {
+      checkNode(CheckContext.DEFAULT, statement, undefined);
     }
 
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
+  }
+
+  /**
+   * Seed the check queue with declaration statements from all source files.
+   * Non-declaration statements are collected into deferredStatements for
+   * processing after the queue.
+   */
+  function seedCheckQueue(deferredStatements: Statement[]) {
+    for (const file of program.sourceFiles.values()) {
+      seedStatementsIntoQueue(file.statements, deferredStatements);
+    }
+  }
+
+  /**
+   * Process a list of statements, queuing declarations and collecting
+   * non-declaration statements. Recurses into namespaces.
+   */
+  function seedStatementsIntoQueue(
+    statements: readonly Statement[],
+    deferredStatements: Statement[],
+  ) {
+    for (const statement of statements) {
+      if (isQueueableStatement(statement)) {
+        checkQueue.register(statement.symbol, statement);
+      } else if (statement.kind === SyntaxKind.NamespaceStatement) {
+        seedNamespaceIntoQueue(statement, deferredStatements);
+      } else {
+        // Statements like augment decorators, call expressions, using statements,
+        // decorator/function declarations — defer until after declarations are checked
+        deferredStatements.push(statement);
+      }
+    }
+  }
+
+  /**
+   * Process a namespace statement: check its modifiers and recurse into
+   * contained statements to queue declarations.
+   */
+  function seedNamespaceIntoQueue(
+    node: NamespaceStatementNode,
+    deferredStatements: Statement[],
+  ) {
+    // Validate namespace modifiers (e.g., 'internal' is not allowed on namespaces)
+    checkModifiers(program, node);
+    if (isArray(node.statements)) {
+      seedStatementsIntoQueue(node.statements, deferredStatements);
+    } else if (node.statements) {
+      // Nested namespace (e.g., `namespace A.B { ... }`)
+      seedNamespaceIntoQueue(node.statements, deferredStatements);
+    }
+  }
+
+  /**
+   * Determine if a statement should be added to the check queue.
+   * Declaration statements that produce types are queued; everything else
+   * is checked inline.
+   */
+  function isQueueableStatement(
+    node: Statement,
+  ): node is
+    | ModelStatementNode
+    | ScalarStatementNode
+    | AliasStatementNode
+    | EnumStatementNode
+    | InterfaceStatementNode
+    | UnionStatementNode
+    | OperationStatementNode
+    | ConstStatementNode {
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.ScalarStatement:
+      case SyntaxKind.AliasStatement:
+      case SyntaxKind.EnumStatement:
+      case SyntaxKind.InterfaceStatement:
+      case SyntaxKind.UnionStatement:
+      case SyntaxKind.OperationStatement:
+      case SyntaxKind.ConstStatement:
+        return true;
+      default:
+        return false;
+    }
   }
 
   function assertNoPendingResolutions() {
