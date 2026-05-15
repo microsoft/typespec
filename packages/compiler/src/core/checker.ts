@@ -4343,6 +4343,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return symbol;
     }
 
+    // When the member wasn't found but the container has unknown members (e.g. from
+    // template spreads or `is`), force-check the container type so that late-bound
+    // members become available, then retry the lookup.
+    if (node.selector === "." && base.flags & SymbolFlags.MemberContainer) {
+      const resolvedMember = tryForceResolveLateBoundMember(ctx, base, node);
+      if (resolvedMember) {
+        return resolvedMember;
+      }
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4397,6 +4407,52 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
     return undefined;
+  }
+
+  /**
+   * Attempt to resolve a late-bound member by force-checking the container type.
+   * This handles the case where a model has `hasUnknownMembers` (e.g. from template
+   * spreads or `is`) and the member only becomes known after the type is fully checked.
+   */
+  function tryForceResolveLateBoundMember(
+    ctx: CheckContext,
+    base: Sym,
+    node: MemberExpressionNode,
+  ): Sym | undefined {
+    const links = getSymbolLinks(base);
+    if (!links.hasUnknownMembers) {
+      return undefined;
+    }
+
+    // Don't force-check if the container is currently being resolved (cycle).
+    if (pendingResolutions.has(base, ResolutionKind.Type)) {
+      return undefined;
+    }
+
+    // Force-check the container type to populate its members.
+    pendingResolutions.start(base, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(ctx, base, node.base);
+    pendingResolutions.finish(base, ResolutionKind.Type);
+
+    if (isErrorType(type)) {
+      return undefined;
+    }
+
+    // Late-bind the container and its members.
+    switch (type.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+      case "Enum":
+      case "Scalar":
+        lateBindMemberContainer(type);
+        lateBindMembers(type);
+        break;
+      default:
+        return undefined;
+    }
+
+    return getCanonicalResolvedMemberSymbol(type, node.id.sv);
   }
 
   function getMemberKindName(node: Node) {
