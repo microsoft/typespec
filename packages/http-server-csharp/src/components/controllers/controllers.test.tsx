@@ -9,8 +9,8 @@ import {
   type OperationHttpCanonicalization,
 } from "@typespec/http-canonicalization";
 import { beforeEach, describe, expect, it } from "vitest";
-import { Controller } from "./controllers.jsx";
 import { BusinessLogicInterface } from "../interfaces/interfaces.jsx";
+import { Controller } from "./controllers.jsx";
 
 let runner: TesterInstance;
 

@@ -175,7 +175,9 @@ export function ControllerAction(props: ControllerActionProps): Children {
     <Attribute name={AspNetMvc.RouteAttribute} args={[`"${route}"`]} />,
   ];
   if (isMultipart) {
-    attributes.push(<Attribute name={AspNetMvc.ConsumesAttribute} args={[`"multipart/form-data"`]} />);
+    attributes.push(
+      <Attribute name={AspNetMvc.ConsumesAttribute} args={[`"multipart/form-data"`]} />,
+    );
   }
   if (responseTypeExpr) {
     attributes.push(

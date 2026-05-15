@@ -1,10 +1,10 @@
 import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { JsonSerialization } from "../utils/csharp-libs.jsx";
 import { isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
+import { JsonSerialization } from "../utils/csharp-libs.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
 import { CSharpFile } from "./csharp-file.jsx";
 import { TypeExpression } from "./type-expression/type-expression.jsx";
@@ -70,7 +70,12 @@ function RequestModelClass(props: RequestModelClassProps): Children {
           const propName = namePolicy.getName(property.name, "class-property");
           const attrs: Children[] = [];
           if (propName !== property.name) {
-            attrs.push(<Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${property.name}"`]} />);
+            attrs.push(
+              <Attribute
+                name={JsonSerialization.JsonPropertyNameAttribute}
+                args={[`"${property.name}"`]}
+              />,
+            );
           }
           return (
             <cs.Property

@@ -51,7 +51,9 @@ function isStatusCodeOnlyModel(model: Model): boolean {
 }
 
 /** Yields all properties from a model and its base models. */
-function* walkPropertiesInherited(model: Model): Iterable<import("@typespec/compiler").ModelProperty> {
+function* walkPropertiesInherited(
+  model: Model,
+): Iterable<import("@typespec/compiler").ModelProperty> {
   for (const prop of model.properties.values()) {
     yield prop;
   }

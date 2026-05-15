@@ -1,6 +1,5 @@
 import { type Children } from "@alloy-js/core";
 import { Attribute } from "@alloy-js/csharp";
-import { JsonSerialization } from "./csharp-libs.jsx";
 import {
   getEncode,
   getMaxItems,
@@ -20,6 +19,7 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { isUnionEnum } from "../components/enums/enums.jsx";
+import { JsonSerialization } from "./csharp-libs.jsx";
 
 /**
  * Maps a TypeSpec scalar name to the C# type name used in attributes.
@@ -97,7 +97,12 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
     property.type.kind === "Enum" ||
     (property.type.kind === "Union" && isUnionEnum(property.type))
   ) {
-    attrs.push(<Attribute name={JsonSerialization.JsonConverterAttribute} args={["typeof(JsonStringEnumConverter)"]} />);
+    attrs.push(
+      <Attribute
+        name={JsonSerialization.JsonConverterAttribute}
+        args={["typeof(JsonStringEnumConverter)"]}
+      />,
+    );
   }
 
   // Constraint attributes
@@ -135,18 +140,27 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
   switch (stdBase.name) {
     case "duration":
       result.push(
-        <Attribute name={JsonSerialization.JsonConverterAttribute} args={["typeof(TimeSpanDurationConverter)"]} />,
+        <Attribute
+          name={JsonSerialization.JsonConverterAttribute}
+          args={["typeof(TimeSpanDurationConverter)"]}
+        />,
       );
       break;
     case "unixTimestamp32":
       result.push(
-        <Attribute name={JsonSerialization.JsonConverterAttribute} args={["typeof(UnixEpochDateTimeOffsetConverter)"]} />,
+        <Attribute
+          name={JsonSerialization.JsonConverterAttribute}
+          args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
+        />,
       );
       break;
     case "bytes":
       if (encoding && encoding.encoding.toLowerCase() === "base64url") {
         result.push(
-          <Attribute name={JsonSerialization.JsonConverterAttribute} args={["typeof(Base64UrlJsonConverter)"]} />,
+          <Attribute
+            name={JsonSerialization.JsonConverterAttribute}
+            args={["typeof(Base64UrlJsonConverter)"]}
+          />,
         );
       }
       break;
@@ -154,7 +168,10 @@ function getEncodingAttributes(program: Program, property: ModelProperty): Child
     case "offsetDateTime":
       if (encoding && encoding.encoding.toLowerCase() === "unixtimestamp") {
         result.push(
-          <Attribute name={JsonSerialization.JsonConverterAttribute} args={["typeof(UnixEpochDateTimeOffsetConverter)"]} />,
+          <Attribute
+            name={JsonSerialization.JsonConverterAttribute}
+            args={["typeof(UnixEpochDateTimeOffsetConverter)"]}
+          />,
         );
       }
       break;
@@ -242,7 +259,9 @@ function getArrayConstraintAttribute(
 function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
   const encodedName = resolveEncodedName(program, property, "application/json");
   if (encodedName !== property.name) {
-    return <Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />;
+    return (
+      <Attribute name={JsonSerialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />
+    );
   }
   return undefined;
 }
@@ -250,5 +269,10 @@ function getEncodedNameAttribute(program: Program, property: ModelProperty): Chi
 function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {
   const stdBase = getStdBase(program, scalar);
   if (!stdBase || stdBase.name !== "safeint") return undefined;
-  return <Attribute name="NumericConstraint<long>" args={["MinValue = -9007199254740991", "MaxValue = 9007199254740991"]} />;
+  return (
+    <Attribute
+      name="NumericConstraint<long>"
+      args={["MinValue = -9007199254740991", "MaxValue = 9007199254740991"]}
+    />
+  );
 }

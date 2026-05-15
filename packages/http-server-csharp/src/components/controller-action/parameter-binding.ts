@@ -70,4 +70,3 @@ export function getLiteralDefaultValue(type: Type): string | undefined {
       return undefined;
   }
 }
-

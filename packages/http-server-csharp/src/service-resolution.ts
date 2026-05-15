@@ -5,8 +5,8 @@ import {
   type Enum,
   type Interface,
   type Model,
-  type Namespace as TspNamespace,
   type Program,
+  type Namespace as TspNamespace,
   type Type,
   type Union,
 } from "@typespec/compiler";
@@ -312,5 +312,3 @@ function isHttpPartType(type: Type): boolean {
   }
   return false;
 }
-
-
