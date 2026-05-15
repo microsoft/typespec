@@ -382,7 +382,7 @@ class DpgModelSerializer(_ModelSerializer):
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(
                         self.serialize_namespace,
-                        enum_type.client_namespace,
+                        self.code_model.get_imported_namespace_for_model(enum_type.client_namespace),
                         module_name=self.code_model.enums_filename,
                     ),
                     enum_name,
