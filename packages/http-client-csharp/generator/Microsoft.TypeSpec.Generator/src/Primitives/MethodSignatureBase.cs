@@ -129,10 +129,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                         return false;
                     }
 
-                    // For operators, the return type is crucial for matching
+                    // For operators, the return type is crucial for matching.
+                    // Nullability is part of the conversion-operator signature in C#
+                    // (e.g., `implicit operator T(string)` and `implicit operator T?(string)`
+                    // are distinct), so we compare both the type name and the nullability.
                     if (x.ReturnType != null && y.ReturnType != null)
                     {
-                        if (!x.ReturnType.AreNamesEqual(y.ReturnType))
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType)
+                            || x.ReturnType.IsNullable != y.ReturnType.IsNullable)
                         {
                             return false;
                         }
