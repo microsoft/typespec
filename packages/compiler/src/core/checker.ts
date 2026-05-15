@@ -1188,8 +1188,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSym(node), ResolutionKind.Constraint);
+        if (ctx.mapper === undefined) {
+          typeResolver.startResolution({
+            kind: NewResolutionKind.Constraint,
+            sym: getNodeSym(node),
+            node: node,
+            description: `Constraint of '${node.id.sv}'`,
+          });
+        }
         type.constraint = getParamConstraintEntityForNode(ctx, node.constraint);
         pendingResolutions.finish(getNodeSym(node), ResolutionKind.Constraint);
+        if (ctx.mapper === undefined) {
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.Constraint,
+            sym: getNodeSym(node),
+            node: node,
+            description: `Constraint of '${node.id.sv}'`,
+          });
+        }
       }
       if (node.default) {
         // Set this to unknownType in case the default points back to the template itself causing failures
