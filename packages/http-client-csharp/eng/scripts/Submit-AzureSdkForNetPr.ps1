@@ -689,9 +689,10 @@ try {
         throw "Failed to commit changes"
     }
 
-    # Push the branch
+    # Push the branch. Use the x-access-token username scheme so the URL works
+    # both with classic PATs and with GitHub App installation tokens (ghs_*).
     Write-Host "Pushing branch to remote..."
-    $remoteUrl = "https://$AuthToken@github.com/$RepoOwner/$RepoName.git"
+    $remoteUrl = "https://x-access-token:$AuthToken@github.com/$RepoOwner/$RepoName.git"
     git push $remoteUrl $PRBranch
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to push branch"
