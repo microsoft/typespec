@@ -515,6 +515,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     program.reportDiagnostic(x);
   };
 
+  // State for deferred member resolution: when a member access targets a container
+  // that is still being checked (creating=true), we store the info here so that
+  // the calling checkModelProperty can register a waitingForResolution callback
+  // instead of emitting an error.
+  let pendingMemberResolution:
+    | { containerType: Type; node: MemberExpressionNode; baseSym: Sym }
+    | undefined;
+
   const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
 
@@ -4397,6 +4405,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    // If the late-bound member resolution detected a creating container, the member may
+    // become available when the container finishes. Don't emit an error — let the caller
+    // handle deferred resolution via waitingForResolution callback.
+    if (pendingMemberResolution) {
+      return undefined;
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4469,7 +4484,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Don't force-check if the container is currently being resolved (cycle).
+    // Record pending info so the caller can defer resolution via waitingForResolution.
     if (pendingResolutions.has(base, ResolutionKind.Type)) {
+      const containerType = links.declaredType;
+      if (containerType?.creating) {
+        pendingMemberResolution = { containerType, node, baseSym: base };
+      }
+      return undefined;
+    }
+
+    // If the container type is already being checked (creating), we can't force-resolve
+    // its members yet. Record pending info for deferred resolution.
+    if (links.declaredType?.creating) {
+      pendingMemberResolution = { containerType: links.declaredType, node, baseSym: base };
       return undefined;
     }
 
@@ -6999,6 +7026,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     type.type = getTypeForNode(prop.value, ctx);
 
+    // If the type resolved to errorType because a member access targeted a container
+    // that was still being checked, register a callback to update the property type
+    // when the container finishes.
+    const pending = pendingMemberResolution;
+    pendingMemberResolution = undefined;
+    if (pending && type.type === errorType) {
+      ensureResolved([pending.containerType], type, () => {
+        const resolvedType = tryForceResolveLateBoundMember(ctx, pending.baseSym, pending.node);
+        if (resolvedType) {
+          if (resolvedType.flags & SymbolFlags.LateBound) {
+            compilerAssert(resolvedType.type, "Expected late bound symbol to have type");
+            type.type = resolvedType.type as Type;
+          } else {
+            type.type = getTypeForNode(getSymNode(resolvedType)!, ctx);
+          }
+        }
+      });
+    }
+
     // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
     if (hasPropertyTypeCycle(type)) {
       if (ctx.mapper === undefined) {
@@ -7439,7 +7485,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkAugmentDecorator(ctx: CheckContext, node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(ctx.withMapper(undefined), node.targetType, {
+    const targetSym = resolveTypeReferenceSym(ctx.withMapper(undefined), node.targetType, {
       resolveDeclarationOfTemplate: true,
     });
 
@@ -7480,6 +7526,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: node.targetType,
         }),
       );
+    }
+
+    // If the target sym was resolved at checker time (e.g. late-bound member from template)
+    // but wasn't registered during name resolution, apply the decorator directly.
+    if (targetSym && targetSym.flags & SymbolFlags.LateBound) {
+      const augmentDecsForSym = resolver.getAugmentDecoratorsForSym(targetSym);
+      if (!augmentDecsForSym.includes(node)) {
+        const targetType = targetSym.type && isType(targetSym.type) ? targetSym.type : undefined;
+        if (targetType && "decorators" in targetType) {
+          const decorator = checkDecoratorApplication(ctx, targetType, node);
+          if (decorator) {
+            targetType.decorators.unshift(decorator);
+            const validators = applyDecoratorToType(program, decorator, targetType);
+            if (validators?.onTargetFinish) {
+              program.reportDiagnostics(validators.onTargetFinish());
+            }
+            if (validators?.onGraphFinish) {
+              postCheckValidators.push(validators.onGraphFinish);
+            }
+          }
+        }
+      }
     }
 
     // If this was used to get a type this is invalid, only used for validation.

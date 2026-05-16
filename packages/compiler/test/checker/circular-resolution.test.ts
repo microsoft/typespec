@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { getDoc } from "../../src/index.js";
+import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("circular model resolution", () => {
@@ -16,8 +18,8 @@ describe("circular model resolution", () => {
       model A { t: B }
       model B { a: A.t; }
     `);
-    // circular-prop is expected since A.t references B and B.a references A.t
-    expect(diagnostics.map((d) => d.code)).toContain("circular-prop");
+    // With late-bound member resolution, A.t resolves without errors
+    expect(diagnostics.map((d) => `${d.code}: ${d.message}`)).toEqual([]);
   });
 
   it("circular: model A is Template<{t: B}> with B accessing A.t", async () => {
@@ -28,5 +30,17 @@ describe("circular model resolution", () => {
     `);
     // A.t should resolve to the 't' property (type B) after A finishes via deferred resolution
     expect(diagnostics.map((d) => `${d.code}: ${d.message}`)).toEqual([]);
+  });
+
+  it("augment decorator on template-derived member applies to A and spread copies", async () => {
+    const { A, C, program } = await Tester.compile(t.code`
+      model Template<T> { ...T; }
+      model ${t.model("A")} is Template<{ t: string; }>;
+      model ${t.model("C")} { ...A; }
+      @@doc(A.t, "Some doc");
+    `);
+    const aProp = A.properties.get("t");
+    expect(aProp).toBeDefined();
+    expect(getDoc(program, aProp!)).toBe("Some doc");
   });
 });
