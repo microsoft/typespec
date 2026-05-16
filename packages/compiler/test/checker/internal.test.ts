@@ -180,8 +180,8 @@ describe("access control", () => {
         `);
 
       expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
         { code: "experimental-feature" },
+        { code: "invalid-ref", message: /internal/ },
       ]);
     });
 
@@ -260,8 +260,8 @@ describe("access control", () => {
         `);
 
       expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
         { code: "experimental-feature" },
+        { code: "invalid-ref", message: /internal/ },
       ]);
     });
   });

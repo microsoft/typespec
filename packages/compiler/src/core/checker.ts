@@ -549,6 +549,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const checkQueue = new CheckQueue();
 
   /**
+   * Tracks symbols whose check functions have started population.
+   * Used to prevent re-entrant population when shells are referenced
+   * during their own population phase.
+   */
+  const populatingSymbols = new Set<Sym>();
+
+  /**
    * When inside a queue-managed check, check whether a declaration should be
    * deferred rather than checked inline via DFS. Returns true and throws
    * DeferralSignal if the target declaration is in the queue but not yet done.
@@ -1748,7 +1755,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         if (sym.flags & SymbolFlags.LateBound) {
           compilerAssert(sym.type, "Expected late bound symbol to have type");
           return sym.type;
-        } else if (symbolLinks.declaredType) {
+        } else if (symbolLinks.declaredType && !symbolLinks.declaredType.creating) {
+          baseType = symbolLinks.declaredType;
+        } else if (symbolLinks.declaredType && symbolLinks.declaredType.creating && populatingSymbols.has(sym)) {
+          // Shell exists but is mid-population — return it to avoid re-entrant population
           baseType = symbolLinks.declaredType;
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(innerCtx, sym);
@@ -1810,10 +1820,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           symNode as TemplateParameterDeclarationNode,
         );
         baseType = mapped as any;
-      } else if (symbolLinks.type) {
+      } else if (symbolLinks.type && !symbolLinks.type.creating) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
-      } else if (symbolLinks.declaredType) {
+      } else if (symbolLinks.type && symbolLinks.type.creating && populatingSymbols.has(sym)) {
+        // Shell exists but mid-population — return it
+        baseType = symbolLinks.type;
+      } else if (symbolLinks.declaredType && !symbolLinks.declaredType.creating) {
+        baseType = symbolLinks.declaredType;
+      } else if (symbolLinks.declaredType && symbolLinks.declaredType.creating && populatingSymbols.has(sym)) {
         baseType = symbolLinks.declaredType;
       } else {
         if (sym.flags & SymbolFlags.Member) {
@@ -2646,8 +2661,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (links) {
       if (links.declaredType && ctx.mapper === undefined) {
-        // we're not instantiating this operation and we've already checked it
-        return links.declaredType as Operation;
+        if (!links.declaredType.creating) {
+          return links.declaredType as Operation;
+        }
+        if (populatingSymbols.has(symbol!)) {
+          return links.declaredType as Operation;
+        }
       }
     }
     if (ctx.mapper === undefined) {
@@ -2695,18 +2714,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    const operationType: Operation = createType({
-      kind: "Operation",
-      name,
-      namespace,
-      parameters: null as any,
-      returnType: voidType,
-      node,
-      decorators: [],
-      interface: parentInterface,
-    });
-    if (links) {
-      linkType(ctx, links, operationType);
+    let operationType: Operation;
+    if (links?.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
+      operationType = links.declaredType as Operation;
+    } else {
+      operationType = createType({
+        kind: "Operation",
+        name,
+        namespace,
+        parameters: null as any,
+        returnType: voidType,
+        node,
+        decorators: [],
+        interface: parentInterface,
+      });
+      if (links) {
+        linkType(ctx, links, operationType);
+      }
+    }
+
+    if (symbol) {
+      populatingSymbols.add(symbol);
     }
 
     const parent = node.parent!;
@@ -2767,6 +2795,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       namespace?.operations.set(name, operationType);
     }
 
+    if (symbol) {
+    }
     return operationType;
   }
 
@@ -2797,6 +2827,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       return undefined;
+    }
+
+    // Force-check the target declaration if it's still a shell
+    if (target && ctx.mapper === undefined) {
+      const targetLinks = getSymbolLinks(target);
+      if (targetLinks.declaredType?.creating) {
+        const targetNode = getSymNode(target);
+        if (targetNode) {
+          checkNode(ctx, targetNode, undefined);
+        }
+      }
     }
 
     // Resolve the base operation type
@@ -4921,13 +4962,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     seedCheckQueue(deferredStatements);
 
     // Phase 1b: Create shells for all queued declarations.
-    // This ensures that cross-references between declarations can resolve
-    // to a shell type even before population. Enables DeferralSignal-based
-    // deferral without partial-state corruption.
-    // DISABLED: Shell creation breaks circular-extends detection because
-    // references resolve to shells immediately without triggering
-    // pendingResolutions tracking. Need a different approach to detect cycles.
-    // createDeclarationShells();
+    // Shells are empty type objects with creating=true that allow
+    // cross-references to resolve before full population.
+    // Cycle detection is handled by force-checking targets in heritage
+    // functions (checkClassHeritage, checkModelIs, etc.) which ensures
+    // pendingResolutions tracking still works through mutual extends chains.
+    createDeclarationShells();
 
     // Phase 2: Process declarations via the worklist/fixpoint queue.
     // DeferralSignal is caught by the queue's processUntilFixpoint when a
@@ -5352,25 +5392,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      return links.declaredType as any;
+      // Fully checked → return immediately
+      if (!links.declaredType.creating) {
+        return links.declaredType as any;
+      }
+      // Still creating: either a shell waiting for population, or mid-population.
+      // If population already started, return the shell to avoid re-entrant population.
+      if (populatingSymbols.has(node.symbol)) {
+        return links.declaredType as any;
+      }
+      // Otherwise fall through to populate the shell.
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
-    const type: Model = createType({
-      kind: "Model",
-      name: node.id.sv,
-      node: node,
-      properties: createRekeyableMap<string, ModelProperty>(),
-      namespace: getParentNamespaceType(node),
-      decorators: [],
-      sourceModels: [],
-      derivedModels: [],
-    });
-    linkType(ctx, links, type);
+    // Reuse the shell if one was created upfront; otherwise create a new type.
+    let type: Model;
+    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
+      type = links.declaredType as Model;
+    } else {
+      type = createType({
+        kind: "Model",
+        name: node.id.sv,
+        node: node,
+        properties: createRekeyableMap<string, ModelProperty>(),
+        namespace: getParentNamespaceType(node),
+        decorators: [],
+        sourceModels: [],
+        derivedModels: [],
+      });
+      linkType(ctx, links, type);
+    }
     const decorators: DecoratorApplication[] = type.decorators;
+
+    // Track that this model is being populated to prevent re-entrant population
+    populatingSymbols.add(node.symbol);
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
@@ -6816,6 +6874,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
+    // Force-check the target declaration if it's still a shell (creating).
+    // Only for non-template contexts — template instantiation handles resolution
+    // via getTypeForNode which applies the correct mapper.
+    if (target && ctx.mapper === undefined) {
+      const targetLinks = getSymbolLinks(target);
+      if (targetLinks.declaredType?.creating) {
+        const targetNode = getSymNode(target);
+        if (targetNode) {
+          checkNode(ctx, targetNode, undefined);
+        }
+      }
+    }
     const heritageType = getTypeForNode(heritageRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     if (isErrorType(heritageType)) {
@@ -6877,6 +6947,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
+      }
+      // Force-check target declaration if still a shell (only for non-template contexts).
+      // During template instantiation, the target is resolved via getTypeForNode which
+      // handles template instantiation correctly.
+      if (target && ctx.mapper === undefined) {
+        const targetLinks = getSymbolLinks(target);
+        if (targetLinks.declaredType?.creating) {
+          const targetNode = getSymNode(target);
+          if (targetNode) {
+            checkNode(ctx, targetNode, undefined);
+          }
+        }
       }
       isType = getTypeForNode(isExpr, ctx);
     } else {
@@ -7615,26 +7697,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this scalar and we've already checked it
-      return links.declaredType as any;
+      if (!links.declaredType.creating) {
+        return links.declaredType as any;
+      }
+      if (populatingSymbols.has(node.symbol)) {
+        return links.declaredType as any;
+      }
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
-    const decorators: DecoratorApplication[] = [];
+    let type: Scalar;
+    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
+      type = links.declaredType as Scalar;
+    } else {
+      type = createType({
+        kind: "Scalar",
+        name: node.id.sv,
+        node: node,
+        constructors: new Map(),
+        namespace: getParentNamespaceType(node),
+        decorators: [],
+        derivedScalars: [],
+      });
+      linkType(ctx, links, type);
+    }
+    const decorators: DecoratorApplication[] = type.decorators;
 
-    const type: Scalar = createType({
-      kind: "Scalar",
-      name: node.id.sv,
-      node: node,
-      constructors: new Map(),
-      namespace: getParentNamespaceType(node),
-      decorators,
-      derivedScalars: [],
-    });
-    linkType(ctx, links, type);
+    populatingSymbols.add(node.symbol);
 
     if (node.extends) {
       type.baseScalar = checkScalarExtends(ctx, node, node.extends);
@@ -7678,6 +7770,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
       return undefined;
+    }
+    // Force-check the target declaration if it's still a shell
+    // Only for non-template contexts
+    if (target && ctx.mapper === undefined) {
+      const targetLinks = getSymbolLinks(target);
+      if (targetLinks.declaredType?.creating) {
+        const targetNode = getSymNode(target);
+        if (targetNode) {
+          checkNode(ctx, targetNode, undefined);
+        }
+      }
     }
     const extendsType = getTypeForNode(extendsRef, ctx);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
@@ -7875,15 +7978,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
-    if (!links.type) {
+    if (!links.type || (links.type.creating && !populatingSymbols.has(node.symbol))) {
       checkModifiers(program, node);
-      const enumType: Enum = (links.type = createType({
-        kind: "Enum",
-        name: node.id.sv,
-        node,
-        members: createRekeyableMap<string, EnumMember>(),
-        decorators: [],
-      }));
+      let enumType: Enum;
+      if (links.type && links.type.creating) {
+        enumType = links.type as Enum;
+      } else {
+        enumType = links.type = createType({
+          kind: "Enum",
+          name: node.id.sv,
+          node,
+          members: createRekeyableMap<string, EnumMember>(),
+          decorators: [],
+        });
+      }
+
+      populatingSymbols.add(node.symbol);
 
       const memberNames = new Set<string>();
 
@@ -7936,24 +8046,35 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this interface and we've already checked it
-      return links.declaredType as Interface;
+      if (!links.declaredType.creating) {
+        return links.declaredType as Interface;
+      }
+      if (populatingSymbols.has(node.symbol)) {
+        return links.declaredType as Interface;
+      }
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
-    const interfaceType: Interface = createType({
-      kind: "Interface",
-      decorators: [],
-      node,
-      namespace: getParentNamespaceType(node),
-      sourceInterfaces: [],
-      operations: createRekeyableMap(),
-      name: node.id.sv,
-    });
-    linkType(ctx, links, interfaceType);
+    let interfaceType: Interface;
+    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
+      interfaceType = links.declaredType as Interface;
+    } else {
+      interfaceType = createType({
+        kind: "Interface",
+        decorators: [],
+        node,
+        namespace: getParentNamespaceType(node),
+        sourceInterfaces: [],
+        operations: createRekeyableMap(),
+        name: node.id.sv,
+      });
+      linkType(ctx, links, interfaceType);
+    }
+
+    populatingSymbols.add(node.symbol);
 
     interfaceType.decorators = checkDecorators(ctx, interfaceType, node);
 
@@ -8052,32 +8173,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this union and we've already checked it
-      return links.declaredType as Union;
+      if (!links.declaredType.creating) {
+        return links.declaredType as Union;
+      }
+      if (populatingSymbols.has(node.symbol)) {
+        return links.declaredType as Union;
+      }
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
-    const variants = createRekeyableMap<string, UnionVariant>();
-    const unionType: Union = createType({
-      kind: "Union",
-      decorators: [],
-      node,
-      namespace: getParentNamespaceType(node),
-      name: node.id.sv,
-      variants,
-      get options() {
-        return Array.from(this.variants.values()).map((v) => v.type);
-      },
-      expression: false,
-    });
-    linkType(ctx, links, unionType);
+    let unionType: Union;
+    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
+      unionType = links.declaredType as Union;
+    } else {
+      const variants = createRekeyableMap<string, UnionVariant>();
+      unionType = createType({
+        kind: "Union",
+        decorators: [],
+        node,
+        namespace: getParentNamespaceType(node),
+        name: node.id.sv,
+        variants,
+        get options() {
+          return Array.from(this.variants.values()).map((v) => v.type);
+        },
+        expression: false,
+      });
+      linkType(ctx, links, unionType);
+    }
+
+    populatingSymbols.add(node.symbol);
 
     unionType.decorators = checkDecorators(ctx, unionType, node);
 
-    checkUnionVariants(ctx, unionType, node, variants);
+    checkUnionVariants(ctx, unionType, node, unionType.variants as Map<string, UnionVariant>);
 
     linkMapper(unionType, ctx.mapper);
 
