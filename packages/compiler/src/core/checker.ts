@@ -515,6 +515,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     program.reportDiagnostic(x);
   };
 
+  // State for deferred member resolution: when a member access targets a container
+  // that is still being checked (creating=true), we store the info here so that
+  // the calling checkModelProperty can register a waitingForResolution callback
+  // instead of emitting an error.
+  let pendingMemberResolution:
+    | { containerType: Type; memberName: string; baseSym: Sym }
+    | undefined;
+
   const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
 
@@ -4396,6 +4404,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    // If the late-bound member resolution detected a creating container, the member may
+    // become available when the container finishes. Don't emit an error — let the caller
+    // handle deferred resolution via waitingForResolution callback.
+    if (pendingMemberResolution) {
+      return undefined;
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4464,8 +4479,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    // Only proceed if the type is fully checked (not still creating)
+    // Only proceed if the type is fully checked (not still creating).
+    // If creating, record pending info so the caller can defer resolution.
     if (declaredType.creating) {
+      pendingMemberResolution = { containerType: declaredType, memberName, baseSym: base };
       return undefined;
     }
 
@@ -6993,6 +7010,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       pendingResolutions.start(sym, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, ctx);
+
+      // If the type resolved to errorType because a member access targeted a container
+      // that was still being checked, register a callback to update the property type
+      // when the container finishes.
+      const pending = pendingMemberResolution;
+      pendingMemberResolution = undefined;
+      if (pending && type.type === errorType) {
+        ensureResolved([pending.containerType], type, () => {
+          const resolvedSym = resolveLateBoundMember(ctx, pending.baseSym, pending.memberName);
+          if (resolvedSym) {
+            if (resolvedSym.flags & SymbolFlags.LateBound) {
+              compilerAssert(resolvedSym.type, "Expected late bound symbol to have type");
+              type.type = resolvedSym.type as Type;
+            } else {
+              type.type = getTypeForNode(getSymNode(resolvedSym)!, ctx);
+            }
+          }
+        });
+      }
       if (prop.default) {
         const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
         if (defaultValue !== null) {

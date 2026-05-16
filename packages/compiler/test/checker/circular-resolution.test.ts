@@ -20,8 +20,13 @@ describe("circular model resolution", () => {
     expect(diagnostics.map((d) => d.code)).toContain("circular-prop");
   });
 
-  // TODO: This circular case requires shell-on-demand or queue-level deferral to resolve.
-  // A depends on B (through template arg), B depends on A.t (member access).
-  // Currently cannot be resolved in a single DFS pass.
-  it.todo("circular: model A is Template<{t: B}> with B accessing A.t");
+  it("circular: model A is Template<{t: B}> with B accessing A.t", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Template<T> {...T}
+      model A is Template<{t: B}>;
+      model B { a: A.t; }
+    `);
+    // A.t should resolve to the 't' property (type B) after A finishes via deferred resolution
+    expect(diagnostics.map((d) => `${d.code}: ${d.message}`)).toEqual([]);
+  });
 });
