@@ -408,7 +408,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (currentType.IsList || currentType.IsArray)
                 {
-                    // V2: when PropagateGet and the outermost element is a direct dynamic model,
+                    // When PropagateGet and the outermost element is a direct dynamic model,
                     // add an IsEmpty check so that array-level paths (e.g. "$.properties.items")
                     // can be resolved via serialization of the CLR collection.
                     if (propagateGet && isFirstLevel && IsDirectDynamicListProperty(property))
@@ -500,7 +500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Returns true if the property is a list or array whose direct element type is a dynamic model with a Patch property.
-        /// Only such properties support the V2 IsEmpty / TryResolveArray pattern.
+        /// Only such properties support the IsEmpty / TryResolveArray pattern.
         /// </summary>
         private static bool IsDirectDynamicListProperty(PropertyProvider property)
         {
@@ -602,7 +602,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Returns all collection properties from this model and its base models that qualify for the
-        /// V2 PropagateGet pattern (outermost element is a direct dynamic model with a Patch property).
+        /// PropagateGet pattern (outermost element is a direct dynamic model with a Patch property).
         /// </summary>
         private List<PropertyProvider> GetQualifyingDynamicListProperties()
         {

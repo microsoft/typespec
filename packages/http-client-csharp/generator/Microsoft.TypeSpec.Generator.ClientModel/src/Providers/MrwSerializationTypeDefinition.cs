@@ -247,7 +247,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 methods.AddRange(BuildPropagateGetMethod(), BuildPropagateSetMethod());
 
-                // Add V2 helper methods for every qualifying list/array property
+                // Add helper methods for every qualifying list/array property
                 foreach (var prop in GetQualifyingDynamicListProperties())
                 {
                     methods.AddRange(BuildTryResolveArrayMethod(prop), BuildActiveItemsMethod(prop));
