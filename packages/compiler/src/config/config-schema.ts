@@ -18,6 +18,15 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       type: "string",
       nullable: true,
     },
+    kind: {
+      type: "string",
+      enum: ["project"],
+      nullable: true,
+    },
+    entrypoint: {
+      type: "string",
+      nullable: true,
+    },
     "environment-variables": {
       type: "object",
       nullable: true,

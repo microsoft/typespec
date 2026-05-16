@@ -515,14 +515,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     program.reportDiagnostic(x);
   };
 
-  // State for deferred member resolution: when a member access targets a container
-  // that is still being checked (creating=true), we store the info here so that
-  // the calling checkModelProperty can register a waitingForResolution callback
-  // instead of emitting an error.
-  let pendingMemberResolution:
-    | { containerType: Type; memberName: string; baseSym: Sym }
-    | undefined;
-
   const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
 
@@ -4395,20 +4387,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return symbol;
     }
 
-    // Fallback: when name resolution can't find the member (e.g., members from template
-    // instantiation via `is`/spreads), try resolving from the checked type's late-bound members.
-    if (base.flags & SymbolFlags.MemberContainer && node.selector === ".") {
-      const lateBoundMember = resolveLateBoundMember(ctx, base, node.id.sv);
-      if (lateBoundMember) {
-        return lateBoundMember;
+    // When the member wasn't found but the container has unknown members (e.g. from
+    // template spreads or `is`), force-check the container type so that late-bound
+    // members become available, then retry the lookup.
+    if (node.selector === "." && base.flags & SymbolFlags.MemberContainer) {
+      const resolvedMember = tryForceResolveLateBoundMember(ctx, base, node);
+      if (resolvedMember) {
+        return resolvedMember;
       }
-    }
-
-    // If the late-bound member resolution detected a creating container, the member may
-    // become available when the container finishes. Don't emit an error — let the caller
-    // handle deferred resolution via waitingForResolution callback.
-    if (pendingMemberResolution) {
-      return undefined;
     }
 
     if (base.flags & SymbolFlags.Namespace) {
@@ -4468,45 +4454,49 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
-   * Fallback member resolution: when name resolution can't find a member (e.g., members
-   * from template instantiation via `is` or spreads), force-check the base type and look
-   * for the member in its late-bound symbols.
+   * Attempt to resolve a late-bound member by force-checking the container type.
+   * This handles the case where a model has `hasUnknownMembers` (e.g. from template
+   * spreads or `is`) and the member only becomes known after the type is fully checked.
    */
-  function resolveLateBoundMember(ctx: CheckContext, base: Sym, memberName: string): Sym | undefined {
+  function tryForceResolveLateBoundMember(
+    ctx: CheckContext,
+    base: Sym,
+    node: MemberExpressionNode,
+  ): Sym | undefined {
     const links = getSymbolLinks(base);
-    const declaredType = links.declaredType;
-    if (!declaredType) {
+    if (!links.hasUnknownMembers) {
       return undefined;
     }
 
-    // Only proceed if the type is fully checked (not still creating).
-    // If creating, record pending info so the caller can defer resolution.
-    if (declaredType.creating) {
-      pendingMemberResolution = { containerType: declaredType, memberName, baseSym: base };
+    // Don't force-check if the container is currently being resolved (cycle).
+    if (pendingResolutions.has(base, ResolutionKind.Type)) {
       return undefined;
     }
 
-    // Ensure late-bound members are available on the type
-    switch (declaredType.kind) {
+    // Force-check the container type to populate its members.
+    pendingResolutions.start(base, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(ctx, base, node.base);
+    pendingResolutions.finish(base, ResolutionKind.Type);
+
+    if (isErrorType(type)) {
+      return undefined;
+    }
+
+    // Late-bind the container and its members.
+    switch (type.kind) {
       case "Model":
       case "Interface":
       case "Union":
       case "Enum":
       case "Scalar":
-        lateBindMemberContainer(declaredType);
-        lateBindMembers(declaredType);
+        lateBindMemberContainer(type);
+        lateBindMembers(type);
         break;
       default:
         return undefined;
     }
 
-    const containerSym = declaredType.symbol;
-    if (!containerSym?.members) {
-      return undefined;
-    }
-
-    const augmented = resolver.getAugmentedSymbolTable(containerSym.members);
-    return augmented.get(memberName);
+    return getCanonicalResolvedMemberSymbol(type, node.id.sv);
   }
 
   function getMemberKindName(node: Node) {
@@ -6842,6 +6832,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: isExpr,
         }),
       );
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(ctx, isExpr);
@@ -6857,11 +6848,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             }),
           );
         }
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
       }
       isType = getTypeForNode(isExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
 
@@ -6998,45 +6991,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "circular-prop",
-          format: { propName: name },
-          target: prop,
-        }),
-      );
-      type.type = errorType;
-    } else {
-      pendingResolutions.start(sym, ResolutionKind.Type);
-      type.type = getTypeForNode(prop.value, ctx);
+    // Link the property early so that re-entrant access (e.g., A.a from another model)
+    // finds this property via checkMemberSym without re-entering checkModelProperty.
+    if (links) {
+      linkType(ctx, links, type);
+    }
 
-      // If the type resolved to errorType because a member access targeted a container
-      // that was still being checked, register a callback to update the property type
-      // when the container finishes.
-      const pending = pendingMemberResolution;
-      pendingMemberResolution = undefined;
-      if (pending && type.type === errorType) {
-        ensureResolved([pending.containerType], type, () => {
-          const resolvedSym = resolveLateBoundMember(ctx, pending.baseSym, pending.memberName);
-          if (resolvedSym) {
-            if (resolvedSym.flags & SymbolFlags.LateBound) {
-              compilerAssert(resolvedSym.type, "Expected late bound symbol to have type");
-              type.type = resolvedSym.type as Type;
-            } else {
-              type.type = getTypeForNode(getSymNode(resolvedSym)!, ctx);
-            }
-          }
-        });
+    type.type = getTypeForNode(prop.value, ctx);
+
+    // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
+    if (hasPropertyTypeCycle(type)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: name },
+            target: prop,
+          }),
+        );
       }
-      if (prop.default) {
-        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
-        if (defaultValue !== null) {
-          type.defaultValue = defaultValue;
-        }
-      }
-      if (links) {
-        linkType(ctx, links, type);
+      type.type = errorType;
+    }
+
+    if (prop.default) {
+      const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
+      if (defaultValue !== null) {
+        type.defaultValue = defaultValue;
       }
     }
 
@@ -7052,8 +7032,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    pendingResolutions.finish(sym, ResolutionKind.Type);
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  /**
+   * Detect cycles in the property type chain. Follows `.type` links as long as
+   * they point to other ModelProperty types and checks whether we loop back to
+   * the starting property.
+   */
+  function hasPropertyTypeCycle(prop: ModelProperty): boolean {
+    let current: Type | undefined = prop.type;
+    while (current !== undefined && current.kind === "ModelProperty") {
+      if (current === prop) return true;
+      current = (current as ModelProperty).type;
+    }
+    return false;
   }
 
   function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
@@ -7715,6 +7708,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const aliasSymId = getNodeSym(node);
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+      // Re-entrant resolution detected. Check if the alias value node has already produced
+      // a type (e.g., a model expression that creates and links its type before resolving
+      // properties). In that case, the circular reference is safe.
+      const valueSym = node.value.symbol;
+      if (valueSym) {
+        const valueLinks = getSymbolLinks(valueSym);
+        const inProgressType =
+          ctx.mapper === undefined
+            ? valueLinks.declaredType
+            : valueLinks.instantiations?.get(ctx.mapper.args);
+        if (inProgressType) {
+          linkType(ctx, links, inProgressType);
+          return inProgressType;
+        }
+      }
+
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

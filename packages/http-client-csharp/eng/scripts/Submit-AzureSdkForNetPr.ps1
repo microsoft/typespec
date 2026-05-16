@@ -385,6 +385,27 @@ try {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
 
+        # Align any leftover @typespec/openapi3 in the target emitter-package.json with
+        # the source emitter's @typespec/openapi version. tsp-client generate-config-files
+        # preserves unknown devDependencies, so a stale @typespec/openapi3 (peerOptional
+        # @typespec/streams ^X.Y.0) breaks the internal npm install with ERESOLVE once
+        # the source bumps the typespec family.
+        if (Test-Path $emitterPackageJsonPath) {
+            try {
+                $target = Get-Content $emitterPackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $source = Get-Content $TypeSpecSourcePackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $newVersion = $source.devDependencies.'@typespec/openapi'
+                $oldVersion = $target.devDependencies.'@typespec/openapi3'
+                if ($newVersion -and $oldVersion -and $oldVersion -ne $newVersion) {
+                    Write-Host "Patching @typespec/openapi3 in target emitter-package.json: $oldVersion -> $newVersion"
+                    $target.devDependencies.'@typespec/openapi3' = $newVersion
+                    ($target | ConvertTo-Json -Depth 100) | Set-Content -Path $emitterPackageJsonPath -NoNewline
+                }
+            } catch {
+                Write-Warning "Failed to patch @typespec/openapi3 in target emitter-package.json: $_"
+            }
+        }
+
         try {
             Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
             if ($LASTEXITCODE -ne 0) {
