@@ -698,12 +698,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkScalar(CheckContext.DEFAULT, sym.declarations[0] as any);
     }
 
-    const loadedType = stdTypes[name];
     compilerAssert(
-      loadedType,
+      stdTypes[name] !== undefined,
       `TypeSpec std type "${name}" should have been initalized before using array syntax.`,
     );
-    return loadedType as any;
+    return stdTypes[name] as any;
   }
 
   /**
@@ -1746,7 +1745,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(innerCtx, sym);
         } else {
-          //
           baseType = checkDeclaredTypeOrIndeterminate(innerCtx, sym, decl);
         }
       } else {
@@ -1865,9 +1863,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (sym.flags & SymbolFlags.Member) {
       return checkMemberSym(ctx, sym) as TemplatedType;
-    } else {
-      return checkDeclaredType(ctx, sym, decl) as TemplatedType;
     }
+
+    return checkDeclaredType(ctx, sym, decl) as TemplatedType;
   }
 
   /**
@@ -4389,6 +4387,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return symbol;
     }
 
+    // Fallback: when name resolution can't find the member (e.g., members from template
+    // instantiation via `is`/spreads), try resolving from the checked type's late-bound members.
+    if (base.flags & SymbolFlags.MemberContainer && node.selector === ".") {
+      const lateBoundMember = resolveLateBoundMember(ctx, base, node.id.sv);
+      if (lateBoundMember) {
+        return lateBoundMember;
+      }
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4443,6 +4450,46 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
     return undefined;
+  }
+
+  /**
+   * Fallback member resolution: when name resolution can't find a member (e.g., members
+   * from template instantiation via `is` or spreads), force-check the base type and look
+   * for the member in its late-bound symbols.
+   */
+  function resolveLateBoundMember(ctx: CheckContext, base: Sym, memberName: string): Sym | undefined {
+    const links = getSymbolLinks(base);
+    const declaredType = links.declaredType;
+    if (!declaredType) {
+      return undefined;
+    }
+
+    // Only proceed if the type is fully checked (not still creating)
+    if (declaredType.creating) {
+      return undefined;
+    }
+
+    // Ensure late-bound members are available on the type
+    switch (declaredType.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+      case "Enum":
+      case "Scalar":
+        lateBindMemberContainer(declaredType);
+        lateBindMembers(declaredType);
+        break;
+      default:
+        return undefined;
+    }
+
+    const containerSym = declaredType.symbol;
+    if (!containerSym?.members) {
+      return undefined;
+    }
+
+    const augmented = resolver.getAugmentedSymbolTable(containerSym.members);
+    return augmented.get(memberName);
   }
 
   function getMemberKindName(node: Node) {
@@ -4856,7 +4903,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.snapshot();
       try {
         checkNode(CheckContext.DEFAULT, item.node, undefined);
-        if (item.status === CheckItemStatus.InProgress) {
+        // Only mark as done if the type is fully checked (not still creating
+        // due to deferred ensureResolved callbacks)
+        const itemLinks = getSymbolLinks(item.sym);
+        const declaredType = itemLinks.declaredType;
+        if (declaredType && !declaredType.creating) {
+          checkQueue.markDone(item);
+        } else if (item.status === CheckItemStatus.InProgress) {
           checkQueue.markDone(item);
         }
         pendingResolutions.discardSnapshot();
@@ -5066,6 +5119,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
+   * Create a shell (empty type object) for a declaration on demand.
+   * Used to break circular DFS chains: when a queued item is referenced
+   * before its turn, we create its shell and return it. The queue will
+   * fully populate the shell later.
+   */
+  function createDeclarationShell(sym: Sym, node: Node): Type | undefined {
+    // Skip template declarations — they require instantiation-time checking
+    if ("templateParameters" in node && (node as any).templateParameters?.length > 0) {
+      return undefined;
+    }
+    // Only create shells for models — only checkModelStatement has shell-reuse
+    // logic (populationStarted guard). Other check functions (checkScalar, etc.)
+    // return early if links.declaredType is set, leaving the type unpopulated.
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+        createModelShell(node as ModelStatementNode);
+        return getSymbolLinks(sym).declaredType;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
    * Process a list of statements, queuing declarations and collecting
    * non-declaration statements. Recurses into namespaces.
    */
@@ -5242,7 +5318,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
     if (ctx.mapper === undefined) {
@@ -5250,18 +5325,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     checkTemplateDeclaration(ctx, node);
 
-    const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
       kind: "Model",
       name: node.id.sv,
       node: node,
       properties: createRekeyableMap<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
-      decorators,
+      decorators: [],
       sourceModels: [],
       derivedModels: [],
     });
     linkType(ctx, links, type);
+    const decorators: DecoratorApplication[] = type.decorators;
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
