@@ -1,5 +1,20 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.26
+
+### Bug Fixes
+
+- [#10059](https://github.com/microsoft/typespec/pull/10059) fix: handle Enum type in JSON serialization transpose helpers to prevent crash when a model with an enum property requires a JSON serializer
+- [#10058](https://github.com/microsoft/typespec/pull/10058) handle immediate scalar-typed and value-literal typed responses in result processing layer to prevent crash when an operation returns a bare scalar or value literal
+
+
+## 0.58.0-alpha.25
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.58.0-alpha.24
 
 ### Bump dependencies

@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using Sample;
 
 namespace Sample.Models
 {
@@ -40,7 +39,6 @@ namespace Sample.Models
             }
 
             global::System.Collections.Generic.IList<int> counts = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
             {
@@ -56,7 +54,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            return new global::Sample.Models.TestXmlModel(counts, additionalBinaryDataProperties);
+            return new global::Sample.Models.TestXmlModel(counts);
         }
     }
 }

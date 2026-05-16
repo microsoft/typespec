@@ -391,13 +391,30 @@ export function getAvailabilityMapInTimeline(
   )
     return undefined;
 
-  added = resolveWhenFirstAdded(added, removed, parentAdded);
+  // Only keep versioning info related to this timeline
+  const timelineAdded = added.filter((x) => timeline.getIndex(x) !== -1);
+  const timelineRemoved = removed.filter((x) => timeline.getIndex(x) !== -1);
+  const hasTypeChangedInTimeline =
+    typeChanged !== undefined && [...typeChanged.keys()].some((v) => timeline.getIndex(v) !== -1);
+  const hasReturnTypeChangedInTimeline =
+    returnTypeChanged !== undefined &&
+    [...returnTypeChanged.keys()].some((v) => timeline.getIndex(v) !== -1);
+
+  if (
+    !timelineAdded.length &&
+    !timelineRemoved.length &&
+    !hasTypeChangedInTimeline &&
+    !hasReturnTypeChangedInTimeline
+  )
+    return undefined;
+
+  added = resolveWhenFirstAdded(timelineAdded, timelineRemoved, parentAdded);
 
   // something isn't available by default
   let isAvail = false;
   for (const [index, moment] of timeline.entries()) {
     const add = added.find((x) => timeline.getIndex(x) === index);
-    const rem = removed.find((x) => timeline.getIndex(x) === index);
+    const rem = timelineRemoved.find((x) => timeline.getIndex(x) === index);
     if (rem) {
       isAvail = false;
       avail.set(moment, Availability.Removed);

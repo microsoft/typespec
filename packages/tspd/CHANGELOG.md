@@ -1,5 +1,19 @@
 # Changelog - @typespec/tspd
 
+## 0.74.2
+
+### Bug Fixes
+
+- [#10501](https://github.com/microsoft/typespec/pull/10501) Fix broken (404) links to linter rule pages on auto-generated linter reference pages. The links no longer drop the website base path.
+
+
+## 0.74.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.74.0
 
 ### Bump dependencies

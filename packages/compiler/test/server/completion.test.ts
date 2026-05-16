@@ -457,6 +457,60 @@ describe("identifiers", () => {
     );
   });
 
+  it("completes internal functions in the same project", async () => {
+    const completions = await complete(`
+      internal fn inScopeInternal(): valueof string;
+      fn inScopePublic(): valueof string;
+
+      const x = inS┆();
+    `);
+
+    deepStrictEqual(
+      ["inScopeInternal", "inScopePublic"],
+      completions.items
+        .filter((c) => c.label === "inScopeInternal" || c.label === "inScopePublic")
+        .map((c) => c.label)
+        .sort(),
+    );
+  });
+
+  it("does not complete internal functions from another package", async () => {
+    const completions = await complete(
+      `
+      import "@typespec/internal-lib";
+      using InternalLib;
+
+      const x = libFn┆();
+      `,
+      undefined,
+      {
+        "test/package.json": JSON.stringify({
+          dependencies: {
+            "@typespec/internal-lib": "~0.1.0",
+          },
+        }),
+        "test/node_modules/@typespec/internal-lib/package.json": JSON.stringify({
+          name: "@typespec/internal-lib",
+          version: "0.1.0",
+          tspMain: "./main.tsp",
+        }),
+        "test/node_modules/@typespec/internal-lib/main.tsp": `
+          namespace InternalLib;
+          internal fn libFnInternal(): valueof string;
+          fn libFnPublic(): valueof string;
+        `,
+      },
+    );
+
+    deepStrictEqual(
+      ["libFnPublic"],
+      completions.items
+        .filter((c) => c.label === "libFnInternal" || c.label === "libFnPublic")
+        .map((c) => c.label)
+        .sort(),
+    );
+  });
+
   it("completes decorators on models", async () => {
     const completions = await complete(
       `
@@ -567,6 +621,75 @@ describe("identifiers", () => {
         },
       },
     ]);
+  });
+
+  it("completes model members from template parameter constraints", async () => {
+    const completions = await complete(
+      `
+      model X {
+        a: string;
+        b: int32;
+      }
+      model Y<M extends X> {
+        p: M.┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "a"));
+    ok(completions.items.find((item) => item.label === "b"));
+  });
+
+  it("completes meta property '::type' from Reflection.ModelProperty-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<P extends Reflection.ModelProperty> {
+        value: P::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "type"));
+  });
+
+  it("completes operation meta properties from Reflection.Operation-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<O extends Reflection.Operation> {
+        value: O::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "parameters"));
+    ok(completions.items.find((item) => item.label === "returnType"));
+  });
+
+  it("does not complete model members for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M.┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "a"));
+    ok(!completions.items.find((item) => item.label === "b"));
+  });
+
+  it("does not complete meta properties for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M::┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "type"));
+    ok(!completions.items.find((item) => item.label === "parameters"));
+    ok(!completions.items.find((item) => item.label === "returnType"));
   });
 
   it("completes partial identifiers", async () => {

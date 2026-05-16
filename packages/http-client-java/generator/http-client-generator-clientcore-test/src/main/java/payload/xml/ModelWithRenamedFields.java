@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields of the same type that have different XML representation.
+ * §1.3, §2.3 — Contains fields of the same type that have different XML representation.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRenamedFields> {

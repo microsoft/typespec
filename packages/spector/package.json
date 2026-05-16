@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.23",
+  "version": "0.1.0-alpha.25",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -22,7 +22,7 @@
     "test:ui": "vitest --ui"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -35,39 +35,32 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.13.0",
+    "@azure/identity": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
     "@typespec/spec-api": "workspace:^",
     "@typespec/spec-coverage-sdk": "workspace:^",
     "@typespec/versioning": "workspace:^",
-    "ajv": "~8.18.0",
-    "body-parser": "^2.2.0",
-    "deep-equal": "^2.2.0",
-    "express": "^5.2.1",
-    "globby": "~16.1.0",
-    "micromatch": "^4.0.8",
-    "morgan": "^1.10.0",
-    "multer": "^2.0.1",
-    "picocolors": "~1.1.1",
-    "source-map-support": "~0.5.21",
-    "xml2js": "^0.6.2",
-    "yaml": "~2.8.2",
-    "yargs": "~18.0.0"
+    "ajv": "catalog:",
+    "express": "catalog:",
+    "micromatch": "catalog:",
+    "morgan": "catalog:",
+    "multer": "catalog:",
+    "picocolors": "catalog:",
+    "source-map-support": "catalog:",
+    "yaml": "catalog:",
+    "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.19.2",
-    "@types/deep-equal": "^1.0.1",
-    "@types/express": "^5.0.6",
-    "@types/micromatch": "^4.0.9",
-    "@types/morgan": "^1.9.9",
-    "@types/multer": "^2.0.0",
-    "@types/node": "~25.3.0",
-    "@types/xml2js": "^0.4.11",
-    "@types/yargs": "~17.0.33",
+    "@types/express": "catalog:",
+    "@types/micromatch": "catalog:",
+    "@types/morgan": "catalog:",
+    "@types/multer": "catalog:",
+    "@types/node": "catalog:",
+    "@types/yargs": "catalog:",
     "@typespec/tspd": "workspace:^",
-    "rimraf": "~6.1.3",
-    "typescript": "~5.9.3"
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

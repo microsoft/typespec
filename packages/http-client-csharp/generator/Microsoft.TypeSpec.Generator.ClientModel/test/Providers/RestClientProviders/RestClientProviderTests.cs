@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Tests.Common;
-using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -231,6 +231,168 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
             Assert.AreEqual("b", orderedPathParams[2].Name);
+        }
+
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        public void TestGetMethodParameters_ContentTypeAfterBody(bool isRequired, bool isExtensibleEnum)
+        {
+            InputType contentTypeType = isExtensibleEnum
+                ? InputFactory.StringEnum("ContentTypeEnum",
+                    [("application/json", "application/json"), ("application/xml", "application/xml")],
+                    isExtensible: true)
+                : InputPrimitiveType.String;
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeType,
+                isRequired: isRequired,
+                isContentType: true,
+                serializedName: "Content-Type",
+                defaultValue: isRequired ? null : InputFactory.Constant.String("application/json"));
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("content", methodParameters[1].Name);
+            Assert.AreEqual("contentType", methodParameters[2].Name);
+        }
+
+        [Test]
+        public async Task ContentTypeOrderPreservedFromLastContractView()
+        {
+            // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            // Load with a last contract that has contentType before body
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // When the last contract had contentType before body, the ordering should be preserved
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("contentType", methodParameters[1].Name); // contentType stays before body for back-compat
+            Assert.AreEqual("content", methodParameters[2].Name);
+        }
+
+        [Test]
+        public async Task ContentTypeAfterBodyInLastContractView()
+        {
+            // Create an operation with a content-type header (union) and body
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("skillId", InputPrimitiveType.String, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateSkillDefaultVersion",
+                parameters: [pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateSkillDefaultVersion",
+                operation);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            // Load with a last contract that already has contentType after body
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // When the last contract already had contentType after body, the new ordering is used
+            Assert.AreEqual(3, methodParameters.Count);
+            Assert.AreEqual("skillId", methodParameters[0].Name);
+            Assert.AreEqual("content", methodParameters[1].Name);
+            Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
+        }
+
+        [Test]
+        public async Task ParameterNamePreservedFromLastContractView()
+        {
+            // A non-paging, non-special parameter that the generator renames from "oldParam" to
+            // "newParam". The previously-published contract (TestData/.../TestClient.cs) declares
+            // the parameter as "oldParam", so backcompat should restore that name.
+            var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(name: "newParam");
+            Assert.AreEqual("newParam", queryParam.Name);
+            Assert.AreEqual("oldParam", queryParam.OriginalName);
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.IsNotNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Protocol parameter should be restored to the previously-published 'oldParam' name.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
         }
 
         [TestCase(true, true)]
@@ -533,7 +695,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             try
             {
-                var methods  = restClientProvider.Methods;
+                var methods = restClientProvider.Methods;
             }
             catch (InvalidOperationException e)
             {
@@ -612,6 +774,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "sampleOp",
                 parameters: parameters,
                 uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithSlashQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "/?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithMixedPathAndQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                path: "/items/{p1}?comp=copy&restype=container",
+                httpMethod: "PUT");
 
             var client = InputFactory.Client(
                 "TestClient",
@@ -1405,7 +1643,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             }
 
             protected override FieldProvider[] BuildFields() => [];
-            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected internal override ConstructorProvider[] BuildConstructors() => [];
             protected override PropertyProvider[] BuildProperties() => [];
 
             protected override TypeProvider[] BuildNestedTypes() => [];
@@ -1579,8 +1817,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ContentTypeHeaderWrappedInNullCheckWhenContentIsOptional()
         {
-            // Test that when there's an optional body parameter with a Content-Type header,
-            // the Content-Type header setting is wrapped in a null check for the content parameter
             var contentTypeParam = InputFactory.HeaderParameter(
                 "Content-Type",
                 InputFactory.Literal.String("application/json"),
@@ -1595,37 +1831,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestOperation",
                 requestMediaTypes: ["application/json"],
                 parameters: [contentTypeParam, bodyParam]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            var restClient = client!.RestClient;
-            Assert.IsNotNull(restClient);
-
-            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
-
-            var statements = createMethod!.BodyStatements as MethodBodyStatements;
-            Assert.IsNotNull(statements);
-
-            var expectedStatement = @"if ((content != null))
-{
-    request.Headers.Set(""Content-Type"", ""application/json"");
-}
-";
-            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
-                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
         public void ContentTypeHeaderNotWrappedInNullCheckWhenContentIsRequired()
         {
-            // Test that when there's a required body parameter with a Content-Type header,
-            // the Content-Type header setting is NOT wrapped in a null check
             var contentTypeParam = InputFactory.HeaderParameter(
                 "Content-Type",
                 InputFactory.Literal.String("application/json"),
@@ -1640,32 +1860,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestOperation",
                 requestMediaTypes: ["application/json"],
                 parameters: [contentTypeParam, bodyParam]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            var restClient = client!.RestClient;
-            Assert.IsNotNull(restClient);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
 
-            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+        [Test]
+        public void ContentTypeHeaderWrappedInNullCheckWhenContentTypeIsOptional()
+        {
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/xml"),
+                isRequired: false,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/xml"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
 
-            var statements = createMethod!.BodyStatements as MethodBodyStatements;
-            Assert.IsNotNull(statements);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
 
-            // Verify there's no if statement wrapping the Content-Type header
-            var wrappedStatement = @"if ((content != null))
-{
-    request.Headers.Set(""Content-Type"", ""application/json"");
-}
-";
-            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
-            var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
-            Assert.IsFalse(hasIfWrappedContentType,
-                $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

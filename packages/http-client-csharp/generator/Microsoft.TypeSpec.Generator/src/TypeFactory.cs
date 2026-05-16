@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -51,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            TypeCache[inputType] = type;
             return type;
         }
 
@@ -191,6 +192,11 @@ namespace Microsoft.TypeSpec.Generator
 
             if (modelProvider != null)
             {
+                if (model.Access == "public")
+                {
+                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
+                }
+
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
                 TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
@@ -267,18 +273,38 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
         private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties)
         {
-            // Try to create a framework type from the fully qualified name
+            // 1. Try to create a framework type from the fully qualified name. This stays as the
+            // first attempt because it's free (no I/O) and is the source of truth for BCL types.
             var frameworkType = CreateFrameworkType(externalProperties.Identity);
             if (frameworkType != null)
             {
                 return new CSharpType(frameworkType);
             }
 
-            // External types that cannot be resolved as framework types are not supported
-            // Report a diagnostic to inform the user
+            // 2. Fallback: dynamically resolve the type from the NuGet package named in the metadata.
+            // ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
+            // pre-walk in CSharpGen.ExecuteAsync; on a miss it resolves on-demand.
+            if (!string.IsNullOrEmpty(externalProperties.Package))
+            {
+                var resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
+                if (resolvedType != null)
+                {
+                    return new CSharpType(resolvedType);
+                }
+            }
+
+            // 3. Neither path worked — emit a diagnostic that explains what was attempted.
+            // Each branch is a self-contained sentence so the final message reads naturally and
+            // doesn't repeat "could not be resolved".
+            var details = string.IsNullOrEmpty(externalProperties.Package)
+                ? "no package metadata was provided"
+                : string.IsNullOrEmpty(externalProperties.MinVersion)
+                    ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
+                    : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";
+
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' is not currently supported.");
+                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
 
             return null;
         }
@@ -384,6 +410,25 @@ namespace Microsoft.TypeSpec.Generator
             },
             _ => SerializationFormat.Default
         };
+
+        /// <summary>
+        /// Retrieves the serialization format for a given input property. For array-typed properties
+        /// this checks the property-level <see cref="InputModelProperty.Encode"/> before falling
+        /// back to <see cref="GetSerializationFormat(InputType)"/>.
+        /// </summary>
+        /// <param name="inputProperty">The <see cref="InputProperty"/> to retrieve the serialization format for.</param>
+        /// <returns>The <see cref="SerializationFormat"/> for the input property.</returns>
+        internal SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                modelProperty.Encode.HasValue)
+            {
+                return modelProperty.Encode.Value.ToSerializationFormat();
+            }
+
+            return GetSerializationFormat(inputProperty.Type);
+        }
 
         /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.

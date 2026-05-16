@@ -1,5 +1,30 @@
 # Change Log - @typespec/bundler
 
+## 0.6.0
+
+### Features
+
+- [#10165](https://github.com/microsoft/typespec/pull/10165) Add support for alloy based emitters
+
+### Bug Fixes
+
+- [#10456](https://github.com/microsoft/typespec/pull/10456) Add support for subpath exports
+
+
+## 0.5.2
+
+### Bug Fixes
+
+- [#10252](https://github.com/microsoft/typespec/pull/10252) Fix name minifying
+
+
+## 0.5.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.5.0
 
 ### Features

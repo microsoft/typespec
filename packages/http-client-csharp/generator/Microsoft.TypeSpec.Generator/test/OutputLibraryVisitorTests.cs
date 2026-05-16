@@ -211,16 +211,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var methodProvider = new MethodProvider(
                 new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
                 Snippet.Throw(Snippet.Null), typeProvider);
-            typeProvider.Update(methods: [methodProvider], reset: true);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
+            // Set methods after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(methods: [methodProvider], reset: true);
+
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
-
-            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
 
             Assert.AreEqual(0, typeProvider.Methods.Count);
         }
@@ -278,16 +279,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var constructor = new ConstructorProvider(
                 new ConstructorSignature(typeProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(float))]),
                 Snippet.Throw(Snippet.Null), typeProvider);
-            typeProvider.Update(constructors: [constructor], reset: true);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
+            // Set constructors after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(constructors: [constructor], reset: true);
+
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
-
-            typeProvider.Update(constructors: typeProvider.FilterCustomizedConstructors(typeProvider.Constructors));
 
             Assert.AreEqual(0, typeProvider.Constructors.Count);
         }
@@ -335,16 +337,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var typeProvider = new TestTypeProvider();
             var property = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
                 "TestProperty", new AutoPropertyBody(true), typeProvider);
-            typeProvider.Update(properties: [property], reset: true);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
+            // Set properties after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(properties: [property], reset: true);
+
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
-
-            typeProvider.Update(properties: typeProvider.FilterCustomizedProperties(typeProvider.Properties));
 
             Assert.AreEqual(0, typeProvider.Properties.Count);
         }
@@ -354,16 +357,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var typeProvider = new TestTypeProvider();
             var field = new FieldProvider(FieldModifiers.Public, typeof(string), "TestField", typeProvider);
-            typeProvider.Update(fields: [field], reset: true);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
+            // Set fields after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(fields: [field], reset: true);
+
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
-
-            typeProvider.Update(fields: typeProvider.FilterCustomizedFields(typeProvider.Fields));
 
             Assert.AreEqual(0, typeProvider.Fields.Count);
         }
@@ -375,19 +379,20 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var methodProvider = new MethodProvider(
                 new MethodSignature("OriginalMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
                 Snippet.Throw(Snippet.Null), typeProvider);
-            typeProvider.Update(methods: [methodProvider], reset: true);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set methods after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(methods: [methodProvider], reset: true);
 
             var visitor1 = new RenameMethodVisitor("OriginalMethod", "TestMethod");
             var visitor2 = new ChangeParameterTypeVisitor("TestMethod", typeof(int));
 
             visitor1.VisitLibrary(generator.Object.OutputLibrary);
             visitor2.VisitLibrary(generator.Object.OutputLibrary);
-
-            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
 
             Assert.AreEqual(0, typeProvider.Methods.Count);
         }

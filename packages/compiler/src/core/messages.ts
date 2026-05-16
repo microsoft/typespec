@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -341,6 +353,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
@@ -640,6 +653,25 @@ const diagnostics = {
       default: paramMessage`No configuration file found at config path "${"path"}".`,
     },
   },
+  "config-project-kind-filename": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config with \`kind: project\` must be named "tspconfig.yaml". Found in "${"filename"}".`,
+    },
+  },
+  "config-project-only-option": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-project-not-as-cli-config": {
+    severity: "error",
+    messages: {
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
+    },
+  },
   /**
    * Program
    */
@@ -784,6 +816,12 @@ const diagnostics = {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
     },
   },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
 
   /**
    * Formatter
@@ -863,7 +901,7 @@ const diagnostics = {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
       noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
       discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
-      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
+      duplicateDefaultVariant: paramMessage`Discriminated union ${"unionName"} only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },

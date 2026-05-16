@@ -2,14 +2,12 @@ vi.resetModules();
 
 import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
-import { strictEqual } from "assert";
-import { statSync } from "fs";
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { generate } from "../../src/emit-generate.js";
+import { execAsync, execCSharpGenerator } from "../../src/lib/exec-utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { CodeModel } from "../../src/type/code-model.js";
 import {
-  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
   getCreateSdkContext,
@@ -19,6 +17,10 @@ import {
 describe("$onEmit tests", () => {
   let program: Program;
   let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
+  let emitCodeModel: (
+    context: EmitContext<CSharpEmitterOptions>,
+    updateCodeModel?: (model: CodeModel, context: any) => CodeModel,
+  ) => any;
   beforeEach(async () => {
     // Reset the dynamically imported module to ensure a clean state
     vi.resetModules();
@@ -52,13 +54,17 @@ describe("$onEmit tests", () => {
       }),
     }));
 
-    vi.mock("../../src/lib/utils.js", () => ({
+    vi.mock("../../src/lib/exec-utils.js", () => ({
       execCSharpGenerator: vi.fn(),
       execAsync: vi.fn(),
     }));
 
+    vi.mock("../../src/emit-generate.js", () => ({
+      generate: vi.fn(),
+    }));
+
     vi.mock("../../src/lib/client-model-builder.js", () => ({
-      createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
+      createModel: vi.fn().mockReturnValue([{ name: "TestNamespace" }, []]),
     }));
 
     program = {
@@ -79,19 +85,40 @@ describe("$onEmit tests", () => {
       reportDiagnostics: vi.fn(),
     } as unknown as Program;
 
-    // dynamically import the module to get the $onEmit function
+    // dynamically import the module to get the $onEmit and emitCodeModel functions
     // we avoid importing it at the top to allow mocking of dependencies
-    $onEmit = (await import("../../src/emitter.js")).$onEmit;
+    const emitterModule = await import("../../src/emitter.js");
+    $onEmit = emitterModule.$onEmit;
+    emitCodeModel = emitterModule.emitCodeModel;
   });
 
-  it("should apply the update-code-model callback just once", async () => {
+  it("should apply the updateCodeModel callback", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
       return model;
     });
-    context.options["update-code-model"] = updateCallback;
-    await $onEmit(context);
+    await emitCodeModel(context, updateCallback);
     expect(updateCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("should report diagnostic instead of throwing when generator fails", async () => {
+    vi.mocked(execCSharpGenerator).mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "Unable to parse required option package-name from configuration.",
+    } as any);
+    vi.mocked(execAsync).mockResolvedValueOnce({
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+    } as any);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    // should not throw
+    await $onEmit(context);
+    expect(program.reportDiagnostics).toHaveBeenCalled();
   });
 
   it("should apply sdk-context-options", async () => {
@@ -114,177 +141,105 @@ describe("$onEmit tests", () => {
     );
   });
 
-  it("should set newProject to TRUE if .csproj file DOES NOT exist", async () => {
-    vi.mocked(statSync).mockImplementation(() => {
-      throw new Error("File not found");
-    });
-
+  it("should pass newProject FALSE by default", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     await $onEmit(context);
 
-    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
-      generatorPath: expect.any(String),
-      outputFolder: undefined,
-      generatorName: "ScmCodeModelGenerator",
-      newProject: true, // Ensure this is passed as true
-      debug: false,
-    });
+    expect(generate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.any(String),
+      expect.objectContaining({
+        newProject: false,
+        generatorName: "ScmCodeModelGenerator",
+      }),
+    );
   });
 
-  it("should set newProject to FALSE if .csproj file DOES exist", async () => {
-    vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
-
-    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
-    await $onEmit(context);
-
-    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
-      generatorPath: expect.any(String),
-      outputFolder: undefined,
-      generatorName: "ScmCodeModelGenerator",
-      newProject: false, // Ensure this is passed as false
-      debug: false,
-    });
-  });
-
-  it("should set newProject to TRUE if passed in options", async () => {
-    vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
-
+  it("should pass newProject TRUE when set in options", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       "new-project": true,
     });
     await $onEmit(context);
-    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
-      generatorPath: expect.any(String),
-      outputFolder: undefined,
-      generatorName: "ScmCodeModelGenerator",
-      newProject: true, // Ensure this is passed as true
-      debug: false,
-    });
+
+    expect(generate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.any(String),
+      expect.objectContaining({
+        newProject: true,
+        generatorName: "ScmCodeModelGenerator",
+      }),
+    );
   });
 
-  it("should set newProject to FALSE if passed in options", async () => {
-    vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
-
+  it("should pass newProject FALSE when set in options", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       "new-project": false,
     });
     await $onEmit(context);
-    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
-      generatorPath: expect.any(String),
-      outputFolder: undefined,
-      generatorName: "ScmCodeModelGenerator",
-      newProject: false, // Ensure this is passed as true
-      debug: false,
-    });
+
+    expect(generate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.any(String),
+      expect.objectContaining({
+        newProject: false,
+        generatorName: "ScmCodeModelGenerator",
+      }),
+    );
   });
 });
 
-describe("Test _validateDotNetSdk", () => {
+describe("emitCodeModel tests", () => {
   let runner: TestHost;
   let program: Program;
-  const minVersion = 8;
-  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<boolean>;
 
   beforeEach(async () => {
-    vi.resetModules();
+    vi.restoreAllMocks();
     runner = await createEmitterTestHost();
+  });
+
+  it("should return diagnostics array from emitCodeModel", async () => {
     program = await typeSpecCompile(
       `
-            op test(
-                @query
-                @encode(DurationKnownEncoding.ISO8601)
-                input: duration
-              ): NoContentResponse;
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
       `,
       runner,
     );
-    // Restore all mocks before each test
-    vi.restoreAllMocks();
-    vi.mock("../../src/lib/utils.js", () => ({
-      execCSharpGenerator: vi.fn(),
-      execAsync: vi.fn(),
-    }));
+    const context = createEmitterContext(program);
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
 
-    // dynamically import the module to get the $onEmit function
-    // we avoid importing it at the top to allow mocking of dependencies
-    _validateDotNetSdk = (await import("../../src/emitter.js"))._validateDotNetSdk;
+    // Verify that diagnostics is an array
+    expect(Array.isArray(diagnostics)).toBe(true);
+    // Diagnostics array should be defined (may be empty or have diagnostics)
+    expect(diagnostics).toBeDefined();
   });
 
-  it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
-    /* mock the scenario that dotnet SDK is not installed, so execAsync will throw exception with error ENOENT */
-    const error: any = new Error("ENOENT: no such file or directory");
-    error.code = "ENOENT";
-    (execAsync as Mock).mockRejectedValueOnce(error);
+  it("should collect diagnostics from createModel in emitCodeModel", async () => {
+    program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
     const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
-    expect(result).toBe(false);
-    strictEqual(program.diagnostics.length, 1);
-    strictEqual(
-      program.diagnostics[0].code,
-      "@typespec/http-client-csharp/invalid-dotnet-sdk-dependency",
-    );
-    strictEqual(
-      program.diagnostics[0].message,
-      "The dotnet command was not found in the PATH. Please install the .NET SDK version 8 or above. Guidance for installing the .NET SDK can be found at https://dotnet.microsoft.com/.",
-    );
-  });
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
 
-  it("should return true for installed SDK version whose major equals min supported version", async () => {
-    /* mock the scenario that the installed SDK version whose major equals min supported version */
-    (execAsync as Mock).mockResolvedValueOnce({
-      exitCode: 0,
-      stdio: "",
-      stdout: "8.0.204",
-      stderr: "",
-      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
-    });
-    const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
-    expect(result).toBe(true);
-    /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
-  });
-
-  it("should return true for installed SDK version whose major greaters than min supported version", async () => {
-    /* mock the scenario that the installed SDK version whose major greater than min supported version */
-    (execAsync as Mock).mockResolvedValueOnce({
-      exitCode: 0,
-      stdio: "",
-      stdout: "9.0.102",
-      stderr: "",
-      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
-    });
-    const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
-    expect(result).toBe(true);
-    /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
-  });
-
-  it("should return false and report diagnostic for invalid .NET SDK version", async () => {
-    /* mock the scenario that the installed SDK version whose major less than min supported version */
-    (execAsync as Mock).mockResolvedValueOnce({
-      exitCode: 0,
-      stdio: "",
-      stdout: "5.0.408",
-      stderr: "",
-      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
-    });
-    const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
-    expect(result).toBe(false);
-    strictEqual(program.diagnostics.length, 1);
-    strictEqual(
-      program.diagnostics[0].code,
-      "@typespec/http-client-csharp/invalid-dotnet-sdk-dependency",
-    );
-    strictEqual(
-      program.diagnostics[0].message,
-      "The .NET SDK found is version 5.0.408. Please install the .NET SDK 8 or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at https://dotnet.microsoft.com/.",
-    );
+    // The function should return diagnostics even if empty
+    expect(diagnostics).toBeDefined();
+    expect(Array.isArray(diagnostics)).toBe(true);
   });
 });

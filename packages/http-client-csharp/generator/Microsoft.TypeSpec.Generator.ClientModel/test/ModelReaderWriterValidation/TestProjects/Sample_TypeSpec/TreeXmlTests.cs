@@ -89,8 +89,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
 
             // Verify the MediaType is set correctly for JSON
-            Assert.That(binaryContent.MediaType, 
-                Is.EqualTo("application/json"), 
+            Assert.That(binaryContent.MediaType,
+                Is.EqualTo("application/json"),
                 "MediaType should be application/json for format 'J'");
         }
 

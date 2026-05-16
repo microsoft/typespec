@@ -2,6 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputEnumType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -35,7 +36,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -106,7 +107,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -176,7 +177,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -214,24 +215,18 @@ describe("Operation Converter", () => {
   });
 
   describe("Operation response type conversion", () => {
-    describe("With union enum response type", () => {
-      it("should convert union enum response type to value type", async () => {
+    describe("With anonymous union enum response type", () => {
+      it("should convert anonymous union enum response type to value type", async () => {
         const program = await typeSpecCompile(
           `
-          union UnionEnumResponse {
-            value1: "option1",
-            value2: "option2",
-            stringValue: string,
-          }
-
           @route("/test")
-          op operationWithUnionEnumResponse(): UnionEnumResponse;
+          op operationWithUnionEnumResponse(): "option1" | "option2" | string;
           `,
           runner,
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -249,6 +244,45 @@ describe("Operation Converter", () => {
         const response = operation.responses[0];
         ok(response);
         strictEqual(response.bodyType?.kind, "string");
+      });
+    });
+
+    describe("With named union enum response type", () => {
+      it("should preserve the named enum response type", async () => {
+        const program = await typeSpecCompile(
+          `
+          union UnionEnumResponse {
+            value1: "option1",
+            value2: "option2",
+            stringValue: string,
+          }
+
+          @route("/test")
+          op operationWithUnionEnumResponse(): UnionEnumResponse;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const [root] = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+
+        // validate service method response - named union enum is preserved as enum
+        strictEqual(method.response.type?.kind, "enum");
+        strictEqual((method.response.type as InputEnumType).name, "UnionEnumResponse");
+
+        // validate operation response
+        const operation = method.operation;
+        ok(operation);
+        strictEqual(operation.responses.length, 1);
+        const response = operation.responses[0];
+        ok(response);
+        strictEqual(response.bodyType?.kind, "enum");
       });
     });
 
@@ -275,7 +309,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -314,7 +348,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -346,7 +380,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -382,7 +416,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -434,7 +468,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);

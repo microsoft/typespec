@@ -1,41 +1,99 @@
 /* eslint-disable no-console */
-import chalk from "chalk";
-import { execFile } from "child_process";
-import { promises, rmSync } from "fs";
-import { join, resolve } from "path";
+/**
+ * Regenerates Python SDK code from TypeSpec definitions.
+ *
+ * Two-phase pipeline:
+ *   1. TypeSpec compile (in-process, parallel) -> emits per-spec YAML only.
+ *   2. Single batched Python subprocess reads all YAMLs and writes the
+ *      final `.py` files. Amortizes Python-startup cost across many specs.
+ *
+ * Shared helpers/data live in `regenerate-common.ts` (kept identical with the
+ * `@azure-tools/typespec-python` wrapper copy).
+ */
+
+import { execSync } from "child_process";
+import { existsSync } from "fs";
+import { access, readdir } from "fs/promises";
+import { platform } from "os";
+import { dirname, join, resolve } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
-import { parseArgs, promisify } from "util";
+import { parseArgs } from "util";
+
 import {
-  BASE_AZURE_EMITTER_OPTIONS,
-  BASE_EMITTER_OPTIONS,
-  buildOptions,
-  regenerate,
-  toPosix,
-  type RegenerateConfig,
-  type RegenerateFlags,
-  type RegenerateFlagsInput,
-  type TspCommand,
+  buildTaskGroups,
+  getSubdirectories,
+  prepareBaselineOfGeneratedCode,
+  preprocess,
+  RegenerateContext,
+  RegenerateFlags,
+  runParallel,
 } from "./regenerate-common.js";
 
-// PARSE INPUT ARGUMENTS
-
+// Parse arguments
 const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
-    flavor: { type: "string" },
-    name: { type: "string" },
-    debug: { type: "boolean" },
+    flavor: { type: "string", short: "f" },
+    name: { type: "string", short: "n" },
+    debug: { type: "boolean", short: "d" },
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
-    pyodide: { type: "boolean" },
+    jobs: { type: "string", short: "j" },
+    help: { type: "boolean", short: "h" },
   },
 });
 
-// Get the directory of the current file
+if (argv.values.help) {
+  console.log(`
+${pc.bold("Usage:")} tsx regenerate.ts [options]
+
+${pc.bold("Description:")}
+  Regenerates Python SDK code from TypeSpec definitions using in-process compilation.
+  This avoids spawning a new Node.js process for each spec, making it significantly faster.
+
+${pc.bold("Options:")}
+  ${pc.cyan("-f, --flavor <azure|unbranded>")}
+      SDK flavor to regenerate. If not specified, regenerates both flavors.
+
+  ${pc.cyan("-n, --name <pattern>")}
+      Filter packages by name pattern (case-insensitive substring match).
+      Examples:
+        --name xml              Regenerate packages containing "xml"
+        --name authentication   Regenerate authentication packages
+        --name type/array       Regenerate the type/array package
+
+  ${pc.cyan("-d, --debug")}
+      Enable debug output during regeneration.
+
+  ${pc.cyan("-j, --jobs <n>")}
+      Number of parallel compilation tasks (default: 30 on Linux/Mac, 10 on Windows).
+
+  ${pc.cyan("-h, --help")}
+      Show this help message.
+
+${pc.bold("Examples:")}
+  ${pc.dim("# Regenerate all packages for both flavors")}
+  tsx regenerate.ts
+
+  ${pc.dim("# Regenerate only Azure packages")}
+  tsx regenerate.ts --flavor azure
+
+  ${pc.dim("# Regenerate a specific package by name")}
+  tsx regenerate.ts --flavor azure --name authentication-api-key
+
+  ${pc.dim("# Regenerate with more parallelism")}
+  tsx regenerate.ts --jobs 50
+`);
+  process.exit(0);
+}
+
+// Get paths
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
-  : resolve(fileURLToPath(import.meta.url), "../../../../");
+  : resolve(SCRIPT_DIR, "../../../");
 const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
 const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder
@@ -43,95 +101,183 @@ const GENERATED_FOLDER = argv.values.generatedFolder
   : resolve(PLUGIN_DIR, "generator");
 const EMITTER_NAME = argv.values.emitterName || "@typespec/http-client-python";
 
-const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  ...BASE_AZURE_EMITTER_OPTIONS,
-  "client/structure/client-operation-group": {
-    "package-name": "client-structure-clientoperationgroup",
-    namespace: "client.structure.clientoperationgroup",
-  },
-};
-
-const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  ...BASE_EMITTER_OPTIONS,
-  "type/array": {
-    "package-name": "typetest-array",
-    namespace: "typetest.array",
-    "use-pyodide": "true",
-  },
-  "type/model/inheritance/recursive": {
-    "package-name": "typetest-model-recursive",
-    namespace: "typetest.model.recursive",
-    "use-pyodide": "true",
-  },
-};
-
-// Function to execute CLI commands asynchronously
-async function executeCommand(tspCommand: TspCommand): Promise<void> {
-  const cmd = tspCommand.command as string[];
-  const execFileAsync = promisify(execFile);
-  try {
-    console.log(chalk.green(`start tsp ${cmd.join(" ")}`));
-    await execFileAsync("tsp", cmd, { shell: true });
-    console.log(chalk.green(`tsp ${cmd.join(" ")} succeeded`));
-  } catch (err) {
-    rmSync(tspCommand.outputDir, { recursive: true, force: true });
-    console.error(chalk.red(`exec error: ${err}`));
-    throw err;
-  }
-}
-
-// create some files before regeneration. After regeneration, these files should be deleted and we will test it
-// in test case
-async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
-  if (flags.flavor === "azure") {
-    // create folder if not exists
-    const folderParts = [
-      "test",
-      "azure",
-      "generated",
-      "authentication-api-key",
-      "authentication",
-      "apikey",
-      "_operations",
-    ];
-    await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
-    await promises.writeFile(
-      join(GENERATED_FOLDER, ...folderParts, "to_be_deleted.py"),
-      "# This file is to be deleted after regeneration",
-    );
-  }
-}
-
-function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
-  return buildOptions(spec, GENERATED_FOLDER, flags, config).map((po) => {
-    const optionArgs = Object.entries(po.options).flatMap(([k, v]) => [
-      "--option",
-      `${EMITTER_NAME}.${k}="${v}"`,
-    ]);
-    return {
-      outputDir: po.outputDir,
-      command: ["compile", spec, "--emit", toPosix(PLUGIN_DIR), ...optionArgs],
-    };
-  });
-}
-
-const config: RegenerateConfig = {
+const ctx: RegenerateContext = {
+  pluginDir: PLUGIN_DIR,
   azureHttpSpecs: AZURE_HTTP_SPECS,
   httpSpecs: HTTP_SPECS,
-  emitterOptions: EMITTER_OPTIONS,
-  azureEmitterOptions: AZURE_EMITTER_OPTIONS,
-  preprocess,
-  getCmdList: _getCmdList,
-  executeCommand,
+  generatedFolder: GENERATED_FOLDER,
+  emitterName: EMITTER_NAME,
 };
 
-const start = performance.now();
-regenerate(argv.values, config)
-  .then(() =>
-    console.log(
-      chalk.green(
-        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
-      ),
+async function collectConfigFiles(generatedDir: string, flavor: string): Promise<string[]> {
+  const flavorDir = join(generatedDir, "..", "tests", "generated", flavor);
+  try {
+    await access(flavorDir);
+  } catch {
+    return [];
+  }
+
+  const configFiles: string[] = [];
+  for (const pkg of await readdir(flavorDir, { withFileTypes: true })) {
+    if (pkg.isDirectory()) {
+      const pkgDir = join(flavorDir, pkg.name);
+      for (const file of await readdir(pkgDir)) {
+        if (file.startsWith(".tsp-codegen-") && file.endsWith(".json")) {
+          configFiles.push(join(pkgDir, file));
+        }
+      }
+    }
+  }
+  return configFiles;
+}
+
+function runBatchPythonProcessing(flavor: string, configCount: number, jobs: number): boolean {
+  if (configCount === 0) return true;
+
+  console.log(pc.cyan(`\nRunning batch Python processing on ${configCount} specs...`));
+
+  // Find Python venv
+  let venvPath = join(PLUGIN_DIR, "venv");
+  if (existsSync(join(venvPath, "bin"))) {
+    venvPath = join(venvPath, "bin", "python");
+  } else if (existsSync(join(venvPath, "Scripts"))) {
+    venvPath = join(venvPath, "Scripts", "python.exe");
+  } else {
+    console.error(pc.red("Python venv not found"));
+    return false;
+  }
+
+  const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
+
+  try {
+    // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
+    execSync(
+      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
+      {
+        stdio: "inherit",
+        cwd: PLUGIN_DIR,
+      },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function regenerateFlavor(
+  flavor: string,
+  name: string | undefined,
+  debug: boolean,
+  jobs: number,
+): Promise<boolean> {
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Regenerating ${flavor} flavor`));
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  const flags: RegenerateFlags = { flavor, debug, name };
+
+  // Preprocess
+  await preprocess(flavor, GENERATED_FOLDER);
+
+  // Collect specs
+  const azureSpecs = flavor === "azure" ? await getSubdirectories(AZURE_HTTP_SPECS, flags) : [];
+  const standardSpecs = await getSubdirectories(HTTP_SPECS, flags);
+  const allSpecs = [...azureSpecs, ...standardSpecs];
+
+  // Build task groups (tasks for same spec run sequentially to avoid state pollution).
+  // emitYamlOnly: true -> phase 1 emits YAML only; phase 2 (runBatchPythonProcessing) writes .py files.
+  const groups = buildTaskGroups(allSpecs, flags, ctx, { emitYamlOnly: true });
+  const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
+
+  console.log(pc.cyan(`Found ${allSpecs.length} specs (${totalTasks} total tasks) to compile`));
+  console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
+
+  // Run compilation (emits YAML only)
+  const startTime = performance.now();
+  const results = await runParallel(groups, jobs, ctx);
+  const compileTime = (performance.now() - startTime) / 1000;
+
+  // Summary for TypeSpec compilation
+  const succeeded = Array.from(results.values()).filter((v) => v).length;
+  const compileFailed = results.size - succeeded;
+
+  console.log(
+    pc.cyan(
+      `\nTypeSpec compilation: ${succeeded} succeeded, ${compileFailed} failed (${compileTime.toFixed(1)}s)`,
     ),
-  )
-  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));
+  );
+
+  if (compileFailed > 0) {
+    console.log(pc.red(`Skipping Python processing due to compilation failures`));
+    return false;
+  }
+
+  // Batch process all specs with Python
+  const pyStartTime = performance.now();
+  const configCount = (await collectConfigFiles(GENERATED_FOLDER, flavor)).length;
+  // Use fewer Python jobs since Python processing is heavier
+  const pyJobs = Math.max(4, jobs);
+  const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
+  const pyTime = (performance.now() - pyStartTime) / 1000;
+
+  const totalTime = (performance.now() - startTime) / 1000;
+
+  console.log(pc.cyan(`\n${"=".repeat(60)}`));
+  console.log(pc.cyan(`Results: ${succeeded} specs processed`));
+  console.log(
+    pc.cyan(
+      `  TypeSpec: ${compileTime.toFixed(1)}s | Python: ${pyTime.toFixed(1)}s | Total: ${totalTime.toFixed(1)}s`,
+    ),
+  );
+  console.log(pc.cyan(`${"=".repeat(60)}\n`));
+
+  return pySuccess;
+}
+
+async function main() {
+  const isWindows = platform() === "win32";
+  const flavor = argv.values.flavor;
+  const name = argv.values.name;
+  const debug = argv.values.debug ?? false;
+  // Windows has slower file system operations and process spawning,
+  // so use fewer parallel jobs to avoid I/O contention and memory pressure
+  const defaultJobs = isWindows ? 10 : 30;
+  const jobs = argv.values.jobs ? parseInt(argv.values.jobs, 10) : defaultJobs;
+
+  console.log(pc.cyan(`\nRegeneration config:`));
+  console.log(pc.cyan(`  Platform: ${isWindows ? "Windows" : "Unix"}`));
+  console.log(pc.cyan(`  Mode:     in-process compilation`));
+  console.log(pc.cyan(`  Jobs:     ${jobs}`));
+  if (name) {
+    console.log(pc.cyan(`  Filter:   ${name}`));
+  }
+  console.log();
+
+  const startTime = performance.now();
+  let success: boolean;
+
+  await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
+
+  if (flavor) {
+    success = await regenerateFlavor(flavor, name, debug, jobs);
+  } else {
+    // Both flavors
+    const azureSuccess = await regenerateFlavor("azure", name, debug, jobs);
+    const unbrandedSuccess = await regenerateFlavor("unbranded", name, debug, jobs);
+    success = azureSuccess && unbrandedSuccess;
+  }
+
+  const totalDuration = (performance.now() - startTime) / 1000;
+  console.log(
+    success
+      ? pc.green(`\nRegeneration completed successfully in ${totalDuration.toFixed(1)}s`)
+      : pc.red(`\nRegeneration failed after ${totalDuration.toFixed(1)}s`),
+  );
+
+  process.exit(success ? 0 : 1);
+}
+
+main().catch((err) => {
+  console.error(pc.red(`Fatal error: ${err}`));
+  process.exit(1);
+});

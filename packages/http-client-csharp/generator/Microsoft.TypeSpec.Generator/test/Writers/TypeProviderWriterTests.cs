@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -73,5 +75,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         internal static readonly InputModelProperty RequiredStringProperty = InputFactory.Property("requiredString", InputPrimitiveType.String, isRequired: true);
 
         internal static readonly InputModelProperty RequiredIntProperty = InputFactory.Property("requiredInt", InputPrimitiveType.Int32, isRequired: true);
+
+        [Test]
+        public void TypeProviderWriter_WriteEnumWithFieldAttributes()
+        {
+            var enumProvider = new TestEnumWithAttributesProvider();
+            var codeFile = new TypeProviderWriter(enumProvider).Write();
+            var result = codeFile.Content;
+
+            var expected = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expected, result);
+        }
+
+        private class TestEnumWithAttributesProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => "TestEnum.cs";
+            protected override string BuildName() => "TestEnum";
+            protected override string BuildNamespace() => "Sample.Models";
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
+
+            protected internal override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(
+                        FieldModifiers.Public | FieldModifiers.Static,
+                        typeof(int),
+                        "Value1",
+                        this,
+                        $"First value",
+                        initializationValue: new LiteralExpression(1),
+                        attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]),
+                    new FieldProvider(
+                        FieldModifiers.Public | FieldModifiers.Static,
+                        typeof(int),
+                        "Value2",
+                        this,
+                        $"Second value",
+                        initializationValue: new LiteralExpression(2))
+                ];
+            }
+        }
     }
 }

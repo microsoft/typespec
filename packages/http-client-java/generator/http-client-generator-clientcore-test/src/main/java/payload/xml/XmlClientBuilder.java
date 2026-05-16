@@ -34,17 +34,30 @@ import payload.xml.implementation.XmlClientImpl;
 @ServiceClientBuilder(
     serviceClients = {
         SimpleModelValueClient.class,
+        ModelWithRenamedPropertyValueClient.class,
+        ModelWithRenamedFieldsValueClient.class,
+        ModelWithNestedModelValueClient.class,
+        ModelWithRenamedNestedModelValueClient.class,
         ModelWithSimpleArraysValueClient.class,
-        ModelWithArrayOfModelValueClient.class,
-        ModelWithOptionalFieldValueClient.class,
-        ModelWithAttributesValueClient.class,
         ModelWithUnwrappedArrayValueClient.class,
         ModelWithRenamedArraysValueClient.class,
-        ModelWithRenamedFieldsValueClient.class,
-        ModelWithEmptyArrayValueClient.class,
+        ModelWithWrappedPrimitiveCustomItemNamesValueClient.class,
+        ModelWithArrayOfModelValueClient.class,
+        ModelWithUnwrappedModelArrayValueClient.class,
+        ModelWithRenamedWrappedModelArrayValueClient.class,
+        ModelWithRenamedUnwrappedModelArrayValueClient.class,
+        ModelWithRenamedWrappedAndItemModelArrayValueClient.class,
+        ModelWithAttributesValueClient.class,
+        ModelWithRenamedAttributeValueClient.class,
+        ModelWithNamespaceValueClient.class,
+        ModelWithNamespaceOnPropertiesValueClient.class,
         ModelWithTextValueClient.class,
+        ModelWithOptionalFieldValueClient.class,
+        ModelWithEmptyArrayValueClient.class,
         ModelWithDictionaryValueClient.class,
         ModelWithEncodedNamesValueClient.class,
+        ModelWithEnumValueClient.class,
+        ModelWithDatetimeValueClient.class,
         XmlErrorValueClient.class })
 public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, ProxyTrait<XmlClientBuilder>,
     ConfigurationTrait<XmlClientBuilder>, EndpointTrait<XmlClientBuilder> {
@@ -248,6 +261,54 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
     }
 
     /**
+     * Builds an instance of ModelWithRenamedPropertyValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedPropertyValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedPropertyValueClient buildModelWithRenamedPropertyValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedPropertyValueClient(innerClient.getModelWithRenamedPropertyValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedFieldsValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedFieldsValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedFieldsValueClient buildModelWithRenamedFieldsValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedFieldsValueClient(innerClient.getModelWithRenamedFieldsValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithNestedModelValueClient class.
+     * 
+     * @return an instance of ModelWithNestedModelValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithNestedModelValueClient buildModelWithNestedModelValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithNestedModelValueClient(innerClient.getModelWithNestedModelValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedNestedModelValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedNestedModelValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedNestedModelValueClient buildModelWithRenamedNestedModelValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedNestedModelValueClient(innerClient.getModelWithRenamedNestedModelValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
      * Builds an instance of ModelWithSimpleArraysValueClient class.
      * 
      * @return an instance of ModelWithSimpleArraysValueClient.
@@ -256,42 +317,6 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
     public ModelWithSimpleArraysValueClient buildModelWithSimpleArraysValueClient() {
         XmlClientImpl innerClient = buildInnerClient();
         return new ModelWithSimpleArraysValueClient(innerClient.getModelWithSimpleArraysValues(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelWithArrayOfModelValueClient class.
-     * 
-     * @return an instance of ModelWithArrayOfModelValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelWithArrayOfModelValueClient buildModelWithArrayOfModelValueClient() {
-        XmlClientImpl innerClient = buildInnerClient();
-        return new ModelWithArrayOfModelValueClient(innerClient.getModelWithArrayOfModelValues(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelWithOptionalFieldValueClient class.
-     * 
-     * @return an instance of ModelWithOptionalFieldValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelWithOptionalFieldValueClient buildModelWithOptionalFieldValueClient() {
-        XmlClientImpl innerClient = buildInnerClient();
-        return new ModelWithOptionalFieldValueClient(innerClient.getModelWithOptionalFieldValues(),
-            innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelWithAttributesValueClient class.
-     * 
-     * @return an instance of ModelWithAttributesValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelWithAttributesValueClient buildModelWithAttributesValueClient() {
-        XmlClientImpl innerClient = buildInnerClient();
-        return new ModelWithAttributesValueClient(innerClient.getModelWithAttributesValues(),
             innerClient.getInstrumentation());
     }
 
@@ -320,14 +345,147 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
     }
 
     /**
-     * Builds an instance of ModelWithRenamedFieldsValueClient class.
+     * Builds an instance of ModelWithWrappedPrimitiveCustomItemNamesValueClient class.
      * 
-     * @return an instance of ModelWithRenamedFieldsValueClient.
+     * @return an instance of ModelWithWrappedPrimitiveCustomItemNamesValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelWithRenamedFieldsValueClient buildModelWithRenamedFieldsValueClient() {
+    public ModelWithWrappedPrimitiveCustomItemNamesValueClient
+        buildModelWithWrappedPrimitiveCustomItemNamesValueClient() {
         XmlClientImpl innerClient = buildInnerClient();
-        return new ModelWithRenamedFieldsValueClient(innerClient.getModelWithRenamedFieldsValues(),
+        return new ModelWithWrappedPrimitiveCustomItemNamesValueClient(
+            innerClient.getModelWithWrappedPrimitiveCustomItemNamesValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithArrayOfModelValueClient class.
+     * 
+     * @return an instance of ModelWithArrayOfModelValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithArrayOfModelValueClient buildModelWithArrayOfModelValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithArrayOfModelValueClient(innerClient.getModelWithArrayOfModelValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithUnwrappedModelArrayValueClient class.
+     * 
+     * @return an instance of ModelWithUnwrappedModelArrayValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithUnwrappedModelArrayValueClient buildModelWithUnwrappedModelArrayValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithUnwrappedModelArrayValueClient(innerClient.getModelWithUnwrappedModelArrayValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedWrappedModelArrayValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedWrappedModelArrayValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedWrappedModelArrayValueClient buildModelWithRenamedWrappedModelArrayValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedWrappedModelArrayValueClient(
+            innerClient.getModelWithRenamedWrappedModelArrayValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedUnwrappedModelArrayValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedUnwrappedModelArrayValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedUnwrappedModelArrayValueClient buildModelWithRenamedUnwrappedModelArrayValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedUnwrappedModelArrayValueClient(
+            innerClient.getModelWithRenamedUnwrappedModelArrayValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedWrappedAndItemModelArrayValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedWrappedAndItemModelArrayValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedWrappedAndItemModelArrayValueClient
+        buildModelWithRenamedWrappedAndItemModelArrayValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedWrappedAndItemModelArrayValueClient(
+            innerClient.getModelWithRenamedWrappedAndItemModelArrayValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithAttributesValueClient class.
+     * 
+     * @return an instance of ModelWithAttributesValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithAttributesValueClient buildModelWithAttributesValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithAttributesValueClient(innerClient.getModelWithAttributesValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithRenamedAttributeValueClient class.
+     * 
+     * @return an instance of ModelWithRenamedAttributeValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithRenamedAttributeValueClient buildModelWithRenamedAttributeValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithRenamedAttributeValueClient(innerClient.getModelWithRenamedAttributeValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithNamespaceValueClient class.
+     * 
+     * @return an instance of ModelWithNamespaceValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithNamespaceValueClient buildModelWithNamespaceValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithNamespaceValueClient(innerClient.getModelWithNamespaceValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithNamespaceOnPropertiesValueClient class.
+     * 
+     * @return an instance of ModelWithNamespaceOnPropertiesValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithNamespaceOnPropertiesValueClient buildModelWithNamespaceOnPropertiesValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithNamespaceOnPropertiesValueClient(innerClient.getModelWithNamespaceOnPropertiesValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithTextValueClient class.
+     * 
+     * @return an instance of ModelWithTextValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithTextValueClient buildModelWithTextValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithTextValueClient(innerClient.getModelWithTextValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithOptionalFieldValueClient class.
+     * 
+     * @return an instance of ModelWithOptionalFieldValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithOptionalFieldValueClient buildModelWithOptionalFieldValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithOptionalFieldValueClient(innerClient.getModelWithOptionalFieldValues(),
             innerClient.getInstrumentation());
     }
 
@@ -341,17 +499,6 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
         XmlClientImpl innerClient = buildInnerClient();
         return new ModelWithEmptyArrayValueClient(innerClient.getModelWithEmptyArrayValues(),
             innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ModelWithTextValueClient class.
-     * 
-     * @return an instance of ModelWithTextValueClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ModelWithTextValueClient buildModelWithTextValueClient() {
-        XmlClientImpl innerClient = buildInnerClient();
-        return new ModelWithTextValueClient(innerClient.getModelWithTextValues(), innerClient.getInstrumentation());
     }
 
     /**
@@ -375,6 +522,29 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
     public ModelWithEncodedNamesValueClient buildModelWithEncodedNamesValueClient() {
         XmlClientImpl innerClient = buildInnerClient();
         return new ModelWithEncodedNamesValueClient(innerClient.getModelWithEncodedNamesValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithEnumValueClient class.
+     * 
+     * @return an instance of ModelWithEnumValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithEnumValueClient buildModelWithEnumValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithEnumValueClient(innerClient.getModelWithEnumValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithDatetimeValueClient class.
+     * 
+     * @return an instance of ModelWithDatetimeValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithDatetimeValueClient buildModelWithDatetimeValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithDatetimeValueClient(innerClient.getModelWithDatetimeValues(),
             innerClient.getInstrumentation());
     }
 

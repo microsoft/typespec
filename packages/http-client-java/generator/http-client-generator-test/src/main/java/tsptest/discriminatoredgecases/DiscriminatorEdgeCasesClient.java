@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import tsptest.discriminatoredgecases.implementation.DiscriminatorEdgeCasesClientImpl;
 import tsptest.discriminatoredgecases.models.ChildWithAnotherDiscriminator;
 import tsptest.discriminatoredgecases.models.ChildWithRequiredPropertyAsDiscriminator;
+import tsptest.discriminatoredgecases.models.ModelWithDiscriminatorNoSubtypes;
 
 /**
  * Initializes a new instance of the synchronous DiscriminatorEdgeCasesClient type.
@@ -93,6 +94,32 @@ public final class DiscriminatorEdgeCasesClient {
     }
 
     /**
+     * The getNoSubtypes operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     name: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return model with along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getNoSubtypesWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getNoSubtypesWithResponse(requestOptions);
+    }
+
+    /**
      * The getChildRequiredDiscrim operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -127,5 +154,23 @@ public final class DiscriminatorEdgeCasesClient {
         // Generated convenience method for getChildNewDiscrimWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getChildNewDiscrimWithResponse(requestOptions).getValue().toObject(ChildWithAnotherDiscriminator.class);
+    }
+
+    /**
+     * The getNoSubtypes operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return model with.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ModelWithDiscriminatorNoSubtypes getNoSubtypes() {
+        // Generated convenience method for getNoSubtypesWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getNoSubtypesWithResponse(requestOptions).getValue().toObject(ModelWithDiscriminatorNoSubtypes.class);
     }
 }

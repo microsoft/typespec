@@ -10,11 +10,11 @@
   <unwrappedStrings>string2</unwrappedStrings>
   <unwrappedCounts>10</unwrappedCounts>
   <unwrappedCounts>20</unwrappedCounts>
-  <unwrappedItems>
+  <unwrappedItems itemId="unwrapped-1">
     <itemName>Item 1</itemName>
     <itemValue>100</itemValue>
   </unwrappedItems>
-  <unwrappedItems>
+  <unwrappedItems itemId="unwrapped-2">
     <itemName>Item 2</itemName>
     <itemValue>200</itemValue>
   </unwrappedItems>
@@ -23,7 +23,7 @@
     <string>blue</string>
   </wrappedColors>
   <ItemCollection>
-    <Item>
+    <Item itemId="item-3">
       <itemName>Item 3</itemName>
       <itemValue>300</itemValue>
     </Item>
@@ -58,21 +58,21 @@
   </unwrappedModelsWithNamespaces>
   <listOfListFoo>
     <Array>
-      <XmlItem>
+      <XmlItem itemId="list-of-list-1">
         <itemName>Item 1</itemName>
         <itemValue>100</itemValue>
       </XmlItem>
     </Array>
   </listOfListFoo>
   <dictionaryFoo>
-    <key1>
+    <key1 itemId="dict-1">
       <itemName>Item 1</itemName>
       <itemValue>100</itemValue>
     </key1>
   </dictionaryFoo>
   <dictionaryOfDictionaryFoo>
     <outer1>
-      <inner1>
+      <inner1 itemId="dict-of-dict-1">
         <itemName>Item 1</itemName>
         <itemValue>100</itemValue>
       </inner1>
@@ -80,7 +80,7 @@
   </dictionaryOfDictionaryFoo>
   <dictionaryListFoo>
     <list1>
-      <XmlItem>
+      <XmlItem itemId="dict-list-1">
         <itemName>Item 1</itemName>
         <itemValue>100</itemValue>
       </XmlItem>
@@ -88,7 +88,7 @@
   </dictionaryListFoo>
   <listOfDictionaryFoo>
     <Record>
-      <key1>
+      <key1 itemId="list-of-dict-1">
         <itemName>Item 1</itemName>
         <itemValue>100</itemValue>
       </key1>

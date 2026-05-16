@@ -31,12 +31,8 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
         String childExtensionResourceName, Context context) {
         Response<ChildExtensionResourceInner> inner = this.serviceClient()
             .getWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ChildExtensionResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ChildExtensionResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ChildExtensionResource get(String resourceUri, String topLevelArmResourceName,

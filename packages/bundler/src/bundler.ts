@@ -1,8 +1,7 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
-import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
-import { mkdir, readFile, realpath, writeFile } from "fs/promises";
-import { basename, join, resolve } from "path";
+import { access, mkdir, readFile, realpath, writeFile } from "fs/promises";
+import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
 import { gzip } from "zlib";
 import { relativeTo } from "./utils.js";
@@ -26,6 +25,7 @@ export interface ExportData {
   default?: string;
   import?: string;
   types?: string;
+  typespec?: string;
 }
 
 export interface TypeSpecBundle {
@@ -60,7 +60,7 @@ interface PackageJson {
   tspMain?: string;
   peerDependencies: string[];
   dependencies: string[];
-  exports?: Record<string, string>;
+  exports?: Record<string, string | ExportData>;
 }
 
 export interface CreateTypeSpecBundleOptions {
@@ -183,6 +183,25 @@ async function createEsBuildContext(
     typespecFiles[filename] = sourceFile.file.text;
   }
 
+  // Also compile sub-exports with typespec entry points to include their source files
+  for (const [, value] of Object.entries(definition.exports)) {
+    const typespecEntry = typeof value === "object" ? value.typespec : undefined;
+    if (typespecEntry) {
+      const subEntryPoint = resolvePath(libraryPath, typespecEntry);
+      const subProgram = await compile(NodeHost, subEntryPoint, {
+        noEmit: true,
+      });
+      for (const file of subProgram.jsSourceFiles.keys()) {
+        if (file.startsWith(libraryPath)) {
+          jsFiles.add(file);
+        }
+      }
+      for (const [filename, sourceFile] of subProgram.sourceFiles) {
+        typespecFiles[filename] = sourceFile.file.text;
+      }
+    }
+  }
+
   const content = createBundleEntrypoint({
     libraryPath,
     mainFile: definition.main,
@@ -199,6 +218,8 @@ async function createEsBuildContext(
     }),
   );
 
+  const externalPeerDeps = await resolveExternalPeerDependencies(libraryPath, definition);
+
   const virtualPlugin: Plugin = {
     name: "virtual",
     setup(build) {
@@ -209,10 +230,7 @@ async function createEsBuildContext(
         };
       });
       build.onResolve({ filter: /.*/ }, (args) => {
-        if (
-          definition.packageJson.peerDependencies &&
-          Object.keys(definition.packageJson.peerDependencies).some((x) => args.path.startsWith(x))
-        ) {
+        if (externalPeerDeps.some((x) => args.path === x || args.path.startsWith(x + "/"))) {
           return { path: args.path, external: true };
         }
         return null;
@@ -226,6 +244,25 @@ async function createEsBuildContext(
       });
     },
   };
+
+  // When containing alloy-js, namespace its globalThis.__ALLOY__ singleton
+  // guard so that multiple contained bundles can coexist in the same process.
+  const alloySingletonPlugin: Plugin = {
+    name: "alloy-singleton-namespace",
+    setup(build) {
+      build.onLoad({ filter: /reactivity\.[jt]s$/ }, async (args) => {
+        if (!args.path.includes("@alloy-js/core")) return undefined;
+        const source = await readFile(args.path, "utf-8");
+        const namespaceKey = `__ALLOY_${definition.packageJson.name.replace(/[^a-zA-Z0-9]/g, "_")}__`;
+        const patched = source.replaceAll("__ALLOY__", namespaceKey);
+        return {
+          contents: patched,
+          loader: args.path.endsWith(".ts") ? "ts" : "js",
+        };
+      });
+    },
+  };
+
   return await context({
     write: false,
     entryPoints: {
@@ -239,7 +276,11 @@ async function createEsBuildContext(
     format: "esm",
     target: "es2024",
     minify,
-    plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
+    keepNames: minify,
+    define: {
+      "process.env": "{}",
+    },
+    plugins: [virtualPlugin, alloySingletonPlugin, ...plugins],
   });
 }
 
@@ -289,6 +330,55 @@ function getExportEntryPoint(value: string | ExportData) {
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
+}
+
+/**
+ * Resolve which peer dependencies should be treated as external.
+ * Only peer dependencies that are TypeSpec libraries (have `tspMain` in their package.json)
+ * are externalized. Non-TypeSpec peer dependencies (e.g. alloy-js) are bundled inline.
+ */
+async function resolveExternalPeerDependencies(
+  libraryPath: string,
+  definition: TypeSpecBundleDefinition,
+): Promise<string[]> {
+  const peerDeps = definition.packageJson.peerDependencies;
+  if (!peerDeps) {
+    return [];
+  }
+
+  const peerDepNames = Object.keys(peerDeps);
+  const externalDeps: string[] = [];
+
+  for (const depName of peerDepNames) {
+    const isTypeSpec = await isTypeSpecLibrary(libraryPath, depName);
+    if (isTypeSpec) {
+      externalDeps.push(depName);
+    }
+  }
+
+  return externalDeps;
+}
+
+async function isTypeSpecLibrary(libraryPath: string, depName: string): Promise<boolean> {
+  // Walk up from the library path checking node_modules at each level.
+  // This avoids require.resolve which fails when packages have exports maps
+  // that don't expose ./package.json.
+  let dir = libraryPath;
+  while (true) {
+    const pkgJsonPath = join(dir, "node_modules", depName, "package.json");
+    try {
+      await access(pkgJsonPath);
+    } catch {
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+      continue;
+    }
+    const depPkgJson = JSON.parse((await readFile(pkgJsonPath)).toString());
+    return !!depPkgJson.tspMain;
+  }
+  // If we can't resolve the package, externalize to be safe (preserves previous behavior)
+  return true;
 }
 
 /**

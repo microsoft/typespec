@@ -300,6 +300,7 @@ function createOAPIEmitter(
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
   let sseModule: SSEModule | undefined;
+  let jsonSchemaModule: JsonSchemaModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -417,6 +418,7 @@ function createOAPIEmitter(
     diagnostics = createDiagnosticCollector();
     currentService = service;
     sseModule = optionalDependencies.sseModule;
+    jsonSchemaModule = optionalDependencies.jsonSchemaModule;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -1124,8 +1126,10 @@ function createOAPIEmitter(
         if (contents.length === 1) {
           obj.content[contentType] = contents[0];
         } else {
+          const { schema: _, ...rest } = contents[0];
           obj.content[contentType] = {
             schema: { anyOf: contents.map((x) => x.schema) as any },
+            ...rest,
           };
         }
       }
@@ -1778,8 +1782,14 @@ function createOAPIEmitter(
     }
 
     function processUnreferencedSchemas() {
+      const authSchemeModels = new Set<Type>(serviceAuth.schemes.map((s) => s.model));
       const addSchema = (type: Type) => {
         if (isOrExtendsHttpFile(program, type)) {
+          return;
+        }
+        if (authSchemeModels.has(type)) {
+          // Auth scheme models are emitted under components.securitySchemes
+          // and should not also appear as payload schemas in components.schemas.
           return;
         }
         if (
@@ -1898,6 +1908,13 @@ function createOAPIEmitter(
     const maxItems = getMaxItems(program, typespecType);
     if (!target.maxItems && maxItems !== undefined) {
       newTarget.maxItems = maxItems;
+    }
+
+    if (jsonSchemaModule) {
+      const uniqueItems = jsonSchemaModule.getUniqueItems(program, typespecType);
+      if (uniqueItems !== undefined) {
+        newTarget.uniqueItems = uniqueItems;
+      }
     }
 
     if (isSecret(program, typespecType)) {

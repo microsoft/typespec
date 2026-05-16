@@ -224,6 +224,13 @@ export function findResponsePropertySegments(
       const propertyArray: Property[] = [];
 
       let currentSchemaProperties: Property[] | undefined = schema.properties;
+      if (currentSchemaProperties && schema.parents && schema.parents.all) {
+        for (const parent of schema.parents.all) {
+          if (parent instanceof ObjectSchema && parent.properties) {
+            currentSchemaProperties = currentSchemaProperties.concat(parent.properties);
+          }
+        }
+      }
       for (const propertySegment of propertySegments) {
         // abort if no properties in current schema. this should not happen though
         if (!currentSchemaProperties) {

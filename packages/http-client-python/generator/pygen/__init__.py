@@ -16,7 +16,6 @@ from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
 
 from ._version import VERSION
 
-
 __version__ = VERSION
 _LOGGER = logging.getLogger(__name__)
 
@@ -237,8 +236,7 @@ class ReaderAndWriter:
     def write_file(self, filename: Union[str, Path], file_content: str) -> None:
         """Directly writing to disk"""
         file_folder = Path(filename).parent
-        if not Path.is_dir(self.output_folder / file_folder):
-            Path.mkdir(self.output_folder / file_folder, parents=True)
+        Path.mkdir(self.output_folder / file_folder, parents=True, exist_ok=True)
         with open(self.output_folder / Path(filename), "w", encoding="utf-8") as fd:
             fd.write(file_content)
 

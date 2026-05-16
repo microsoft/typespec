@@ -53,8 +53,9 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
-    if (context.tasks.some((x) => x.mode === "skip")) {
+  // eslint-disable-next-line no-empty-pattern
+  afterAll(async function ({}, { tasks }: Readonly<RunnerTestSuite | RunnerTestFile>) {
+    if (tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
 

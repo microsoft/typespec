@@ -41,6 +41,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement WriteAttributeString(this ScopedApi<XmlWriter> writer, string prefix, string localName, string ns, ValueExpression value)
             => writer.Invoke(nameof(XmlWriter.WriteAttributeString), [Literal(prefix), Literal(localName), Literal(ns), value]).Terminate();
 
+        /// <summary>
+        /// Generates a namespace declaration attribute on the current element: xmlns:prefix="namespace".
+        /// </summary>
+        public static MethodBodyStatement WriteNamespaceDeclaration(this ScopedApi<XmlWriter> writer, string prefix, string ns)
+            => writer.Invoke(nameof(XmlWriter.WriteAttributeString), [Literal("xmlns"), Literal(prefix), Null, Literal(ns)]).Terminate();
+
         public static MethodBodyStatement WriteStringValue(this ScopedApi<XmlWriter> writer, ValueExpression value, string format)
             => ModelSerializationExtensionsSnippets.WriteStringValue(writer, value, format);
 
@@ -49,6 +55,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static MethodBodyStatement WriteNode(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
             => writer.Invoke(nameof(XmlWriter.WriteNode), [reader, defattr]).Terminate();
+
+        public static MethodBodyStatement WriteAttributes(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
+            => writer.Invoke(nameof(XmlWriter.WriteAttributes), [reader, defattr]).Terminate();
 
         public static MethodBodyStatement WriteObjectValue(this ScopedApi<XmlWriter> writer, ScopedApi value, ValueExpression options, ValueExpression? nameHint = null)
             => ModelSerializationExtensionsSnippets.WriteObjectValue(writer, value, options, nameHint);
