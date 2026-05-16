@@ -515,13 +515,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     program.reportDiagnostic(x);
   };
 
-  // State for deferred member resolution: when a member access targets a container
-  // that is still being checked (creating=true), we store the info here so that
-  // the calling checkModelProperty can register a waitingForResolution callback
-  // instead of emitting an error.
-  let pendingMemberResolution:
-    | { containerType: Type; node: MemberExpressionNode; baseSym: Sym }
-    | undefined;
+  /**
+   * Info about a member resolution that was deferred because the container is still being checked.
+   */
+  interface PendingMemberResolution {
+    containerType: Type;
+    node: MemberExpressionNode;
+    baseSym: Sym;
+  }
+
+  /**
+   * Stores pending member resolution info keyed by the member expression node.
+   * When a member access targets a container that is still being checked,
+   * the pending info is stored here so that `checkModelProperty` can register
+   * a `waitingForResolution` callback instead of leaving the error type.
+   */
+  const pendingMemberResolutions = new WeakMap<MemberExpressionNode, PendingMemberResolution>();
 
   const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
@@ -547,13 +556,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * and retried until a fixpoint is reached.
    */
   const checkQueue = new CheckQueue();
-
-  /**
-   * Tracks symbols whose check functions have started population.
-   * Used to prevent re-entrant population when shells are referenced
-   * during their own population phase.
-   */
-  const populatingSymbols = new Set<Sym>();
 
   /**
    * When inside a queue-managed check, check whether a declaration should be
@@ -1739,9 +1741,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         // Not a templated node, and we are moving through a typeref to a new declaration.
         // Therefore, we are no longer in a template declaration if we were before, and we are
         // visiting a new declaration, so we exit the active template observer scope, if any.
+        // Strip the mapper: non-template declarations must be checked in a mapper-free context.
+        // This ensures shells are populated correctly (check functions use mapper===undefined
+        // guards) and prevents leaking a caller's template mapper into an unrelated declaration.
         const innerCtx = ctx
           .maskFlags(CheckFlags.InTemplateDeclaration)
-          .exitTemplateObserverScope();
+          .exitTemplateObserverScope()
+          .withMapper(undefined);
         if (argumentNodes.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -1757,12 +1763,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return sym.type;
         } else if (symbolLinks.declaredType && !symbolLinks.declaredType.creating) {
           baseType = symbolLinks.declaredType;
-        } else if (symbolLinks.declaredType && symbolLinks.declaredType.creating && populatingSymbols.has(sym)) {
-          // Shell exists but is mid-population — return it to avoid re-entrant population
+        } else if (symbolLinks.declaredType?.creating && symbolLinks.declaredType.populating) {
+          // Shell exists and is mid-population — return it to avoid re-entrant population
           baseType = symbolLinks.declaredType;
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(innerCtx, sym);
         } else {
+          // No cached type, or shell exists but not yet being populated — check the declaration.
+          // This is the centralized force-check: if the target is a shell, this call populates it.
           baseType = checkDeclaredTypeOrIndeterminate(innerCtx, sym, decl);
         }
       } else {
@@ -1823,12 +1831,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       } else if (symbolLinks.type && !symbolLinks.type.creating) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
-      } else if (symbolLinks.type && symbolLinks.type.creating && populatingSymbols.has(sym)) {
+      } else if (symbolLinks.type?.creating && symbolLinks.type.populating) {
         // Shell exists but mid-population — return it
         baseType = symbolLinks.type;
       } else if (symbolLinks.declaredType && !symbolLinks.declaredType.creating) {
         baseType = symbolLinks.declaredType;
-      } else if (symbolLinks.declaredType && symbolLinks.declaredType.creating && populatingSymbols.has(sym)) {
+      } else if (symbolLinks.declaredType?.creating && symbolLinks.declaredType.populating) {
         baseType = symbolLinks.declaredType;
       } else {
         if (sym.flags & SymbolFlags.Member) {
@@ -2664,7 +2672,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         if (!links.declaredType.creating) {
           return links.declaredType as Operation;
         }
-        if (populatingSymbols.has(symbol!)) {
+        if (links.declaredType.populating) {
           return links.declaredType as Operation;
         }
       }
@@ -2734,7 +2742,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (symbol) {
-      populatingSymbols.add(symbol);
+      operationType.populating = true;
     }
 
     const parent = node.parent!;
@@ -2827,17 +2835,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       return undefined;
-    }
-
-    // Force-check the target declaration if it's still a shell
-    if (target && ctx.mapper === undefined) {
-      const targetLinks = getSymbolLinks(target);
-      if (targetLinks.declaredType?.creating) {
-        const targetNode = getSymNode(target);
-        if (targetNode) {
-          checkNode(ctx, targetNode, undefined);
-        }
-      }
     }
 
     // Resolve the base operation type
@@ -3725,7 +3722,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return templateAccessSym;
       }
 
-      const sym = resolveMemberInContainer(ctx, base, node, options);
+      const result = resolveMemberInContainer(ctx, base, node, options);
+      const sym = result?.sym;
+
+      // If member resolution was deferred (container still being checked),
+      // store the pending info keyed by the member expression node so that
+      // checkModelProperty can pick it up.
+      if (result?.pending) {
+        pendingMemberResolutions.set(node, result.pending);
+      }
 
       checkSymbolAccess(options.locationContext, node, sym);
 
@@ -4420,10 +4425,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     base: Sym,
     node: MemberExpressionNode,
     options: SymbolResolutionOptions,
-  ) {
+  ): { sym: Sym; pending?: undefined } | { sym?: undefined; pending: PendingMemberResolution } | undefined {
     const symbolFromType = resolveMemberOnSymbolType(ctx, base, node);
     if (symbolFromType) {
-      return symbolFromType;
+      return { sym: symbolFromType };
     }
 
     const { finalSymbol: sym, resolvedSymbol: nextSym } = resolver.resolveMemberExpressionForSym(
@@ -4433,24 +4438,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const symbol = nextSym ?? sym;
     if (symbol) {
-      return symbol;
+      return { sym: symbol };
     }
 
     // When the member wasn't found but the container has unknown members (e.g. from
     // template spreads or `is`), force-check the container type so that late-bound
     // members become available, then retry the lookup.
     if (node.selector === "." && base.flags & SymbolFlags.MemberContainer) {
-      const resolvedMember = tryForceResolveLateBoundMember(ctx, base, node);
-      if (resolvedMember) {
-        return resolvedMember;
+      const result = tryForceResolveLateBoundMember(ctx, base, node);
+      if (result) {
+        if ("resolved" in result) {
+          return { sym: result.resolved };
+        }
+        // Pending: the container is still being checked, member may appear later.
+        // Don't emit an error — let the caller handle deferred resolution.
+        return { pending: result.pending };
       }
-    }
-
-    // If the late-bound member resolution detected a creating container, the member may
-    // become available when the container finishes. Don't emit an error — let the caller
-    // handle deferred resolution via waitingForResolution callback.
-    if (pendingMemberResolution) {
-      return undefined;
     }
 
     if (base.flags & SymbolFlags.Namespace) {
@@ -4513,32 +4516,33 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Attempt to resolve a late-bound member by force-checking the container type.
    * This handles the case where a model has `hasUnknownMembers` (e.g. from template
    * spreads or `is`) and the member only becomes known after the type is fully checked.
+   *
+   * Returns either a resolved symbol, pending info for deferred resolution, or undefined.
    */
   function tryForceResolveLateBoundMember(
     ctx: CheckContext,
     base: Sym,
     node: MemberExpressionNode,
-  ): Sym | undefined {
+  ): { resolved: Sym } | { pending: PendingMemberResolution } | undefined {
     const links = getSymbolLinks(base);
     if (!links.hasUnknownMembers) {
       return undefined;
     }
 
     // Don't force-check if the container is currently being resolved (cycle).
-    // Record pending info so the caller can defer resolution via waitingForResolution.
+    // Return pending info so the caller can defer resolution via waitingForResolution.
     if (pendingResolutions.has(base, ResolutionKind.Type)) {
       const containerType = links.declaredType;
       if (containerType?.creating) {
-        pendingMemberResolution = { containerType, node, baseSym: base };
+        return { pending: { containerType, node, baseSym: base } };
       }
       return undefined;
     }
 
     // If the container type is already being checked (creating), we can't force-resolve
-    // its members yet. Record pending info for deferred resolution.
+    // its members yet. Return pending info for deferred resolution.
     if (links.declaredType?.creating) {
-      pendingMemberResolution = { containerType: links.declaredType, node, baseSym: base };
-      return undefined;
+      return { pending: { containerType: links.declaredType, node, baseSym: base } };
     }
 
     // Force-check the container type to populate its members.
@@ -4564,7 +4568,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return undefined;
     }
 
-    return getCanonicalResolvedMemberSymbol(type, node.id.sv);
+    const sym = getCanonicalResolvedMemberSymbol(type, node.id.sv);
+    return sym ? { resolved: sym } : undefined;
   }
 
   function getMemberKindName(node: Node) {
@@ -5398,7 +5403,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       // Still creating: either a shell waiting for population, or mid-population.
       // If population already started, return the shell to avoid re-entrant population.
-      if (populatingSymbols.has(node.symbol)) {
+      if (links.declaredType.populating) {
         return links.declaredType as any;
       }
       // Otherwise fall through to populate the shell.
@@ -5428,7 +5433,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const decorators: DecoratorApplication[] = type.decorators;
 
     // Track that this model is being populated to prevent re-entrant population
-    populatingSymbols.add(node.symbol);
+    type.populating = true;
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
@@ -6874,18 +6879,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    // Force-check the target declaration if it's still a shell (creating).
-    // Only for non-template contexts — template instantiation handles resolution
-    // via getTypeForNode which applies the correct mapper.
-    if (target && ctx.mapper === undefined) {
-      const targetLinks = getSymbolLinks(target);
-      if (targetLinks.declaredType?.creating) {
-        const targetNode = getSymNode(target);
-        if (targetNode) {
-          checkNode(ctx, targetNode, undefined);
-        }
-      }
-    }
     const heritageType = getTypeForNode(heritageRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     if (isErrorType(heritageType)) {
@@ -6947,18 +6940,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
-      }
-      // Force-check target declaration if still a shell (only for non-template contexts).
-      // During template instantiation, the target is resolved via getTypeForNode which
-      // handles template instantiation correctly.
-      if (target && ctx.mapper === undefined) {
-        const targetLinks = getSymbolLinks(target);
-        if (targetLinks.declaredType?.creating) {
-          const targetNode = getSymNode(target);
-          if (targetNode) {
-            checkNode(ctx, targetNode, undefined);
-          }
-        }
       }
       isType = getTypeForNode(isExpr, ctx);
     } else {
@@ -7111,12 +7092,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // If the type resolved to errorType because a member access targeted a container
     // that was still being checked, register a callback to update the property type
     // when the container finishes.
-    const pending = pendingMemberResolution;
-    pendingMemberResolution = undefined;
+    // The pending info is keyed by the MemberExpression node, which may be prop.value
+    // directly or prop.value.target when wrapped in a TypeReference.
+    const memberExprNode =
+      prop.value.kind === SyntaxKind.MemberExpression
+        ? prop.value
+        : prop.value.kind === SyntaxKind.TypeReference &&
+            prop.value.target.kind === SyntaxKind.MemberExpression
+          ? prop.value.target
+          : undefined;
+    const pending = memberExprNode
+      ? pendingMemberResolutions.get(memberExprNode)
+      : undefined;
+    if (pending && memberExprNode) {
+      pendingMemberResolutions.delete(memberExprNode);
+    }
     if (pending && type.type === errorType) {
       ensureResolved([pending.containerType], type, () => {
-        const resolvedType = tryForceResolveLateBoundMember(ctx, pending.baseSym, pending.node);
-        if (resolvedType) {
+        const result = tryForceResolveLateBoundMember(ctx, pending.baseSym, pending.node);
+        if (result && "resolved" in result) {
+          const resolvedType = result.resolved;
           if (resolvedType.flags & SymbolFlags.LateBound) {
             compilerAssert(resolvedType.type, "Expected late bound symbol to have type");
             type.type = resolvedType.type as Type;
@@ -7700,7 +7695,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (!links.declaredType.creating) {
         return links.declaredType as any;
       }
-      if (populatingSymbols.has(node.symbol)) {
+      if (links.declaredType.populating) {
         return links.declaredType as any;
       }
     }
@@ -7726,7 +7721,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     const decorators: DecoratorApplication[] = type.decorators;
 
-    populatingSymbols.add(node.symbol);
+    type.populating = true;
 
     if (node.extends) {
       type.baseScalar = checkScalarExtends(ctx, node, node.extends);
@@ -7770,17 +7765,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
       return undefined;
-    }
-    // Force-check the target declaration if it's still a shell
-    // Only for non-template contexts
-    if (target && ctx.mapper === undefined) {
-      const targetLinks = getSymbolLinks(target);
-      if (targetLinks.declaredType?.creating) {
-        const targetNode = getSymNode(target);
-        if (targetNode) {
-          checkNode(ctx, targetNode, undefined);
-        }
-      }
     }
     const extendsType = getTypeForNode(extendsRef, ctx);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
@@ -7978,7 +7962,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
-    if (!links.type || (links.type.creating && !populatingSymbols.has(node.symbol))) {
+    if (!links.type || (links.type.creating && !links.type.populating)) {
       checkModifiers(program, node);
       let enumType: Enum;
       if (links.type && links.type.creating) {
@@ -7993,7 +7977,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         });
       }
 
-      populatingSymbols.add(node.symbol);
+      enumType.populating = true;
 
       const memberNames = new Set<string>();
 
@@ -8049,7 +8033,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (!links.declaredType.creating) {
         return links.declaredType as Interface;
       }
-      if (populatingSymbols.has(node.symbol)) {
+      if (links.declaredType.populating) {
         return links.declaredType as Interface;
       }
     }
@@ -8074,7 +8058,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(ctx, links, interfaceType);
     }
 
-    populatingSymbols.add(node.symbol);
+    interfaceType.populating = true;
 
     interfaceType.decorators = checkDecorators(ctx, interfaceType, node);
 
@@ -8176,7 +8160,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (!links.declaredType.creating) {
         return links.declaredType as Union;
       }
-      if (populatingSymbols.has(node.symbol)) {
+      if (links.declaredType.populating) {
         return links.declaredType as Union;
       }
     }
@@ -8205,7 +8189,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(ctx, links, unionType);
     }
 
-    populatingSymbols.add(node.symbol);
+    unionType.populating = true;
 
     unionType.decorators = checkDecorators(ctx, unionType, node);
 

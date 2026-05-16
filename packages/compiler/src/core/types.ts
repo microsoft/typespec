@@ -90,6 +90,12 @@ export interface BaseType {
   creating?: true;
 
   /**
+   * If the type's members are currently being populated.
+   * Set when a check function begins populating a shell to prevent re-entrant population.
+   */
+  populating?: true;
+
+  /**
    * Reflect if a type has been finished(Decorators have been called).
    * There is multiple reasons a type might not be finished:
    * - a template declaration will not
