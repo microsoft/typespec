@@ -322,6 +322,12 @@ export class CheckQueue {
           }
         }
 
+        // If the callback didn't explicitly mark the item (e.g., type is still
+        // creating because deps weren't ready), treat it as deferred.
+        if (item.status === CheckItemStatus.InProgress) {
+          this.markDeferred(item, []);
+        }
+
         this.#activeItem = undefined;
 
         if (item.status === CheckItemStatus.Done) {

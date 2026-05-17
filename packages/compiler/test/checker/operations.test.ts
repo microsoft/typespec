@@ -420,3 +420,35 @@ describe("ensure the parameters are fully resolved before marking the operation 
     expect(myOp.parameters.properties.has("prop")).toBe(true);
   });
 });
+
+describe("operation with nested template spread instantiation", () => {
+  it("resolves parameters through nested template spreads", async () => {
+    const { test } = await Tester.compile(t.code`
+      model A<T> { x: string; }
+      model B<T> { ...A<T>; }
+      op base<P>(...P): void;
+      op derived<X> is base<B<X>>;
+      op ${t.op("test")} is derived<string>;
+    `);
+    strictEqual(test.parameters.properties.size, 1);
+    const x = test.parameters.properties.get("x")!;
+    strictEqual(x.type.kind, "Scalar");
+    strictEqual(x.type.name, "string");
+  });
+
+  it("resolves parameters in interface operations with nested template spreads", async () => {
+    const { Ops } = await Tester.compile(t.code`
+      model A<T> { x: string; }
+      model B<T> { ...A<T>; }
+      op base<P>(...P): void;
+      interface ${t.interface("Ops")} {
+        op1<X> is base<B<X>>;
+      }
+    `);
+    const op1 = Ops.operations.get("op1")!;
+    strictEqual(op1.parameters.properties.size, 1);
+    const x = op1.parameters.properties.get("x")!;
+    strictEqual(x.type.kind, "Scalar");
+    strictEqual(x.type.name, "string");
+  });
+});

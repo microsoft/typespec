@@ -497,7 +497,6 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
-  const waitingForResolution = new Map<Type, [Type, () => void][]>();
   const stats: CheckerStats = {
     createdTypes: 0,
     finishedTypes: 0,
@@ -527,10 +526,49 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Stores pending member resolution info keyed by the member expression node.
    * When a member access targets a container that is still being checked,
-   * the pending info is stored here so that `checkModelProperty` can register
-   * a `waitingForResolution` callback instead of leaving the error type.
+   * the pending info is stored here so that `checkModelProperty` can defer
+   * via the queue instead of leaving the error type.
    */
   const pendingMemberResolutions = new WeakMap<MemberExpressionNode, PendingMemberResolution>();
+
+  /**
+   * Returns true if any of the given types are still `creating` (not yet fully checked).
+   * Used by check functions to decide whether to proceed with population or
+   * return early and let the check queue retry.
+   */
+  function anyCreating(deps: readonly (Type | undefined)[]): boolean {
+    return deps.some((d) => d !== undefined && d.creating);
+  }
+
+  /**
+   * Instantiations deferred during DFS because a dependency was still populating
+   * (same call stack). After the top-level queue item finishes, these are retried
+   * since the populating dependencies should now be complete.
+   */
+  const pendingInstantiationRetries = new Map<Type, { ctx: CheckContext; node: Node }>();
+
+  /**
+   * After a queue item check completes, retry any instantiations that were
+   * deferred because a dependency was mid-population (same DFS). Now that
+   * the DFS has unwound, those dependencies should be fully checked.
+   */
+  function retryPendingInstantiations() {
+    let progress = true;
+    while (progress) {
+      progress = false;
+      for (const [type, { ctx, node }] of pendingInstantiationRetries) {
+        if (!type.creating) {
+          pendingInstantiationRetries.delete(type);
+          continue;
+        }
+        checkNode(ctx, node);
+        if (!type.creating) {
+          pendingInstantiationRetries.delete(type);
+          progress = true;
+        }
+      }
+    }
+  }
 
   const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
@@ -1966,7 +2004,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     const mapper = createTypeMapper(params, args, source, parentMapper);
     const cached = symbolLinks.instantiations?.get(mapper.args);
-    if (cached) {
+    if (cached && !cached.creating) {
       return cached;
     }
     if (instantiateTemplates) {
@@ -2117,58 +2155,33 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkIntersectionExpression(ctx: CheckContext, node: IntersectionExpressionNode) {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this model and we've already checked it
-      return links.declaredType as any;
+    // Check for existing type — declaration or cached instantiation
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Model | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
 
-    const intersection: Model = initModel(node);
+    let intersection: Model;
+    if (existingType?.creating) {
+      intersection = existingType;
+    } else {
+      intersection = initModel(node);
+    }
     const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, ctx)]);
 
-    ensureResolved(
-      options.map(([, type]) => type),
-      intersection,
-      () => {
-        const type = mergeModelTypes(ctx, node.symbol, node, options, intersection);
-        linkType(ctx, links, type);
-        finishType(intersection);
-      },
-    );
+    if (anyCreating(options.map(([, type]) => type))) {
+      return intersection;
+    }
+
+    const type = mergeModelTypes(ctx, node.symbol, node, options, intersection);
+    linkType(ctx, links, type);
+    finishType(intersection);
     return intersection;
-  }
-
-  function ensureResolved<T>(
-    types: readonly (Type | undefined)[],
-    awaitingType: Type,
-    callback: () => T,
-  ): void {
-    const waitingFor = new Set<Type>();
-    for (const type of types) {
-      if (type === undefined) continue;
-      if (type.creating) {
-        waitingFor.add(type);
-      }
-    }
-
-    function check() {
-      if (waitingFor.size === 0) {
-        callback();
-      }
-    }
-    for (const type of waitingFor) {
-      waitingForResolution.set(type, [
-        ...(waitingForResolution.get(type) || []),
-        [
-          awaitingType,
-          () => {
-            waitingFor.delete(type);
-            check();
-          },
-        ],
-      ]);
-    }
-
-    check();
   }
 
   function checkDecoratorDeclaration(
@@ -2667,16 +2680,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
     const links = symbol && getSymbolLinks(symbol);
 
-    if (links) {
-      if (links.declaredType && ctx.mapper === undefined) {
-        if (!links.declaredType.creating) {
-          return links.declaredType as Operation;
-        }
-        if (links.declaredType.populating) {
-          return links.declaredType as Operation;
-        }
-      }
+    // Check for existing type — declaration or cached instantiation
+    const existingType = links
+      ? ((ctx.mapper === undefined
+          ? links.declaredType
+          : links.instantiations?.get(ctx.mapper.args)) as Operation | undefined)
+      : undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
+    if (existingType?.populating) {
+      return existingType;
+    }
+
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
@@ -2723,8 +2740,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     let operationType: Operation;
-    if (links?.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
-      operationType = links.declaredType as Operation;
+    if (existingType?.creating) {
+      operationType = existingType;
+      // Clear for re-population on retry
+      operationType.decorators.length = 0;
+      operationType.sourceOperation = undefined;
     } else {
       operationType = createType({
         kind: "Operation",
@@ -2761,29 +2781,35 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(ctx, node, node.signature.baseOperation);
       if (baseOperation) {
-        ensureResolved([baseOperation], operationType, () => {
-          operationType.sourceOperation = baseOperation;
-          // Reference the same return type and create the parameters type
-          const clone = initializeClone(baseOperation.parameters, {
-            properties: createRekeyableMap(),
-          });
-
-          clone.properties = createRekeyableMap(
-            Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
-              key,
-              cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
-                model: clone,
-                sourceProperty: prop,
-              }),
-            ]),
-          );
-          operationType.parameters = finishType(clone);
-          operationType.returnType = baseOperation.returnType;
-
-          // Copy decorators from the base operation, inserting the base decorators first
-          operationType.decorators.push(...baseOperation.decorators);
-          finishOperation();
+        if (baseOperation.creating) {
+          // Base operation not ready yet — defer
+          if (ctx.mapper !== undefined) {
+            pendingInstantiationRetries.set(operationType, { ctx, node });
+          }
+          delete operationType.populating;
+          return operationType;
+        }
+        operationType.sourceOperation = baseOperation;
+        // Reference the same return type and create the parameters type
+        const clone = initializeClone(baseOperation.parameters, {
+          properties: createRekeyableMap(),
         });
+
+        clone.properties = createRekeyableMap(
+          Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
+            key,
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
+              model: clone,
+              sourceProperty: prop,
+            }),
+          ]),
+        );
+        operationType.parameters = finishType(clone);
+        operationType.returnType = baseOperation.returnType;
+
+        // Copy decorators from the base operation, inserting the base decorators first
+        operationType.decorators.push(...baseOperation.decorators);
+        finishOperation();
       } else {
         // If we can't resolve the signature we return an empty model.
         operationType.parameters = initModel();
@@ -2793,9 +2819,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       operationType.parameters = getTypeForNode(node.signature.parameters, ctx) as Model;
       operationType.returnType = getTypeForNode(node.signature.returnType, ctx);
-      ensureResolved([operationType.parameters], operationType, () => {
-        finishOperation();
-      });
+      if (operationType.parameters.creating) {
+        // Parameters not ready yet — defer
+        if (ctx.mapper !== undefined) {
+          pendingInstantiationRetries.set(operationType, { ctx, node });
+        }
+        delete operationType.populating;
+        return operationType;
+      }
+      finishOperation();
     }
 
     linkMapper(operationType, ctx.mapper);
@@ -3730,6 +3762,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // checkModelProperty can pick it up.
       if (result?.pending) {
         pendingMemberResolutions.set(node, result.pending);
+        // Don't cache this result — the member may become available after the
+        // container finishes checking and the queue retries.
+        referenceSymCache.delete(node);
       }
 
       checkSymbolAccess(options.locationContext, node, sym);
@@ -4530,7 +4565,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Don't force-check if the container is currently being resolved (cycle).
-    // Return pending info so the caller can defer resolution via waitingForResolution.
+    // Return pending info so the caller can defer resolution via the queue.
     if (pendingResolutions.has(base, ResolutionKind.Type)) {
       const containerType = links.declaredType;
       if (containerType?.creating) {
@@ -4969,9 +5004,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // Phase 1b: Create shells for all queued declarations.
     // Shells are empty type objects with creating=true that allow
     // cross-references to resolve before full population.
-    // Cycle detection is handled by force-checking targets in heritage
-    // functions (checkClassHeritage, checkModelIs, etc.) which ensures
-    // pendingResolutions tracking still works through mutual extends chains.
+    // Cycle detection is handled by the centralized force-check in reference
+    // resolution and pendingResolutions tracking for mutual extends chains.
     createDeclarationShells();
 
     // Phase 2: Process declarations via the worklist/fixpoint queue.
@@ -4981,16 +5015,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const queueResult = checkQueue.processUntilFixpoint((item) => {
       pendingResolutions.snapshot();
       try {
+        pendingInstantiationRetries.clear();
         checkNode(CheckContext.DEFAULT, item.node, undefined);
-        // Only mark as done if the type is fully checked (not still creating
-        // due to deferred ensureResolved callbacks)
+
+        // After the main DFS, retry any instantiations that were deferred
+        // because a dependency was still populating (same DFS). Now that the
+        // DFS has returned, those dependencies should be complete.
+        retryPendingInstantiations();
+
+        // Check if the type is fully resolved.
+        // If a check function encountered creating deps (e.g., circular spreads),
+        // it returns without finishing — the type stays creating and we defer.
         const itemLinks = getSymbolLinks(item.sym);
         const declaredType = itemLinks.declaredType;
         if (declaredType && !declaredType.creating) {
           checkQueue.markDone(item);
-        } else if (item.status === CheckItemStatus.InProgress) {
-          checkQueue.markDone(item);
         }
+        // If still creating, leave as InProgress — processUntilFixpoint
+        // will treat it as deferred when the iteration completes.
         pendingResolutions.discardSnapshot();
       } catch (e) {
         if (e instanceof DeferralSignal) {
@@ -5038,7 +5080,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     internalDecoratorValidation();
-    assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
   }
 
@@ -5290,23 +5331,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function assertNoPendingResolutions() {
-    if (waitingForResolution.size === 0) {
-      return;
-    }
-
-    const message = [
-      "Unexpected pending resolutions found",
-      ...[...waitingForResolution.entries()].flatMap(([type, items]) => {
-        const base = `  (${type.kind}) ${getTypeName(type)} => `;
-        return items.map(
-          ([item], index) => `${index === 0 ? base : " ".repeat(base.length)}${getTypeName(item)}`,
-        );
-      }),
-    ].join("\n");
-    compilerAssert(false, message);
-  }
-
   function checkDuplicateSymbols() {
     program.reportDuplicateSymbols(resolver.symbols.global.exports);
     for (const file of program.sourceFiles.values()) {
@@ -5396,27 +5420,37 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      // Fully checked → return immediately
-      if (!links.declaredType.creating) {
-        return links.declaredType as any;
-      }
-      // Still creating: either a shell waiting for population, or mid-population.
-      // If population already started, return the shell to avoid re-entrant population.
-      if (links.declaredType.populating) {
-        return links.declaredType as any;
-      }
-      // Otherwise fall through to populate the shell.
+    // Check for existing type — either a declaration shell or a cached instantiation
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Model | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
+    if (existingType?.populating) {
+      return existingType;
+    }
+    // existingType is either undefined (first check) or creating (retry)
+
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
-    // Reuse the shell if one was created upfront; otherwise create a new type.
+    // Reuse the shell/creating type if present; otherwise create a new type.
     let type: Model;
-    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
-      type = links.declaredType as Model;
+    if (existingType?.creating) {
+      type = existingType;
+      // Clear state for re-population on retry
+      type.properties.clear();
+      type.sourceModels.length = 0;
+      type.decorators.length = 0;
+      type.sourceModel = undefined;
+      type.baseModel = undefined;
+      type.indexer = undefined;
     } else {
       type = createType({
         kind: "Model",
@@ -5447,75 +5481,94 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const isBase = checkModelIs(ctx, node, node.is);
-    ensureResolved(
-      [
-        isBase,
-        ...node.properties
-          .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
-          .map((x) => checkSpreadTarget(ctx, node, x.target)),
-      ],
-      type,
-      () => {
-        if (isBase) {
-          type.sourceModel = isBase;
-          type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
-          decorators.push(...isBase.decorators);
-          if (isBase.indexer) {
-            type.indexer = isBase.indexer;
-          }
+    const spreadTargets = node.properties
+      .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
+      .map((x) => checkSpreadTarget(ctx, node, x.target));
 
-          for (const prop of isBase.properties.values()) {
-            const memberSym = getMemberSymbol(node.symbol, prop.name)!;
-            const newProp = cloneTypeForSymbol(memberSym, prop, {
-              sourceProperty: prop,
-              model: type,
-            });
-            linkIndirectMember(ctx, node, newProp);
-            type.properties.set(prop.name, newProp);
-          }
-        }
+    const deps = [isBase, ...spreadTargets];
 
-        if (isBase) {
-          type.baseModel = isBase.baseModel;
-        } else if (node.extends) {
-          type.baseModel = checkClassHeritage(ctx, node, node.extends);
-          if (type.baseModel) {
-            copyDeprecation(type.baseModel, type);
-          }
-        }
+    // If any dependency is still creating, return without populating.
+    // For queue-managed declarations (mapper===undefined), the queue retries.
+    // For template instantiations (mapper!==undefined), register for post-DFS retry.
+    if (anyCreating(deps)) {
+      if (ctx.mapper !== undefined) {
+        pendingInstantiationRetries.set(type, { ctx, node });
+      }
+      delete type.populating;
+      return type;
+    }
 
-        if (type.baseModel) {
-          type.baseModel.derivedModels.push(type);
-        }
 
-        // Hold on to the model type that's being defined so that it
-        // can be referenced
-        if (ctx.mapper === undefined) {
-          type.namespace?.models.set(type.name, type);
-        }
+    if (isBase) {
+      type.sourceModel = isBase;
+      type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
+      decorators.push(...isBase.decorators);
+      if (isBase.indexer) {
+        type.indexer = isBase.indexer;
+      }
 
-        // Evaluate the properties after
-        checkModelProperties(ctx, node, type.properties, type);
+      for (const prop of isBase.properties.values()) {
+        const memberSym = getMemberSymbol(node.symbol, prop.name)!;
+        const newProp = cloneTypeForSymbol(memberSym, prop, {
+          sourceProperty: prop,
+          model: type,
+        });
+        linkIndirectMember(ctx, node, newProp);
+        type.properties.set(prop.name, newProp);
+      }
+    }
 
-        decorators.push(...checkDecorators(ctx, type, node));
+    if (isBase) {
+      type.baseModel = isBase.baseModel;
+    } else if (node.extends) {
+      type.baseModel = checkClassHeritage(ctx, node, node.extends);
+      if (type.baseModel) {
+        copyDeprecation(type.baseModel, type);
+      }
+    }
 
-        linkMapper(type, ctx.mapper);
-        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
+    if (type.baseModel) {
+      if (!type.baseModel.derivedModels.includes(type)) {
+        type.baseModel.derivedModels.push(type);
+      }
+    }
 
-        lateBindMemberContainer(type);
-        lateBindMembers(type);
+    // Hold on to the model type that's being defined so that it
+    // can be referenced
+    if (ctx.mapper === undefined) {
+      type.namespace?.models.set(type.name, type);
+    }
 
-        const indexer = getIndexer(program, type);
-        if (type.name === "Array" && isInTypeSpecNamespace(type)) {
-          stdTypes.Array = type;
-        } else if (type.name === "Record" && isInTypeSpecNamespace(type)) {
-          stdTypes.Record = type;
-        }
-        if (indexer) {
-          type.indexer = indexer;
-        }
-      },
-    );
+    // Evaluate the properties after
+    checkModelProperties(ctx, node, type.properties, type);
+
+    // If any property is still creating (e.g., late-bound member unresolved),
+    // defer the model for queue retry.
+    for (const prop of type.properties.values()) {
+      if (prop.creating) {
+        delete type.populating;
+        return type;
+      }
+    }
+
+
+    decorators.push(...checkDecorators(ctx, type, node));
+
+    linkMapper(type, ctx.mapper);
+    finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
+
+    lateBindMemberContainer(type);
+    lateBindMembers(type);
+
+    const indexer = getIndexer(program, type);
+    if (type.name === "Array" && isInTypeSpecNamespace(type)) {
+      stdTypes.Array = type;
+    } else if (type.name === "Record" && isInTypeSpecNamespace(type)) {
+      stdTypes.Record = type;
+    }
+    if (indexer) {
+      type.indexer = indexer;
+    }
 
     return type;
   }
@@ -5523,26 +5576,38 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkModelExpression(ctx: CheckContext, node: ModelExpressionNode) {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      // we're not instantiating this model and we've already checked it
-      return links.declaredType as any;
+    // Check for existing type — declaration or cached instantiation
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Model | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
+    }
+    // existingType is either undefined (first check) or creating (retry)
+
+    let type: Model;
+    if (existingType?.creating) {
+      type = existingType;
+    } else {
+      type = initModel(node);
+      linkType(ctx, links, type);
+      linkMapper(type, ctx.mapper);
+    }
+    const properties = type.properties;
+
+    const spreadTargets = node.properties
+      .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
+      .map((x) => checkSpreadTarget(ctx, node, x.target));
+
+    if (anyCreating(spreadTargets)) {
+      return type; // still creating, outer queue item will retry
     }
 
-    const type = initModel(node);
-    const properties = type.properties;
-    linkType(ctx, links, type);
-    linkMapper(type, ctx.mapper);
-
-    ensureResolved(
-      node.properties
-        .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
-        .map((x) => checkSpreadTarget(ctx, node, x.target)),
-      type,
-      () => {
-        checkModelProperties(ctx, node, properties, type);
-        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
-      },
-    );
+    checkModelProperties(ctx, node, properties, type);
+    finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
     return type;
   }
 
@@ -7068,23 +7133,33 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const links = getSymbolLinksForMember(prop);
 
     if (links && links.declaredType && ctx.mapper === undefined) {
-      return links.declaredType as ModelProperty;
+      if (!links.declaredType.creating) {
+        return links.declaredType as ModelProperty;
+      }
+      // Property is creating from a previous deferred attempt — fall through to retry
     }
     const name = prop.id.sv;
 
-    const type: ModelProperty = createType({
-      kind: "ModelProperty",
-      name,
-      node: prop,
-      optional: prop.optional,
-      type: undefined!,
-      decorators: [],
-    });
+    let type: ModelProperty;
+    if (links?.declaredType?.creating) {
+      // Reuse the existing creating property from a deferred attempt
+      type = links.declaredType as ModelProperty;
+      type.decorators.length = 0;
+    } else {
+      type = createType({
+        kind: "ModelProperty",
+        name,
+        node: prop,
+        optional: prop.optional,
+        type: undefined!,
+        decorators: [],
+      });
 
-    // Link the property early so that re-entrant access (e.g., A.a from another model)
-    // finds this property via checkMemberSym without re-entering checkModelProperty.
-    if (links) {
-      linkType(ctx, links, type);
+      // Link the property early so that re-entrant access (e.g., A.a from another model)
+      // finds this property via checkMemberSym without re-entering checkModelProperty.
+      if (links) {
+        linkType(ctx, links, type);
+      }
     }
 
     type.type = getTypeForNode(prop.value, ctx);
@@ -7108,18 +7183,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingMemberResolutions.delete(memberExprNode);
     }
     if (pending && type.type === errorType) {
-      ensureResolved([pending.containerType], type, () => {
-        const result = tryForceResolveLateBoundMember(ctx, pending.baseSym, pending.node);
-        if (result && "resolved" in result) {
-          const resolvedType = result.resolved;
-          if (resolvedType.flags & SymbolFlags.LateBound) {
-            compilerAssert(resolvedType.type, "Expected late bound symbol to have type");
-            type.type = resolvedType.type as Type;
-          } else {
-            type.type = getTypeForNode(getSymNode(resolvedType)!, ctx);
-          }
+      if (pending.containerType.creating) {
+        // Container is still being checked — clear caches so the property can be
+        // re-evaluated when the outer model is retried by the queue.
+        if (links) {
+          links.declaredType = undefined;
         }
-      });
+        // Clear cached sym resolution so re-resolution on retry finds the member.
+        if (memberExprNode) {
+          referenceSymCache.delete(memberExprNode);
+        }
+        if (prop.value.kind === SyntaxKind.TypeReference) {
+          referenceSymCache.delete(prop.value);
+        } else if (prop.value.kind === SyntaxKind.MemberExpression) {
+          referenceSymCache.delete(prop.value);
+        }
+        // Return without finishing — the property stays creating, signaling to the
+        // outer model that it has unresolved dependencies.
+        return type;
+      }
+      // Container is done but member still didn't resolve — try once more
+      const result = tryForceResolveLateBoundMember(ctx, pending.baseSym, pending.node);
+      if (result && "resolved" in result) {
+        const resolvedType = result.resolved;
+        if (resolvedType.flags & SymbolFlags.LateBound) {
+          compilerAssert(resolvedType.type, "Expected late bound symbol to have type");
+          type.type = resolvedType.type as Type;
+        } else {
+          type.type = getTypeForNode(getSymNode(resolvedType)!, ctx);
+        }
+      }
     }
 
     // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
@@ -7691,22 +7784,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      if (!links.declaredType.creating) {
-        return links.declaredType as any;
-      }
-      if (links.declaredType.populating) {
-        return links.declaredType as any;
-      }
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Scalar | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
+    if (existingType?.populating) {
+      return existingType;
+    }
+
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
     let type: Scalar;
-    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
-      type = links.declaredType as Scalar;
+    if (existingType?.creating) {
+      type = existingType;
+      type.decorators.length = 0;
+      type.constructors.clear();
+      type.baseScalar = undefined;
     } else {
       type = createType({
         kind: "Scalar",
@@ -7854,7 +7955,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (links.declaredType && ctx.mapper === undefined) {
-      return links.declaredType;
+      if (!links.declaredType.creating) {
+        return links.declaredType;
+      }
+      // Value type still creating from a previous attempt — fall through to re-evaluate
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
@@ -8029,22 +8133,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      if (!links.declaredType.creating) {
-        return links.declaredType as Interface;
-      }
-      if (links.declaredType.populating) {
-        return links.declaredType as Interface;
-      }
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Interface | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
+    if (existingType?.populating) {
+      return existingType;
+    }
+
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
     let interfaceType: Interface;
-    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
-      interfaceType = links.declaredType as Interface;
+    if (existingType?.creating) {
+      interfaceType = existingType;
+      interfaceType.decorators.length = 0;
+      interfaceType.sourceInterfaces.length = 0;
+      interfaceType.operations.clear();
     } else {
       interfaceType = createType({
         kind: "Interface",
@@ -8104,6 +8216,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       interfaceType.operations.set(key, value);
     }
 
+    // If any member operation is still creating (e.g., its `is` base was not ready),
+    // defer the interface for queue retry.
+    for (const op of interfaceType.operations.values()) {
+      if (op.creating) {
+        delete interfaceType.populating;
+        return interfaceType;
+      }
+    }
+
     linkMapper(interfaceType, ctx.mapper);
 
     if (ctx.mapper === undefined) {
@@ -8156,22 +8277,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
-    if (links.declaredType && ctx.mapper === undefined) {
-      if (!links.declaredType.creating) {
-        return links.declaredType as Union;
-      }
-      if (links.declaredType.populating) {
-        return links.declaredType as Union;
-      }
+    const existingType = (
+      ctx.mapper === undefined
+        ? links.declaredType
+        : links.instantiations?.get(ctx.mapper.args)
+    ) as Union | undefined;
+
+    if (existingType && !existingType.creating) {
+      return existingType;
     }
+    if (existingType?.populating) {
+      return existingType;
+    }
+
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
     let unionType: Union;
-    if (links.declaredType && links.declaredType.creating && ctx.mapper === undefined) {
-      unionType = links.declaredType as Union;
+    if (existingType?.creating) {
+      unionType = existingType;
+      unionType.decorators.length = 0;
+      unionType.variants.clear();
     } else {
       const variants = createRekeyableMap<string, UnionVariant>();
       unionType = createType({
@@ -8482,11 +8610,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function markAsChecked<T extends Type>(type: T) {
     if (!type.creating) return;
     delete type.creating;
-    const pending = waitingForResolution.get(type);
-    if (pending) {
-      pending.forEach(([_, resolution]) => resolution());
-    }
-    waitingForResolution.delete(type);
   }
 
   function getLiteralType(
@@ -8666,6 +8789,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     if (type.isFinished) {
       clone = finishType(clone);
+    } else if (!type.creating) {
+      // Source type is fully checked (creating cleared by markAsChecked) but not isFinished
+      // (e.g., checked under InTemplateDeclaration with skipDecorators=true).
+      // Clear creating on the clone so it's not mistaken for a partially-built type.
+      delete clone.creating;
     }
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
