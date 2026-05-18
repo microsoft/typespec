@@ -1,8 +1,8 @@
-import { typingModule } from "#python/builtins.js";
 import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import { type ModelProperty, type Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
+import { typingModule } from "../../builtins.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 import { Method } from "./class-method.js";
 import { PrimitiveInitializer } from "./primitive-initializer.js";

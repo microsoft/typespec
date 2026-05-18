@@ -1,0 +1,6 @@
+export { $onEmit } from "./emitter.js";
+export { $lib } from "./lib.js";
+export type { Flavor, PyClientEmitterOptions } from "./lib.js";
+
+import "@typespec/http-client/typekit";
+import "@typespec/http/experimental/typekit";

@@ -1,6 +1,3 @@
-import { Experimental_OverridableComponent } from "#core/components/index.js";
-import { useTsp } from "#core/context/index.js";
-import { reportPythonDiagnostic } from "#python/lib.js";
 import { code, For, List, mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import {
@@ -12,7 +9,10 @@ import {
 } from "@typespec/compiler";
 import type { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 import type { Typekit } from "@typespec/compiler/typekit";
+import { Experimental_OverridableComponent } from "../../../core/components/index.js";
+import { useTsp } from "../../../core/context/index.js";
 import { datetimeModule, decimalModule, typingModule } from "../../builtins.js";
+import { reportPythonDiagnostic } from "../../lib.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { ArrayExpression } from "../array-expression/array-expression.js";
 import { RecordExpression } from "../record-expression/record-expression.js";
@@ -314,11 +314,13 @@ function isDeclaration($: Typekit, type: Type): boolean {
   switch (type.kind) {
     case "Namespace":
     case "Interface":
-    case "Enum":
     case "Operation":
     case "EnumMember":
     case "UnionVariant":
       return false;
+
+    case "Enum":
+      return Boolean(type.name);
 
     case "Model":
       if ($.array.is(type) || $.record.is(type)) {

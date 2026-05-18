@@ -1,6 +1,6 @@
-import { useTsp } from "#core/context/index.js";
 import * as py from "@alloy-js/python";
 import { isTemplateInstance, type Model, type Type } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/index.js";
 import { reportDiagnostic } from "../../../lib.js";
 import { typingModule } from "../../builtins.js";
 import { declarationRefkeys } from "../../utils/refkey.js";

@@ -1,11 +1,11 @@
-import { useTsp } from "#core/context/tsp-context.js";
-import { typingModule } from "#python/builtins.js";
-import { TypeExpression } from "#python/components/type-expression/type-expression.js";
-import { reportPythonDiagnostic } from "#python/lib.js";
-import { declarationRefkeys } from "#python/utils/refkey.js";
 import { mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Interface, Operation, Type } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/tsp-context.js";
+import { typingModule } from "../../builtins.js";
+import { reportPythonDiagnostic } from "../../lib.js";
+import { declarationRefkeys } from "../../utils/refkey.js";
+import { TypeExpression } from "../type-expression/type-expression.js";
 import { CallableParameters } from "./callable-parameters.js";
 
 export interface ProtocolDeclarationProps extends Omit<py.ClassDeclarationProps, "name"> {

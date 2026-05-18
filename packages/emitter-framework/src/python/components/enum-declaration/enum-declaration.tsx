@@ -1,7 +1,7 @@
-import { useTsp } from "#core/context/index.js";
 import { For, Prose } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/index.js";
 import { reportDiagnostic } from "../../../lib.js";
 import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
 import { EnumMember } from "./enum-member.js";

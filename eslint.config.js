@@ -123,7 +123,11 @@ const jsxFilesConfig = defineConfig({
   // @ts-expect-error --- plugins typing issue
   plugins: { "react-hooks": reactHooks },
   // Exclude need **/ to make sure this can be reused in typespec-azure
-  ignores: ["**/packages/emitter-framework/src/**/*", "**/packages/http-client-js/**/*"],
+  ignores: [
+    "**/packages/emitter-framework/src/**/*",
+    "**/packages/http-client-js/**/*",
+    "**/packages/http-client-py/**/*",
+  ],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",

@@ -1,8 +1,8 @@
-import { useTsp } from "#core/index.js";
-import { buildParameterDescriptors } from "#python/utils/operation.js";
-import { declarationRefkeys } from "#python/utils/refkey.js";
 import * as py from "@alloy-js/python";
 import type { Model, Operation } from "@typespec/compiler";
+import { useTsp } from "../../../core/index.js";
+import { buildParameterDescriptors } from "../../utils/operation.js";
+import { declarationRefkeys } from "../../utils/refkey.js";
 import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 

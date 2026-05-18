@@ -1,8 +1,8 @@
-import { typingModule } from "#python/builtins.js";
 import { refkey, type Children, type Refkey } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
+import { typingModule } from "../builtins.js";
 import { Atom } from "../components/atom/atom.js";
 import { TypeExpression } from "../components/type-expression/type-expression.js";
 import { efRefkey } from "./refkey.js";

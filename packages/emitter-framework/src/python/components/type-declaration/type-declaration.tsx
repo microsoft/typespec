@@ -1,6 +1,6 @@
-import { useTsp } from "#core/context/index.js";
 import * as py from "@alloy-js/python";
 import type { Type } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/index.js";
 import { EnumDeclaration } from "../enum-declaration/enum-declaration.js";
 import { TypeAliasDeclaration } from "../type-alias-declaration/type-alias-declaration.js";
 

@@ -1,8 +1,8 @@
-import { abcModule } from "#python/builtins.js";
 import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import { isTemplateDeclarationOrInstance, type Interface, type Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
+import { abcModule } from "../../builtins.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
