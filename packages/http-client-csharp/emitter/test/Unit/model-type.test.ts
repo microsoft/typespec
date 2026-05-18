@@ -283,6 +283,68 @@ op test(@body input: Pet): Pet;
       "Dog model should not have the discriminator property in the properties list",
     );
   });
+
+  it("@@clientName on discriminated subtypes should rename the generated model", async () => {
+    const program = await typeSpecCompile(
+      `
+@doc("The pet kind")
+enum PetKind {
+    Cat : "cat",
+    Dog : "dog",
+}
+
+@doc("The base Pet model")
+@discriminator("kind")
+model Pet {
+    @doc("The kind of the pet")
+    kind: PetKind;
+    @doc("The name of the pet")
+    name: string;
+}
+
+@doc("The cat")
+model Cat extends Pet {
+    kind: PetKind.Cat;
+}
+
+@doc("The dog")
+model Dog extends Pet {
+    kind: PetKind.Dog;
+}
+
+@@clientName(Cat, "RenamedCat", "csharp");
+@@clientName(Dog, "RenamedDog", "csharp");
+
+op test(@body input: Pet): Pet;
+`,
+      runner,
+      { IsNamespaceNeeded: true, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const models = root.models;
+    const renamedCat = models.find((m) => m.name === "RenamedCat");
+    const renamedDog = models.find((m) => m.name === "RenamedDog");
+    const originalCat = models.find((m) => m.name === "Cat");
+    const originalDog = models.find((m) => m.name === "Dog");
+    ok(renamedCat, "Cat model should be renamed via @@clientName to RenamedCat");
+    ok(renamedDog, "Dog model should be renamed via @@clientName to RenamedDog");
+    assert(
+      originalCat === undefined,
+      "Cat model should not exist with original name when renamed via @@clientName",
+    );
+    assert(
+      originalDog === undefined,
+      "Dog model should not exist with original name when renamed via @@clientName",
+    );
+    // assert the discriminated subtypes map on the base model uses the renamed types
+    const petModel = models.find((m) => m.name === "Pet");
+    ok(petModel);
+    ok(petModel.discriminatedSubtypes);
+    strictEqual(petModel.discriminatedSubtypes["cat"]?.name, "RenamedCat");
+    strictEqual(petModel.discriminatedSubtypes["dog"]?.name, "RenamedDog");
+  });
 });
 
 describe("Additional Properties property should work with extends syntax", () => {
