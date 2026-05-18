@@ -2,8 +2,7 @@
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
-# pylint: disable=protected-access, broad-except, too-many-branches, too-many-statements, unused-variable
-# pylint: disable=docstring-missing-param, docstring-missing-return, docstring-missing-rtype
+# pylint: disable=protected-access, broad-except
 
 import copy
 import calendar
@@ -651,6 +650,7 @@ def _xml_deser_bool(value):
     return text.lower() == "true"
 
 
+# pylint: disable=docstring-missing-param
 def _xml_deser_bytes(value):
     """Deserialize bytes from XML (base64)."""
     if isinstance(value, ET.Element):
@@ -785,7 +785,9 @@ def _extract_xml_model_type(rf_type):
     return None
 
 
-def _build_xml_field_plan(cls, attr_to_rest_field: dict) -> list:
+def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstring-missing-rtype, unused-variable
+    cls, attr_to_rest_field: dict
+) -> list:
     """Build a precomputed XML field plan for fast _init_from_xml iteration.
 
     Called once per model class in __new__. Returns a list of tuples:
@@ -842,6 +844,7 @@ def _build_xml_field_plan(cls, attr_to_rest_field: dict) -> list:
     return plan
 
 
+# pylint: enable=docstring-missing-param
 class Model(_MyMutableMapping):
     _is_model = True
     # label whether current class's _attr_to_rest_field has been calculated
@@ -882,7 +885,9 @@ class Model(_MyMutableMapping):
             dict_to_pass[rf._rest_name] = _create_value(rf, rf._default)
         super().__init__(dict_to_pass)
 
-    def _init_from_xml(self, element: ET.Element) -> dict[str, typing.Any]:
+    def _init_from_xml(  # pylint: disable=too-many-branches, too-many-statements
+        self, element: ET.Element
+    ) -> dict[str, typing.Any]:
         """Deserialize an XML element into a dict mapping rest field names to values.
 
         :param ET.Element element: The XML element to deserialize from.
