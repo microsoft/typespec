@@ -415,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         string tryResolveMethodName = $"TryResolve{property.Name}Array";
                         VariableExpression valueVar = valueParameter;
-                        statements.Add(new IfStatement(currentSlice.Property("IsEmpty"))
+                        statements.Add(new IfStatement(ReadOnlySpanSnippets.IsEmpty(currentSlice))
                         {
                             Return(new InvokeMethodExpression(null, tryResolveMethodName,
                                 [new VariableExpression(valueVar.Type, valueVar.Declaration, IsOut: true)]))
