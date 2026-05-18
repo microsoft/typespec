@@ -1,12 +1,7 @@
-import { afterEach, expect, it, vi } from "vitest";
-import { joinPaths } from "../../src/core/path-utils.js";
-import type { SystemHost } from "../../src/core/types.js";
+import { describe, expect, it } from "vitest";
 import { resolveEntrypointFile } from "../../src/server/entrypoint-resolver.js";
 import type { ServerLog } from "../../src/server/types.js";
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
+import { createTestFileSystem, resolveVirtualPath } from "../../src/testing/index.js";
 
 function createLogger() {
   const logs: ServerLog[] = [];
@@ -14,145 +9,162 @@ function createLogger() {
   return { log, logs };
 }
 
-function createMockHost(): SystemHost {
-  return {
-    readFile: vi.fn(),
-    stat: vi.fn(),
-  } as any;
+async function resolveEntrypoint(
+  files: Record<string, string>,
+  path: string,
+  entrypoints?: string[] | null,
+): Promise<string | undefined> {
+  const fs = createTestFileSystem();
+  for (const [filePath, content] of Object.entries(files)) {
+    fs.addTypeSpecFile(filePath, content);
+  }
+  const { log } = createLogger();
+  return resolveEntrypointFile(
+    fs.compilerHost,
+    entrypoints,
+    resolveVirtualPath(path),
+    undefined,
+    log,
+  );
 }
 
-it("returns client-provided entrypoint in current directory", async () => {
-  const host = createMockHost();
-  const cwd = "/ws/project";
-  const filePath = joinPaths(cwd, "src", "doc.tsp");
-  const expected = joinPaths(cwd, "custom.tsp");
-
-  // Mock host.stat to return isFile: true only for the expected path
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    return path === expected ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
+describe("entrypoint resolution", () => {
+  it("returns client-provided entrypoint in current directory", async () => {
+    const result = await resolveEntrypoint({ "project/custom.tsp": "" }, "project/src/doc.tsp", [
+      "custom.tsp",
+      "main.tsp",
+    ]);
+    expect(result).toBe(resolveVirtualPath("project/custom.tsp"));
   });
 
-  // Mock host.readFile to handle package.json reads
-  vi.mocked(host.readFile).mockImplementation(async (path) => {
-    if (path.endsWith("package.json")) {
-      return { text: "{}" } as any;
-    }
-    throw new Error("File not found");
+  it("finds client-provided entrypoint in parent directory when not in current", async () => {
+    const result = await resolveEntrypoint({ "repo/main.tsp": "" }, "repo/pkg/src/file.tsp", [
+      "missing.tsp",
+      "main.tsp",
+    ]);
+    expect(result).toBe(resolveVirtualPath("repo/main.tsp"));
   });
 
-  const { log } = createLogger();
-  const result = await resolveEntrypointFile(
-    host,
-    ["custom.tsp", "main.tsp"],
-    filePath,
-    undefined,
-    log,
-  );
+  it("falls back to tspMain from package.json when no client entrypoints exist", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "lib/package.json": JSON.stringify({ tspMain: "entry.tsp" }),
+        "lib/entry.tsp": "",
+      },
+      "lib/src/index.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("lib/entry.tsp"));
+  });
 
-  expect(result).toBe(expected);
+  it("uses the given path as main when nothing else is found", async () => {
+    const result = await resolveEntrypoint({ "standalone/file.tsp": "" }, "standalone/file.tsp");
+    expect(result).toBe(resolveVirtualPath("standalone/file.tsp"));
+  });
+
+  it("uses main.tsp as default entrypoint when entrypoints is null or undefined", async () => {
+    const files = { "project/main.tsp": "" };
+
+    const resultForNull = await resolveEntrypoint(files, "project/src/file.tsp", null);
+    expect(resultForNull).toBe(resolveVirtualPath("project/main.tsp"));
+
+    const resultForUndefined = await resolveEntrypoint(files, "project/src/file.tsp", undefined);
+    expect(resultForUndefined).toBe(resolveVirtualPath("project/main.tsp"));
+  });
 });
 
-it("finds client-provided entrypoint in parent directory when not in current", async () => {
-  const host = createMockHost();
-  const root = "/repo";
-  const sub = joinPaths(root, "pkg", "src");
-  const filePath = joinPaths(sub, "file.tsp");
-  const expected = joinPaths(root, "main.tsp");
-
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    // Only the parent root with main.tsp exists
-    return path === expected ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
-  });
-  vi.mocked(host.readFile).mockResolvedValue({ text: "{}" } as any);
-
-  const { log } = createLogger();
-  const result = await resolveEntrypointFile(
-    host,
-    ["missing.tsp", "main.tsp"],
-    filePath,
-    undefined,
-    log,
-  );
-  expect(result).toBe(expected);
-});
-
-it("falls back to tspMain from package.json when no client entrypoints exist", async () => {
-  const host = createMockHost();
-  const dir = "/lib";
-  const filePath = joinPaths(dir, "src", "index.tsp");
-  const pkgPath = joinPaths(dir, "package.json");
-  const tspMain = "entry.tsp";
-  const expected = joinPaths(dir, tspMain);
-
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    return path === expected ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
+describe("project tspconfig entrypoint resolution", () => {
+  it("uses project tspconfig entrypoint when kind is project", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "project/main.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/main.tsp"));
   });
 
-  vi.mocked(host.readFile).mockImplementation(async (path: string) => {
-    // Provide tspMain only for the starting directory's package.json; others are empty
-    const text = path === pkgPath ? JSON.stringify({ tspMain }) : "{}";
-    return { text } as any;
+  it("uses custom entrypoint from project tspconfig", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\nentrypoint: src/service.tsp\n",
+        "project/src/service.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/src/service.tsp"));
   });
 
-  const { log } = createLogger();
-  const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
-  expect(result).toBe(expected);
-});
-
-it("uses the given path as main when nothing else is found", async () => {
-  const host = createMockHost();
-  const filePath = "/standalone/file.tsp";
-
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    // The initial path should be treated as a file, but no other files exist
-    return path === filePath ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
-  });
-  vi.mocked(host.readFile).mockResolvedValue({ text: "{}" } as any);
-
-  const { log } = createLogger();
-  const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
-  expect(result).toBe(filePath);
-});
-
-it("uses main.tsp as default entrypoint when entrypoints is null or undefined and no package.json tspMain found", async () => {
-  const host = createMockHost();
-  const dir = "/project";
-  const filePath = joinPaths(dir, "src", "file.tsp");
-  const expectedMainTsp = joinPaths(dir, "main.tsp");
-
-  // Mock host.stat to return isFile: true only for the expected main.tsp path
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    return path === expectedMainTsp
-      ? ({ isFile: () => true } as any)
-      : ({ isFile: () => false } as any);
+  it("defaults to main.tsp when kind is project but no entrypoint specified", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\n",
+        "project/main.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/main.tsp"));
   });
 
-  // Mock host.readFile to return empty package.json (no tspMain)
-  vi.mocked(host.readFile).mockImplementation(async (path) => {
-    if (path.endsWith("package.json")) {
-      return { text: "{}" } as any; // Empty package.json, no tspMain
-    }
-    throw new Error("File not found");
+  it("project tspconfig stops the walk even if entrypoint file doesn't exist", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "project/src/doc.tsp": "", // file exists but entrypoint (main.tsp) doesn't
+      },
+      "project/src/doc.tsp",
+    );
+    // Falls back to the original file since entrypoint doesn't exist but boundary was found
+    expect(result).toBe(resolveVirtualPath("project/src/doc.tsp"));
   });
 
-  const { log } = createLogger();
-  const resultForNull = await resolveEntrypointFile(
-    host,
-    null, // Explicitly pass null for entrypoints
-    filePath,
-    undefined,
-    log,
-  );
+  it("project tspconfig takes priority over package.json tspMain at same level", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "project/package.json": JSON.stringify({ tspMain: "lib/entry.tsp" }),
+        "project/main.tsp": "",
+        "project/lib/entry.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/main.tsp"));
+  });
 
-  expect(resultForNull).toBe(expectedMainTsp);
+  it("non-project tspconfig is ignored by entrypoint resolution", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "emit:\n  - openapi\n",
+        "project/main.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    // Should fall through to main.tsp since tspconfig is not a project
+    expect(result).toBe(resolveVirtualPath("project/main.tsp"));
+  });
 
-  const resultForUndefined = await resolveEntrypointFile(
-    host,
-    undefined, // Explicitly pass undefined for entrypoints
-    filePath,
-    undefined,
-    log,
-  );
+  it("project tspconfig in parent dir is found by walk-up", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "project/main.tsp": "",
+      },
+      "project/src/deep/nested/file.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/main.tsp"));
+  });
 
-  expect(resultForUndefined).toBe(expectedMainTsp);
+  it("nested project boundary prevents walk-up to parent project", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "repo/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "repo/main.tsp": "",
+        "repo/services/orders/tspconfig.yaml": "kind: project\nentrypoint: main.tsp\n",
+        "repo/services/orders/main.tsp": "",
+      },
+      "repo/services/orders/src/doc.tsp",
+    );
+    // Should resolve to the nested project, not the parent
+    expect(result).toBe(resolveVirtualPath("repo/services/orders/main.tsp"));
+  });
 });

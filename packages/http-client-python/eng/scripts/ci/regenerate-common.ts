@@ -732,16 +732,23 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     rmSync(tempDir, { recursive: true, force: true });
   }
 
-  // Delete a couple of fully-generated package folders so regeneration has to
-  // recreate them from scratch (smoke test of full-emit path).
-  const targetsToDelete = [
-    join(testsGeneratedDir, "azure", "authentication-http-custom"),
-    join(testsGeneratedDir, "unbranded", "encode-array"),
-  ];
-  for (const target of targetsToDelete) {
-    if (existsSync(target)) {
-      console.log(pc.dim(`Deleting ${target}`));
-      rmSync(target, { recursive: true, force: true });
+  // Smoke test the full-emit path: delete a couple of fully-generated package
+  // folders and every README.md so regeneration has to recreate them.
+  const deleteIfExists = (path: string) => {
+    if (!existsSync(path)) return;
+    console.log(pc.dim(`Deleting ${path}`));
+    rmSync(path, { recursive: true, force: true });
+  };
+
+  deleteIfExists(join(testsGeneratedDir, "azure", "authentication-http-custom"));
+  deleteIfExists(join(testsGeneratedDir, "unbranded", "encode-array"));
+
+  if (existsSync(testsGeneratedDir)) {
+    const entries = await readdir(testsGeneratedDir, { recursive: true, withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name === "README.md") {
+        deleteIfExists(join(entry.parentPath, entry.name));
+      }
     }
   }
 }

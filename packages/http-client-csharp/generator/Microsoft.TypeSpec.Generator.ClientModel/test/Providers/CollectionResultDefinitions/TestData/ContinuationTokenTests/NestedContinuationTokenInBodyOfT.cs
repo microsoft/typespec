@@ -29,7 +29,7 @@ namespace Sample
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
                 nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
@@ -57,6 +57,11 @@ namespace Sample
         protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
         {
             return ((global::Sample.Models.Page)page).NestedItems?.Cats;
+        }
+
+        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

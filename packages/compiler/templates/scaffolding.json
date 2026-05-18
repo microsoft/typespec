@@ -9,6 +9,9 @@
       "@typespec/openapi",
       "@typespec/openapi3"
     ],
+    "config": {
+      "kind": "project"
+    },
     "emitters": {
       "@typespec/openapi3": {
         "selected": true,

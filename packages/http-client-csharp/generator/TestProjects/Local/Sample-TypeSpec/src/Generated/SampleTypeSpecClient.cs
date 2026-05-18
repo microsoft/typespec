@@ -1082,19 +1082,19 @@ namespace SampleTypeSpec
         /// <summary> get extensible enum. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<string> GetUnknownValue(CancellationToken cancellationToken = default)
+        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<string>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary>
