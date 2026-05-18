@@ -95,6 +95,7 @@ import {
   coalesceUnionTypes,
   ensureCSharpIdentifier,
   ensureCleanDirectory,
+  findNumericType,
   formatComment,
   getBusinessLogicCallParameters,
   getBusinessLogicDeclParameters,
@@ -492,8 +493,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         }
 
         const type = getCSharpType(program, prop.type);
+        const typeName =
+          prop.type.kind === "Number"
+            ? findNumericType(prop.type)[0]
+            : (type?.type.name ?? "object");
         properties.push(
-          `${type?.type.name} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
+          `${typeName} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
         );
         body.push(`\t\t${propertyName} = ${prop.name};`);
 
