@@ -8,37 +8,28 @@ using Microsoft.Extensions.Caching.Memory;
 namespace PlaygroundServer;
 
 /// <summary>
-/// Cached generator response for the playground server.
-/// Stored as the already-serialized JSON bytes plus content type so cache hits
-/// can short-circuit the entire generation pipeline.
+/// Cached generator response. Stored as the already-serialized JSON bytes plus
+/// content type so cache hits can return without re-serializing.
 /// </summary>
 public sealed record CachedGenerationResponse(byte[] Body, string ContentType);
 
 /// <summary>
-/// Container-local cache for /generate responses. See Item 3 of the playground
-/// perf design: this is Tier 1 (in-memory) only. Identical requests within a
-/// container short-circuit the dotnet sub-process invocation.
+/// Container-local in-memory cache for /generate responses.
 /// </summary>
 public interface IGenerationCache
 {
-    /// <summary>Look up a previously cached response.</summary>
     bool TryGet(string key, out CachedGenerationResponse? value);
 
-    /// <summary>Store a response, sized by its body length.</summary>
     void Set(string key, CachedGenerationResponse value);
 }
 
 /// <summary>
-/// IMemoryCache-backed implementation of <see cref="IGenerationCache"/>.
-/// Entry size is the response body length in bytes; total cache size is
-/// capped via <see cref="MemoryCacheOptions.SizeLimit"/> on the underlying cache.
+/// <see cref="IMemoryCache"/>-backed implementation of <see cref="IGenerationCache"/>.
 /// </summary>
 public sealed class MemoryGenerationCache : IGenerationCache
 {
-    /// <summary>Default cache size cap: 256 MB of response bodies.</summary>
     public const long DefaultSizeLimitBytes = 256L * 1024 * 1024;
 
-    /// <summary>Default sliding expiration for an entry.</summary>
     public static readonly TimeSpan DefaultSlidingExpiration = TimeSpan.FromHours(1);
 
     private readonly IMemoryCache _cache;
@@ -66,8 +57,6 @@ public sealed class MemoryGenerationCache : IGenerationCache
         ArgumentNullException.ThrowIfNull(value);
         ArgumentNullException.ThrowIfNull(value.Body);
 
-        // Size is in bytes; an entry will be evicted under SizeLimit pressure
-        // via the IMemoryCache compaction algorithm (LRU-ish, by priority).
         var size = Math.Max(1, value.Body.LongLength);
         var entryOptions = new MemoryCacheEntryOptions
         {
@@ -79,8 +68,8 @@ public sealed class MemoryGenerationCache : IGenerationCache
     }
 
     /// <summary>
-    /// Build a content-addressed cache key. Includes <paramref name="generatorVersion"/>
-    /// so a deploy of a new generator binary implicitly invalidates the cache.
+    /// Build a content-addressed cache key. Including <paramref name="generatorVersion"/>
+    /// means a deploy of a new generator binary implicitly invalidates the cache.
     /// </summary>
     public static string ComputeKey(string generatorName, string codeModel, string configuration, string generatorVersion)
     {
@@ -89,8 +78,8 @@ public sealed class MemoryGenerationCache : IGenerationCache
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(generatorVersion);
 
-        // Length-prefix each component so concatenation is unambiguous.
-        // e.g. "Foo" + "BarBaz" must not collide with "FooBar" + "Baz".
+        // Length-prefix each component so concatenation is unambiguous:
+        // "Foo" + "BarBaz" must not collide with "FooBar" + "Baz".
         var sb = new StringBuilder(generatorName.Length + codeModel.Length + configuration.Length + generatorVersion.Length + 64);
         Append(sb, generatorName);
         Append(sb, generatorVersion);

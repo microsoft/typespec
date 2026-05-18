@@ -40,7 +40,6 @@ if (!string.IsNullOrEmpty(playgroundUrls))
 builder.Services.AddCors();
 builder.Services.AddMemoryCache(options =>
 {
-    // Tier 1 cache cap (Item 3 of playground perf plan): 256 MB of response bodies.
     options.SizeLimit = MemoryGenerationCache.DefaultSizeLimitBytes;
 });
 builder.Services.AddSingleton<IGenerationCache, MemoryGenerationCache>();
@@ -94,9 +93,8 @@ else
     Console.WriteLine($"Generator DLL: {generatorPath}");
 }
 
-// Capture the generator's assembly file version at startup so it can be folded
-// into the cache key. A new deploy with a different binary therefore implicitly
-// invalidates every previously cached response.
+// Capture the generator's assembly file version at startup so a deploy of a
+// new binary implicitly invalidates every previously cached response.
 string generatorVersion;
 try
 {
@@ -166,9 +164,6 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
         return Results.StatusCode(503);
     }
 
-    // Tier 1 cache lookup: identical (generator, codeModel, configuration, version)
-    // requests reuse the previously serialized response and skip the dotnet
-    // sub-process entirely.
     var cacheKey = MemoryGenerationCache.ComputeKey(generatorName, body.CodeModel!, body.Configuration!, generatorVersion);
     if (cache.TryGet(cacheKey, out var cached) && cached is not null)
     {
@@ -269,7 +264,6 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
             }
         }
 
-        // Serialize once so we can both cache and return the same bytes.
         var responseBytes = JsonSerializer.SerializeToUtf8Bytes(
             new GenerateResponse(files),
             GenerateJsonContext.Default.GenerateResponse);

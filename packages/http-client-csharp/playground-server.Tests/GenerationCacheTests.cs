@@ -66,7 +66,6 @@ public class GenerationCacheTests
     [Test]
     public void ComputeKey_ChangesWhenGeneratorVersionChanges()
     {
-        // Item 3 acceptance: a deploy bumps the version and must invalidate.
         var a = MemoryGenerationCache.ComputeKey("gen", "m", "c", "1.0.0");
         var b = MemoryGenerationCache.ComputeKey("gen", "m", "c", "1.0.1");
         Assert.AreNotEqual(a, b);
@@ -141,21 +140,16 @@ public class GenerationCacheTests
     [Test]
     public void SizeLimit_EvictsEntriesUnderPressure()
     {
-        // SizeLimit is bytes; each entry's Size is its body length.
-        // Fill past the cap and trigger compaction.
         using var backing = new MemoryCache(new MemoryCacheOptions { SizeLimit = 1024, CompactionPercentage = 0.5 });
         var cache = new MemoryGenerationCache(backing);
 
-        // Each entry is 256 bytes -> fits 4 entries before pressure.
         var payload = new byte[256];
         for (int i = 0; i < 8; i++)
         {
             cache.Set("k" + i, new CachedGenerationResponse(payload, "application/json"));
         }
-        // Force a full synchronous compaction to make eviction deterministic in the test.
         backing.Compact(0.0);
 
-        // Total cache should not exceed the cap.
         Assert.LessOrEqual(backing.Count * 256, 1024);
     }
 
@@ -166,7 +160,6 @@ public class GenerationCacheTests
         cache.Set("k", MakeResponse("x"));
         Assert.IsTrue(cache.TryGet("k", out _));
 
-        // Wait past the sliding window without touching the entry.
         await Task.Delay(200);
         Assert.IsFalse(cache.TryGet("k", out var value));
         Assert.IsNull(value);
