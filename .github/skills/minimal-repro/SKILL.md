@@ -33,7 +33,7 @@ If the repro needs packages NOT in the workspace (e.g., `@azure-tools/*`), use a
 
 ## Tips
 
-- Most repros reduce to a single file with no namespaces needed.
+- Most reproductions reduce to a single file with no namespaces needed.
 - Remove `@service`, `@server`, `@doc`, `@info` early — they're rarely relevant.
 - Combine multi-file code into one file by inlining.
 - If the error doesn't reproduce, check for missing `import`/`using` statements.
