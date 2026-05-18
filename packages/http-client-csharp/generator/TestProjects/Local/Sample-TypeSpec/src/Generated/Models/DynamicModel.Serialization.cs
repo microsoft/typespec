@@ -994,7 +994,7 @@ namespace SampleTypeSpec
             {
                 yield break;
             }
-            for (int i = 0; (i < ListFoo.Count); i++)
+            for (int i = 0; i < ListFoo.Count; i++)
             {
                 if (!ListFoo[i].Patch.IsRemoved("$"u8))
                 {
