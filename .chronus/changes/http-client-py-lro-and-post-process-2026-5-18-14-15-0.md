@@ -31,6 +31,8 @@ class WidgetServiceClient:
         )
 ```
 
-A new opt-in `post-process: "pyodide" | "none"` emitter option (default
-`"none"`) runs `black` over the emitted output and injects pylint headers for
-shippable Python, matching `@typespec/http-client-python`'s behavior.
+A new `post-process: "pyodide" | "none"` emitter option (**default `"pyodide"`**)
+runs `black` over the emitted output and injects pylint headers for
+shippable Python, matching `@typespec/http-client-python`'s shippable
+output. In-memory test harnesses short-circuit pyodide since no real disk
+write happens, so tests stay fast.

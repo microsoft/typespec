@@ -22,7 +22,7 @@ export async function $onEmit(context: EmitContext<PyClientEmitterOptions>) {
   }
   const packageName = context.options["package-name"] ?? "test-package";
   const packageVersion = context.options["package-version"] ?? "1.0.0";
-  const postProcess = context.options["post-process"] ?? "none";
+  const postProcess = context.options["post-process"] ?? "pyodide";
 
   const output = (
     <Output program={context.program}>

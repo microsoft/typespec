@@ -84,19 +84,20 @@ Whether to emit asynchronous client modules (under `aio/`).
 
 ### `post-process`
 
-**Type:** `"pyodide" | "none"` (default: `"none"`)
+**Type:** `"pyodide" | "none"` (default: `"pyodide"`)
 
-Optional post-processing pass that runs over the emitted Python output:
+Post-processing pass that runs over the emitted Python output:
 
-- `"pyodide"` — load Pyodide and run `black` over every emitted `.py` file,
-  plus inject `# pylint: disable=line-too-long,too-many-lines` headers into
-  files that exceed pylint's defaults. This matches the behavior of
-  `@typespec/http-client-python` and produces shippable output, but pays a
-  one-time cost to bootstrap a Python VM in WASM (~25MB download, several
-  seconds of startup).
+- `"pyodide"` (default) — load Pyodide and run `black` over every emitted
+  `.py` file, plus inject `# pylint: disable=line-too-long,too-many-lines`
+  headers into files that exceed pylint's defaults. This matches the
+  behavior of `@typespec/http-client-python` and produces idiomatically
+  formatted, shippable output. Pays a one-time cost to bootstrap a Python
+  VM in WASM (~25MB download, several seconds of startup) but only when
+  compiling to disk; in-memory test harnesses short-circuit it.
 - `"none"` — write the alloy-rendered output as-is. The output is still
-  valid Python, but won't be `black`-formatted. Best for fast incremental
-  development and tests.
+  valid Python, but won't be `black`-formatted. Useful for fast incremental
+  development when you don't care about formatting.
 
 You can also run the post-processor independently after emitting:
 
@@ -162,4 +163,3 @@ The heuristic detection is intended to be replaced once `@typespec/http-client`
 exposes a first-class LRO contract; the renderer (`src/components/operations/lro-operation.tsx`)
 is decoupled from the detection layer (`src/lro/detect.ts`) for exactly that
 reason.
-

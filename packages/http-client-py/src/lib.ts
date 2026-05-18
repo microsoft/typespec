@@ -62,9 +62,9 @@ const EmitterOptionsSchema: JSONSchemaType<PyClientEmitterOptions> = {
       type: "string",
       enum: ["pyodide", "none"],
       nullable: true,
-      default: "none",
+      default: "pyodide",
       description:
-        "Post-process the emitted Python with Pyodide-hosted black + pylint header injection. Defaults to 'none' so unit tests and incremental compiles stay fast; set to 'pyodide' for shippable output.",
+        "Post-process the emitted Python with Pyodide-hosted black + pylint header injection. Defaults to 'pyodide' for shippable, idiomatically-formatted output (matching `@typespec/http-client-python`); set to 'none' to skip pyodide and emit raw alloy output (useful for fast incremental development).",
     },
   },
   required: [],
