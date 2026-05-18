@@ -1401,7 +1401,7 @@ class Deserializer:
         # Otherwise, result are unexpected
         self.additional_properties_detection = True
 
-    def __call__(self, target_obj, response_data, content_type=None):
+    def __call__(self, target_obj, response_data, content_type=None):  # pylint: disable=too-many-return-statements
         """Call the deserializer to process a REST response.
 
         :param str target_obj: Target data type to deserialize to.

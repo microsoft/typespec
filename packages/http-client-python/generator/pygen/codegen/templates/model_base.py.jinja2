@@ -2,7 +2,8 @@
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
-# pylint: disable=protected-access, broad-except
+# pylint: disable=protected-access, broad-except, too-many-branches, too-many-statements, unused-variable
+# pylint: disable=docstring-missing-param, docstring-missing-return, docstring-missing-rtype
 
 import copy
 import calendar
