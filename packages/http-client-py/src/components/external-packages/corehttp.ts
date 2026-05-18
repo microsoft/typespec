@@ -12,6 +12,16 @@ export const coreHttpModule = createModule({
     rest: ["HttpRequest", "HttpResponse", "AsyncHttpResponse"],
     exceptions: ["HttpResponseError"],
     credentials: ["TokenCredential", "AsyncTokenCredential", "AzureKeyCredential"],
+    polling: [
+      "LROPoller",
+      "AsyncLROPoller",
+      "LROBasePolling",
+      "AsyncLROBasePolling",
+      "PollingMethod",
+      "AsyncPollingMethod",
+      "NoPolling",
+      "AsyncNoPolling",
+    ],
   },
 });
 
@@ -27,6 +37,16 @@ export const azureCoreModule = createModule({
     rest: ["HttpRequest", "HttpResponse", "AsyncHttpResponse"],
     exceptions: ["HttpResponseError"],
     credentials: ["TokenCredential", "AzureKeyCredential"],
+    polling: [
+      "LROPoller",
+      "AsyncLROPoller",
+      "LROBasePolling",
+      "AsyncLROBasePolling",
+      "PollingMethod",
+      "AsyncPollingMethod",
+      "NoPolling",
+      "AsyncNoPolling",
+    ],
   },
 });
 

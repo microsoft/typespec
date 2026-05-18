@@ -1,16 +1,21 @@
 import { For, refkey } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import { useTsp } from "@typespec/emitter-framework";
-import { TypeExpression } from "@typespec/emitter-framework/python";
 import * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
 import { coreHttpModule } from "./external-packages/corehttp.js";
+import { renderClientOperation } from "./operations/index.js";
 
 /**
- * Phase-1 stub: for every top-level client (and its sub-clients) emit a Python
- * class with `endpoint`/`credential` fields and one method per operation whose
- * body just raises `NotImplementedError`. Operation bodies, request building,
- * response parsing, auth pipelines, paging, and LRO are deferred.
+ * Phase-1+ stub: for every top-level client (and its sub-clients) emit a
+ * Python class with `endpoint`/`credential` fields. Each TypeSpec operation
+ * is rendered by dispatching through the {@link renderClientOperation}
+ * registry, which currently knows how to emit two flavors:
+ *
+ * - `basic` — a stub `def foo(...)` that raises `NotImplementedError`.
+ * - `lro` — a `begin_foo(...) -> LROPoller[T]` pair (public + `_foo_initial`).
+ *
+ * Real HTTP wiring, request building, paging, and async variants come later.
  */
 export function Client() {
   const namePolicy = py.usePythonNamePolicy();
@@ -62,31 +67,8 @@ function ClientClass(props: ClientClassProps) {
         {"self.endpoint = endpoint\nself.credential = credential\n"}
       </py.DunderMethodDeclaration>
       <For each={operations} hardline>
-        {(op) => <ClientMethod operation={op.httpOperation.operation} />}
+        {(op) => renderClientOperation(op)}
       </For>
     </py.ClassDeclaration>
-  );
-}
-
-interface ClientMethodProps {
-  operation: import("@typespec/compiler").Operation;
-}
-
-function ClientMethod(props: ClientMethodProps) {
-  const namePolicy = py.usePythonNamePolicy();
-  const methodName = namePolicy.getName(props.operation.name, "function");
-  const returnTypeNode = <TypeExpression type={props.operation.returnType} />;
-  const parameters = Array.from(props.operation.parameters.properties.values()).map((p) => {
-    const paramName = namePolicy.getName(p.name, "parameter");
-    return {
-      name: paramName,
-      type: (<TypeExpression type={p.type} />) as any,
-      optional: p.optional,
-    };
-  });
-  return (
-    <py.MethodDeclaration name={methodName} parameters={parameters} returnType={returnTypeNode}>
-      {`raise NotImplementedError("Operation '${props.operation.name}' is not implemented yet")`}
-    </py.MethodDeclaration>
   );
 }

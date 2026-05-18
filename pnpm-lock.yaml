@@ -1289,6 +1289,9 @@ importers:
       '@typespec/http-client':
         specifier: workspace:^
         version: link:../http-client
+      pyodide:
+        specifier: 0.26.2
+        version: 0.26.2
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
@@ -11624,6 +11627,10 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  pyodide@0.26.2:
+    resolution: {integrity: sha512-8VCRdFX83gBsWs6XP2rhG8HMaB+JaVyyav4q/EMzoV8fXH8HN6T5IISC92SNma6i1DRA3SVXA61S1rJcB8efgA==}
+    engines: {node: '>=18.0.0'}
 
   qs@6.15.0:
     resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
@@ -24886,6 +24893,13 @@ snapshots:
   punycode.js@2.3.1: {}
 
   punycode@2.3.1: {}
+
+  pyodide@0.26.2:
+    dependencies:
+      ws: 8.20.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   qs@6.15.0:
     dependencies:

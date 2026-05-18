@@ -45,6 +45,7 @@ options:
     flavor: unbranded
     generate-sync: true
     generate-async: true
+    post-process: pyodide
 ```
 
 ## Emitter options
@@ -80,3 +81,85 @@ Whether to emit synchronous client modules.
 **Type:** `boolean` (default: `true`)
 
 Whether to emit asynchronous client modules (under `aio/`).
+
+### `post-process`
+
+**Type:** `"pyodide" | "none"` (default: `"none"`)
+
+Optional post-processing pass that runs over the emitted Python output:
+
+- `"pyodide"` — load Pyodide and run `black` over every emitted `.py` file,
+  plus inject `# pylint: disable=line-too-long,too-many-lines` headers into
+  files that exceed pylint's defaults. This matches the behavior of
+  `@typespec/http-client-python` and produces shippable output, but pays a
+  one-time cost to bootstrap a Python VM in WASM (~25MB download, several
+  seconds of startup).
+- `"none"` — write the alloy-rendered output as-is. The output is still
+  valid Python, but won't be `black`-formatted. Best for fast incremental
+  development and tests.
+
+You can also run the post-processor independently after emitting:
+
+```bash
+npx tsp-py-postprocess ./generated
+```
+
+## Long-running operations (LROs)
+
+LRO support is **early and heuristic-based**. The unbranded TypeSpec stack
+(`@typespec/compiler`, `@typespec/http`, `@typespec/http-client`) does not
+model LROs today — LRO metadata lives in `Azure.Core` (`@useFinalStateVia`,
+`@pollingOperation`, `@lroStatus`, `@finalLocation`) and is consumed by
+emitters via TCGC's `SdkLroServiceMethod`. Until an unbranded LRO contract
+lands upstream, this emitter detects LROs by inspecting HTTP responses
+directly:
+
+- **Trigger:** an operation has a `202 Accepted` response that includes one
+  of the `Operation-Location`, `Location`, or `Azure-AsyncOperation` headers.
+- **Output shape (mirrors `pygen.codegen.models.lro_operation`):**
+  - Public method is renamed with a `begin_` prefix (e.g. `createWidget`
+    becomes `begin_create_widget`) unless its name already starts with
+    `begin`.
+  - A private companion `_X_initial` method is emitted; it currently raises
+    `NotImplementedError` and will be filled in when basic operation bodies
+    land.
+  - The public method's return type is wrapped in `LROPoller[T]`, where `T`
+    is the operation's success-response model.
+  - The public method body calls `self._X_initial(...)` and wraps the result
+    in `corehttp.polling.LROPoller(...)` with a default `LROBasePolling()`
+    strategy.
+
+Example:
+
+```python
+from corehttp.polling import LROBasePolling, LROPoller
+
+class WidgetServiceClient:
+    def _create_widget_initial(self, widget: Widget) -> object:
+        raise NotImplementedError(...)
+
+    def begin_create_widget(self, widget: Widget) -> LROPoller[Widget]:
+        raw_result = self._create_widget_initial(widget)
+        return LROPoller(
+            client=self,
+            initial_response=raw_result,
+            deserialization_callback=lambda pipeline_response: pipeline_response,
+            polling_method=LROBasePolling(),
+        )
+```
+
+**Deliberately deferred** (Phase 2B and beyond):
+
+- Polling strategy selection beyond the default `LROBasePolling`.
+- `finalStateVia` semantics (`azure-async-operation` vs. `location` vs.
+  `original-uri`).
+- The actual HTTP send + initial-response deserialization in `_X_initial`.
+- Async variant (`AsyncLROPoller`).
+- `cls` callback parameter.
+- Docstrings with `:return:` / `:rtype:` per pygen conventions.
+
+The heuristic detection is intended to be replaced once `@typespec/http-client`
+exposes a first-class LRO contract; the renderer (`src/components/operations/lro-operation.tsx`)
+is decoupled from the detection layer (`src/lro/detect.ts`) for exactly that
+reason.
+

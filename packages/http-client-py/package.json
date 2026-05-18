@@ -36,6 +36,9 @@
       "import": "./dist/src/components/index.js"
     }
   },
+  "bin": {
+    "tsp-py-postprocess": "./dist/src/bin/post-process.js"
+  },
   "keywords": [
     "typespec",
     "python"
@@ -52,7 +55,8 @@
     "@alloy-js/core": "catalog:",
     "@alloy-js/python": "catalog:",
     "@typespec/emitter-framework": "workspace:^",
-    "@typespec/http-client": "workspace:^"
+    "@typespec/http-client": "workspace:^",
+    "pyodide": "0.26.2"
   },
   "devDependencies": {
     "@alloy-js/cli": "catalog:",

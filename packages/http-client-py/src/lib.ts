@@ -2,12 +2,24 @@ import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
 
 export type Flavor = "unbranded" | "azure";
 
+/**
+ * Strategy for post-processing the emitted Python.
+ *
+ * - `"pyodide"` — load Pyodide and run `black` over the emitted output,
+ *   plus inject pylint disable headers for files that exceed pylint defaults.
+ *   This matches the behavior of `@typespec/http-client-python`.
+ * - `"none"` — write the alloy-rendered output as-is. Useful in fast
+ *   incremental workflows and tests.
+ */
+export type PostProcess = "pyodide" | "none";
+
 export interface PyClientEmitterOptions {
   "package-name"?: string;
   "package-version"?: string;
   flavor?: Flavor;
   "generate-sync"?: boolean;
   "generate-async"?: boolean;
+  "post-process"?: PostProcess;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<PyClientEmitterOptions> = {
@@ -45,6 +57,14 @@ const EmitterOptionsSchema: JSONSchemaType<PyClientEmitterOptions> = {
       nullable: true,
       default: true,
       description: "Whether to emit an asynchronous client (under aio/).",
+    },
+    "post-process": {
+      type: "string",
+      enum: ["pyodide", "none"],
+      nullable: true,
+      default: "none",
+      description:
+        "Post-process the emitted Python with Pyodide-hosted black + pylint header injection. Defaults to 'none' so unit tests and incremental compiles stay fast; set to 'pyodide' for shippable output.",
     },
   },
   required: [],
