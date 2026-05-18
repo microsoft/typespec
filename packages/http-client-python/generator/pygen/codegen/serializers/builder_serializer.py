@@ -681,8 +681,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     else body_param.type
                 ),
             )
-            file_fields = [p.wire_name for p in model_type.properties if p.is_multipart_file_input]
-            data_fields = [p.wire_name for p in model_type.properties if not p.is_multipart_file_input]
+            fields = [(p.wire_name, p.is_multipart_file_input) for p in model_type.properties]
             retval.extend(
                 [
                     "_body = (",
@@ -690,9 +689,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     f"    if isinstance({body_param.client_name}, _Model) else",
                     f"    {body_param.client_name}",
                     ")",
-                    f"_file_fields: list[str] = {file_fields}",
-                    f"_data_fields: list[str] = {data_fields}",
-                    "_files = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
+                    f"_fields: list[tuple[str, bool]] = {fields}",
+                    "_files = prepare_multipart_form_data(_body, _fields)",
                 ]
             )
             return retval
