@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Caching.Memory;
+using PlaygroundServer;
 
 const int MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
 const int GeneratorTimeoutSeconds = 300;
@@ -36,6 +38,12 @@ if (!string.IsNullOrEmpty(playgroundUrls))
 }
 
 builder.Services.AddCors();
+builder.Services.AddMemoryCache(options =>
+{
+    // Tier 1 cache cap (Item 3 of playground perf plan): 256 MB of response bodies.
+    options.SizeLimit = MemoryGenerationCache.DefaultSizeLimitBytes;
+});
+builder.Services.AddSingleton<IGenerationCache, MemoryGenerationCache>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
@@ -86,6 +94,23 @@ else
     Console.WriteLine($"Generator DLL: {generatorPath}");
 }
 
+// Capture the generator's assembly file version at startup so it can be folded
+// into the cache key. A new deploy with a different binary therefore implicitly
+// invalidates every previously cached response.
+string generatorVersion;
+try
+{
+    generatorVersion = File.Exists(generatorPath)
+        ? (FileVersionInfo.GetVersionInfo(generatorPath).FileVersion ?? "unknown")
+        : "missing";
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"WARNING: Failed to read generator version from {generatorPath}: {ex.Message}");
+    generatorVersion = "unknown";
+}
+Console.WriteLine($"Generator version: {generatorVersion}");
+
 app.MapGet("/health", () =>
 {
     string dotnetVersion;
@@ -110,7 +135,7 @@ app.MapGet("/health", () =>
     });
 });
 
-app.MapPost("/generate", async (HttpRequest request) =>
+app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
 {
     // Validate content type
     if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
@@ -140,6 +165,18 @@ app.MapPost("/generate", async (HttpRequest request) =>
     {
         return Results.StatusCode(503);
     }
+
+    // Tier 1 cache lookup: identical (generator, codeModel, configuration, version)
+    // requests reuse the previously serialized response and skip the dotnet
+    // sub-process entirely.
+    var cacheKey = MemoryGenerationCache.ComputeKey(generatorName, body.CodeModel!, body.Configuration!, generatorVersion);
+    if (cache.TryGet(cacheKey, out var cached) && cached is not null)
+    {
+        request.HttpContext.Response.Headers["X-Cache"] = "HIT";
+        return Results.Bytes(cached.Body, cached.ContentType);
+    }
+
+    request.HttpContext.Response.Headers["X-Cache"] = "MISS";
 
     // Create a temporary working directory
     var tempDir = Path.Combine(Path.GetTempPath(), "tsp-playground", Guid.NewGuid().ToString("N"));
@@ -232,9 +269,12 @@ app.MapPost("/generate", async (HttpRequest request) =>
             }
         }
 
-        return Results.Json(
+        // Serialize once so we can both cache and return the same bytes.
+        var responseBytes = JsonSerializer.SerializeToUtf8Bytes(
             new GenerateResponse(files),
             GenerateJsonContext.Default.GenerateResponse);
+        cache.Set(cacheKey, new CachedGenerationResponse(responseBytes, "application/json"));
+        return Results.Bytes(responseBytes, "application/json");
     }
     finally
     {
