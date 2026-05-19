@@ -9,7 +9,7 @@ import { IntrinsicMutation } from "./intrinsic.js";
 import { LiteralMutation } from "./literal.js";
 import { ModelPropertyMutation } from "./model-property.js";
 import { ModelMutation } from "./model.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 import { OperationMutation } from "./operation.js";
 
 import { ScalarMutation } from "./scalar.js";
@@ -179,10 +179,78 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     halfEdge?: MutationHalfEdge,
   ) {
     const { references } = resolveReference(reference);
+
+    // When the halfEdge expects a member type mutation (property/variant) but the
+    // replacement type is a different kind, we need to create a stub member mutation
+    // that wraps the replacement. This happens when e.g. a ModelProperty's type is
+    // being replaced via mutationInfo and the halfEdge comes from the parent Model's
+    // property edge which expects a ModelPropertyMutation as its tail.
+    if (halfEdge && isMemberEdgeKind(halfEdge.kind) && reference.kind !== newType.kind) {
+      // Create the type mutation independently (without the halfEdge)
+      const typeMut = this.mutateWorker(newType, references, options, undefined, {
+        isSynthetic: true,
+      }) as unknown as MutationFor<TCustomMutations>;
+
+      // Create a stub member mutation that wraps the replacement type
+      return this.#createMemberStub(reference, typeMut, options, halfEdge);
+    }
+
     const mut = this.mutateWorker(newType, references, options, halfEdge, {
       isSynthetic: true,
     });
     return mut;
+  }
+
+  /**
+   * Creates a stub member mutation (ModelProperty/UnionVariant) that wraps a type replacement.
+   * The stub is properly connected to the halfEdge and has its type edge wired to
+   * the replacement mutation.
+   */
+  #createMemberStub(
+    reference: MemberType,
+    typeMut: MutationFor<TCustomMutations>,
+    options: MutationOptions,
+    halfEdge: MutationHalfEdge,
+  ): MutationFor<TCustomMutations> {
+    const mutatorClass = this.#mutatorClasses[reference.kind];
+    const info: MutationInfo = { mutationKey: options.mutationKey, isSynthetic: true };
+
+    // Initialize cache for this reference
+    if (!this.#mutationCache.has(reference)) {
+      this.#mutationCache.set(
+        reference,
+        new Map<string, MutationFor<TCustomMutations, Type["kind"]>>(),
+      );
+    }
+    const byType = this.#mutationCache.get(reference)!;
+
+    if (byType.has(info.mutationKey)) {
+      const existing = byType.get(info.mutationKey)! as any;
+      halfEdge.setTail(existing);
+      return existing;
+    }
+
+    // Create the member mutation (e.g., SimpleModelPropertyMutation)
+    const stub = new (mutatorClass as any)(this, reference, [], options, info);
+    byType.set(info.mutationKey, stub);
+    stub.isMutated = true;
+
+    // Connect to the halfEdge (property/variant edge from parent).
+    // This must happen BEFORE wiring the type edge below, because the type edge
+    // connection triggers tailMutated() which calls mutationNode.mutate() to clone
+    // the member. The parent connection (connectModel/connectUnion) must already
+    // exist so the clone has the correct parent reference.
+    halfEdge.setTail(stub);
+
+    // Wire the replacement type: set the member's type field and connect the type edge
+    // so that mutations propagate correctly through the graph
+    stub.type = typeMut;
+    const startTypeEdge = (stub as any).startTypeEdge;
+    if (typeof startTypeEdge === "function") {
+      startTypeEdge.call(stub).setTail(typeMut);
+    }
+
+    return stub;
   }
 
   /**
@@ -274,6 +342,15 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
 
     return this.mutateWorker(referencedType, references, options, halfEdge, traits) as any;
   }
+}
+
+/**
+ * Returns true if the half edge kind expects a specific member type mutation
+ * (ModelProperty, UnionVariant, or Operation) as its tail, meaning the tail
+ * must be of that exact kind and cannot be an arbitrary type replacement.
+ */
+function isMemberEdgeKind(kind: string): boolean {
+  return kind === "property" || kind === "variant" || kind === "operation";
 }
 
 function resolveReference(reference: MemberType) {
