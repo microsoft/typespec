@@ -5,6 +5,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputModelType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -1095,12 +1096,17 @@ describe("XML serialization options", () => {
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
   });
 
-  it("Body parameter with binary content type should have empty json/xml serializationOptions", async function () {
+  it("Body parameter with file payload should have binary serializationOptions populated on the body type", async function () {
     const program = await typeSpecCompile(
       `
+      model RawData extends File {
+        contentType: "application/octet-stream";
+        contents: bytes;
+      }
+
       @route("/upload")
       @post
-      op uploadRawData(@header contentType: "application/octet-stream", @body data: bytes): void;
+      op uploadRawData(@bodyRoot data: RawData): void;
       `,
       runner,
       { IsTCGCNeeded: true },
@@ -1114,11 +1120,16 @@ describe("XML serialization options", () => {
     ok(method);
     const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
     ok(bodyParam);
-    // tcgc always populates serializationOptions; for non-json/xml content types
-    // neither json nor xml options are set, signaling "no structured wire serialization"
+    // The body parameter itself always has serializationOptions (tcgc populates
+    // json/xml options from content types; for a binary file body neither is set).
     ok(bodyParam.serializationOptions);
     strictEqual(bodyParam.serializationOptions.json, undefined);
     strictEqual(bodyParam.serializationOptions.xml, undefined);
+    // The body's model type carries the binary serialization options.
+    const bodyType = bodyParam.type as InputModelType;
+    ok(bodyType.serializationOptions);
+    ok(bodyType.serializationOptions.binary);
+    strictEqual(bodyType.serializationOptions.binary.isFile, true);
   });
 
   it("Body parameter with JSON content type should have json serializationOptions populated", async function () {
