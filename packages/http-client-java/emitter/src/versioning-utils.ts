@@ -69,23 +69,24 @@ export function getServiceApiVersions(
  * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/965
  * We still cannot move to TCGC, due to it only recognizes api-versions from 1 service.
  *
- * @param pinnedApiVersion the api-version to use as filter base
+ * @param program the program
+ * @param targetApiVersion the api-version to use as filter base
  * @param versions api-versions to filter
- * @param excludePreview whether to exclude preview api-versions when pinnedApiVersion is stable, default is `true`
+ * @param excludePreview whether to exclude preview api-versions when targetApiVersion is stable, default is `true`
  * @returns filtered api-versions
  */
 export function getFilteredApiVersions(
   program: Program,
-  pinnedApiVersion: string | undefined,
+  targetApiVersion: string | undefined,
   versions: Version[],
   excludePreview: boolean = true,
 ): Version[] {
-  if (!pinnedApiVersion) {
+  if (!targetApiVersion) {
     return versions;
   }
-  const filterPreviewApiVersions = excludePreview && isStableApiVersionString(pinnedApiVersion);
+  const filterPreviewApiVersions = excludePreview && isStableApiVersionString(targetApiVersion);
   return versions
-    .slice(0, versions.findIndex((it) => it.value === pinnedApiVersion) + 1)
+    .slice(0, versions.findIndex((it) => it.value === targetApiVersion) + 1)
     .filter((version) => !filterPreviewApiVersions || isStableApiVersion(program, version));
 }
 
