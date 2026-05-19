@@ -1463,7 +1463,6 @@ export class CodeModelBuilder {
         if (addedOn) {
           extensions = extensions ?? {};
           extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
-            this.program,
             param.__raw,
             addedOn,
           );
