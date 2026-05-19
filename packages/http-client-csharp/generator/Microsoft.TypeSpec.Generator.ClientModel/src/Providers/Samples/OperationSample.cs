@@ -681,7 +681,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
             var convenienceParams = convenienceMethod.Signature.Parameters;
 
             // If the convenience method has one fewer parameter (e.g., no CancellationToken)
-            // and all overlapping parameter types match, skip — they're effectively identica.
+            // and all overlapping parameter types match, skip — they're effectively identical.
             if (convenienceParams.Count == protocolParams.Count - 1 && convenienceParams.Count > 0 &&
                 !convenienceParams.Last().Type.Equals(typeof(CancellationToken)))
             {
