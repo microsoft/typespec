@@ -81,13 +81,27 @@ export function getFilteredApiVersions(
   versions: Version[],
   excludePreview: boolean = true,
 ): Version[] {
+  return filterApiVersionsByStability(
+    targetApiVersion,
+    versions,
+    (version) => isStableApiVersion(program, version),
+    excludePreview,
+  );
+}
+
+export function filterApiVersionsByStability(
+  targetApiVersion: string | undefined,
+  versions: Version[],
+  isStableVersion: (version: Version) => boolean,
+  excludePreview: boolean = true,
+): Version[] {
   if (!targetApiVersion) {
     return versions;
   }
   const filterPreviewApiVersions = excludePreview && isStableApiVersionString(targetApiVersion);
   return versions
     .slice(0, versions.findIndex((it) => it.value === targetApiVersion) + 1)
-    .filter((version) => !filterPreviewApiVersions || isStableApiVersion(program, version));
+    .filter((version) => !filterPreviewApiVersions || isStableVersion(version));
 }
 
 function isStableApiVersion(program: Program, version: Version): boolean {
