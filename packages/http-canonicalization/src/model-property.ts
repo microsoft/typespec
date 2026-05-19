@@ -13,6 +13,7 @@ import {
   MutationHalfEdge,
   type MutationNodeForType,
   type MutationTraits,
+  type TypeEdgeSpec,
 } from "@typespec/mutator-framework";
 import type { Codec, EncodingInfo } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
@@ -142,11 +143,40 @@ export class ModelPropertyHttpCanonicalization
    */
   typeIsNullable: boolean = false;
 
-  protected startTypeEdge() {
-    return new MutationHalfEdge("type", this, (tail) => {
-      this.#languageMutationNode.connectType(tail.languageMutationNode);
-      this.#wireMutationNode.connectType(tail.wireMutationNode);
-    });
+  protected override buildTypeEdges(): TypeEdgeSpec[] {
+    const alternate = this.options.alternateType;
+
+    if (alternate) {
+      // When an alternate type is specified (e.g. via @alternateType), split the
+      // language and wire edges so they resolve to independent tails:
+      //   • language edge follows the alternate type
+      //   • wire edge follows the original source property's reference chain
+      return [
+        {
+          typeToFollow: alternate,
+          halfEdge: new MutationHalfEdge("language-type", this, (tail) => {
+            this.#languageMutationNode.connectType(tail.languageMutationNode);
+          }),
+        },
+        {
+          referenceToFollow: this.sourceType,
+          halfEdge: new MutationHalfEdge("wire-type", this, (tail) => {
+            this.#wireMutationNode.connectType(tail.wireMutationNode);
+          }),
+        },
+      ];
+    }
+
+    // Default: single edge wires both language and wire nodes to the same tail.
+    return [
+      {
+        referenceToFollow: this.sourceType,
+        halfEdge: new MutationHalfEdge("type", this, (tail) => {
+          this.#languageMutationNode.connectType(tail.languageMutationNode);
+          this.#wireMutationNode.connectType(tail.wireMutationNode);
+        }),
+      },
+    ];
   }
 
   static mutationInfo(
