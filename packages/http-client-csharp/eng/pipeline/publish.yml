@@ -223,10 +223,6 @@ extends:
                   TokenOwners:
                     - Azure
 
-              # Use AzureCLI@2 (not PowerShell@2) so the `az` CLI is authenticated inside the
-              # script. The script regenerates Azure SDK libraries (can take >1h) and then mints
-              # a fresh GitHub App installation token via login-to-github.ps1 immediately before
-              # `git push`, which requires `az` auth to sign the JWT with Key Vault.
               - task: AzureCLI@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
