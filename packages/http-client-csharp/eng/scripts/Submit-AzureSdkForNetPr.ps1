@@ -693,7 +693,7 @@ try {
     if (Test-Path $loginScript) {
         Write-Host "Refreshing GitHub App installation token before push..."
         try {
-            & $loginScript -InstallationTokenOwners @($RepoOwner)
+            & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
             if ($LASTEXITCODE -eq 0 -and (Test-Path Env:GH_TOKEN)) {
                 $AuthToken = $env:GH_TOKEN
                 Write-Host "GitHub App installation token refreshed."
