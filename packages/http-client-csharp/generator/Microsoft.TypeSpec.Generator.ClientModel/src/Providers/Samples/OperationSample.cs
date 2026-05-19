@@ -146,7 +146,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
         {
             var callChain = new Stack<MethodSignatureBase>();
 
-            // Walk from current client up to root, collecting factory methods
+            // Walk from the current client up to root, collecting factory methods.
+            // For each client that has a parent, find the factory method on the parent
+            // that returns it, and push that onto the chain.
             var currentInputClient = _client.InputClient;
             while (currentInputClient.Parent != null)
             {
@@ -337,12 +339,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
             }
 
             // TokenCredential — produce `new DefaultAzureCredential()`
+            // TokenCredential is abstract, so we must use a concrete type.
             if (type.Equals(ScmKnownParameters.TokenCredential.Type) ||
                 type.Name == ScmKnownParameters.TokenCredential.Type.Name ||
                 type.Name == "TokenCredential")
             {
+                // Use FormattableStringExpression because DefaultAzureCredential
+                // lives in Azure.Identity which the generator doesn't reference.
                 result[parameter.Name] = new ExampleParameterValue(
-                    parameter.Name, type, New.Instance(type));
+                    parameter.Name, type, new FormattableStringExpression("new DefaultAzureCredential()", []));
                 return true;
             }
 
@@ -517,7 +522,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
 
                 if (ParameterValueMapping.TryGetValue(parameter.Name, out var exampleValue))
                 {
-                    parameterExpression = ExampleValueExpressionBuilder.GetExpression(exampleValue);
+                    var format = parameter.WireInfo?.SerializationFormat ?? SerializationFormat.Default;
+                    parameterExpression = ExampleValueExpressionBuilder.GetExpression(exampleValue, format);
                 }
                 else
                 {
