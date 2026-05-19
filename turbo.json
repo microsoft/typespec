@@ -1,0 +1,51 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "lib/**", "tsconfig*.json", "package.json", ".scripts/**"],
+      "outputs": ["dist/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "test/**", "vitest.config.*", "package.json"],
+      "outputs": []
+    },
+    "test:ci": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "test/**", "vitest.config.*", "package.json"],
+      "outputs": ["coverage/**"]
+    },
+    "lint": {
+      "inputs": ["src/**", "test/**", "eslint.config.*", "package.json"],
+      "outputs": []
+    },
+    "clean": {
+      "cache": false
+    },
+    "regen-docs": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "regen-samples": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "dogfood": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "update-playground-versions": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    }
+  }
+}
