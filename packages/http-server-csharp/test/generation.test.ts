@@ -3206,6 +3206,43 @@ describe("emit correct code for `@error` models", () => {
       ],
     );
   });
+  it("emits correct constructor parameter type for numeric literal property", async () => {
+    await compileAndValidateSingleModel(
+      tester,
+      `
+        @error
+        model NotFoundProblem {
+          title: string;
+          status: 404;
+        }
+      `,
+      "NotFoundProblem.cs",
+      [
+        "public partial class NotFoundProblem : HttpServiceException {",
+        `public NotFoundProblem(string title, int status = 404) : base(400,`,
+        `value: new{title = title,status = status})`,
+        `public int Status { get; } = 404;`,
+      ],
+    );
+  });
+  it("emits correct constructor parameter type for float literal property", async () => {
+    await compileAndValidateSingleModel(
+      tester,
+      `
+        @error
+        model RateLimitError {
+          message: string;
+          retryAfter: 1.5;
+        }
+      `,
+      "RateLimitError.cs",
+      [
+        "public partial class RateLimitError : HttpServiceException {",
+        `public RateLimitError(string message, double retryAfter = 1.5) : base(400,`,
+        `public double RetryAfter { get; } = 1.5;`,
+      ],
+    );
+  });
   it("emit error constructor properties and defined in body", async () => {
     await compileAndValidateSingleModel(
       tester,
