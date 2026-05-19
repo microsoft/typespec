@@ -384,6 +384,9 @@ catalogs:
     prism-react-renderer:
       specifier: ^2.4.1
       version: 2.4.1
+    pyodide:
+      specifier: ^0.26.2
+      version: 0.26.2
     react:
       specifier: ^19.2.5
       version: 19.2.5
@@ -1290,7 +1293,7 @@ importers:
         specifier: workspace:^
         version: link:../http-client
       pyodide:
-        specifier: 0.26.2
+        specifier: 'catalog:'
         version: 0.26.2
     devDependencies:
       '@alloy-js/cli':

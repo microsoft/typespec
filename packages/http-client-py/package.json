@@ -56,7 +56,7 @@
     "@alloy-js/python": "catalog:",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
-    "pyodide": "0.26.2"
+    "pyodide": "catalog:"
   },
   "devDependencies": {
     "@alloy-js/cli": "catalog:",

@@ -10,7 +10,7 @@ TypeSpec emitter for Python HTTP client libraries, built on `@alloy-js/python` a
 >
 > If you need a feature-complete Python emitter today, use
 > [`@typespec/http-client-python`](../http-client-python/README.md). This package is a
-> from-scratch reimagining using the modern alloy + emitter-framework authoring model.
+> from-scratch rewrite using the modern alloy + emitter-framework authoring model.
 
 ## Install
 
