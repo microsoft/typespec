@@ -204,6 +204,7 @@ function fromSdkClient(
         methodParameterSegments: diagnostics.pipe(
           getMethodParameterSegments(sdkContext, parameter),
         ),
+        isExactName: parameter.isExactName,
       });
     }
     return diagnostics.wrap(parameters);

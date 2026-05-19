@@ -1095,3 +1095,78 @@ describe("XML serialization options", () => {
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
   });
 });
+
+describe("Test isExactName propagation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on property", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          @clientName(Azure.ClientGenerator.Core.exact("snake_case_name"), "csharp")
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "Book");
+    ok(bookModel);
+    const nameProp = bookModel.properties.find((p) => p.name === "snake_case_name");
+    ok(nameProp);
+    strictEqual(nameProp.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on model", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("my_exact_model"), "csharp")
+        model Book {
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "my_exact_model");
+    ok(bookModel);
+    strictEqual(bookModel.isExactName, true);
+  });
+
+  it("does not set isExactName when @clientName decorator does not use exact()", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          @clientName("regularName")
+          name: string;
+        }
+
+        op test(@body input: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bookModel = root.models.find((m) => m.name === "Book");
+    ok(bookModel);
+    const nameProp = bookModel.properties.find((p) => p.name === "regularName");
+    ok(nameProp);
+    strictEqual(nameProp.isExactName, false);
+  });
+});

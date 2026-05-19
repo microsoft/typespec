@@ -504,6 +504,7 @@ function fromQueryParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -539,6 +540,7 @@ function fromPathParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -574,6 +576,7 @@ function fromHeaderParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     collectionHeaderPrefix: diagnostics.pipe(getCollectionHeaderPrefix(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -604,6 +607,7 @@ function fromBodyParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -645,6 +649,7 @@ export function fromMethodParameter(
     access: p.access,
     decorators: p.decorators,
     paramAlias,
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);

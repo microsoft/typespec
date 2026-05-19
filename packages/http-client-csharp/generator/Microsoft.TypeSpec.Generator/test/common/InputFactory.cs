@@ -279,7 +279,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             string? doc = null,
             InputSerializationOptions? serializationOptions = null,
-            ArrayKnownEncoding? encode = null)
+            ArrayKnownEncoding? encode = null,
+            bool isExactName = false)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -296,7 +297,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: serializationOptions,
-                encode: encode);
+                encode: encode)
+            {
+                IsExactName = isExactName,
+            };
         }
 
         public static InputHeaderParameter HeaderParameter(
@@ -509,7 +513,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelProperty? discriminatorProperty = null,
             bool isDynamicModel = false,
             InputExternalTypeMetadata? external = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            bool isExactName = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -534,7 +539,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 serializationOptions ?? new(),
-                isDynamicModel);
+                isDynamicModel)
+            {
+                IsExactName = isExactName,
+            };
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });

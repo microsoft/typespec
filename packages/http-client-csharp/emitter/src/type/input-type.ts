@@ -97,6 +97,8 @@ export interface InputLiteralType extends InputTypeBase {
   namespace: string;
   valueType: InputPrimitiveType;
   value: string | number | boolean | null;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export function isInputLiteralType(type: InputType): type is InputLiteralType {
@@ -135,6 +137,8 @@ export interface InputUnionType extends InputTypeBase {
   name: string;
   variantTypes: InputType[];
   namespace: string;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
@@ -159,6 +163,8 @@ export interface InputModelType extends InputTypeBase {
   discriminatorProperty?: InputModelProperty;
   baseModel?: InputModelType;
   serializationOptions: SerializationOptions;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export interface InputPropertyTypeBase extends DecoratedType {
@@ -172,6 +178,8 @@ export interface InputPropertyTypeBase extends DecoratedType {
   crossLanguageDefinitionId: string;
   readOnly: boolean;
   access?: AccessFlags;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export interface InputModelProperty extends InputPropertyTypeBase {
@@ -265,6 +273,8 @@ export interface InputEnumType extends InputTypeBase {
   usage: UsageFlags;
   access?: AccessFlags;
   namespace: string;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export interface InputEnumValueType extends InputTypeBase {
