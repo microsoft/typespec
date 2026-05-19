@@ -689,20 +689,12 @@ try {
         throw "Failed to commit changes"
     }
 
-    # Refresh the GitHub App installation token immediately before pushing.
-    # Installation tokens are valid for only 1 hour; regenerating Azure data-plane
-    # and/or mgmt SDK libraries above can exceed this window, causing the original
-    # token to be expired by push time. login-to-github.ps1 mints a fresh
-    # installation token via Azure Key Vault (az CLI auth from the prior
-    # AzureCLI@2-based login-to-github.yml step persists across tasks in the same
-    # job via ~/.azure). The refreshed token is exported as $env:GH_TOKEN, which
-    # is also picked up by `gh pr create` below.
     $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
     if (Test-Path $loginScript) {
         Write-Host "Refreshing GitHub App installation token before push..."
         try {
             & $loginScript -InstallationTokenOwners @($RepoOwner)
-            if ($LASTEXITCODE -eq 0 -and $env:GH_TOKEN) {
+            if ($LASTEXITCODE -eq 0 -and (Test-Path Env:GH_TOKEN)) {
                 $AuthToken = $env:GH_TOKEN
                 Write-Host "GitHub App installation token refreshed."
             } else {
