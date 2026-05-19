@@ -1094,4 +1094,39 @@ describe("XML serialization options", () => {
     ok(itemsProperty.serializationOptions.xml.itemsName);
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
   });
+
+  it("Body parameter should have XML serializationOptions propagated", async function () {
+    const program = await typeSpecCompile(
+      `
+      @name("XmlBook")
+      model Book {
+        @attribute
+        id: int32;
+      }
+
+      @route("/books")
+      @post
+      op createBook(@header contentType: "application/xml", @body book: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    ok(bodyParam.serializationOptions);
+    ok(bodyParam.serializationOptions.xml);
+    strictEqual(bodyParam.serializationOptions.xml.name, "book");
+
+    // response should also have serializationOptions propagated from tcgc
+    const response = method.operation.responses[0];
+    ok(response);
+    ok(response.serializationOptions);
+  });
 });
