@@ -1,6 +1,6 @@
 ---
 description: |
-  Intelligent issue triage assistant that processes new and reopened issues.
+  Intelligent issue triage assistant that processes new issues.
   Analyzes issue content, selects appropriate labels, detects spam, gathers context
   from similar issues, and provides analysis notes including debugging strategies,
   reproduction steps, and resource links. Helps maintainers quickly understand and
@@ -8,7 +8,7 @@ description: |
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened]
   workflow_dispatch:
     inputs:
       issue-number:
