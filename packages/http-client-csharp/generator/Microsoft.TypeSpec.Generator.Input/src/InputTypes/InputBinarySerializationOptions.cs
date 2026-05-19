@@ -10,11 +10,12 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// </summary>
     public class InputBinarySerializationOptions
     {
-        public InputBinarySerializationOptions(bool isFile = false, bool? isText = null, IReadOnlyList<string>? contentTypes = null)
+        public InputBinarySerializationOptions(bool isFile = false, bool? isText = null, IReadOnlyList<string>? contentTypes = null, InputModelProperty? filename = null)
         {
             IsFile = isFile;
             IsText = isText;
             ContentTypes = contentTypes;
+            Filename = filename;
         }
 
         /// <summary>
@@ -33,5 +34,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// Only set when <see cref="IsFile"/> is <c>true</c>.
         /// </summary>
         public IReadOnlyList<string>? ContentTypes { get; internal set; }
+
+        /// <summary>
+        /// The model property that represents the filename in the file model.
+        /// Only set when <see cref="IsFile"/> is <c>true</c>.
+        /// </summary>
+        public InputModelProperty? Filename { get; internal set; }
     }
 }

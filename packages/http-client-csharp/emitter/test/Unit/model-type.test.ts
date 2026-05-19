@@ -1130,6 +1130,15 @@ describe("XML serialization options", () => {
     ok(bodyType.serializationOptions);
     ok(bodyType.serializationOptions.binary);
     strictEqual(bodyType.serializationOptions.binary.isFile, true);
+    // bytes contents → not text
+    strictEqual(bodyType.serializationOptions.binary.isText, false);
+    // contentTypes should be populated from the model's contentType property
+    ok(bodyType.serializationOptions.binary.contentTypes);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes.length, 1);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes[0], "application/octet-stream");
+    // filename should be populated for an Http.File-derived model
+    ok(bodyType.serializationOptions.binary.filename);
+    strictEqual(bodyType.serializationOptions.binary.filename.name, "filename");
   });
 
   it("Body parameter with JSON content type should have json serializationOptions populated", async function () {

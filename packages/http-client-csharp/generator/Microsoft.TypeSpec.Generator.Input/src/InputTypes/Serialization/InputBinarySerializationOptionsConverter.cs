@@ -30,12 +30,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isFile = false;
             bool? isText = null;
             IReadOnlyList<string>? contentTypes = null;
+            InputModelProperty? filename = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadBoolean("isFile", ref isFile)
                     || reader.TryReadNullableBoolean("isText", ref isText)
-                    || reader.TryReadComplexType("contentTypes", options, ref contentTypes);
+                    || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
+                    || reader.TryReadComplexType("filename", options, ref filename);
 
                 if (!isKnownProperty)
                 {
@@ -43,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            return new InputBinarySerializationOptions(isFile, isText, contentTypes);
+            return new InputBinarySerializationOptions(isFile, isText, contentTypes, filename);
         }
     }
 }
