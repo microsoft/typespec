@@ -1,5 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalPassThroughEnv": [
+    "TYPESPEC_WEBSITE_BASE_PATH",
+    "TYPESPEC_SKIP_WEBSITE_BUILD",
+    "TYPESPEC_SKIP_VS_BUILD",
+    "TYPESPEC_VS_CI_BUILD"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
