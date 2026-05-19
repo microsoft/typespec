@@ -1095,21 +1095,41 @@ describe("XML serialization options", () => {
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
   });
 
-  it("Body parameter should have XML serializationOptions propagated", async function () {
+  it("Body parameter with binary content type should have empty json/xml serializationOptions", async function () {
     const program = await typeSpecCompile(
       `
-      @name("XmlBook")
-      model Book {
-        @attribute
-        id: int32;
-      }
-
-      @route("/books")
+      @route("/upload")
       @post
-      op createBook(@header contentType: "application/xml", @body book: Book): Book;
+      op uploadRawData(@header contentType: "application/octet-stream", @body data: bytes): void;
       `,
       runner,
-      { IsTCGCNeeded: true, IsXmlNeeded: true },
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    // tcgc always populates serializationOptions; for non-json/xml content types
+    // neither json nor xml options are set, signaling "no structured wire serialization"
+    ok(bodyParam.serializationOptions);
+    strictEqual(bodyParam.serializationOptions.json, undefined);
+    strictEqual(bodyParam.serializationOptions.xml, undefined);
+  });
+
+  it("Body parameter with JSON content type should have json serializationOptions populated", async function () {
+    const program = await typeSpecCompile(
+      `
+      @route("/messages")
+      @post
+      op sendMessage(@header contentType: "application/json", @body message: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
     );
 
     const context = createEmitterContext(program);
@@ -1121,12 +1141,6 @@ describe("XML serialization options", () => {
     const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
     ok(bodyParam);
     ok(bodyParam.serializationOptions);
-    ok(bodyParam.serializationOptions.xml);
-    strictEqual(bodyParam.serializationOptions.xml.name, "book");
-
-    // response should also have serializationOptions propagated from tcgc
-    const response = method.operation.responses[0];
-    ok(response);
-    ok(response.serializationOptions);
+    ok(bodyParam.serializationOptions.json);
   });
 });

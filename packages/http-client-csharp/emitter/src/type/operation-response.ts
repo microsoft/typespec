@@ -11,5 +11,5 @@ export interface OperationResponse {
   headers: HttpResponseHeader[];
   contentTypes?: string[];
   isErrorResponse: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
 }
