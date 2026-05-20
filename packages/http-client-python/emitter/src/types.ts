@@ -233,7 +233,8 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   return {
-    clientName: camelToSnakeCase(property.name),
+    clientName: property.isExactName ? property.name : camelToSnakeCase(property.name),
+    isExactName: property.isExactName,
     wireName:
       (property.serializationOptions?.multipart
         ? property.serializationOptions?.multipart?.name

@@ -146,6 +146,7 @@ type ParamBase = {
   description: string;
   addedOn: string | undefined;
   clientName: string;
+  isExactName: boolean;
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
@@ -220,7 +221,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
-  let clientName = camelToSnakeCase(parameter.name);
+  let clientName = parameter.isExactName ? parameter.name : camelToSnakeCase(parameter.name);
   if (
     parameter.kind !== "method" &&
     parameter.kind !== "credential" &&
@@ -228,13 +229,16 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
-    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+    clientName = parameter.correspondingMethodParams[0].isExactName
+      ? parameter.correspondingMethodParams[0].name
+      : camelToSnakeCase(parameter.correspondingMethodParams[0].name);
   }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
+    isExactName: parameter.isExactName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken:
