@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Sample.Models;
 
 namespace Sample
@@ -27,7 +28,7 @@ namespace Sample
             global::System.Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                global::System.ClientModel.ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
                 nextPageUri = ((global::Sample.Models.Page)result).NextCat;
@@ -50,6 +51,11 @@ namespace Sample
             {
                 return null;
             }
+        }
+
+        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

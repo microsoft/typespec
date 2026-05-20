@@ -1,5 +1,13 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.37
+
+### Features
+
+- [#10194](https://github.com/microsoft/typespec/pull/10194) Add HEAD payload e2e test scenario with Content-Type and x-ms-meta response headers
+- [#10529](https://github.com/microsoft/typespec/pull/10529) Add test scenario for operation body parameters with reserved names (e.g., `items`) to verify wire name is not mangled.
+
+
 ## 0.1.0-alpha.36
 
 ### Features

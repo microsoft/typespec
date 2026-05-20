@@ -24,6 +24,10 @@ export interface CodeModel extends Metadata {
   arm?: boolean;
 
   apiVersionMap?: Record<string, string>;
+
+  // cross-language metadata
+  crossLanguagePackageId?: string;
+  crossLanguageVersion?: string;
 }
 
 export class CodeModel extends Metadata implements CodeModel {

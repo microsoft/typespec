@@ -184,7 +184,21 @@ class PagingResponse(Response):
 
     def type_annotation(self, **kwargs: Any) -> str:
         iterable = "AsyncItemPaged" if kwargs["async_mode"] else "ItemPaged"
-        return f"{iterable}[{self.item_type.type_annotation(**kwargs)}]"
+        return f"{iterable}[{self._item_type_annotation(**kwargs)}]"
+
+    def _item_type_annotation(self, **kwargs: Any) -> str:
+        # When the page item is a ListType, render the outer `List`/`list`
+        # wrapper here using the operation-file alias decision so a list page
+        # item rendered inside an operation file named `list` uses the `List`
+        # alias (avoiding the built-in `list` shadowed by `List = list`).
+        # Recurse into the element type without is_operation_file so nested
+        # generated model types keep their forward-reference quoting
+        # (e.g. ItemPaged[List["_models.Product"]]).
+        if isinstance(self.item_type, ListType):
+            use_list_import = self.code_model.has_operation_named_list
+            list_type = "List" if use_list_import else "list"
+            return f"{list_type}[{self.item_type.element_type.type_annotation(**kwargs)}]"
+        return self.item_type.type_annotation(**kwargs)
 
     def docstring_text(self, **kwargs: Any) -> str:
         base_description = "An iterator like instance of "

@@ -427,10 +427,10 @@ interface ExtensionResourceCreate<Extension extends {}, Resource extends {}, Err
   @autoRoute
   @doc("Creates a new instance of the extension resource.")
   @createsResource(Extension)
-  create(
-    ...ResourceParameters<Resource>,
-    @bodyRoot resource: ResourceCreateModel<Extension>,
-  ): Extension | ResourceCreatedResponse<Extension> | Error;
+  create(...ResourceParameters<Resource>, @bodyRoot resource: ResourceCreateModel<Extension>):
+    | Extension
+    | ResourceCreatedResponse<Extension>
+    | Error;
 }
 
 /**
@@ -478,10 +478,9 @@ interface ExtensionResourceDelete<Extension extends {}, Resource extends {}, Err
   @autoRoute
   @doc("Deletes an existing instance of the extension resource.")
   @deletesResource(Extension)
-  delete(
-    ...ResourceParameters<Resource>,
-    ...ResourceParameters<Extension>,
-  ): ResourceDeletedResponse | Error;
+  delete(...ResourceParameters<Resource>, ...ResourceParameters<Extension>):
+    | ResourceDeletedResponse
+    | Error;
 }
 
 /**
@@ -501,10 +500,9 @@ interface ExtensionResourceList<Extension extends {}, Resource extends {}, Error
   @autoRoute
   @doc("Lists all instances of the extension resource.")
   @listsResource(Extension)
-  list(
-    ...ResourceParameters<Resource>,
-    ...ResourceCollectionParameters<Extension>,
-  ): CollectionWithNextLink<Extension> | Error;
+  list(...ResourceParameters<Resource>, ...ResourceCollectionParameters<Extension>):
+    | CollectionWithNextLink<Extension>
+    | Error;
 }
 
 /**
