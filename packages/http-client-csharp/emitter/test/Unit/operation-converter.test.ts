@@ -2,6 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputEnumType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -247,7 +248,7 @@ describe("Operation Converter", () => {
     });
 
     describe("With named union enum response type", () => {
-      it("should preserve named union enum response type as enum", async () => {
+      it("should preserve the named enum response type", async () => {
         const program = await typeSpecCompile(
           `
           union UnionEnumResponse {
@@ -271,8 +272,18 @@ describe("Operation Converter", () => {
         const method = root.clients[0].methods[0];
         ok(method);
 
-        // validate service method response keeps the named enum kind
+        // validate service method response - named union enum is preserved as enum
         strictEqual(method.response.type?.kind, "enum");
+        strictEqual((method.response.type as InputEnumType).name, "UnionEnumResponse");
+
+        // validate operation response
+        const operation = method.operation;
+        ok(operation);
+        strictEqual(operation.responses.length, 1);
+        const response = operation.responses[0];
+        ok(response);
+        strictEqual(response.bodyType?.kind, "enum");
+      });
 
         // validate operation response
         const operation = method.operation;

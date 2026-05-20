@@ -97,6 +97,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 
             Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(implicitOp, explicitOp));
         }
+
+        // Conversion operators returning a nullable type and its non-nullable counterpart
+        // must NOT be considered equal — `implicit operator T(string)` and
+        // `implicit operator T?(string)` are distinct C# operators.
+        [Test]
+        public void ImplicitConversionOperators_NullableAndNonNullableReturnTypes_AreNotEqual()
+        {
+            var enumType = new CSharpType(typeof(int));
+            var nullableEnumType = enumType.WithNullable(true);
+            var valueParam = new ParameterProvider("value", $"value", typeof(string));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+
+            var nonNullable = new MethodSignature(string.Empty, null, modifiers, enumType, null, [valueParam]);
+            var nullable = new MethodSignature(string.Empty, null, modifiers, nullableEnumType, null, [valueParam]);
+
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(nonNullable, nullable));
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(nullable, nonNullable));
+        }
     }
 }
 

@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods().Where(m => m.Signature.Name.StartsWith("Deserialize"))];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
             protected override ConstructorProvider[] BuildConstructors() => [];
         }
 

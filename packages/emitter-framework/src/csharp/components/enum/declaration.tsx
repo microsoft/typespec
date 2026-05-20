@@ -32,7 +32,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): Children {
 
   return (
     <>
-      <cs.EnumDeclaration name={name} refkey={refkeys} {...props}>
+      <cs.EnumDeclaration name={name} refkey={refkeys} {...props} doc={getDocComments($, type)}>
         <For each={members} joiner={",\n"}>
           {([key, value]) => {
             return (

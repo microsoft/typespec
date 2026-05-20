@@ -1,6 +1,7 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { StringLiteral, Type } from "../../src/core/types.js";
+import { listServices } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -123,6 +124,52 @@ describe("declaration scope", () => {
         @@blue(Foo);
       `);
     strictEqual(Foo, blueThing);
+  });
+
+  it("augment decorator on model with late-bound members doesn't prevent member access", async () => {
+    let decorated = false;
+    const { MyModel } = await Tester.files({
+      "dec.js": mockFile.js({
+        $mark(_: any, _t: any) {
+          decorated = true;
+        },
+      }),
+    }).import("./dec.js").compile(t.code`
+        model Template<T> {...T}
+        model ${t.model("MyModel")} is Template<{y: string}> {}
+        @@mark(MyModel);
+        model Ref { prop: MyModel.y }
+      `);
+    ok(decorated, "augment decorator should have run");
+    ok(MyModel.properties.has("y"), "MyModel should have property y");
+  });
+
+  it("does not change service interface order when augmenting a qualified operation target", async () => {
+    const { program } = await Tester.files({
+      "source.tsp": `
+        @service
+        namespace Demo;
+
+        interface Alpha {
+          a(): void;
+        }
+
+        interface Beta {
+          b(): void;
+        }
+
+        interface Gamma {
+          c(): void;
+        }
+      `,
+    }).compile(`
+      import "./source.tsp";
+      @@doc(Demo.Gamma.c, "doc");
+    `);
+
+    const service = listServices(program)[0]?.type;
+    ok(service, "Expected a service to be defined");
+    deepStrictEqual(Array.from(service.interfaces.keys()), ["Alpha", "Beta", "Gamma"]);
   });
 });
 
