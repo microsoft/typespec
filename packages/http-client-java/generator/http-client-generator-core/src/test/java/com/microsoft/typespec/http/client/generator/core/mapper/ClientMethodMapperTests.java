@@ -23,18 +23,18 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.http.models.HttpMethod;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
+// JavaSettings is process-global and mutable in tests.
+// Keep these tests single-threaded to avoid cross-test settings races.
 @Execution(ExecutionMode.SAME_THREAD)
 public class ClientMethodMapperTests {
 
@@ -46,23 +46,14 @@ public class ClientMethodMapperTests {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void configureDataPlaneSettings(String maxOverloadValue) {
-        try {
-            Field settingsField = MockUnitJavagen.class.getDeclaredField("SETTINGS_MAP");
-            settingsField.setAccessible(true);
-            Map<String, Object> settings = (Map<String, Object>) settingsField.get(null);
-            settings.clear();
-            settings.put("namespace", "com.azure.mock");
-            settings.put("data-plane", true);
-            settings.put("flavor", "azure");
-            settings.put("max-overload", maxOverloadValue);
-            new MockUnitJavagen();
-            JavaSettings.clear();
-            JavaSettings.getInstance();
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        MockUnitJavagen.resetSettings();
+        MockUnitJavagen.setSetting("data-plane", true);
+        MockUnitJavagen.setSetting("flavor", "azure");
+        MockUnitJavagen.setSetting("max-overload", maxOverloadValue);
+        new MockUnitJavagen();
+        JavaSettings.clear();
+        JavaSettings.getInstance();
     }
 
     @Test

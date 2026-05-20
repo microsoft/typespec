@@ -224,9 +224,12 @@ abstract class ConvenienceMethodTemplateBase {
             .stream()
             .anyMatch(p -> p.getClientType() == ClassType.REQUEST_OPTIONS);
         if (hasRequestOptionsParameter) {
+            // Model max-overload WithResponse takes RequestOptions from the method signature.
+            // Ensure it is initialized when null.
             methodBlock.ifBlock("requestOptions == null",
                 block -> block.line("requestOptions = new RequestOptions();"));
         } else {
+            // Legacy convenience overloads synthesize RequestOptions internally.
             methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
         }
     }

@@ -815,8 +815,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             && isProtocolMethod
             && settings.getMaxOverload() == JavaSettings.MaxOverload.MODEL
             && createMethodArgs.hasConvenienceApi
-            && (clientMethodType == ClientMethodType.SimpleSyncRestResponse
-                || clientMethodType == ClientMethodType.SimpleAsyncRestResponse)) {
+            && isSimpleWithResponseType(clientMethodType)) {
             methodWithContextVisibility = NOT_VISIBLE;
         }
         final boolean hasContextOverload = methodWithContextVisibility != NOT_GENERATE;
@@ -834,13 +833,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
         // proxy method, and is usually filtered out in methodVisibility function.
         methods.add(withResponseMethod);
-        final boolean useProtocolContextParam = !isProtocolMethod
+        final boolean useRequestOptionsParam = !isProtocolMethod
             && settings.isDataPlaneClient()
             && settings.isGenerateModelMaxOverload()
-            && (clientMethodType == ClientMethodType.SimpleSyncRestResponse
-                || clientMethodType == ClientMethodType.SimpleAsyncRestResponse);
+            && isSimpleWithResponseType(clientMethodType);
         ClientMethod clientMethodWithContext = addClientMethodWithContext(methods, withResponseMethod,
-            methodWithContextVisibility, useProtocolContextParam || isProtocolMethod);
+            methodWithContextVisibility, useRequestOptionsParam || isProtocolMethod);
 
         // Simple op '[Operation]WithResponse' overloads for versioning
         createOverloadForVersioning(methods, withResponseMethod, clientMethodWithContext, methodWithContextVisibility,
@@ -974,8 +972,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 }
                 return VISIBLE;
             } else {
-                if ((methodType == ClientMethodType.SimpleSyncRestResponse
-                    || methodType == ClientMethodType.SimpleAsyncRestResponse)
+                if (isSimpleWithResponseType(methodType)
+                    && settings.isDataPlaneClient()
                     && settings.isGenerateModelMaxOverload()) {
                     return hasContextParameter ? VISIBLE : NOT_GENERATE;
                 }
@@ -1100,5 +1098,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         } else {
             return MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
         }
+    }
+
+    private static boolean isSimpleWithResponseType(ClientMethodType methodType) {
+        return methodType == ClientMethodType.SimpleSyncRestResponse
+            || methodType == ClientMethodType.SimpleAsyncRestResponse;
     }
 }
