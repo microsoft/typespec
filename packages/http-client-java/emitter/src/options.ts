@@ -70,7 +70,7 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     "max-overload": {
       type: "string",
       description:
-        "Selects which max `WithResponse` overloads are generated for data-plane clients.",
+        "Selects which max `WithResponse` overloads are generated for data-plane clients. Defaults to `protocol` when not set.",
       nullable: true,
       enum: ["protocol", "model"],
     },
