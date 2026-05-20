@@ -284,15 +284,6 @@ describe("Operation Converter", () => {
         ok(response);
         strictEqual(response.bodyType?.kind, "enum");
       });
-
-        // validate operation response
-        const operation = method.operation;
-        ok(operation);
-        strictEqual(operation.responses.length, 1);
-        const response = operation.responses[0];
-        ok(response);
-        strictEqual(response.bodyType?.kind, "enum");
-      });
     });
 
     describe("With union model response type", () => {
