@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
@@ -170,6 +171,7 @@ public class ClientModelUtil {
 
     private static List<ConvenienceMethod> getConvenienceMethods(Supplier<List<ClientMethod>> clientMethods,
         OperationGroup og) {
+        final JavaSettings settings = JavaSettings.getInstance();
         return og.getOperations().stream().filter(o -> o.getConvenienceApi() != null).flatMap(o -> {
             List<ClientMethod> cMethods = Mappers.getClientMethodMapper()
                 .map(o, false)
@@ -182,12 +184,42 @@ public class ClientModelUtil {
                 return clientMethods.get()
                     .stream()
                     .filter(m -> proxyMethodBaseName.equals(m.getProxyMethod().getBaseName())
-                        && m.getMethodVisibility() == JavaVisibility.Public)
-                    .map(m -> new ConvenienceMethod(m, cMethods));
+                        && (m.getMethodVisibility() == JavaVisibility.Public
+                            || (settings.getMaxOverload() == JavaSettings.MaxOverload.MODEL
+                                && isSimpleWithResponseMethod(m))))
+                    .map(m -> new ConvenienceMethod(m, filterConvenienceMethodsForProtocolMethod(cMethods, m, settings)))
+                    .filter(cm -> !cm.getConvenienceMethods().isEmpty());
             } else {
                 return Stream.empty();
             }
         }).collect(Collectors.toList());
+    }
+
+    private static List<ClientMethod> filterConvenienceMethodsForProtocolMethod(List<ClientMethod> convenienceMethods,
+        ClientMethod protocolMethod, JavaSettings settings) {
+        Stream<ClientMethod> stream = convenienceMethods.stream();
+        if (settings.getMaxOverload() == JavaSettings.MaxOverload.ALL && isSimpleWithResponseMethod(protocolMethod)) {
+            stream = stream.filter(
+                convenienceMethod -> !hasSamePublicSignature(protocolMethod, convenienceMethod) || !isSimpleWithResponseMethod(convenienceMethod));
+        }
+        return stream.collect(Collectors.toList());
+    }
+
+    private static boolean hasSamePublicSignature(ClientMethod left, ClientMethod right) {
+        return toWrapperMethodName(left).equals(toWrapperMethodName(right))
+            && left.getParametersDeclaration().equals(right.getParametersDeclaration());
+    }
+
+    private static String toWrapperMethodName(ClientMethod method) {
+        if (method.getType().name().contains("Async") && method.getName().endsWith("Async")) {
+            return method.getName().substring(0, method.getName().length() - "Async".length());
+        }
+        return method.getName();
+    }
+
+    private static boolean isSimpleWithResponseMethod(ClientMethod method) {
+        return method.getType() == ClientMethodType.SimpleSyncRestResponse
+            || method.getType() == ClientMethodType.SimpleAsyncRestResponse;
     }
 
     /**

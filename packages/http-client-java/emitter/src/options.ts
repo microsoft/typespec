@@ -25,6 +25,7 @@ export interface License {
 export interface EmitterOptions {
   license?: License;
   "dev-options"?: DevOptions;
+  "max-overload"?: "protocol" | "model" | "all";
 }
 
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
@@ -65,6 +66,13 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
       nullable: true,
       additionalProperties: false,
       required: [],
+    },
+    "max-overload": {
+      type: "string",
+      description:
+        "Selects which max `WithResponse` overloads are generated for data-plane clients.",
+      nullable: true,
+      enum: ["protocol", "model", "all"],
     },
   },
   additionalProperties: false,

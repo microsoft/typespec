@@ -216,6 +216,9 @@ public class JavaSettings {
         // The sync methods generation mode.
         this.syncMethods = SyncMethodsGeneration.fromValue(getStringValue(host, "sync-methods", "essential"));
 
+        // The max overload generation mode for WithResponse APIs.
+        this.maxOverload = MaxOverload.fromValue(getStringValue(host, "max-overload", "protocol"));
+
         // Whether to add a logger to the generated clients.
         this.clientLogger = getBooleanValue(host, "client-logger", true);
 
@@ -962,6 +965,20 @@ public class JavaSettings {
         return syncMethods;
     }
 
+    private final MaxOverload maxOverload;
+
+    public MaxOverload getMaxOverload() {
+        return maxOverload;
+    }
+
+    public boolean isGenerateProtocolMaxOverload() {
+        return maxOverload == MaxOverload.PROTOCOL || maxOverload == MaxOverload.ALL;
+    }
+
+    public boolean isGenerateModelMaxOverload() {
+        return maxOverload == MaxOverload.MODEL || maxOverload == MaxOverload.ALL;
+    }
+
     /**
      * Whether to generate async methods.
      *
@@ -1049,6 +1066,24 @@ public class JavaSettings {
                 return SYNC_ONLY;
             }
             return null;
+        }
+    }
+
+    public enum MaxOverload {
+        PROTOCOL,
+        MODEL,
+        ALL;
+
+        public static MaxOverload fromValue(String value) {
+            if (value == null) {
+                return PROTOCOL;
+            } else if (value.equals("model")) {
+                return MODEL;
+            } else if (value.equals("all")) {
+                return ALL;
+            } else {
+                return PROTOCOL;
+            }
         }
     }
 

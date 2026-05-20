@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.template.ConvenienceSyncMethodTemplate;
 
@@ -20,7 +21,7 @@ public class ClientCoreConvenienceSyncMethodTemplate extends ConvenienceSyncMeth
     }
 
     @Override
-    protected void createEmptyRequestOptions(JavaBlock methodBlock) {
+    protected void createEmptyRequestOptions(ClientMethod convenienceMethod, JavaBlock methodBlock) {
         methodBlock.line("RequestContext requestContext = RequestContext.none();");
     }
 
