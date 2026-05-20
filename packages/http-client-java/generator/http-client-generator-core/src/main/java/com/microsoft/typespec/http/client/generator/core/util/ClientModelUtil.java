@@ -190,52 +190,11 @@ public class ClientModelUtil {
                         && (m.getMethodVisibility() == JavaVisibility.Public
                             || (maxOverload == JavaSettings.MaxOverload.MODEL
                                 && isSimpleWithResponseMethod(m))))
-                    .map(m -> new ConvenienceMethod(m, filterConvenienceMethodsForProtocolMethod(cMethods, m, settings)))
-                    .filter(cm -> !cm.getConvenienceMethods().isEmpty());
+                    .map(m -> new ConvenienceMethod(m, cMethods));
             } else {
                 return Stream.empty();
             }
         }).collect(Collectors.toList());
-    }
-
-    /**
-     * Filters convenience methods for a protocol method.
-     * <p>
-     * In {@code max-overload=all}, if protocol and model {@code WithResponse} overloads collapse to the same public
-     * signature, model overload is removed to avoid invalid return-type-only overloading in Java.
-     *
-     * @param convenienceMethods candidate convenience methods.
-     * @param protocolMethod protocol method that convenience methods wrap.
-     * @param settings java settings.
-     * @return filtered convenience methods.
-     */
-    private static List<ClientMethod> filterConvenienceMethodsForProtocolMethod(List<ClientMethod> convenienceMethods,
-        ClientMethod protocolMethod, JavaSettings settings) {
-        final JavaSettings.MaxOverload maxOverload = settings.getMaxOverload();
-        Stream<ClientMethod> stream = convenienceMethods.stream();
-        if (maxOverload == JavaSettings.MaxOverload.ALL && isSimpleWithResponseMethod(protocolMethod)) {
-            stream = stream.filter(convenienceMethod -> !(hasSamePublicSignature(protocolMethod, convenienceMethod)
-                && isSimpleWithResponseMethod(convenienceMethod)));
-        }
-        return stream.collect(Collectors.toList());
-    }
-
-    /**
-     * Compares signatures as they appear in wrapper clients.
-     * <p>
-     * Async wrapper methods drop the {@code Async} suffix, so method names are normalized before comparison.
-     */
-    private static boolean hasSamePublicSignature(ClientMethod left, ClientMethod right) {
-        return toWrapperMethodName(left).equals(toWrapperMethodName(right))
-            && left.getParametersDeclaration().equals(right.getParametersDeclaration());
-    }
-
-    private static String toWrapperMethodName(ClientMethod method) {
-        // Async wrapper methods omit the "Async" suffix. Compare wrapper-visible signatures when detecting collisions.
-        if (method.getType().name().contains("Async") && method.getName().endsWith("Async")) {
-            return method.getName().substring(0, method.getName().length() - "Async".length());
-        }
-        return method.getName();
     }
 
     private static boolean isSimpleWithResponseMethod(ClientMethod method) {

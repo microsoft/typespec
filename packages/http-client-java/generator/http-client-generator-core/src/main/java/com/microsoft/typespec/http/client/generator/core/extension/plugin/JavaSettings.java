@@ -972,11 +972,11 @@ public class JavaSettings {
     }
 
     public boolean isGenerateProtocolMaxOverload() {
-        return maxOverload == MaxOverload.PROTOCOL || maxOverload == MaxOverload.ALL;
+        return maxOverload == MaxOverload.PROTOCOL;
     }
 
     public boolean isGenerateModelMaxOverload() {
-        return maxOverload == MaxOverload.MODEL || maxOverload == MaxOverload.ALL;
+        return maxOverload == MaxOverload.MODEL;
     }
 
     /**
@@ -1071,16 +1071,13 @@ public class JavaSettings {
 
     public enum MaxOverload {
         PROTOCOL,
-        MODEL,
-        ALL;
+        MODEL;
 
         public static MaxOverload fromValue(String value) {
             if (value == null) {
                 return PROTOCOL;
             } else if (value.equals("model")) {
                 return MODEL;
-            } else if (value.equals("all")) {
-                return ALL;
             } else {
                 return PROTOCOL;
             }
