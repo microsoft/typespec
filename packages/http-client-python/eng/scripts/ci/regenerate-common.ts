@@ -708,6 +708,7 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
       execSync(cmd, { cwd: tempDir, stdio: ["ignore", "ignore", "inherit"] });
 
     run(`git init`);
+    run(`git config core.longpaths true`);
     run(`git remote add origin ${repoUrl}`);
     run(`git config core.sparseCheckout true`);
     run(`git sparse-checkout init --cone`);
