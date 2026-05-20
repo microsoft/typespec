@@ -214,18 +214,12 @@ describe("Operation Converter", () => {
   });
 
   describe("Operation response type conversion", () => {
-    describe("With union enum response type", () => {
-      it("should convert union enum response type to value type", async () => {
+    describe("With anonymous union enum response type", () => {
+      it("should convert anonymous union enum response type to value type", async () => {
         const program = await typeSpecCompile(
           `
-          union UnionEnumResponse {
-            value1: "option1",
-            value2: "option2",
-            stringValue: string,
-          }
-
           @route("/test")
-          op operationWithUnionEnumResponse(): UnionEnumResponse;
+          op operationWithUnionEnumResponse(): "option1" | "option2" | string;
           `,
           runner,
         );
@@ -249,6 +243,44 @@ describe("Operation Converter", () => {
         const response = operation.responses[0];
         ok(response);
         strictEqual(response.bodyType?.kind, "string");
+      });
+    });
+
+    describe("With named union enum response type", () => {
+      it("should preserve named union enum response type as enum", async () => {
+        const program = await typeSpecCompile(
+          `
+          union UnionEnumResponse {
+            value1: "option1",
+            value2: "option2",
+            stringValue: string,
+          }
+
+          @route("/test")
+          op operationWithUnionEnumResponse(): UnionEnumResponse;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const [root] = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+
+        // validate service method response keeps the named enum kind
+        strictEqual(method.response.type?.kind, "enum");
+
+        // validate operation response
+        const operation = method.operation;
+        ok(operation);
+        strictEqual(operation.responses.length, 1);
+        const response = operation.responses[0];
+        ok(response);
+        strictEqual(response.bodyType?.kind, "enum");
       });
     });
 
