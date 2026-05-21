@@ -639,6 +639,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             // The deserialization method name is built from the model name verbatim.
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            // cspell:ignore Deserializesnake
             Assert.AreEqual("Deserializesnake_case_model", deserializationMethod.Signature.Name);
 
             // Full deserialization body uses the exact model name verbatim throughout.
