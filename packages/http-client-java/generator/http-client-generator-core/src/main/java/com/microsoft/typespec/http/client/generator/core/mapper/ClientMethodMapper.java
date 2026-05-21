@@ -966,6 +966,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     return NOT_GENERATE;
                 }
 
+                if (settings.isGenerateModelMaxOverload() && isSimpleWithResponseType(methodType)) {
+                    return NOT_VISIBLE;
+                }
+
                 if (methodType == ClientMethodType.PagingAsyncSinglePage
                     || (methodType == ClientMethodType.PagingSyncSinglePage && settings.isSyncStackEnabled())) {
                     return NOT_VISIBLE;

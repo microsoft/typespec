@@ -69,8 +69,11 @@ public final class MaxOverloadClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> createWidgetWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.createWidgetWithResponse(body, requestOptions);
+    public Response<Widget> createWidgetWithResponse(BinaryData body, RequestOptions requestOptions) {
+        Response<BinaryData> protocolMethodResponse = this.serviceClient.createWidgetWithResponse(body, requestOptions);
+        return new com.azure.core.http.rest.SimpleResponse<>(protocolMethodResponse.getRequest(),
+            protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(),
+            protocolMethodResponse.getValue().toObject(Widget.class));
     }
 
     /**
@@ -90,6 +93,6 @@ public final class MaxOverloadClient {
     public Widget createWidget(CreateWidgetOptions body) {
         // Generated convenience method for createWidgetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return createWidgetWithResponse(BinaryData.fromObject(body), requestOptions).getValue().toObject(Widget.class);
+        return createWidgetWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 }

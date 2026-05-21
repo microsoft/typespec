@@ -71,8 +71,11 @@ public final class MaxOverloadAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> createWidgetWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.createWidgetWithResponseAsync(body, requestOptions);
+    public Mono<Response<Widget>> createWidgetWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.createWidgetWithResponseAsync(body, requestOptions)
+            .map(protocolMethodResponse -> new com.azure.core.http.rest.SimpleResponse<>(protocolMethodResponse.getRequest(),
+                protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(),
+                protocolMethodResponse.getValue().toObject(Widget.class)));
     }
 
     /**
@@ -92,7 +95,6 @@ public final class MaxOverloadAsyncClient {
     public Mono<Widget> createWidget(CreateWidgetOptions body) {
         // Generated convenience method for createWidgetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return createWidgetWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Widget.class));
+        return createWidgetWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

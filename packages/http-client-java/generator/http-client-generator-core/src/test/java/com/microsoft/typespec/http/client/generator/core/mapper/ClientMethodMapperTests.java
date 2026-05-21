@@ -249,6 +249,17 @@ public class ClientMethodMapperTests {
             mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, false, false));
     }
 
+    @Test
+    public void maxOverloadModelHidesProtocolWithResponse() {
+        configureDataPlaneSettings("model");
+        TestClientMethodMapper mapper = new TestClientMethodMapper();
+
+        Assertions.assertEquals(JavaVisibility.Private,
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, true, true));
+        Assertions.assertEquals(JavaVisibility.Private,
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleAsyncRestResponse, true, true));
+    }
+
     private Operation operationWithNoDesc() {
         return operationWithDescOnOperationAndResponseSchema(null, null);
     }
