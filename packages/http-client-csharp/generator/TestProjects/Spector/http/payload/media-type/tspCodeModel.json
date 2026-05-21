@@ -288,7 +288,8 @@
                         "isExactName": false
                       }
                     ],
-                    "isExactName": false
+                    "isExactName": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "responses": [
@@ -297,7 +298,8 @@
                       200
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "POST",
@@ -401,7 +403,8 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "text/plain"
-                    ]
+                    ],
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -524,7 +527,12 @@
                         "isExactName": false
                       }
                     ],
-                    "isExactName": false
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "text"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -533,7 +541,8 @@
                       200
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "POST",
@@ -637,7 +646,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
