@@ -349,7 +349,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             bool explode = false,
             InputParameterScope scope = InputParameterScope.Method,
-            string? delimiter = null)
+            string? delimiter = null,
+            bool isExactName = false)
         {
             return new InputQueryParameter(
                 name: name,
@@ -365,7 +366,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 serializedName: serializedName ?? name,
                 collectionFormat: collectionFormat,
-                explode: explode);
+                explode: explode)
+            {
+                IsExactName = isExactName
+            };
         }
 
         public static InputPathParameter PathParameter(
@@ -476,7 +480,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             InputRequestLocation location = InputRequestLocation.Body,
             InputParameterScope scope = InputParameterScope.Method,
-            string? paramAlias = null)
+            string? paramAlias = null,
+            bool isExactName = false)
         {
             return new InputMethodParameter(
                 name: name,
@@ -492,7 +497,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 location: location,
                 serializedName: serializedName ?? name)
             {
-                ParamAlias = paramAlias
+                ParamAlias = paramAlias,
+                IsExactName = isExactName
             };
         }
 

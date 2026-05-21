@@ -8,7 +8,7 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        [CodeGenMember("snake_case_name")]
-        public string CustomRenamedProp { get; set; }
+        [CodeGenMember("access_token")]
+        public string AccessToken { get; set; }
     }
 }

@@ -123,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // custom property's name is used.
             var props = new[]
             {
-                InputFactory.Property("snake_case_name", InputPrimitiveType.String, wireName: "snake_case_name", isExactName: true),
+                InputFactory.Property("access_token", InputPrimitiveType.String, wireName: "access_token", isExactName: true),
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -138,19 +138,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // the property should be added to the custom code view with its custom name
             Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
-            Assert.AreEqual("CustomRenamedProp", modelTypeProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CustomCodeView.Properties[0].Name);
 
             // serialized name from the spec must be preserved on the custom property
             var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
             Assert.IsNotNull(wireInfo);
-            Assert.AreEqual("snake_case_name", wireInfo!.SerializedName);
+            Assert.AreEqual("access_token", wireInfo!.SerializedName);
 
             // the generated property should be filtered out
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
 
             // canonical view should expose only the custom rename
             Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
-            Assert.AreEqual("CustomRenamedProp", modelTypeProvider.CanonicalView.Properties[0].Name);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CanonicalView.Properties[0].Name);
         }
 
         [Test]
