@@ -689,6 +689,24 @@ try {
         throw "Failed to commit changes"
     }
 
+    $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
+    if (Test-Path $loginScript) {
+        Write-Host "Refreshing GitHub App installation token before push..."
+        try {
+            & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
+            if ($LASTEXITCODE -eq 0 -and (Test-Path Env:GH_TOKEN)) {
+                $AuthToken = $env:GH_TOKEN
+                Write-Host "GitHub App installation token refreshed."
+            } else {
+                Write-Warning "login-to-github.ps1 did not produce a fresh token (exit code $LASTEXITCODE); falling back to existing token."
+            }
+        } catch {
+            Write-Warning "Failed to refresh GitHub App installation token: $($_.Exception.Message). Falling back to existing token."
+        }
+    } else {
+        Write-Host "login-to-github.ps1 not found at $loginScript; skipping token refresh (assuming a non-pipeline run with a long-lived token)."
+    }
+
     # Push the branch. Use the x-access-token username scheme so the URL works
     # both with classic PATs and with GitHub App installation tokens (ghs_*).
     Write-Host "Pushing branch to remote..."

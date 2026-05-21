@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
 ## 0.29.1
 
 ### Bump dependencies

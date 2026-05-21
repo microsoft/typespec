@@ -419,7 +419,8 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "image/png"
-                    ]
+                    ],
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -521,7 +522,8 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "image/jpeg"
-                    ]
+                    ],
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -672,7 +674,8 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "image/png"
-                    ]
+                    ],
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "GET",
@@ -770,7 +773,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",

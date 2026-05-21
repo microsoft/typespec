@@ -608,6 +608,7 @@ function fromBodyParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     isExactName: p.isExactName,
+    serializationOptions: p.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -711,6 +712,7 @@ export function fromSdkHttpOperationResponse(
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
     contentTypes: sdkResponse.contentTypes,
+    serializationOptions: sdkResponse.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);

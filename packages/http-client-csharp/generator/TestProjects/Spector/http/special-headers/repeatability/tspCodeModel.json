@@ -196,7 +196,8 @@
                     }
                   }
                 ],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "POST",

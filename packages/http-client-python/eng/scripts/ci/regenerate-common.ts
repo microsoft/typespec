@@ -677,7 +677,7 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
 
 /**
  * Resets the `tests/generated/{azure,unbranded}` baseline by sparse-checking-out
- * `eng/tools/emitter/gen` from the Azure/azure-sdk-for-python repo, then
+ * `eng/tools/azure-sdk-tools/emitter/generated` from the Azure/azure-sdk-for-python repo, then
  * deleting a couple of fully-generated package folders so regeneration has to
  * recreate them from scratch (smoke test of full-emit path).
  *
@@ -686,8 +686,8 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
  */
 export async function prepareBaselineOfGeneratedCode(generatedFolder: string): Promise<void> {
   const repoUrl = "https://github.com/Azure/azure-sdk-for-python.git";
-  const branch = "main";
-  const sourceSubdir = "eng/tools/emitter/gen";
+  const branch = "typespec-python-generated-tests";
+  const sourceSubdir = "eng/tools/azure-sdk-tools/emitter/generated";
   const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
@@ -708,6 +708,7 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
       execSync(cmd, { cwd: tempDir, stdio: ["ignore", "ignore", "inherit"] });
 
     run(`git init`);
+    run(`git config core.longpaths true`);
     run(`git remote add origin ${repoUrl}`);
     run(`git config core.sparseCheckout true`);
     run(`git sparse-checkout init --cone`);

@@ -5,6 +5,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputModelType } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -1093,6 +1094,74 @@ describe("XML serialization options", () => {
     strictEqual(itemsProperty.serializationOptions.xml.name, "items");
     ok(itemsProperty.serializationOptions.xml.itemsName);
     strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
+  });
+
+  it("Body parameter with file payload should have binary serializationOptions populated on the body type", async function () {
+    const program = await typeSpecCompile(
+      `
+      model RawData extends File {
+        contentType: "application/octet-stream";
+        contents: bytes;
+      }
+
+      @route("/upload")
+      @post
+      op uploadRawData(@bodyRoot data: RawData): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    // The body parameter itself always has serializationOptions (tcgc populates
+    // json/xml options from content types; for a binary file body neither is set).
+    ok(bodyParam.serializationOptions);
+    strictEqual(bodyParam.serializationOptions.json, undefined);
+    strictEqual(bodyParam.serializationOptions.xml, undefined);
+    // The body's model type carries the binary serialization options.
+    const bodyType = bodyParam.type as InputModelType;
+    ok(bodyType.serializationOptions);
+    ok(bodyType.serializationOptions.binary);
+    strictEqual(bodyType.serializationOptions.binary.isFile, true);
+    // bytes contents → not text
+    strictEqual(bodyType.serializationOptions.binary.isText, false);
+    // contentTypes should be populated from the model's contentType property
+    ok(bodyType.serializationOptions.binary.contentTypes);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes.length, 1);
+    strictEqual(bodyType.serializationOptions.binary.contentTypes[0], "application/octet-stream");
+    // filename should be populated for an Http.File-derived model
+    ok(bodyType.serializationOptions.binary.filename);
+    strictEqual(bodyType.serializationOptions.binary.filename.name, "filename");
+  });
+
+  it("Body parameter with JSON content type should have json serializationOptions populated", async function () {
+    const program = await typeSpecCompile(
+      `
+      @route("/messages")
+      @post
+      op sendMessage(@header contentType: "application/json", @body message: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const method = root.clients[0].methods[0];
+    ok(method);
+    const bodyParam = method.operation.parameters.find((p) => p.kind === "body");
+    ok(bodyParam);
+    ok(bodyParam.serializationOptions);
+    ok(bodyParam.serializationOptions.json);
   });
 });
 

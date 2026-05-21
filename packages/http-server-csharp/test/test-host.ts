@@ -1,6 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
 import { createTester, TesterInstance } from "@typespec/compiler/testing";
-import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
+import { CSharpServiceEmitterOptions } from "../src/lib.js";
 
 const libraryName = "@typespec/http-server-csharp";
 
@@ -38,8 +38,8 @@ export async function compileAndDiagnose(
 
 export function getStandardService(code: string, ns?: string): string {
   return `
-  @service(#{title: "${ns ?? "Microsoft.Contoso"}"})
-    namespace ${ns ?? "Microsoft.Contoso"} {
+  @service(#{title: "${ns ?? "Contoso"}"})
+    namespace ${ns ?? "Contoso"} {
       ${code}
     }`;
 }
