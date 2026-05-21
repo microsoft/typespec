@@ -3014,6 +3014,10 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.isExactName) {
+      codeModelProperty.language.java = codeModelProperty.language.java ?? new Language();
+      codeModelProperty.language.java.name = modelProperty.name;
+    }
     if (modelProperty.encode) {
       if (schema instanceof ArraySchema) {
         // ArrayEncoding
