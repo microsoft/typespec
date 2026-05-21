@@ -26,8 +26,6 @@ import { mockFile, t } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
 
 describe("compiler: semantic walker", () => {
-  const NavigatorTester = Tester;
-
   function createCollector(customListener?: SemanticNodeListener) {
     const result = {
       enums: [] as Enum[],
@@ -137,7 +135,7 @@ describe("compiler: semantic walker", () => {
     customListener?: SemanticNodeListener,
     options?: NavigationOptions,
   ) {
-    const { program } = await NavigatorTester.compile(typespec, {
+    const { program } = await Tester.compile(typespec, {
       compilerOptions: { nostdlib: true },
     });
 

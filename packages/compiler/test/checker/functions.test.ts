@@ -1557,12 +1557,10 @@ describe("assignability of functions to fn types", () => {
 });
 
 describe("function type assignability", () => {
-  beforeEach(() => {
-    tester = BaseTester.using("TypeSpec.Reflection");
-  });
+  const assignabilityTester = BaseTester.using("TypeSpec.Reflection");
 
   async function diagnoseFunctionAssignment(source: string, target: string) {
-    const diagnostics = await tester.diagnose(`
+    const diagnostics = await assignabilityTester.diagnose(`
         alias Source = ${source};
         alias Target = ${target};
 
