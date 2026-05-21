@@ -400,6 +400,9 @@ export class CodeModelBuilder {
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
+        if (arg.isExactName && parameter.language.java) {
+          parameter.language.java.name = arg.name;
+        }
       }
       hostParameters.push(this.codeModel.addGlobalParameter(parameter));
     });
@@ -1558,6 +1561,9 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      if (param.isExactName && parameter.language.java) {
+        parameter.language.java.name = param.name;
+      }
       op.addParameter(parameter);
 
       if (parameterOnClient) {
@@ -2221,26 +2227,28 @@ export class CodeModelBuilder {
         !existBodyProperty.readOnly &&
         !(existBodyProperty.schema instanceof ConstantSchema)
       ) {
-        request.parameters.push(
-          new VirtualParameter(
-            existBodyProperty.language.default.name,
-            existBodyProperty.language.default.description,
-            existBodyProperty.schema,
-            {
-              originalParameter: originalParameter,
-              targetProperty: existBodyProperty,
-              language: {
-                default: {
-                  serializedName: existBodyProperty.serializedName,
-                },
+        const virtualParameter = new VirtualParameter(
+          existBodyProperty.language.default.name,
+          existBodyProperty.language.default.description,
+          existBodyProperty.schema,
+          {
+            originalParameter: originalParameter,
+            targetProperty: existBodyProperty,
+            language: {
+              default: {
+                serializedName: existBodyProperty.serializedName,
               },
-              summary: existBodyProperty.summary,
-              implementation: ImplementationLocation.Method,
-              required: existBodyProperty.required,
-              nullable: existBodyProperty.nullable,
             },
-          ),
+            summary: existBodyProperty.summary,
+            implementation: ImplementationLocation.Method,
+            required: existBodyProperty.required,
+            nullable: existBodyProperty.nullable,
+          },
         );
+        if (existBodyProperty.language?.java?.name) {
+          virtualParameter.language.java = virtualParameter.language.java;
+        }
+        request.parameters.push(virtualParameter);
       }
     }
   }
@@ -2274,16 +2282,19 @@ export class CodeModelBuilder {
           break;
         }
 
-        headers.push(
-          new HttpHeader(header.serializedName, schema, {
-            language: {
-              default: {
-                name: header.name,
-                description: header.summary ?? header.doc,
-              },
+        const codeModelHeader = new HttpHeader(header.serializedName, schema, {
+          language: {
+            default: {
+              name: header.name,
+              description: header.summary ?? header.doc,
             },
-          }),
-        );
+          },
+        });
+        if (header.isExactName) {
+          codeModelHeader.language.java = new Language();
+          codeModelHeader.language.java.name = header.name;
+        }
+        headers.push(codeModelHeader);
       }
     }
 
@@ -2716,6 +2727,9 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName && schema.language.java) {
+      schema.language.java.name = type.name;
+    }
     if (type.external) {
       // java name
       schema.language.java = schema.language.java ?? new Language();
@@ -2832,6 +2846,9 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName && objectSchema.language.java) {
+      objectSchema.language.java.name = type.name;
+    }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
 
     if (type.external) {
@@ -3054,6 +3071,9 @@ export class CodeModelBuilder {
           },
         },
       });
+      if (type.isExactName && objectSchema.language.java) {
+        objectSchema.language.java.name = type.name;
+      }
 
       const variantSchema = this.processSchema(it, variantName);
       objectSchema.addProperty(
