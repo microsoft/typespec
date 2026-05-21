@@ -32,13 +32,19 @@ function expectFunctionDiagnostics(
   match: DiagnosticMatch | DiagnosticMatch[],
 ) {
   expect(diagnostics.some((d) => d.code === "experimental-feature")).toBeTruthy();
-  const filtered = diagnostics.filter((d) => d.code !== "experimental-feature");
+  const filtered = diagnostics.filter(
+    (d) => d.code !== "experimental-feature" && d.code !== "implementation-without-extern",
+  );
   expectDiagnostics(filtered, match);
 }
 
 function expectFunctionDiagnosticsEmpty(diagnostics: readonly Diagnostic[]) {
   expect(diagnostics.some((d) => d.code === "experimental-feature")).toBeTruthy();
-  expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "experimental-feature"));
+  expectDiagnosticEmpty(
+    diagnostics.filter(
+      (d) => d.code !== "experimental-feature" && d.code !== "implementation-without-extern",
+    ),
+  );
 }
 
 let tester: Tester = BaseTester;
@@ -116,6 +122,94 @@ describe("declaration", () => {
         message: "A rest parameter must be of an array type.",
       },
     ]);
+  });
+
+  describe("implementation without extern declaration", () => {
+    it("errors if function in $functions has no corresponding extern fn declaration", async () => {
+      const localTester = BaseTester.files({
+        "test.js": mockFile.js({
+          $functions: {
+            "": {
+              orphanedFn: (_ctx: FunctionContext) => undefined,
+            },
+          },
+        }),
+      })
+        .import("./test.js")
+        .using("TypeSpec.Reflection");
+
+      const diagnostics = await localTester.diagnose(`alias X = string;`);
+
+      expectDiagnostics(
+        diagnostics.filter((d) => d.code !== "experimental-feature"),
+        {
+          code: "implementation-without-extern",
+          message: `Function "orphanedFn" is declared in \`$functions\` but does not have a corresponding \`extern fn\` declaration in TypeSpec. Add an \`extern fn\` declaration.`,
+        },
+      );
+    });
+
+    it("errors if function in namespaced $functions has no corresponding extern fn declaration", async () => {
+      const localTester = BaseTester.files({
+        "test.js": mockFile.js({
+          $functions: {
+            MyLib: {
+              orphanedFn: (_ctx: FunctionContext) => undefined,
+            },
+          },
+        }),
+      })
+        .import("./test.js")
+        .using("TypeSpec.Reflection");
+
+      const diagnostics = await localTester.diagnose(`alias X = string;`);
+
+      expectDiagnostics(
+        diagnostics.filter((d) => d.code !== "experimental-feature"),
+        {
+          code: "implementation-without-extern",
+          message: `Function "orphanedFn" is declared in \`$functions\` but does not have a corresponding \`extern fn\` declaration in TypeSpec. Add an \`extern fn\` declaration.`,
+        },
+      );
+    });
+
+    it("no error when $functions implementation has a corresponding extern fn declaration", async () => {
+      const localTester = BaseTester.files({
+        "test.js": mockFile.js({
+          $functions: {
+            "": {
+              boundFn: (_ctx: FunctionContext) => undefined,
+            },
+          },
+        }),
+      })
+        .import("./test.js")
+        .using("TypeSpec.Reflection");
+
+      const diagnostics = await localTester.diagnose(`extern fn boundFn(): unknown;`);
+
+      expectFunctionDiagnosticsEmpty(diagnostics);
+    });
+
+    it("no error when namespaced $functions implementation has a corresponding extern fn declaration", async () => {
+      const localTester = BaseTester.files({
+        "test.js": mockFile.js({
+          $functions: {
+            MyLib: {
+              boundFn: (_ctx: FunctionContext) => undefined,
+            },
+          },
+        }),
+      })
+        .import("./test.js")
+        .using("TypeSpec.Reflection");
+
+      const diagnostics = await localTester.diagnose(
+        `namespace MyLib { extern fn boundFn(): unknown; }`,
+      );
+
+      expectFunctionDiagnosticsEmpty(diagnostics);
+    });
   });
 });
 
@@ -200,10 +294,13 @@ describe("usage", () => {
   it("errors if function not declared", async () => {
     const diagnostics = await tester.diagnose(`const X = missing();`);
 
-    expectDiagnostics(diagnostics, {
-      code: "invalid-ref",
-      message: "Unknown identifier missing",
-    });
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "implementation-without-extern"),
+      {
+        code: "invalid-ref",
+        message: "Unknown identifier missing",
+      },
+    );
   });
 
   it("calls function with arguments", async () => {
@@ -1460,6 +1557,10 @@ describe("assignability of functions to fn types", () => {
 });
 
 describe("function type assignability", () => {
+  beforeEach(() => {
+    tester = BaseTester.using("TypeSpec.Reflection");
+  });
+
   async function diagnoseFunctionAssignment(source: string, target: string) {
     const diagnostics = await tester.diagnose(`
         alias Source = ${source};
@@ -1588,11 +1689,14 @@ describe("calling template arguments", () => {
         }
       `);
 
-    expectDiagnostics(diagnostics, {
-      code: "non-callable",
-      message:
-        "Template parameter 'F extends unknown' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
-    });
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "implementation-without-extern"),
+      {
+        code: "non-callable",
+        message:
+          "Template parameter 'F extends unknown' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
+      },
+    );
   });
 
   it("does not allow calling a template paremeter constrained to a type that is possibly not a function", async () => {
@@ -1602,11 +1706,14 @@ describe("calling template arguments", () => {
         }
       `);
 
-    expectDiagnostics(diagnostics, {
-      code: "non-callable",
-      message:
-        "Template parameter 'F extends Model | valueof fn () => valueof string' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
-    });
+    expectDiagnostics(
+      diagnostics.filter((d) => d.code !== "implementation-without-extern"),
+      {
+        code: "non-callable",
+        message:
+          "Template parameter 'F extends Model | valueof fn () => valueof string' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
+      },
+    );
   });
 
   it("allows calling a template parameter constrained to a function value", async () => {

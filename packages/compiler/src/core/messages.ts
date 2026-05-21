@@ -588,6 +588,12 @@ const diagnostics = {
       default: "Extern declaration must have an implementation in JS file.",
     },
   },
+  "implementation-without-extern": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Function "${"name"}" is declared in \`$functions\` but does not have a corresponding \`extern fn\` declaration in TypeSpec. Add an \`extern fn\` declaration.`,
+    },
+  },
   "overload-same-parent": {
     severity: "error",
     messages: {

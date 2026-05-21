@@ -26,15 +26,7 @@ import { mockFile, t } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
 
 describe("compiler: semantic walker", () => {
-  const NavigatorTester = Tester.files({
-    "main.js": mockFile.js({
-      $functions: {
-        Extern: {
-          foo() {},
-        },
-      },
-    }),
-  }).import("./main.js");
+  const NavigatorTester = Tester;
 
   function createCollector(customListener?: SemanticNodeListener) {
     const result = {
@@ -697,15 +689,33 @@ describe("compiler: semantic walker", () => {
     });
 
     it("include functions", async () => {
-      const results = await runNavigator(`
+      const FunctionTester = Tester.files({
+        "fn.js": mockFile.js({
+          $functions: {
+            Extern: {
+              foo() {},
+            },
+          },
+        }),
+      }).import("./fn.js");
+
+      const { program } = await FunctionTester.compile(
+        `
         namespace Extern;
 
         #suppress "experimental-feature"
         extern fn foo(): string;
-      `);
+      `,
+        {
+          compilerOptions: { nostdlib: true },
+        },
+      );
 
-      expect(results.functions).toHaveLength(1);
-      expect(results.functions[0].name).toBe("foo");
+      const [result, listener] = createCollector();
+      navigateProgram(program, listener);
+
+      expect(result.functions).toHaveLength(1);
+      expect(result.functions[0].name).toBe("foo");
     });
 
     it("emits exit events for template parameter access types", () => {

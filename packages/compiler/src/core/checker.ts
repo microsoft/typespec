@@ -4848,6 +4848,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkSourceFile(file);
     }
 
+    checkJsImplementations();
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
@@ -4922,6 +4923,41 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function internalDecoratorValidation() {
     validateInheritanceDiscriminatedUnions(program);
+  }
+
+  /**
+   * Validate that every function implementation in a JS `$functions` map has a corresponding
+   * `extern fn` declaration in TypeSpec. Without a declaration the function implementation is
+   * silently ignored. Report an error to help the user diagnose the problem.
+   */
+  function checkJsImplementations() {
+    for (const jsFile of program.jsSourceFiles.values()) {
+      checkJsSymbolTableForUnboundFunctions(jsFile.symbol.exports!);
+    }
+  }
+
+  function checkJsSymbolTableForUnboundFunctions(table: SymbolTable) {
+    for (const sym of table.values()) {
+      if (sym.flags & SymbolFlags.Namespace) {
+        if (sym.exports) {
+          checkJsSymbolTableForUnboundFunctions(sym.exports);
+        }
+      } else if (sym.flags & SymbolFlags.Function && sym.flags & SymbolFlags.Implementation) {
+        const mergedSym = getMergedSymbol(sym);
+        const hasTypeSpecDeclaration = mergedSym.declarations.some(
+          (decl) => decl.kind === SyntaxKind.FunctionDeclarationStatement,
+        );
+        if (!hasTypeSpecDeclaration) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "implementation-without-extern",
+              format: { name: sym.name },
+              target: sym.declarations[0],
+            }),
+          );
+        }
+      }
+    }
   }
 
   function checkSourceFile(file: TypeSpecScriptNode) {
