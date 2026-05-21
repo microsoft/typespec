@@ -107,6 +107,10 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
+export function getClientName(named: { name: string; isExactName: boolean }): string {
+  return named.isExactName ? named.name : camelToSnakeCase(named.name);
+}
+
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
@@ -221,7 +225,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
-  let clientName = parameter.isExactName ? parameter.name : camelToSnakeCase(parameter.name);
+  let clientName = getClientName(parameter);
   if (
     parameter.kind !== "method" &&
     parameter.kind !== "credential" &&
@@ -229,9 +233,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
-    clientName = parameter.correspondingMethodParams[0].isExactName
-      ? parameter.correspondingMethodParams[0].name
-      : camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+    clientName = getClientName(parameter.correspondingMethodParams[0]);
   }
   return {
     optional: parameter.optional,

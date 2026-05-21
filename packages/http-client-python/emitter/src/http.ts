@@ -29,6 +29,7 @@ import {
   camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getDelimiterAndExplode,
   getImplementation,
   isAbstract,
@@ -623,11 +624,7 @@ function emitHttpBodyParameter(
     ...emitParamBase(context, bodyParam, undefined, serviceApiVersions),
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
-    clientName: bodyParam.isGeneratedName
-      ? "body"
-      : bodyParam.isExactName
-        ? bodyParam.name
-        : camelToSnakeCase(bodyParam.name),
+    clientName: bodyParam.isGeneratedName ? "body" : getClientName(bodyParam),
     wireName: bodyParam.isGeneratedName ? "body" : bodyParam.name,
     implementation: getImplementation(context, bodyParam),
     clientDefaultValue: bodyParam.clientDefaultValue,
