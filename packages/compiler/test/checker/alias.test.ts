@@ -193,6 +193,30 @@ describe("compiler: aliases", () => {
     });
   });
 
+  it("can self-reference through a model property", async () => {
+    const { A } = await Tester.compile(t.code`
+      alias ${t.model("A")} = { a: A };
+    `);
+    const propA = A.properties.get("a")!;
+    strictEqual(propA.type, A);
+  });
+
+  it("can cross-reference between alias and model", async () => {
+    const diagnostics = await Tester.diagnose(`
+      alias B = { a: A };
+      model A { b: B; }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("can self-reference through nested model (Tree pattern)", async () => {
+    const { Tree } = await Tester.compile(t.code`
+      alias ${t.model("Tree")} = { children: Tree[]; value: string };
+    `);
+    const childrenProp = Tree.properties.get("children")!;
+    strictEqual(childrenProp.type.kind, "Model"); // Array model
+  });
+
   // REGRESSION TEST: https://github.com/Azure/typespec-azure/issues/3365
   it("alias an namespace in JS file shouldn't crash", async () => {
     const diagnostics = await Tester.files({

@@ -698,14 +698,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<int>? statusCodes = null,
             InputType? bodytype = null,
             IReadOnlyList<InputOperationResponseHeader>? headers = null,
-            IReadOnlyList<string>? contentTypes = null)
+            IReadOnlyList<string>? contentTypes = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 headers ?? [],
                 false,
-                contentTypes ?? ["application/json"]);
+                contentTypes ?? ["application/json"],
+                serializationOptions);
         }
 
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)

@@ -11,6 +11,7 @@ catalog:
   "@alloy-js/core": ^0.23.0
   "@alloy-js/csharp": ^0.23.0
   "@alloy-js/markdown": ^0.23.0
+  "@alloy-js/msbuild": ^0.23.0
   "@alloy-js/python": ^0.4.0
   "@alloy-js/rollup-plugin": ^0.1.1
   "@alloy-js/typescript": ^0.23.0
@@ -159,6 +160,7 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
+  turbo: ^2.9.5
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
