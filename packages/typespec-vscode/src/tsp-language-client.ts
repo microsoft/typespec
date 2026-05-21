@@ -215,6 +215,11 @@ export class TspLanguageClient {
           { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
+      } else if (isExpectedClientLifecycleError(e)) {
+        // Expected during initialization failures — the vscode-languageclient library
+        // internally calls stop() which throws when the client is in "starting" state,
+        // or pending requests get rejected when the connection is disposed.
+        logger.debug(`Expected lifecycle error during start: ${e}`);
       } else {
         logger.error("Unexpected error when starting TypeSpec server", [e], {
           showOutput: false,
@@ -229,7 +234,17 @@ export class TspLanguageClient {
 
   async dispose(): Promise<void> {
     if (this.client) {
-      await this.client.dispose();
+      try {
+        await this.client.dispose();
+      } catch (e) {
+        // LanguageClient.dispose() calls stop() internally, which throws when
+        // the client is in StartFailed state ("Client is not running and can't be stopped").
+        // Pipe/stream errors also occur if the server process has already exited.
+        // These are expected — swallow them to allow the dispose flow to complete gracefully.
+        if (!isExpectedClientLifecycleError(e)) {
+          logger.warning(`Unexpected error during TspLanguageClient dispose: ${e}`);
+        }
+      }
     }
   }
 
@@ -276,6 +291,11 @@ export class TspLanguageClient {
       outputChannel,
       errorHandler: {
         error(error, message, count): ErrorHandlerResult {
+          // Pipe/stream errors are expected when the server process exits unexpectedly.
+          // The closed() handler below will take care of prompting the user.
+          if (isExpectedClientLifecycleError(error)) {
+            return { action: ErrorAction.Shutdown };
+          }
           logger.error(`TypeSpec language server encountered an error: ${error.message ?? error}`, [
             message,
           ]);
@@ -338,4 +358,26 @@ export class TspLanguageClient {
     );
     return result;
   }
+}
+
+/**
+ * Identifies errors that are expected during the LSP client lifecycle and should
+ * not be surfaced to users as unexpected errors. These errors come from the
+ * vscode-languageclient library during client start/stop/restart transitions.
+ */
+function isExpectedClientLifecycleError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : typeof e === "string" ? e : "";
+  return (
+    // Thrown by LanguageClient.shutdown() when doInitialize() calls stop()
+    // while the client is still in "starting" state
+    msg.includes("Client is not running and can't be stopped") ||
+    // Thrown when pending LSP requests are rejected because the connection
+    // was disposed during a restart or failed initialization
+    msg.includes("Pending response rejected since connection got disposed") ||
+    // Thrown when the server process dies and the client tries to write to
+    // the broken pipe (common on macOS/Linux)
+    msg.includes("EPIPE") ||
+    // Thrown when writing to a stream after the server process has exited
+    msg.includes("Cannot call write after a stream was destroyed")
+  );
 }

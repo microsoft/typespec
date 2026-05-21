@@ -2,7 +2,7 @@
 // sort-imports-ignore
 import "./pre-extension-activate.js";
 
-import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
+import vscode, { CancellationError, commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
@@ -316,11 +316,25 @@ export async function activate(context: ExtensionContext) {
             }
             // client will be undefined only when we can't find compiler locally or globally
             // otherwise, the client should always be created though the start command may fail which is a different case
-            const choice: "Yes" | "Ignore" | undefined = await vscode.window.showWarningMessage(
-              "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
-              "Yes",
-              "Ignore",
-            );
+            let choice: "Yes" | "Ignore" | undefined;
+            try {
+              choice = await vscode.window.showWarningMessage(
+                "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
+                "Yes",
+                "Ignore",
+              );
+            } catch (e) {
+              // VS Code throws CancellationError when the window is closing/reloading
+              // while the dialog is shown. Treat it as user cancellation.
+              if (e instanceof CancellationError) {
+                logger.info(
+                  "Prompt to install TypeSpec compiler was cancelled due to window closing.",
+                );
+                ssTel.lastStep = "Prompt to install TypeSpec compiler (window closed).";
+                return ResultCode.Cancelled;
+              }
+              throw e;
+            }
             if (choice === undefined || choice === "Ignore") {
               logger.info("User cancelled the prompt to install TypeSpec compiler.");
               ssTel.lastStep = "Prompt to install TypeSpec compiler (cancelled).";
@@ -412,7 +426,11 @@ async function recreateLSPClient(
     logger.info("Recreating TypeSpec LSP server...");
     const oldClient = tspLanguageClient;
     setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
-    await oldClient?.stop();
+    // Use dispose() instead of stop() to ensure proper cleanup even when the old client
+    // is in StartFailed state. stop() skips cleanup when needsStop() returns false
+    // (e.g. after a failed start), which can leave commands like 'typespec.applyCodeFix'
+    // globally registered, causing "command already exists" errors on the new client.
+    await oldClient?.dispose();
     if (!tspLanguageClient) {
       telemetryClient.logOperationDetailTelemetry(activityId, {
         error: "Failed to create TspLanguageClient. Compiler could not be resolved.",
