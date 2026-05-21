@@ -999,7 +999,7 @@ export class CodeModelBuilder {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
     }
     if (diagnostic) {
-      codeModelOperation.language.java = new Language();
+      codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
       codeModelOperation.language.java.comment = diagnostic.message;
     }
 
@@ -2282,7 +2282,7 @@ export class CodeModelBuilder {
           break;
         }
 
-        const codeModelHeader = new HttpHeader(header.serializedName, schema, {
+        const httpHeader = new HttpHeader(header.serializedName, schema, {
           language: {
             default: {
               name: header.name,
@@ -2291,10 +2291,10 @@ export class CodeModelBuilder {
           },
         });
         if (header.isExactName) {
-          codeModelHeader.language.java = new Language();
-          codeModelHeader.language.java.name = header.name;
+          httpHeader.language.java = httpHeader.language.java ?? new Language();
+          httpHeader.language.java.name = header.name;
         }
-        headers.push(codeModelHeader);
+        headers.push(httpHeader);
       }
     }
 
