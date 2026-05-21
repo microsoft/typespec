@@ -617,19 +617,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("access_token", model.Properties[0].Name);
 
             var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
-            var methodBody = serializationMethod.BodyStatements!.ToDisplayString();
+            var serializationBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("serialize"), serializationBody);
 
-            // Wire name is written as the JSON property name.
-            StringAssert.Contains("writer.WritePropertyName(\"access_token\"u8);", methodBody);
-            // The C# property reference uses the exact name (not PascalCased).
-            StringAssert.Contains("access_token", methodBody);
-            StringAssert.DoesNotContain("AccessToken", methodBody);
-
-            // Deserialization also references the wire name and assigns to the exact-named property.
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
             var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
-            StringAssert.Contains("\"access_token\"", deserializationBody);
-            StringAssert.DoesNotContain("AccessToken", deserializationBody);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("deserialize"), deserializationBody);
         }
 
         [Test]
@@ -647,6 +640,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             // The deserialization method name is built from the model name verbatim.
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
             Assert.AreEqual("Deserializesnake_case_model", deserializationMethod.Signature.Name);
+
+            // Full deserialization body uses the exact model name verbatim throughout.
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), deserializationBody);
         }
 
         [Test]
