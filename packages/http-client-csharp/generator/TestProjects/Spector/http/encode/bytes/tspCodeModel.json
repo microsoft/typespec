@@ -17,7 +17,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
@@ -33,7 +34,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
@@ -49,7 +51,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
@@ -65,7 +68,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
@@ -81,7 +85,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
@@ -97,7 +102,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
@@ -113,7 +119,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
@@ -129,7 +136,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
@@ -145,7 +153,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
@@ -161,7 +170,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
@@ -177,7 +187,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
@@ -193,7 +204,8 @@
         "decorators": []
       },
       "value": "image/png",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
@@ -209,7 +221,8 @@
         "decorators": []
       },
       "value": "image/png",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
@@ -225,7 +238,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
@@ -241,7 +255,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
@@ -257,7 +272,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
@@ -273,7 +289,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "35",
@@ -289,7 +306,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
@@ -305,7 +323,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "39",
@@ -321,7 +340,8 @@
         "decorators": []
       },
       "value": "application/octet-stream",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "41",
@@ -337,7 +357,8 @@
         "decorators": []
       },
       "value": "image/png",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "43",
@@ -353,7 +374,8 @@
         "decorators": []
       },
       "value": "image/png",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "45",
@@ -369,7 +391,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
@@ -385,7 +408,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "49",
@@ -401,7 +425,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "51",
@@ -417,7 +442,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -434,6 +460,7 @@
           "name": "DefaultBytesProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "54",
@@ -459,7 +486,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -476,6 +504,7 @@
           "name": "Base64BytesProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "57",
@@ -501,7 +530,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -518,6 +548,7 @@
           "name": "Base64urlBytesProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "60",
@@ -543,7 +574,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -560,6 +592,7 @@
           "name": "Base64urlArrayBytesProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "63",
@@ -600,7 +633,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -642,7 +676,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+          "crossLanguageDefinitionId": "Encode.Bytes.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -709,9 +744,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Query.default.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -797,9 +834,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Query.base64.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -885,9 +924,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Query.base64url.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -964,9 +1005,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Query.base64urlArray.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1029,7 +1072,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.Query.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Query.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1092,9 +1136,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.default.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "102",
@@ -1127,9 +1173,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.default.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "104",
@@ -1165,9 +1213,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.default.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1264,9 +1314,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "110",
@@ -1299,9 +1351,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "112",
@@ -1337,9 +1391,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1436,9 +1492,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64url.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "118",
@@ -1471,9 +1529,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64url.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "120",
@@ -1509,9 +1569,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64url.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1608,9 +1670,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64urlArray.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "126",
@@ -1643,9 +1707,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64urlArray.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "128",
@@ -1681,9 +1747,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Property.base64urlArray.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1765,7 +1833,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.Property.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Property.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1836,9 +1905,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Header.default.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1924,9 +1995,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Header.base64.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2012,9 +2085,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Header.base64url.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2092,9 +2167,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.Header.base64urlArray.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2157,7 +2234,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.Header.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Header.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2220,9 +2298,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.default.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "164",
@@ -2266,9 +2346,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.default.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2350,9 +2432,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.octetStream.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "172",
@@ -2396,9 +2480,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.octetStream.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2480,9 +2566,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.customContentType.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "180",
@@ -2526,9 +2614,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.customContentType.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2610,9 +2700,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.base64.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "188",
@@ -2658,9 +2750,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.base64.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2742,9 +2836,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.base64url.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "196",
@@ -2790,9 +2886,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.base64url.value",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2861,7 +2959,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2922,9 +3021,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.default.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3014,9 +3115,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.octetStream.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3114,9 +3217,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.customContentType.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3214,9 +3319,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.base64.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3315,9 +3422,11 @@
                         "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.base64url.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3411,7 +3520,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

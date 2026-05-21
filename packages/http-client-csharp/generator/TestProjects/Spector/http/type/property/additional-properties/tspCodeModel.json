@@ -17,7 +17,8 @@
         "decorators": []
       },
       "value": "derived",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
@@ -33,7 +34,8 @@
         "decorators": []
       },
       "value": "derived",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
@@ -49,7 +51,8 @@
         "decorators": []
       },
       "value": "kind0",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
@@ -65,7 +68,8 @@
         "decorators": []
       },
       "value": "kind1",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
@@ -81,7 +85,8 @@
         "decorators": []
       },
       "value": "kind1",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
@@ -97,7 +102,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
@@ -113,7 +119,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
@@ -129,7 +136,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
@@ -145,7 +153,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
@@ -161,7 +170,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
@@ -177,7 +187,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
@@ -193,7 +204,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
@@ -209,7 +221,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
@@ -225,7 +238,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
@@ -241,7 +255,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
@@ -257,7 +272,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
@@ -273,7 +289,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "35",
@@ -289,7 +306,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
@@ -305,7 +323,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "39",
@@ -321,7 +340,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "41",
@@ -337,7 +357,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "43",
@@ -353,7 +374,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "45",
@@ -369,7 +391,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
@@ -385,7 +408,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "49",
@@ -401,7 +425,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "51",
@@ -417,7 +442,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "53",
@@ -433,7 +459,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "55",
@@ -449,7 +476,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "57",
@@ -465,7 +493,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "59",
@@ -481,7 +510,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "61",
@@ -497,7 +527,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "63",
@@ -513,7 +544,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "65",
@@ -529,7 +561,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "67",
@@ -545,7 +578,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "69",
@@ -561,7 +595,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "71",
@@ -577,7 +612,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "73",
@@ -593,7 +629,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "75",
@@ -609,7 +646,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "77",
@@ -625,7 +663,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "79",
@@ -641,7 +680,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "81",
@@ -657,7 +697,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "83",
@@ -673,7 +714,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "85",
@@ -689,7 +731,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "87",
@@ -705,7 +748,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "89",
@@ -721,7 +765,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "91",
@@ -737,7 +782,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "93",
@@ -753,7 +799,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "95",
@@ -769,7 +816,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "97",
@@ -785,7 +833,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "99",
@@ -801,7 +850,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "101",
@@ -817,7 +867,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "103",
@@ -833,7 +884,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "105",
@@ -849,7 +901,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "107",
@@ -865,7 +918,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "109",
@@ -881,7 +935,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "111",
@@ -897,7 +952,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "113",
@@ -913,7 +969,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "115",
@@ -929,7 +986,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "117",
@@ -945,7 +1003,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "119",
@@ -961,7 +1020,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "121",
@@ -977,7 +1037,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "123",
@@ -993,7 +1054,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "125",
@@ -1009,7 +1071,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "127",
@@ -1025,7 +1088,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "129",
@@ -1041,7 +1105,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "131",
@@ -1057,7 +1122,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "133",
@@ -1073,7 +1139,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -1091,6 +1158,7 @@
           "name": "ExtendsUnknownAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "136",
         "kind": "unknown",
@@ -1123,7 +1191,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1141,6 +1210,7 @@
           "name": "ExtendsUnknownAdditionalPropertiesDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "135"
       },
@@ -1169,7 +1239,8 @@
               "name": "index"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "142",
@@ -1195,7 +1266,8 @@
               "name": "age"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1213,6 +1285,7 @@
           "name": "ExtendsUnknownAdditionalPropertiesDiscriminated"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "136"
       },
@@ -1240,7 +1313,8 @@
             "name": "kind"
           }
         },
-        "isHttpMetadata": false
+        "isHttpMetadata": false,
+        "isExactName": false
       },
       "properties": [
         {
@@ -1267,7 +1341,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$ref": "145"
@@ -1289,6 +1364,7 @@
               "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived"
             }
           },
+          "isExactName": false,
           "baseModel": {
             "$ref": "144"
           },
@@ -1312,7 +1388,8 @@
                   "name": "kind"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             },
             {
               "$id": "151",
@@ -1338,7 +1415,8 @@
                   "name": "index"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             },
             {
               "$id": "153",
@@ -1364,7 +1442,8 @@
                   "name": "age"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             }
           ]
         }
@@ -1387,6 +1466,7 @@
           "name": "IsUnknownAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "156",
         "kind": "unknown",
@@ -1419,7 +1499,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1437,6 +1518,7 @@
           "name": "IsUnknownAdditionalPropertiesDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "155"
       },
@@ -1465,7 +1547,8 @@
               "name": "index"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "162",
@@ -1491,7 +1574,8 @@
               "name": "age"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1509,6 +1593,7 @@
           "name": "IsUnknownAdditionalPropertiesDiscriminated"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "165",
         "kind": "unknown",
@@ -1540,7 +1625,8 @@
             "name": "kind"
           }
         },
-        "isHttpMetadata": false
+        "isHttpMetadata": false,
+        "isExactName": false
       },
       "properties": [
         {
@@ -1567,7 +1653,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$ref": "166"
@@ -1589,6 +1676,7 @@
               "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived"
             }
           },
+          "isExactName": false,
           "baseModel": {
             "$ref": "164"
           },
@@ -1612,7 +1700,8 @@
                   "name": "kind"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             },
             {
               "$id": "172",
@@ -1638,7 +1727,8 @@
                   "name": "index"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             },
             {
               "$id": "174",
@@ -1664,7 +1754,8 @@
                   "name": "age"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             }
           ]
         }
@@ -1687,6 +1778,7 @@
           "name": "ExtendsStringAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "177",
         "kind": "string",
@@ -1719,7 +1811,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1737,6 +1830,7 @@
           "name": "IsStringAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "181",
         "kind": "string",
@@ -1769,7 +1863,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1787,6 +1882,7 @@
           "name": "SpreadStringRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "185",
         "kind": "string",
@@ -1819,7 +1915,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1837,6 +1934,7 @@
           "name": "ExtendsFloatAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "189",
         "kind": "float32",
@@ -1869,7 +1967,8 @@
               "name": "id"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1887,6 +1986,7 @@
           "name": "IsFloatAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "193",
         "kind": "float32",
@@ -1919,7 +2019,8 @@
               "name": "id"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1937,6 +2038,7 @@
           "name": "SpreadFloatRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "197",
         "kind": "float32",
@@ -1969,7 +2071,8 @@
               "name": "id"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1987,6 +2090,7 @@
           "name": "ExtendsModelAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "201",
         "kind": "model",
@@ -2001,6 +2105,7 @@
             "name": "ModelForRecord"
           }
         },
+        "isExactName": false,
         "properties": [
           {
             "$id": "202",
@@ -2026,7 +2131,8 @@
                 "name": "state"
               }
             },
-            "isHttpMetadata": false
+            "isHttpMetadata": false,
+            "isExactName": false
           }
         ]
       },
@@ -2050,7 +2156,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2071,6 +2178,7 @@
           "name": "IsModelAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "201"
       },
@@ -2094,7 +2202,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2112,6 +2221,7 @@
           "name": "SpreadModelRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "201"
       },
@@ -2135,7 +2245,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2153,6 +2264,7 @@
           "name": "ExtendsModelArrayAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "210",
         "kind": "array",
@@ -2183,7 +2295,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2201,6 +2314,7 @@
           "name": "IsModelArrayAdditionalProperties"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "210"
       },
@@ -2224,7 +2338,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2241,6 +2356,7 @@
           "name": "SpreadModelArrayRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "210"
       },
@@ -2264,7 +2380,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2282,6 +2399,7 @@
           "name": "DifferentSpreadStringRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "217",
         "kind": "string",
@@ -2314,7 +2432,8 @@
               "name": "id"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2332,6 +2451,7 @@
           "name": "DifferentSpreadFloatRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "221",
         "kind": "float32",
@@ -2364,7 +2484,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2382,6 +2503,7 @@
           "name": "DifferentSpreadModelRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "201"
       },
@@ -2409,7 +2531,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2427,6 +2550,7 @@
           "name": "DifferentSpreadModelArrayRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$ref": "210"
       },
@@ -2454,7 +2578,8 @@
               "name": "knownProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2472,6 +2597,7 @@
           "name": "DifferentSpreadStringDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "216"
       },
@@ -2500,7 +2626,8 @@
               "name": "derivedProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2518,6 +2645,7 @@
           "name": "DifferentSpreadFloatDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "220"
       },
@@ -2546,7 +2674,8 @@
               "name": "derivedProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2564,6 +2693,7 @@
           "name": "DifferentSpreadModelDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "224"
       },
@@ -2588,7 +2718,8 @@
               "name": "derivedProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2606,6 +2737,7 @@
           "name": "DifferentSpreadModelArrayDerived"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$ref": "227"
       },
@@ -2630,7 +2762,8 @@
               "name": "derivedProp"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2648,6 +2781,7 @@
           "name": "MultipleSpreadRecord"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "241",
         "kind": "union",
@@ -2669,7 +2803,8 @@
           }
         ],
         "namespace": "",
-        "decorators": []
+        "decorators": [],
+        "isExactName": false
       },
       "properties": [
         {
@@ -2696,7 +2831,8 @@
               "name": "flag"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2714,6 +2850,7 @@
           "name": "SpreadRecordForUnion"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "247",
         "kind": "union",
@@ -2735,7 +2872,8 @@
           }
         ],
         "namespace": "Type.Property.AdditionalProperties",
-        "decorators": []
+        "decorators": [],
+        "isExactName": false
       },
       "properties": [
         {
@@ -2762,7 +2900,8 @@
               "name": "flag"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2780,6 +2919,7 @@
           "name": "SpreadRecordForNonDiscriminatedUnion"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "253",
         "kind": "union",
@@ -2798,6 +2938,7 @@
                 "name": "WidgetData0"
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "255",
@@ -2818,7 +2959,8 @@
                     "name": "kind"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "256",
@@ -2843,7 +2985,8 @@
                     "name": "fooProp"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -2860,6 +3003,7 @@
                 "name": "WidgetData1"
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "259",
@@ -2880,7 +3024,8 @@
                     "name": "kind"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "260",
@@ -2913,7 +3058,8 @@
                     "name": "start"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "263",
@@ -2946,13 +3092,15 @@
                     "name": "end"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           }
         ],
         "namespace": "Type.Property.AdditionalProperties",
-        "decorators": []
+        "decorators": [],
+        "isExactName": false
       },
       "properties": [
         {
@@ -2979,7 +3127,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3003,6 +3152,7 @@
           "name": "SpreadRecordForNonDiscriminatedUnion2"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "269",
         "kind": "union",
@@ -3021,6 +3171,7 @@
                 "name": "WidgetData2"
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "271",
@@ -3041,7 +3192,8 @@
                     "name": "kind"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "272",
@@ -3066,7 +3218,8 @@
                     "name": "start"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -3075,7 +3228,8 @@
           }
         ],
         "namespace": "Type.Property.AdditionalProperties",
-        "decorators": []
+        "decorators": [],
+        "isExactName": false
       },
       "properties": [
         {
@@ -3102,7 +3256,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3123,6 +3278,7 @@
           "name": "SpreadRecordForNonDiscriminatedUnion3"
         }
       },
+      "isExactName": false,
       "additionalProperties": {
         "$id": "277",
         "kind": "union",
@@ -3143,7 +3299,8 @@
           }
         ],
         "namespace": "Type.Property.AdditionalProperties",
-        "decorators": []
+        "decorators": [],
+        "isExactName": false
       },
       "properties": [
         {
@@ -3170,7 +3327,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -3212,7 +3370,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.endpoint"
+          "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -3271,9 +3430,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3363,9 +3524,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "294",
@@ -3403,9 +3566,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3474,7 +3639,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3537,9 +3703,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3629,9 +3797,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "308",
@@ -3669,9 +3839,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3740,7 +3912,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -3803,9 +3976,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3895,9 +4070,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "322",
@@ -3935,9 +4112,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4006,7 +4185,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4069,9 +4249,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4161,9 +4343,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "336",
@@ -4201,9 +4385,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4272,7 +4458,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4335,9 +4522,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4427,9 +4616,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "350",
@@ -4467,9 +4658,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4538,7 +4731,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4601,9 +4795,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4693,9 +4889,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "364",
@@ -4733,9 +4931,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4804,7 +5004,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4867,9 +5068,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4959,9 +5162,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "378",
@@ -4999,9 +5204,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5070,7 +5277,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -5133,9 +5341,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5225,9 +5435,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "392",
@@ -5265,9 +5477,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5336,7 +5550,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -5399,9 +5614,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5491,9 +5708,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "406",
@@ -5531,9 +5750,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5602,7 +5823,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -5665,9 +5887,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5757,9 +5981,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "420",
@@ -5797,9 +6023,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5868,7 +6096,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -5931,9 +6160,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6023,9 +6254,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "434",
@@ -6063,9 +6296,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6134,7 +6369,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -6197,9 +6433,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6289,9 +6527,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "448",
@@ -6329,9 +6569,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6400,7 +6642,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -6463,9 +6706,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6555,9 +6800,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "462",
@@ -6595,9 +6842,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6666,7 +6915,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -6729,9 +6979,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6821,9 +7073,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "476",
@@ -6861,9 +7115,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6932,7 +7188,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -6995,9 +7252,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7087,9 +7346,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "490",
@@ -7127,9 +7388,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7198,7 +7461,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -7261,9 +7525,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7353,9 +7619,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "504",
@@ -7393,9 +7661,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7464,7 +7734,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -7527,9 +7798,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7619,9 +7892,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "518",
@@ -7659,9 +7934,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7730,7 +8007,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -7793,9 +8071,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7885,9 +8165,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "532",
@@ -7925,9 +8207,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -7996,7 +8280,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -8059,9 +8344,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8151,9 +8438,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "546",
@@ -8191,9 +8480,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8262,7 +8553,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -8325,9 +8617,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8417,9 +8711,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "560",
@@ -8457,9 +8753,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8528,7 +8826,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -8591,9 +8890,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8683,9 +8984,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "574",
@@ -8723,9 +9026,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8794,7 +9099,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -8857,9 +9163,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -8949,9 +9257,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "588",
@@ -8989,9 +9299,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9060,7 +9372,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -9123,9 +9436,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9215,9 +9530,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "602",
@@ -9255,9 +9572,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9326,7 +9645,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -9389,9 +9709,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9481,9 +9803,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "616",
@@ -9521,9 +9845,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9592,7 +9918,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -9655,9 +9982,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9747,9 +10076,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "630",
@@ -9787,9 +10118,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -9858,7 +10191,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -9921,9 +10255,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10013,9 +10349,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "644",
@@ -10053,9 +10391,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10124,7 +10464,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -10187,9 +10528,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10279,9 +10622,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "658",
@@ -10319,9 +10664,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10390,7 +10737,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -10453,9 +10801,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10545,9 +10895,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "672",
@@ -10585,9 +10937,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10656,7 +11010,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -10719,9 +11074,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10811,9 +11168,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "686",
@@ -10851,9 +11210,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -10922,7 +11283,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -10985,9 +11347,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11077,9 +11441,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "700",
@@ -11117,9 +11483,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11188,7 +11556,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -11251,9 +11620,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.get.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11343,9 +11714,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.put.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "714",
@@ -11383,9 +11756,11 @@
                         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.put.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11454,7 +11829,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

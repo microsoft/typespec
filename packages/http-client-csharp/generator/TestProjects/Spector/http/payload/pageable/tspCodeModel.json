@@ -17,7 +17,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
@@ -33,7 +34,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
@@ -49,7 +51,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
@@ -65,7 +68,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
@@ -81,7 +85,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
@@ -97,7 +102,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
@@ -113,7 +119,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
@@ -129,7 +136,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
@@ -145,7 +153,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
@@ -161,7 +170,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
@@ -177,7 +187,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
@@ -193,7 +204,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
@@ -209,7 +221,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
@@ -225,7 +238,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
@@ -241,7 +255,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
@@ -257,7 +272,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
@@ -273,7 +289,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -290,6 +307,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "36",
@@ -313,6 +331,7 @@
                   "name": "Pet"
                 }
               },
+              "isExactName": false,
               "properties": [
                 {
                   "$id": "39",
@@ -337,7 +356,8 @@
                       "name": "id"
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 },
                 {
                   "$id": "41",
@@ -362,7 +382,8 @@
                       "name": "name"
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 }
               ]
             },
@@ -380,7 +401,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "43",
@@ -405,7 +427,8 @@
               "name": "next"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -425,6 +448,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "46",
@@ -445,7 +469,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "47",
@@ -470,7 +495,8 @@
               "name": "next"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -487,6 +513,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "50",
@@ -506,6 +533,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "52",
@@ -526,7 +554,8 @@
                     "name": "pets"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -541,7 +570,8 @@
               "name": "nestedItems"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "53",
@@ -561,6 +591,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "55",
@@ -585,7 +616,8 @@
                     "name": "next"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -600,7 +632,8 @@
               "name": "nestedNext"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -623,6 +656,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "58",
@@ -643,7 +677,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -660,6 +695,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "60",
@@ -680,7 +716,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -707,6 +744,7 @@
           "unwrapped": false
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "62",
@@ -740,6 +778,7 @@
                   "unwrapped": false
                 }
               },
+              "isExactName": false,
               "properties": [
                 {
                   "$id": "65",
@@ -773,7 +812,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 },
                 {
                   "$id": "67",
@@ -807,7 +847,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 }
               ]
             },
@@ -835,7 +876,8 @@
               "itemsName": "Pet"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "69",
@@ -869,7 +911,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -899,6 +942,7 @@
           "unwrapped": false
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "72",
@@ -929,7 +973,8 @@
               "itemsName": "Pet"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "73",
@@ -963,7 +1008,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -980,6 +1026,7 @@
           "name": "Filter"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "76",
@@ -1004,7 +1051,8 @@
               "name": "filter"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1021,6 +1069,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "79",
@@ -1041,7 +1090,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "80",
@@ -1066,7 +1116,8 @@
               "name": "next"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1083,6 +1134,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "83",
@@ -1103,7 +1155,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "84",
@@ -1128,7 +1181,8 @@
               "name": "nextToken"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1145,6 +1199,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "87",
@@ -1165,7 +1220,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "88",
@@ -1190,7 +1246,8 @@
               "name": "nextToken"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1207,6 +1264,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "91",
@@ -1227,7 +1285,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1244,6 +1303,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "93",
@@ -1264,7 +1324,8 @@
               "name": "pets"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1281,6 +1342,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "95",
@@ -1300,6 +1362,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "97",
@@ -1320,7 +1383,8 @@
                     "name": "pets"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -1335,7 +1399,8 @@
               "name": "nestedItems"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "98",
@@ -1355,6 +1420,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "100",
@@ -1379,7 +1445,8 @@
                     "name": "nextToken"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -1394,7 +1461,8 @@
               "name": "nestedNext"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1417,6 +1485,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "103",
@@ -1436,6 +1505,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "105",
@@ -1456,7 +1526,8 @@
                     "name": "pets"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -1471,7 +1542,8 @@
               "name": "nestedItems"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "106",
@@ -1491,6 +1563,7 @@
                 "name": ""
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "108",
@@ -1515,7 +1588,8 @@
                     "name": "nextToken"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -1530,7 +1604,8 @@
               "name": "nestedNext"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1578,7 +1653,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Payload.Pageable.endpoint"
+          "crossLanguageDefinitionId": "Payload.Pageable.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -1635,9 +1711,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.link.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1738,9 +1816,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.linkString.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1841,9 +1921,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.nestedLink.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1934,7 +2016,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.endpoint"
+              "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -1997,9 +2080,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post.contentType",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "135",
@@ -2032,9 +2117,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "137",
@@ -2070,9 +2157,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.post.body",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -2169,7 +2258,8 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.endpoint"
+                  "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb.endpoint",
+                  "isExactName": false
                 }
               ],
               "initializedBy": 0,
@@ -2238,9 +2328,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "149",
@@ -2281,9 +2373,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "153",
@@ -2324,9 +2418,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "157",
@@ -2359,9 +2455,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -2482,9 +2580,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "165",
@@ -2525,9 +2625,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "169",
@@ -2568,9 +2670,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "173",
@@ -2603,9 +2707,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseBody.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -2726,9 +2832,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "181",
@@ -2769,9 +2877,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "185",
@@ -2812,9 +2922,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "189",
@@ -2847,9 +2959,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -2982,9 +3096,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "198",
@@ -3025,9 +3141,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "202",
@@ -3068,9 +3186,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "206",
@@ -3103,9 +3223,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -3238,9 +3360,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "215",
@@ -3281,9 +3405,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "219",
@@ -3324,9 +3450,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "223",
@@ -3359,9 +3487,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -3485,9 +3615,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.token",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "231",
@@ -3528,9 +3660,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.foo",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "235",
@@ -3571,9 +3705,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.bar",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       },
                       {
                         "$id": "239",
@@ -3606,9 +3742,11 @@
                             "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.accept",
                             "readOnly": false,
                             "access": "public",
-                            "decorators": []
+                            "decorators": [],
+                            "isExactName": false
                           }
-                        ]
+                        ],
+                        "isExactName": false
                       }
                     ],
                     "responses": [
@@ -3711,7 +3849,8 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.endpoint"
+                  "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.endpoint",
+                  "isExactName": false
                 }
               ],
               "initializedBy": 0,
@@ -3775,9 +3914,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.PageSize.listWithoutContinuation.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3880,9 +4021,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.PageSize.listWithPageSize.pageSize",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "255",
@@ -3915,9 +4058,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.PageSize.listWithPageSize.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4004,7 +4149,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Payload.Pageable.PageSize.endpoint"
+              "crossLanguageDefinitionId": "Payload.Pageable.PageSize.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -4073,9 +4219,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.XmlPagination.listWithContinuation.marker",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "267",
@@ -4108,9 +4256,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.XmlPagination.listWithContinuation.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4225,9 +4375,11 @@
                         "crossLanguageDefinitionId": "Payload.Pageable.XmlPagination.listWithNextLink.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4323,7 +4475,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Payload.Pageable.XmlPagination.endpoint"
+              "crossLanguageDefinitionId": "Payload.Pageable.XmlPagination.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

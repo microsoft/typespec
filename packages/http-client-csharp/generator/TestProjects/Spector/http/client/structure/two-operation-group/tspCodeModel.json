@@ -85,7 +85,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "constants": [],
@@ -117,7 +118,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.endpoint"
+          "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.endpoint",
+          "isExactName": false
         },
         {
           "$id": "11",
@@ -135,7 +137,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.client"
+          "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.client",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -284,7 +287,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group1.endpoint"
+              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group1.endpoint",
+              "isExactName": false
             },
             {
               "$id": "21",
@@ -302,7 +306,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group1.client"
+              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group1.client",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -455,7 +460,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.endpoint"
+              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.endpoint",
+              "isExactName": false
             },
             {
               "$id": "31",
@@ -473,7 +479,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.client"
+              "crossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.client",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

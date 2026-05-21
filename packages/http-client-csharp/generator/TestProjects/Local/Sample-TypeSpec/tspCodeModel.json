@@ -41,7 +41,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Spread,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
@@ -79,7 +80,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "None",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
@@ -117,7 +119,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Spread,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
@@ -155,7 +158,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Spread,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
@@ -215,7 +219,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,Output,Json,Xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "22",
@@ -275,7 +280,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Json,Xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
@@ -335,7 +341,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Json,Xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "32",
@@ -395,7 +402,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
@@ -455,7 +463,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "42",
@@ -515,7 +524,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,Output,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
@@ -575,7 +585,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,Output,Json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "52",
@@ -635,7 +646,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,Output,Json,Xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "57",
@@ -746,7 +758,8 @@
       "isFixed": false,
       "isFlags": false,
       "usage": "Input,Output",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "66",
@@ -792,7 +805,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "ApiVersionEnum",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "constants": [
@@ -810,7 +824,8 @@
         "decorators": []
       },
       "value": "accept",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "72",
@@ -826,7 +841,8 @@
         "decorators": []
       },
       "value": 123,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "74",
@@ -842,7 +858,8 @@
         "decorators": []
       },
       "value": 1.23,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "76",
@@ -858,7 +875,8 @@
         "decorators": []
       },
       "value": false,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "78",
@@ -874,7 +892,8 @@
         "decorators": []
       },
       "value": true,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "80",
@@ -890,7 +909,8 @@
         "decorators": []
       },
       "value": "pet",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "82",
@@ -906,7 +926,8 @@
         "decorators": []
       },
       "value": "dog",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "84",
@@ -922,7 +943,8 @@
         "decorators": []
       },
       "value": "tree",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "86",
@@ -938,7 +960,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "88",
@@ -954,7 +977,8 @@
         "decorators": []
       },
       "value": "text/plain",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "90",
@@ -970,7 +994,8 @@
         "decorators": []
       },
       "value": "text/plain",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "92",
@@ -986,7 +1011,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "94",
@@ -1002,7 +1028,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "96",
@@ -1018,7 +1045,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "98",
@@ -1034,7 +1062,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "100",
@@ -1050,7 +1079,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "102",
@@ -1066,7 +1096,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "104",
@@ -1082,7 +1113,8 @@
         "decorators": []
       },
       "value": "test",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "106",
@@ -1098,7 +1130,8 @@
         "decorators": []
       },
       "value": "test",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "108",
@@ -1114,7 +1147,8 @@
         "decorators": []
       },
       "value": 123,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "110",
@@ -1130,7 +1164,8 @@
         "decorators": []
       },
       "value": 123,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "112",
@@ -1146,7 +1181,8 @@
         "decorators": []
       },
       "value": true,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "114",
@@ -1162,7 +1198,8 @@
         "decorators": []
       },
       "value": true,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "116",
@@ -1178,7 +1215,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "118",
@@ -1194,7 +1232,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "120",
@@ -1210,7 +1249,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "122",
@@ -1226,7 +1266,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "124",
@@ -1242,7 +1283,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "126",
@@ -1258,7 +1300,8 @@
         "decorators": []
       },
       "value": "someRequiredLiteralQueryParam",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "128",
@@ -1274,7 +1317,8 @@
         "decorators": []
       },
       "value": "someRequiredLiteralQueryParam",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "130",
@@ -1290,7 +1334,8 @@
         "decorators": []
       },
       "value": "someRequiredLiteralHeader",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "132",
@@ -1306,7 +1351,8 @@
         "decorators": []
       },
       "value": "someRequiredLiteralHeader",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "134",
@@ -1322,7 +1368,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "136",
@@ -1338,7 +1385,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "138",
@@ -1354,7 +1402,8 @@
         "decorators": []
       },
       "value": "accept",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "140",
@@ -1370,7 +1419,8 @@
         "decorators": []
       },
       "value": 123,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "142",
@@ -1386,7 +1436,8 @@
         "decorators": []
       },
       "value": 1.23,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "144",
@@ -1402,7 +1453,8 @@
         "decorators": []
       },
       "value": false,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "146",
@@ -1418,7 +1470,8 @@
         "decorators": []
       },
       "value": true,
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "148",
@@ -1434,7 +1487,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "150",
@@ -1450,7 +1504,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "152",
@@ -1466,7 +1521,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "154",
@@ -1482,7 +1538,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "156",
@@ -1498,7 +1555,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "158",
@@ -1514,7 +1572,8 @@
         "decorators": []
       },
       "value": "text/plain",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "160",
@@ -1530,7 +1589,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "162",
@@ -1546,7 +1606,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "164",
@@ -1562,7 +1623,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "166",
@@ -1578,7 +1640,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "168",
@@ -1594,7 +1657,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "170",
@@ -1610,7 +1674,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "172",
@@ -1626,7 +1691,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "174",
@@ -1642,7 +1708,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "176",
@@ -1658,7 +1725,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "178",
@@ -1674,7 +1742,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "180",
@@ -1690,7 +1759,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "182",
@@ -1706,7 +1776,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "184",
@@ -1722,7 +1793,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "186",
@@ -1738,7 +1810,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "188",
@@ -1754,7 +1827,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "190",
@@ -1770,7 +1844,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "192",
@@ -1786,7 +1861,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "194",
@@ -1802,7 +1878,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "196",
@@ -1818,7 +1895,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "198",
@@ -1834,7 +1912,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "200",
@@ -1850,7 +1929,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "202",
@@ -1866,7 +1946,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "204",
@@ -1882,7 +1963,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "206",
@@ -1898,7 +1980,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "208",
@@ -1914,7 +1997,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "210",
@@ -1930,7 +2014,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "212",
@@ -1946,7 +2031,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "214",
@@ -1962,7 +2048,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "216",
@@ -1978,7 +2065,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "218",
@@ -1994,7 +2082,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "220",
@@ -2010,7 +2099,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "222",
@@ -2026,7 +2116,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "224",
@@ -2042,7 +2133,8 @@
         "decorators": []
       },
       "value": "application/xml",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "226",
@@ -2058,7 +2150,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "228",
@@ -2074,7 +2167,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "230",
@@ -2090,7 +2184,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "232",
@@ -2106,7 +2201,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "234",
@@ -2122,7 +2218,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "236",
@@ -2138,7 +2235,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -2156,6 +2254,7 @@
           "name": "Thing"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "239",
@@ -2181,7 +2280,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "241",
@@ -2224,7 +2324,8 @@
               }
             ],
             "namespace": "SampleTypeSpec",
-            "decorators": []
+            "decorators": [],
+            "isExactName": false
           },
           "optional": false,
           "readOnly": false,
@@ -2237,7 +2338,8 @@
               "name": "requiredUnion"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "247",
@@ -2259,7 +2361,8 @@
               "name": "requiredLiteralString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "248",
@@ -2290,7 +2393,8 @@
               "name": "requiredNullableString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "251",
@@ -2321,7 +2425,8 @@
               "name": "optionalNullableString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "254",
@@ -2343,7 +2448,8 @@
               "name": "requiredLiteralInt"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "255",
@@ -2365,7 +2471,8 @@
               "name": "requiredLiteralFloat"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "256",
@@ -2387,7 +2494,8 @@
               "name": "requiredLiteralBool"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "257",
@@ -2409,7 +2517,8 @@
               "name": "optionalLiteralString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "258",
@@ -2436,7 +2545,8 @@
               "name": "requiredNullableLiteralString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "260",
@@ -2458,7 +2568,8 @@
               "name": "optionalLiteralInt"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "261",
@@ -2480,7 +2591,8 @@
               "name": "optionalLiteralFloat"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "262",
@@ -2502,7 +2614,8 @@
               "name": "optionalLiteralBool"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "263",
@@ -2528,7 +2641,8 @@
               "name": "requiredBadDescription"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "265",
@@ -2566,7 +2680,8 @@
               "name": "optionalNullableList"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "269",
@@ -2593,7 +2708,8 @@
               "name": "requiredNullableList"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "271",
@@ -2619,7 +2735,8 @@
               "name": "propertyWithSpecialDocs"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -2637,6 +2754,7 @@
           "name": "RoundTripModel"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "274",
@@ -2662,7 +2780,8 @@
               "name": "requiredString"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "276",
@@ -2689,7 +2808,8 @@
               "name": "requiredInt"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "278",
@@ -2718,7 +2838,8 @@
               "name": "requiredCollection"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "280",
@@ -2752,7 +2873,8 @@
               "name": "requiredDictionary"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "283",
@@ -2774,7 +2896,8 @@
               "name": "requiredModel"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "284",
@@ -2796,7 +2919,8 @@
               "name": "intExtensibleEnum"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "285",
@@ -2825,7 +2949,8 @@
               "name": "intExtensibleEnumCollection"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "287",
@@ -2847,7 +2972,8 @@
               "name": "floatExtensibleEnum"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "288",
@@ -2869,7 +2995,8 @@
               "name": "floatExtensibleEnumWithIntValue"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "289",
@@ -2898,7 +3025,8 @@
               "name": "floatExtensibleEnumCollection"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "291",
@@ -2920,7 +3048,8 @@
               "name": "floatFixedEnum"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "292",
@@ -2942,7 +3071,8 @@
               "name": "floatFixedEnumWithIntValue"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "293",
@@ -2971,7 +3101,8 @@
               "name": "floatFixedEnumCollection"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "295",
@@ -2993,7 +3124,8 @@
               "name": "intFixedEnum"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "296",
@@ -3022,7 +3154,8 @@
               "name": "intFixedEnumCollection"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "298",
@@ -3044,7 +3177,8 @@
               "name": "stringFixedEnum"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "299",
@@ -3070,7 +3204,8 @@
               "name": "requiredUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "301",
@@ -3096,7 +3231,8 @@
               "name": "optionalUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "303",
@@ -3134,7 +3270,8 @@
               "name": "requiredRecordUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "307",
@@ -3156,7 +3293,8 @@
               "name": "optionalRecordUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "308",
@@ -3178,7 +3316,8 @@
               "name": "readOnlyRequiredRecordUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "309",
@@ -3200,7 +3339,8 @@
               "name": "readOnlyOptionalRecordUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "310",
@@ -3222,6 +3362,7 @@
                 "name": "ModelWithRequiredNullableProperties"
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "312",
@@ -3252,7 +3393,8 @@
                     "name": "requiredNullablePrimitive"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "315",
@@ -3279,7 +3421,8 @@
                     "name": "requiredExtensibleEnum"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "317",
@@ -3306,7 +3449,8 @@
                     "name": "requiredFixedEnum"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -3321,7 +3465,8 @@
               "name": "modelWithRequiredNullable"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "319",
@@ -3348,7 +3493,8 @@
               "name": "requiredBytes"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3364,6 +3510,7 @@
       "usage": "Input",
       "decorators": [],
       "serializationOptions": {},
+      "isExactName": false,
       "properties": [
         {
           "$id": "322",
@@ -3384,7 +3531,8 @@
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.p1",
           "serializationOptions": {},
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         },
         {
           "$id": "324",
@@ -3401,7 +3549,8 @@
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.action",
           "serializationOptions": {},
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "325",
@@ -3422,7 +3571,8 @@
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.p2",
           "serializationOptions": {},
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         }
       ]
     },
@@ -3440,6 +3590,7 @@
           "name": "NotFriend"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "328",
@@ -3465,7 +3616,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3483,6 +3635,7 @@
           "name": "ModelWithClientName"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "331",
@@ -3508,7 +3661,8 @@
               "name": "otherName"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3525,6 +3679,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": []
     },
     {
@@ -3540,6 +3695,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "335",
@@ -3567,7 +3723,8 @@
               "name": "things"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "337",
@@ -3592,7 +3749,8 @@
               "name": "next"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3609,6 +3767,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "340",
@@ -3629,7 +3788,8 @@
               "name": "things"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "341",
@@ -3654,7 +3814,8 @@
               "name": "next"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3671,6 +3832,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "344",
@@ -3691,7 +3853,8 @@
               "name": "things"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "345",
@@ -3716,7 +3879,8 @@
               "name": "nextToken"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3733,6 +3897,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "348",
@@ -3753,7 +3918,8 @@
               "name": "things"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3770,6 +3936,7 @@
           "name": "Page"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "350",
@@ -3790,7 +3957,8 @@
               "name": "items"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -3807,6 +3975,7 @@
           "name": "ModelWithEmbeddedNonBodyParameters"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "352",
@@ -3832,7 +4001,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "354",
@@ -3858,7 +4028,8 @@
               "name": "requiredHeader"
             }
           },
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         },
         {
           "$id": "356",
@@ -3884,7 +4055,8 @@
               "name": "optionalHeader"
             }
           },
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         },
         {
           "$id": "358",
@@ -3910,7 +4082,8 @@
               "name": "requiredQuery"
             }
           },
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         },
         {
           "$id": "360",
@@ -3936,7 +4109,8 @@
               "name": "optionalQuery"
             }
           },
-          "isHttpMetadata": true
+          "isHttpMetadata": true,
+          "isExactName": false
         }
       ]
     },
@@ -3959,6 +4133,7 @@
           "name": "DynamicModel"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "363",
@@ -3983,7 +4158,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "365",
@@ -4008,7 +4184,8 @@
               "name": "optionalUnknown"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "367",
@@ -4033,7 +4210,8 @@
               "name": "optionalInt"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "369",
@@ -4059,7 +4237,8 @@
               "name": "optionalNullableList"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "371",
@@ -4085,7 +4264,8 @@
               "name": "requiredNullableList"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "373",
@@ -4127,7 +4307,8 @@
               "name": "optionalNullableDictionary"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "378",
@@ -4153,7 +4334,8 @@
               "name": "requiredNullableDictionary"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "380",
@@ -4174,7 +4356,8 @@
               "name": "primitiveDictionary"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "381",
@@ -4200,6 +4383,7 @@
                 "name": "AnotherDynamicModel"
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "383",
@@ -4224,7 +4408,8 @@
                     "name": "bar"
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -4239,7 +4424,8 @@
               "name": "foo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "385",
@@ -4267,7 +4453,8 @@
               "name": "listFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "387",
@@ -4295,7 +4482,8 @@
               "name": "listOfListFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "389",
@@ -4328,7 +4516,8 @@
               "name": "dictionaryFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "392",
@@ -4361,7 +4550,8 @@
               "name": "dictionaryOfDictionaryFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "395",
@@ -4394,7 +4584,8 @@
               "name": "dictionaryListFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "398",
@@ -4422,7 +4613,8 @@
               "name": "listOfDictionaryFoo"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -4452,6 +4644,7 @@
           "unwrapped": false
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "401",
@@ -4479,7 +4672,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "403",
@@ -4507,7 +4701,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "405",
@@ -4535,7 +4730,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "407",
@@ -4563,7 +4759,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "409",
@@ -4591,7 +4788,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "411",
@@ -4619,7 +4817,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "413",
@@ -4652,7 +4851,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "416",
@@ -4685,7 +4885,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "418",
@@ -4718,7 +4919,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "420",
@@ -4751,7 +4953,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "422",
@@ -4786,7 +4989,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "424",
@@ -4825,7 +5029,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "426",
@@ -4858,7 +5063,8 @@
               "unwrapped": true
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "428",
@@ -4888,7 +5094,8 @@
               "itemsName": "unwrappedStrings"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "429",
@@ -4918,7 +5125,8 @@
               "itemsName": "unwrappedCounts"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "430",
@@ -4953,6 +5161,7 @@
                   "unwrapped": false
                 }
               },
+              "isExactName": false,
               "properties": [
                 {
                   "$id": "433",
@@ -4980,7 +5189,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 },
                 {
                   "$id": "435",
@@ -5008,7 +5218,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 },
                 {
                   "$id": "437",
@@ -5041,7 +5252,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 }
               ]
             },
@@ -5067,7 +5279,8 @@
               "itemsName": "unwrappedItems"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "439",
@@ -5092,7 +5305,8 @@
               "itemsName": "string"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "440",
@@ -5124,7 +5338,8 @@
               "itemsName": "Item"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "441",
@@ -5148,6 +5363,7 @@
                 "unwrapped": false
               }
             },
+            "isExactName": false,
             "properties": [
               {
                 "$id": "443",
@@ -5175,7 +5391,8 @@
                     "unwrapped": false
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               },
               {
                 "$id": "445",
@@ -5208,7 +5425,8 @@
                     "unwrapped": false
                   }
                 },
-                "isHttpMetadata": false
+                "isHttpMetadata": false,
+                "isExactName": false
               }
             ]
           },
@@ -5225,7 +5443,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "447",
@@ -5249,7 +5468,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "448",
@@ -5289,7 +5509,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "452",
@@ -5325,7 +5546,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "455",
@@ -5361,7 +5583,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "458",
@@ -5390,7 +5613,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "460",
@@ -5414,7 +5638,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "461",
@@ -5438,7 +5663,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "462",
@@ -5462,7 +5688,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "463",
@@ -5486,7 +5713,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "464",
@@ -5510,7 +5738,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "465",
@@ -5625,7 +5854,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "472",
@@ -5676,7 +5906,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "475",
@@ -5712,7 +5943,8 @@
               "itemsName": "string"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "476",
@@ -5747,7 +5979,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "477",
@@ -5785,6 +6018,7 @@
                   "unwrapped": false
                 }
               },
+              "isExactName": false,
               "properties": [
                 {
                   "$id": "480",
@@ -5811,7 +6045,8 @@
                       "unwrapped": false
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 }
               ]
             },
@@ -5836,7 +6071,8 @@
               }
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "482",
@@ -5865,7 +6101,8 @@
               "itemsName": "unwrappedModelsWithNamespaces"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "483",
@@ -5896,7 +6133,8 @@
               "itemsName": "Array"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "485",
@@ -5931,7 +6169,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "488",
@@ -5966,7 +6205,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "491",
@@ -6001,7 +6241,8 @@
               "unwrapped": false
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "494",
@@ -6032,7 +6273,8 @@
               "itemsName": "Record"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -6059,6 +6301,7 @@
           "name": "Animal"
         }
       },
+      "isExactName": false,
       "discriminatorProperty": {
         "$id": "497",
         "kind": "property",
@@ -6083,7 +6326,8 @@
             "name": "kind"
           }
         },
-        "isHttpMetadata": false
+        "isHttpMetadata": false,
+        "isExactName": false
       },
       "properties": [
         {
@@ -6113,7 +6357,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ],
       "discriminatedSubtypes": {
@@ -6132,6 +6377,7 @@
               "name": "Pet"
             }
           },
+          "isExactName": false,
           "discriminatorProperty": {
             "$id": "502",
             "kind": "property",
@@ -6151,7 +6397,8 @@
                 "name": "kind"
               }
             },
-            "isHttpMetadata": false
+            "isHttpMetadata": false,
+            "isExactName": false
           },
           "baseModel": {
             "$ref": "496"
@@ -6184,7 +6431,8 @@
                   "name": "trained"
                 }
               },
-              "isHttpMetadata": false
+              "isHttpMetadata": false,
+              "isExactName": false
             }
           ],
           "discriminatedSubtypes": {
@@ -6203,6 +6451,7 @@
                   "name": "Dog"
                 }
               },
+              "isExactName": false,
               "baseModel": {
                 "$ref": "501"
               },
@@ -6226,7 +6475,8 @@
                       "name": "kind"
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 },
                 {
                   "$id": "507",
@@ -6252,7 +6502,8 @@
                       "name": "breed"
                     }
                   },
-                  "isHttpMetadata": false
+                  "isHttpMetadata": false,
+                  "isExactName": false
                 }
               ]
             }
@@ -6289,6 +6540,7 @@
           "name": "Tree"
         }
       },
+      "isExactName": false,
       "baseModel": {
         "$id": "510",
         "kind": "model",
@@ -6308,6 +6560,7 @@
             "name": "Plant"
           }
         },
+        "isExactName": false,
         "discriminatorProperty": {
           "$id": "511",
           "kind": "property",
@@ -6337,7 +6590,8 @@
               "name": "species"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         "properties": [
           {
@@ -6372,7 +6626,8 @@
                 "name": "id"
               }
             },
-            "isHttpMetadata": false
+            "isHttpMetadata": false,
+            "isExactName": false
           },
           {
             "$id": "515",
@@ -6403,7 +6658,8 @@
                 "name": "height"
               }
             },
-            "isHttpMetadata": false
+            "isHttpMetadata": false,
+            "isExactName": false
           }
         ],
         "discriminatedSubtypes": {
@@ -6437,7 +6693,8 @@
               "name": "species"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "518",
@@ -6468,7 +6725,8 @@
               "name": "age"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -6488,6 +6746,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "521",
@@ -6512,7 +6771,8 @@
               "name": "numSold"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "523",
@@ -6537,7 +6797,8 @@
               "name": "averagePrice"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -6554,6 +6815,7 @@
           "name": ""
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "526",
@@ -6578,7 +6840,8 @@
               "name": "name"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "528",
@@ -6603,7 +6866,8 @@
               "name": "content"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -6672,9 +6936,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi.headParameter",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "537",
@@ -6715,9 +6981,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi.queryParameter",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "541",
@@ -6758,9 +7026,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi.optionalQuery",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "545",
@@ -6793,9 +7063,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -6903,9 +7175,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.p1",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "553",
@@ -6938,9 +7212,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "555",
@@ -6984,9 +7260,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.p2",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "559",
@@ -7019,9 +7297,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "561",
@@ -7057,9 +7337,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.action",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -7169,7 +7451,8 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec..anonymous.info",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   },
                   {
                     "$id": "568",
@@ -7187,9 +7470,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.p1",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "569",
@@ -7233,9 +7518,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.p2",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "572",
@@ -7270,9 +7557,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "574",
@@ -7305,9 +7594,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "576",
@@ -7347,9 +7638,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Wrapper.action",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -7449,9 +7742,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -7544,9 +7839,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "586",
@@ -7579,9 +7876,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "588",
@@ -7617,9 +7916,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -7719,9 +8020,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.p1",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "594",
@@ -7757,9 +8060,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.p2",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "596",
@@ -7792,9 +8097,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.p3",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "598",
@@ -7827,9 +8134,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -7956,9 +8265,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.topAction.action",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "608",
@@ -7991,9 +8302,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.topAction.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -8087,9 +8400,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.topAction2.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -8182,9 +8497,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.patchAction.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "618",
@@ -8217,9 +8534,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.patchAction.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "620",
@@ -8255,9 +8574,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.patchAction.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -8357,9 +8678,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredQueryParam",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "626",
@@ -8392,9 +8715,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredHeader",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "628",
@@ -8429,9 +8754,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "630",
@@ -8464,9 +8791,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "632",
@@ -8507,9 +8836,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.name",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -8560,7 +8891,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredUnion",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "636",
@@ -8578,7 +8910,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredLiteralString",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "637",
@@ -8596,7 +8929,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredNullableString",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "638",
@@ -8614,7 +8948,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalNullableString",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "639",
@@ -8632,7 +8967,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredLiteralInt",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "640",
@@ -8650,7 +8986,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredLiteralFloat",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "641",
@@ -8668,7 +9005,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredLiteralBool",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "642",
@@ -8712,7 +9050,8 @@
                 "isFixed": false,
                 "isFlags": false,
                 "usage": "None",
-                "decorators": []
+                "decorators": [],
+                "isExactName": false
               },
               "location": "Body",
               "isApiVersion": false,
@@ -8721,7 +9060,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalLiteralString",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "647",
@@ -8739,7 +9079,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredNullableLiteralString",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "648",
@@ -8783,7 +9124,8 @@
                 "isFixed": false,
                 "isFlags": false,
                 "usage": "None",
-                "decorators": []
+                "decorators": [],
+                "isExactName": false
               },
               "location": "Body",
               "isApiVersion": false,
@@ -8792,7 +9134,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalLiteralInt",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "653",
@@ -8836,7 +9179,8 @@
                 "isFixed": false,
                 "isFlags": false,
                 "usage": "None",
-                "decorators": []
+                "decorators": [],
+                "isExactName": false
               },
               "location": "Body",
               "isApiVersion": false,
@@ -8845,7 +9189,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalLiteralFloat",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "658",
@@ -8863,7 +9208,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalLiteralBool",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "659",
@@ -8885,7 +9231,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredBadDescription",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "661",
@@ -8903,7 +9250,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.optionalNullableList",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "662",
@@ -8921,7 +9269,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredNullableList",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$id": "663",
@@ -8943,7 +9292,8 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.propertyWithSpecialDocs",
               "readOnly": false,
               "access": "public",
-              "decorators": []
+              "decorators": [],
+              "isExactName": false
             },
             {
               "$ref": "625"
@@ -9018,9 +9368,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "669",
@@ -9053,9 +9405,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "671",
@@ -9096,9 +9450,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel.name",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9220,9 +9576,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader.repeatabilityFirstSent",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9305,9 +9663,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "686",
@@ -9340,9 +9700,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "688",
@@ -9383,9 +9745,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.otherName",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9485,9 +9849,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9578,9 +9944,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9673,9 +10041,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "703",
@@ -9708,9 +10078,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "705",
@@ -9746,9 +10118,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9902,9 +10276,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean.id",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -9993,9 +10369,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.p1",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "721",
@@ -10054,9 +10432,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.apiVersion",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10137,9 +10517,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10245,9 +10627,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10361,9 +10745,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.token",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "741",
@@ -10396,9 +10782,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10518,9 +10906,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse.token",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "749",
@@ -10553,9 +10943,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10679,9 +11071,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -10786,7 +11180,8 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   },
                   {
                     "$id": "761",
@@ -10804,9 +11199,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredHeader",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "762",
@@ -10848,9 +11245,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalHeader",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "765",
@@ -10892,9 +11291,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredQuery",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "768",
@@ -10936,9 +11337,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalQuery",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "771",
@@ -10973,9 +11376,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "773",
@@ -10999,7 +11404,8 @@
                   {
                     "$ref": "760"
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -11088,9 +11494,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "778",
@@ -11126,9 +11534,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -11215,9 +11625,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.GetXmlAdvancedModel.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -11316,9 +11728,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.UpdateXmlAdvancedModel.contentType",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "788",
@@ -11351,9 +11765,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.UpdateXmlAdvancedModel.accept",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               },
               {
                 "$id": "790",
@@ -11389,9 +11805,11 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.UpdateXmlAdvancedModel.body",
                     "readOnly": false,
                     "access": "public",
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
-                ]
+                ],
+                "isExactName": false
               }
             ],
             "responses": [
@@ -11471,7 +11889,8 @@
           "serverUrlTemplate": "{sampleTypeSpecUrl}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+          "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl",
+          "isExactName": false
         },
         {
           "$ref": "724"
@@ -11541,9 +11960,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "799",
@@ -11576,9 +11997,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "801",
@@ -11614,9 +12037,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal.animal",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11718,9 +12143,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "807",
@@ -11753,9 +12180,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "809",
@@ -11791,9 +12220,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal.animal",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -11865,7 +12296,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.sampleTypeSpecUrl",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -11936,9 +12368,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "818",
@@ -11971,9 +12405,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "820",
@@ -12009,9 +12445,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet.pet",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12113,9 +12551,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "826",
@@ -12148,9 +12588,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "828",
@@ -12186,9 +12628,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet.pet",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12260,7 +12704,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.sampleTypeSpecUrl",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -12331,9 +12776,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "837",
@@ -12366,9 +12813,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "839",
@@ -12404,9 +12853,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog.dog",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12478,7 +12929,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.sampleTypeSpecUrl",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -12547,9 +12999,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.getTree.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12648,9 +13102,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.getTreeAsJson.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12749,9 +13205,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTree.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "856",
@@ -12784,9 +13242,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTree.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "858",
@@ -12822,9 +13282,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTree.tree",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -12932,9 +13394,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTreeAsJson.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "864",
@@ -12967,9 +13431,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTreeAsJson.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "866",
@@ -13005,9 +13471,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.updateTreeAsJson.tree",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -13087,7 +13555,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.sampleTypeSpecUrl",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -13167,9 +13636,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.MetricsClientParams.metricsNamespace",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "877",
@@ -13205,9 +13676,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.day",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "879",
@@ -13240,9 +13713,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -13308,7 +13783,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.sampleTypeSpecUrl",
+              "isExactName": false
             },
             {
               "$ref": "875"
@@ -13392,9 +13868,11 @@
                         "readOnly": false,
                         "access": "public",
                         "decorators": [],
-                        "paramAlias": "notebookName"
+                        "paramAlias": "notebookName",
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "890",
@@ -13427,9 +13905,11 @@
                         "crossLanguageDefinitionId": "SampleTypeSpec.Notebooks.getNotebook.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -13492,7 +13972,8 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.Notebooks.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.Notebooks.sampleTypeSpecUrl",
+              "isExactName": false
             },
             {
               "$ref": "888"

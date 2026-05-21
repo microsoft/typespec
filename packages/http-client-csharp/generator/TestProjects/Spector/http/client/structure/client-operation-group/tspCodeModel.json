@@ -85,7 +85,8 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "constants": [],
@@ -156,7 +157,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.endpoint"
+          "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.endpoint",
+          "isExactName": false
         },
         {
           "$id": "13",
@@ -174,7 +176,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.client"
+          "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.client",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -285,7 +288,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3.endpoint"
+              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3.endpoint",
+              "isExactName": false
             },
             {
               "$id": "21",
@@ -303,7 +307,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3.client"
+              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3.client",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -380,7 +385,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4.endpoint"
+              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4.endpoint",
+              "isExactName": false
             },
             {
               "$id": "27",
@@ -398,7 +404,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4.client"
+              "crossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4.client",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -478,7 +485,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.endpoint"
+          "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.endpoint",
+          "isExactName": false
         },
         {
           "$id": "33",
@@ -496,7 +504,8 @@
           "serverUrlTemplate": "{endpoint}/client/structure/{client}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.client"
+          "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.client",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -569,7 +578,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5.endpoint"
+              "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5.endpoint",
+              "isExactName": false
             },
             {
               "$id": "39",
@@ -587,7 +597,8 @@
               "serverUrlTemplate": "{endpoint}/client/structure/{client}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5.client"
+              "crossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5.client",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

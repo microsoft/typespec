@@ -17,7 +17,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "3",
@@ -33,7 +34,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "5",
@@ -49,7 +51,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "7",
@@ -65,7 +68,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "9",
@@ -81,7 +85,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "11",
@@ -97,7 +102,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "13",
@@ -113,7 +119,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "15",
@@ -129,7 +136,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "17",
@@ -145,7 +153,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "19",
@@ -161,7 +170,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "21",
@@ -177,7 +187,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "23",
@@ -193,7 +204,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "25",
@@ -209,7 +221,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "27",
@@ -225,7 +238,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "29",
@@ -241,7 +255,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "31",
@@ -257,7 +272,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "33",
@@ -273,7 +289,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "35",
@@ -289,7 +306,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "37",
@@ -305,7 +323,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "39",
@@ -321,7 +340,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "41",
@@ -337,7 +357,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "43",
@@ -353,7 +374,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "45",
@@ -369,7 +391,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "47",
@@ -385,7 +408,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "49",
@@ -401,7 +425,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "51",
@@ -417,7 +442,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "53",
@@ -433,7 +459,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     },
     {
       "$id": "55",
@@ -449,7 +476,8 @@
         "decorators": []
       },
       "value": "application/json",
-      "decorators": []
+      "decorators": [],
+      "isExactName": false
     }
   ],
   "models": [
@@ -466,6 +494,7 @@
           "name": "DefaultDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "58",
@@ -498,7 +527,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -515,6 +545,7 @@
           "name": "ISO8601DurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "62",
@@ -547,7 +578,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -564,6 +596,7 @@
           "name": "Int32SecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "66",
@@ -596,7 +629,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -613,6 +647,7 @@
           "name": "FloatSecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "70",
@@ -645,7 +680,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -662,6 +698,7 @@
           "name": "Float64SecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "74",
@@ -694,7 +731,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -711,6 +749,7 @@
           "name": "Int32MillisecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "78",
@@ -743,7 +782,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -760,6 +800,7 @@
           "name": "FloatMillisecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "82",
@@ -792,7 +833,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -809,6 +851,7 @@
           "name": "Float64MillisecondsDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "86",
@@ -841,7 +884,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -858,6 +902,7 @@
           "name": "FloatSecondsDurationArrayProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "90",
@@ -912,7 +957,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -929,6 +975,7 @@
           "name": "FloatMillisecondsDurationArrayProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "97",
@@ -983,7 +1030,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1000,6 +1048,7 @@
           "name": "Int32SecondsLargerUnitDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "104",
@@ -1032,7 +1081,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1049,6 +1099,7 @@
           "name": "FloatSecondsLargerUnitDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "108",
@@ -1081,7 +1132,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1098,6 +1150,7 @@
           "name": "Int32MillisecondsLargerUnitDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "112",
@@ -1130,7 +1183,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -1147,6 +1201,7 @@
           "name": "FloatMillisecondsLargerUnitDurationProperty"
         }
       },
+      "isExactName": false,
       "properties": [
         {
           "$id": "116",
@@ -1179,7 +1234,8 @@
               "name": "value"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -1221,7 +1277,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Encode.Duration.endpoint"
+          "crossLanguageDefinitionId": "Encode.Duration.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -1302,9 +1359,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.default.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1404,9 +1463,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.iso8601.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1506,9 +1567,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32Seconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1608,9 +1671,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32SecondsLargerUnit.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1710,9 +1775,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.floatSeconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1812,9 +1879,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.floatSecondsLargerUnit.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -1914,9 +1983,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.float64Seconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2016,9 +2087,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32Milliseconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2118,9 +2191,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32MillisecondsLargerUnit.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2220,9 +2295,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.floatMilliseconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2322,9 +2399,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.floatMillisecondsLargerUnit.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2424,9 +2503,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.float64Milliseconds.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2537,9 +2618,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32SecondsArray.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2650,9 +2733,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Query.int32MillisecondsArray.input",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2715,7 +2800,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Duration.Query.endpoint"
+              "crossLanguageDefinitionId": "Encode.Duration.Query.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -2778,9 +2864,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.default.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "246",
@@ -2813,9 +2901,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.default.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "248",
@@ -2851,9 +2941,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.default.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -2950,9 +3042,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.iso8601.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "254",
@@ -2985,9 +3079,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.iso8601.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "256",
@@ -3023,9 +3119,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.iso8601.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3122,9 +3220,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Seconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "262",
@@ -3157,9 +3257,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Seconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "264",
@@ -3195,9 +3297,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Seconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3294,9 +3398,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSeconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "270",
@@ -3329,9 +3435,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSeconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "272",
@@ -3367,9 +3475,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSeconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3466,9 +3576,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Seconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "278",
@@ -3501,9 +3613,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Seconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "280",
@@ -3539,9 +3653,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Seconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3638,9 +3754,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Milliseconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "286",
@@ -3673,9 +3791,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Milliseconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "288",
@@ -3711,9 +3831,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32Milliseconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3810,9 +3932,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMilliseconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "294",
@@ -3845,9 +3969,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMilliseconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "296",
@@ -3883,9 +4009,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMilliseconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -3982,9 +4110,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Milliseconds.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "302",
@@ -4017,9 +4147,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Milliseconds.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "304",
@@ -4055,9 +4187,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.float64Milliseconds.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4154,9 +4288,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsArray.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "310",
@@ -4189,9 +4325,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsArray.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "312",
@@ -4227,9 +4365,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsArray.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4326,9 +4466,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsArray.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "318",
@@ -4361,9 +4503,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsArray.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "320",
@@ -4399,9 +4543,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsArray.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4498,9 +4644,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32SecondsLargerUnit.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "326",
@@ -4533,9 +4681,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32SecondsLargerUnit.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "328",
@@ -4571,9 +4721,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32SecondsLargerUnit.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4670,9 +4822,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsLargerUnit.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "334",
@@ -4705,9 +4859,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsLargerUnit.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "336",
@@ -4743,9 +4899,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatSecondsLargerUnit.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -4842,9 +5000,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32MillisecondsLargerUnit.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "342",
@@ -4877,9 +5037,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32MillisecondsLargerUnit.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "344",
@@ -4915,9 +5077,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.int32MillisecondsLargerUnit.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5014,9 +5178,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsLargerUnit.contentType",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "350",
@@ -5049,9 +5215,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsLargerUnit.accept",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   },
                   {
                     "$id": "352",
@@ -5087,9 +5255,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Property.floatMillisecondsLargerUnit.body",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5171,7 +5341,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Duration.Property.endpoint"
+              "crossLanguageDefinitionId": "Encode.Duration.Property.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -5256,9 +5427,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.default.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5358,9 +5531,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.iso8601.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5472,9 +5647,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.iso8601Array.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5574,9 +5751,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.int32Seconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5676,9 +5855,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.int32SecondsLargerUnit.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5778,9 +5959,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.floatSeconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5880,9 +6063,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.floatSecondsLargerUnit.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -5982,9 +6167,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.float64Seconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6084,9 +6271,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.int32Milliseconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6186,9 +6375,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.int32MillisecondsLargerUnit.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6288,9 +6479,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.floatMilliseconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6390,9 +6583,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.floatMillisecondsLargerUnit.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6492,9 +6687,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.float64Milliseconds.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6606,9 +6803,11 @@
                         "crossLanguageDefinitionId": "Encode.Duration.Header.int32MillisecondsArray.duration",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -6671,7 +6870,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Duration.Header.endpoint"
+              "crossLanguageDefinitionId": "Encode.Duration.Header.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,

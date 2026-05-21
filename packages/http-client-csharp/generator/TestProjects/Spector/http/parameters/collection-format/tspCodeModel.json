@@ -41,7 +41,8 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Parameters.CollectionFormat.endpoint"
+          "crossLanguageDefinitionId": "Parameters.CollectionFormat.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
@@ -111,9 +112,11 @@
                         "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.multi.colors",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -192,9 +195,11 @@
                         "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.ssv.colors",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -273,9 +278,11 @@
                         "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.pipes.colors",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -354,9 +361,11 @@
                         "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.csv.colors",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -419,7 +428,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.endpoint"
+              "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
@@ -484,9 +494,11 @@
                         "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header.csv.colors",
                         "readOnly": false,
                         "access": "public",
-                        "decorators": []
+                        "decorators": [],
+                        "isExactName": false
                       }
-                    ]
+                    ],
+                    "isExactName": false
                   }
                 ],
                 "responses": [
@@ -549,7 +561,8 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header.endpoint"
+              "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header.endpoint",
+              "isExactName": false
             }
           ],
           "initializedBy": 0,
