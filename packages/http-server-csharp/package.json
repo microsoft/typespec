@@ -22,24 +22,25 @@
   "bin": {
     "hscs-scaffold": "./cmd/hscs.js"
   },
-  "main": "dist/src/lib/index.js",
+  "main": "dist/src/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/lib/index.d.ts",
-      "default": "./dist/src/lib/index.js"
+      "import": "./dist/src/index.js"
     },
     "./testing": {
-      "types": "./dist/src/lib/testing/index.d.ts",
-      "default": "./dist/src/lib/testing/index.js"
+      "import": "./dist/src/testing/index.js"
     }
+  },
+  "imports": {
+    "#test/*": "./test/*"
   },
   "engines": {
     "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p tsconfig.build.json",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "build": "alloy build",
+    "watch": "alloy build --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
@@ -53,7 +54,8 @@
   "files": [
     "lib/**/*.tsp",
     "dist/**",
-    "!dist/test/**"
+    "!dist/test/**",
+    "!dist/**/*.test.*"
   ],
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
@@ -63,7 +65,11 @@
     "@typespec/versioning": "workspace:^"
   },
   "dependencies": {
-    "@typespec/asset-emitter": "workspace:^",
+    "@alloy-js/core": "catalog:",
+    "@alloy-js/csharp": "catalog:",
+    "@alloy-js/msbuild": "catalog:",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http-canonicalization": "workspace:^",
     "change-case": "catalog:",
     "cross-spawn": "catalog:",
     "picocolors": "catalog:",
@@ -71,6 +77,8 @@
     "yargs": "catalog:"
   },
   "devDependencies": {
+    "@alloy-js/cli": "catalog:",
+    "@alloy-js/rollup-plugin": "catalog:",
     "@types/cross-spawn": "catalog:",
     "@types/node": "catalog:",
     "@types/yargs": "catalog:",
