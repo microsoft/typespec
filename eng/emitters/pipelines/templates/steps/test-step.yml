@@ -36,6 +36,10 @@ parameters:
     type: string
     default: ""
 
+  - name: AzureCadlRanchName
+    type: string
+    default: ""
+
   - name: EnableCadlRanchReport
     type: boolean
     default: true
@@ -93,4 +97,15 @@ steps:
           scriptType: "bash"
           scriptLocation: "inlineScript"
           inlineScript: npx tsp-spector upload-coverage --coverageFile ./generator/artifacts/coverage/tsp-spector-coverage-${{ parameters.LanguageShortName }}-standard.json --generatorName ${{ coalesce(parameters.CadlRanchName, parameters.LanguageShortName) }} --storageAccountName typespec --containerName coverages --generatorVersion $(node -p -e "require('./package.json').version") --generatorMode standard
+          workingDirectory: $(selfRepositoryPath)${{ parameters.PackagePath }}
+
+  - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.EnableCadlRanchReport, true), ne(parameters.AzureCadlRanchName, '')) }}:
+      - task: AzureCLI@2
+        displayName: "Upload Cadl Ranch Azure Coverage Report"
+        condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'), eq('${{ parameters.EmitArtifacts }}', true))
+        inputs:
+          azureSubscription: "TypeSpec Storage"
+          scriptType: "bash"
+          scriptLocation: "inlineScript"
+          inlineScript: npx tsp-spector upload-coverage --coverageFile ./generator/artifacts/coverage/tsp-spector-coverage-${{ parameters.LanguageShortName }}-azure.json --generatorName ${{ parameters.AzureCadlRanchName }} --storageAccountName typespec --containerName coverages --generatorVersion $(node -p -e "require('./package.json').version") --generatorMode azure
           workingDirectory: $(selfRepositoryPath)${{ parameters.PackagePath }}

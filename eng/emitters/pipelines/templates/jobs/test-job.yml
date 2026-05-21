@@ -44,6 +44,10 @@ parameters:
     type: string
     default: ""
 
+  - name: AzureCadlRanchName
+    type: string
+    default: ""
+
   - name: EnableCadlRanchReport
     type: boolean
     default: true
@@ -85,6 +89,7 @@ jobs:
             TestArgs: ${{ parameters.TestArgs }}
           EmitArtifacts: ${{ parameters.EmitArtifacts }}
           CadlRanchName: ${{ parameters.CadlRanchName }}
+          AzureCadlRanchName: ${{ parameters.AzureCadlRanchName }}
           EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
           PythonVersion: ${{ parameters.PythonVersion }}
           UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
