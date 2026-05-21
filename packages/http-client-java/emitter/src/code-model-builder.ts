@@ -2246,7 +2246,7 @@ export class CodeModelBuilder {
           },
         );
         if (existBodyProperty.language?.java?.name) {
-          virtualParameter.language.java = virtualParameter.language.java;
+          virtualParameter.language.java = existBodyProperty.language.java;
         }
         request.parameters.push(virtualParameter);
       }
