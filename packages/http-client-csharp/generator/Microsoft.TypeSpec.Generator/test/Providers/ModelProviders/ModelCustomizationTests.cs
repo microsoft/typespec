@@ -115,6 +115,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeWinsOverIsExactName()
+        {
+            // A spec property marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that property via [CodeGenMember], the custom code
+            // rename should still win — the generated property is filtered out and the
+            // custom property's name is used.
+            var props = new[]
+            {
+                InputFactory.Property("snake_case_name", InputPrimitiveType.String, wireName: "snake_case_name", isExactName: true),
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view with its custom name
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("CustomRenamedProp", modelTypeProvider.CustomCodeView.Properties[0].Name);
+
+            // serialized name from the spec must be preserved on the custom property
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("snake_case_name", wireInfo!.SerializedName);
+
+            // the generated property should be filtered out
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // canonical view should expose only the custom rename
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("CustomRenamedProp", modelTypeProvider.CanonicalView.Properties[0].Name);
+        }
+
+        [Test]
         public async Task CanChangePropertyType()
         {
             var props = new[]
