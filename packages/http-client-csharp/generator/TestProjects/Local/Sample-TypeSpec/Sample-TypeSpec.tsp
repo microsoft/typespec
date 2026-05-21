@@ -212,6 +212,10 @@ model RoundTripModel {
   @doc("Required string, illustrating a reference type property.")
   requiredString: string;
 
+  @doc("a property whose name is preserved verbatim by the C# emitter via exact()")
+  @clientName(Azure.ClientGenerator.Core.exact("exact_name_property"), "csharp")
+  exactNameProperty?: string;
+
   @doc("Required int, illustrating a value type property.")
   @encode(string)
   requiredInt: int32;
