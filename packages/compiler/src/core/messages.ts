@@ -590,6 +590,9 @@ const diagnostics = {
   },
   "implementation-without-extern": {
     severity: "error",
+    description:
+      "Report when a function is registered in $functions in a JS file but has no corresponding `extern fn` declaration in TypeSpec.",
+    url: "https://typespec.io/docs/standard-library/diags/implementation-without-extern",
     messages: {
       default: paramMessage`Function "${"name"}" is declared in \`$functions\` but does not have a corresponding \`extern fn\` declaration in TypeSpec. Add an \`extern fn\` declaration.`,
     },
