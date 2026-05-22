@@ -414,8 +414,15 @@ describe("openapi: decorators", () => {
 
       it("error points to the invalid property name in the object literal", async () => {
         const { source, pos, end } = extractSquiggles(
-          `import "@typespec/http";\nimport "@typespec/rest";\nimport "@typespec/openapi";\nusing OpenAPI;\n` +
-            `@service()\n@tagMetadata("tagName", #{ ~~~custom~~~:"Bar" })\nnamespace PetStore{};`,
+          [
+            `import "@typespec/http";`,
+            `import "@typespec/rest";`,
+            `import "@typespec/openapi";`,
+            `using OpenAPI;`,
+            `@service()`,
+            `@tagMetadata("tagName", #{ ~~~custom~~~:"Bar" })`,
+            `namespace PetStore{};`,
+          ].join("\n"),
         );
 
         const diagnostics = await PlainTester.diagnose(source);
@@ -429,8 +436,15 @@ describe("openapi: decorators", () => {
 
       it("error in nested object points to the invalid property name", async () => {
         const { source, pos, end } = extractSquiggles(
-          `import "@typespec/http";\nimport "@typespec/rest";\nimport "@typespec/openapi";\nusing OpenAPI;\n` +
-            `@service()\n@tagMetadata("tagName", #{ externalDocs: #{ url: "https://example.com", ~~~custom~~~:"Bar"} })\nnamespace PetStore{};`,
+          [
+            `import "@typespec/http";`,
+            `import "@typespec/rest";`,
+            `import "@typespec/openapi";`,
+            `using OpenAPI;`,
+            `@service()`,
+            `@tagMetadata("tagName", #{ externalDocs: #{ url: "https://example.com", ~~~custom~~~:"Bar"} })`,
+            `namespace PetStore{};`,
+          ].join("\n"),
         );
 
         const diagnostics = await PlainTester.diagnose(source);
