@@ -5,8 +5,9 @@ export function transformTags(tags: OpenAPI3Tag[]): TypeSpecTagMetadata[] {
   return tags.map((tag) => {
     const tag32 = tag as OpenAPITag3_2;
     // Support both native 3.2 fields and x-oai- prefixed extensions for 3.0/3.1
-    const summary = tag32.summary ?? (tag as any)["x-oai-summary"];
-    const kind = tag32.kind ?? (tag as any)["x-oai-kind"];
+    const summary: string | undefined =
+      tag32.summary ?? (tag["x-oai-summary"] as string | undefined);
+    const kind: string | undefined = tag32.kind ?? (tag["x-oai-kind"] as string | undefined);
 
     return {
       name: tag.name,
