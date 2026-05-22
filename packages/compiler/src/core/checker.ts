@@ -553,10 +553,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * the DFS has unwound, those dependencies should be fully checked.
    */
   function retryPendingInstantiations() {
+    const MAX_RETRY_ROUNDS = 20;
+    let round = 0;
     let progress = true;
-    while (progress) {
+    while (progress && round < MAX_RETRY_ROUNDS) {
       progress = false;
-      for (const [type, { ctx, node }] of pendingInstantiationRetries) {
+      round++;
+      // Snapshot current entries to avoid iterating over newly-added entries
+      const entries = [...pendingInstantiationRetries];
+      for (const [type, { ctx, node }] of entries) {
+        if (!pendingInstantiationRetries.has(type)) continue; // removed during iteration
         if (!type.creating) {
           pendingInstantiationRetries.delete(type);
           continue;
@@ -624,6 +630,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (depItem.status === CheckItemStatus.Done || depItem.status === CheckItemStatus.Error) {
       // Already completed — DFS will find cached type
+      return false;
+    }
+
+    // Template declarations are checked on-demand when instantiated, not eagerly.
+    // Don't defer on them — let DFS proceed normally to check/instantiate them inline.
+    if (
+      "templateParameters" in depItem.node &&
+      (depItem.node as any).templateParameters?.length > 0
+    ) {
       return false;
     }
 
@@ -5237,29 +5252,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
-   * Create a shell (empty type object) for a declaration on demand.
-   * Used to break circular DFS chains: when a queued item is referenced
-   * before its turn, we create its shell and return it. The queue will
-   * fully populate the shell later.
-   */
-  function createDeclarationShell(sym: Sym, node: Node): Type | undefined {
-    // Skip template declarations — they require instantiation-time checking
-    if ("templateParameters" in node && (node as any).templateParameters?.length > 0) {
-      return undefined;
-    }
-    // Only create shells for models — only checkModelStatement has shell-reuse
-    // logic (populationStarted guard). Other check functions (checkScalar, etc.)
-    // return early if links.declaredType is set, leaving the type unpopulated.
-    switch (node.kind) {
-      case SyntaxKind.ModelStatement:
-        createModelShell(node as ModelStatementNode);
-        return getSymbolLinks(sym).declaredType;
-      default:
-        return undefined;
-    }
-  }
-
-  /**
    * Process a list of statements, queuing declarations and collecting
    * non-declaration statements. Recurses into namespaces.
    */
@@ -7192,8 +7184,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           referenceSymCache.delete(memberExprNode);
         }
         if (prop.value.kind === SyntaxKind.TypeReference) {
-          referenceSymCache.delete(prop.value);
-        } else if (prop.value.kind === SyntaxKind.MemberExpression) {
           referenceSymCache.delete(prop.value);
         }
         // Return without finishing — the property stays creating, signaling to the
@@ -9317,6 +9307,10 @@ function applyDecoratorToType(
     const context = createDecoratorContext(program, decApp);
     return fn(context, target, ...args);
   } catch (error: any) {
+    // DeferralSignal must never be swallowed — it's internal control flow for the check queue.
+    if (error instanceof DeferralSignal) {
+      throw error;
+    }
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {
       program.reportDiagnostic(

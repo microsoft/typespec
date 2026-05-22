@@ -30,32 +30,6 @@ export enum CheckItemStatus {
 }
 
 /**
- * The result of attempting to check a declaration.
- * Returned by check functions to signal their outcome to the queue.
- */
-export type CheckResult<T extends Type = Type> =
-  | { readonly status: "done"; readonly type: T }
-  | { readonly status: "deferred"; readonly stalledOn: readonly Sym[] }
-  | { readonly status: "error" };
-
-export namespace CheckResult {
-  /** Create a successful result */
-  export function done<T extends Type>(type: T): CheckResult<T> {
-    return { status: "done", type };
-  }
-
-  /** Create a deferred result, blocked on the given symbols */
-  export function deferred(stalledOn: readonly Sym[]): CheckResult<never> {
-    return { status: "deferred", stalledOn };
-  }
-
-  /** Create an error result */
-  export function error(): CheckResult<never> {
-    return { status: "error" };
-  }
-}
-
-/**
  * An item in the check queue representing a top-level declaration to check.
  */
 export interface CheckItem {

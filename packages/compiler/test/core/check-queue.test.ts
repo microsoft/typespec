@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   CheckItemStatus,
   CheckQueue,
-  CheckResult,
   DeferralSignal,
   type CheckItem,
 } from "../../src/core/check-queue.js";
@@ -435,27 +434,6 @@ describe("CheckQueue", () => {
 
       expect(result.errored).toHaveLength(1);
       expect(result.completed).toHaveLength(0);
-    });
-  });
-
-  describe("CheckResult helpers", () => {
-    it("creates done result", () => {
-      const type = { kind: "Model" } as any;
-      const result = CheckResult.done(type);
-      expect(result.status).toBe("done");
-      expect((result as any).type).toBe(type);
-    });
-
-    it("creates deferred result", () => {
-      const sym = createMockSym("A");
-      const result = CheckResult.deferred([sym]);
-      expect(result.status).toBe("deferred");
-      expect((result as any).stalledOn).toEqual([sym]);
-    });
-
-    it("creates error result", () => {
-      const result = CheckResult.error();
-      expect(result.status).toBe("error");
     });
   });
 
