@@ -1,3 +1,4 @@
+version: 2
 updates:
 - commit-message:
     include: scope
@@ -128,4 +129,3 @@ updates:
   package-ecosystem: github-actions
   schedule:
     interval: weekly
-version: 2
