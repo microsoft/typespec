@@ -1,131 +1,131 @@
 version: 2
 updates:
-  - commit-message:
-      include: scope
-      prefix: pip prod
-      prefix-development: pip dev
-    directories:
-      - /packages/http-client-python/eng/
-      - /packages/http-client-python/generator/test
-      - /packages/http-client-python/generator/test/azure
-      - /packages/http-client-python/generator/test/unbranded
-    labels:
-      - emitter:client:python
-    package-ecosystem: pip
-    schedule:
-      interval: weekly
-  - directory: /
-    exclude-paths:
-      - packages/http-client-csharp
-      - packages/http-client-java
-      - packages/http-client-python
-    groups:
-      alloy:
-        patterns:
-          - "@alloy-js/*"
-      azure:
-        patterns:
-          - "@azure/*"
-      babel:
-        patterns:
-          - "@babel/*"
-      build-tools:
-        patterns:
-          - esbuild
-          - esbuild-*
-          - vite
-          - vite-*
-          - "@vitejs/*"
-          - typescript
-          - tsx
-          - rollup-*
-      chronus:
-        patterns:
-          - "@chronus/*"
-      formatting:
-        patterns:
-          - prettier
-          - prettier-plugin-*
-      linting:
-        patterns:
-          - eslint
-          - "@eslint/*"
-          - eslint-plugin-*
-          - "@typescript-eslint/*"
-          - typescript-eslint
-          - cspell
-      microsoft:
-        patterns:
-          - "@microsoft/*"
-      monaco:
-        patterns:
-          - monaco-editor
-          - monaco-editor-core
-      octokit:
-        patterns:
-          - "@octokit/*"
-      scalar:
-        patterns:
-          - "@scalar/*"
-      testing:
-        patterns:
-          - vitest
-          - "@vitest/*"
-          - "@playwright/test"
-          - playwright
-          - "@testing-library/*"
-          - mocha
-          - happy-dom
-          - c8
-      tree-sitter:
-        patterns:
-          - tree-sitter-*
-          - web-tree-sitter
-      types:
-        patterns:
-          - "@types/*"
-      ui:
-        patterns:
-          - react
-          - react-*
-          - "@fluentui/*"
-          - storybook
-          - "@storybook/*"
-          - prism-react-renderer
-          - clsx
-      vscode:
-        patterns:
-          - "@vscode/*"
-          - vscode-*
-      website:
-        patterns:
-          - astro
-          - astro-*
-          - "@astrojs/*"
-          - "@expressive-code/*"
-          - "@docsearch/*"
-          - rehype-*
-          - remark-*
-          - typedoc
-          - typedoc-*
-          - sharp
-      yarnpkg:
-        patterns:
-          - "@yarnpkg/*"
-    labels: []
-    package-ecosystem: npm
-    schedule:
-      interval: weekly
-  - directory: /
-    exclude-paths:
-      - .github/workflows/*.lock.{yaml,yml}
-    groups:
-      actions:
-        patterns:
-          - "*"
-    ignore:
-      - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
-    labels: []
-    package-ecosystem: github-actions
-    schedule:
-      interval: weekly
+- commit-message:
+    include: scope
+    prefix: pip prod
+    prefix-development: pip dev
+  directories:
+  - /packages/http-client-python/eng/
+  - /packages/http-client-python/generator/test
+  - /packages/http-client-python/generator/test/azure
+  - /packages/http-client-python/generator/test/unbranded
+  labels:
+  - emitter:client:python
+  package-ecosystem: pip
+  schedule:
+    interval: weekly
+- directory: /
+  exclude-paths:
+  - packages/http-client-csharp
+  - packages/http-client-java
+  - packages/http-client-python
+  groups:
+    alloy:
+      patterns:
+      - "@alloy-js/*"
+    azure:
+      patterns:
+      - "@azure/*"
+    babel:
+      patterns:
+      - "@babel/*"
+    build-tools:
+      patterns:
+      - esbuild
+      - esbuild-*
+      - vite
+      - vite-*
+      - "@vitejs/*"
+      - typescript
+      - tsx
+      - rollup-*
+    chronus:
+      patterns:
+      - "@chronus/*"
+    formatting:
+      patterns:
+      - prettier
+      - prettier-plugin-*
+    linting:
+      patterns:
+      - eslint
+      - "@eslint/*"
+      - eslint-plugin-*
+      - "@typescript-eslint/*"
+      - typescript-eslint
+      - cspell
+    microsoft:
+      patterns:
+      - "@microsoft/*"
+    monaco:
+      patterns:
+      - monaco-editor
+      - monaco-editor-core
+    octokit:
+      patterns:
+      - "@octokit/*"
+    scalar:
+      patterns:
+      - "@scalar/*"
+    testing:
+      patterns:
+      - vitest
+      - "@vitest/*"
+      - "@playwright/test"
+      - playwright
+      - "@testing-library/*"
+      - mocha
+      - happy-dom
+      - c8
+    tree-sitter:
+      patterns:
+      - tree-sitter-*
+      - web-tree-sitter
+    types:
+      patterns:
+      - "@types/*"
+    ui:
+      patterns:
+      - react
+      - react-*
+      - "@fluentui/*"
+      - storybook
+      - "@storybook/*"
+      - prism-react-renderer
+      - clsx
+    vscode:
+      patterns:
+      - "@vscode/*"
+      - vscode-*
+    website:
+      patterns:
+      - astro
+      - astro-*
+      - "@astrojs/*"
+      - "@expressive-code/*"
+      - "@docsearch/*"
+      - rehype-*
+      - remark-*
+      - typedoc
+      - typedoc-*
+      - sharp
+    yarnpkg:
+      patterns:
+      - "@yarnpkg/*"
+  labels: []
+  package-ecosystem: npm
+  schedule:
+    interval: weekly
+- directory: /
+  exclude-paths:
+  - .github/workflows/*.lock.{yaml,yml}
+  groups:
+    actions:
+      patterns:
+      - "*"
+  ignore:
+  - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+  labels: []
+  package-ecosystem: github-actions
+  schedule:
+    interval: weekly
