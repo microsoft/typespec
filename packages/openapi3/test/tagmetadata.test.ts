@@ -167,6 +167,45 @@ worksFor(supportedVersions, ({ openApiFor, openapisFor }) => {
       { name: "Third", description: "Third tag" },
     ]);
   });
+
+  it("operation-level tag not defined in @tagMetadata is inserted before tagMetadata tags", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata("MetaTag", #{description: "Metadata tag"})
+      namespace PetStore {
+        @tag("OpOnlyTag") op op1(): string;
+      };
+      `,
+    );
+
+    // Tags used only in operations (not in @tagMetadata) are emitted first,
+    // followed by tags defined with @tagMetadata.
+    deepStrictEqual(res.tags, [
+      { name: "OpOnlyTag" },
+      { name: "MetaTag", description: "Metadata tag" },
+    ]);
+  });
+
+  it("operation-level tag also defined in @tagMetadata is emitted once in tagMetadata position", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata("First", #{description: "First tag"})
+      @tagMetadata("Second", #{description: "Second tag"})
+      namespace PetStore {
+        @tag("First") op op1(): string;
+      };
+      `,
+    );
+
+    // Tags used in both operations and @tagMetadata are not duplicated;
+    // they appear in their @tagMetadata-declared position with metadata.
+    deepStrictEqual(res.tags, [
+      { name: "First", description: "First tag" },
+      { name: "Second", description: "Second tag" },
+    ]);
+  });
 });
 
 // Test for parent field - version specific behavior
