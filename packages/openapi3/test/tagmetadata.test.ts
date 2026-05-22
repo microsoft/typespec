@@ -149,6 +149,24 @@ worksFor(supportedVersions, ({ openApiFor, openapisFor }) => {
       },
     ]);
   });
+
+  it("preserves the declaration order of tags when multiple @tagMetadata are used", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata("First", #{description: "First tag"})
+      @tagMetadata("Second", #{description: "Second tag"})
+      @tagMetadata("Third", #{description: "Third tag"})
+      namespace PetStore {};
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      { name: "First", description: "First tag" },
+      { name: "Second", description: "Second tag" },
+      { name: "Third", description: "Third tag" },
+    ]);
+  });
 });
 
 // Test for parent field - version specific behavior
@@ -167,13 +185,13 @@ describe("tag metadata with parent field", () => {
 
     deepStrictEqual(res.tags, [
       {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+      {
         name: "ChildTag",
         description: "Child tag",
         parent: "ParentTag",
-      },
-      {
-        name: "ParentTag",
-        description: "Parent tag",
       },
     ]);
   });
@@ -192,12 +210,12 @@ describe("tag metadata with parent field", () => {
 
     deepStrictEqual(res.tags, [
       {
-        name: "ChildTag",
-        description: "Child tag",
-      },
-      {
         name: "ParentTag",
         description: "Parent tag",
+      },
+      {
+        name: "ChildTag",
+        description: "Child tag",
       },
     ]);
   });
@@ -216,12 +234,12 @@ describe("tag metadata with parent field", () => {
 
     deepStrictEqual(res.tags, [
       {
-        name: "ChildTag",
-        description: "Child tag",
-      },
-      {
         name: "ParentTag",
         description: "Parent tag",
+      },
+      {
+        name: "ChildTag",
+        description: "Child tag",
       },
     ]);
   });
