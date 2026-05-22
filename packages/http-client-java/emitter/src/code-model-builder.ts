@@ -400,7 +400,8 @@ export class CodeModelBuilder {
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
-        if (arg.isExactName && parameter.language.java) {
+        if (arg.isExactName) {
+          parameter.language.java = parameter.language.java ?? new Language();
           parameter.language.java.name = arg.name;
         }
       }
@@ -1562,7 +1563,7 @@ export class CodeModelBuilder {
         extensions: extensions,
       });
       if (param.isExactName) {
-        parameter.language.java = parameter.language.java ?? {};
+        parameter.language.java = parameter.language.java ?? new Language();
         parameter.language.java.name = param.name;
       }
       op.addParameter(parameter);
@@ -2728,7 +2729,8 @@ export class CodeModelBuilder {
         },
       },
     });
-    if (type.isExactName && schema.language.java) {
+    if (type.isExactName) {
+      schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = type.name;
     }
     if (type.external) {
@@ -2847,7 +2849,8 @@ export class CodeModelBuilder {
         },
       },
     });
-    if (type.isExactName && objectSchema.language.java) {
+    if (type.isExactName) {
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
       objectSchema.language.java.name = type.name;
     }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
@@ -3076,7 +3079,8 @@ export class CodeModelBuilder {
           },
         },
       });
-      if (type.isExactName && objectSchema.language.java) {
+      if (type.isExactName) {
+        objectSchema.language.java = objectSchema.language.java ?? new Language();
         objectSchema.language.java.name = type.name;
       }
 
