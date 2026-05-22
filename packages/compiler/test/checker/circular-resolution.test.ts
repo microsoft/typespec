@@ -33,7 +33,11 @@ describe("circular model resolution", () => {
   });
 
   it("augment decorator on template-derived member applies to A and spread copies", async () => {
-    const { A, C, program } = await Tester.compile(t.code`
+    const {
+      A,
+      C: _C,
+      program,
+    } = await Tester.compile(t.code`
       model Template<T> { ...T; }
       model ${t.model("A")} is Template<{ t: string; }>;
       model ${t.model("C")} { ...A; }

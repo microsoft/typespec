@@ -134,9 +134,9 @@ import {
   ScalarStatementNode,
   ScalarValue,
   SignatureFunctionParameter,
+  Statement,
   StdTypeName,
   StdTypes,
-  Statement,
   StringLiteral,
   StringLiteralNode,
   StringTemplate,
@@ -610,6 +610,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns false if DFS should proceed as normal
    * @throws DeferralSignal if the active queue item should defer on this symbol
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function maybeDeferOnQueuedDeclaration(sym: Sym): false {
     const activeItem = checkQueue.activeItem;
     if (activeItem === undefined) {
@@ -2172,9 +2173,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Check for existing type — declaration or cached instantiation
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Model | undefined;
 
     if (existingType && !existingType.creating) {
@@ -4473,7 +4472,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     base: Sym,
     node: MemberExpressionNode,
     options: SymbolResolutionOptions,
-  ): { sym: Sym; pending?: undefined } | { sym?: undefined; pending: PendingMemberResolution } | undefined {
+  ):
+    | { sym: Sym; pending?: undefined }
+    | { sym?: undefined; pending: PendingMemberResolution }
+    | undefined {
     const symbolFromType = resolveMemberOnSymbolType(ctx, base, node);
     if (symbolFromType) {
       return { sym: symbolFromType };
@@ -5276,10 +5278,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Process a namespace statement: check its modifiers and recurse into
    * contained statements to queue declarations.
    */
-  function seedNamespaceIntoQueue(
-    node: NamespaceStatementNode,
-    deferredStatements: Statement[],
-  ) {
+  function seedNamespaceIntoQueue(node: NamespaceStatementNode, deferredStatements: Statement[]) {
     // Validate namespace modifiers (e.g., 'internal' is not allowed on namespaces)
     checkModifiers(program, node);
     if (isArray(node.statements)) {
@@ -5412,9 +5411,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Check for existing type — either a declaration shell or a cached instantiation
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Model | undefined;
 
     if (existingType && !existingType.creating) {
@@ -5488,7 +5485,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return type;
     }
 
-
     if (isBase) {
       type.sourceModel = isBase;
       type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
@@ -5541,7 +5537,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-
     decorators.push(...checkDecorators(ctx, type, node));
 
     linkMapper(type, ctx.mapper);
@@ -5568,9 +5563,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Check for existing type — declaration or cached instantiation
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Model | undefined;
 
     if (existingType && !existingType.creating) {
@@ -7166,9 +7159,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             prop.value.target.kind === SyntaxKind.MemberExpression
           ? prop.value.target
           : undefined;
-    const pending = memberExprNode
-      ? pendingMemberResolutions.get(memberExprNode)
-      : undefined;
+    const pending = memberExprNode ? pendingMemberResolutions.get(memberExprNode) : undefined;
     if (pending && memberExprNode) {
       pendingMemberResolutions.delete(memberExprNode);
     }
@@ -7773,9 +7764,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Scalar | undefined;
 
     if (existingType && !existingType.creating) {
@@ -8122,9 +8111,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Interface | undefined;
 
     if (existingType && !existingType.creating) {
@@ -8266,9 +8253,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const existingType = (
-      ctx.mapper === undefined
-        ? links.declaredType
-        : links.instantiations?.get(ctx.mapper.args)
+      ctx.mapper === undefined ? links.declaredType : links.instantiations?.get(ctx.mapper.args)
     ) as Union | undefined;
 
     if (existingType && !existingType.creating) {

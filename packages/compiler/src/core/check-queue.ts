@@ -155,9 +155,7 @@ export class CheckQueue {
   isPending(sym: Sym): boolean {
     const item = this.#items.get(sym);
     if (item === undefined) return false;
-    return (
-      item.status === CheckItemStatus.Pending || item.status === CheckItemStatus.Deferred
-    );
+    return item.status === CheckItemStatus.Pending || item.status === CheckItemStatus.Deferred;
   }
 
   /**
