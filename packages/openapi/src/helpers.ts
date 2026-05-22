@@ -16,6 +16,7 @@ import {
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
+import { ObjectLiteralNode, ObjectLiteralPropertyNode, SyntaxKind } from "@typespec/compiler/ast";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ExtensionKey } from "./types.js";
@@ -220,6 +221,7 @@ export function validateIsUri(
  * @param target - Diagnostic target for reporting any diagnostics
  * @param jsonObject - The AdditionalInfo object to validate
  * @param reference - The reference string to resolve the model
+ * @param node - Optional ObjectLiteralNode for precise property-level error targeting
  * @returns true if the AdditionalInfo object is valid, false otherwise
  */
 export function validateAdditionalInfoModel(
@@ -227,6 +229,7 @@ export function validateAdditionalInfoModel(
   target: DiagnosticTarget,
   jsonObject: object,
   reference: string,
+  node?: ObjectLiteralNode,
 ): boolean {
   // Resolve the reference to get the corresponding model
   const propertyModel = program.resolveTypeReference(reference)[0]! as Model;
@@ -234,7 +237,7 @@ export function validateAdditionalInfoModel(
   // Check if jsonObject and propertyModel are defined
   if (jsonObject && propertyModel) {
     // Validate that the properties of typespecType do not exceed those in propertyModel
-    const diagnostics = checkNoAdditionalProperties(jsonObject, target, propertyModel);
+    const diagnostics = checkNoAdditionalProperties(jsonObject, target, propertyModel, node);
     program.reportDiagnostics(diagnostics);
     // Return false if any diagnostics were reported, indicating a validation failure
     if (diagnostics.length > 0) {
@@ -253,17 +256,31 @@ function checkNoAdditionalProperties(
   jsonObject: any,
   target: DiagnosticTarget,
   source: Model,
+  node?: ObjectLiteralNode,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   for (const name of Object.keys(jsonObject)) {
     const sourceProperty = getProperty(source, name);
+
+    // Find the property node in the object literal for precise error targeting
+    const propertyNode = node?.properties.find(
+      (p): p is ObjectLiteralPropertyNode =>
+        p.kind === SyntaxKind.ObjectLiteralProperty && p.id.sv === name,
+    );
+
     if (sourceProperty) {
       if (sourceProperty.type.kind === "Model") {
+        // For nested model properties, get the inner ObjectLiteralNode if available
+        const nestedNode =
+          propertyNode?.value.kind === SyntaxKind.ObjectLiteral
+            ? (propertyNode.value as ObjectLiteralNode)
+            : undefined;
         const nestedDiagnostics = checkNoAdditionalProperties(
           jsonObject[name],
           target,
           sourceProperty.type,
+          nestedNode,
         );
         diagnostics.push(...nestedDiagnostics);
       }
@@ -272,7 +289,7 @@ function checkNoAdditionalProperties(
         createDiagnostic({
           code: "invalid-extension-key",
           format: { value: name },
-          target,
+          target: propertyNode?.id ?? target,
         }),
       );
     }

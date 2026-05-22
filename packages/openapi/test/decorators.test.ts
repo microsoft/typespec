@@ -1,4 +1,4 @@
-import { expectDiagnostics, t } from "@typespec/compiler/testing";
+import { expectDiagnostics, extractSquiggles, t } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
@@ -9,7 +9,7 @@ import {
   resolveInfo,
   setInfo,
 } from "../src/decorators.js";
-import { Tester } from "./test-host.js";
+import { PlainTester, Tester } from "./test-host.js";
 
 describe("openapi: decorators", () => {
   describe("@extension", () => {
@@ -410,6 +410,36 @@ describe("openapi: decorators", () => {
             message: `OpenAPI extension must start with 'x-' but was 'foo2'`,
           },
         ]);
+      });
+
+      it("error points to the invalid property name in the object literal", async () => {
+        const { source, pos, end } = extractSquiggles(
+          `import "@typespec/http";\nimport "@typespec/rest";\nimport "@typespec/openapi";\nusing OpenAPI;\n` +
+            `@service()\n@tagMetadata("tagName", #{ ~~~custom~~~:"Bar" })\nnamespace PetStore{};`,
+        );
+
+        const diagnostics = await PlainTester.diagnose(source);
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'custom'`,
+          pos,
+          end,
+        });
+      });
+
+      it("error in nested object points to the invalid property name", async () => {
+        const { source, pos, end } = extractSquiggles(
+          `import "@typespec/http";\nimport "@typespec/rest";\nimport "@typespec/openapi";\nusing OpenAPI;\n` +
+            `@service()\n@tagMetadata("tagName", #{ externalDocs: #{ url: "https://example.com", ~~~custom~~~:"Bar"} })\nnamespace PetStore{};`,
+        );
+
+        const diagnostics = await PlainTester.diagnose(source);
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'custom'`,
+          pos,
+          end,
+        });
       });
     });
 

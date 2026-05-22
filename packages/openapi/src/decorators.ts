@@ -13,6 +13,7 @@ import {
   Type,
   Value,
 } from "@typespec/compiler";
+import { ObjectLiteralNode, SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
 import {
@@ -214,6 +215,15 @@ export const $info: InfoDecorator = (
     return;
   }
 
+  // Get the ObjectLiteralNode for the data argument for precise error targeting
+  const dataArgTarget = context.getArgumentTarget(0);
+  const dataNode =
+    dataArgTarget !== undefined &&
+    "kind" in dataArgTarget &&
+    dataArgTarget.kind === SyntaxKind.ObjectLiteral
+      ? (dataArgTarget as ObjectLiteralNode)
+      : undefined;
+
   // Validate the AdditionalInfo model
   if (
     !validateAdditionalInfoModel(
@@ -221,6 +231,7 @@ export const $info: InfoDecorator = (
       context.getArgumentTarget(0)!,
       data,
       "TypeSpec.OpenAPI.AdditionalInfo",
+      dataNode,
     )
   ) {
     return;
@@ -317,13 +328,23 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     return;
   }
 
+  // Get the ObjectLiteralNode for the tagMetadata argument for precise error targeting
+  const tagMetadataArgTarget = context.getArgumentTarget(1);
+  const tagMetadataNode =
+    tagMetadataArgTarget !== undefined &&
+    "kind" in tagMetadataArgTarget &&
+    tagMetadataArgTarget.kind === SyntaxKind.ObjectLiteral
+      ? (tagMetadataArgTarget as ObjectLiteralNode)
+      : undefined;
+
   // Validate the additionalInfo model
   if (
     !validateAdditionalInfoModel(
       context.program,
-      context.getArgumentTarget(0)!,
+      context.getArgumentTarget(1)!,
       tagMetadata,
       "TypeSpec.OpenAPI.TagMetadata",
+      tagMetadataNode,
     )
   ) {
     return;
@@ -334,7 +355,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     if (
       !validateIsUri(
         context.program,
-        context.getArgumentTarget(0)!,
+        context.getArgumentTarget(1)!,
         tagMetadata.externalDocs.url,
         "externalDocs.url",
       )
