@@ -171,6 +171,7 @@ import {
   InconsistentVersions,
   getFilteredApiVersions,
   getServiceApiVersions,
+  isStableApiVersionString,
 } from "./versioning-utils.js";
 const { isEqual } = pkg;
 
@@ -246,6 +247,7 @@ export class CodeModelBuilder {
   );
 
   // current apiVersion name to generate code
+  // it would be undefined, if mixed api-versions
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
@@ -706,7 +708,7 @@ export class CodeModelBuilder {
         this.program,
         this.apiVersion,
         versions,
-        this.options["service-version-exclude-preview"],
+        !(this.options["service-version-exclude-preview"] === false),
       )) {
         const apiVersion = new ApiVersion();
         apiVersion.version = version.value;
@@ -746,6 +748,7 @@ export class CodeModelBuilder {
     });
 
     const clientContext = new ClientContext(
+      this.program,
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
@@ -753,6 +756,11 @@ export class CodeModelBuilder {
       versions === InconsistentVersions.MixedVersions
         ? InconsistentVersions.MixedVersions
         : codeModelClient.apiVersions,
+      this.codeModel.apiVersionMap === undefined
+        ? false
+        : Object.values(this.codeModel.apiVersionMap).every((version) =>
+            isStableApiVersionString(version),
+          ) && !(this.options["service-version-exclude-preview"] === false),
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
@@ -1454,7 +1462,10 @@ export class CodeModelBuilder {
         const addedOn = getAddedOnVersions(this.program, param.__raw);
         if (addedOn) {
           extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(addedOn);
+          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+            param.__raw,
+            addedOn,
+          );
         }
       }
 

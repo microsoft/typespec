@@ -60,6 +60,7 @@
     "@typespec/html-program-viewer": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/http-client-js": "workspace:^",
+    "@typespec/http-server-js": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
