@@ -117,6 +117,9 @@ export class CheckQueue {
   /** The item currently being processed by the queue, if any. */
   #activeItem: CheckItem | undefined;
 
+  /** Maximum number of attempts per item before treating it as an error */
+  static readonly MAX_ATTEMPTS = 10;
+
   /**
    * Returns the queue item currently being processed, or undefined if
    * no queue processing is in progress. Used by check functions to
@@ -308,6 +311,15 @@ export class CheckQueue {
         this.markInProgress(item);
         this.#activeItem = item;
 
+        // Safety: if an item has been attempted too many times, treat as error
+        if (item.attempts > CheckQueue.MAX_ATTEMPTS) {
+          this.markError(item);
+          this.#activeItem = undefined;
+          errored.push(item);
+          madeProgress = true;
+          continue;
+        }
+
         try {
           check(item);
         } catch (e) {
@@ -339,13 +351,14 @@ export class CheckQueue {
         }
       }
 
-      // If we made progress, re-queue all deferred items for another attempt.
-      // Their dependencies may have been resolved in this iteration.
+      // If we made progress, re-queue deferred items that have no tracked dependencies
+      // (stalledOn is empty — they don't know what they're waiting for so must be retried).
+      // Items with specific stalledOn dependencies are already re-queued by markDone/markError
+      // when their dependencies complete.
       if (madeProgress) {
         for (const entry of this.#items.values()) {
-          if (entry.status === CheckItemStatus.Deferred) {
+          if (entry.status === CheckItemStatus.Deferred && entry.stalledOn.size === 0) {
             entry.status = CheckItemStatus.Pending;
-            entry.stalledOn.clear();
             this.#ready.push(entry);
           }
         }

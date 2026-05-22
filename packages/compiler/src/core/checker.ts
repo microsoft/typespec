@@ -2835,8 +2835,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       namespace?.operations.set(name, operationType);
     }
 
-    if (symbol) {
-    }
     return operationType;
   }
 
@@ -8610,6 +8608,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function markAsChecked<T extends Type>(type: T) {
     if (!type.creating) return;
     delete type.creating;
+    delete type.populating;
   }
 
   function getLiteralType(
