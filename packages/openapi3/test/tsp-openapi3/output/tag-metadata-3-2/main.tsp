@@ -24,17 +24,4 @@ model Pet {
 @tag("extensive")
 @route("/")
 @get
-op extensive():
-  | Pet
-  | {
-      @statusCode
-      @minValue(400)
-      @maxValue(499)
-      statusCode: int32;
-    }
-  | {
-      @statusCode
-      @minValue(500)
-      @maxValue(599)
-      statusCode: int32;
-    };
+op extensive(): Pet;
