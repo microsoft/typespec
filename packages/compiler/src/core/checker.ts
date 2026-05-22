@@ -95,6 +95,7 @@ import {
   IntersectionExpressionNode,
   IntrinsicScalarName,
   JsNamespaceDeclarationNode,
+  JsSourceFileNode,
   LiteralNode,
   LiteralType,
   LocationContext,
@@ -4848,6 +4849,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkSourceFile(file);
     }
 
+    checkOrphanedFunctionImplementations();
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
@@ -4876,6 +4878,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
         program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
+
+  /**
+   * Check that all function implementations exported via $functions have a corresponding
+   * `extern fn` declaration in TypeSpec. Reports an error for each orphaned implementation.
+   */
+  function checkOrphanedFunctionImplementations() {
+    for (const file of program.jsSourceFiles.values()) {
+      checkSymbolTableForOrphanedFunctions(file.symbol.exports, file);
+    }
+  }
+
+  function checkSymbolTableForOrphanedFunctions(
+    exports: SymbolTable | undefined,
+    sourceFile: JsSourceFileNode,
+  ) {
+    if (!exports) return;
+    for (const sym of exports.values()) {
+      if (sym.flags & SymbolFlags.Function && sym.flags & SymbolFlags.Implementation) {
+        const merged = getMergedSymbol(sym);
+        const hasFunctionDeclaration = merged.declarations.some(
+          (d) => d.kind === SyntaxKind.FunctionDeclarationStatement,
+        );
+        if (!hasFunctionDeclaration) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "missing-extern-declaration",
+              format: { name: sym.name },
+              target: sourceFile,
+            }),
+          );
+        }
+      }
+      // Recurse into namespace symbols
+      if (sym.flags & SymbolFlags.Namespace && sym.exports) {
+        checkSymbolTableForOrphanedFunctions(sym.exports, sourceFile);
       }
     }
   }

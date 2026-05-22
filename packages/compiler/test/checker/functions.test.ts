@@ -117,6 +117,20 @@ describe("declaration", () => {
       },
     ]);
   });
+
+  it("errors if $functions export has no matching extern fn declaration", async () => {
+    const diagnostics = await tester.diagnose(``);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "missing-extern-declaration",
+        message: `Function implementation "testFn" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
+      },
+      {
+        code: "missing-extern-declaration",
+        message: `Function implementation "nsFn" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
+      },
+    ]);
+  });
 });
 
 describe("usage", () => {
@@ -199,8 +213,8 @@ describe("usage", () => {
 
   it("errors if function not declared", async () => {
     const diagnostics = await tester.diagnose(`const X = missing();`);
-
-    expectDiagnostics(diagnostics, {
+    const filtered = diagnostics.filter((d) => d.code !== "missing-extern-declaration");
+    expectDiagnostics(filtered, {
       code: "invalid-ref",
       message: "Unknown identifier missing",
     });
@@ -1269,6 +1283,10 @@ describe("default function results", () => {
 describe("template and generic scenarios", () => {
   beforeEach(() => {
     tester = BaseTester.files({
+      "templates.tsp": `
+        extern fn processGeneric(T: unknown): unknown;
+        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
+      `,
       "templates.js": mockFile.js({
         $functions: {
           "": {
@@ -1282,13 +1300,13 @@ describe("template and generic scenarios", () => {
         },
       }),
     })
+      .import("./templates.tsp")
       .import("./templates.js")
       .using("TypeSpec.Reflection");
   });
 
   it("works with template aliases", async () => {
     const [{ program, prop }, diagnostics] = await tester.compileAndDiagnose(t.code`
-        extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
@@ -1305,8 +1323,6 @@ describe("template and generic scenarios", () => {
 
   it("works with constrained templates", async () => {
     const diagnostics = await tester.diagnose(`
-        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
-        
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
         
         model TestModel {}
@@ -1318,7 +1334,6 @@ describe("template and generic scenarios", () => {
 
   it("errors when template constraint not satisfied", async () => {
     const diagnostics = await tester.diagnose(`
-        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
         
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
         
@@ -1333,7 +1348,6 @@ describe("template and generic scenarios", () => {
 
   it("template instantiations of function calls yield identical instances", async () => {
     const [{ program, A, B }, diagnostics] = await tester.compileAndDiagnose(t.code`
-        extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
@@ -1460,6 +1474,10 @@ describe("assignability of functions to fn types", () => {
 });
 
 describe("function type assignability", () => {
+  beforeEach(() => {
+    tester = BaseTester;
+  });
+
   async function diagnoseFunctionAssignment(source: string, target: string) {
     const diagnostics = await tester.diagnose(`
         alias Source = ${source};
@@ -1583,12 +1601,13 @@ describe("calling template arguments", () => {
 
   it("does not allow calling an unconstrained template parameter", async () => {
     const diagnostics = await tester.diagnose(`
+        extern fn f(T: Model): string;
         model Test<T extends Model, F> {
           p: string = F();
         }
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "non-callable",
       message:
         "Template parameter 'F extends unknown' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
@@ -1597,12 +1616,13 @@ describe("calling template arguments", () => {
 
   it("does not allow calling a template paremeter constrained to a type that is possibly not a function", async () => {
     const diagnostics = await tester.diagnose(`
+        extern fn f(T: Model): string;
         model Test<F extends Model | valueof fn() => valueof string> {
           p: string = F();
         }
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "non-callable",
       message:
         "Template parameter 'F extends Model | valueof fn () => valueof string' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
