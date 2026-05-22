@@ -1561,7 +1561,8 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
-      if (param.isExactName && parameter.language.java) {
+      if (param.isExactName) {
+        parameter.language.java = parameter.language.java ?? {};
         parameter.language.java.name = param.name;
       }
       op.addParameter(parameter);
