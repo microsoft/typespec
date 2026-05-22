@@ -242,6 +242,7 @@ export interface InputBodyParameter extends InputPropertyTypeBase {
   scope: InputParameterScope;
   serializedName: string;
   methodParameterSegments?: InputMethodParameter[];
+  serializationOptions: SerializationOptions;
 }
 
 export interface InputEndpointParameter extends InputPropertyTypeBase {

@@ -114,6 +114,8 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
       String: mutatorClasses.String ?? LiteralMutation,
       Number: mutatorClasses.Number ?? LiteralMutation,
       Boolean: mutatorClasses.Boolean ?? LiteralMutation,
+      StringTemplate: (mutatorClasses as any).StringTemplate ?? LiteralMutation,
+      Tuple: (mutatorClasses as any).Tuple ?? LiteralMutation,
       Intrinsic: mutatorClasses.Intrinsic ?? IntrinsicMutation,
     } as any;
   }

@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 defaultValue: null,
                 scope: default,
                 contentTypes: null!,
-                defaultContentType: null!);
+                defaultContentType: null!,
+                serializationOptions: null);
             resolver.AddReference(id, parameter);
 
             string? name = null;
@@ -63,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
+            InputSerializationOptions? serializationOptions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -81,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
                 {
@@ -104,6 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
             parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
             parameter.MethodParameterSegments = methodParameterSegments;
+            parameter.SerializationOptions = serializationOptions;
 
             return parameter;
         }
