@@ -226,15 +226,16 @@ describe("tag metadata with parent field", () => {
       `,
     );
 
+    // Decorators execute bottom-up, so ChildTag (closer to entity) is stored first
     deepStrictEqual(res.tags, [
-      {
-        name: "ParentTag",
-        description: "Parent tag",
-      },
       {
         name: "ChildTag",
         description: "Child tag",
         parent: "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
       },
     ]);
   });
@@ -253,12 +254,12 @@ describe("tag metadata with parent field", () => {
 
     deepStrictEqual(res.tags, [
       {
-        name: "ParentTag",
-        description: "Parent tag",
-      },
-      {
         name: "ChildTag",
         description: "Child tag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
       },
     ]);
   });
@@ -277,12 +278,12 @@ describe("tag metadata with parent field", () => {
 
     deepStrictEqual(res.tags, [
       {
-        name: "ParentTag",
-        description: "Parent tag",
-      },
-      {
         name: "ChildTag",
         description: "Child tag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
       },
     ]);
   });
