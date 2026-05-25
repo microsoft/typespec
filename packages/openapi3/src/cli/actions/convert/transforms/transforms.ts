@@ -209,8 +209,8 @@ function isErrorStatusCode(statusCode: string): boolean {
     return true;
   }
 
-  const literalStatusCode = Number.parseInt(statusCode, 10);
-  return Number.isFinite(literalStatusCode) && literalStatusCode >= 400 && literalStatusCode <= 599;
+  const numericStatusCode = Number.parseInt(statusCode, 10);
+  return Number.isFinite(numericStatusCode) && numericStatusCode >= 400 && numericStatusCode <= 599;
 }
 
 function scanPathForSSESchemas(
