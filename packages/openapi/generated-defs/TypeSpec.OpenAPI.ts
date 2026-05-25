@@ -17,6 +17,14 @@ export interface AdditionalInfo {
   readonly license?: License;
 }
 
+export interface TagMetadataWithName {
+  readonly [key: string]: unknown;
+  readonly name: string;
+  readonly description?: string;
+  readonly externalDocs?: ExternalDocs;
+  readonly parent?: string;
+}
+
 export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
@@ -126,23 +134,34 @@ export type InfoDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Specify OpenAPI additional information.
+ * Specify OpenAPI tag metadata. Can be used in two forms:
+ * - Inline form: specify a single tag by name with optional metadata.
+ * - Array form: specify an ordered list of tags with their metadata in a single decorator call.
  *
- * @param name tag name
- * @param tagMetadata Additional information
- * @example
+ * @param name Tag name (inline form) or array of tags with metadata (array form).
+ * @param tagMetadata Additional information for the tag. Only used in inline form.
+ * @example Inline form
  * ```typespec
  * @service()
  * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
  * @tagMetadata("Child Tag", #{description: "Child tag description", parent: "Tag Name"})
  * namespace PetStore {}
  * ```
+ * @example Array form (preserves explicit tag order)
+ * ```typespec
+ * @service()
+ * @tagMetadata(#[
+ *   #{ name: "First Tag", description: "First tag description" },
+ *   #{ name: "Second Tag", description: "Second tag description" },
+ * ])
+ * namespace PetStore {}
+ * ```
  */
 export type TagMetadataDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  name: string,
-  tagMetadata: TagMetadata,
+  name: string | readonly TagMetadataWithName[],
+  tagMetadata?: TagMetadata,
 ) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecOpenAPIDecorators = {

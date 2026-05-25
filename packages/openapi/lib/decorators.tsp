@@ -131,6 +131,14 @@ model TagMetadata {
   ...Record<unknown>;
 }
 
+/** Metadata for a tag that includes the name of the tag. Used with the array form of `@tagMetadata`. */
+model TagMetadataWithName {
+  /** The name of the tag. */
+  name: string;
+
+  ...TagMetadata;
+}
+
 /** External Docs information. */
 model ExternalDocs {
   /** Documentation url */
@@ -144,16 +152,33 @@ model ExternalDocs {
 }
 
 /**
- * Specify OpenAPI additional information.
- * @param name tag name
- * @param tagMetadata Additional information
+ * Specify OpenAPI tag metadata. Can be used in two forms:
+ * - Inline form: specify a single tag by name with optional metadata.
+ * - Array form: specify an ordered list of tags with their metadata in a single decorator call.
  *
- * @example
+ * @param name Tag name (inline form) or array of tags with metadata (array form).
+ * @param tagMetadata Additional information for the tag. Only used in inline form.
+ *
+ * @example Inline form
  * ```typespec
  * @service()
  * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
  * @tagMetadata("Child Tag", #{description: "Child tag description", parent: "Tag Name"})
  * namespace PetStore {}
  * ```
+ *
+ * @example Array form (preserves explicit tag order)
+ * ```typespec
+ * @service()
+ * @tagMetadata(#[
+ *   #{ name: "First Tag", description: "First tag description" },
+ *   #{ name: "Second Tag", description: "Second tag description" },
+ * ])
+ * namespace PetStore {}
+ * ```
  */
-extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata: valueof TagMetadata);
+extern dec tagMetadata(
+  target: Namespace,
+  name: valueof string | TagMetadataWithName[],
+  tagMetadata?: valueof TagMetadata
+);

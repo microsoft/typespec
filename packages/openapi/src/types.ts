@@ -64,3 +64,28 @@ export interface ExternalDocs {
   /** Optional description */
   description?: string;
 }
+
+/**
+ * Metadata for a single tag used by operations.
+ */
+export interface TagMetadataRecord {
+  /** A description of the tag. */
+  description?: string;
+
+  /** External documentation for the tag. */
+  externalDocs?: ExternalDocs;
+
+  /** The name of a parent tag (only supported in OpenAPI 3.2). */
+  parent?: string;
+
+  /** Additional extension data. Keys must start with `x-`. */
+  [extensionKey: string]: unknown;
+}
+
+/**
+ * Metadata for a tag including the tag name. Used with the array form of `@tagMetadata`.
+ */
+export interface TagMetadataWithName extends TagMetadataRecord {
+  /** The name of the tag. */
+  name: string;
+}

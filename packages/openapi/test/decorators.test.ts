@@ -446,16 +446,20 @@ describe("openapi: decorators", () => {
     });
 
     const testCases: [string, string, any][] = [
-      ["set tagMetadata without additionalInfo", `@tagMetadata("tagName", #{})`, { tagName: {} }],
+      [
+        "set tagMetadata without additionalInfo",
+        `@tagMetadata("tagName", #{})`,
+        [{ name: "tagName" }],
+      ],
       [
         "set tagMetadata without externalDocs",
         `@tagMetadata("tagName", #{ description: "Pets operations" })`,
-        { tagName: { description: "Pets operations" } },
+        [{ name: "tagName", description: "Pets operations" }],
       ],
       [
         "set tagMetadata additionalInfo",
         `@tagMetadata("tagName", #{ \`x-custom\`: "string" })`,
-        { tagName: { "x-custom": "string" } },
+        [{ name: "tagName", "x-custom": "string" }],
       ],
       [
         "set multiple tagsMetadata",
@@ -480,16 +484,9 @@ describe("openapi: decorators", () => {
                \`x-custom\`: "string"
             }
           )`,
-        {
-          tagName1: {
-            description: "Pets operations",
-            externalDocs: {
-              url: "https://example.com",
-              "x-custom": "string",
-            },
-          },
-
-          tagName2: {
+        [
+          {
+            name: "tagName2",
             description: "Pets operations",
             externalDocs: {
               url: "https://example.com",
@@ -497,7 +494,26 @@ describe("openapi: decorators", () => {
             },
             "x-custom": "string",
           },
-        },
+          {
+            name: "tagName1",
+            description: "Pets operations",
+            externalDocs: {
+              url: "https://example.com",
+              "x-custom": "string",
+            },
+          },
+        ],
+      ],
+      [
+        "set tagMetadata using array form",
+        `@tagMetadata(#[
+            #{ name: "tagName1", description: "First tag" },
+            #{ name: "tagName2", description: "Second tag" },
+          ])`,
+        [
+          { name: "tagName1", description: "First tag" },
+          { name: "tagName2", description: "Second tag" },
+        ],
       ],
     ];
     it.each(testCases)("%s", async (_, tagMetaDecorator, expected) => {
@@ -507,6 +523,34 @@ describe("openapi: decorators", () => {
         namespace ${t.namespace("PetStore")} {}
       `);
       deepStrictEqual(getTagsMetadata(program, PetStore), expected);
+    });
+
+    it("emit diagnostic when mixing array form and inline form (array first)", async () => {
+      const diagnostics = await Tester.diagnose(
+        `
+        @service()
+        @tagMetadata("tag2", #{})
+        @tagMetadata(#[#{ name: "tag1" }])
+        namespace PetStore{};
+        `,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/mixed-tag-metadata-form",
+      });
+    });
+
+    it("emit diagnostic when mixing array form and inline form (inline first)", async () => {
+      const diagnostics = await Tester.diagnose(
+        `
+        @service()
+        @tagMetadata(#[#{ name: "tag2" }])
+        @tagMetadata("tag1", #{})
+        namespace PetStore{};
+        `,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/mixed-tag-metadata-form",
+      });
     });
   });
 });
