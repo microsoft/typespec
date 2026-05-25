@@ -265,16 +265,18 @@ class PreProcessPlugin(YamlUpdatePlugin):
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
                 property["clientName"] = self.pad_reserved_words(
-                    property["clientName"].lower(), PadType.PROPERTY, property
+                    property["clientName"] if property.get("isExactName") else property["clientName"].lower(),
+                    PadType.PROPERTY,
+                    property,
                 )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 if type["type"] != "enumvalue":
                     name = self.pad_reserved_words(type["name"], pad_type, type)
-                    type["name"] = name[0].upper() + name[1:]
+                    type["name"] = name if type.get("isExactName") else name[0].upper() + name[1:]
                 type["description"] = update_description(type.get("description", ""), type["name"])
-                type["snakeCaseName"] = to_snake_case(type["name"])
+                type["snakeCaseName"] = type["name"] if type.get("isExactName") else to_snake_case(type["name"])
             if type.get("values"):
                 # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
                 for value in type["values"]:

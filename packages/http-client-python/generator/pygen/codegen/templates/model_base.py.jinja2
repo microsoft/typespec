@@ -995,7 +995,7 @@ class Model(_MyMutableMapping):
             # 'Mapping', 'Collection', 'Sized', 'Iterable', 'Container' and 'object'
             mros = cls.__mro__[:-9][::-1]  # ignore parents, and reverse the mro order
             attr_to_rest_field: dict[str, _RestField] = {  # map attribute name to rest_field property
-                k: v for mro_class in mros for k, v in mro_class.__dict__.items() if k[0] != "_" and hasattr(v, "_type")
+                k: v for mro_class in mros for k, v in mro_class.__dict__.items() if hasattr(v, "_type")
             }
             annotations = {
                 k: v

@@ -71,7 +71,12 @@ export function getSimpleTypeResult(
 
 export function getType(
   context: PythonSdkContext,
-  type: CredentialType | CredentialTypeUnion | Type | SdkType | MultiPartFileType,
+  type:
+    | CredentialType
+    | CredentialTypeUnion
+    | Type
+    | SdkType
+    | MultiPartFileType,
 ): Record<string, any> {
   switch (type.kind) {
     case "model":
@@ -134,7 +139,10 @@ function emitMultiPartFile(
   if (type.type.kind === "array") {
     return getSimpleTypeResult(context, {
       type: "list",
-      elementType: getType(context, createMultiPartFileType(type.type.valueType)),
+      elementType: getType(
+        context,
+        createMultiPartFileType(type.type.valueType),
+      ),
     });
   }
   return getSimpleTypeResult(context, {
@@ -155,7 +163,10 @@ function emitCredential(
       policy: {
         type: "BearerTokenCredentialPolicy",
         credentialScopes: [],
-        flows: (context.emitContext.options as any).flavor === "azure" ? [] : scheme.flows,
+        flows:
+          (context.emitContext.options as any).flavor === "azure"
+            ? []
+            : scheme.flows,
       },
     };
     for (const flow of scheme.flows) {
@@ -210,7 +221,10 @@ function createMultiPartFileType(type: SdkType): MultiPartFileType {
   return { kind: "multipartfile", type };
 }
 
-function addDisableGenerationMap(context: PythonSdkContext, type: SdkType): void {
+function addDisableGenerationMap(
+  context: PythonSdkContext,
+  type: SdkType,
+): void {
   if (context.__disableGenerationMap.has(type)) return;
 
   context.__disableGenerationMap.add(type);
@@ -225,7 +239,8 @@ function emitProperty(
   context: PythonSdkContext,
   property: SdkModelPropertyType,
 ): Record<string, any> {
-  const isMultipartFileInput = property.serializationOptions?.multipart?.isFilePart;
+  const isMultipartFileInput =
+    property.serializationOptions?.multipart?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
@@ -233,7 +248,9 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   return {
-    clientName: camelToSnakeCase(property.name),
+    clientName: property.isExactName
+      ? property.name
+      : camelToSnakeCase(property.name),
     wireName:
       (property.serializationOptions?.multipart
         ? property.serializationOptions?.multipart?.name
@@ -247,13 +264,17 @@ function emitProperty(
     isDiscriminator: property.discriminator,
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
+    isExactName: property.isExactName,
     xmlMetadata: getXmlMetadata(property),
     encode: property.encode,
     clientDefaultValue: property.clientDefaultValue,
   };
 }
 
-function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string, any> {
+function emitModel(
+  context: PythonSdkContext,
+  type: SdkModelType,
+): Record<string, any> {
   if (isEmptyModel(type)) {
     return KnownTypes.any;
   }
@@ -267,7 +288,9 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       submodule: "exceptions",
     };
   }
-  if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.ErrorResponse") {
+  if (
+    type.crossLanguageDefinitionId === "Azure.Core.Foundations.ErrorResponse"
+  ) {
     return {
       type: "sdkcore",
       name: "HttpResponseError",
@@ -289,7 +312,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     discriminatorValue: type.discriminatorValue,
     discriminatedSubtypes: {} as Record<string, Record<string, any>>,
     properties: new Array<Record<string, any>>(),
-    snakeCaseName: camelToSnakeCase(type.name),
+    snakeCaseName: type.isExactName ? type.name : camelToSnakeCase(type.name),
     base: "dpg",
     internal: type.access === "internal",
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
@@ -297,26 +320,34 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     isXml: type.usage & UsageFlags.Xml ? true : false,
     xmlMetadata: getXmlMetadata(type),
     clientNamespace: getClientNamespace(context, type.namespace),
+    isExactName: type.isExactName,
   };
 
   context.__typesMap.set(type, newValue);
-  newValue.parents = type.baseModel ? [getType(context, type.baseModel)] : newValue.parents;
+  newValue.parents = type.baseModel
+    ? [getType(context, type.baseModel)]
+    : newValue.parents;
   for (const property of type.properties.values()) {
     if (property.kind === "property" && !isHttpMetadata(context, property)) {
       newValue.properties.push(emitProperty(context, property));
       // type for base discriminator returned by TCGC changes from constant to string while
       // autorest treat all discriminator as constant type, so we need to change to constant type here
       if (type.discriminatedSubtypes && property.discriminator) {
-        newValue.properties[newValue.properties.length - 1].isPolymorphic = true;
+        newValue.properties[newValue.properties.length - 1].isPolymorphic =
+          true;
         if (property.type.kind === "string") {
-          newValue.properties[newValue.properties.length - 1].type = getConstantType(context, null);
+          newValue.properties[newValue.properties.length - 1].type =
+            getConstantType(context, null);
         }
       }
     }
   }
   if (type.discriminatedSubtypes) {
     for (const key in type.discriminatedSubtypes) {
-      newValue.discriminatedSubtypes[key] = getType(context, type.discriminatedSubtypes[key]);
+      newValue.discriminatedSubtypes[key] = getType(
+        context,
+        type.discriminatedSubtypes[key],
+      );
     }
   }
   return newValue;
@@ -333,7 +364,10 @@ function getConstantFromEnumValueType(
   });
 }
 
-function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, any> {
+function emitEnum(
+  context: PythonSdkContext,
+  type: SdkEnumType,
+): Record<string, any> {
   if (context.__typesMap.has(type)) {
     return context.__typesMap.get(type)!;
   }
@@ -495,7 +529,8 @@ function emitBuiltInType(
     // fallback to wire type for unknown or unsupported encode
     if ("wireType" in type && type.wireType !== undefined) {
       return getSimpleTypeResult(context, {
-        type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
+        type:
+          sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
         encode: type.encode,
       });
     }
@@ -507,10 +542,15 @@ function emitBuiltInType(
   });
 }
 
-function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string, any> {
+function emitUnion(
+  context: PythonSdkContext,
+  type: SdkUnionType,
+): Record<string, any> {
   return getSimpleTypeResult(context, {
     name: type.isGeneratedName ? undefined : type.name,
-    snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
+    snakeCaseName: type.isGeneratedName
+      ? undefined
+      : camelToSnakeCase(type.name),
     description: type.isGeneratedName ? "" : `Type of ${type.name}`,
     internal: true,
     type: "combined",
@@ -568,7 +608,12 @@ export function emitEndpointType(
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
   for (const param of type.templateArguments) {
-    const paramBase = emitParamBase(context, param, undefined, serviceApiVersions);
+    const paramBase = emitParamBase(
+      context,
+      param,
+      undefined,
+      serviceApiVersions,
+    );
     paramBase.clientName = context.arm ? "base_url" : paramBase.clientName;
 
     let effectiveClientDefaultValue = param.clientDefaultValue;
@@ -577,7 +622,8 @@ export function emitEndpointType(
     if (isEndpointApiVersionFallback(param, serviceApiVersions)) {
       paramBase.isApiVersion = true;
       if (!effectiveClientDefaultValue) {
-        effectiveClientDefaultValue = serviceApiVersions[serviceApiVersions.length - 1];
+        effectiveClientDefaultValue =
+          serviceApiVersions[serviceApiVersions.length - 1];
       }
       paramBase.type = getSimpleTypeResult(context, {
         type: "constant",
