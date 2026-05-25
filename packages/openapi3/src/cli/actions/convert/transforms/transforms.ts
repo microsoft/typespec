@@ -41,6 +41,9 @@ export function transform(context: Context): TypeSpecProgram {
   // Pre-scan for multipart schemas before generating models
   scanForMultipartSchemas(openapi, context);
 
+  // Pre-scan for error response schemas before generating models
+  scanForErrorResponseSchemas(openapi, context);
+
   // Pre-scan for SSE event schemas before generating models
   if (
     !context.openApi3Doc.openapi.startsWith("3.0") &&
@@ -71,6 +74,18 @@ function scanForMultipartSchemas(openapi: SupportedOpenAPIDocuments, context: Co
   for (const path of Object.values(openapi.paths)) {
     if (!path) continue;
     scanPathForMultipartSchemas(path, context);
+  }
+}
+
+/**
+ * Scans all operations in the OpenAPI document to identify schemas used in error response bodies.
+ */
+function scanForErrorResponseSchemas(openapi: SupportedOpenAPIDocuments, context: Context): void {
+  if (!openapi.paths) return;
+
+  for (const path of Object.values(openapi.paths)) {
+    if (!path) continue;
+    scanPathForErrorResponseSchemas(path, context);
   }
 }
 
@@ -129,6 +144,73 @@ function scanOperationForMultipartSchemas(
       context.registerMultipartSchema(schemaReference.$ref, encoding);
     }
   }
+}
+
+function scanPathForErrorResponseSchemas(
+  path: OpenAPI3PathItem | OpenAPIPathItem3_2,
+  context: Context,
+): void {
+  for (const method of methods) {
+    const operation = path[method];
+    if (!operation?.responses) continue;
+
+    const responses = resolveReference(operation.responses, context);
+    if (!responses) continue;
+
+    scanOperationForErrorResponseSchemas(responses, context);
+  }
+  if ("query" in path && path.query && path.query.responses) {
+    const responses = resolveReference(path.query.responses, context);
+    if (!responses) return;
+
+    scanOperationForErrorResponseSchemas(responses, context);
+  }
+
+  if ("additionalOperations" in path && path.additionalOperations) {
+    for (const additionalOperation of Object.values(path.additionalOperations)) {
+      if (additionalOperation.responses) {
+        const responses = resolveReference(additionalOperation.responses, context);
+        if (!responses) continue;
+
+        scanOperationForErrorResponseSchemas(responses, context);
+      }
+    }
+  }
+}
+
+function scanOperationForErrorResponseSchemas(
+  responses: OpenAPI3Responses | OpenAPIResponses3_2,
+  context: Context,
+): void {
+  for (const [statusCode, response] of Object.entries(responses)) {
+    if (!isErrorStatusCode(statusCode)) continue;
+    if (!response) continue;
+
+    const resolvedResponse = resolveReference(response, context);
+    if (!resolvedResponse?.content) continue;
+
+    for (const content of Object.values(resolvedResponse.content)) {
+      if (!content || typeof content !== "object" || !("schema" in content) || !content.schema) {
+        continue;
+      }
+      const schema = content.schema;
+      if (typeof schema === "object" && schema !== null && "$ref" in schema) {
+        const ref = schema.$ref;
+        if (typeof ref === "string" && ref.startsWith("#/components/schemas/")) {
+          context.registerErrorResponseSchema(ref);
+        }
+      }
+    }
+  }
+}
+
+function isErrorStatusCode(statusCode: string): boolean {
+  if (statusCode === "4XX" || statusCode === "5XX") {
+    return true;
+  }
+
+  const literalStatusCode = Number.parseInt(statusCode, 10);
+  return Number.isFinite(literalStatusCode) && literalStatusCode >= 400 && literalStatusCode <= 599;
 }
 
 function scanPathForSSESchemas(
