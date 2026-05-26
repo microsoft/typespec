@@ -1407,4 +1407,40 @@ describe("Test isExactName propagation", () => {
     ok(regularValue);
     strictEqual(regularValue.isExactName, false);
   });
+
+  it("propagates isExactName from @clientName decorator with exact() on a client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @@clientName(Azure.Csharp.Testing, Azure.ClientGenerator.Core.exact("snake_case_client"), "csharp");
+        op test(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const client = root.clients.find((c) => c.name === "snake_case_client");
+    ok(client);
+    strictEqual(client.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on an operation", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("snake_case_op"), "csharp")
+        op test(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods.find((m) => m.name === "snake_case_op");
+    ok(method);
+    strictEqual(method.isExactName, true);
+    strictEqual(method.operation.name, "snake_case_op");
+    strictEqual(method.operation.isExactName, true);
+  });
 });

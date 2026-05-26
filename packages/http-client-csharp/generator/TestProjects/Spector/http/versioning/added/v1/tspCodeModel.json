@@ -185,6 +185,7 @@
       "$id": "15",
       "kind": "client",
       "name": "AddedClient",
+      "isExactName": false,
       "namespace": "Versioning.Added",
       "doc": "Test for the `@added` decorator.",
       "methods": [
@@ -192,6 +193,7 @@
           "$id": "16",
           "kind": "basic",
           "name": "v1",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1"
@@ -199,6 +201,7 @@
           "operation": {
             "$id": "17",
             "name": "v1",
+            "isExactName": false,
             "resourceName": "Added",
             "accessibility": "public",
             "parameters": [

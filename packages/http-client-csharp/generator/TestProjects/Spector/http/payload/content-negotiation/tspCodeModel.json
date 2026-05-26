@@ -298,6 +298,7 @@
       "$id": "31",
       "kind": "client",
       "name": "ContentNegotiationClient",
+      "isExactName": false,
       "namespace": "Payload.ContentNegotiation",
       "doc": "Test describing optionality of the request body.",
       "methods": [],
@@ -343,17 +344,20 @@
           "$id": "35",
           "kind": "client",
           "name": "SameBody",
+          "isExactName": false,
           "namespace": "Payload.ContentNegotiation.SameBody",
           "methods": [
             {
               "$id": "36",
               "kind": "basic",
               "name": "getAvatarAsPng",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "37",
                 "name": "getAvatarAsPng",
+                "isExactName": false,
                 "resourceName": "SameBody",
                 "accessibility": "public",
                 "parameters": [
@@ -452,11 +456,13 @@
               "$id": "41",
               "kind": "basic",
               "name": "getAvatarAsJpeg",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "42",
                 "name": "getAvatarAsJpeg",
+                "isExactName": false,
                 "resourceName": "SameBody",
                 "accessibility": "public",
                 "parameters": [
@@ -598,17 +604,20 @@
           "$id": "49",
           "kind": "client",
           "name": "DifferentBody",
+          "isExactName": false,
           "namespace": "Payload.ContentNegotiation.DifferentBody",
           "methods": [
             {
               "$id": "50",
               "kind": "basic",
               "name": "getAvatarAsPng",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "51",
                 "name": "getAvatarAsPng",
+                "isExactName": false,
                 "resourceName": "DifferentBody",
                 "accessibility": "public",
                 "parameters": [
@@ -707,11 +716,13 @@
               "$id": "55",
               "kind": "basic",
               "name": "getAvatarAsJson",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "56",
                 "name": "getAvatarAsJson",
+                "isExactName": false,
                 "resourceName": "DifferentBody",
                 "accessibility": "public",
                 "parameters": [

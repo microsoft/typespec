@@ -146,6 +146,7 @@
       "$id": "17",
       "kind": "client",
       "name": "MediaTypeClient",
+      "isExactName": false,
       "namespace": "Payload.MediaType",
       "doc": "Test the payload with different media types and different types of the payload itself.",
       "methods": [],
@@ -191,17 +192,20 @@
           "$id": "21",
           "kind": "client",
           "name": "StringBody",
+          "isExactName": false,
           "namespace": "Payload.MediaType.StringBody",
           "methods": [
             {
               "$id": "22",
               "kind": "basic",
               "name": "sendAsText",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "23",
                 "name": "sendAsText",
+                "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
                 "parameters": [
@@ -333,11 +337,13 @@
               "$id": "30",
               "kind": "basic",
               "name": "getAsText",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "31",
                 "name": "getAsText",
+                "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
                 "parameters": [
@@ -436,11 +442,13 @@
               "$id": "35",
               "kind": "basic",
               "name": "sendAsJson",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "sendAsJson",
+                "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
                 "parameters": [
@@ -576,11 +584,13 @@
               "$id": "43",
               "kind": "basic",
               "name": "getAsJson",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "44",
                 "name": "getAsJson",
+                "isExactName": false,
                 "resourceName": "StringBody",
                 "accessibility": "public",
                 "parameters": [

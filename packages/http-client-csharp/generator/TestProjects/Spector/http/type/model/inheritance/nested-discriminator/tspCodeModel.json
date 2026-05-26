@@ -561,6 +561,7 @@
       "$id": "42",
       "kind": "client",
       "name": "NestedDiscriminatorClient",
+      "isExactName": false,
       "namespace": "Type.Model.Inheritance.NestedDiscriminator",
       "doc": "Illustrates multiple level inheritance with multiple discriminators.",
       "methods": [
@@ -568,11 +569,13 @@
           "$id": "43",
           "kind": "basic",
           "name": "getModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "44",
             "name": "getModel",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
@@ -663,11 +666,13 @@
           "$id": "47",
           "kind": "basic",
           "name": "putModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "48",
             "name": "putModel",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
@@ -797,11 +802,13 @@
           "$id": "53",
           "kind": "basic",
           "name": "getRecursiveModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "54",
             "name": "getRecursiveModel",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
@@ -892,11 +899,13 @@
           "$id": "57",
           "kind": "basic",
           "name": "putRecursiveModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "58",
             "name": "putRecursiveModel",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
@@ -1026,11 +1035,13 @@
           "$id": "63",
           "kind": "basic",
           "name": "getMissingDiscriminator",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "64",
             "name": "getMissingDiscriminator",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
@@ -1121,11 +1132,13 @@
           "$id": "67",
           "kind": "basic",
           "name": "getWrongDiscriminator",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "68",
             "name": "getWrongDiscriminator",
+            "isExactName": false,
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [

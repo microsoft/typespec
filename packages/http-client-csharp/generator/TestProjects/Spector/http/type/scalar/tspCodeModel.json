@@ -435,6 +435,7 @@
       "$id": "51",
       "kind": "client",
       "name": "ScalarClient",
+      "isExactName": false,
       "namespace": "Type.Scalar",
       "methods": [],
       "parameters": [
@@ -479,18 +480,21 @@
           "$id": "55",
           "kind": "client",
           "name": "String",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "56",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get string value",
               "operation": {
                 "$id": "57",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "String",
                 "doc": "get string value",
                 "accessibility": "public",
@@ -594,12 +598,14 @@
               "$id": "61",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put string value",
               "operation": {
                 "$id": "62",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "String",
                 "doc": "put string value",
                 "accessibility": "public",
@@ -781,18 +787,21 @@
           "$id": "72",
           "kind": "client",
           "name": "Boolean",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "73",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get boolean value",
               "operation": {
                 "$id": "74",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Boolean",
                 "doc": "get boolean value",
                 "accessibility": "public",
@@ -896,12 +905,14 @@
               "$id": "78",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put boolean value",
               "operation": {
                 "$id": "79",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Boolean",
                 "doc": "put boolean value",
                 "accessibility": "public",
@@ -1083,18 +1094,21 @@
           "$id": "89",
           "kind": "client",
           "name": "Unknown",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "methods": [
             {
               "$id": "90",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "get unknown value",
               "operation": {
                 "$id": "91",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Unknown",
                 "doc": "get unknown value",
                 "accessibility": "public",
@@ -1198,12 +1212,14 @@
               "$id": "95",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "doc": "put unknown value",
               "operation": {
                 "$id": "96",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Unknown",
                 "doc": "put unknown value",
                 "accessibility": "public",
@@ -1385,6 +1401,7 @@
           "$id": "106",
           "kind": "client",
           "name": "DecimalType",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal type",
           "methods": [
@@ -1392,11 +1409,13 @@
               "$id": "107",
               "kind": "basic",
               "name": "responseBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "108",
                 "name": "responseBody",
+                "isExactName": false,
                 "resourceName": "DecimalType",
                 "accessibility": "public",
                 "parameters": [
@@ -1499,11 +1518,13 @@
               "$id": "112",
               "kind": "basic",
               "name": "requestBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "113",
                 "name": "requestBody",
+                "isExactName": false,
                 "resourceName": "DecimalType",
                 "accessibility": "public",
                 "parameters": [
@@ -1639,11 +1660,13 @@
               "$id": "120",
               "kind": "basic",
               "name": "requestParameter",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "121",
                 "name": "requestParameter",
+                "isExactName": false,
                 "resourceName": "DecimalType",
                 "accessibility": "public",
                 "parameters": [
@@ -1771,6 +1794,7 @@
           "$id": "129",
           "kind": "client",
           "name": "Decimal128Type",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal128 type",
           "methods": [
@@ -1778,11 +1802,13 @@
               "$id": "130",
               "kind": "basic",
               "name": "responseBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "131",
                 "name": "responseBody",
+                "isExactName": false,
                 "resourceName": "Decimal128Type",
                 "accessibility": "public",
                 "parameters": [
@@ -1885,11 +1911,13 @@
               "$id": "135",
               "kind": "basic",
               "name": "requestBody",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "136",
                 "name": "requestBody",
+                "isExactName": false,
                 "resourceName": "Decimal128Type",
                 "accessibility": "public",
                 "parameters": [
@@ -2025,11 +2053,13 @@
               "$id": "143",
               "kind": "basic",
               "name": "requestParameter",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "144",
                 "name": "requestParameter",
+                "isExactName": false,
                 "resourceName": "Decimal128Type",
                 "accessibility": "public",
                 "parameters": [
@@ -2157,6 +2187,7 @@
           "$id": "152",
           "kind": "client",
           "name": "DecimalVerify",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal type verification",
           "methods": [
@@ -2164,11 +2195,13 @@
               "$id": "153",
               "kind": "basic",
               "name": "prepareVerify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "154",
                 "name": "prepareVerify",
+                "isExactName": false,
                 "resourceName": "DecimalVerify",
                 "accessibility": "public",
                 "parameters": [
@@ -2270,11 +2303,13 @@
               "$id": "159",
               "kind": "basic",
               "name": "verify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "160",
                 "name": "verify",
+                "isExactName": false,
                 "resourceName": "DecimalVerify",
                 "accessibility": "public",
                 "parameters": [
@@ -2453,6 +2488,7 @@
           "$id": "170",
           "kind": "client",
           "name": "Decimal128Verify",
+          "isExactName": false,
           "namespace": "Type.Scalar",
           "doc": "Decimal128 type verification",
           "methods": [
@@ -2460,11 +2496,13 @@
               "$id": "171",
               "kind": "basic",
               "name": "prepareVerify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "172",
                 "name": "prepareVerify",
+                "isExactName": false,
                 "resourceName": "Decimal128Verify",
                 "accessibility": "public",
                 "parameters": [
@@ -2555,11 +2593,13 @@
               "$id": "175",
               "kind": "basic",
               "name": "verify",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "176",
                 "name": "verify",
+                "isExactName": false,
                 "resourceName": "Decimal128Verify",
                 "accessibility": "public",
                 "parameters": [

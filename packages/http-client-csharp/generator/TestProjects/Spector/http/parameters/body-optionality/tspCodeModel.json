@@ -122,6 +122,7 @@
       "$id": "12",
       "kind": "client",
       "name": "BodyOptionalityClient",
+      "isExactName": false,
       "namespace": "Parameters.BodyOptionality",
       "doc": "Test describing optionality of the request body.",
       "methods": [
@@ -129,11 +130,13 @@
           "$id": "13",
           "kind": "basic",
           "name": "requiredExplicit",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "14",
             "name": "requiredExplicit",
+            "isExactName": false,
             "resourceName": "BodyOptionality",
             "accessibility": "public",
             "parameters": [
@@ -263,11 +266,13 @@
           "$id": "19",
           "kind": "basic",
           "name": "requiredImplicit",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "20",
             "name": "requiredImplicit",
+            "isExactName": false,
             "resourceName": "BodyOptionality",
             "accessibility": "public",
             "parameters": [
@@ -440,17 +445,20 @@
           "$id": "29",
           "kind": "client",
           "name": "OptionalExplicit",
+          "isExactName": false,
           "namespace": "Parameters.BodyOptionality.OptionalExplicit",
           "methods": [
             {
               "$id": "30",
               "kind": "basic",
               "name": "set",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "31",
                 "name": "set",
+                "isExactName": false,
                 "resourceName": "OptionalExplicit",
                 "accessibility": "public",
                 "parameters": [
@@ -580,11 +588,13 @@
               "$id": "36",
               "kind": "basic",
               "name": "omit",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "37",
                 "name": "omit",
+                "isExactName": false,
                 "resourceName": "OptionalExplicit",
                 "accessibility": "public",
                 "parameters": [

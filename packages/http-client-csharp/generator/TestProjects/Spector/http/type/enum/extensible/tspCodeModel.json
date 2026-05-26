@@ -274,6 +274,7 @@
       "$id": "26",
       "kind": "client",
       "name": "ExtensibleClient",
+      "isExactName": false,
       "namespace": "Type.Enum.Extensible",
       "methods": [],
       "parameters": [
@@ -318,17 +319,20 @@
           "$id": "30",
           "kind": "client",
           "name": "String",
+          "isExactName": false,
           "namespace": "Type.Enum.Extensible",
           "methods": [
             {
               "$id": "31",
               "kind": "basic",
               "name": "getKnownValue",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "32",
                 "name": "getKnownValue",
+                "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
@@ -427,11 +431,13 @@
               "$id": "35",
               "kind": "basic",
               "name": "getUnknownValue",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "getUnknownValue",
+                "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
@@ -530,11 +536,13 @@
               "$id": "39",
               "kind": "basic",
               "name": "putKnownValue",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "40",
                 "name": "putKnownValue",
+                "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
@@ -662,11 +670,13 @@
               "$id": "45",
               "kind": "basic",
               "name": "putUnknownValue",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "46",
                 "name": "putUnknownValue",
+                "isExactName": false,
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [

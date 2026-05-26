@@ -3978,6 +3978,7 @@
       "$id": "331",
       "kind": "client",
       "name": "XmlClient",
+      "isExactName": false,
       "namespace": "Payload.Xml",
       "doc": "Sends and receives bodies in XML format.",
       "methods": [],
@@ -4023,6 +4024,7 @@
           "$id": "335",
           "kind": "client",
           "name": "SimpleModelValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§1.1 — Operations for the SimpleModel type.",
           "methods": [
@@ -4030,11 +4032,13 @@
               "$id": "336",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "337",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "SimpleModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4133,11 +4137,13 @@
               "$id": "340",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "341",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "SimpleModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4308,6 +4314,7 @@
           "$id": "349",
           "kind": "client",
           "name": "ModelWithRenamedPropertyValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§1.2 — Operations for the ModelWithRenamedProperty type.",
           "methods": [
@@ -4315,11 +4322,13 @@
               "$id": "350",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "351",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedPropertyValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4418,11 +4427,13 @@
               "$id": "354",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "355",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedPropertyValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4593,6 +4604,7 @@
           "$id": "363",
           "kind": "client",
           "name": "ModelWithRenamedFieldsValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§1.3, §2.3 — Operations for the ModelWithRenamedFields type.",
           "methods": [
@@ -4600,11 +4612,13 @@
               "$id": "364",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "365",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedFieldsValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4703,11 +4717,13 @@
               "$id": "368",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "369",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedFieldsValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4878,6 +4894,7 @@
           "$id": "377",
           "kind": "client",
           "name": "ModelWithNestedModelValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§2.1 — Operations for the ModelWithNestedModel type.",
           "methods": [
@@ -4885,11 +4902,13 @@
               "$id": "378",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "379",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithNestedModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4988,11 +5007,13 @@
               "$id": "382",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "383",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithNestedModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5163,6 +5184,7 @@
           "$id": "391",
           "kind": "client",
           "name": "ModelWithRenamedNestedModelValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§2.2 — Operations for the ModelWithRenamedNestedModel type.",
           "methods": [
@@ -5170,11 +5192,13 @@
               "$id": "392",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "393",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedNestedModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5273,11 +5297,13 @@
               "$id": "396",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "397",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedNestedModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5448,6 +5474,7 @@
           "$id": "405",
           "kind": "client",
           "name": "ModelWithSimpleArraysValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§3.1 — Operations for the ModelWithSimpleArrays type.",
           "methods": [
@@ -5455,11 +5482,13 @@
               "$id": "406",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "407",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithSimpleArraysValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5558,11 +5587,13 @@
               "$id": "410",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "411",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithSimpleArraysValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5733,6 +5764,7 @@
           "$id": "419",
           "kind": "client",
           "name": "ModelWithUnwrappedArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§3.2 — Operations for the ModelWithUnwrappedArray type.",
           "methods": [
@@ -5740,11 +5772,13 @@
               "$id": "420",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "421",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithUnwrappedArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -5843,11 +5877,13 @@
               "$id": "424",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "425",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithUnwrappedArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6018,6 +6054,7 @@
           "$id": "433",
           "kind": "client",
           "name": "ModelWithRenamedArraysValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§3.3, §3.4 — Operations for the ModelWithRenamedArrays type.",
           "methods": [
@@ -6025,11 +6062,13 @@
               "$id": "434",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "435",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedArraysValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6128,11 +6167,13 @@
               "$id": "438",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "439",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedArraysValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6303,6 +6344,7 @@
           "$id": "447",
           "kind": "client",
           "name": "ModelWithWrappedPrimitiveCustomItemNamesValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§3.5 — Operations for the ModelWithWrappedPrimitiveCustomItemNames type.",
           "methods": [
@@ -6310,11 +6352,13 @@
               "$id": "448",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "449",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithWrappedPrimitiveCustomItemNamesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6413,11 +6457,13 @@
               "$id": "452",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "453",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithWrappedPrimitiveCustomItemNamesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6588,6 +6634,7 @@
           "$id": "461",
           "kind": "client",
           "name": "ModelWithArrayOfModelValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§4.1 — Operations for the ModelWithArrayOfModel type.",
           "methods": [
@@ -6595,11 +6642,13 @@
               "$id": "462",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "463",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithArrayOfModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6698,11 +6747,13 @@
               "$id": "466",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "467",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithArrayOfModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6873,6 +6924,7 @@
           "$id": "475",
           "kind": "client",
           "name": "ModelWithUnwrappedModelArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§4.2 — Operations for the ModelWithUnwrappedModelArray type.",
           "methods": [
@@ -6880,11 +6932,13 @@
               "$id": "476",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "477",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithUnwrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -6983,11 +7037,13 @@
               "$id": "480",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "481",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithUnwrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7158,6 +7214,7 @@
           "$id": "489",
           "kind": "client",
           "name": "ModelWithRenamedWrappedModelArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§4.3 — Operations for the ModelWithRenamedWrappedModelArray type.",
           "methods": [
@@ -7165,11 +7222,13 @@
               "$id": "490",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "491",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedWrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7268,11 +7327,13 @@
               "$id": "494",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "495",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedWrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7443,6 +7504,7 @@
           "$id": "503",
           "kind": "client",
           "name": "ModelWithRenamedUnwrappedModelArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§4.4 — Operations for the ModelWithRenamedUnwrappedModelArray type.",
           "methods": [
@@ -7450,11 +7512,13 @@
               "$id": "504",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "505",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedUnwrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7553,11 +7617,13 @@
               "$id": "508",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "509",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedUnwrappedModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7728,6 +7794,7 @@
           "$id": "517",
           "kind": "client",
           "name": "ModelWithRenamedWrappedAndItemModelArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§4.5 — Operations for the ModelWithRenamedWrappedAndItemModelArray type.",
           "methods": [
@@ -7735,11 +7802,13 @@
               "$id": "518",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "519",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedWrappedAndItemModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -7838,11 +7907,13 @@
               "$id": "522",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "523",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedWrappedAndItemModelArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8013,6 +8084,7 @@
           "$id": "531",
           "kind": "client",
           "name": "ModelWithAttributesValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§5.1 — Operations for the ModelWithAttributes type.",
           "methods": [
@@ -8020,11 +8092,13 @@
               "$id": "532",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "533",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithAttributesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8123,11 +8197,13 @@
               "$id": "536",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "537",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithAttributesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8298,6 +8374,7 @@
           "$id": "545",
           "kind": "client",
           "name": "ModelWithRenamedAttributeValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§5.2 — Operations for the ModelWithRenamedAttribute type.",
           "methods": [
@@ -8305,11 +8382,13 @@
               "$id": "546",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "547",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedAttributeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8408,11 +8487,13 @@
               "$id": "550",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "551",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithRenamedAttributeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8583,6 +8664,7 @@
           "$id": "559",
           "kind": "client",
           "name": "ModelWithNamespaceValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§6.1, §7.1 — Operations for the ModelWithNamespace type.",
           "methods": [
@@ -8590,11 +8672,13 @@
               "$id": "560",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "561",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithNamespaceValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8693,11 +8777,13 @@
               "$id": "564",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "565",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithNamespaceValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8868,6 +8954,7 @@
           "$id": "573",
           "kind": "client",
           "name": "ModelWithNamespaceOnPropertiesValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§6.2, §7.2 — Operations for the ModelWithNamespaceOnProperties type.",
           "methods": [
@@ -8875,11 +8962,13 @@
               "$id": "574",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "575",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithNamespaceOnPropertiesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -8978,11 +9067,13 @@
               "$id": "578",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "579",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithNamespaceOnPropertiesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9153,6 +9244,7 @@
           "$id": "587",
           "kind": "client",
           "name": "ModelWithTextValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "§8.1 — Operations for the ModelWithText type.",
           "methods": [
@@ -9160,11 +9252,13 @@
               "$id": "588",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "589",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithTextValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9263,11 +9357,13 @@
               "$id": "592",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "593",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithTextValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9438,6 +9534,7 @@
           "$id": "601",
           "kind": "client",
           "name": "ModelWithOptionalFieldValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithOptionalField type.",
           "methods": [
@@ -9445,11 +9542,13 @@
               "$id": "602",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "603",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithOptionalFieldValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9548,11 +9647,13 @@
               "$id": "606",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "607",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithOptionalFieldValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9723,6 +9824,7 @@
           "$id": "615",
           "kind": "client",
           "name": "ModelWithEmptyArrayValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithEmptyArray type.",
           "methods": [
@@ -9730,11 +9832,13 @@
               "$id": "616",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "617",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithEmptyArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -9833,11 +9937,13 @@
               "$id": "620",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "621",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithEmptyArrayValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10008,6 +10114,7 @@
           "$id": "629",
           "kind": "client",
           "name": "ModelWithDictionaryValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithDictionary type.",
           "methods": [
@@ -10015,11 +10122,13 @@
               "$id": "630",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "631",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithDictionaryValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10118,11 +10227,13 @@
               "$id": "634",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "635",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithDictionaryValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10293,6 +10404,7 @@
           "$id": "643",
           "kind": "client",
           "name": "ModelWithEncodedNamesValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithEncodedNames type.",
           "methods": [
@@ -10300,11 +10412,13 @@
               "$id": "644",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "645",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithEncodedNamesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10403,11 +10517,13 @@
               "$id": "648",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "649",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithEncodedNamesValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10578,6 +10694,7 @@
           "$id": "657",
           "kind": "client",
           "name": "ModelWithEnumValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithEnum type.",
           "methods": [
@@ -10585,11 +10702,13 @@
               "$id": "658",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "659",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithEnumValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10688,11 +10807,13 @@
               "$id": "662",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "663",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithEnumValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10863,6 +10984,7 @@
           "$id": "671",
           "kind": "client",
           "name": "ModelWithDatetimeValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations for the ModelWithDatetime type.",
           "methods": [
@@ -10870,11 +10992,13 @@
               "$id": "672",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "673",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelWithDatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -10973,11 +11097,13 @@
               "$id": "676",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "677",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelWithDatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -11148,6 +11274,7 @@
           "$id": "685",
           "kind": "client",
           "name": "XmlErrorValue",
+          "isExactName": false,
           "namespace": "Payload.Xml",
           "doc": "Operations that return an error response in XML format.",
           "methods": [
@@ -11155,11 +11282,13 @@
               "$id": "686",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "687",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "XmlErrorValue",
                 "accessibility": "public",
                 "parameters": [

@@ -1051,6 +1051,7 @@
       "$id": "87",
       "kind": "client",
       "name": "ArrayClient",
+      "isExactName": false,
       "namespace": "Encode.Array",
       "doc": "Test for encode decorator on array.",
       "methods": [],
@@ -1096,17 +1097,20 @@
           "$id": "91",
           "kind": "client",
           "name": "Property",
+          "isExactName": false,
           "namespace": "Encode.Array.Property",
           "methods": [
             {
               "$id": "92",
               "kind": "basic",
               "name": "commaDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "93",
                 "name": "commaDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1290,11 +1294,13 @@
               "$id": "100",
               "kind": "basic",
               "name": "spaceDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "101",
                 "name": "spaceDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1478,11 +1484,13 @@
               "$id": "108",
               "kind": "basic",
               "name": "pipeDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "109",
                 "name": "pipeDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1666,11 +1674,13 @@
               "$id": "116",
               "kind": "basic",
               "name": "newlineDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "117",
                 "name": "newlineDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1854,11 +1864,13 @@
               "$id": "124",
               "kind": "basic",
               "name": "enumCommaDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "125",
                 "name": "enumCommaDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2042,11 +2054,13 @@
               "$id": "132",
               "kind": "basic",
               "name": "enumSpaceDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "133",
                 "name": "enumSpaceDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2230,11 +2244,13 @@
               "$id": "140",
               "kind": "basic",
               "name": "enumPipeDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "141",
                 "name": "enumPipeDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2418,11 +2434,13 @@
               "$id": "148",
               "kind": "basic",
               "name": "enumNewlineDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "149",
                 "name": "enumNewlineDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2606,11 +2624,13 @@
               "$id": "156",
               "kind": "basic",
               "name": "extensibleEnumCommaDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "157",
                 "name": "extensibleEnumCommaDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2794,11 +2814,13 @@
               "$id": "164",
               "kind": "basic",
               "name": "extensibleEnumSpaceDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "extensibleEnumSpaceDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2982,11 +3004,13 @@
               "$id": "172",
               "kind": "basic",
               "name": "extensibleEnumPipeDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "173",
                 "name": "extensibleEnumPipeDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -3170,11 +3194,13 @@
               "$id": "180",
               "kind": "basic",
               "name": "extensibleEnumNewlineDelimited",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "181",
                 "name": "extensibleEnumNewlineDelimited",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [

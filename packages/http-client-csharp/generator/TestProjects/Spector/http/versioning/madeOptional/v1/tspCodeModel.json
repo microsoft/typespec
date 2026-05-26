@@ -154,6 +154,7 @@
       "$id": "13",
       "kind": "client",
       "name": "MadeOptionalClient",
+      "isExactName": false,
       "namespace": "Versioning.MadeOptional",
       "doc": "Test for the `@madeOptional` decorator.",
       "methods": [
@@ -161,6 +162,7 @@
           "$id": "14",
           "kind": "basic",
           "name": "test",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1"
@@ -168,6 +170,7 @@
           "operation": {
             "$id": "15",
             "name": "test",
+            "isExactName": false,
             "resourceName": "MadeOptional",
             "accessibility": "public",
             "parameters": [

@@ -49,12 +49,14 @@
       "$id": "4",
       "kind": "client",
       "name": "MultipleClient",
+      "isExactName": false,
       "namespace": "Server.Path.Multiple",
       "methods": [
         {
           "$id": "5",
           "kind": "basic",
           "name": "noOperationParams",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1.0"
@@ -62,6 +64,7 @@
           "operation": {
             "$id": "6",
             "name": "noOperationParams",
+            "isExactName": false,
             "resourceName": "Multiple",
             "accessibility": "public",
             "parameters": [],
@@ -96,6 +99,7 @@
           "$id": "7",
           "kind": "basic",
           "name": "withOperationPathParam",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1.0"
@@ -103,6 +107,7 @@
           "operation": {
             "$id": "8",
             "name": "withOperationPathParam",
+            "isExactName": false,
             "resourceName": "Multiple",
             "accessibility": "public",
             "parameters": [

@@ -408,6 +408,7 @@
       "$id": "33",
       "kind": "client",
       "name": "RemovedClient",
+      "isExactName": false,
       "namespace": "Versioning.Removed",
       "doc": "Test for the `@removed` decorator.",
       "methods": [
@@ -415,6 +416,7 @@
           "$id": "34",
           "kind": "basic",
           "name": "v2",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -424,6 +426,7 @@
           "operation": {
             "$id": "35",
             "name": "v2",
+            "isExactName": false,
             "resourceName": "Removed",
             "accessibility": "public",
             "parameters": [
@@ -607,6 +610,7 @@
           "$id": "42",
           "kind": "basic",
           "name": "modelV3",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -617,6 +621,7 @@
           "operation": {
             "$id": "43",
             "name": "modelV3",
+            "isExactName": false,
             "resourceName": "Removed",
             "doc": "This operation will pass different paths and different request bodies based on different versions.",
             "accessibility": "public",

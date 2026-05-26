@@ -464,6 +464,7 @@
       "$id": "51",
       "kind": "client",
       "name": "DictionaryClient",
+      "isExactName": false,
       "namespace": "Type.Dictionary",
       "doc": "Illustrates various of dictionaries.",
       "methods": [],
@@ -509,6 +510,7 @@
           "$id": "55",
           "kind": "client",
           "name": "Int32Value",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of int32 values",
           "methods": [
@@ -516,11 +518,13 @@
               "$id": "56",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "57",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Int32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -627,11 +631,13 @@
               "$id": "63",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "64",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Int32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -804,6 +810,7 @@
           "$id": "72",
           "kind": "client",
           "name": "Int64Value",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of int64 values",
           "methods": [
@@ -811,11 +818,13 @@
               "$id": "73",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "74",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Int64Value",
                 "accessibility": "public",
                 "parameters": [
@@ -922,11 +931,13 @@
               "$id": "80",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "81",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Int64Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1099,6 +1110,7 @@
           "$id": "89",
           "kind": "client",
           "name": "BooleanValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of boolean values",
           "methods": [
@@ -1106,11 +1118,13 @@
               "$id": "90",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "91",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "BooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1217,11 +1231,13 @@
               "$id": "97",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "98",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "BooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1394,6 +1410,7 @@
           "$id": "106",
           "kind": "client",
           "name": "StringValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of string values",
           "methods": [
@@ -1401,11 +1418,13 @@
               "$id": "107",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "108",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1512,11 +1531,13 @@
               "$id": "114",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "115",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "StringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1689,6 +1710,7 @@
           "$id": "123",
           "kind": "client",
           "name": "Float32Value",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of float values",
           "methods": [
@@ -1696,11 +1718,13 @@
               "$id": "124",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "125",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Float32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1807,11 +1831,13 @@
               "$id": "131",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "132",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Float32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1984,6 +2010,7 @@
           "$id": "140",
           "kind": "client",
           "name": "DatetimeValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of datetime values",
           "methods": [
@@ -1991,11 +2018,13 @@
               "$id": "141",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "142",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "DatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2110,11 +2139,13 @@
               "$id": "149",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "150",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "DatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2287,6 +2318,7 @@
           "$id": "158",
           "kind": "client",
           "name": "DurationValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of duration values",
           "methods": [
@@ -2294,11 +2326,13 @@
               "$id": "159",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "160",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "DurationValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2413,11 +2447,13 @@
               "$id": "167",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "168",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "DurationValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2590,6 +2626,7 @@
           "$id": "176",
           "kind": "client",
           "name": "UnknownValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of unknown values",
           "methods": [
@@ -2597,11 +2634,13 @@
               "$id": "177",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "178",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "UnknownValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2708,11 +2747,13 @@
               "$id": "184",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "185",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "UnknownValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2885,6 +2926,7 @@
           "$id": "193",
           "kind": "client",
           "name": "ModelValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of model values",
           "methods": [
@@ -2892,11 +2934,13 @@
               "$id": "194",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "195",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2987,11 +3031,13 @@
               "$id": "198",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "199",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3164,6 +3210,7 @@
           "$id": "207",
           "kind": "client",
           "name": "RecursiveModelValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of model values",
           "methods": [
@@ -3171,11 +3218,13 @@
               "$id": "208",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "209",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "RecursiveModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3266,11 +3315,13 @@
               "$id": "212",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "213",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "RecursiveModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3443,6 +3494,7 @@
           "$id": "221",
           "kind": "client",
           "name": "NullableFloatValue",
+          "isExactName": false,
           "namespace": "Type.Dictionary",
           "doc": "Dictionary of nullable float values",
           "methods": [
@@ -3450,11 +3502,13 @@
               "$id": "222",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "223",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableFloatValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3566,11 +3620,13 @@
               "$id": "230",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "231",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableFloatValue",
                 "accessibility": "public",
                 "parameters": [

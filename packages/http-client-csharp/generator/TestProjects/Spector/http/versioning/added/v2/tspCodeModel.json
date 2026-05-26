@@ -476,6 +476,7 @@
       "$id": "41",
       "kind": "client",
       "name": "AddedClient",
+      "isExactName": false,
       "namespace": "Versioning.Added",
       "doc": "Test for the `@added` decorator.",
       "methods": [
@@ -483,6 +484,7 @@
           "$id": "42",
           "kind": "basic",
           "name": "v1",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -491,6 +493,7 @@
           "operation": {
             "$id": "43",
             "name": "v1",
+            "isExactName": false,
             "resourceName": "Added",
             "accessibility": "public",
             "parameters": [
@@ -722,6 +725,7 @@
           "$id": "54",
           "kind": "basic",
           "name": "v2",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v2"
@@ -729,6 +733,7 @@
           "operation": {
             "$id": "55",
             "name": "v2",
+            "isExactName": false,
             "resourceName": "Added",
             "accessibility": "public",
             "parameters": [
@@ -973,12 +978,14 @@
           "$id": "66",
           "kind": "client",
           "name": "InterfaceV2",
+          "isExactName": false,
           "namespace": "Versioning.Added",
           "methods": [
             {
               "$id": "67",
               "kind": "basic",
               "name": "v2InInterface",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "v2"
@@ -986,6 +993,7 @@
               "operation": {
                 "$id": "68",
                 "name": "v2InInterface",
+                "isExactName": false,
                 "resourceName": "InterfaceV2",
                 "accessibility": "public",
                 "parameters": [

@@ -130,6 +130,7 @@
       "$id": "12",
       "kind": "client",
       "name": "EmptyClient",
+      "isExactName": false,
       "namespace": "Type.Model.Empty",
       "doc": "Illustrates usage of empty model used in operation's parameters and responses.",
       "methods": [
@@ -137,11 +138,13 @@
           "$id": "13",
           "kind": "basic",
           "name": "putEmpty",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "14",
             "name": "putEmpty",
+            "isExactName": false,
             "resourceName": "Empty",
             "accessibility": "public",
             "parameters": [
@@ -271,11 +274,13 @@
           "$id": "19",
           "kind": "basic",
           "name": "getEmpty",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "20",
             "name": "getEmpty",
+            "isExactName": false,
             "resourceName": "Empty",
             "accessibility": "public",
             "parameters": [
@@ -366,11 +371,13 @@
           "$id": "23",
           "kind": "basic",
           "name": "postRoundTripEmpty",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "24",
             "name": "postRoundTripEmpty",
+            "isExactName": false,
             "resourceName": "Empty",
             "accessibility": "public",
             "parameters": [

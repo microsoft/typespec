@@ -132,6 +132,7 @@
       "$id": "11",
       "kind": "client",
       "name": "BasicClient",
+      "isExactName": false,
       "namespace": "Parameters.Basic",
       "doc": "Test for basic parameters cases.",
       "methods": [],
@@ -177,17 +178,20 @@
           "$id": "15",
           "kind": "client",
           "name": "ExplicitBody",
+          "isExactName": false,
           "namespace": "Parameters.Basic.ExplicitBody",
           "methods": [
             {
               "$id": "16",
               "kind": "basic",
               "name": "simple",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "17",
                 "name": "simple",
+                "isExactName": false,
                 "resourceName": "ExplicitBody",
                 "accessibility": "public",
                 "parameters": [
@@ -360,17 +364,20 @@
           "$id": "25",
           "kind": "client",
           "name": "ImplicitBody",
+          "isExactName": false,
           "namespace": "Parameters.Basic.ImplicitBody",
           "methods": [
             {
               "$id": "26",
               "kind": "basic",
               "name": "simple",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "27",
                 "name": "simple",
+                "isExactName": false,
                 "resourceName": "ImplicitBody",
                 "accessibility": "public",
                 "parameters": [

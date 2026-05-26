@@ -65,6 +65,7 @@
       "$id": "5",
       "kind": "client",
       "name": "VersionedClient",
+      "isExactName": false,
       "namespace": "Server.Versions.Versioned",
       "doc": "Illustrates versioned server.",
       "methods": [
@@ -72,6 +73,7 @@
           "$id": "6",
           "kind": "basic",
           "name": "withoutApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2021-01-01-preview",
@@ -80,6 +82,7 @@
           "operation": {
             "$id": "7",
             "name": "withoutApiVersion",
+            "isExactName": false,
             "resourceName": "Versioned",
             "accessibility": "public",
             "parameters": [],
@@ -114,6 +117,7 @@
           "$id": "8",
           "kind": "basic",
           "name": "withQueryApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2021-01-01-preview",
@@ -122,6 +126,7 @@
           "operation": {
             "$id": "9",
             "name": "withQueryApiVersion",
+            "isExactName": false,
             "resourceName": "Versioned",
             "accessibility": "public",
             "parameters": [
@@ -220,6 +225,7 @@
           "$id": "16",
           "kind": "basic",
           "name": "withPathApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2021-01-01-preview",
@@ -228,6 +234,7 @@
           "operation": {
             "$id": "17",
             "name": "withPathApiVersion",
+            "isExactName": false,
             "resourceName": "Versioned",
             "accessibility": "public",
             "parameters": [
@@ -301,6 +308,7 @@
           "$id": "21",
           "kind": "basic",
           "name": "withQueryOldApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2021-01-01-preview",
@@ -309,6 +317,7 @@
           "operation": {
             "$id": "22",
             "name": "withQueryOldApiVersion",
+            "isExactName": false,
             "resourceName": "Versioned",
             "accessibility": "public",
             "parameters": [

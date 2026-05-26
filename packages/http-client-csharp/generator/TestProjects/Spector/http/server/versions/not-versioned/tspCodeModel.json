@@ -9,6 +9,7 @@
       "$id": "1",
       "kind": "client",
       "name": "NotVersionedClient",
+      "isExactName": false,
       "namespace": "Server.Versions.NotVersioned",
       "doc": "Illustrates not-versioned server.",
       "methods": [
@@ -16,11 +17,13 @@
           "$id": "2",
           "kind": "basic",
           "name": "withoutApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "3",
             "name": "withoutApiVersion",
+            "isExactName": false,
             "resourceName": "NotVersioned",
             "accessibility": "public",
             "parameters": [],
@@ -55,11 +58,13 @@
           "$id": "4",
           "kind": "basic",
           "name": "withQueryApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "5",
             "name": "withQueryApiVersion",
+            "isExactName": false,
             "resourceName": "NotVersioned",
             "accessibility": "public",
             "parameters": [
@@ -144,11 +149,13 @@
           "$id": "10",
           "kind": "basic",
           "name": "withPathApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "11",
             "name": "withPathApiVersion",
+            "isExactName": false,
             "resourceName": "NotVersioned",
             "accessibility": "public",
             "parameters": [

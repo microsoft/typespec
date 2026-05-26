@@ -416,6 +416,7 @@
       "$id": "39",
       "kind": "client",
       "name": "VisibilityClient",
+      "isExactName": false,
       "namespace": "Type.Model.Visibility",
       "doc": "Illustrates models with visibility properties.",
       "methods": [
@@ -423,11 +424,13 @@
           "$id": "40",
           "kind": "basic",
           "name": "getModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "41",
             "name": "getModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -657,11 +660,13 @@
           "$id": "51",
           "kind": "basic",
           "name": "headModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "52",
             "name": "headModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -821,11 +826,13 @@
           "$id": "59",
           "kind": "basic",
           "name": "putModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "60",
             "name": "putModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -955,11 +962,13 @@
           "$id": "65",
           "kind": "basic",
           "name": "patchModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "66",
             "name": "patchModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -1089,11 +1098,13 @@
           "$id": "71",
           "kind": "basic",
           "name": "postModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "72",
             "name": "postModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -1223,11 +1234,13 @@
           "$id": "77",
           "kind": "basic",
           "name": "deleteModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "78",
             "name": "deleteModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
@@ -1357,11 +1370,13 @@
           "$id": "83",
           "kind": "basic",
           "name": "putReadOnlyModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "84",
             "name": "putReadOnlyModel",
+            "isExactName": false,
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [

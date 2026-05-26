@@ -269,6 +269,7 @@
       "$id": "24",
       "kind": "client",
       "name": "RenamedFromClient",
+      "isExactName": false,
       "namespace": "Versioning.RenamedFrom",
       "doc": "Test for the `@renamedFrom` decorator.",
       "methods": [
@@ -276,6 +277,7 @@
           "$id": "25",
           "kind": "basic",
           "name": "oldOp",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1"
@@ -283,6 +285,7 @@
           "operation": {
             "$id": "26",
             "name": "oldOp",
+            "isExactName": false,
             "resourceName": "RenamedFrom",
             "accessibility": "public",
             "parameters": [
@@ -574,12 +577,14 @@
           "$id": "41",
           "kind": "client",
           "name": "OldInterface",
+          "isExactName": false,
           "namespace": "Versioning.RenamedFrom",
           "methods": [
             {
               "$id": "42",
               "kind": "basic",
               "name": "newOpInNewInterface",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "v1"
@@ -587,6 +592,7 @@
               "operation": {
                 "$id": "43",
                 "name": "newOpInNewInterface",
+                "isExactName": false,
                 "resourceName": "OldInterface",
                 "accessibility": "public",
                 "parameters": [

@@ -598,7 +598,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             IReadOnlyList<InputMethodParameter>? parameters = null,
             InputServiceMethodResponse? response = null,
-            InputServiceMethodResponse? exception = null)
+            InputServiceMethodResponse? exception = null,
+            bool isExactName = false)
         {
             return new InputBasicServiceMethod(
                 name,
@@ -613,7 +614,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 true,
-                string.Empty);
+                string.Empty)
+            {
+                IsExactName = isExactName,
+            };
         }
 
         public static InputPagingServiceMethod PagingServiceMethod(
@@ -657,7 +661,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string path = "",
             string httpMethod = "GET",
             bool generateConvenienceMethod = true,
-            string? ns = null)
+            string? ns = null,
+            bool isExactName = false)
         {
             var operation = new InputOperation(
                 name,
@@ -679,6 +684,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 name,
                 ns);
             operation.OriginalName = name;
+            operation.IsExactName = isExactName;
             return operation;
         }
 
@@ -731,7 +737,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Individually, bool? isMultiServiceClient = false, bool isExactName = false)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -748,6 +754,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 clientChildren,
                 apiVersions is null ? [] : [.. apiVersions]);
             client.InitializedBy = initializedBy;
+            client.IsExactName = isExactName;
             _childClientsCache[client] = clientChildren;
             // when we have a parent, we need to find the children list of this parent client and update accordingly.
             if (parent != null && _childClientsCache.TryGetValue(parent, out var children))

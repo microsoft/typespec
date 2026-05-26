@@ -33,6 +33,7 @@ export interface InputExternalTypeMetadata {
 export interface InputClient extends DecoratedType {
   kind: "client";
   name: string;
+  isExactName?: boolean;
   namespace: string;
   doc?: string;
   summary?: string;

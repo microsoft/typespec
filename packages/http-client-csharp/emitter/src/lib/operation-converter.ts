@@ -198,6 +198,7 @@ export function fromSdkServiceMethodOperation(
 
   operation = {
     name: method.name,
+    isExactName: method.isExactName,
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
@@ -273,6 +274,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   return diagnostics.wrap({
     kind: method.kind,
     name: method.name,
+    isExactName: method.isExactName,
     accessibility: method.access,
     apiVersions: method.apiVersions,
     doc: method.doc,

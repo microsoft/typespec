@@ -586,6 +586,7 @@
       "$id": "51",
       "kind": "client",
       "name": "RemovedClient",
+      "isExactName": false,
       "namespace": "Versioning.Removed",
       "doc": "Test for the `@removed` decorator.",
       "methods": [
@@ -593,6 +594,7 @@
           "$id": "52",
           "kind": "basic",
           "name": "v1",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -602,6 +604,7 @@
           "operation": {
             "$id": "53",
             "name": "v1",
+            "isExactName": false,
             "resourceName": "Removed",
             "doc": "This operation should not be generated with latest version's signature.",
             "accessibility": "public",
@@ -786,6 +789,7 @@
           "$id": "60",
           "kind": "basic",
           "name": "v2",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -794,6 +798,7 @@
           "operation": {
             "$id": "61",
             "name": "v2",
+            "isExactName": false,
             "resourceName": "Removed",
             "accessibility": "public",
             "parameters": [
@@ -1025,6 +1030,7 @@
           "$id": "72",
           "kind": "basic",
           "name": "modelV3",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -1034,6 +1040,7 @@
           "operation": {
             "$id": "73",
             "name": "modelV3",
+            "isExactName": false,
             "resourceName": "Removed",
             "doc": "This operation will pass different paths and different request bodies based on different versions.",
             "accessibility": "public",
@@ -1279,6 +1286,7 @@
           "$id": "84",
           "kind": "client",
           "name": "InterfaceV1",
+          "isExactName": false,
           "namespace": "Versioning.Removed",
           "doc": "This operation group should not be generated with latest version.",
           "methods": [
@@ -1286,6 +1294,7 @@
               "$id": "85",
               "kind": "basic",
               "name": "v1InInterface",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "v1",
@@ -1294,6 +1303,7 @@
               "operation": {
                 "$id": "86",
                 "name": "v1InInterface",
+                "isExactName": false,
                 "resourceName": "InterfaceV1",
                 "accessibility": "public",
                 "parameters": [

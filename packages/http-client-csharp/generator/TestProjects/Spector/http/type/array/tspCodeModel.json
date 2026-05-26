@@ -561,6 +561,7 @@
       "$id": "62",
       "kind": "client",
       "name": "ArrayClient",
+      "isExactName": false,
       "namespace": "Type.Array",
       "doc": "Illustrates various types of arrays.",
       "methods": [],
@@ -606,6 +607,7 @@
           "$id": "66",
           "kind": "client",
           "name": "Int32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of int32 values",
           "methods": [
@@ -613,11 +615,13 @@
               "$id": "67",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "68",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Int32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -719,11 +723,13 @@
               "$id": "73",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "74",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Int32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -896,6 +902,7 @@
           "$id": "82",
           "kind": "client",
           "name": "Int64Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of int64 values",
           "methods": [
@@ -903,11 +910,13 @@
               "$id": "83",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "84",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Int64Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1009,11 +1018,13 @@
               "$id": "89",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "90",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Int64Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1186,6 +1197,7 @@
           "$id": "98",
           "kind": "client",
           "name": "BooleanValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of boolean values",
           "methods": [
@@ -1193,11 +1205,13 @@
               "$id": "99",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "100",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "BooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1299,11 +1313,13 @@
               "$id": "105",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "106",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "BooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1476,6 +1492,7 @@
           "$id": "114",
           "kind": "client",
           "name": "StringValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of string values",
           "methods": [
@@ -1483,11 +1500,13 @@
               "$id": "115",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "116",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1589,11 +1608,13 @@
               "$id": "121",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "122",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "StringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -1766,6 +1787,7 @@
           "$id": "130",
           "kind": "client",
           "name": "Float32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of float values",
           "methods": [
@@ -1773,11 +1795,13 @@
               "$id": "131",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "132",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Float32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -1879,11 +1903,13 @@
               "$id": "137",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "138",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "Float32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -2056,6 +2082,7 @@
           "$id": "146",
           "kind": "client",
           "name": "DatetimeValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of datetime values",
           "methods": [
@@ -2063,11 +2090,13 @@
               "$id": "147",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "148",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "DatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2177,11 +2206,13 @@
               "$id": "154",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "155",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "DatetimeValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2354,6 +2385,7 @@
           "$id": "163",
           "kind": "client",
           "name": "DurationValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of duration values",
           "methods": [
@@ -2361,11 +2393,13 @@
               "$id": "164",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "DurationValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2475,11 +2509,13 @@
               "$id": "171",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "172",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "DurationValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2652,6 +2688,7 @@
           "$id": "180",
           "kind": "client",
           "name": "UnknownValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of unknown values",
           "methods": [
@@ -2659,11 +2696,13 @@
               "$id": "181",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "182",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "UnknownValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2765,11 +2804,13 @@
               "$id": "187",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "188",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "UnknownValue",
                 "accessibility": "public",
                 "parameters": [
@@ -2942,6 +2983,7 @@
           "$id": "196",
           "kind": "client",
           "name": "ModelValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of model values",
           "methods": [
@@ -2949,11 +2991,13 @@
               "$id": "197",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "198",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3044,11 +3088,13 @@
               "$id": "201",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "202",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "ModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3221,6 +3267,7 @@
           "$id": "210",
           "kind": "client",
           "name": "NullableFloatValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable float values",
           "methods": [
@@ -3228,11 +3275,13 @@
               "$id": "211",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "212",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableFloatValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3339,11 +3388,13 @@
               "$id": "218",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "219",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableFloatValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3516,6 +3567,7 @@
           "$id": "227",
           "kind": "client",
           "name": "NullableInt32Value",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable int32 values",
           "methods": [
@@ -3523,11 +3575,13 @@
               "$id": "228",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "229",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableInt32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -3634,11 +3688,13 @@
               "$id": "235",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "236",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableInt32Value",
                 "accessibility": "public",
                 "parameters": [
@@ -3811,6 +3867,7 @@
           "$id": "244",
           "kind": "client",
           "name": "NullableBooleanValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable boolean values",
           "methods": [
@@ -3818,11 +3875,13 @@
               "$id": "245",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "246",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableBooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -3929,11 +3988,13 @@
               "$id": "252",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "253",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableBooleanValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4106,6 +4167,7 @@
           "$id": "261",
           "kind": "client",
           "name": "NullableStringValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable string values",
           "methods": [
@@ -4113,11 +4175,13 @@
               "$id": "262",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "263",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableStringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4224,11 +4288,13 @@
               "$id": "269",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "270",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableStringValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4401,6 +4467,7 @@
           "$id": "278",
           "kind": "client",
           "name": "NullableModelValue",
+          "isExactName": false,
           "namespace": "Type.Array",
           "doc": "Array of nullable model values",
           "methods": [
@@ -4408,11 +4475,13 @@
               "$id": "279",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "280",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "NullableModelValue",
                 "accessibility": "public",
                 "parameters": [
@@ -4515,11 +4584,13 @@
               "$id": "285",
               "kind": "basic",
               "name": "put",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "286",
                 "name": "put",
+                "isExactName": false,
                 "resourceName": "NullableModelValue",
                 "accessibility": "public",
                 "parameters": [

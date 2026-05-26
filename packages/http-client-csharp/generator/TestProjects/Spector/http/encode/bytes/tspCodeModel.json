@@ -644,6 +644,7 @@
       "$id": "67",
       "kind": "client",
       "name": "BytesClient",
+      "isExactName": false,
       "namespace": "Encode.Bytes",
       "doc": "Test for encode decorator on bytes.",
       "methods": [],
@@ -689,17 +690,20 @@
           "$id": "71",
           "kind": "client",
           "name": "Query",
+          "isExactName": false,
           "namespace": "Encode.Bytes.Query",
           "methods": [
             {
               "$id": "72",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "73",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -786,11 +790,13 @@
               "$id": "78",
               "kind": "basic",
               "name": "base64",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "79",
                 "name": "base64",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -877,11 +883,13 @@
               "$id": "84",
               "kind": "basic",
               "name": "base64url",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "85",
                 "name": "base64url",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -968,11 +976,13 @@
               "$id": "90",
               "kind": "basic",
               "name": "base64urlArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "91",
                 "name": "base64urlArray",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -1093,17 +1103,20 @@
           "$id": "97",
           "kind": "client",
           "name": "Property",
+          "isExactName": false,
           "namespace": "Encode.Bytes.Property",
           "methods": [
             {
               "$id": "98",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "99",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1287,11 +1300,13 @@
               "$id": "106",
               "kind": "basic",
               "name": "base64",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "107",
                 "name": "base64",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1475,11 +1490,13 @@
               "$id": "114",
               "kind": "basic",
               "name": "base64url",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "115",
                 "name": "base64url",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1663,11 +1680,13 @@
               "$id": "122",
               "kind": "basic",
               "name": "base64urlArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "123",
                 "name": "base64urlArray",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1894,17 +1913,20 @@
           "$id": "133",
           "kind": "client",
           "name": "Header",
+          "isExactName": false,
           "namespace": "Encode.Bytes.Header",
           "methods": [
             {
               "$id": "134",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "135",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -1991,11 +2013,13 @@
               "$id": "140",
               "kind": "basic",
               "name": "base64",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "141",
                 "name": "base64",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2082,11 +2106,13 @@
               "$id": "146",
               "kind": "basic",
               "name": "base64url",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "147",
                 "name": "base64url",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2173,11 +2199,13 @@
               "$id": "152",
               "kind": "basic",
               "name": "base64urlArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "153",
                 "name": "base64urlArray",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2299,17 +2327,20 @@
           "$id": "159",
           "kind": "client",
           "name": "RequestBody",
+          "isExactName": false,
           "namespace": "Encode.Bytes.RequestBody",
           "methods": [
             {
               "$id": "160",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "161",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
                 "parameters": [
@@ -2443,11 +2474,13 @@
               "$id": "168",
               "kind": "basic",
               "name": "octetStream",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "169",
                 "name": "octetStream",
+                "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
                 "parameters": [
@@ -2579,11 +2612,13 @@
               "$id": "176",
               "kind": "basic",
               "name": "customContentType",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "177",
                 "name": "customContentType",
+                "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
                 "parameters": [
@@ -2715,11 +2750,13 @@
               "$id": "184",
               "kind": "basic",
               "name": "base64",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "185",
                 "name": "base64",
+                "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
                 "parameters": [
@@ -2857,11 +2894,13 @@
               "$id": "192",
               "kind": "basic",
               "name": "base64url",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "193",
                 "name": "base64url",
+                "isExactName": false,
                 "resourceName": "RequestBody",
                 "accessibility": "public",
                 "parameters": [
@@ -3042,17 +3081,20 @@
           "$id": "203",
           "kind": "client",
           "name": "ResponseBody",
+          "isExactName": false,
           "namespace": "Encode.Bytes.ResponseBody",
           "methods": [
             {
               "$id": "204",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "205",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
                 "parameters": [
@@ -3143,11 +3185,13 @@
               "$id": "209",
               "kind": "basic",
               "name": "octetStream",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "210",
                 "name": "octetStream",
+                "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
                 "parameters": [
@@ -3246,11 +3290,13 @@
               "$id": "214",
               "kind": "basic",
               "name": "customContentType",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "215",
                 "name": "customContentType",
+                "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
                 "parameters": [
@@ -3349,11 +3395,13 @@
               "$id": "219",
               "kind": "basic",
               "name": "base64",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "220",
                 "name": "base64",
+                "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
                 "parameters": [
@@ -3457,11 +3505,13 @@
               "$id": "224",
               "kind": "basic",
               "name": "base64url",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "225",
                 "name": "base64url",
+                "isExactName": false,
                 "resourceName": "ResponseBody",
                 "accessibility": "public",
                 "parameters": [

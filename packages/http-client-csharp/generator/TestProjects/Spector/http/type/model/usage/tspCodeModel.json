@@ -211,6 +211,7 @@
       "$id": "18",
       "kind": "client",
       "name": "UsageClient",
+      "isExactName": false,
       "namespace": "Type.Model.Usage",
       "doc": "Illustrates usage of Record in different places(Operation parameters, return type or both).",
       "methods": [
@@ -218,11 +219,13 @@
           "$id": "19",
           "kind": "basic",
           "name": "input",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "20",
             "name": "input",
+            "isExactName": false,
             "resourceName": "Usage",
             "accessibility": "public",
             "parameters": [
@@ -352,11 +355,13 @@
           "$id": "25",
           "kind": "basic",
           "name": "output",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "26",
             "name": "output",
+            "isExactName": false,
             "resourceName": "Usage",
             "accessibility": "public",
             "parameters": [
@@ -447,11 +452,13 @@
           "$id": "29",
           "kind": "basic",
           "name": "inputAndOutput",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "30",
             "name": "inputAndOutput",
+            "isExactName": false,
             "resourceName": "Usage",
             "accessibility": "public",
             "parameters": [

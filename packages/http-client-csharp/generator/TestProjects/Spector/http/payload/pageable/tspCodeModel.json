@@ -1621,6 +1621,7 @@
       "$id": "110",
       "kind": "client",
       "name": "PageableClient",
+      "isExactName": false,
       "namespace": "Payload.Pageable",
       "doc": "Test for pageable payload.",
       "methods": [],
@@ -1666,17 +1667,20 @@
           "$id": "114",
           "kind": "client",
           "name": "ServerDrivenPagination",
+          "isExactName": false,
           "namespace": "Payload.Pageable.ServerDrivenPagination",
           "methods": [
             {
               "$id": "115",
               "kind": "paging",
               "name": "link",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "116",
                 "name": "link",
+                "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
                 "parameters": [
@@ -1782,11 +1786,13 @@
               "$id": "119",
               "kind": "paging",
               "name": "linkString",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "120",
                 "name": "linkString",
+                "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
                 "parameters": [
@@ -1892,11 +1898,13 @@
               "$id": "123",
               "kind": "paging",
               "name": "nestedLink",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "124",
                 "name": "nestedLink",
+                "isExactName": false,
                 "resourceName": "ServerDrivenPagination",
                 "accessibility": "public",
                 "parameters": [
@@ -2047,6 +2055,7 @@
               "$id": "130",
               "kind": "client",
               "name": "AlternateInitialVerb",
+              "isExactName": false,
               "namespace": "Payload.Pageable.ServerDrivenPagination.AlternateInitialVerb",
               "doc": "Scenario where the initial request is not a GET request. However following the next link always result in a GET request.",
               "methods": [
@@ -2054,11 +2063,13 @@
                   "$id": "131",
                   "kind": "paging",
                   "name": "post",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "132",
                     "name": "post",
+                    "isExactName": false,
                     "resourceName": "AlternateInitialVerb",
                     "accessibility": "public",
                     "parameters": [
@@ -2300,17 +2311,20 @@
               "$id": "142",
               "kind": "client",
               "name": "ContinuationToken",
+              "isExactName": false,
               "namespace": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
               "methods": [
                 {
                   "$id": "143",
                   "kind": "paging",
                   "name": "requestQueryResponseBody",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "144",
                     "name": "requestQueryResponseBody",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -2563,11 +2577,13 @@
                   "$id": "159",
                   "kind": "paging",
                   "name": "requestHeaderResponseBody",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "160",
                     "name": "requestHeaderResponseBody",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -2820,11 +2836,13 @@
                   "$id": "175",
                   "kind": "paging",
                   "name": "requestQueryResponseHeader",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "176",
                     "name": "requestQueryResponseHeader",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -3089,11 +3107,13 @@
                   "$id": "192",
                   "kind": "paging",
                   "name": "requestHeaderResponseHeader",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "193",
                     "name": "requestHeaderResponseHeader",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -3358,11 +3378,13 @@
                   "$id": "209",
                   "kind": "paging",
                   "name": "requestQueryNestedResponseBody",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "210",
                     "name": "requestQueryNestedResponseBody",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -3618,11 +3640,13 @@
                   "$id": "225",
                   "kind": "paging",
                   "name": "requestHeaderNestedResponseBody",
+                  "isExactName": false,
                   "accessibility": "public",
                   "apiVersions": [],
                   "operation": {
                     "$id": "226",
                     "name": "requestHeaderNestedResponseBody",
+                    "isExactName": false,
                     "resourceName": "ContinuationToken",
                     "accessibility": "public",
                     "parameters": [
@@ -3924,17 +3948,20 @@
           "$id": "244",
           "kind": "client",
           "name": "PageSize",
+          "isExactName": false,
           "namespace": "Payload.Pageable.PageSize",
           "methods": [
             {
               "$id": "245",
               "kind": "paging",
               "name": "listWithoutContinuation",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "246",
                 "name": "listWithoutContinuation",
+                "isExactName": false,
                 "resourceName": "PageSize",
                 "accessibility": "public",
                 "parameters": [
@@ -4034,11 +4061,13 @@
               "$id": "249",
               "kind": "paging",
               "name": "listWithPageSize",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "250",
                 "name": "listWithPageSize",
+                "isExactName": false,
                 "resourceName": "PageSize",
                 "accessibility": "public",
                 "parameters": [
@@ -4231,17 +4260,20 @@
           "$id": "260",
           "kind": "client",
           "name": "XmlPagination",
+          "isExactName": false,
           "namespace": "Payload.Pageable.XmlPagination",
           "methods": [
             {
               "$id": "261",
               "kind": "paging",
               "name": "listWithContinuation",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "262",
                 "name": "listWithContinuation",
+                "isExactName": false,
                 "resourceName": "XmlPagination",
                 "accessibility": "public",
                 "parameters": [
@@ -4406,11 +4438,13 @@
               "$id": "269",
               "kind": "paging",
               "name": "listWithNextLink",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "270",
                 "name": "listWithNextLink",
+                "isExactName": false,
                 "resourceName": "XmlPagination",
                 "accessibility": "public",
                 "parameters": [

@@ -458,6 +458,7 @@
       "$id": "44",
       "kind": "client",
       "name": "DatetimeClient",
+      "isExactName": false,
       "namespace": "Encode.Datetime",
       "doc": "Test for encode decorator on datetime.",
       "methods": [],
@@ -503,17 +504,20 @@
           "$id": "48",
           "kind": "client",
           "name": "Query",
+          "isExactName": false,
           "namespace": "Encode.Datetime.Query",
           "methods": [
             {
               "$id": "49",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "50",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -614,11 +618,13 @@
               "$id": "57",
               "kind": "basic",
               "name": "rfc3339",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "58",
                 "name": "rfc3339",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -719,11 +725,13 @@
               "$id": "65",
               "kind": "basic",
               "name": "rfc7231",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "66",
                 "name": "rfc7231",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -824,11 +832,13 @@
               "$id": "73",
               "kind": "basic",
               "name": "unixTimestamp",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "74",
                 "name": "unixTimestamp",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -929,11 +939,13 @@
               "$id": "81",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "82",
                 "name": "unixTimestampArray",
+                "isExactName": false,
                 "resourceName": "Query",
                 "accessibility": "public",
                 "parameters": [
@@ -1054,17 +1066,20 @@
           "$id": "88",
           "kind": "client",
           "name": "Property",
+          "isExactName": false,
           "namespace": "Encode.Datetime.Property",
           "methods": [
             {
               "$id": "89",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "90",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1248,11 +1263,13 @@
               "$id": "97",
               "kind": "basic",
               "name": "rfc3339",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "98",
                 "name": "rfc3339",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1436,11 +1453,13 @@
               "$id": "105",
               "kind": "basic",
               "name": "rfc7231",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "106",
                 "name": "rfc7231",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1624,11 +1643,13 @@
               "$id": "113",
               "kind": "basic",
               "name": "unixTimestamp",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "114",
                 "name": "unixTimestamp",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -1812,11 +1833,13 @@
               "$id": "121",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "122",
                 "name": "unixTimestampArray",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -2043,17 +2066,20 @@
           "$id": "132",
           "kind": "client",
           "name": "Header",
+          "isExactName": false,
           "namespace": "Encode.Datetime.Header",
           "methods": [
             {
               "$id": "133",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "134",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2154,11 +2180,13 @@
               "$id": "141",
               "kind": "basic",
               "name": "rfc3339",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "142",
                 "name": "rfc3339",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2259,11 +2287,13 @@
               "$id": "149",
               "kind": "basic",
               "name": "rfc7231",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "150",
                 "name": "rfc7231",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2364,11 +2394,13 @@
               "$id": "157",
               "kind": "basic",
               "name": "unixTimestamp",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "158",
                 "name": "unixTimestamp",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2469,11 +2501,13 @@
               "$id": "165",
               "kind": "basic",
               "name": "unixTimestampArray",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "166",
                 "name": "unixTimestampArray",
+                "isExactName": false,
                 "resourceName": "Header",
                 "accessibility": "public",
                 "parameters": [
@@ -2595,17 +2629,20 @@
           "$id": "172",
           "kind": "client",
           "name": "ResponseHeader",
+          "isExactName": false,
           "namespace": "Encode.Datetime.ResponseHeader",
           "methods": [
             {
               "$id": "173",
               "kind": "basic",
               "name": "default",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "174",
                 "name": "default",
+                "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
                 "parameters": [],
@@ -2660,11 +2697,13 @@
               "$id": "177",
               "kind": "basic",
               "name": "rfc3339",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "178",
                 "name": "rfc3339",
+                "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
                 "parameters": [],
@@ -2719,11 +2758,13 @@
               "$id": "181",
               "kind": "basic",
               "name": "rfc7231",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "182",
                 "name": "rfc7231",
+                "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
                 "parameters": [],
@@ -2778,11 +2819,13 @@
               "$id": "185",
               "kind": "basic",
               "name": "unixTimestamp",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "186",
                 "name": "unixTimestamp",
+                "isExactName": false,
                 "resourceName": "ResponseHeader",
                 "accessibility": "public",
                 "parameters": [],

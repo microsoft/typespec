@@ -214,6 +214,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
+            // When the operation name is marked as exact, preserve it verbatim without any casing
+            // transformations or convention-based renames (e.g. "List" -> "GetAll").
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name;
+            }
+
             var operationName = serviceMethod.Operation.Name.ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
@@ -417,7 +424,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {

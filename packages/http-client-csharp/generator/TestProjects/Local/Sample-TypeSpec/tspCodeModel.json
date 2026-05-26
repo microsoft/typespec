@@ -6945,6 +6945,7 @@
       "$id": "532",
       "kind": "client",
       "name": "SampleTypeSpecClient",
+      "isExactName": false,
       "namespace": "SampleTypeSpec",
       "doc": "This is a sample typespec project.",
       "methods": [
@@ -6952,6 +6953,7 @@
           "$id": "533",
           "kind": "basic",
           "name": "sayHi",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -6961,6 +6963,7 @@
           "operation": {
             "$id": "534",
             "name": "sayHi",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi",
             "accessibility": "public",
@@ -7196,6 +7199,7 @@
           "$id": "549",
           "kind": "basic",
           "name": "helloAgain",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -7205,6 +7209,7 @@
           "operation": {
             "$id": "550",
             "name": "helloAgain",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
@@ -7482,6 +7487,7 @@
           "$id": "565",
           "kind": "basic",
           "name": "noContentType",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -7491,6 +7497,7 @@
           "operation": {
             "$id": "566",
             "name": "noContentType",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
@@ -7787,6 +7794,7 @@
           "$id": "580",
           "kind": "basic",
           "name": "helloDemo2",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -7796,6 +7804,7 @@
           "operation": {
             "$id": "581",
             "name": "helloDemo2",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi in demo2",
             "accessibility": "public",
@@ -7887,6 +7896,7 @@
           "$id": "584",
           "kind": "basic",
           "name": "createLiteral",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -7896,6 +7906,7 @@
           "operation": {
             "$id": "585",
             "name": "createLiteral",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Create with literal value",
             "accessibility": "public",
@@ -8080,6 +8091,7 @@
           "$id": "592",
           "kind": "basic",
           "name": "helloLiteral",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -8089,6 +8101,7 @@
           "operation": {
             "$id": "593",
             "name": "helloLiteral",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Send literal parameters",
             "accessibility": "public",
@@ -8303,6 +8316,7 @@
           "$id": "602",
           "kind": "basic",
           "name": "topAction",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -8312,6 +8326,7 @@
           "operation": {
             "$id": "603",
             "name": "topAction",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level method",
             "accessibility": "public",
@@ -8470,6 +8485,7 @@
           "$id": "612",
           "kind": "basic",
           "name": "topAction2",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -8479,6 +8495,7 @@
           "operation": {
             "$id": "613",
             "name": "topAction2",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level method2",
             "accessibility": "public",
@@ -8570,6 +8587,7 @@
           "$id": "616",
           "kind": "basic",
           "name": "patchAction",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -8579,6 +8597,7 @@
           "operation": {
             "$id": "617",
             "name": "patchAction",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "top level patch",
             "accessibility": "public",
@@ -8763,6 +8782,7 @@
           "$id": "624",
           "kind": "basic",
           "name": "anonymousBody",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -8772,6 +8792,7 @@
           "operation": {
             "$id": "625",
             "name": "anonymousBody",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "body parameter without body decorator",
             "accessibility": "public",
@@ -9464,6 +9485,7 @@
           "$id": "667",
           "kind": "basic",
           "name": "friendlyModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -9473,6 +9495,7 @@
           "operation": {
             "$id": "668",
             "name": "friendlyModel",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its friendly name",
             "accessibility": "public",
@@ -9662,6 +9685,7 @@
           "$id": "676",
           "kind": "basic",
           "name": "addTimeHeader",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -9670,6 +9694,7 @@
           "operation": {
             "$id": "677",
             "name": "addTimeHeader",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
@@ -9770,6 +9795,7 @@
           "$id": "684",
           "kind": "basic",
           "name": "projectedNameModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -9779,6 +9805,7 @@
           "operation": {
             "$id": "685",
             "name": "projectedNameModel",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its projected name",
             "accessibility": "public",
@@ -9968,6 +9995,7 @@
           "$id": "693",
           "kind": "basic",
           "name": "returnsAnonymousModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -9977,6 +10005,7 @@
           "operation": {
             "$id": "694",
             "name": "returnsAnonymousModel",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "return anonymous model",
             "accessibility": "public",
@@ -10068,6 +10097,7 @@
           "$id": "697",
           "kind": "basic",
           "name": "getUnknownValue",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10077,6 +10107,7 @@
           "operation": {
             "$id": "698",
             "name": "getUnknownValue",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "get extensible enum",
             "accessibility": "public",
@@ -10164,6 +10195,7 @@
           "$id": "701",
           "kind": "basic",
           "name": "internalProtocol",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10173,6 +10205,7 @@
           "operation": {
             "$id": "702",
             "name": "internalProtocol",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, then the protocol method should be internal",
             "accessibility": "public",
@@ -10357,6 +10390,7 @@
           "$id": "709",
           "kind": "basic",
           "name": "stillConvenient",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10366,6 +10400,7 @@
           "operation": {
             "$id": "710",
             "name": "stillConvenient",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
             "accessibility": "public",
@@ -10401,6 +10436,7 @@
           "$id": "711",
           "kind": "basic",
           "name": "headAsBoolean",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10410,6 +10446,7 @@
           "operation": {
             "$id": "712",
             "name": "headAsBoolean",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "head as boolean.",
             "accessibility": "public",
@@ -10498,6 +10535,7 @@
           "$id": "717",
           "kind": "basic",
           "name": "WithApiVersion",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10507,6 +10545,7 @@
           "operation": {
             "$id": "718",
             "name": "WithApiVersion",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
@@ -10655,6 +10694,7 @@
           "$id": "729",
           "kind": "paging",
           "name": "ListWithNextLink",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10664,6 +10704,7 @@
           "operation": {
             "$id": "730",
             "name": "ListWithNextLink",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
@@ -10770,6 +10811,7 @@
           "$id": "733",
           "kind": "paging",
           "name": "ListWithStringNextLink",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10779,6 +10821,7 @@
           "operation": {
             "$id": "734",
             "name": "ListWithStringNextLink",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
@@ -10885,6 +10928,7 @@
           "$id": "737",
           "kind": "paging",
           "name": "ListWithContinuationToken",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -10894,6 +10938,7 @@
           "operation": {
             "$id": "738",
             "name": "ListWithContinuationToken",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token",
             "accessibility": "public",
@@ -11051,6 +11096,7 @@
           "$id": "745",
           "kind": "paging",
           "name": "ListWithContinuationTokenHeaderResponse",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11060,6 +11106,7 @@
           "operation": {
             "$id": "746",
             "name": "ListWithContinuationTokenHeaderResponse",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token header response",
             "accessibility": "public",
@@ -11229,6 +11276,7 @@
           "$id": "754",
           "kind": "paging",
           "name": "ListWithPaging",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11238,6 +11286,7 @@
           "operation": {
             "$id": "755",
             "name": "ListWithPaging",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "List things with paging",
             "accessibility": "public",
@@ -11338,6 +11387,7 @@
           "$id": "758",
           "kind": "basic",
           "name": "EmbeddedParameters",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11347,6 +11397,7 @@
           "operation": {
             "$id": "759",
             "name": "EmbeddedParameters",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with embedded parameters within the body",
             "accessibility": "public",
@@ -11661,6 +11712,7 @@
           "$id": "776",
           "kind": "basic",
           "name": "DynamicModelOperation",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11670,6 +11722,7 @@
           "operation": {
             "$id": "777",
             "name": "DynamicModelOperation",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with a dynamic model",
             "accessibility": "public",
@@ -11800,6 +11853,7 @@
           "$id": "782",
           "kind": "basic",
           "name": "GetXmlAdvancedModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11809,6 +11863,7 @@
           "operation": {
             "$id": "783",
             "name": "GetXmlAdvancedModel",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Get an advanced XML model with various property types",
             "accessibility": "public",
@@ -11908,6 +11963,7 @@
           "$id": "786",
           "kind": "basic",
           "name": "UpdateXmlAdvancedModel",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "2024-07-16-preview",
@@ -11917,6 +11973,7 @@
           "operation": {
             "$id": "787",
             "name": "UpdateXmlAdvancedModel",
+            "isExactName": false,
             "resourceName": "SampleTypeSpec",
             "doc": "Update an advanced XML model with various property types",
             "accessibility": "public",
@@ -12142,12 +12199,14 @@
           "$id": "796",
           "kind": "client",
           "name": "AnimalOperations",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "797",
               "kind": "basic",
               "name": "updatePetAsAnimal",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -12157,6 +12216,7 @@
               "operation": {
                 "$id": "798",
                 "name": "updatePetAsAnimal",
+                "isExactName": false,
                 "resourceName": "AnimalOperations",
                 "doc": "Update a pet as an animal",
                 "accessibility": "public",
@@ -12341,6 +12401,7 @@
               "$id": "805",
               "kind": "basic",
               "name": "updateDogAsAnimal",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -12350,6 +12411,7 @@
               "operation": {
                 "$id": "806",
                 "name": "updateDogAsAnimal",
+                "isExactName": false,
                 "resourceName": "AnimalOperations",
                 "doc": "Update a dog as an animal",
                 "accessibility": "public",
@@ -12570,12 +12632,14 @@
           "$id": "815",
           "kind": "client",
           "name": "PetOperations",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "816",
               "kind": "basic",
               "name": "updatePetAsPet",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -12585,6 +12649,7 @@
               "operation": {
                 "$id": "817",
                 "name": "updatePetAsPet",
+                "isExactName": false,
                 "resourceName": "PetOperations",
                 "doc": "Update a pet as a pet",
                 "accessibility": "public",
@@ -12769,6 +12834,7 @@
               "$id": "824",
               "kind": "basic",
               "name": "updateDogAsPet",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -12778,6 +12844,7 @@
               "operation": {
                 "$id": "825",
                 "name": "updateDogAsPet",
+                "isExactName": false,
                 "resourceName": "PetOperations",
                 "doc": "Update a dog as a pet",
                 "accessibility": "public",
@@ -12998,12 +13065,14 @@
           "$id": "834",
           "kind": "client",
           "name": "DogOperations",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "835",
               "kind": "basic",
               "name": "updateDogAsDog",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13013,6 +13082,7 @@
               "operation": {
                 "$id": "836",
                 "name": "updateDogAsDog",
+                "isExactName": false,
                 "resourceName": "DogOperations",
                 "doc": "Update a dog as a dog",
                 "accessibility": "public",
@@ -13233,12 +13303,14 @@
           "$id": "845",
           "kind": "client",
           "name": "PlantOperations",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "846",
               "kind": "basic",
               "name": "getTree",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13248,6 +13320,7 @@
               "operation": {
                 "$id": "847",
                 "name": "getTree",
+                "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
                 "accessibility": "public",
@@ -13347,6 +13420,7 @@
               "$id": "850",
               "kind": "basic",
               "name": "getTreeAsJson",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13356,6 +13430,7 @@
               "operation": {
                 "$id": "851",
                 "name": "getTreeAsJson",
+                "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
                 "accessibility": "public",
@@ -13455,6 +13530,7 @@
               "$id": "854",
               "kind": "basic",
               "name": "updateTree",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13464,6 +13540,7 @@
               "operation": {
                 "$id": "855",
                 "name": "updateTree",
+                "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
                 "accessibility": "public",
@@ -13654,6 +13731,7 @@
               "$id": "862",
               "kind": "basic",
               "name": "updateTreeAsJson",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13663,6 +13741,7 @@
               "operation": {
                 "$id": "863",
                 "name": "updateTreeAsJson",
+                "isExactName": false,
                 "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
                 "accessibility": "public",
@@ -13889,12 +13968,14 @@
           "$id": "872",
           "kind": "client",
           "name": "Metrics",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "873",
               "kind": "basic",
               "name": "getWidgetMetrics",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -13904,6 +13985,7 @@
               "operation": {
                 "$id": "874",
                 "name": "getWidgetMetrics",
+                "isExactName": false,
                 "resourceName": "Metrics",
                 "doc": "Get Widget metrics for given day of week",
                 "accessibility": "public",
@@ -14125,12 +14207,14 @@
           "$id": "885",
           "kind": "client",
           "name": "Notebooks",
+          "isExactName": false,
           "namespace": "SampleTypeSpec",
           "methods": [
             {
               "$id": "886",
               "kind": "basic",
               "name": "getNotebook",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [
                 "2024-07-16-preview",
@@ -14140,6 +14224,7 @@
               "operation": {
                 "$id": "887",
                 "name": "getNotebook",
+                "isExactName": false,
                 "resourceName": "Notebooks",
                 "doc": "Get a notebook by name",
                 "accessibility": "public",

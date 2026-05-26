@@ -2194,6 +2194,7 @@
       "$id": "159",
       "kind": "client",
       "name": "UnionClient",
+      "isExactName": false,
       "namespace": "Type.Union",
       "doc": "Describe scenarios for various combinations of unions.",
       "methods": [],
@@ -2239,6 +2240,7 @@
           "$id": "163",
           "kind": "client",
           "name": "StringsOnly",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of string \"a\" | \"b\" | \"c\"",
           "methods": [
@@ -2246,11 +2248,13 @@
               "$id": "164",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "165",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -2341,11 +2345,13 @@
               "$id": "168",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "169",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "StringsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -2518,6 +2524,7 @@
           "$id": "177",
           "kind": "client",
           "name": "StringExtensible",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of string string | \"b\" | \"c\"",
           "methods": [
@@ -2525,11 +2532,13 @@
               "$id": "178",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "179",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringExtensible",
                 "accessibility": "public",
                 "parameters": [
@@ -2620,11 +2629,13 @@
               "$id": "182",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "183",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "StringExtensible",
                 "accessibility": "public",
                 "parameters": [
@@ -2797,6 +2808,7 @@
           "$id": "191",
           "kind": "client",
           "name": "StringExtensibleNamed",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
           "methods": [
@@ -2804,11 +2816,13 @@
               "$id": "192",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "193",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringExtensibleNamed",
                 "accessibility": "public",
                 "parameters": [
@@ -2899,11 +2913,13 @@
               "$id": "196",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "197",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "StringExtensibleNamed",
                 "accessibility": "public",
                 "parameters": [
@@ -3076,6 +3092,7 @@
           "$id": "205",
           "kind": "client",
           "name": "IntsOnly",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of integer 1 | 2 | 3",
           "methods": [
@@ -3083,11 +3100,13 @@
               "$id": "206",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "207",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "IntsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3178,11 +3197,13 @@
               "$id": "210",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "211",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "IntsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3355,6 +3376,7 @@
           "$id": "219",
           "kind": "client",
           "name": "FloatsOnly",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of floats 1.1 | 2.2 | 3.3",
           "methods": [
@@ -3362,11 +3384,13 @@
               "$id": "220",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "221",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "FloatsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3457,11 +3481,13 @@
               "$id": "224",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "225",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "FloatsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3634,6 +3660,7 @@
           "$id": "233",
           "kind": "client",
           "name": "ModelsOnly",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of models",
           "methods": [
@@ -3641,11 +3668,13 @@
               "$id": "234",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "235",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "ModelsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3736,11 +3765,13 @@
               "$id": "238",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "239",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "ModelsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -3913,6 +3944,7 @@
           "$id": "247",
           "kind": "client",
           "name": "EnumsOnly",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of 2 different enums",
           "methods": [
@@ -3920,11 +3952,13 @@
               "$id": "248",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "249",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "EnumsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -4015,11 +4049,13 @@
               "$id": "252",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "253",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "EnumsOnly",
                 "accessibility": "public",
                 "parameters": [
@@ -4192,6 +4228,7 @@
           "$id": "261",
           "kind": "client",
           "name": "StringAndArray",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of a string and an array of strings",
           "methods": [
@@ -4199,11 +4236,13 @@
               "$id": "262",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "263",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "StringAndArray",
                 "accessibility": "public",
                 "parameters": [
@@ -4294,11 +4333,13 @@
               "$id": "266",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "267",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "StringAndArray",
                 "accessibility": "public",
                 "parameters": [
@@ -4471,6 +4512,7 @@
           "$id": "275",
           "kind": "client",
           "name": "MixedLiterals",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of floats \"a\" | 2 | 3.3",
           "methods": [
@@ -4478,11 +4520,13 @@
               "$id": "276",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "277",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "MixedLiterals",
                 "accessibility": "public",
                 "parameters": [
@@ -4573,11 +4617,13 @@
               "$id": "280",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "281",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "MixedLiterals",
                 "accessibility": "public",
                 "parameters": [
@@ -4750,6 +4796,7 @@
           "$id": "289",
           "kind": "client",
           "name": "MixedTypes",
+          "isExactName": false,
           "namespace": "Type.Union",
           "doc": "Describe union of floats \"a\" | 2 | 3.3",
           "methods": [
@@ -4757,11 +4804,13 @@
               "$id": "290",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "291",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "MixedTypes",
                 "accessibility": "public",
                 "parameters": [
@@ -4852,11 +4901,13 @@
               "$id": "294",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "295",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "MixedTypes",
                 "accessibility": "public",
                 "parameters": [

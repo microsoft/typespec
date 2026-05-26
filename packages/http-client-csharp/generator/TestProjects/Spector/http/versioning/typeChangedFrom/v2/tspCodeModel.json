@@ -170,6 +170,7 @@
       "$id": "14",
       "kind": "client",
       "name": "TypeChangedFromClient",
+      "isExactName": false,
       "namespace": "Versioning.TypeChangedFrom",
       "doc": "Test for the `@typeChangedFrom` decorator.",
       "methods": [
@@ -177,6 +178,7 @@
           "$id": "15",
           "kind": "basic",
           "name": "test",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1",
@@ -185,6 +187,7 @@
           "operation": {
             "$id": "16",
             "name": "test",
+            "isExactName": false,
             "resourceName": "TypeChangedFrom",
             "accessibility": "public",
             "parameters": [

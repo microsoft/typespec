@@ -118,6 +118,7 @@
       "$id": "12",
       "kind": "client",
       "name": "ReturnTypeChangedFromClient",
+      "isExactName": false,
       "namespace": "Versioning.ReturnTypeChangedFrom",
       "doc": "Test for the `@returnTypeChangedFrom` decorator.",
       "methods": [
@@ -125,6 +126,7 @@
           "$id": "13",
           "kind": "basic",
           "name": "test",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [
             "v1"
@@ -132,6 +134,7 @@
           "operation": {
             "$id": "14",
             "name": "test",
+            "isExactName": false,
             "resourceName": "ReturnTypeChangedFrom",
             "accessibility": "public",
             "parameters": [

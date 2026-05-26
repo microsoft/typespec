@@ -59,6 +59,7 @@
       "$id": "5",
       "kind": "client",
       "name": "RepeatabilityClient",
+      "isExactName": false,
       "namespace": "SpecialHeaders.Repeatability",
       "doc": "Illustrates OASIS repeatability headers",
       "methods": [
@@ -66,12 +67,14 @@
           "$id": "6",
           "kind": "basic",
           "name": "immediateSuccess",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
           "operation": {
             "$id": "7",
             "name": "immediateSuccess",
+            "isExactName": false,
             "resourceName": "Repeatability",
             "doc": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
             "accessibility": "public",

@@ -89,6 +89,7 @@
       "$id": "8",
       "kind": "client",
       "name": "JsonClient",
+      "isExactName": false,
       "namespace": "Serialization.EncodedName.Json",
       "doc": "Encoded names",
       "methods": [],
@@ -134,17 +135,20 @@
           "$id": "12",
           "kind": "client",
           "name": "Property",
+          "isExactName": false,
           "namespace": "Serialization.EncodedName.Json.Property",
           "methods": [
             {
               "$id": "13",
               "kind": "basic",
               "name": "send",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "14",
                 "name": "send",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -274,11 +278,13 @@
               "$id": "19",
               "kind": "basic",
               "name": "get",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "20",
                 "name": "get",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [

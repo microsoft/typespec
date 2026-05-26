@@ -217,6 +217,7 @@
       "$id": "18",
       "kind": "client",
       "name": "NotDiscriminatedClient",
+      "isExactName": false,
       "namespace": "Type.Model.Inheritance.NotDiscriminated",
       "doc": "Illustrates not-discriminated inheritance model.",
       "methods": [
@@ -224,11 +225,13 @@
           "$id": "19",
           "kind": "basic",
           "name": "postValid",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "20",
             "name": "postValid",
+            "isExactName": false,
             "resourceName": "NotDiscriminated",
             "accessibility": "public",
             "parameters": [
@@ -358,11 +361,13 @@
           "$id": "25",
           "kind": "basic",
           "name": "getValid",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "26",
             "name": "getValid",
+            "isExactName": false,
             "resourceName": "NotDiscriminated",
             "accessibility": "public",
             "parameters": [
@@ -453,11 +458,13 @@
           "$id": "29",
           "kind": "basic",
           "name": "putValid",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "30",
             "name": "putValid",
+            "isExactName": false,
             "resourceName": "NotDiscriminated",
             "accessibility": "public",
             "parameters": [

@@ -245,6 +245,7 @@
       "$id": "22",
       "kind": "client",
       "name": "NumericClient",
+      "isExactName": false,
       "namespace": "Encode.Numeric",
       "doc": "Test for encode decorator on integer.",
       "methods": [],
@@ -290,17 +291,20 @@
           "$id": "26",
           "kind": "client",
           "name": "Property",
+          "isExactName": false,
           "namespace": "Encode.Numeric.Property",
           "methods": [
             {
               "$id": "27",
               "kind": "basic",
               "name": "safeintAsString",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "28",
                 "name": "safeintAsString",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -484,11 +488,13 @@
               "$id": "35",
               "kind": "basic",
               "name": "uint32AsStringOptional",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "36",
                 "name": "uint32AsStringOptional",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
@@ -672,11 +678,13 @@
               "$id": "43",
               "kind": "basic",
               "name": "uint8AsString",
+              "isExactName": false,
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
                 "$id": "44",
                 "name": "uint8AsString",
+                "isExactName": false,
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [

@@ -71,13 +71,14 @@ function fromSdkClient(
 
   const isMultiService = isMultiServiceClient(client);
   const clientName =
-    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+    !client.parent && isMultiService && !client.isExactName && !client.name.toLowerCase().endsWith("client")
       ? `${client.name}Client`
       : client.name;
 
   inputClient = {
     kind: "client",
     name: clientName,
+    isExactName: client.isExactName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
