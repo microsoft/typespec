@@ -29,7 +29,7 @@ describe("headers", () => {
   });
 
   it("formats attachment filenames without invalid header characters", () => {
-    const headerValue = formatContentDispositionAttachment('bad\r\nX-Test: yup\0.zip');
+    const headerValue = formatContentDispositionAttachment("bad\r\nX-Test: yup\0.zip");
     const response = new http.ServerResponse({ method: "GET" } as any);
 
     assert.doesNotThrow(() => {
