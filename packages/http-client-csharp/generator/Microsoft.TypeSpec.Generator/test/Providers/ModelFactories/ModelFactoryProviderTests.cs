@@ -33,6 +33,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public void SkipSystemObjectModelProvider()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: [], access: "public");
+            var systemType = new CSharpType(
+                "ResourceData",
+                "TestFramework",
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: Array.Empty<CSharpType>(),
+                isPublic: true,
+                isStruct: false);
+            _instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [inputModel],
+                createModelCore: model => new SystemObjectModelProvider(systemType, model)).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsFalse(modelFactory.Methods.Any(m => m.Signature.Name == "ResourceData"));
+        }
+
+        [Test]
         public void ListParamShape()
         {
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;

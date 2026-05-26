@@ -197,10 +197,20 @@ namespace Microsoft.TypeSpec.Generator
                     CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
                 }
 
-                CSharpTypeMap[modelProvider.Type] = modelProvider;
-                TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
+                RegisterModelProvider(modelProvider);
             }
             return modelProvider;
+        }
+
+        private void RegisterModelProvider(ModelProvider modelProvider)
+        {
+            CSharpTypeMap[modelProvider.Type] = modelProvider;
+            TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
+
+            if (modelProvider is SystemObjectModelProvider systemObjectModelProvider)
+            {
+                CSharpTypeMap[systemObjectModelProvider.SystemType] = systemObjectModelProvider;
+            }
         }
 
         protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);

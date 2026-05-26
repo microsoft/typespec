@@ -474,6 +474,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
         {
+            if (modelProvider is SystemObjectModelProvider)
+            {
+                return null;
+            }
+
             var fullConstructor = modelProvider.FullConstructor;
             if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
                 || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))

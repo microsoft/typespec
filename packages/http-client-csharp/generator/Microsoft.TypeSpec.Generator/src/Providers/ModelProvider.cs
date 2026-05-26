@@ -534,6 +534,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = [];
             HashSet<string> skippedBasePropertyNames = [];
+            HashSet<string> skippedBasePropertySerializedNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 foreach (var baseProperty in baseModelProvider._inputModel.Properties)
@@ -546,6 +547,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (baseModelProvider.ShouldSkipDerivedModelProperties)
                     {
                         skippedBasePropertyNames.Add(baseProperty.Name);
+                        if (baseProperty.SerializedName is not null)
+                        {
+                            skippedBasePropertySerializedNames.Add(baseProperty.SerializedName);
+                        }
                     }
                     else
                     {
@@ -564,11 +569,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
+                var isSkippedBaseProperty = skippedBasePropertyNames.Contains(property.Name)
+                    || (property.SerializedName is not null && skippedBasePropertySerializedNames.Contains(property.SerializedName));
 
                 // Skip discriminator properties that already exist in the base class
                 // Check both by C# property name and by serialized name to handle cases where
                 // the derived model has a discriminator with a different C# name but the same wire name
-                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || skippedBasePropertyNames.Contains(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
+                if (isDiscriminator &&
+                    (baseProperties.ContainsKey(property.Name) ||
+                     isSkippedBaseProperty ||
+                     (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
+                {
+                    continue;
+                }
+
+                if (!isDiscriminator && isSkippedBaseProperty)
                 {
                     continue;
                 }
@@ -609,11 +624,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
-                    if (skippedBasePropertyNames.Contains(property.Name))
-                    {
-                        continue;
-                    }
-
                     if (baseProperties.TryGetValue(property.Name, out var baseProperty))
                     {
                         if (DomainEqual(baseProperty, property))
