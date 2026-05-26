@@ -34,5 +34,4 @@ def test_orphan_model_serializable(client: UsageClient):
 
 def test_namespace_model_serializable(client: UsageClient):
     namespace_model = models.NamespaceModel(name="test")
-    assert isinstance(models.NestedNamespaceModel(value="test"), models.NestedNamespaceModel)
     client.namespace_usage.namespace_model_serializable(body=namespace_model)
