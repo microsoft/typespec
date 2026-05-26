@@ -275,9 +275,7 @@ class EnumType(BaseType):
                 elif serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
                     # Import types module directly (matching model pattern)
                     serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-                    relative_path = self.code_model.get_relative_import_path(
-                        serialize_namespace, self.client_namespace
-                    )
+                    relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
                     file_import.add_submodule_import(
                         relative_path,
                         "types",
