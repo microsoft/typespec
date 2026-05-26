@@ -32,18 +32,11 @@ namespace Microsoft.TypeSpec.Generator.Samples
         /// </summary>
         public static IReadOnlyList<InputOperationExample> BuildOperationExamples(InputOperation operation)
         {
-            bool hasOptionalParameters = operation.Parameters.Any(p => !p.IsRequired);
-
-            if (!hasOptionalParameters)
-            {
-                return new[] { BuildOperationExample(operation, AllParametersKey, useAllParameters: true) };
-            }
-
-            return new[]
-            {
+            return
+            [
                 BuildOperationExample(operation, ShortVersionKey, useAllParameters: false),
                 BuildOperationExample(operation, AllParametersKey, useAllParameters: true)
-            };
+            ];
         }
 
         private static InputOperationExample BuildOperationExample(InputOperation operation, string name, bool useAllParameters)
