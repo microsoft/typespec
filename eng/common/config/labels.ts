@@ -210,6 +210,10 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
+        "agentic-workflows": {
+          color: "000000",
+          description: "Issues/PR created by github agentic workflows",
+        },
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",
