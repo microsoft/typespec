@@ -957,9 +957,9 @@ describe("convertOpenAPI3Document tag metadata", () => {
         {
           name: "child-tag",
           description: "A child tag",
-          parent: "parent-tag",
           summary: "Child tag summary",
           kind: "category",
+          parent: "parent-tag",
         } satisfies OpenAPITag3_2,
       ] as OpenAPITag3_2[],
     });
