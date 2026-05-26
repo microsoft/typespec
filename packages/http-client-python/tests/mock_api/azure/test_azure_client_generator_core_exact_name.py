@@ -36,5 +36,5 @@ def test_model_class_name_preserved():
 
 def test_property_name_preserved():
     # exact("_my_name") scoped to python should preserve the property name exactly,
-    # including the leading underscore, instead of being stripped/recased.
+    # including the leading underscore, instead of being stripped or having its case changed.
     assert "_my_name" in ScopedModel.__annotations__
