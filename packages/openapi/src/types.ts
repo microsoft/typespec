@@ -66,9 +66,12 @@ export interface ExternalDocs {
 }
 
 /**
- * Metadata for a single tag used by operations.
+ * Metadata for a tag including the tag name. Used with the array form of `@tagMetadata`.
  */
-export interface TagMetadataRecord {
+export interface TagMetadataWithName {
+  /** The name of the tag. */
+  name: string;
+
   /** A description of the tag. */
   description?: string;
 
@@ -80,12 +83,4 @@ export interface TagMetadataRecord {
 
   /** Additional extension data. Keys must start with `x-`. */
   [extensionKey: string]: unknown;
-}
-
-/**
- * Metadata for a tag including the tag name. Used with the array form of `@tagMetadata`.
- */
-export interface TagMetadataWithName extends TagMetadataRecord {
-  /** The name of the tag. */
-  name: string;
 }

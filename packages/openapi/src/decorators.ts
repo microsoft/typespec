@@ -319,6 +319,15 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
 
   if (typeof name !== "string") {
     // Array form: @tagMetadata(#[#{name: "tag1", ...}, ...])
+    // Check that no tagMetadata argument was provided (third argument not allowed with array form)
+    if (tagMetadata !== undefined) {
+      reportDiagnostic(context.program, {
+        code: "tag-metadata-array-with-metadata-arg",
+        target: context.getArgumentTarget(1)!,
+      });
+      return;
+    }
+
     // Check if either inline form or array form was already used (cannot mix or call twice)
     const existingTags = getTagsMetadata(context.program, entity);
     if (

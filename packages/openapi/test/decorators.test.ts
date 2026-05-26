@@ -552,5 +552,18 @@ describe("openapi: decorators", () => {
         code: "@typespec/openapi/mixed-tag-metadata-form",
       });
     });
+
+    it("emit diagnostic when using array form with a tagMetadata second argument", async () => {
+      const diagnostics = await Tester.diagnose(
+        `
+        @service()
+        @tagMetadata(#[#{ name: "tag1" }], #{description: "not allowed"})
+        namespace PetStore{};
+        `,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/tag-metadata-array-with-metadata-arg",
+      });
+    });
   });
 });
