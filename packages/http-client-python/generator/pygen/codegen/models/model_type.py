@@ -391,7 +391,12 @@ class DPGModelType(GeneratedModelType):
         if self.is_typed_dict_only:
             is_operation_file = kwargs.pop("is_operation_file", False)
             skip_quote = kwargs.get("skip_quote", False)
-            retval = f"types.{self.name}"
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            # Within types.py, use bare name (no module prefix)
+            if serialize_namespace_type == NamespaceType.TYPES_FILE:
+                retval = self.name
+            else:
+                retval = f"types.{self.name}"
             return retval if is_operation_file or skip_quote else f'"{retval}"'
         return super().type_annotation(**kwargs)
 

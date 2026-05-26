@@ -29,6 +29,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.client_name: str = self.yaml_data["clientName"]
         self.type = type
         self.optional: bool = self.yaml_data["optional"]
+        self.nullable: bool = self.yaml_data.get("nullable", False)
         self.readonly: bool = self.yaml_data.get("readonly", False)
         self.visibility: list[str] = self.yaml_data.get("visibility", [])
         self.is_polymorphic: bool = self.yaml_data.get("isPolymorphic", False)
@@ -110,6 +111,12 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if self.is_base_discriminator:
             return "str"
         types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file, **kwargs)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        # In TypedDict types.py, Optional means nullable (not "not required" — that's handled by Required/total=False)
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            if self.nullable:
+                return f"Optional[{types_type_annotation}]"
+            return types_type_annotation
         if (self.optional and self.client_default_value is None) or self.readonly:
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation
@@ -152,10 +159,14 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
         file_import.merge(self.type.imports(**kwargs))
-        if (self.optional and self.client_default_value is None) or self.readonly:
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            # In TypedDict types.py, Optional means nullable
+            if self.nullable:
+                file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+        elif (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models-mode"] == "dpg":
-            serialize_namespace_type = kwargs.get("serialize_namespace_type")
             if serialize_namespace_type != NamespaceType.TYPES_FILE:
                 serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
                 file_import.add_submodule_import(
