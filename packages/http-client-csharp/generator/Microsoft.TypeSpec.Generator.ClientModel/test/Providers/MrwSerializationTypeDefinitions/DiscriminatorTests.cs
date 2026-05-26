@@ -295,22 +295,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serialization = unknownTree!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serialization);
 
-            var jsonCreate = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "Create" && m.Signature.ExplicitInterface?.Name == "IJsonModel");
-            Assert.IsNotNull(jsonCreate);
-            Assert.AreEqual("Tree", jsonCreate!.Signature.ReturnType!.Name);
-            var jsonBody = jsonCreate.BodyExpression?.ToDisplayString();
-            Assert.IsNotNull(jsonBody);
-            // The cast must be to the interface type argument (Tree), not the concrete unknown type (UnknownTree).
-            Assert.IsFalse(jsonBody!.Contains("UnknownTree"), $"Expected cast to Tree, but body was: {jsonBody}");
-            Assert.IsTrue(jsonBody.Contains("(global::Sample.Models.Tree)"), $"Expected cast to Tree, but body was: {jsonBody}");
-
-            var persistableCreate = serialization.Methods.FirstOrDefault(m => m.Signature.Name == "Create" && m.Signature.ExplicitInterface?.Name == "IPersistableModel");
-            Assert.IsNotNull(persistableCreate);
-            Assert.AreEqual("Tree", persistableCreate!.Signature.ReturnType!.Name);
-            var persistableBody = persistableCreate.BodyExpression?.ToDisplayString();
-            Assert.IsNotNull(persistableBody);
-            Assert.IsFalse(persistableBody!.Contains("UnknownTree"), $"Expected cast to Tree, but body was: {persistableBody}");
-            Assert.IsTrue(persistableBody.Contains("(global::Sample.Models.Tree)"), $"Expected cast to Tree, but body was: {persistableBody}");
+            // Validate the generated serialization output against the expected TestData file.
+            // This guards the cast in the explicit IJsonModel<Tree>.Create / IPersistableModel<Tree>.Create
+            // methods, which must cast to Tree (the interface type argument) instead of UnknownTree
+            // (the concrete unknown discriminator type).
+            var writer = new TypeProviderWriter(serialization!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // This test validates that a discriminated sub-type with its own discriminator property
