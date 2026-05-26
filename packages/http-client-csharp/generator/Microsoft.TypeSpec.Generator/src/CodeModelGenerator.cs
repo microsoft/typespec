@@ -160,9 +160,41 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> AdditionalRootTypes { get; } = [];
+        private record KeptTypesInfo(HashSet<string> TypeNames, HashSet<TypeProvider> TypeProviders);
 
-        internal HashSet<string> NonRootTypes { get; } = [];
+        private readonly KeptTypesInfo _additionalRootTypeInfo = new([], []);
+        private readonly KeptTypesInfo _nonRootTypeInfo = new([], []);
+
+        private HashSet<string>? _additionalRootTypes;
+        private HashSet<string>? _nonRootTypes;
+
+        /// <summary>
+        /// The set of fully qualified type names to keep as roots. Resolved lazily so that
+        /// <see cref="TypeProvider"/> entries added via <see cref="AddTypeToKeep(TypeProvider, bool)"/>
+        /// are not forced to materialize their <see cref="TypeProvider.Type"/> at registration time
+        /// (which would dispatch virtual <c>Build*</c> methods on partially constructed providers).
+        /// </summary>
+        internal HashSet<string> AdditionalRootTypes => _additionalRootTypes ??= MaterializeKeepSet(_additionalRootTypeInfo);
+
+        /// <summary>
+        /// The set of fully qualified type names to keep as non-roots. Resolved lazily; see
+        /// <see cref="AdditionalRootTypes"/> for rationale.
+        /// </summary>
+        internal HashSet<string> NonRootTypes => _nonRootTypes ??= MaterializeKeepSet(_nonRootTypeInfo);
+
+        private static HashSet<string> MaterializeKeepSet(KeptTypesInfo info)
+        {
+            if (info.TypeProviders.Count == 0)
+            {
+                return info.TypeNames;
+            }
+            var result = new HashSet<string>(info.TypeNames);
+            foreach (var provider in info.TypeProviders)
+            {
+                result.Add(provider.Type.FullyQualifiedName);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -174,21 +206,50 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (isRoot)
             {
-                AdditionalRootTypes.Add(typeName);
+                if (_additionalRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _additionalRootTypes = null;
+                }
             }
             else
             {
-                NonRootTypes.Add(typeName);
+                if (_nonRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _nonRootTypes = null;
+                }
             }
         }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
+        /// <remarks>
+        /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
+        /// post-processing. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// constructor (including base constructors that run before the derived constructor body), since
+        /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
+        /// <c>Build*</c> methods on a not-yet-fully-constructed instance.
+        /// </remarks>
         /// <param name="type">The type provider representing the type.</param>
         /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
         /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
-        public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
+        public void AddTypeToKeep(TypeProvider type, bool isRoot = true)
+        {
+            if (isRoot)
+            {
+                if (_additionalRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _additionalRootTypes = null;
+                }
+            }
+            else
+            {
+                if (_nonRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _nonRootTypes = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.

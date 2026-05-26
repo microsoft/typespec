@@ -619,7 +619,7 @@ function* emitResultProcessingForType(
   if (target.kind === "Scalar" || isValueLiteralType(target)) {
     if (
       responseContent &&
-      (yield* emitRawResponseBody(ctx, names, responseContent, names.result))
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, names.result))
     ) {
       return;
     }
@@ -725,7 +725,7 @@ function* emitResultProcessingForType(
 
     if (
       responseContent &&
-      (yield* emitRawResponseBody(ctx, names, responseContent, bodyExpression))
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, bodyExpression))
     ) {
       return;
     }
@@ -786,7 +786,7 @@ function* emitResultProcessingForType(
   } else {
     if (
       responseContent &&
-      (yield* emitRawResponseBody(ctx, names, responseContent, names.result))
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, names.result))
     ) {
       return;
     }
@@ -820,6 +820,7 @@ function* emitResultProcessingForType(
 function* emitRawResponseBody(
   ctx: HttpContext,
   names: Names,
+  module: Module,
   responseContent: HttpOperationResponseContent,
   bodyExpression: string,
 ): Generator<string, boolean, void> {
@@ -869,8 +870,12 @@ function* emitRawResponseBody(
       const headerName = getHeaderFieldName(ctx.program, filenameProperty).toLowerCase();
       yield `${names.ctx}.response.setHeader(${JSON.stringify(headerName)}, ${bodyExpression}.filename);`;
     } else {
+      module.imports.push({
+        binder: ["formatContentDispositionAttachment"],
+        from: headerHelpers,
+      });
       yield `if (${bodyExpression}.filename !== undefined) {`;
-      yield `  ${names.ctx}.response.setHeader("content-disposition", \`attachment; filename="\${${bodyExpression}.filename}"\`);`;
+      yield `  ${names.ctx}.response.setHeader("content-disposition", formatContentDispositionAttachment(${bodyExpression}.filename));`;
       yield `}`;
     }
 

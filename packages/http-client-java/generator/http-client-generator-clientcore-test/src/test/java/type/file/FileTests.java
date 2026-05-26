@@ -54,8 +54,7 @@ public class FileTests {
 
     @Test
     public void testDownloadFileMultipleContentTypes() {
-        BinaryData response
-            = client.downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType.IMAGE_PNG);
+        BinaryData response = client.downloadFileMultipleContentTypes();
         Assertions.assertNotNull(response);
     }
 

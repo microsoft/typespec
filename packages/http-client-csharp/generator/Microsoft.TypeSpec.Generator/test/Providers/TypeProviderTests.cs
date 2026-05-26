@@ -490,5 +490,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("TestMethod", specView.Methods[0].Signature.Name);
             Assert.AreEqual("TestType", specView.Name);
         }
+
+        // Validates that a generated type whose customization partial declares the same operators
+        // (==, !=, implicit) ends up with only the custom operators in its CanonicalView.
+        [Test]
+        public async Task CanonicalViewDedupesCustomOperators()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = new TestTypeProvider(name: "CustomOperatorType");
+            var leftParam = new ParameterProvider("left", $"", typeProvider.Type);
+            var rightParam = new ParameterProvider("right", $"", typeProvider.Type);
+            var valueParam = new ParameterProvider("value", $"", typeof(string));
+            var operatorModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator;
+            var implicitOperatorModifiers = operatorModifiers | MethodSignatureModifiers.Implicit;
+
+            var equality = new MethodProvider(
+                new MethodSignature("==", $"", operatorModifiers, typeof(bool), $"", [leftParam, rightParam]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            var inequality = new MethodProvider(
+                new MethodSignature("!=", $"", operatorModifiers, typeof(bool), $"", [leftParam, rightParam]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            var implicitCast = new MethodProvider(
+                new MethodSignature(string.Empty, $"", implicitOperatorModifiers, typeProvider.Type, $"", [valueParam]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+
+            typeProvider = new TestTypeProvider(name: "CustomOperatorType", methods: [equality, inequality, implicitCast]);
+
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+
+            var operatorMethods = typeProvider.CanonicalView.Methods
+                .Where(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                .ToList();
+
+            // CanonicalView should only contain the 3 customized operators (no duplicates from generated).
+            Assert.AreEqual(3, operatorMethods.Count);
+            Assert.IsTrue(operatorMethods.All(m => m.EnclosingType == typeProvider.CustomCodeView),
+                "Operator methods in CanonicalView should come from the custom code view, not the generated provider.");
+            Assert.IsTrue(operatorMethods.Any(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)));
+            Assert.AreEqual(2, operatorMethods.Count(m =>
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)));
+        }
     }
 }

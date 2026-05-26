@@ -78,6 +78,20 @@ public final class SpecialWordsClientImpl {
     }
 
     /**
+     * The ReservedOperationBodyParamsImpl object to access its operations.
+     */
+    private final ReservedOperationBodyParamsImpl reservedOperationBodyParams;
+
+    /**
+     * Gets the ReservedOperationBodyParamsImpl object to access its operations.
+     * 
+     * @return the ReservedOperationBodyParamsImpl object.
+     */
+    public ReservedOperationBodyParamsImpl getReservedOperationBodyParams() {
+        return this.reservedOperationBodyParams;
+    }
+
+    /**
      * The ExtensibleStringsImpl object to access its operations.
      */
     private final ExtensibleStringsImpl extensibleStrings;
@@ -132,6 +146,7 @@ public final class SpecialWordsClientImpl {
         this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.modelProperties = new ModelPropertiesImpl(this);
+        this.reservedOperationBodyParams = new ReservedOperationBodyParamsImpl(this);
         this.extensibleStrings = new ExtensibleStringsImpl(this);
         this.operations = new OperationsImpl(this);
         this.parameters = new ParametersImpl(this);

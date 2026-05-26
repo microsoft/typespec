@@ -1,3 +1,4 @@
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
@@ -27,6 +28,19 @@ export async function resolveEntrypointFile(
   }
 
   while (true) {
+    // Check for project tspconfig first (highest priority)
+    const config = await loadTypeSpecConfigForPath(host, dir, false, false);
+    if (config.kind === "project") {
+      const entrypoint = config.entrypoint ?? "main.tsp";
+      const candidate = await existingFile(dir, entrypoint);
+      logDebug({
+        level: "debug",
+        message: `project tspconfig found in ${dir}, entrypoint: ${entrypoint}`,
+      });
+      // Project boundary found — stop walking regardless of whether entrypoint exists
+      return candidate ?? (isFilePath ? path : undefined);
+    }
+
     let pkg: any;
     const pkgPath = joinPaths(dir, "package.json");
     const cached = await fileSystemCache?.get(pkgPath);

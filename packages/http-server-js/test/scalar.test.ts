@@ -2,6 +2,7 @@ import { ModelProperty, NoTarget, Scalar, resolvePath } from "@typespec/compiler
 import { BasicTestRunner, createTestRunner, createTester } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
+import { escapeUnsafeChars } from "../src/common/reference.js";
 import { getJsScalar } from "../src/common/scalar.js";
 import { JsContext, Module, createPathCursor } from "../src/ctx.js";
 
@@ -193,6 +194,10 @@ describe("scalar", () => {
     );
   });
 
+  it("escapes forward slashes in emitted string literals", () => {
+    expect(escapeUnsafeChars(JSON.stringify("application/zip"))).toBe('"application\\u002Fzip"');
+  });
+
   it("emits result processing for bare scalar responses", async () => {
     const { outputs } = await HttpServerEmitterTester.compile(`
       @service(#{ title: "Example" })
@@ -292,6 +297,7 @@ describe("scalar", () => {
     );
     expect(serverRaw).toMatch(/response\.end\(__result_\d+\.contents\);/);
     expect(serverRaw).toMatch(/response\.setHeader\(\s*"content-disposition",/);
+    expect(serverRaw).toContain("formatContentDispositionAttachment");
     expect(serverRaw).not.toContain("JSON.stringify");
   });
 

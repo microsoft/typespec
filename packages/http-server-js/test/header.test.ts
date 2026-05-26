@@ -1,5 +1,9 @@
+import * as http from "node:http";
 import { assert, describe, it } from "vitest";
-import { parseHeaderValueParameters } from "../src/helpers/header.js";
+import {
+  formatContentDispositionAttachment,
+  parseHeaderValueParameters,
+} from "../src/helpers/header.js";
 
 describe("headers", () => {
   it("parses header values with parameters", () => {
@@ -22,5 +26,22 @@ describe("headers", () => {
     assert.equal(value, "text/html");
     assert.equal(params.charset, "utf-8");
     assert.equal(params.foo, "bar");
+  });
+
+  it("formats attachment filenames without invalid header characters", () => {
+    const headerValue = formatContentDispositionAttachment('bad\r\nX-Test: yup\0.zip');
+    const response = new http.ServerResponse({ method: "GET" } as any);
+
+    assert.doesNotThrow(() => {
+      response.setHeader("content-disposition", headerValue);
+    });
+    assert.notMatch(headerValue, /[\r\n\0]/);
+  });
+
+  it("escapes quotes and backslashes in attachment filenames", () => {
+    assert.equal(
+      formatContentDispositionAttachment('quote"slash\\semi;name.zip'),
+      'attachment; filename="quote\\"slash\\\\semi;name.zip"',
+    );
   });
 });

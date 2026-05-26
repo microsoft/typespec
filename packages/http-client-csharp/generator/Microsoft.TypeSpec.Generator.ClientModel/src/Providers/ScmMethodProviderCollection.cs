@@ -1380,9 +1380,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             rootName = null;
             childName = null;
 
-            // Check if the response uses XML content type
+            // Check if the response is serialized as XML using the propagated serialization options
             var response = ServiceMethod.Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response == null || !response.ContentTypes.Any(c => c.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            if (response?.SerializationOptions?.Xml is null)
             {
                 return false;
             }

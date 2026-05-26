@@ -125,7 +125,7 @@
     {
       "$id": "11",
       "kind": "constant",
-      "name": "commaDelimitedContentType",
+      "name": "CommaDelimitedContentType",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -141,7 +141,7 @@
     {
       "$id": "13",
       "kind": "constant",
-      "name": "commaDelimitedContentType1",
+      "name": "CommaDelimitedContentType1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -157,7 +157,7 @@
     {
       "$id": "15",
       "kind": "constant",
-      "name": "spaceDelimitedContentType",
+      "name": "CommaDelimitedContentType2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -173,7 +173,7 @@
     {
       "$id": "17",
       "kind": "constant",
-      "name": "spaceDelimitedContentType1",
+      "name": "CommaDelimitedContentType3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -189,7 +189,7 @@
     {
       "$id": "19",
       "kind": "constant",
-      "name": "pipeDelimitedContentType",
+      "name": "CommaDelimitedContentType4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -205,7 +205,7 @@
     {
       "$id": "21",
       "kind": "constant",
-      "name": "pipeDelimitedContentType1",
+      "name": "CommaDelimitedContentType5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -221,7 +221,7 @@
     {
       "$id": "23",
       "kind": "constant",
-      "name": "newlineDelimitedContentType",
+      "name": "CommaDelimitedContentType6",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -237,7 +237,7 @@
     {
       "$id": "25",
       "kind": "constant",
-      "name": "newlineDelimitedContentType1",
+      "name": "CommaDelimitedContentType7",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -253,7 +253,7 @@
     {
       "$id": "27",
       "kind": "constant",
-      "name": "enumCommaDelimitedContentType",
+      "name": "CommaDelimitedContentType8",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -269,7 +269,7 @@
     {
       "$id": "29",
       "kind": "constant",
-      "name": "enumCommaDelimitedContentType1",
+      "name": "CommaDelimitedContentType9",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -285,7 +285,7 @@
     {
       "$id": "31",
       "kind": "constant",
-      "name": "enumSpaceDelimitedContentType",
+      "name": "CommaDelimitedContentType10",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -301,7 +301,7 @@
     {
       "$id": "33",
       "kind": "constant",
-      "name": "enumSpaceDelimitedContentType1",
+      "name": "CommaDelimitedContentType11",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -317,7 +317,7 @@
     {
       "$id": "35",
       "kind": "constant",
-      "name": "enumPipeDelimitedContentType",
+      "name": "CommaDelimitedContentType12",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -333,7 +333,7 @@
     {
       "$id": "37",
       "kind": "constant",
-      "name": "enumPipeDelimitedContentType1",
+      "name": "CommaDelimitedContentType13",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -349,7 +349,7 @@
     {
       "$id": "39",
       "kind": "constant",
-      "name": "enumNewlineDelimitedContentType",
+      "name": "CommaDelimitedContentType14",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -365,7 +365,7 @@
     {
       "$id": "41",
       "kind": "constant",
-      "name": "enumNewlineDelimitedContentType1",
+      "name": "CommaDelimitedContentType15",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -381,7 +381,7 @@
     {
       "$id": "43",
       "kind": "constant",
-      "name": "extensibleEnumCommaDelimitedContentType",
+      "name": "CommaDelimitedContentType16",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -397,7 +397,7 @@
     {
       "$id": "45",
       "kind": "constant",
-      "name": "extensibleEnumCommaDelimitedContentType1",
+      "name": "CommaDelimitedContentType17",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -413,7 +413,7 @@
     {
       "$id": "47",
       "kind": "constant",
-      "name": "extensibleEnumSpaceDelimitedContentType",
+      "name": "CommaDelimitedContentType18",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -429,7 +429,7 @@
     {
       "$id": "49",
       "kind": "constant",
-      "name": "extensibleEnumSpaceDelimitedContentType1",
+      "name": "CommaDelimitedContentType19",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -445,7 +445,7 @@
     {
       "$id": "51",
       "kind": "constant",
-      "name": "extensibleEnumPipeDelimitedContentType",
+      "name": "CommaDelimitedContentType20",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -461,7 +461,7 @@
     {
       "$id": "53",
       "kind": "constant",
-      "name": "extensibleEnumPipeDelimitedContentType1",
+      "name": "CommaDelimitedContentType21",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -477,7 +477,7 @@
     {
       "$id": "55",
       "kind": "constant",
-      "name": "extensibleEnumNewlineDelimitedContentType",
+      "name": "CommaDelimitedContentType22",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -493,7 +493,7 @@
     {
       "$id": "57",
       "kind": "constant",
-      "name": "extensibleEnumNewlineDelimitedContentType1",
+      "name": "CommaDelimitedContentType23",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1161,7 +1161,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1176,7 +1181,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -1333,7 +1343,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1348,7 +1363,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -1505,7 +1525,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1520,7 +1545,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -1677,7 +1707,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1692,7 +1727,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -1849,7 +1889,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1864,7 +1909,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2021,7 +2071,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2036,7 +2091,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2193,7 +2253,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2208,7 +2273,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2365,7 +2435,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2380,7 +2455,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2537,7 +2617,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2552,7 +2637,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2709,7 +2799,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2724,7 +2819,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -2881,7 +2981,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2896,7 +3001,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
@@ -3053,7 +3163,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3068,7 +3183,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "POST",
