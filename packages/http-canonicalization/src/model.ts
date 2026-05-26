@@ -127,7 +127,12 @@ export class ModelHttpCanonicalization
       if (referenceTypes.length === 0) {
         return engine.mutate(union, options, halfEdge, { isSynthetic: true });
       } else {
-        return engine.replaceAndMutateReference(referenceTypes[0], union, options, halfEdge);
+        return engine.replaceAndMutateReference(
+          referenceTypes[0],
+          union,
+          options,
+          halfEdge,
+        ) as any as UnionHttpCanonicalization;
       }
     }
 
@@ -142,7 +147,7 @@ export class ModelHttpCanonicalization
           effectiveModel,
           options,
           halfEdge,
-        );
+        ) as any as ModelHttpCanonicalization;
       }
     }
 

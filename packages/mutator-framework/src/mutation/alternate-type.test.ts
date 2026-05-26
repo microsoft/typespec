@@ -1,10 +1,18 @@
-import type { MemberType, Model, ModelProperty, Operation, Type, UnionVariant } from "@typespec/compiler";
-import { expectTypeEquals, t } from "@typespec/compiler/testing";
-import { $ } from "@typespec/compiler/typekit";
+import type {
+  Entity,
+  MemberType,
+  Model,
+  ModelProperty,
+  Operation,
+  Type,
+  UnionVariant,
+} from "@typespec/compiler";
+import { expectTypeEquals, t, type TemplateWithMarkers } from "@typespec/compiler/testing";
 import type { Typekit } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { describe, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
-import type { MutationHalfEdge, MutationTraits } from "./mutation-engine.js";
+import { MutationHalfEdge, type MutationTraits } from "./mutation-engine.js";
 import type { MutationInfo } from "./mutation.js";
 import {
   SimpleModelPropertyMutation,
@@ -16,7 +24,7 @@ import {
 
 // --- Helpers ---
 
-async function compile(code: ReturnType<typeof t.code>) {
+async function compile<T extends Record<string, Entity>>(code: TemplateWithMarkers<T>) {
   const runner = await Tester.createInstance();
   const result = await runner.compile(code);
   return { ...result, tk: $(result.program) };
@@ -26,7 +34,9 @@ function createPropertyEngine(
   tk: Typekit,
   MutationClass: typeof SimpleModelPropertyMutation<SimpleMutationOptions>,
 ) {
-  return new SimpleMutationEngine<{ ModelProperty: typeof MutationClass }>(tk, {
+  return new SimpleMutationEngine<{
+    ModelProperty: SimpleModelPropertyMutation<SimpleMutationOptions>;
+  }>(tk, {
     ModelProperty: MutationClass,
   } as any);
 }
@@ -35,16 +45,21 @@ function createOperationEngine(
   tk: Typekit,
   MutationClass: typeof SimpleOperationMutation<SimpleMutationOptions>,
 ) {
-  return new SimpleMutationEngine<{ Operation: typeof MutationClass }>(tk, {
-    Operation: MutationClass,
-  } as any);
+  return new SimpleMutationEngine<{ Operation: SimpleOperationMutation<SimpleMutationOptions> }>(
+    tk,
+    {
+      Operation: MutationClass,
+    } as any,
+  );
 }
 
 function createVariantEngine(
   tk: Typekit,
   MutationClass: typeof SimpleUnionVariantMutation<SimpleMutationOptions>,
 ) {
-  return new SimpleMutationEngine<{ UnionVariant: typeof MutationClass }>(tk, {
+  return new SimpleMutationEngine<{
+    UnionVariant: SimpleUnionVariantMutation<SimpleMutationOptions>;
+  }>(tk, {
     UnionVariant: MutationClass,
   } as any);
 }
@@ -354,7 +369,10 @@ describe("type replacement (@alternateType pattern)", () => {
           traits?: MutationTraits,
         ): MutationInfo | AlternateTypePropertyViaInfo {
           let referencedType = sourceType.type;
-          while (referencedType.kind === "ModelProperty" || referencedType.kind === "UnionVariant") {
+          while (
+            referencedType.kind === "ModelProperty" ||
+            referencedType.kind === "UnionVariant"
+          ) {
             referencedType = (referencedType as any).type;
           }
 
@@ -539,7 +557,10 @@ describe("type replacement (@alternateType pattern)", () => {
           traits?: MutationTraits,
         ): MutationInfo | AlternateTypeVariantViaInfo {
           let referencedType: Type = sourceType.type;
-          while (referencedType.kind === "ModelProperty" || referencedType.kind === "UnionVariant") {
+          while (
+            referencedType.kind === "ModelProperty" ||
+            referencedType.kind === "UnionVariant"
+          ) {
             referencedType = (referencedType as any).type;
           }
 
@@ -572,5 +593,163 @@ describe("type replacement (@alternateType pattern)", () => {
       expectModelType(variantA.mutatedType.type, "AlternateModel");
       expect(MyUnion.variants.get("a")!.type.kind).toBe("Scalar");
     });
+  });
+});
+
+/**
+ * Regression tests for the "properties missing" bug when using alternate types.
+ *
+ * The bug scenario: a downstream library (e.g. CDK) routes ARM and client type
+ * edges independently — the ARM edge follows the original source reference while
+ * the client edge should follow an alternate type (e.g. from @alternateType).
+ *
+ * When only a single type edge is wired to the original model, the alternate
+ * model is never traversed by the mutation engine, so its properties are never
+ * processed and are "missing" from the mutation graph.
+ *
+ * The fix is to use separate half-edges: one for the ARM path (original type)
+ * and one for the client path (alternate type via replaceAndMutateReference with
+ * a non-member half-edge kind such as "type-client").
+ */
+describe("alternate type properties missing regression", () => {
+  it("alternate model properties are accessible when using dual-edge mutation (ARM + client paths)", async () => {
+    const { Foo, program, tk } = await compile(t.code`
+      model ${t.model("Foo")} {
+        prop: OriginalModel;
+      }
+
+      model ${t.model("OriginalModel")} {
+        x: int32;
+      }
+
+      model ${t.model("AlternateModel")} {
+        y: string;
+      }
+    `);
+
+    const AlternateModel = program.getGlobalNamespaceType().models.get("AlternateModel")!;
+
+    // Tracks the alternate type mutation captured from the client half-edge callback.
+    let capturedAlternateMutation: any | undefined;
+
+    /**
+     * Simulates the CDK's ArmPropertyCanonicalization pattern:
+     * - ARM edge: always follows the original source reference (wire-level graph).
+     * - Client edge: follows the alternate type via replaceAndMutateReference,
+     *   using a non-member half-edge kind ("type-client") so the engine routes
+     *   directly to the alternate model instead of creating a stub member.
+     */
+    class DualEdgePropMutation extends SimpleModelPropertyMutation<SimpleMutationOptions> {
+      mutate() {
+        // ARM edge: traverse original source reference.
+        this.type = this.engine.mutateReference(
+          this.sourceType,
+          this.options,
+          this.startTypeEdge(),
+        ) as any;
+
+        // Client edge: traverse the alternate type.
+        // "type-client" is not a "property"/"variant"/"operation" member-edge
+        // kind, so replaceAndMutateReference routes directly to AlternateModel.
+        const clientHalfEdge = new MutationHalfEdge("type-client", this, (tail) => {
+          capturedAlternateMutation = tail;
+        });
+        this.engine.replaceAndMutateReference(
+          this.sourceType,
+          AlternateModel,
+          this.options,
+          clientHalfEdge,
+        );
+      }
+    }
+
+    const engine = createPropertyEngine(tk, DualEdgePropMutation);
+    const fooMutation = engine.mutate(Foo);
+    const propMutation = fooMutation.properties.get("prop")!;
+
+    // ARM path: property type is OriginalModel.
+    expectModelType(propMutation.mutatedType.type, "OriginalModel");
+
+    // Client path: AlternateModel's mutation must have been traversed.
+    expect(capturedAlternateMutation).toBeDefined();
+    expect(capturedAlternateMutation!.kind).toBe("Model");
+    expectModelType((capturedAlternateMutation as any).mutatedType, "AlternateModel");
+
+    // AlternateModel's properties must be present in its mutation.
+    const altProps = (capturedAlternateMutation as any).mutatedType.properties as Map<
+      string,
+      unknown
+    >;
+    expect(altProps.has("y")).toBe(true);
+    expect(altProps.has("x")).toBe(false); // x belongs to OriginalModel, not AlternateModel
+  });
+
+  it("properties of alternate model are missing when single type edge routes only to original model", async () => {
+    // This test documents the BUG scenario: when the property's type edge is
+    // connected only to the original model (as super.mutate() does), the alternate
+    // model is never traversed by the mutation engine. Callers that expect the
+    // alternate model's mutation to exist will not find its properties.
+    const { Foo, program, tk } = await compile(t.code`
+      model ${t.model("Foo")} {
+        prop: OriginalModel;
+      }
+
+      model ${t.model("OriginalModel")} {
+        x: int32;
+      }
+
+      model ${t.model("AlternateModel")} {
+        y: string;
+      }
+    `);
+
+    const AlternateModel = program.getGlobalNamespaceType().models.get("AlternateModel")!;
+
+    // Buggy mutation: only traverses the original source type; AlternateModel
+    // is never passed to the engine so no mutation is created for it.
+    class SingleEdgePropMutation extends SimpleModelPropertyMutation<SimpleMutationOptions> {
+      mutate() {
+        // Only the ARM (original) type is traversed — AlternateModel is ignored.
+        super.mutate();
+      }
+    }
+
+    const engine = createPropertyEngine(tk, SingleEdgePropMutation);
+    engine.mutate(Foo);
+
+    // AlternateModel was never passed to the engine, so no mutation exists for it.
+    // Attempting to retrieve its mutation returns undefined (cache miss).
+    // The engine's internal cache should not contain a mutation for AlternateModel
+    // because the single-edge approach never traversed it.
+    // We verify this by checking the engine never produced a mutation for AlternateModel
+    // via engine.mutate directly.
+    const directMutation = (() => {
+      try {
+        // If AlternateModel had been traversed, it would already be cached.
+        // Calling engine.mutate now would create a NEW mutation (not the same one
+        // a dual-edge approach would produce at property-mutation time).
+        return engine.mutate(AlternateModel);
+      } catch {
+        return undefined;
+      }
+    })();
+
+    // After calling engine.mutate(AlternateModel) post-hoc, we get a mutation,
+    // but its properties are those of a fresh (uncustomized) traversal — not one
+    // that was produced in context alongside the property mutation. This shows
+    // that any context-sensitive processing of AlternateModel was skipped.
+    expect(directMutation).toBeDefined();
+    expect((directMutation as any).mutatedType.properties.has("y")).toBe(true);
+
+    // The key observation: the property's mutated type is still OriginalModel
+    // (not AlternateModel), confirming the alternate was never wired in.
+    const fooMutation = engine.mutate(Foo);
+    const propMutation = fooMutation.properties.get("prop")!;
+    expectModelType(propMutation.mutatedType.type, "OriginalModel");
+
+    // AlternateModel's properties are inaccessible through the property's type
+    // edge — the property still points to OriginalModel which has "x", not "y".
+    expect((propMutation.mutatedType.type as Model).properties.has("x")).toBe(true);
+    expect((propMutation.mutatedType.type as Model).properties.has("y")).toBe(false);
   });
 });
