@@ -3097,6 +3097,7 @@
               "kind": "enumvalue",
               "decorators": [],
               "name": "smp",
+              "isExactName": false,
               "value": "http://example.com/schema",
               "enumType": {
                 "$id": "279",
@@ -3125,6 +3126,7 @@
                     "kind": "enumvalue",
                     "decorators": [],
                     "name": "smp",
+                    "isExactName": false,
                     "value": "http://example.com/schema",
                     "enumType": {
                       "$ref": "279"
@@ -3139,6 +3141,7 @@
                     "kind": "enumvalue",
                     "decorators": [],
                     "name": "ns2",
+                    "isExactName": false,
                     "value": "http://example.com/ns2",
                     "enumType": {
                       "$ref": "279"
@@ -3254,6 +3257,7 @@
               "kind": "enumvalue",
               "decorators": [],
               "name": "smp",
+              "isExactName": false,
               "value": "http://example.com/schema",
               "enumType": {
                 "$ref": "279"
@@ -3332,6 +3336,7 @@
                   "kind": "enumvalue",
                   "decorators": [],
                   "name": "smp",
+                  "isExactName": false,
                   "value": "http://example.com/schema",
                   "enumType": {
                     "$ref": "279"
@@ -3384,6 +3389,7 @@
                   "kind": "enumvalue",
                   "decorators": [],
                   "name": "ns2",
+                  "isExactName": false,
                   "value": "http://example.com/ns2",
                   "enumType": {
                     "$ref": "279"

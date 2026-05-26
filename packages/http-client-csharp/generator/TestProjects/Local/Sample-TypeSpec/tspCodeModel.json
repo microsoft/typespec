@@ -5793,6 +5793,7 @@
                   "kind": "enumvalue",
                   "decorators": [],
                   "name": "ns1",
+                  "isExactName": false,
                   "value": "https://example.com/ns1",
                   "enumType": {
                     "$id": "470",
@@ -5821,6 +5822,7 @@
                         "kind": "enumvalue",
                         "decorators": [],
                         "name": "ns1",
+                        "isExactName": false,
                         "value": "https://example.com/ns1",
                         "enumType": {
                           "$ref": "470"
@@ -5835,6 +5837,7 @@
                         "kind": "enumvalue",
                         "decorators": [],
                         "name": "ns2",
+                        "isExactName": false,
                         "value": "https://example.com/ns2",
                         "enumType": {
                           "$ref": "470"
@@ -5909,6 +5912,7 @@
                   "kind": "enumvalue",
                   "decorators": [],
                   "name": "ns2",
+                  "isExactName": false,
                   "value": "https://example.com/ns2",
                   "enumType": {
                     "$ref": "470"

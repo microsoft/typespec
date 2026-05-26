@@ -32,6 +32,8 @@ export interface TypeSpecTagMetadata {
   name: string;
   description?: string;
   externalDocs?: TypeSpecExternalDocs;
+  summary?: string;
+  kind?: string;
 }
 
 export interface TypeSpecExternalDocs {

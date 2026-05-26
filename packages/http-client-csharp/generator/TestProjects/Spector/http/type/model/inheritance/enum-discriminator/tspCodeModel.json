@@ -343,6 +343,7 @@
                       "decorators": [],
                       "doc": "Species golden",
                       "name": "Golden",
+                      "isExactName": false,
                       "value": "golden",
                       "valueType": {
                         "$ref": "31"
@@ -515,6 +516,7 @@
                       "decorators": [],
                       "doc": "Species cobra",
                       "name": "Cobra",
+                      "isExactName": false,
                       "value": "cobra",
                       "enumType": {
                         "$ref": "40"
