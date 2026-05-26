@@ -24,19 +24,21 @@ export function generateTags(tags: TypeSpecTagMetadata[]): string {
 
   const tagItems = tags.map((tag) => {
     const fields: string[] = [`name: "${tag.name}"`];
-    const description = tag.description ? `description: "${tag.description}"` : "";
-    if (description) {
-      fields.push(description);
+    if (tag.description) {
+      fields.push(`description: "${tag.description}"`);
     }
     const externalDocs = generateExternalDocs(tag.externalDocs);
     if (externalDocs) {
       fields.push(externalDocs);
     }
-    if (tag.parent) {
-      fields.push(`parent: "${tag.parent}"`);
+    if (tag.summary) {
+      fields.push(`summary: "${tag.summary}"`);
     }
     if (tag.kind) {
-      fields.push(`\`x-kind\`: "${tag.kind}"`);
+      fields.push(`kind: "${tag.kind}"`);
+    }
+    if (tag.parent) {
+      fields.push(`parent: "${tag.parent}"`);
     }
     return `#{${fields.join(", ")}}`;
   });

@@ -24,6 +24,7 @@ import {
   camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getClientNamespace,
   getImplementation,
 } from "./utils.js";
@@ -233,7 +234,8 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   return {
-    clientName: camelToSnakeCase(property.name),
+    clientName: getClientName(property),
+    isExactName: property.isExactName,
     wireName:
       (property.serializationOptions?.multipart
         ? property.serializationOptions?.multipart?.name

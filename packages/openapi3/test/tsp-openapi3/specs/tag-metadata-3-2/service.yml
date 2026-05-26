@@ -3,21 +3,31 @@ info:
   title: (title)
   version: 0.0.0
 tags:
-  - name: parent-tag
-    description: A parent tag
-  - name: child-tag
-    description: A child tag
-    parent: parent-tag
-  - name: categorized-tag
-    description: A tag with a kind
-    kind: category
+  - name: extensive
+    description: An extensive operation
+    summary: A summary of the extensive tag
+    kind: OperationGroup
+    parent: root
 paths:
   /:
     get:
-      operationId: list
+      operationId: extensive
       parameters: []
       responses:
         "200":
           description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
       tags:
-        - parent-tag
+        - extensive
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

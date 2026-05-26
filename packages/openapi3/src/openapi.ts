@@ -1833,6 +1833,17 @@ function createOAPIEmitter(
       if (specVersion !== "3.2.0" && rest.parent) {
         delete (tagData as { parent?: string }).parent;
       }
+      // For OpenAPI 3.0 and 3.1, convert 'summary' and 'kind' to x-oai- prefixed extensions
+      if (specVersion !== "3.2.0") {
+        if (tag.summary) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-summary"] = tag.summary;
+          delete (tagData as { summary?: string }).summary;
+        }
+        if (tag.kind) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-kind"] = tag.kind;
+          delete (tagData as { kind?: string }).kind;
+        }
+      }
       tags.push(tagData);
     }
 

@@ -34,7 +34,7 @@ export interface TypeSpecTagMetadata {
   externalDocs?: TypeSpecExternalDocs;
   /** Only supported in OpenAPI 3.2. */
   parent?: string;
-  /** Only supported in OpenAPI 3.2. Emitted as `"x-kind"` extension in TypeSpec. */
+  summary?: string;
   kind?: string;
 }
 

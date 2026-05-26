@@ -81,6 +81,12 @@ export interface TagMetadataWithName {
   /** The name of a parent tag (only supported in OpenAPI 3.2). */
   parent?: string;
 
+  /** A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`. */
+  summary?: string;
+
+  /** A machine-readable string to categorize what sort of tag it is. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-kind`. */
+  kind?: string;
+
   /** Additional extension data. Keys must start with `x-`. */
   [extensionKey: string]: unknown;
 }

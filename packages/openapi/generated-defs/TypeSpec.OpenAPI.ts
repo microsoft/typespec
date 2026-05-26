@@ -23,6 +23,8 @@ export interface TagMetadataWithName {
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
   readonly parent?: string;
+  readonly summary?: string;
+  readonly kind?: string;
 }
 
 export interface TagMetadata {
@@ -30,6 +32,8 @@ export interface TagMetadata {
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
   readonly parent?: string;
+  readonly summary?: string;
+  readonly kind?: string;
 }
 
 export interface Contact {

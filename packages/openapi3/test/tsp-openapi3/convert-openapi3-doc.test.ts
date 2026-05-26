@@ -944,7 +944,7 @@ def grade(sample: dict, item: dict) -> float:
 });
 
 describe("convertOpenAPI3Document tag metadata", () => {
-  it("converts OpenAPI 3.2 tags with parent and kind fields", async () => {
+  it("converts OpenAPI 3.2 tags with parent, kind, and summary fields", async () => {
     const tsp = await convertOpenAPI3Document({
       info: {
         title: "(title)",
@@ -954,8 +954,13 @@ describe("convertOpenAPI3Document tag metadata", () => {
       paths: {},
       tags: [
         { name: "parent-tag", description: "A parent tag" },
-        { name: "child-tag", description: "A child tag", parent: "parent-tag" } satisfies OpenAPITag3_2,
-        { name: "categorized-tag", description: "A tag with a kind", kind: "category" } satisfies OpenAPITag3_2,
+        {
+          name: "child-tag",
+          description: "A child tag",
+          parent: "parent-tag",
+          summary: "Child tag summary",
+          kind: "category",
+        } satisfies OpenAPITag3_2,
       ] as OpenAPITag3_2[],
     });
 
@@ -974,8 +979,7 @@ describe("convertOpenAPI3Document tag metadata", () => {
         @info(#{ version: "0.0.0" })
         @tagMetadata(#[
           #{ name: "parent-tag", description: "A parent tag" },
-          #{ name: "child-tag", description: "A child tag", parent: "parent-tag" },
-          #{ name: "categorized-tag", description: "A tag with a kind", \`x-kind\`: "category" },
+          #{ name: "child-tag", description: "A child tag", summary: "Child tag summary", kind: "category", parent: "parent-tag" },
         ])
         namespace title;
         `,
@@ -984,7 +988,7 @@ describe("convertOpenAPI3Document tag metadata", () => {
     );
   });
 
-  it("does not emit parent or kind fields for OpenAPI 3.0 and 3.1 (fields are undefined)", async () => {
+  it("converts OpenAPI 3.0/3.1 tags with x-oai- extensions for summary and kind", async () => {
     for (const version of ["3.0.0", "3.1.0"] as const) {
       const tsp = await convertOpenAPI3Document({
         info: {
@@ -993,7 +997,14 @@ describe("convertOpenAPI3Document tag metadata", () => {
         },
         openapi: version,
         paths: {},
-        tags: [{ name: "simple-tag", description: "A simple tag" }],
+        tags: [
+          {
+            name: "simple-tag",
+            description: "A simple tag",
+            "x-oai-summary": "Tag summary",
+            "x-oai-kind": "OperationGroup",
+          },
+        ],
       });
 
       strictEqual(
@@ -1009,7 +1020,7 @@ describe("convertOpenAPI3Document tag metadata", () => {
 
           @service(#{ title: "(title)" })
           @info(#{ version: "0.0.0" })
-          @tagMetadata(#[#{ name: "simple-tag", description: "A simple tag" }])
+          @tagMetadata(#[#{ name: "simple-tag", description: "A simple tag", summary: "Tag summary", kind: "OperationGroup" }])
           namespace title;
           `,
           { printWidth: 100, tabWidth: 2 },
