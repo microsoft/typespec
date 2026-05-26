@@ -42,10 +42,12 @@ import {
 import { createStateAccessors } from "./state-accessors.js";
 import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
+  createSuppressionTracker,
+  findDirectiveSuppressingOnNode,
+} from "./suppression-tracking.js";
+import {
   CompilerHost,
   Diagnostic,
-  Directive,
-  DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -64,7 +66,6 @@ import {
   Sym,
   SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateInstanceTarget,
   Tracer,
   Type,
@@ -118,6 +119,8 @@ export interface Program {
 
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  /** @internal */
+  reportUnusedSuppressions(): void;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -200,6 +203,7 @@ export async function compile(
   }
   emitStats.total = timer.end();
   program.stats.runtime.emit = emitStats;
+  program.reportUnusedSuppressions();
   return program;
 }
 
@@ -218,9 +222,12 @@ async function createProgram(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const complexityStats: ComplexityStats = {} as any;
-  let sourceResolution: SourceResolution;
+  let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
+  const suppressionTracker: {
+    current?: ReturnType<typeof createSuppressionTracker>;
+  } = {};
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -250,6 +257,7 @@ async function createProgram(
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
+    reportUnusedSuppressions,
     hasError() {
       return error;
     },
@@ -295,6 +303,11 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
+  suppressionTracker.current = createSuppressionTracker({
+    addDiagnostic: (diagnostic) => diagnostics.push(diagnostic),
+    sourceResolution,
+  });
+
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 
@@ -329,6 +342,10 @@ async function createProgram(
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
+
+  if (emit.length === 0) {
+    reportUnusedSuppressions();
+  }
 
   return { program, shouldAbort: false };
 
@@ -830,56 +847,16 @@ async function createProgram(
 
         return false;
       } else {
+        suppressionTracker.current?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
   }
 
-  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
-    let current: Node | undefined = node;
-    do {
-      if (current.directives) {
-        const directive = findDirectiveSuppressingCode(code, current.directives);
-        if (directive) {
-          return directive;
-        }
-      }
-    } while ((current = current.parent));
-    return undefined;
-  }
-
-  /**
-   * Returns the directive node that is suppressing this code.
-   * @param code Code to check for suppression.
-   * @param directives List of directives.
-   * @returns Directive suppressing this code if found, `undefined` otherwise
-   */
-  function findDirectiveSuppressingCode(
-    code: string,
-    directives: readonly DirectiveExpressionNode[],
-  ): Directive | undefined {
-    for (const directive of directives.map((x) => parseDirective(x))) {
-      if (directive.name === "suppress") {
-        if (directive.code === code) {
-          return directive;
-        }
-      }
-    }
-    return undefined;
-  }
-
-  function parseDirective(node: DirectiveExpressionNode): Directive {
-    const args = node.arguments.map((x) => {
-      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-    });
-    switch (node.target.sv) {
-      case "suppress":
-        return { name: "suppress", code: args[0], message: args[1], node };
-      case "deprecated":
-        return { name: "deprecated", message: args[0], node };
-      default:
-        throw new Error("Unexpected directive name.");
+  function reportUnusedSuppressions(): void {
+    if (program.compilerOptions.designTimeBuild) {
+      suppressionTracker.current?.reportUnusedSuppressions();
     }
   }
 

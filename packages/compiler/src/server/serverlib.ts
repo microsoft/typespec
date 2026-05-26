@@ -774,6 +774,9 @@ export function createServer(
             // if the unused template parameter is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
+        } else if (each.code === "unused-suppression") {
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          diagnostic.severity = DiagnosticSeverity.Hint;
         }
         diagnostic.data = {
           id: diagnosticIdCounter++,
