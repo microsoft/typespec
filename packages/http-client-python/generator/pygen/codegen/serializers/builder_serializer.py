@@ -627,7 +627,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> list[str]:
-        kwargs_to_pop = builder.parameters.kwargs_to_pop
+        exact_names = builder.exact_name_params
+        kwargs_to_pop = [k for k in builder.parameters.kwargs_to_pop if k.client_name not in exact_names]
         kwargs = self.parameter_serializer.pop_kwargs_from_signature(
             kwargs_to_pop,
             check_kwarg_dict=True,
@@ -645,7 +646,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
         for p in builder.parameters.parameters:
-            if p.hide_in_operation_signature and not p.is_continuation_token:
+            if p.hide_in_operation_signature and not p.is_continuation_token and p.client_name not in exact_names:
                 kwargs.append(f'{p.client_name} = kwargs.pop("{p.client_name}", None)')
         cls_annotation = builder.cls_type_annotation(
             async_mode=self.async_mode, serialize_namespace=self.serialize_namespace

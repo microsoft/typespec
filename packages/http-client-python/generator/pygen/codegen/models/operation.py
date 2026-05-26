@@ -92,10 +92,15 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
 
     @property
+    def exact_name_params(self) -> set[str]:
+        """Return the set of client names for parameters with isExactName."""
+        return {p.client_name for p in self.parameters.method if p.is_exact_name}
+
+    @property
     def stream_value(self) -> Union[str, bool]:
         return (
             f'kwargs.pop("stream", {self.has_stream_response})'
-            if self.expose_stream_keyword and self.has_response_body
+            if self.expose_stream_keyword and self.has_response_body and "stream" not in self.exact_name_params
             else self.has_stream_response
         )
 

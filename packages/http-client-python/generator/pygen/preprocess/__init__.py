@@ -264,9 +264,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for type in yaml_data:
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
-                property["clientName"] = self.pad_reserved_words(
-                    property["clientName"].lower(), PadType.PROPERTY, property
-                )
+                if not property.get("isExactName", False):
+                    property["clientName"] = self.pad_reserved_words(
+                        property["clientName"].lower(), PadType.PROPERTY, property
+                    )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
@@ -362,14 +363,25 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
-        if not (yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")):
+        if not yaml_data.get("isExactName", False) and not (
+            yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")
+        ):
             yaml_data["clientName"] = self.pad_reserved_words(
                 yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
             )
         if yaml_data.get("propertyToParameterName"):
             # need to create a new one with padded values (but NOT keys, since keys are wire names)
+            # build a lookup of exact-name properties from the body type's properties
+            exact_name_props = set()
+            for prop in yaml_data.get("type", {}).get("properties", []):
+                if prop.get("isExactName", False):
+                    exact_name_props.add(prop.get("wireName", ""))
             yaml_data["propertyToParameterName"] = {
-                prop: self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
+                prop: (
+                    param_name
+                    if prop in exact_name_props
+                    else self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
+                )
                 for prop, param_name in yaml_data["propertyToParameterName"].items()
             }
         wire_name_lower = (yaml_data.get("wireName") or "").lower()
