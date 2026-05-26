@@ -1,7 +1,7 @@
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
-import { convertOpenAPI3Document } from "../../src/index.js";
+import { OpenAPITag3_2, convertOpenAPI3Document } from "../../src/index.js";
 
 const versions = ["3.0.0", "3.1.0", "3.2.0"] as const;
 
@@ -940,5 +940,81 @@ def grade(sample: dict, item: dict) -> float:
         { printWidth: 100, tabWidth: 2 },
       ),
     );
+  });
+});
+
+describe("convertOpenAPI3Document tag metadata", () => {
+  it("converts OpenAPI 3.2 tags with parent and kind fields", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      openapi: "3.2.0",
+      paths: {},
+      tags: [
+        { name: "parent-tag", description: "A parent tag" },
+        { name: "child-tag", description: "A child tag", parent: "parent-tag" } satisfies OpenAPITag3_2,
+        { name: "categorized-tag", description: "A tag with a kind", kind: "category" } satisfies OpenAPITag3_2,
+      ] as OpenAPITag3_2[],
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "(title)" })
+        @info(#{ version: "0.0.0" })
+        @tagMetadata(#[
+          #{ name: "parent-tag", description: "A parent tag" },
+          #{ name: "child-tag", description: "A child tag", parent: "parent-tag" },
+          #{ name: "categorized-tag", description: "A tag with a kind", \`x-kind\`: "category" },
+        ])
+        namespace title;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("does not emit parent or kind fields for OpenAPI 3.0 and 3.1 (fields are undefined)", async () => {
+    for (const version of ["3.0.0", "3.1.0"] as const) {
+      const tsp = await convertOpenAPI3Document({
+        info: {
+          title: "(title)",
+          version: "0.0.0",
+        },
+        openapi: version,
+        paths: {},
+        tags: [{ name: "simple-tag", description: "A simple tag" }],
+      });
+
+      strictEqual(
+        tsp,
+        await formatTypeSpec(
+          `
+          import "@typespec/http";
+          import "@typespec/openapi";
+          import "@typespec/openapi3";
+
+          using Http;
+          using OpenAPI;
+
+          @service(#{ title: "(title)" })
+          @info(#{ version: "0.0.0" })
+          @tagMetadata(#[#{ name: "simple-tag", description: "A simple tag" }])
+          namespace title;
+          `,
+          { printWidth: 100, tabWidth: 2 },
+        ),
+      );
+    }
   });
 });

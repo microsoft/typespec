@@ -32,6 +32,12 @@ export function generateTags(tags: TypeSpecTagMetadata[]): string {
     if (externalDocs) {
       fields.push(externalDocs);
     }
+    if (tag.parent) {
+      fields.push(`parent: "${tag.parent}"`);
+    }
+    if (tag.kind) {
+      fields.push(`\`x-kind\`: "${tag.kind}"`);
+    }
     return `#{${fields.join(", ")}}`;
   });
 

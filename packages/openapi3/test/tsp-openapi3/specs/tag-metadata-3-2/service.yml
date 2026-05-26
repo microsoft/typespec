@@ -1,0 +1,23 @@
+openapi: 3.2.0
+info:
+  title: (title)
+  version: 0.0.0
+tags:
+  - name: parent-tag
+    description: A parent tag
+  - name: child-tag
+    description: A child tag
+    parent: parent-tag
+  - name: categorized-tag
+    description: A tag with a kind
+    kind: category
+paths:
+  /:
+    get:
+      operationId: list
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+      tags:
+        - parent-tag
