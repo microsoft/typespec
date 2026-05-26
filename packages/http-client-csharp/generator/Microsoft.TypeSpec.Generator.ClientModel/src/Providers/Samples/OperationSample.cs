@@ -301,8 +301,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                 return true;
             }
 
-            // Endpoint (Uri) — use provided example value, otherwise a named placeholder like "<endpoint>"
-            if (type.Equals(typeof(Uri)) && parameter.InputParameter is InputEndpointParameter)
+            if (type.Equals(typeof(Uri)) && parameter.Name.Equals("endpoint", StringComparison.OrdinalIgnoreCase))
             {
                 var endpointExpr = GetEndpointValue(parameter.Name);
                 result[parameter.Name] = new ExampleParameterValue(parameter.Name, type, endpointExpr);
@@ -351,8 +350,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                 return true;
             }
 
-            // ClientOptions — skip (optional, not needed in sample)
-            if (parameter.Name.EndsWith("Options", StringComparison.OrdinalIgnoreCase) && parameter.DefaultValue != null)
+            // ClientOptions — skip (optional, not needed in sample).
+            // ScmKnownParameters.ClientOptions sets InitializationValue (not DefaultValue),
+            // so we must check both.
+            if (parameter.Name.EndsWith("Options", StringComparison.OrdinalIgnoreCase) &&
+                (parameter.DefaultValue != null || parameter.InitializationValue != null))
             {
                 return true;
             }
@@ -518,6 +520,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
         {
             foreach (var parameter in parameters)
             {
+                // Skip ClientOptions-like parameters that should be omitted from samples.
+                // These have an InitializationValue (e.g. `options ??= new ClientOptions()`) but
+                // are optional and should not appear in sample code. We check before the mapping
+                // lookup because the mapping is keyed by name and a different parameter with the
+                // same name (e.g. the operation's RequestOptions "options") may exist in the map.
+                if (parameter.Name.EndsWith("Options", StringComparison.OrdinalIgnoreCase) &&
+                    (parameter.DefaultValue != null || parameter.InitializationValue != null))
+                    continue;
+
                 ValueExpression parameterExpression;
 
                 if (ParameterValueMapping.TryGetValue(parameter.Name, out var exampleValue))
@@ -527,8 +538,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                 }
                 else
                 {
-                    // No example value — skip optional, use default for required
-                    if (parameter.DefaultValue != null)
+                    // No example value — skip optional parameters (those with defaults or initialization values)
+                    if (parameter.DefaultValue != null || parameter.InitializationValue != null)
                         continue;
 
                     parameterExpression = DefaultOf(parameter.Type);

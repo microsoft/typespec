@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Xml;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -167,6 +169,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                 return Default;
             }
 
+            // BinaryContent — BinaryContent.Create(BinaryData.FromObjectAsJson(new { ... }))
+            if (frameworkType == typeof(BinaryContent))
+            {
+                var binaryDataExpr = GetExpressionForBinaryData(exampleValue);
+                return Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), binaryDataExpr);
+            }
+
             // BinaryData
             if (frameworkType == typeof(BinaryData))
             {
@@ -237,10 +246,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
             if (rawValue == null)
                 return Default;
 
-            // Access the enum member by name using the type reference
-            var rawString = rawValue.ToString()!;
-            // Use the type name as a static access point: EnumType.MemberName
-            return new MemberExpression(Static(enumType), rawString);
+            // Match the wire value to the enum member's logical name, then convert to a valid C# identifier.
+            if (exampleValue.Type is InputEnumType inputEnumType)
+            {
+                var rawString = rawValue.ToString()!;
+                foreach (var enumValue in inputEnumType.Values)
+                {
+                    if (string.Equals(enumValue.Value?.ToString(), rawString, StringComparison.Ordinal))
+                    {
+                        return new MemberExpression(Static(enumType), enumValue.Name.ToIdentifierName());
+                    }
+                }
+
+                // No matching member found — extensible enums accept unknown values via constructor,
+                // fixed enums fall back to default.
+                if (inputEnumType.IsExtensible)
+                {
+                    var underlyingType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputEnumType.ValueType);
+                    if (underlyingType != null)
+                    {
+                        var literalValue = GetExpressionForFrameworkType(underlyingType.FrameworkType, exampleValue);
+                        return New.Instance(enumType, literalValue);
+                    }
+                }
+            }
+
+            return Default;
         }
 
         private static ValueExpression GetExpressionForModel(CSharpType type, InputExampleValue exampleValue)
@@ -326,8 +357,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                     if (rawVal == null && value is InputExampleRawValue)
                         continue;
 
+                    // Sanitize property names that are not valid C# identifiers (e.g., "xml-id" → "xmlId")
+                    var safeKey = key.ToIdentifierName(useCamelCase: true);
                     var valueExpr = GetExpressionForAnonymousObject(value);
-                    properties[Identifier(key)] = valueExpr;
+                    properties[Identifier(safeKey)] = valueExpr;
                 }
                 return properties.Count > 0 ? New.Anonymous(properties) : New.Instance(typeof(object));
             }

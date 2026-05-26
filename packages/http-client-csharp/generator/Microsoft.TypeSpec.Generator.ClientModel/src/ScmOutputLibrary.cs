@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -78,6 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return [
                 ..baseTypes,
                 ..BuildClientTypes(),
+                ..BuildSampleTypes(),
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 new TypeFormattersDefinition(),
@@ -100,6 +103,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
                 ScmCodeModelGenerator.Instance.AddTypeToKeep(multipart.Name);
                 yield return multipart;
+            }
+        }
+
+        private static IEnumerable<TypeProvider> BuildSampleTypes()
+        {
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
+            foreach (var inputClient in inputClients)
+            {
+                foreach (var provider in BuildSampleTypesForClient(inputClient))
+                {
+                    yield return provider;
+                }
+            }
+        }
+
+        private static IEnumerable<TypeProvider> BuildSampleTypesForClient(InputClient inputClient)
+        {
+            foreach (var child in inputClient.Children)
+            {
+                foreach (var provider in BuildSampleTypesForClient(child))
+                {
+                    yield return provider;
+                }
+            }
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            if (client == null)
+                yield break;
+
+            var sampleProvider = new ClientSampleProvider(client);
+            if (!sampleProvider.IsEmpty)
+            {
+                yield return sampleProvider;
             }
         }
     }

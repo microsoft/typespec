@@ -20,6 +20,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Samples;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -113,11 +114,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected virtual IReadOnlyList<OperationSample> BuildSamples()
         {
-            if (ServiceMethod.Operation.Examples.Count == 0)
-            {
-                return [];
-            }
-
             var protocolMethod = MethodProviders.FirstOrDefault(m =>
                 m.Kind == ScmMethodKind.Protocol &&
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -127,14 +123,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [];
             }
 
-            bool shouldGenerateShortVersion = OperationSample.ShouldGenerateShortVersion(this);
             bool shouldGenerateConvenienceSamples = MethodProviders.Any(m =>
                 m.Kind == ScmMethodKind.Convenience &&
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
 
+            var examples = ServiceMethod.Operation.Examples;
+
+            // When no explicit examples are provided, synthesize mock examples so that
+            // every public operation still gets a compilable sample.
+            if (examples.Count == 0)
+            {
+                examples = ExampleMockValueBuilder.BuildOperationExamples(ServiceMethod.Operation);
+            }
+
+            bool shouldGenerateShortVersion = OperationSample.ShouldGenerateShortVersion(this);
+
             List<OperationSample> samples = new();
-            foreach (var example in ServiceMethod.Operation.Examples)
+            foreach (var example in examples)
             {
                 if (!shouldGenerateShortVersion && example.Name == "ShortVersion")
                 {

@@ -2197,7 +2197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void Samples_WithoutExamples_ReturnsEmpty()
+        public void Samples_WithoutExamples_SynthesizesDefault()
         {
             var operation = InputFactory.Operation("GetWidget");
             var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
@@ -2208,7 +2208,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
 
-            Assert.IsEmpty(methodCollection.Samples);
+            Assert.IsNotEmpty(methodCollection.Samples);
+            Assert.IsTrue(methodCollection.Samples.Any(s => s.ExampleKey == "ShortVersion"));
         }
 
         private static void SetOperationExamples(InputOperation operation, IReadOnlyList<InputOperationExample> examples)
