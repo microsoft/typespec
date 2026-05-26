@@ -1,4 +1,4 @@
 # Linting dependencies
 -r base.txt
 pylint==4.0.4
-black==26.3.1
+black==24.8.0
