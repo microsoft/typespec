@@ -207,6 +207,7 @@ class JinjaSerializer(ReaderAndWriter):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
+            is_typeddict_mode = self.code_model.options["models-mode"] == "typeddict"
             if (
                 self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
             ) and self.code_model.options["models-mode"]:
@@ -214,11 +215,14 @@ class JinjaSerializer(ReaderAndWriter):
                     env=env,
                     namespace=client_namespace,
                     models=client_namespace_type.models,
-                    enums=client_namespace_type.enums,
+                    enums=[] if is_typeddict_mode else client_namespace_type.enums,
                 )
 
             # write types.py per namespace (alongside models/)
-            if self.code_model.has_non_json_models(client_namespace_type.models):
+            # In typeddict mode, also generate types.py when there are enums (for Literal aliases)
+            has_models = self.code_model.has_non_json_models(client_namespace_type.models)
+            has_typeddict_enums = is_typeddict_mode and client_namespace_type.enums
+            if has_models or has_typeddict_enums:
                 generation_dir = self.code_model.get_generation_dir(client_namespace)
                 self.write_file(
                     generation_dir / Path("types.py"),
@@ -227,6 +231,7 @@ class JinjaSerializer(ReaderAndWriter):
                         env=env,
                         client_namespace=client_namespace,
                         models=client_namespace_type.models,
+                        enums=client_namespace_type.enums if is_typeddict_mode else None,
                     ).serialize(),
                 )
 

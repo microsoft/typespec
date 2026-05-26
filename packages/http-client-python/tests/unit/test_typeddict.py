@@ -192,13 +192,19 @@ def _make_typed_dict_only_model(code_model, name, **extra_yaml):
 
 
 def test_typed_dict_only_property():
-    """is_typed_dict_only should be True when yaml_data has typedDictOnly=True."""
+    """is_typed_dict_only should be True when yaml_data has typedDictOnly=True or models-mode is typeddict."""
     code_model = _make_code_model(models_mode="typeddict")
     model = _make_typed_dict_only_model(code_model, "Foo")
     assert model.is_typed_dict_only is True
 
+    # In typeddict mode, ALL models are typed-dict-only
     normal_model = _make_model(code_model, "Bar", model_cls=TypedDictModelType)
-    assert normal_model.is_typed_dict_only is False
+    assert normal_model.is_typed_dict_only is True
+
+    # In dpg mode, only models with typedDictOnly=True are typed-dict-only
+    dpg_code_model = _make_code_model(models_mode="dpg")
+    dpg_normal = _make_model(dpg_code_model, "Baz", model_cls=TypedDictModelType)
+    assert dpg_normal.is_typed_dict_only is False
 
 
 def test_typed_dict_only_excluded_from_public_model_types():
@@ -209,7 +215,8 @@ def test_typed_dict_only_excluded_from_public_model_types():
     code_model.model_types = [normal, td_only]
 
     public = code_model.public_model_types
-    assert normal in public
+    # In typeddict mode, all models are typed-dict-only and excluded from public model types
+    assert normal not in public
     assert td_only not in public
 
 

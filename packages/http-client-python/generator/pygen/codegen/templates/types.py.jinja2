@@ -6,6 +6,13 @@
 {{ imports }}
 {% import 'operation_tools.jinja2' as op_tools %}
 {% import "macros.jinja2" as macros %}
+{% for enum in literal_enums %}
+
+{{ serializer.declare_literal_enum(enum) }}
+{% if enum.yaml_data.get("description") %}
+"""{{ op_tools.wrap_string(enum.yaml_data["description"], "\n") }}"""
+{% endif %}
+{% endfor %}
 {% for model in models %}
 {% if serializer.has_keyword_wire_names(model) %}
 

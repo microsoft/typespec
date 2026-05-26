@@ -300,7 +300,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     {
       "package-name": "typetest-model-usage-typeddictonly",
       namespace: "typetest.model.usage.typeddictonly",
-      "typed-dict-only-models": "all",
+      "models-mode": "typeddict",
     },
   ],
   "type/model/visibility": [

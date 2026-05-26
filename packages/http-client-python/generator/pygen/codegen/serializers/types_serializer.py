@@ -7,6 +7,7 @@ import keyword
 import re
 from typing import Optional
 from ..models import ModelType, CodeModel
+from ..models.enum_type import EnumType
 from ..models.imports import FileImport, ImportType
 from ..models.utils import NamespaceType
 from ..models.property import Property
@@ -54,9 +55,21 @@ class TypesSerializer(BaseSerializer):
         env,
         client_namespace: Optional[str] = None,
         models: Optional[list[ModelType]] = None,
+        enums: Optional[list["EnumType"]] = None,
     ):
         super().__init__(code_model=code_model, env=env, client_namespace=client_namespace)
         self._models = models or []
+        self._enums = enums or []
+
+    @property
+    def literal_enums(self) -> list[EnumType]:
+        """Enums to render as Literal type aliases in typeddict mode."""
+        return sorted(self._enums)
+
+    def declare_literal_enum(self, enum: EnumType) -> str:
+        """Generate a Literal type alias for an enum, e.g. MyColor = Literal["red", "blue"]."""
+        values = [enum.get_declaration(v.value) for v in enum.values]
+        return f"{enum.name} = Literal[{', '.join(values)}]"
 
     @property
     def typeddict_models(self) -> list[ModelType]:
@@ -120,6 +133,10 @@ class TypesSerializer(BaseSerializer):
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
+
+        literal_enums = self.literal_enums
+        if literal_enums:
+            file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB)
 
         td_models = self.typeddict_models
         if td_models or self.discriminated_base_models:
@@ -242,6 +259,7 @@ class TypesSerializer(BaseSerializer):
             code_model=self.code_model,
             imports=FileImportSerializer(self.imports()),
             serializer=self,
+            literal_enums=self.literal_enums,
             models=self.typeddict_models,
             discriminated_bases=self.discriminated_base_models,
         )
