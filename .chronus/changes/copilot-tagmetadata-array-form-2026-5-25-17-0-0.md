@@ -8,7 +8,7 @@ packages:
 Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
 
 ```typespec
-@service()
+@service
 @tagMetadata(#[
   #{ name: "First Tag", description: "First tag description" },
   #{ name: "Second Tag", description: "Second tag description" },
