@@ -328,9 +328,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
             }
 
             // ApiKeyCredential — produce `new ApiKeyCredential("<key>")`
-            if (type.Equals(ScmKnownParameters.KeyCredential.Type) ||
-                type.Name == ScmKnownParameters.KeyCredential.Type.Name ||
-                type.Name == "AzureKeyCredential")
+            var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
+            if (keyCredentialType != null && (type.Equals(keyCredentialType) || type.Name == keyCredentialType.Name))
             {
                 result[parameter.Name] = new ExampleParameterValue(
                     parameter.Name, type, New.Instance(type, Literal("<key>")));
@@ -339,9 +338,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
 
             // TokenCredential — produce `new DefaultAzureCredential()`
             // TokenCredential is abstract, so we must use a concrete type.
-            if (type.Equals(ScmKnownParameters.TokenCredential.Type) ||
-                type.Name == ScmKnownParameters.TokenCredential.Type.Name ||
-                type.Name == "TokenCredential")
+            var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            if (tokenCredentialType != null && (type.Equals(tokenCredentialType) || type.Name == tokenCredentialType.Name))
             {
                 // Use FormattableStringExpression because DefaultAzureCredential
                 // lives in Azure.Identity which the generator doesn't reference.
@@ -579,12 +577,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                 return false;
 
             // Credentials → out-of-line
-            if (type.Equals(ScmKnownParameters.KeyCredential.Type) ||
-                type.Name == ScmKnownParameters.KeyCredential.Type.Name ||
-                type.Name == "AzureKeyCredential" ||
-                type.Equals(ScmKnownParameters.TokenCredential.Type) ||
-                type.Name == ScmKnownParameters.TokenCredential.Type.Name ||
-                type.Name == "TokenCredential")
+            var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
+            var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            if ((keyCredentialType != null && (type.Equals(keyCredentialType) || type.Name == keyCredentialType.Name)) ||
+                (tokenCredentialType != null && (type.Equals(tokenCredentialType) || type.Name == tokenCredentialType.Name)))
                 return false;
 
             // Model types (non-framework, non-enum, non-collection) → out-of-line

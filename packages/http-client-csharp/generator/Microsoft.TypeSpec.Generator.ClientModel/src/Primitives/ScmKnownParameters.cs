@@ -67,8 +67,5 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 
         public static readonly ParameterProvider NextPage =
             new ParameterProvider("nextPage", $"The url of the next page of responses.", typeof(Uri));
-
-        public static readonly ParameterProvider KeyCredential = new("credential", FormattableStringHelpers.Empty, typeof(ApiKeyCredential));
-        public static readonly ParameterProvider TokenCredential = new("credential", FormattableStringHelpers.Empty, typeof(AuthenticationTokenProvider));
     }
 }

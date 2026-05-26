@@ -41,17 +41,5 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var expectedDefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now));
             Assert.AreEqual(expectedDefaultValue, parameter.DefaultValue);
         }
-
-        [Test]
-        public void KeyCredentialHasExpectedType()
-        {
-            Assert.AreEqual("ApiKeyCredential", ScmKnownParameters.KeyCredential.Type.Name);
-        }
-
-        [Test]
-        public void TokenCredentialHasExpectedType()
-        {
-            Assert.AreEqual("AuthenticationTokenProvider", ScmKnownParameters.TokenCredential.Type.Name);
-        }
     }
 }
