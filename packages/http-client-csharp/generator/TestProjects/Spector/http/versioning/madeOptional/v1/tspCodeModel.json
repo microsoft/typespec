@@ -29,7 +29,8 @@
             "$ref": "1"
           },
           "doc": "The version v1.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Versioning.MadeOptional",

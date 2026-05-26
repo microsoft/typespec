@@ -1379,4 +1379,32 @@ describe("Test isExactName propagation", () => {
     strictEqual(bodyParam.kind, "body");
     strictEqual(bodyParam.isExactName, true);
   });
+
+  it("propagates isExactName from @clientName decorator with exact() on an enum value", async () => {
+    const program = await typeSpecCompile(
+      `
+        enum Color {
+          Red,
+          @clientName(Azure.ClientGenerator.Core.exact("snake_case_value"), "csharp")
+          Green,
+          Blue,
+        }
+
+        op test(@body input: Color): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const colorEnum = root.enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    const exactValue = colorEnum.values.find((v) => v.name === "snake_case_value");
+    ok(exactValue);
+    strictEqual(exactValue.isExactName, true);
+    const regularValue = colorEnum.values.find((v) => v.name === "Red");
+    ok(regularValue);
+    strictEqual(regularValue.isExactName, false);
+  });
 });

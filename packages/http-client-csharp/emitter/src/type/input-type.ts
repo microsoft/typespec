@@ -284,6 +284,8 @@ export interface InputEnumValueType extends InputTypeBase {
   value: string | number;
   enumType: InputEnumType;
   valueType: InputPrimitiveType;
+  /** Whether the name should be used exactly as-is, without casing transformations. */
+  isExactName?: boolean;
 }
 
 export interface InputNullableType extends InputTypeBase {

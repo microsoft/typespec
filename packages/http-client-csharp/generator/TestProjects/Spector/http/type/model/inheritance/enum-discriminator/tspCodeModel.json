@@ -27,7 +27,8 @@
             "$ref": "1"
           },
           "doc": "Species golden",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Model.Inheritance.EnumDiscriminator",
@@ -63,7 +64,8 @@
             "$ref": "4"
           },
           "doc": "Species cobra",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Model.Inheritance.EnumDiscriminator",
@@ -364,7 +366,8 @@
                   "__accessSet": true
                 },
                 "doc": "Species golden",
-                "decorators": []
+                "decorators": [],
+                "isExactName": false
               },
               "optional": false,
               "readOnly": false,
@@ -537,7 +540,8 @@
                   "__accessSet": true
                 },
                 "doc": "Species cobra",
-                "decorators": []
+                "decorators": [],
+                "isExactName": false
               },
               "optional": false,
               "readOnly": false,

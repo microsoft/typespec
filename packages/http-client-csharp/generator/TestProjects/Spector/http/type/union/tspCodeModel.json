@@ -26,7 +26,8 @@
           "enumType": {
             "$ref": "1"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "4",
@@ -39,7 +40,8 @@
           "enumType": {
             "$ref": "1"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "5",
@@ -52,7 +54,8 @@
           "enumType": {
             "$ref": "1"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -86,7 +89,8 @@
           "enumType": {
             "$ref": "6"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "9",
@@ -99,7 +103,8 @@
           "enumType": {
             "$ref": "6"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -133,7 +138,8 @@
           "enumType": {
             "$ref": "10"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "13",
@@ -146,7 +152,8 @@
           "enumType": {
             "$ref": "10"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -180,7 +187,8 @@
           "enumType": {
             "$ref": "14"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "17",
@@ -193,7 +201,8 @@
           "enumType": {
             "$ref": "14"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "18",
@@ -206,7 +215,8 @@
           "enumType": {
             "$ref": "14"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -240,7 +250,8 @@
           "enumType": {
             "$ref": "19"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "22",
@@ -253,7 +264,8 @@
           "enumType": {
             "$ref": "19"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "23",
@@ -266,7 +278,8 @@
           "enumType": {
             "$ref": "19"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -300,7 +313,8 @@
           "enumType": {
             "$ref": "24"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "27",
@@ -313,7 +327,8 @@
           "enumType": {
             "$ref": "24"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "28",
@@ -326,7 +341,8 @@
           "enumType": {
             "$ref": "24"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "29",
@@ -339,7 +355,8 @@
           "enumType": {
             "$ref": "24"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",
@@ -373,7 +390,8 @@
           "enumType": {
             "$ref": "30"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "33",
@@ -386,7 +404,8 @@
           "enumType": {
             "$ref": "30"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Union",

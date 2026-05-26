@@ -14,24 +14,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
     {
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType)
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
 
-            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType, bool isExactName = false)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType) { IsExactName = isExactName };
             }
         }
 
@@ -236,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return enumType;
         }
 
-        private static InputEnumType Enum(
+        public static InputEnumType Enum(
             string name,
             InputPrimitiveType underlyingType,
             IReadOnlyList<InputEnumTypeValue> values,

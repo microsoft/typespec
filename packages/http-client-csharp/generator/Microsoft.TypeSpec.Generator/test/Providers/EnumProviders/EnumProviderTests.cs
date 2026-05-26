@@ -554,6 +554,87 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(0, enumType.EnumValues.Count);
         }
 
+        // Validates that an IsExactName-marked value on a fixed string-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            // first value is not exact-name, regular casing applies
+            Assert.AreEqual("One", fields[0].Name);
+            // second value is exact-name, the spec name is preserved verbatim (no PascalCasing)
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on a fixed int-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedIntEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.Int32,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.Int32("One", 1, enumType));
+            enumValues.Add(InputFactory.EnumMember.Int32("snake_case_value", 2, enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("One", fields[0].Name);
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on an extensible string-based enum preserves
+        // its exact-case name (skipping .ToIdentifierName()) on both the generated field (with
+        // the `Value` suffix appended) and the generated public property.
+        [TestCase]
+        public void BuildEnumType_ExtensibleStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: true);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+            var properties = enumProvider.Properties;
+
+            // a private `_value` field + two values
+            Assert.AreEqual(3, fields.Count);
+            Assert.AreEqual("_value", fields[0].Name);
+            Assert.AreEqual("OneValue", fields[1].Name);
+            // exact-name value: name preserved verbatim, with the `Value` suffix appended
+            Assert.AreEqual("snake_case_valueValue", fields[2].Name);
+
+            Assert.AreEqual(2, properties.Count);
+            Assert.AreEqual("One", properties[0].Name);
+            Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");

@@ -29,7 +29,8 @@
             "$ref": "1"
           },
           "doc": "Version 1.0",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Server.Path.Multiple",

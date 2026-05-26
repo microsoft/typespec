@@ -27,7 +27,8 @@
             "$ref": "1"
           },
           "doc": "Monday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "4",
@@ -41,7 +42,8 @@
             "$ref": "1"
           },
           "doc": "Tuesday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "5",
@@ -55,7 +57,8 @@
             "$ref": "1"
           },
           "doc": "Wednesday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "6",
@@ -69,7 +72,8 @@
             "$ref": "1"
           },
           "doc": "Thursday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "7",
@@ -83,7 +87,8 @@
             "$ref": "1"
           },
           "doc": "Friday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "8",
@@ -97,7 +102,8 @@
             "$ref": "1"
           },
           "doc": "Saturday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "9",
@@ -111,7 +117,8 @@
             "$ref": "1"
           },
           "doc": "Sunday.",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Type.Enum.Fixed",

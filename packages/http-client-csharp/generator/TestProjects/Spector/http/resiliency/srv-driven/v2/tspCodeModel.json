@@ -30,7 +30,8 @@
             "$ref": "1"
           },
           "doc": "Version 1",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "4",
@@ -44,7 +45,8 @@
             "$ref": "1"
           },
           "doc": "Version 2",
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "Resiliency.ServiceDriven",

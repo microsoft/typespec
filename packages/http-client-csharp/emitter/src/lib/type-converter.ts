@@ -493,6 +493,7 @@ function createEnumValueType(
     summary: sdkType.summary,
     doc: sdkType.doc,
     decorators: sdkType.decorators,
+    isExactName: sdkType.isExactName,
   });
 }
 

@@ -34,7 +34,8 @@
           "enumType": {
             "$ref": "1"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -73,7 +74,8 @@
           "enumType": {
             "$ref": "5"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -112,7 +114,8 @@
           "enumType": {
             "$ref": "9"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -151,7 +154,8 @@
           "enumType": {
             "$ref": "13"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -185,7 +189,8 @@
           "enumType": {
             "$ref": "17"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "20",
@@ -198,7 +203,8 @@
           "enumType": {
             "$ref": "17"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "21",
@@ -211,7 +217,8 @@
           "enumType": {
             "$ref": "17"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -246,7 +253,8 @@
           "enumType": {
             "$ref": "22"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "25",
@@ -259,7 +267,8 @@
           "enumType": {
             "$ref": "22"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "26",
@@ -272,7 +281,8 @@
           "enumType": {
             "$ref": "22"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -307,7 +317,8 @@
           "enumType": {
             "$ref": "27"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "30",
@@ -320,7 +331,8 @@
           "enumType": {
             "$ref": "27"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "31",
@@ -333,7 +345,8 @@
           "enumType": {
             "$ref": "27"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -368,7 +381,8 @@
           "enumType": {
             "$ref": "32"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "35",
@@ -381,7 +395,8 @@
           "enumType": {
             "$ref": "32"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "36",
@@ -394,7 +409,8 @@
           "enumType": {
             "$ref": "32"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -429,7 +445,8 @@
           "enumType": {
             "$ref": "37"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "40",
@@ -442,7 +459,8 @@
           "enumType": {
             "$ref": "37"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "41",
@@ -455,7 +473,8 @@
           "enumType": {
             "$ref": "37"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -490,7 +509,8 @@
           "enumType": {
             "$ref": "42"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "45",
@@ -503,7 +523,8 @@
           "enumType": {
             "$ref": "42"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "46",
@@ -516,7 +537,8 @@
           "enumType": {
             "$ref": "42"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -551,7 +573,8 @@
           "enumType": {
             "$ref": "47"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "50",
@@ -564,7 +587,8 @@
           "enumType": {
             "$ref": "47"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "51",
@@ -577,7 +601,8 @@
           "enumType": {
             "$ref": "47"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -612,7 +637,8 @@
           "enumType": {
             "$ref": "52"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "55",
@@ -625,7 +651,8 @@
           "enumType": {
             "$ref": "52"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "56",
@@ -638,7 +665,8 @@
           "enumType": {
             "$ref": "52"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -673,7 +701,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "60",
@@ -686,7 +715,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "61",
@@ -699,7 +729,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "62",
@@ -712,7 +743,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "63",
@@ -725,7 +757,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "64",
@@ -738,7 +771,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "65",
@@ -751,7 +785,8 @@
           "enumType": {
             "$ref": "57"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -785,7 +820,8 @@
           "enumType": {
             "$ref": "66"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         },
         {
           "$id": "69",
@@ -798,7 +834,8 @@
           "enumType": {
             "$ref": "66"
           },
-          "decorators": []
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -9145,7 +9182,8 @@
                     "enumType": {
                       "$ref": "645"
                     },
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
                 ],
                 "namespace": "SampleTypeSpec",
@@ -9219,7 +9257,8 @@
                     "enumType": {
                       "$ref": "651"
                     },
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
                 ],
                 "namespace": "SampleTypeSpec",
@@ -9274,7 +9313,8 @@
                     "enumType": {
                       "$ref": "656"
                     },
-                    "decorators": []
+                    "decorators": [],
+                    "isExactName": false
                   }
                 ],
                 "namespace": "SampleTypeSpec",
