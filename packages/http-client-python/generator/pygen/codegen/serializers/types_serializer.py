@@ -109,7 +109,7 @@ class TypesSerializer(BaseSerializer):
 
     @staticmethod
     def has_keyword_wire_names(model: ModelType) -> bool:
-        """Whether any property wire_name is a Python keyword or invalid identifier (requires functional TypedDict form)."""
+        """Whether any property wire_name is a Python keyword or requires functional TypedDict form."""
         return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
     @staticmethod
