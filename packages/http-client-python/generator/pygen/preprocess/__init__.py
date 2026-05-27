@@ -169,6 +169,23 @@ def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
     return parameter.get("etagRole")
 
 
+def _pick_etag_slot(
+    candidates: list[dict[str, Any]], standard_wire_name: str
+) -> Optional[dict[str, Any]]:
+    """Choose which etag-typed header should be promoted to the etag/match_condition slot.
+
+    When more than one etag-typed header is present in an operation, prefer the
+    standard If-Match/If-None-Match header (matched on wireName). Otherwise
+    fall back to the first candidate. Returns None if there are no candidates.
+    """
+    if not candidates:
+        return None
+    for c in candidates:
+        if get_wire_name_lower(c) == standard_wire_name:
+            return c
+    return candidates[0]
+
+
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
     if isinstance(replace_data, dict):
         for k, v in replace_data.items():
@@ -313,18 +330,35 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data["builderPadName"] = to_snake_case(prop_name)
         for og in yaml_data.get("operationGroups", []):
             for o in og["operations"]:
-                property_if_match = None
-                property_if_none_match = None
+                if_match_candidates: list[dict[str, Any]] = []
+                if_none_match_candidates: list[dict[str, Any]] = []
                 for p in o["parameters"]:
                     wire_name_lower = get_wire_name_lower(p)
                     if p["location"] == "header" and wire_name_lower == "client-request-id":
                         yaml_data["requestIdHeaderName"] = wire_name_lower
                     if self.version_tolerant and p["location"] == "header":
                         role = _get_etag_role(p)
-                        if role == "ifMatch" and not property_if_match:
-                            property_if_match = p
-                        elif role == "ifNoneMatch" and not property_if_none_match:
-                            property_if_none_match = p
+                        if role == "ifMatch":
+                            if_match_candidates.append(p)
+                        elif role == "ifNoneMatch":
+                            if_none_match_candidates.append(p)
+
+                # When an operation has multiple etag-typed headers (e.g. Storage's
+                # copyFromUrl, which has both standard If-Match/If-None-Match and
+                # custom x-ms-source-if-match/x-ms-source-if-none-match), only one
+                # pair can be promoted to the etag/match_condition convention.
+                # Prefer the standard If-Match/If-None-Match pair so the result
+                # matches the pre-PR-10494 behaviour, and strip etagRole from the
+                # rest so they retain their natural clientName.
+                property_if_match = _pick_etag_slot(if_match_candidates, "if-match")
+                property_if_none_match = _pick_etag_slot(if_none_match_candidates, "if-none-match")
+                for c in if_match_candidates:
+                    if c is not property_if_match:
+                        c.pop("etagRole", None)
+                for c in if_none_match_candidates:
+                    if c is not property_if_none_match:
+                        c.pop("etagRole", None)
+
                 # pylint: disable=line-too-long
                 # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
                 # only has one, so we need to add "if-none-match" or "if-match" if it's missing
