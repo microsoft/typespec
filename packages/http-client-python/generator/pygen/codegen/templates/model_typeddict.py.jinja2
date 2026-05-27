@@ -1,5 +1,6 @@
 {# actual template starts here #}
 {% import "macros.jinja2" as macros %}
+{% import 'operation_tools.jinja2' as op_tools %}
 
 {% if serializer.is_discriminated_base(model) %}
 {{ serializer.discriminated_subtypes_union(model) }}

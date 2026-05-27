@@ -109,8 +109,8 @@ class TypesSerializer(BaseSerializer):
 
     @staticmethod
     def has_keyword_wire_names(model: ModelType) -> bool:
-        """Whether any property wire_name is a Python keyword (requires functional TypedDict form)."""
-        return any(keyword.iskeyword(p.wire_name) for p in model.properties)
+        """Whether any property wire_name is a Python keyword or invalid identifier (requires functional TypedDict form)."""
+        return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
     @staticmethod
     def get_shadowed_builtins(model: ModelType) -> frozenset[str]:
@@ -168,12 +168,14 @@ class TypesSerializer(BaseSerializer):
                     needs_builtins = True
                 for parent in model.parents:
                     if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
+                        # Import from sibling namespace's types module (not models)
+                        parent_namespace = parent.client_namespace
                         file_import.add_submodule_import(
                             self.code_model.get_relative_import_path(
                                 self.serialize_namespace,
-                                self.code_model.get_imported_namespace_for_model(parent.client_namespace),
+                                parent_namespace,
                             ),
-                            parent.name,
+                            "types",
                             ImportType.LOCAL,
                         )
             if has_required:

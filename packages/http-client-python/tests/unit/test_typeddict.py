@@ -107,7 +107,7 @@ def test_models_mode_none_types_file_has_no_typeddict_imports():
 
 
 def test_models_mode_dpg_no_typeddict_models():
-    """DPG models have base='dpg', not 'typeddict', so should not appear as typeddict_models."""
+    """DPG models have base='dpg', not 'json', so they appear in typeddict_models."""
     code_model = _make_code_model(models_mode="dpg")
     m1 = _make_model(code_model, "Foo", model_cls=DPGModelType)
 

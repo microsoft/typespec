@@ -18,7 +18,7 @@
 
 
 {{ serializer.declare_functional_model(model) }}
-"""{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n") }}
+{{ model.name }}.__doc__ = """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n") }}
 
 {% if model.properties != None %}
     {% for p in model.properties %}
