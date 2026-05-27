@@ -8,8 +8,7 @@ export function transformTags(tags: OpenAPI3Tag[]): TypeSpecTagMetadata[] {
     const summary: string | undefined =
       tag32.summary ?? (tag["x-oai-summary"] as string | undefined);
     const kind: string | undefined = tag32.kind ?? (tag["x-oai-kind"] as string | undefined);
-    // parent is only supported natively in OpenAPI 3.2
-    const parent: string | undefined = tag32.parent;
+    const parent: string | undefined = tag32.parent ?? (tag["x-oai-parent"] as string | undefined);
 
     return {
       name: tag.name,

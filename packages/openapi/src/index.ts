@@ -35,6 +35,7 @@ export {
   ExtensionKey,
   ExternalDocs,
   License,
+  TagMetadata,
   TagMetadataWithName,
 } from "./types.js";
 

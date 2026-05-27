@@ -1829,12 +1829,12 @@ function createOAPIEmitter(
     for (const tag of metadataList ?? []) {
       const { name, ...rest } = tag;
       const tagData: OpenAPI3Tag = { name, ...rest };
-      // For OpenAPI 3.0 and 3.1, drop the 'parent' field (only supported in 3.2)
-      if (specVersion !== "3.2.0" && rest.parent) {
-        delete (tagData as { parent?: string }).parent;
-      }
-      // For OpenAPI 3.0 and 3.1, convert 'summary' and 'kind' to x-oai- prefixed extensions
+      // For OpenAPI 3.0 and 3.1, convert 'parent', 'summary', and 'kind' to x-oai- prefixed extensions
       if (specVersion !== "3.2.0") {
+        if (tag.parent) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-parent"] = tag.parent;
+          delete (tagData as { parent?: string }).parent;
+        }
         if (tag.summary) {
           (tagData as unknown as Record<string, unknown>)["x-oai-summary"] = tag.summary;
           delete (tagData as { summary?: string }).summary;

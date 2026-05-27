@@ -988,7 +988,7 @@ describe("convertOpenAPI3Document tag metadata", () => {
     );
   });
 
-  it("converts OpenAPI 3.0/3.1 tags with x-oai- extensions for summary and kind", async () => {
+  it("converts OpenAPI 3.0/3.1 tags with x-oai- extensions for summary, kind, and parent", async () => {
     for (const version of ["3.0.0", "3.1.0"] as const) {
       const tsp = await convertOpenAPI3Document({
         info: {
@@ -1003,6 +1003,11 @@ describe("convertOpenAPI3Document tag metadata", () => {
             description: "A simple tag",
             "x-oai-summary": "Tag summary",
             "x-oai-kind": "OperationGroup",
+          },
+          {
+            name: "child-tag",
+            description: "A child tag",
+            "x-oai-parent": "simple-tag",
           },
         ],
       });
@@ -1020,7 +1025,10 @@ describe("convertOpenAPI3Document tag metadata", () => {
 
           @service(#{ title: "(title)" })
           @info(#{ version: "0.0.0" })
-          @tagMetadata(#[#{ name: "simple-tag", description: "A simple tag", summary: "Tag summary", kind: "OperationGroup" }])
+          @tagMetadata(#[
+            #{ name: "simple-tag", description: "A simple tag", summary: "Tag summary", kind: "OperationGroup" },
+            #{ name: "child-tag", description: "A child tag", parent: "simple-tag" },
+          ])
           namespace title;
           `,
           { printWidth: 100, tabWidth: 2 },

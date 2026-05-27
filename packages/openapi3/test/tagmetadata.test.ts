@@ -240,7 +240,7 @@ describe("tag metadata with parent field", () => {
     ]);
   });
 
-  it("OpenAPI 3.1 should drop parent field", async () => {
+  it("OpenAPI 3.1 should emit parent field as x-oai-parent", async () => {
     const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
       `
       @service
@@ -256,6 +256,7 @@ describe("tag metadata with parent field", () => {
       {
         name: "ChildTag",
         description: "Child tag",
+        "x-oai-parent": "ParentTag",
       },
       {
         name: "ParentTag",
@@ -264,7 +265,7 @@ describe("tag metadata with parent field", () => {
     ]);
   });
 
-  it("OpenAPI 3.0 should drop parent field", async () => {
+  it("OpenAPI 3.0 should emit parent field as x-oai-parent", async () => {
     const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
       `
       @service
@@ -280,6 +281,7 @@ describe("tag metadata with parent field", () => {
       {
         name: "ChildTag",
         description: "Child tag",
+        "x-oai-parent": "ParentTag",
       },
       {
         name: "ParentTag",

@@ -66,19 +66,16 @@ export interface ExternalDocs {
 }
 
 /**
- * Metadata for a tag including the tag name. Used with the array form of `@tagMetadata`.
+ * Metadata for a tag.
  */
-export interface TagMetadataWithName {
-  /** The name of the tag. */
-  name: string;
-
+export interface TagMetadata {
   /** A description of the tag. */
   description?: string;
 
   /** External documentation for the tag. */
   externalDocs?: ExternalDocs;
 
-  /** The name of a parent tag (only supported in OpenAPI 3.2). */
+  /** The name of a parent tag (only supported natively in OpenAPI 3.2; emitted as `x-oai-parent` for 3.0 and 3.1). */
   parent?: string;
 
   /** A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`. */
@@ -89,4 +86,12 @@ export interface TagMetadataWithName {
 
   /** Additional extension data. Keys must start with `x-`. */
   [extensionKey: string]: unknown;
+}
+
+/**
+ * Metadata for a tag including the tag name. Used with the array form of `@tagMetadata`.
+ */
+export interface TagMetadataWithName extends TagMetadata {
+  /** The name of the tag. */
+  name: string;
 }
