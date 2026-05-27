@@ -85,6 +85,9 @@ steps:
       arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
       workingDirectory: $(selfRepositoryPath)
 
+  - script: npm install -g pnpm
+    displayName: Install pnpm
+
   - task: PowerShell@2
     displayName: "Run build script"
     name: ci_build
