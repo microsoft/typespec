@@ -197,6 +197,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             CodeWriterDeclaration? declaration = parameter._asVariable?.Declaration ?? parameter._asArgument?.Declaration;
 
+            // When the underlying input parameter is marked exact, preserve the spec name verbatim
+            // instead of camelCasing it via ToVariableName.
+            var variableName = parameter.InputParameter?.IsExactName == true
+                ? parameter.Name
+                : parameter.Name.ToVariableName();
+
             if (includeModifiers)
             {
                 if (parameter._asArgument == null)
@@ -213,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         parameter._asArgument = new VariableExpression(
                             parameter.Type,
-                            parameter.Name.ToVariableName(),
+                            variableName,
                             parameter.IsRef,
                             parameter.IsOut);
                     }
@@ -235,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     parameter._asVariable = new VariableExpression(
                         parameter.Type,
-                        parameter.Name.ToVariableName(),
+                        variableName,
                         includeModifiers && parameter.IsRef,
                         includeModifiers && parameter.IsOut);
                 }
