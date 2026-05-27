@@ -95,7 +95,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
           startColumn: d.range.start.character + 1,
           endLineNumber: d.range.end.line + 1,
           endColumn: d.range.end.character + 1,
-          tags: d.tags?.map((t) => t as unknown as monaco.MarkerTag),
+          tags: d.tags?.map((t) => t as number as monaco.MarkerTag),
         }));
 
       monaco.editor.setModelMarkers(model, "lsp-tags", taggedMarkers);
