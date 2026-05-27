@@ -118,10 +118,10 @@ extern dec info(target: Namespace, additionalInfo: valueof AdditionalInfo);
 
 /** Metadata to a single tag that is used by operations. */
 model TagMetadata {
-  /** A description of the API. */
+  /** A description of the tag. */
   description?: string;
 
-  /** An external Docs information of the API. */
+  /** External documentation information for the tag. */
   externalDocs?: ExternalDocs;
 
   /** The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`. */
