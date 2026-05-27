@@ -90,7 +90,7 @@ try {
     # Step 3: Stamp prerelease version if this is a prerelease build
     if ($Prerelease) {
         Write-Host "`n=== Stamping prerelease version ===" -ForegroundColor Cyan
-        Invoke-LoggedCommand "pnpm chronus version --prerelease --only `"@typespec/http-client-python`""
+        Invoke-LoggedCommand "npx chronus version --prerelease --only `"@typespec/http-client-python`""
         $emitterVersion = node -p -e "require('./package.json').version"
         Write-Host "Stamped version: $emitterVersion"
     }
