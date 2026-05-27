@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Samples;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -72,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
                     continue;
                 }
 
-                foreach (var sample in methodCollection.Samples)
+                foreach (var sample in BuildSamplesForOperation(_client, methodCollection, serviceMethod))
                 {
                     methods.Add(BuildSampleMethod(sample, isAsync: false));
                     methods.Add(BuildSampleMethod(sample, isAsync: true));
@@ -80,6 +81,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples
             }
 
             return [.. methods];
+        }
+
+        /// <summary>
+        /// Builds the list of <see cref="OperationSample"/> instances for a single operation.
+        /// Override this method to customize which samples are generated.
+        /// </summary>
+        protected virtual IReadOnlyList<OperationSample> BuildSamplesForOperation(
+            ClientProvider client,
+            ScmMethodProviderCollection methodCollection,
+            InputServiceMethod serviceMethod)
+        {
+            var protocolMethod = methodCollection.MethodProviders.FirstOrDefault(m =>
+                m.Kind == ScmMethodKind.Protocol &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+
+            if (protocolMethod == null || !OperationSample.ShouldGenerateSample(client, protocolMethod.Signature))
+            {
+                return [];
+            }
+
+            bool shouldGenerateConvenienceSamples = methodCollection.MethodProviders.Any(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async) &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            var examples = serviceMethod.Operation.Examples;
+
+            // When no explicit examples are provided, synthesize mock examples so that
+            // every public operation still gets a compilable sample.
+            if (examples.Count == 0)
+            {
+                examples = ExampleMockValueBuilder.BuildOperationExamples(serviceMethod.Operation);
+            }
+
+            bool shouldGenerateShortVersion = OperationSample.ShouldGenerateShortVersion(methodCollection);
+
+            List<OperationSample> samples = new();
+            foreach (var example in examples)
+            {
+                if (!shouldGenerateShortVersion && example.Name == "ShortVersion")
+                {
+                    continue;
+                }
+
+                samples.Add(new OperationSample(client, methodCollection, serviceMethod, example, false, example.Name));
+
+                if (shouldGenerateConvenienceSamples)
+                {
+                    samples.Add(new OperationSample(client, methodCollection, serviceMethod, example, true, example.Name));
+                }
+            }
+
+            return samples;
         }
 
         // -------------------------------------------------------------------

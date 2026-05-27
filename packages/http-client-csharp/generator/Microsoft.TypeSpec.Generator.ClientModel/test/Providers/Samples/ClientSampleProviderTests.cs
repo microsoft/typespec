@@ -256,6 +256,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Samples
         }
 
         // -------------------------------------------------------------------
+        // BuildSamplesForOperation behavior
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void BuildSamplesForOperation_AttachesProtocolAndConvenienceSamplesForEachExample()
+        {
+            var shortVersion = new InputOperationExample("ShortVersion", null, [], "");
+            var allParameters = new InputOperationExample("AllParameters", null, [], "");
+            var operation = InputFactory.Operation("GetWidget");
+            SetOperationExamples(operation, [shortVersion, allParameters]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
+            var provider = new ClientSampleProvider(client);
+
+            bool shouldGenerateShortVersion = OperationSample.ShouldGenerateShortVersion(methodCollection);
+
+            // Each sample generates sync + async = 2 methods
+            // With convenience: AllParameters (protocol+convenience) + ShortVersion (protocol+convenience if applicable)
+            var methods = provider.Methods;
+            Assert.IsTrue(methods.Any(m => m.Signature.Name.Contains("AllParameters") && !m.Signature.Name.Contains("Convenience")));
+            Assert.IsTrue(methods.Any(m => m.Signature.Name.Contains("AllParameters") && m.Signature.Name.Contains("Convenience")));
+
+            if (shouldGenerateShortVersion)
+            {
+                Assert.IsTrue(methods.Any(m => m.Signature.Name.Contains("ShortVersion") && !m.Signature.Name.Contains("Convenience")));
+            }
+            else
+            {
+                Assert.IsFalse(methods.Any(m => m.Signature.Name.Contains("ShortVersion") && !m.Signature.Name.Contains("Convenience")));
+            }
+        }
+
+        [Test]
+        public void BuildSamplesForOperation_DoesNotAttachConvenienceSamplesWhenConvenienceMethodIsDisabled()
+        {
+            var operation = InputFactory.Operation("GetWidget", generateConvenienceMethod: false);
+            SetOperationExamples(
+                operation,
+                [
+                    new InputOperationExample("ShortVersion", null, [], ""),
+                    new InputOperationExample("AllParameters", null, [], "")
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var provider = new ClientSampleProvider(client);
+
+            // No convenience methods should be generated
+            Assert.IsFalse(provider.Methods.Any(m => m.Signature.Name.Contains("Convenience")));
+        }
+
+        [Test]
+        public void BuildSamplesForOperation_WithoutExamples_SynthesizesDefault()
+        {
+            var operation = InputFactory.Operation("GetWidget");
+            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var provider = new ClientSampleProvider(client);
+
+            Assert.IsNotEmpty(provider.Methods);
+            Assert.IsTrue(provider.Methods.Any(m => m.Signature.Name.Contains("ShortVersion")));
+        }
+
+        // -------------------------------------------------------------------
         // Helpers
         // -------------------------------------------------------------------
 

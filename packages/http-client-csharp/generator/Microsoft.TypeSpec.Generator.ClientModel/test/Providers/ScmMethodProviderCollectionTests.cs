@@ -6,12 +6,10 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -2140,84 +2138,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
                 Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             }
-        }
-
-        [Test]
-        public void Samples_AttachesProtocolAndConvenienceSamplesForEachExample()
-        {
-            var shortVersion = new InputOperationExample("ShortVersion", null, [], "");
-            var allParameters = new InputOperationExample("AllParameters", null, [], "");
-            var operation = InputFactory.Operation("GetWidget");
-            SetOperationExamples(operation, [shortVersion, allParameters]);
-            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
-
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
-
-            var expectedCount = OperationSample.ShouldGenerateShortVersion(methodCollection) ? 4 : 3;
-            Assert.AreEqual(expectedCount, methodCollection.Samples.Count);
-            Assert.IsTrue(methodCollection.Samples.Any(s => !s.IsConvenienceSample && s.ExampleKey == "AllParameters"));
-            Assert.IsTrue(methodCollection.Samples.Any(s => s.IsConvenienceSample && s.ExampleKey == "AllParameters"));
-            Assert.IsTrue(methodCollection.Samples.Any(s => s.IsConvenienceSample && s.ExampleKey == "ShortVersion") ||
-                          !OperationSample.ShouldGenerateShortVersion(methodCollection));
-
-            if (OperationSample.ShouldGenerateShortVersion(methodCollection))
-            {
-                Assert.IsTrue(methodCollection.Samples.Any(s => !s.IsConvenienceSample && s.ExampleKey == "ShortVersion"));
-            }
-            else
-            {
-                Assert.IsFalse(methodCollection.Samples.Any(s => !s.IsConvenienceSample && s.ExampleKey == "ShortVersion"));
-            }
-        }
-
-        [Test]
-        public void Samples_DoesNotAttachConvenienceSamplesWhenConvenienceMethodIsDisabled()
-        {
-            var operation = InputFactory.Operation("GetWidget", generateConvenienceMethod: false);
-            SetOperationExamples(
-                operation,
-                [
-                    new InputOperationExample("ShortVersion", null, [], ""),
-                    new InputOperationExample("AllParameters", null, [], "")
-                ]);
-            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
-
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
-
-            Assert.AreEqual(2, methodCollection.Samples.Count);
-            Assert.IsTrue(methodCollection.Samples.All(s => !s.IsConvenienceSample));
-        }
-
-        [Test]
-        public void Samples_WithoutExamples_SynthesizesDefault()
-        {
-            var operation = InputFactory.Operation("GetWidget");
-            var serviceMethod = InputFactory.BasicServiceMethod("GetWidget", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
-
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
-
-            Assert.IsNotEmpty(methodCollection.Samples);
-            Assert.IsTrue(methodCollection.Samples.Any(s => s.ExampleKey == "ShortVersion"));
-        }
-
-        private static void SetOperationExamples(InputOperation operation, IReadOnlyList<InputOperationExample> examples)
-        {
-            var setter = typeof(InputOperation)
-                .GetProperty(nameof(InputOperation.Examples), BindingFlags.Instance | BindingFlags.Public)!
-                .GetSetMethod(nonPublic: true)!;
-            setter.Invoke(operation, [examples]);
         }
     }
 }

@@ -12,7 +12,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
-using Microsoft.TypeSpec.Generator.ClientModel.Providers.Samples;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -20,7 +19,6 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Samples;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -42,14 +40,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
-        private IReadOnlyList<OperationSample>? _samples;
         private readonly bool _generateConvenienceMethod;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; }
         public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
-        public IReadOnlyList<OperationSample> Samples => _samples ??= BuildSamples();
 
         public ScmMethodProvider this[int index]
         {
@@ -110,52 +106,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 syncProtocol,
                 asyncProtocol,
             ];
-        }
-
-        protected virtual IReadOnlyList<OperationSample> BuildSamples()
-        {
-            var protocolMethod = MethodProviders.FirstOrDefault(m =>
-                m.Kind == ScmMethodKind.Protocol &&
-                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
-
-            if (protocolMethod == null || !OperationSample.ShouldGenerateSample(Client, protocolMethod.Signature))
-            {
-                return [];
-            }
-
-            bool shouldGenerateConvenienceSamples = MethodProviders.Any(m =>
-                m.Kind == ScmMethodKind.Convenience &&
-                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async) &&
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-
-            var examples = ServiceMethod.Operation.Examples;
-
-            // When no explicit examples are provided, synthesize mock examples so that
-            // every public operation still gets a compilable sample.
-            if (examples.Count == 0)
-            {
-                examples = ExampleMockValueBuilder.BuildOperationExamples(ServiceMethod.Operation);
-            }
-
-            bool shouldGenerateShortVersion = OperationSample.ShouldGenerateShortVersion(this);
-
-            List<OperationSample> samples = new();
-            foreach (var example in examples)
-            {
-                if (!shouldGenerateShortVersion && example.Name == "ShortVersion")
-                {
-                    continue;
-                }
-
-                samples.Add(new OperationSample(Client, this, ServiceMethod, example, false, example.Name));
-
-                if (shouldGenerateConvenienceSamples)
-                {
-                    samples.Add(new OperationSample(Client, this, ServiceMethod, example, true, example.Name));
-                }
-            }
-
-            return samples;
         }
 
         private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
