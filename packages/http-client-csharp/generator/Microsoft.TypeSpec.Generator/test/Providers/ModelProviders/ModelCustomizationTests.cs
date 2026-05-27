@@ -154,6 +154,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnModel()
+        {
+            // A spec model marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that model via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("snake_case_model", properties: props, isExactName: true);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            AssertCommon(modelTypeProvider, "NewNamespace.Models", "CustomizedModel");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnEnum()
+        {
+            // A spec enum marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that enum via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputEnum = InputFactory.StringEnum("snake_case_enum", [("value", "value")], isExactName: true);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
+        }
+
+        [Test]
         public async Task CanChangePropertyType()
         {
             var props = new[]

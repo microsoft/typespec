@@ -99,11 +99,6 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("requiredString"u8);
             writer.WriteStringValue(RequiredString);
-            if (Optional.IsDefined(exact_name_property))
-            {
-                writer.WritePropertyName("exactNameProperty"u8);
-                writer.WriteStringValue(exact_name_property);
-            }
             writer.WritePropertyName("requiredInt"u8);
             writer.WriteStringValue(RequiredInt.ToString());
             writer.WritePropertyName("requiredCollection"u8);
@@ -355,7 +350,6 @@ namespace SampleTypeSpec
                 return null;
             }
             string requiredString = default;
-            string exactNameProperty = default;
             int requiredInt = default;
             IList<StringFixedEnum> requiredCollection = default;
             IDictionary<string, StringExtensibleEnum> requiredDictionary = default;
@@ -385,11 +379,6 @@ namespace SampleTypeSpec
                 if (prop.NameEquals("requiredString"u8))
                 {
                     requiredString = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("exactNameProperty"u8))
-                {
-                    exactNameProperty = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("requiredInt"u8))
@@ -648,7 +637,6 @@ namespace SampleTypeSpec
             }
             return new RoundTripModel(
                 requiredString,
-                exactNameProperty,
                 requiredInt,
                 requiredCollection,
                 requiredDictionary,

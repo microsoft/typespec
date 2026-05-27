@@ -500,3 +500,125 @@ describe("Operation Converter", () => {
     });
   });
 });
+
+describe("Test isExactName propagation on operations and parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a method parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@clientName(Azure.ClientGenerator.Core.exact("snake_case_param"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const methodParams = root.clients[0].methods[0].parameters;
+    const param = methodParams.find((p) => p.name === "snake_case_param");
+    ok(param);
+    strictEqual(param.kind, "method");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a query parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@query @clientName(Azure.ClientGenerator.Core.exact("snake_case_query"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_query");
+    ok(param);
+    strictEqual(param.kind, "query");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a header parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(@header @clientName(Azure.ClientGenerator.Core.exact("snake_case_header"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_header");
+    ok(param);
+    strictEqual(param.kind, "header");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a path parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/{regularName}")
+        op test(@path @clientName(Azure.ClientGenerator.Core.exact("snake_case_path"), "csharp") regularName: string): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const params = root.clients[0].methods[0].operation.parameters;
+    const param = params.find((p) => p.name === "snake_case_path");
+    ok(param);
+    strictEqual(param.kind, "path");
+    strictEqual(param.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a body parameter", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Book {
+          name: string;
+        }
+        op test(@body @clientName(Azure.ClientGenerator.Core.exact("snake_case_body"), "csharp") regularName: Book): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const bodyParam = root.clients[0].methods[0].operation.parameters.find(
+      (p) => p.name === "snake_case_body",
+    );
+    ok(bodyParam);
+    strictEqual(bodyParam.kind, "body");
+    strictEqual(bodyParam.isExactName, true);
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on an operation", async () => {
+    const program = await typeSpecCompile(
+      `
+        @clientName(Azure.ClientGenerator.Core.exact("snake_case_op"), "csharp")
+        op test(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods.find((m) => m.name === "snake_case_op");
+    ok(method);
+    strictEqual(method.isExactName, true);
+    strictEqual(method.operation.name, "snake_case_op");
+    strictEqual(method.operation.isExactName, true);
+  });
+});

@@ -398,9 +398,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ExactNameMethodParameterPreservedInRestClient()
         {
-            // A method parameter marked with IsExactName must be preserved verbatim in the
-            // generated method signature — both as the C# parameter name and as the wire
-            // (serialized) name used by the rest client when building the request URI.
             var queryParam = InputFactory.QueryParameter(
                 "api_key",
                 InputPrimitiveType.String,
@@ -420,26 +417,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             ]);
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
             var clientProvider = new ClientProvider(client);
-            Assert.IsNotNull(clientProvider);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
 
-            var convenienceParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider!);
-            Assert.IsNotNull(convenienceParams);
-            // C# parameter name preserves the exact-case name (not normalized to ApiKey or apiKey).
-            Assert.IsNotNull(
-                convenienceParams.FirstOrDefault(p => string.Equals(p.Name, "api_key", StringComparison.Ordinal)),
-                "Convenience method parameter should preserve the exact name 'api_key'.");
-
-            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
-            Assert.IsNotNull(protocolParams);
-            Assert.IsNotNull(
-                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "api_key", StringComparison.Ordinal)),
-                "Protocol method parameter should preserve the exact name 'api_key'.");
-
-            // Validate the rest client appends the wire (serialized) name when building the URI.
-            var restClientProvider = clientProvider.RestClient;
-            var createRequestMethod = restClientProvider.Methods.Single(m => m.Signature.Name.StartsWith("CreateGetSomething"));
-            var body = createRequestMethod.BodyStatements!.ToDisplayString();
-            StringAssert.Contains("api_key", body);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [TestCase(true, true)]

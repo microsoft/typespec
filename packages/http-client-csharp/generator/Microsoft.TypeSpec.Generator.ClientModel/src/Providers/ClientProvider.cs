@@ -214,8 +214,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
-            // When the operation name is marked as exact, preserve it verbatim without any casing
-            // transformations or convention-based renames (e.g. "List" -> "GetAll").
             if (serviceMethod.IsExactName)
             {
                 return serviceMethod.Operation.Name;

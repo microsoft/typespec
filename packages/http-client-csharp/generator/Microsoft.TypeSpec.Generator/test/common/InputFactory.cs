@@ -131,7 +131,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -142,7 +143,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 usage: usage,
                 isExtensible: isExtensible,
                 clientNamespace: clientNamespace,
-                external: external);
+                external: external,
+                isExactName: isExactName);
 
             foreach (var (valueName, value) in values)
             {
@@ -244,7 +246,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             bool isExtensible = false,
             string clientNamespace = "Sample.Models",
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            bool isExactName = false)
         {
             var enumType = new InputEnumType(
                 name,
@@ -257,7 +260,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 usage,
                 underlyingType,
                 values,
-                isExtensible);
+                isExtensible)
+            {
+                IsExactName = isExactName,
+            };
             if (external != null)
             {
                 enumType.External = external;
