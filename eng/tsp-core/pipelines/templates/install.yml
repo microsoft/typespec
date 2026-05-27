@@ -17,7 +17,7 @@ steps:
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
-      versionSpec: ${{ parameters.nodeVersion }}
+      version: ${{ parameters.nodeVersion }}
   - ${{ if parameters.useDotNet }}:
       - task: UseDotNet@2
         displayName: Install .NET
