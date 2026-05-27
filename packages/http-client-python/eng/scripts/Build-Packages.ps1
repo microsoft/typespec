@@ -75,6 +75,13 @@ New-Item -ItemType Directory -Force -Path "$outputPath/packages" | Out-Null
 $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 Write-Host "Package version: $emitterVersion"
 
+# Stamp prerelease version if BuildNumber is provided
+if ($BuildNumber) {
+    $versionTag = $Prerelease ? "-alpha" : "-beta"
+    $emitterVersion = "$emitterVersion$versionTag.$BuildNumber"
+    Write-Host "Stamped version: $emitterVersion"
+}
+
 Push-Location "$packageRoot"
 try {
     # Step 1: Build the emitter and generator
@@ -87,7 +94,14 @@ try {
         Invoke-LoggedCommand "npm run lint" -GroupOutput
     }
 
-    # Step 3: Create npm package
+    # Step 3: Update package.json version and create npm package
+    if ($BuildNumber) {
+        Write-Host "`n=== Updating package.json to version: $emitterVersion ===" -ForegroundColor Cyan
+        $packageJson = Get-Content -Raw "package.json" | ConvertFrom-Json -AsHashtable
+        $packageJson.version = $emitterVersion
+        $packageJson | ConvertTo-Json -Depth 100 | Out-File -Path "package.json" -Encoding utf8 -NoNewline -Force
+    }
+
     Write-Host "`n=== Creating npm package ===" -ForegroundColor Cyan
     Invoke-LoggedCommand "npm pack"
     Copy-Item "typespec-http-client-python-$emitterVersion.tgz" -Destination "$outputPath/packages"
