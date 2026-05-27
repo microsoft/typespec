@@ -37,7 +37,7 @@ jobs:
         displayName: Install Node.js
         retryCountOnTaskFailure: 3
         inputs:
-          version: 26.x
+          version: 22.x
 
       # - script: npm install -g bun
       #   displayName: Install bun
