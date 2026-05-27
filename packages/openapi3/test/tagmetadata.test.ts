@@ -226,3 +226,104 @@ describe("tag metadata with parent field", () => {
     ]);
   });
 });
+
+// Tests for summary and kind fields - version specific behavior
+describe("tag metadata with summary and kind fields", () => {
+  it("OpenAPI 3.2 should emit summary and kind as native fields", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        summary: "all operations that allow doing Foo",
+        kind: "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.1 should emit summary as x-oai-summary and kind as x-oai-kind", async () => {
+    const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        "x-oai-summary": "all operations that allow doing Foo",
+        "x-oai-kind": "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.0 should emit summary as x-oai-summary and kind as x-oai-kind", async () => {
+    const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        "x-oai-summary": "all operations that allow doing Foo",
+        "x-oai-kind": "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.2 should emit summary only if kind is absent", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        summary: "all operations that allow doing Foo",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.2 should emit kind only if summary is absent", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        kind: "FooGroup",
+      },
+    ]);
+  });
+});

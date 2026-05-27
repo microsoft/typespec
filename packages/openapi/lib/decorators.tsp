@@ -127,6 +127,12 @@ model TagMetadata {
   /** The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`. */
   parent?: string;
 
+  /** A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`. */
+  summary?: string;
+
+  /** A machine-readable string to categorize what sort of tag it is. Any string value can be used. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-kind`. */
+  kind?: string;
+
   /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }

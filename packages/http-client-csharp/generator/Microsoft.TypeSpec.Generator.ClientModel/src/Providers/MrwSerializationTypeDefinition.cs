@@ -541,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_jsonModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(_jsonModelTInterface.Arguments[0]);
             }
 
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
@@ -698,7 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_persistableModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(_persistableModelTInterface.Arguments[0]);
             }
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider

@@ -1,12 +1,13 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
   title: (title)
   version: 0.0.0
 tags:
   - name: extensive
     description: An extensive operation
-    x-oai-summary: A summary of the extensive tag
-    x-oai-kind: OperationGroup
+    summary: A summary of the extensive tag
+    kind: OperationGroup
+    parent: root
 paths:
   /:
     get:
@@ -19,10 +20,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pet"
-        4XX:
-          description: Client error
-        5XX:
-          description: Server error
       tags:
         - extensive
 components:
