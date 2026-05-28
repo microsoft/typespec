@@ -131,9 +131,17 @@ extends:
                   $commitSha = '$(Build.SourceVersion)'
                   $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
 
+                  # Compute the URL to this pipeline run for inclusion in the generated PR
+                  $collectionUri = '$(System.CollectionUri)'.TrimEnd('/')
+                  $teamProject = '$(System.TeamProject)'
+                  $buildId = '$(Build.BuildId)'
+                  $pipelineRunUrl = "$collectionUri/$teamProject/_build/results?buildId=$buildId&view=results"
+
                   Write-Host "Commit SHA: $commitSha"
                   Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "Pipeline Run URL: $pipelineRunUrl"
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=PipelineRunUrl]$pipelineRunUrl"
                 displayName: Set variables for PR creation
 
               - task: UseNode@1
@@ -233,6 +241,7 @@ extends:
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
