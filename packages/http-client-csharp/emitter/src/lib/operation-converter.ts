@@ -198,6 +198,7 @@ export function fromSdkServiceMethodOperation(
 
   operation = {
     name: method.name,
+    isExactName: method.isExactName,
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
@@ -273,6 +274,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   return diagnostics.wrap({
     kind: method.kind,
     name: method.name,
+    isExactName: method.isExactName,
     accessibility: method.access,
     apiVersions: method.apiVersions,
     doc: method.doc,
@@ -504,6 +506,7 @@ function fromQueryParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -539,6 +542,7 @@ function fromPathParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -574,6 +578,7 @@ function fromHeaderParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     collectionHeaderPrefix: diagnostics.pipe(getCollectionHeaderPrefix(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -604,6 +609,7 @@ function fromBodyParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
     serializationOptions: p.serializationOptions,
   };
 
@@ -646,6 +652,7 @@ export function fromMethodParameter(
     access: p.access,
     decorators: p.decorators,
     paramAlias,
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
