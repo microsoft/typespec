@@ -57,6 +57,7 @@
     "emitter/lib/*.tsp"
   ],
   "peerDependencies": {
+    "@azure-tools/typespec-azure-core": ">=0.68.0 <0.69.0 || ~0.69.0-0",
     "@azure-tools/typespec-client-generator-core": ">=0.68.2 <0.69.0 || ~0.69.0-0",
     "@typespec/compiler": "^1.12.0",
     "@typespec/http": "^1.12.0",
