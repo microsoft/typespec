@@ -5,7 +5,7 @@ packages:
 ---
 
 Add project-scoped compiler feature flags to `tspconfig.yaml`. Compiler feature definitions
-are tracked internally with descriptions.
+are tracked internally with descriptions and can be listed with `tsp info features`.
 
 ```yaml title=tspconfig.yaml
 kind: project
