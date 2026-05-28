@@ -350,7 +350,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 # custom x-ms-source-if-match/x-ms-source-if-none-match), only one
                 # pair can be promoted to the etag/match_condition convention.
                 # Prefer the standard If-Match/If-None-Match pair so the result
-                # matches the pre-PR-10494 behaviour, and strip etagRole from the
+                # matches the pre-PR-10494 behavior, and strip etagRole from the
                 # rest so they retain their natural clientName.
                 property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
                 property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)

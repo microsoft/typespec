@@ -151,7 +151,7 @@ def test_first_custom_pair_chosen_when_multiple_custom_pairs_present():
 def test_synthetic_partner_still_works_with_only_one_custom_etag():
     """When only a single custom etag header is present (no partner), the existing
     synthetic-partner code path still creates a matching ifNoneMatch (or ifMatch)
-    copy. The fix must not regress this behaviour.
+    copy. The fix must not regress this behavior.
     """
     source_match = _header_param(
         "source_if_match", "x-ms-source-if-match", "ifMatch"
