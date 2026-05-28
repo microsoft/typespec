@@ -216,8 +216,9 @@ async function loadConfigFile(
     );
   }
 
-  if (data.kind === "project" && data.features !== undefined) {
-    for (const feature of data.features) {
+  const features = Array.isArray(data.features) ? data.features : undefined;
+  if (data.kind === "project" && features !== undefined) {
+    for (const feature of features) {
       if (!isCompilerFeatureName(feature)) {
         diagnostics.push(
           createDiagnostic({
@@ -241,7 +242,7 @@ async function loadConfigFile(
     extends: data.extends,
     kind: data.kind,
     entrypoint: data.entrypoint,
-    features: data.features,
+    features,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",

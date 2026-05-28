@@ -7,7 +7,8 @@ import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
-import { findTestPackageRoot } from "../../src/testing/test-utils.js";
+import { createTestFileSystem } from "../../src/testing/fs.js";
+import { findTestPackageRoot, resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
   await findTestPackageRoot(import.meta.url),
@@ -161,6 +162,29 @@ describe("compiler: config file loading", () => {
         outputDir: "{cwd}/tsp-output",
         kind: "project",
         features: ["internal-modifier"],
+      });
+    });
+
+    it("loads config with kind: project and blank features", async () => {
+      const fs = createTestFileSystem();
+      fs.addTypeSpecFile(
+        "project/tspconfig.yaml",
+        `
+        kind: project
+        features:
+        `,
+      );
+
+      const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath("project/tspconfig.yaml"),
+        true,
+        false,
+      );
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
       });
     });
   });
