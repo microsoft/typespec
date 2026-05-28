@@ -201,3 +201,70 @@ def test_full_update_yaml_does_not_collide_client_names():
     assert "match_condition" in client_names
     assert "source_if_match" in client_names
     assert "source_if_none_match" in client_names
+
+
+def test_standard_if_match_not_paired_with_custom_if_none_match():
+    """Edge case: an op has a standard If-Match but only a custom
+    x-ms-source-if-none-match (no standard If-None-Match, no custom If-Match
+    partner).  Without the defensive check the custom header would be promoted
+    to the match_condition slot, pairing a standard header with a custom one
+    from a different family.
+
+    The fix demotes the custom header (strips etagRole) so the standard
+    If-Match gets a synthetic If-None-Match partner instead.
+    """
+    if_match = _header_param("if_match", "If-Match", "ifMatch")
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
+    client = _client_yaml([if_match, source_none])
+
+    plugin = _plugin()
+    plugin.update_client(client)
+
+    op = _get_op(client)
+    assert op.get("hasEtag") is True
+
+    # The standard If-Match should be promoted and paired with a synthetic partner.
+    last_two = op["parameters"][-2:]
+    assert last_two[0]["etagRole"] == "ifMatch"
+    assert last_two[0]["wireName"] == "If-Match"
+    assert last_two[1]["etagRole"] == "ifNoneMatch"
+    assert last_two[1]["wireName"] == "if-none-match"  # synthetic
+
+    # The custom header should NOT have been promoted — etagRole stripped.
+    assert "etagRole" not in source_none
+
+    # After update_parameter, no duplicate clientNames.
+    for p in op["parameters"]:
+        plugin.update_parameter(p)
+    client_names = [p["clientName"] for p in op["parameters"]]
+    assert len(client_names) == len(set(client_names)), (
+        f"Duplicate clientNames: {client_names}"
+    )
+
+
+def test_standard_if_none_match_not_paired_with_custom_if_match():
+    """Symmetric case: standard If-None-Match + custom x-ms-source-if-match
+    (no standard If-Match, no custom If-None-Match).
+
+    The custom header should be demoted; the standard If-None-Match gets a
+    synthetic If-Match partner.
+    """
+    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
+    if_none_match = _header_param("if_none_match", "If-None-Match", "ifNoneMatch")
+    client = _client_yaml([source_match, if_none_match])
+
+    plugin = _plugin()
+    plugin.update_client(client)
+
+    op = _get_op(client)
+    assert op.get("hasEtag") is True
+
+    last_two = op["parameters"][-2:]
+    assert last_two[0]["etagRole"] == "ifMatch"
+    assert last_two[0]["wireName"] == "if-match"  # synthetic
+    assert last_two[1]["etagRole"] == "ifNoneMatch"
+    assert last_two[1]["wireName"] == "If-None-Match"
+
+    assert "etagRole" not in source_match

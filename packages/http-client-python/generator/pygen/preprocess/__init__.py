@@ -158,6 +158,8 @@ CLOUD_SETTING = {
         "isTypingOnly": True,
     },
 }
+STANDARD_IF_MATCH_WIRE_NAME = "if-match"
+STANDARD_IF_NONE_MATCH_WIRE_NAME = "if-none-match"
 
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
@@ -350,26 +352,43 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 # Prefer the standard If-Match/If-None-Match pair so the result
                 # matches the pre-PR-10494 behaviour, and strip etagRole from the
                 # rest so they retain their natural clientName.
-                property_if_match = _pick_etag_slot(if_match_candidates, "if-match")
-                property_if_none_match = _pick_etag_slot(if_none_match_candidates, "if-none-match")
+                property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
+                property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)
+
+                # Ensure the promoted pair come from the same family.
+                # When one slot is standard and the other custom (cross-family),
+                # replace the custom slot with a synthetic standard partner.
+                # Also synthesize the missing partner when only one side is
+                # present (e.g. Cosmos DB Tables has If-Match but no
+                # If-None-Match).
+                if property_if_match and property_if_none_match:
+                    match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
+                    none_match_is_std = (
+                        get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
+                    )
+                    if match_is_std and not none_match_is_std:
+                        property_if_none_match = property_if_match.copy()
+                        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+                        property_if_none_match["etagRole"] = "ifNoneMatch"
+                    elif none_match_is_std and not match_is_std:
+                        property_if_match = property_if_none_match.copy()
+                        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+                        property_if_match["etagRole"] = "ifMatch"
+                elif not property_if_match and property_if_none_match:
+                    property_if_match = property_if_none_match.copy()
+                    property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+                    property_if_match["etagRole"] = "ifMatch"
+                elif property_if_match and not property_if_none_match:
+                    property_if_none_match = property_if_match.copy()
+                    property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+                    property_if_none_match["etagRole"] = "ifNoneMatch"
+
                 for c in if_match_candidates:
                     if c is not property_if_match:
                         c.pop("etagRole", None)
                 for c in if_none_match_candidates:
                     if c is not property_if_none_match:
                         c.pop("etagRole", None)
-
-                # pylint: disable=line-too-long
-                # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
-                # only has one, so we need to add "if-none-match" or "if-match" if it's missing
-                if not property_if_match and property_if_none_match:
-                    property_if_match = property_if_none_match.copy()
-                    property_if_match["wireName"] = "if-match"
-                    property_if_match["etagRole"] = "ifMatch"
-                if not property_if_none_match and property_if_match:
-                    property_if_none_match = property_if_match.copy()
-                    property_if_none_match["wireName"] = "if-none-match"
-                    property_if_none_match["etagRole"] = "ifNoneMatch"
 
                 if property_if_match and property_if_none_match:
                     # arrange if-match and if-none-match to the end of parameters
