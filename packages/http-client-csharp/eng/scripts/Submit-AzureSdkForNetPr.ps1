@@ -385,6 +385,27 @@ try {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
 
+        # Align any leftover @typespec/openapi3 in the target emitter-package.json with
+        # the source emitter's @typespec/openapi version. tsp-client generate-config-files
+        # preserves unknown devDependencies, so a stale @typespec/openapi3 (peerOptional
+        # @typespec/streams ^X.Y.0) breaks the internal npm install with ERESOLVE once
+        # the source bumps the typespec family.
+        if (Test-Path $emitterPackageJsonPath) {
+            try {
+                $target = Get-Content $emitterPackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $source = Get-Content $TypeSpecSourcePackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
+                $newVersion = $source.devDependencies.'@typespec/openapi'
+                $oldVersion = $target.devDependencies.'@typespec/openapi3'
+                if ($newVersion -and $oldVersion -and $oldVersion -ne $newVersion) {
+                    Write-Host "Patching @typespec/openapi3 in target emitter-package.json: $oldVersion -> $newVersion"
+                    $target.devDependencies.'@typespec/openapi3' = $newVersion
+                    ($target | ConvertTo-Json -Depth 100) | Set-Content -Path $emitterPackageJsonPath -NoNewline
+                }
+            } catch {
+                Write-Warning "Failed to patch @typespec/openapi3 in target emitter-package.json: $_"
+            }
+        }
+
         try {
             Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
             if ($LASTEXITCODE -ne 0) {
@@ -668,9 +689,28 @@ try {
         throw "Failed to commit changes"
     }
 
-    # Push the branch
+    $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
+    if (Test-Path $loginScript) {
+        Write-Host "Refreshing GitHub App installation token before push..."
+        try {
+            & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
+            if ($LASTEXITCODE -eq 0 -and (Test-Path Env:GH_TOKEN)) {
+                $AuthToken = $env:GH_TOKEN
+                Write-Host "GitHub App installation token refreshed."
+            } else {
+                Write-Warning "login-to-github.ps1 did not produce a fresh token (exit code $LASTEXITCODE); falling back to existing token."
+            }
+        } catch {
+            Write-Warning "Failed to refresh GitHub App installation token: $($_.Exception.Message). Falling back to existing token."
+        }
+    } else {
+        Write-Host "login-to-github.ps1 not found at $loginScript; skipping token refresh (assuming a non-pipeline run with a long-lived token)."
+    }
+
+    # Push the branch. Use the x-access-token username scheme so the URL works
+    # both with classic PATs and with GitHub App installation tokens (ghs_*).
     Write-Host "Pushing branch to remote..."
-    $remoteUrl = "https://$AuthToken@github.com/$RepoOwner/$RepoName.git"
+    $remoteUrl = "https://x-access-token:$AuthToken@github.com/$RepoOwner/$RepoName.git"
     git push $remoteUrl $PRBranch
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to push branch"

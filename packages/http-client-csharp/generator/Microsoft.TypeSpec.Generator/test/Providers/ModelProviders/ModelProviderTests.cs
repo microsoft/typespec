@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -10,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
 using NUnit.Framework;
 
@@ -1692,7 +1694,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void UnsupportedExternalTypeEmitsDiagnostic()
         {
-            // Test an external type that cannot be resolved (non-framework type)
+            // External type whose Identity is not a known framework type AND whose Package is null:
+            // resolution fails immediately and the property is skipped.
             var externalType = InputFactory.Union(
                 [InputPrimitiveType.String],
                 "ExternalUnion",
@@ -1720,6 +1723,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The value property should exist
             var valueProp = props.FirstOrDefault(p => p.Name == "Value");
             Assert.IsNotNull(valueProp);
+
+            // The unresolvable external property should have been dropped.
+            Assert.IsNull(props.FirstOrDefault(p => p.Name == "Expression"));
+        }
+
+        [Test, NonParallelizable]
+        public async Task ExternalTypePropertyResolvedFromNuGetCache()
+        {
+            // External type whose Identity is not a framework type but whose Package can be located in the
+            // NuGet cache: the dynamic-loading fallback resolves the type and the property is emitted.
+            // Marked NonParallelizable because the test mutates the process-wide NUGET_PACKAGES env var
+            // and the static external-type resolver state.
+            var tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
+            var nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
+            Directory.CreateDirectory(nugetCacheDir);
+
+            const string pkgName = "Test.ModelProvider.External";
+            const string typeName = "Test.ModelProvider.External.MyExternalType";
+            FakeNuGetPackage.Create(
+                nugetCacheDir,
+                pkgName,
+                "1.0.0",
+                $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
+
+            var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+            ExternalTypeReferenceResolver.Reset();
+            try
+            {
+                var external = new InputExternalTypeMetadata(typeName, pkgName, null);
+                var externalUnion = InputFactory.Union([InputPrimitiveType.String], "ExternalUnion", external);
+                var model = InputFactory.Model(
+                    "ModelWithResolvableExternal",
+                    properties:
+                    [
+                        InputFactory.Property("dynamic", externalUnion),
+                        InputFactory.Property("name", InputPrimitiveType.String)
+                    ]);
+
+                MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+                var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                    .SingleOrDefault(t => t.Name == "ModelWithResolvableExternal") as ModelProvider;
+                Assert.IsNotNull(modelProvider);
+
+                var dynamicProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Dynamic");
+                Assert.IsNotNull(dynamicProp, "Dynamically-resolved external property should be emitted, not skipped.");
+                Assert.IsNotNull(dynamicProp!.Type.FrameworkType);
+                Assert.AreEqual(typeName, dynamicProp.Type.FrameworkType.FullName);
+
+                var nameProp = modelProvider.Properties.FirstOrDefault(p => p.Name == "Name");
+                Assert.IsNotNull(nameProp);
+            }
+            finally
+            {
+                ExternalTypeReferenceResolver.Reset();
+                Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
+                Directory.Delete(tempDir, true);
+            }
         }
 
         [Test]

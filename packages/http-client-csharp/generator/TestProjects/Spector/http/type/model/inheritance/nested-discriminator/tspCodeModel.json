@@ -70,7 +70,7 @@
     {
       "$id": "9",
       "kind": "constant",
-      "name": "getModelContentType",
+      "name": "GetModelAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -86,7 +86,7 @@
     {
       "$id": "11",
       "kind": "constant",
-      "name": "putModelContentType",
+      "name": "GetModelAccept1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -102,7 +102,7 @@
     {
       "$id": "13",
       "kind": "constant",
-      "name": "getRecursiveModelContentType",
+      "name": "GetModelAccept2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -118,7 +118,7 @@
     {
       "$id": "15",
       "kind": "constant",
-      "name": "putRecursiveModelContentType",
+      "name": "GetModelAccept3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -134,7 +134,7 @@
     {
       "$id": "17",
       "kind": "constant",
-      "name": "getMissingDiscriminatorContentType",
+      "name": "GetModelAccept4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -150,7 +150,7 @@
     {
       "$id": "19",
       "kind": "constant",
-      "name": "getWrongDiscriminatorContentType",
+      "name": "GetModelAccept5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -599,7 +599,12 @@
                 "isErrorResponse": false,
                 "contentTypes": [
                   "application/json"
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
               }
             ],
             "httpMethod": "GET",
@@ -712,7 +717,12 @@
                     "access": "public",
                     "decorators": []
                   }
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": "input"
+                  }
+                }
               }
             ],
             "responses": [
@@ -721,7 +731,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "PUT",
@@ -811,7 +822,12 @@
                 "isErrorResponse": false,
                 "contentTypes": [
                   "application/json"
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
               }
             ],
             "httpMethod": "GET",
@@ -924,7 +940,12 @@
                     "access": "public",
                     "decorators": []
                   }
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": "input"
+                  }
+                }
               }
             ],
             "responses": [
@@ -933,7 +954,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "PUT",
@@ -1023,7 +1045,12 @@
                 "isErrorResponse": false,
                 "contentTypes": [
                   "application/json"
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
               }
             ],
             "httpMethod": "GET",
@@ -1111,7 +1138,12 @@
                 "isErrorResponse": false,
                 "contentTypes": [
                   "application/json"
-                ]
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
               }
             ],
             "httpMethod": "GET",

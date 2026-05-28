@@ -6,7 +6,7 @@
     {
       "$id": "1",
       "kind": "constant",
-      "name": "getNonNullContentType",
+      "name": "GetNonNullAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -22,7 +22,7 @@
     {
       "$id": "3",
       "kind": "constant",
-      "name": "getNullContentType",
+      "name": "GetNonNullAccept1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -102,7 +102,7 @@
     {
       "$id": "13",
       "kind": "constant",
-      "name": "getNonNullContentType1",
+      "name": "GetNonNullAccept2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -118,7 +118,7 @@
     {
       "$id": "15",
       "kind": "constant",
-      "name": "getNullContentType1",
+      "name": "GetNonNullAccept3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -198,7 +198,7 @@
     {
       "$id": "25",
       "kind": "constant",
-      "name": "getNonNullContentType2",
+      "name": "GetNonNullAccept4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -214,7 +214,7 @@
     {
       "$id": "27",
       "kind": "constant",
-      "name": "getNullContentType2",
+      "name": "GetNonNullAccept5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -294,7 +294,7 @@
     {
       "$id": "37",
       "kind": "constant",
-      "name": "getNonNullContentType3",
+      "name": "GetNonNullAccept6",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -310,7 +310,7 @@
     {
       "$id": "39",
       "kind": "constant",
-      "name": "getNullContentType3",
+      "name": "GetNonNullAccept7",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -390,7 +390,7 @@
     {
       "$id": "49",
       "kind": "constant",
-      "name": "getNonNullContentType4",
+      "name": "GetNonNullAccept8",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -406,7 +406,7 @@
     {
       "$id": "51",
       "kind": "constant",
-      "name": "getNullContentType4",
+      "name": "GetNonNullAccept9",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -486,7 +486,7 @@
     {
       "$id": "61",
       "kind": "constant",
-      "name": "getNonNullContentType5",
+      "name": "GetNonNullAccept10",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -502,7 +502,7 @@
     {
       "$id": "63",
       "kind": "constant",
-      "name": "getNullContentType5",
+      "name": "GetNonNullAccept11",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -582,7 +582,7 @@
     {
       "$id": "73",
       "kind": "constant",
-      "name": "getNonNullContentType6",
+      "name": "GetNonNullAccept12",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -598,7 +598,7 @@
     {
       "$id": "75",
       "kind": "constant",
-      "name": "getNullContentType6",
+      "name": "GetNonNullAccept13",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1387,7 +1387,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1477,7 +1482,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1592,7 +1602,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1601,7 +1616,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -1718,7 +1734,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -1727,7 +1748,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -1867,7 +1889,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -1957,7 +1984,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2072,7 +2104,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2081,7 +2118,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -2198,7 +2236,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2207,7 +2250,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -2347,7 +2391,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2437,7 +2486,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2552,7 +2606,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2561,7 +2620,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -2678,7 +2738,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2687,7 +2752,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -2827,7 +2893,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2917,7 +2988,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3032,7 +3108,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3041,7 +3122,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -3158,7 +3240,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3167,7 +3254,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -3307,7 +3395,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3397,7 +3490,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3512,7 +3610,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3521,7 +3624,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -3638,7 +3742,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3647,7 +3756,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -3787,7 +3897,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3877,7 +3992,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3992,7 +4112,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4001,7 +4126,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -4118,7 +4244,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4127,7 +4258,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -4267,7 +4399,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4357,7 +4494,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4472,7 +4614,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4481,7 +4628,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",
@@ -4598,7 +4746,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4607,7 +4760,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PATCH",

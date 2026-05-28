@@ -1,5 +1,35 @@
 # Change Log - @typespec/http-client-python
 
+## 0.30.0
+
+### Features
+
+- [#10750](https://github.com/microsoft/typespec/pull/10750) add support for `exact` client names
+
+### Bug Fixes
+
+- [#10804](https://github.com/microsoft/typespec/pull/10804) Lower `black` version to `24.4.0` to be consistent with what's in main
+
+
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
+## 0.29.1
+
+### Bump dependencies
+
+- [#10668](https://github.com/microsoft/typespec/pull/10668) Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+### Bug Fixes
+
+- [#10563](https://github.com/microsoft/typespec/pull/10563) Fix TypeSpec `numeric` scalar type being emitted as `int` in Python; it is now emitted as `float`.
+- [#10525](https://github.com/microsoft/typespec/pull/10525) Fix typing in generated paging operations when an operation is named `list` and the page item is a collection type. The return type annotation now correctly uses the `List` alias (e.g. `AsyncItemPaged[List[str]]`) instead of the built-in `list` (which would shadow the operation name) to stay consistent with other annotations in the same file.
+
+
 ## 0.29.0
 
 ### Deprecations

@@ -158,11 +158,9 @@ extends:
                   Write-Host "##[section].npmrc file created successfully. Contents:"
                   Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
                 displayName: "Create .npmrc"
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
 
               - task: npmAuthenticate@0
                 displayName: Authenticate npm for Azure Artifacts
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
                 inputs:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
@@ -218,15 +216,22 @@ extends:
                 displayName: "Log npm configuration"
                 condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
-              - task: PowerShell@2
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+                parameters:
+                  TokenOwners:
+                    - Azure
+
+              - task: AzureCLI@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                    -AuthToken '$(azuresdk-github-pat)'
+                    -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
