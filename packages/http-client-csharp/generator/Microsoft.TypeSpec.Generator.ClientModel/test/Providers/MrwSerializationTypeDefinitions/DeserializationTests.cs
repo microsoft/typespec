@@ -136,17 +136,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(mrwProvider);
 
-            var deserializationMethod = mrwProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
-            Assert.IsNotNull(deserializationMethod);
-
-            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
-
-            Assert.IsTrue(
-                methodBody.Contains("global::System.TimeSpan.FromMilliseconds(prop.Value.GetInt32())"),
-                $"Duration milliseconds with integer wire type should deserialize via GetInt32. Actual:\n{methodBody}");
-            Assert.IsFalse(
-                methodBody.Contains("prop.Value.GetDouble()"),
-                $"Duration milliseconds with integer wire type should not call GetDouble. Actual:\n{methodBody}");
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
         }
     }
 }
