@@ -214,8 +214,8 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
   /**
    * Builds a synthetic member of `expectedKind` named after `reference` and
    * with its `.type` slot pointing at `newType`. Returns `undefined` if the
-   * expected kind isn't a wrappable member kind, leaving the caller to fall
-   * back to the default behaviour.
+   * expected kind cannot be wrapped as a member, leaving the caller to fall
+   * back to the default behavior.
    */
   #createSyntheticMember(
     expectedKind: Type["kind"],
