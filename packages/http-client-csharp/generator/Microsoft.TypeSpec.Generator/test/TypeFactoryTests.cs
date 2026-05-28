@@ -152,6 +152,54 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input));
         }
 
+        [Test]
+        public void DurationIntegerWireTypeSerializationFormat([Values(
+            InputPrimitiveTypeKind.Integer,
+            InputPrimitiveTypeKind.SafeInt,
+            InputPrimitiveTypeKind.Int8,
+            InputPrimitiveTypeKind.Int16,
+            InputPrimitiveTypeKind.Int32,
+            InputPrimitiveTypeKind.Int64,
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
+            )] InputPrimitiveTypeKind wireKind)
+        {
+            var wireName = wireKind.ToString().ToLower();
+            var wireType = new InputPrimitiveType(wireKind, wireName, $"TypeSpec.{wireName}", null, null);
+
+            var ms = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(SerializationFormat.Duration_Milliseconds, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
+
+            var s = new InputDurationType(DurationKnownEncoding.Seconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(SerializationFormat.Duration_Seconds, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
+        }
+
+        [Test]
+        public void DurationFloatWireTypeSerializationFormat([Values(
+            InputPrimitiveTypeKind.Float,
+            InputPrimitiveTypeKind.Float32,
+            InputPrimitiveTypeKind.Float64
+            )] InputPrimitiveTypeKind wireKind)
+        {
+            var wireName = wireKind.ToString().ToLower();
+            var wireType = new InputPrimitiveType(wireKind, wireName, $"TypeSpec.{wireName}", null, null);
+
+            var expectedMs = wireKind == InputPrimitiveTypeKind.Float64
+                ? SerializationFormat.Duration_Milliseconds_Double
+                : SerializationFormat.Duration_Milliseconds_Float;
+            var expectedS = wireKind == InputPrimitiveTypeKind.Float64
+                ? SerializationFormat.Duration_Seconds_Double
+                : SerializationFormat.Duration_Seconds_Float;
+
+            var ms = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedMs, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
+
+            var s = new InputDurationType(DurationKnownEncoding.Seconds, "duration", "TypeSpec.duration", wireType, null);
+            Assert.AreEqual(expectedS, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
+        }
+
         [TestCase(typeof(Guid))]
         [TestCase(typeof(IPAddress))]
         [TestCase(typeof(BinaryData))]
