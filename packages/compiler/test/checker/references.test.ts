@@ -307,6 +307,69 @@ describe("compiler: references", () => {
         },
       ]);
     });
+
+    describe("late-bound member from template spread via `is`", () =>
+      itCanReference({
+        code: `
+          model Template<T> {...T}
+          @test("target") model MyModel is Template<{y: string}> {}
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("late-bound member from template spread via `is` (forward reference)", () =>
+      itCanReference({
+        code: `
+          @test("target") model MyModel is Template<{y: string}> {}
+          model Template<T> {...T}
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("late-bound member from template parameter spread", () =>
+      itCanReference({
+        code: `
+          model Template<T> {...T}
+          @test("target") model MyModel { ...Template<{y: string}> }
+        `,
+        ref: "MyModel.y",
+        resolveTarget: (target: Model) => target.properties.get("y"),
+      }));
+
+    describe("circular reference with late-bound members", () => {
+      it("model referencing its own late-bound member doesn't crash", async () => {
+        const diagnostics = await Tester.diagnose(`
+          model Template<T> {...T}
+          model A is Template<{self: A}> {}
+          alias Test = A.self;
+        `);
+        // Should resolve without crashing — self-referencing is allowed
+        expectDiagnostics(diagnostics, []);
+      });
+
+      it("mutual reference between late-bound models", async () => {
+        const { A, B } = await Tester.compile(t.code`
+          model Template<T> {...T}
+          model ${t.model("A")} is Template<{b: B}> {}
+          model ${t.model("B")} is Template<{a: A}> {}
+        `);
+        ok(A.properties.has("b"), "A should have property b");
+        ok(B.properties.has("a"), "B should have property a");
+        strictEqual(A.properties.get("b")!.type, B);
+        strictEqual(B.properties.get("a")!.type, A);
+      });
+
+      it("accessing late-bound member that refers back to the container", async () => {
+        const { A } = await Tester.compile(t.code`
+          model Template<T> {...T}
+          model ${t.model("A")} is Template<{self: A}> {}
+          model Ref { prop: A.self }
+        `);
+        strictEqual(A.properties.get("self")!.type, A);
+      });
+    });
   });
 
   describe("enum members", () => {
@@ -511,14 +574,14 @@ describe("compiler: references", () => {
       }));
 
     describe("reference sibling members", () => {
-      // Those tests look broken https://github.com/microsoft/typespec/issues/9731
-      // eslint-disable-next-line no-unassigned-vars
       let linkedValue: Operation | undefined;
 
       it("defined before", async () => {
         const { Foo } = await Tester.files({
           "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {},
+            $testLink: (_: any, _t: any, value: Operation) => {
+              linkedValue = value;
+            },
           }),
         }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
@@ -528,13 +591,15 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("a"));
+        strictEqual(linkedValue, Foo.operations.get("one"));
       });
 
       it("defined after", async () => {
         const { Foo } = await Tester.files({
           "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {},
+            $testLink: (_: any, _t: any, value: Operation) => {
+              linkedValue = value;
+            },
           }),
         }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
@@ -544,7 +609,7 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("a"));
+        strictEqual(linkedValue, Foo.operations.get("two"));
       });
     });
 
@@ -693,6 +758,38 @@ describe("compiler: references", () => {
         `,
         ref: "Person.address::type.city",
       }));
+
+    describe("ModelProperty::type through template parameter constrained to Reflection.ModelProperty", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: Address
+          }
+          model Address {
+            @test("target") city: string
+          }
+          model Wrapper<P extends Reflection.ModelProperty> {
+            value: P::type;
+          }
+          alias Wrapped = Wrapper<Person.address>;
+        `,
+        ref: "Wrapped.value::type.city",
+      }));
+
+    describe("ModelProperty::type through template member access constrained to a concrete model", () =>
+      itCanReference({
+        code: `
+          model X {
+            @test("target") a: string;
+          }
+          model Y<M extends X> {
+            p: M.a::type;
+          }
+          alias YOfX = Y<X>;
+        `,
+        ref: "YOfX.p::type",
+        resolveTarget: (target: any) => target.type,
+      }));
     describe("Operation::returnType", () =>
       itCanReference({
         code: `
@@ -701,12 +798,79 @@ describe("compiler: references", () => {
         ref: "testOp::returnType.status",
       }));
 
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(): { @test("target") status: 200 };
+          model ReturnWrapper<T extends Reflection.Operation> {
+            value: T::returnType;
+          }
+          alias WrappedReturn = ReturnWrapper<testOp>;
+        `,
+        ref: "WrappedReturn.value::type.status",
+      }));
+
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation with templated operation", () =>
+      itCanReference({
+        code: `
+            model X<s extends Reflection.Scalar> {
+              @test("target") y: s;
+            }
+            op foo<s extends Reflection.Scalar>(): X<s>;
+            model ReturnWrapper<O extends Reflection.Operation> {
+              value: O::returnType;
+            }
+            alias WrappedReturn = ReturnWrapper<foo<string>>;
+          `,
+        ref: "WrappedReturn.value::type.y",
+      }));
+
     describe("Operation::parameters", () =>
       itCanReference({
         code: `
           op testOp(@test("target") select: string, other: string): void;
         `,
         ref: "testOp::parameters.select",
+      }));
+
+    describe("Operation::parameters through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(@test("target") select: string, other: string): void;
+          model ParametersWrapper<T extends Reflection.Operation> {
+            value: T::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp>;
+        `,
+        ref: "WrappedParameters.value::type.select",
+      }));
+
+    describe("Operation::parameters through wrappers over templated operation instances", () =>
+      itCanReference({
+        code: `
+          op testOp<T>(@test("target") wrappedSelection: T, other: string): void;
+          model ParametersWrapper<O extends Reflection.Operation> {
+            value: O::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp<string>>;
+        `,
+        ref: "WrappedParameters.value::type.wrappedSelection",
+      }));
+
+    describe("Operation::parameters through nested wrappers over templated operation instances", () =>
+      itCanReference({
+        code: `
+          op testOp<T>(@test("target") wrappedSelection: T, other: string): void;
+          model ParametersWrapper<O extends Reflection.Operation> {
+            value: O::parameters;
+          }
+          model ModelWrapper<M extends Reflection.Model> {
+            value: M;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp<string>>;
+          alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+        `,
+        ref: "WrappedAgain.value::type.wrappedSelection",
       }));
 
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
@@ -728,6 +892,19 @@ describe("compiler: references", () => {
           message: `Model doesn't have meta property foo`,
         },
       ]);
+    });
+
+    it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model Y<M extends Reflection.Model> {
+          p: M.a::type;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: `Model doesn't have member a`,
+      });
     });
 
     it("allows spreading meta type property", async () => {

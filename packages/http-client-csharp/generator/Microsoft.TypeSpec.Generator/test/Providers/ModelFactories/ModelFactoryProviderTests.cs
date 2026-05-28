@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
             Assert.AreEqual(
-                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 printedAttribute);
 
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
@@ -354,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
             Assert.AreEqual(
-                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 printedAttribute);
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
@@ -578,7 +578,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var attributes = backwardCompatibilityMethod!.Signature.Attributes;
             Assert.AreEqual(1, attributes.Count);
             Assert.AreEqual(
-                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 attributes[0].ToDisplayString());
 
             var parameters = backwardCompatibilityMethod.Signature.Parameters;
@@ -782,6 +782,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("prop2", factoryMethod.Signature.Parameters[0].Name);
 
             Assert.AreEqual("return new global::Sample.Models.MockInputModel(\"constant\", prop2, additionalBinaryDataProperties: null);\n", factoryMethod.BodyStatements!.ToDisplayString());
+        }
+
+        // Verifies that a back-compat factory method is NOT re-added when the user has suppressed
+        // it via [CodeGenSuppress]. Without the filtering pass in ProcessTypeForBackCompatibility,
+        // the back-compat code would re-introduce the suppressed overload.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodSuppressed()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var publicModel1Methods = modelFactory.Methods
+                .Where(m => m.Signature.Name == "PublicModel1")
+                .ToList();
+
+            // Only the current 4-param overload should exist; the 3-param back-compat overload
+            // was suppressed via [CodeGenSuppress] in the custom code view.
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
+        }
+
+        // Verifies that a back-compat factory method is NOT re-added when the user already provided
+        // a custom method with the same signature. Without filtering, the back-compat code could
+        // duplicate the user's custom method.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodAlreadyCustom()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var publicModel1Methods = modelFactory.Methods
+                .Where(m => m.Signature.Name == "PublicModel1")
+                .ToList();
+
+            // Only the current 4-param overload should exist in the generated methods; the
+            // 3-param back-compat overload is provided by the user's custom code, so it should
+            // not also be generated.
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
         }
 
         private static InputModelType[] GetTestModels()

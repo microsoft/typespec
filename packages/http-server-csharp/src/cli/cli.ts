@@ -5,7 +5,7 @@ import path from "path";
 import pc from "picocolors";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { getFreePort } from "../lib/utils.js";
+import { getFreePort } from "../utils/port.js";
 
 async function main() {
   console.log(`TypeSpec Http Server Emitter for C-Sharp \n`);

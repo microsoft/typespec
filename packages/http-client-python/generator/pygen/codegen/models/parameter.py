@@ -61,6 +61,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.wire_name: str = yaml_data.get("wireName", "")
+        self.etag_role: Optional[str] = yaml_data.get("etagRole", None)
         self.client_name: str = self.yaml_data["clientName"]
         self.optional: bool = self.yaml_data["optional"]
         self.implementation: Optional[str] = yaml_data.get("implementation", None)
@@ -86,6 +87,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
         self.hide_in_method: bool = self.yaml_data.get("hideInMethod", False)
         self.is_continuation_token: bool = bool(self.yaml_data.get("isContinuationToken"))
+        self.is_exact_name: bool = self.yaml_data.get("isExactName", False)
 
     def get_declaration(self, value: Any = None) -> Any:
         return self.type.get_declaration(value)
@@ -377,6 +379,8 @@ class ClientParameter(Parameter):
     def method_location(self) -> ParameterMethodLocation:
         if self.constant:
             return ParameterMethodLocation.KWARG
+        if self.is_api_version:
+            return ParameterMethodLocation.KWARG
         if (
             self.is_host
             and (self.code_model.options["version-tolerant"] or self.code_model.options["low-level-client"])
@@ -408,6 +412,6 @@ class ConfigParameter(Parameter):
 
     @property
     def method_location(self) -> ParameterMethodLocation:
-        if self.constant:
+        if self.constant or self.is_api_version:
             return ParameterMethodLocation.KWARG
         return ParameterMethodLocation.POSITIONAL

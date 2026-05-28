@@ -1,8 +1,16 @@
-import type { Model } from "@typespec/compiler";
+import type { Model, Union } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import type { HttpOperationResponse } from "../src/index.js";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
+
+async function getResponses(code: string): Promise<HttpOperationResponse[]> {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(code);
+  expectDiagnosticEmpty(diagnostics);
+  expect(routes).toHaveLength(1);
+  return routes[0].responses;
+}
 
 describe("body resolution", () => {
   it("emit diagnostics for duplicate @body decorator", async () => {
@@ -141,54 +149,42 @@ it("supports any casing for string literal 'Content-Type' header properties.", a
 });
 
 it("treats content-type as a header for HEAD responses", async () => {
-  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
-    `
-      @head
-      op head(): { @header "content-type": "text/plain" };
-    `,
-  );
-
-  expectDiagnosticEmpty(diagnostics);
-  strictEqual(routes.length, 1);
-  const response = routes[0].responses[0].responses[0];
-  strictEqual(response.body, undefined);
+  const responses = await getResponses(`
+    @head
+    op head(): { @header "content-type": "text/plain" };
+  `);
+  const response = responses[0].responses[0];
+  expect(response.body).toBeUndefined();
   ok(response.headers);
-  deepStrictEqual(Object.keys(response.headers), ["content-type"]);
+  expect(Object.keys(response.headers)).toEqual(["content-type"]);
 });
 
 // Regression test for https://github.com/microsoft/typespec/issues/328
 it("empty response model becomes body if it has children", async () => {
-  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
-    `
-      op read(): A;
+  const responses = await getResponses(`
+    op read(): A;
 
-      @discriminator("foo")
-      model A {}
+    @discriminator("foo")
+    model A {}
 
-      model B extends A {
-        foo: "B";
-        b: string;
-      }
+    model B extends A {
+      foo: "B";
+      b: string;
+    }
 
-      model C extends A {
-        foo: "C";
-        c: string;
-      }
-
-    `,
-  );
-  expectDiagnosticEmpty(diagnostics);
-  strictEqual(routes.length, 1);
-  const responses = routes[0].responses;
-  strictEqual(responses.length, 1);
-  const response = responses[0];
-  const body = response.responses[0].body;
+    model C extends A {
+      foo: "C";
+      c: string;
+    }
+  `);
+  expect(responses).toHaveLength(1);
+  const body = responses[0].responses[0].body;
   ok(body);
-  strictEqual((body.type as Model).name, "A");
+  expect((body.type as Model).name).toBe("A");
 });
 
 it("chooses correct content-type for extensible union body", async () => {
-  const [routes, diagnostics] = await getOperationsWithServiceNamespace(`
+  const responses = await getResponses(`
     union DaysOfWeekExtensibleEnum {
       string,
 
@@ -220,15 +216,10 @@ it("chooses correct content-type for extensible union body", async () => {
       @body body: DaysOfWeekExtensibleEnum;
     };
   `);
-
-  expectDiagnosticEmpty(diagnostics);
-  strictEqual(routes.length, 1);
-  const responses = routes[0].responses;
-  strictEqual(responses.length, 1);
-  const response = responses[0];
-  const body = response.responses[0].body;
+  expect(responses).toHaveLength(1);
+  const body = responses[0].responses[0].body;
   ok(body);
-  deepStrictEqual(body.contentTypes, ["text/plain"]);
+  expect(body.contentTypes).toEqual(["text/plain"]);
 });
 
 describe("status code", () => {
@@ -257,5 +248,113 @@ describe("status code", () => {
       op test1(): Res;
     `);
     expect(response.statusCodes).toEqual(201);
+  });
+});
+
+describe("union of unannotated return types", () => {
+  it("groups plain model variants into a single union response", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      model Dog { bark: boolean }
+      op get(): Cat | Dog;
+    `);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].statusCodes).toBe(200);
+    const body = responses[0].responses[0].body;
+    ok(body);
+    expect(body.type.kind).toBe("Union");
+    expect((body.type as Union).variants.size).toBe(2);
+  });
+
+  it("preserves the original named union when all variants are plain bodies", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      model Dog { bark: boolean }
+      union Pet { cat: Cat, dog: Dog }
+      op get(): Pet;
+    `);
+    expect(responses).toHaveLength(1);
+    const body = responses[0].responses[0].body;
+    ok(body);
+    expect(body.type.kind).toBe("Union");
+    expect((body.type as Union).name).toBe("Pet");
+  });
+
+  it("keeps response envelope variants separate from plain body variants", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      model Dog { bark: boolean }
+      model NotFoundResponse { @statusCode code: 404; message: string }
+      op get(): Cat | Dog | NotFoundResponse;
+    `);
+    expect(responses).toHaveLength(2);
+
+    const okResponse = responses.find((r) => r.statusCodes === 200);
+    ok(okResponse);
+    const okBody = okResponse.responses[0].body;
+    ok(okBody);
+    expect(okBody.type.kind).toBe("Union");
+    expect((okBody.type as Union).variants.size).toBe(2);
+
+    expect(responses.find((r) => r.statusCodes === 404)).toBeDefined();
+  });
+
+  it("handles nested union mixing plain bodies and response envelopes", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      model Dog { bark: boolean }
+      model NotFoundResponse { @statusCode code: 404; message: string }
+      union CatOrNotFound { cat: Cat, notFound: NotFoundResponse }
+      op get(): CatOrNotFound | Dog;
+    `);
+    expect(responses).toHaveLength(2);
+
+    const okResponse = responses.find((r) => r.statusCodes === 200);
+    ok(okResponse);
+    const okBody = okResponse.responses[0].body;
+    ok(okBody);
+    expect(okBody.type.kind).toBe("Union");
+    expect((okBody.type as Union).variants.size).toBe(2);
+
+    expect(responses.find((r) => r.statusCodes === 404)).toBeDefined();
+  });
+
+  it("handles union with Error model variants as separate responses", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      @error model MyError { @statusCode code: 500; message: string }
+      op get(): Cat | MyError;
+    `);
+    expect(responses).toHaveLength(2);
+
+    const okResponse = responses.find((r) => r.statusCodes === 200);
+    ok(okResponse);
+    expect((okResponse.responses[0].body?.type as Model).name).toBe("Cat");
+
+    expect(responses.find((r) => r.statusCodes === 500)).toBeDefined();
+  });
+
+  it("handles union with void variant by skipping it", async () => {
+    const responses = await getResponses(`
+      model Cat { meow: boolean }
+      op get(): Cat | void;
+    `);
+    expect(responses.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("treats discriminated union as a single body type (not expanded)", async () => {
+    const responses = await getResponses(`
+      @discriminated
+      union Pet { cat: Cat, dog: Dog }
+      model Cat { kind: "cat"; meow: boolean }
+      model Dog { kind: "dog"; bark: boolean }
+      op get(): Pet;
+    `);
+    expect(responses).toHaveLength(1);
+    expect(responses[0].statusCodes).toBe(200);
+    const body = responses[0].responses[0].body;
+    ok(body);
+    expect(body.type.kind).toBe("Union");
+    expect((body.type as Union).name).toBe("Pet");
   });
 });

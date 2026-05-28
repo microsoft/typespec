@@ -28,6 +28,18 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`"Metadata for tag '${"tagName"}' was specified twice."`,
       },
     },
+    "mixed-tag-metadata-form": {
+      severity: "error",
+      messages: {
+        default: `Cannot mix the array form and the inline form of @tagMetadata on the same namespace. Use either @tagMetadata(#[...]) or multiple @tagMetadata("name", #{...}) calls, not both.`,
+      },
+    },
+    "tag-metadata-array-with-metadata-arg": {
+      severity: "error",
+      messages: {
+        default: `When using the array form of @tagMetadata, the second argument (tagMetadata) must not be provided. Include all tag metadata inside the array elements.`,
+      },
+    },
     "tag-metadata-target-service": {
       severity: "error",
       messages: {

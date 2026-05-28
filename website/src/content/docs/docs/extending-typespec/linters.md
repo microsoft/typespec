@@ -62,6 +62,42 @@ export const requiredDocRule = createRule({
 });
 ```
 
+#### Define rules with options
+
+Rules can accept user-configurable options via `defaultOptions` and `context.options`. When enabled with `true`, the rule uses the default options. When enabled with an object, the provided values override the defaults.
+
+```ts
+import { createRule, paramMessage } from "@typespec/compiler";
+
+export const namingRule = createRule({
+  name: "naming-convention",
+  severity: "warning",
+  description: "Enforce naming conventions on models.",
+  messages: {
+    default: paramMessage`Model name "${"modelName"}" must use ${"expectedStyle"} casing.`,
+  },
+  // Define defaults — used when the rule is enabled with `true`
+  defaultOptions: {
+    style: "PascalCase" as "PascalCase" | "camelCase",
+    allowUnderscores: false,
+  },
+  create(context) {
+    return {
+      model: (model) => {
+        const { style, allowUnderscores } = context.options;
+        const name = model.name;
+        if (!allowUnderscores && name.includes("_")) {
+          context.reportDiagnostic({
+            format: { modelName: name, expectedStyle: style },
+            target: model,
+          });
+        }
+      },
+    };
+  },
+});
+```
+
 #### Provide a codefix
 
 [See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
@@ -122,16 +158,21 @@ export { $linter } from "./linter.js";
 import { defineLinter } from "@typespec/compiler";
 // Import the rule defined previously
 import { requiredDocRule } from "./rules/required-doc.rule.js";
+import { namingRule } from "./rules/naming.rule.js";
 
 export const $linter = defineLinter({
   // Include all the rules your linter is defining here.
-  rules: [requiredDocRule],
+  rules: [requiredDocRule, namingRule],
 
   // Optionally a linter can provide a set of rulesets
   ruleSets: {
     recommended: {
       // (optional) A ruleset takes a map of rules to explicitly enable
-      enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
+      enable: {
+        [`@typespec/my-linter/${requiredDocRule.name}`]: true,
+        // Rules with options can be enabled with custom options in a ruleset
+        [`@typespec/my-linter/${namingRule.name}`]: { style: "PascalCase" },
+      },
 
       // (optional) A rule set can extend another rule set
       extends: ["@typespec/best-practices/recommended"],

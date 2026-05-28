@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -641,6 +653,25 @@ const diagnostics = {
       default: paramMessage`No configuration file found at config path "${"path"}".`,
     },
   },
+  "config-project-kind-filename": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config with \`kind: project\` must be named "tspconfig.yaml". Found in "${"filename"}".`,
+    },
+  },
+  "config-project-only-option": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-project-not-as-cli-config": {
+    severity: "error",
+    messages: {
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
+    },
+  },
   /**
    * Program
    */
@@ -783,6 +814,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
+    },
+  },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
     },
   },
 

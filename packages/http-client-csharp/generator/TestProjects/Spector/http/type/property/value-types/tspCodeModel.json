@@ -340,7 +340,7 @@
     {
       "$id": "32",
       "kind": "constant",
-      "name": "getContentType",
+      "name": "GetAccept",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -356,7 +356,7 @@
     {
       "$id": "34",
       "kind": "constant",
-      "name": "putContentType",
+      "name": "GetAccept1",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -372,7 +372,7 @@
     {
       "$id": "36",
       "kind": "constant",
-      "name": "getContentType1",
+      "name": "GetAccept2",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -388,7 +388,7 @@
     {
       "$id": "38",
       "kind": "constant",
-      "name": "putContentType1",
+      "name": "GetAccept3",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -404,7 +404,7 @@
     {
       "$id": "40",
       "kind": "constant",
-      "name": "getContentType2",
+      "name": "GetAccept4",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -420,7 +420,7 @@
     {
       "$id": "42",
       "kind": "constant",
-      "name": "putContentType2",
+      "name": "GetAccept5",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -436,7 +436,7 @@
     {
       "$id": "44",
       "kind": "constant",
-      "name": "getContentType3",
+      "name": "GetAccept6",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -452,7 +452,7 @@
     {
       "$id": "46",
       "kind": "constant",
-      "name": "putContentType3",
+      "name": "GetAccept7",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -468,7 +468,7 @@
     {
       "$id": "48",
       "kind": "constant",
-      "name": "getContentType4",
+      "name": "GetAccept8",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -484,7 +484,7 @@
     {
       "$id": "50",
       "kind": "constant",
-      "name": "putContentType4",
+      "name": "GetAccept9",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -500,7 +500,7 @@
     {
       "$id": "52",
       "kind": "constant",
-      "name": "getContentType5",
+      "name": "GetAccept10",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -516,7 +516,7 @@
     {
       "$id": "54",
       "kind": "constant",
-      "name": "putContentType5",
+      "name": "GetAccept11",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -532,7 +532,7 @@
     {
       "$id": "56",
       "kind": "constant",
-      "name": "getContentType6",
+      "name": "GetAccept12",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -548,7 +548,7 @@
     {
       "$id": "58",
       "kind": "constant",
-      "name": "putContentType6",
+      "name": "GetAccept13",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -564,7 +564,7 @@
     {
       "$id": "60",
       "kind": "constant",
-      "name": "getContentType7",
+      "name": "GetAccept14",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -580,7 +580,7 @@
     {
       "$id": "62",
       "kind": "constant",
-      "name": "putContentType7",
+      "name": "GetAccept15",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -596,7 +596,7 @@
     {
       "$id": "64",
       "kind": "constant",
-      "name": "getContentType8",
+      "name": "GetAccept16",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -612,7 +612,7 @@
     {
       "$id": "66",
       "kind": "constant",
-      "name": "putContentType8",
+      "name": "GetAccept17",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -628,7 +628,7 @@
     {
       "$id": "68",
       "kind": "constant",
-      "name": "getContentType9",
+      "name": "GetAccept18",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -644,7 +644,7 @@
     {
       "$id": "70",
       "kind": "constant",
-      "name": "putContentType9",
+      "name": "GetAccept19",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -660,7 +660,7 @@
     {
       "$id": "72",
       "kind": "constant",
-      "name": "getContentType10",
+      "name": "GetAccept20",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -676,7 +676,7 @@
     {
       "$id": "74",
       "kind": "constant",
-      "name": "putContentType10",
+      "name": "GetAccept21",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -692,7 +692,7 @@
     {
       "$id": "76",
       "kind": "constant",
-      "name": "getContentType11",
+      "name": "GetAccept22",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -708,7 +708,7 @@
     {
       "$id": "78",
       "kind": "constant",
-      "name": "putContentType11",
+      "name": "GetAccept23",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -724,7 +724,7 @@
     {
       "$id": "80",
       "kind": "constant",
-      "name": "getContentType12",
+      "name": "GetAccept24",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -740,7 +740,7 @@
     {
       "$id": "82",
       "kind": "constant",
-      "name": "putContentType12",
+      "name": "GetAccept25",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -756,7 +756,7 @@
     {
       "$id": "84",
       "kind": "constant",
-      "name": "getContentType13",
+      "name": "GetAccept26",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -772,7 +772,7 @@
     {
       "$id": "86",
       "kind": "constant",
-      "name": "putContentType13",
+      "name": "GetAccept27",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -788,7 +788,7 @@
     {
       "$id": "88",
       "kind": "constant",
-      "name": "getContentType14",
+      "name": "GetAccept28",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -804,7 +804,7 @@
     {
       "$id": "90",
       "kind": "constant",
-      "name": "putContentType14",
+      "name": "GetAccept29",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -820,7 +820,7 @@
     {
       "$id": "92",
       "kind": "constant",
-      "name": "getContentType15",
+      "name": "GetAccept30",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -836,7 +836,7 @@
     {
       "$id": "94",
       "kind": "constant",
-      "name": "putContentType15",
+      "name": "GetAccept31",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -852,7 +852,7 @@
     {
       "$id": "96",
       "kind": "constant",
-      "name": "getContentType16",
+      "name": "GetAccept32",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -868,7 +868,7 @@
     {
       "$id": "98",
       "kind": "constant",
-      "name": "putContentType16",
+      "name": "GetAccept33",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -884,7 +884,7 @@
     {
       "$id": "100",
       "kind": "constant",
-      "name": "getContentType17",
+      "name": "GetAccept34",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -900,7 +900,7 @@
     {
       "$id": "102",
       "kind": "constant",
-      "name": "putContentType17",
+      "name": "GetAccept35",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -916,7 +916,7 @@
     {
       "$id": "104",
       "kind": "constant",
-      "name": "getContentType18",
+      "name": "GetAccept36",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -932,7 +932,7 @@
     {
       "$id": "106",
       "kind": "constant",
-      "name": "putContentType18",
+      "name": "GetAccept37",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -948,7 +948,7 @@
     {
       "$id": "108",
       "kind": "constant",
-      "name": "getContentType19",
+      "name": "GetAccept38",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -964,7 +964,7 @@
     {
       "$id": "110",
       "kind": "constant",
-      "name": "putContentType19",
+      "name": "GetAccept39",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -980,7 +980,7 @@
     {
       "$id": "112",
       "kind": "constant",
-      "name": "getContentType20",
+      "name": "GetAccept40",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -996,7 +996,7 @@
     {
       "$id": "114",
       "kind": "constant",
-      "name": "putContentType20",
+      "name": "GetAccept41",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1012,7 +1012,7 @@
     {
       "$id": "116",
       "kind": "constant",
-      "name": "getContentType21",
+      "name": "GetAccept42",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1028,7 +1028,7 @@
     {
       "$id": "118",
       "kind": "constant",
-      "name": "putContentType21",
+      "name": "GetAccept43",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1044,7 +1044,7 @@
     {
       "$id": "120",
       "kind": "constant",
-      "name": "getContentType22",
+      "name": "GetAccept44",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1060,7 +1060,7 @@
     {
       "$id": "122",
       "kind": "constant",
-      "name": "putContentType22",
+      "name": "GetAccept45",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1076,7 +1076,7 @@
     {
       "$id": "124",
       "kind": "constant",
-      "name": "getContentType23",
+      "name": "GetAccept46",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1092,7 +1092,7 @@
     {
       "$id": "126",
       "kind": "constant",
-      "name": "putContentType23",
+      "name": "GetAccept47",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1108,7 +1108,7 @@
     {
       "$id": "128",
       "kind": "constant",
-      "name": "getContentType24",
+      "name": "GetAccept48",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1124,7 +1124,7 @@
     {
       "$id": "130",
       "kind": "constant",
-      "name": "putContentType24",
+      "name": "GetAccept49",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1140,7 +1140,7 @@
     {
       "$id": "132",
       "kind": "constant",
-      "name": "getContentType25",
+      "name": "GetAccept50",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1156,7 +1156,7 @@
     {
       "$id": "134",
       "kind": "constant",
-      "name": "putContentType25",
+      "name": "GetAccept51",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1172,7 +1172,7 @@
     {
       "$id": "136",
       "kind": "constant",
-      "name": "getContentType26",
+      "name": "GetAccept52",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1188,7 +1188,7 @@
     {
       "$id": "138",
       "kind": "constant",
-      "name": "putContentType26",
+      "name": "GetAccept53",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1204,7 +1204,7 @@
     {
       "$id": "140",
       "kind": "constant",
-      "name": "getContentType27",
+      "name": "GetAccept54",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1220,7 +1220,7 @@
     {
       "$id": "142",
       "kind": "constant",
-      "name": "putContentType27",
+      "name": "GetAccept55",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1236,7 +1236,7 @@
     {
       "$id": "144",
       "kind": "constant",
-      "name": "getContentType28",
+      "name": "GetAccept56",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -1252,7 +1252,7 @@
     {
       "$id": "146",
       "kind": "constant",
-      "name": "putContentType28",
+      "name": "GetAccept57",
       "namespace": "",
       "usage": "None",
       "valueType": {
@@ -2528,6 +2528,7 @@
               "decorators": [],
               "name": "ExtendedEnum",
               "isGeneratedName": false,
+              "isExactName": false,
               "namespace": "Type.Property.ValueTypes",
               "valueType": {
                 "$id": "233",
@@ -2543,6 +2544,7 @@
                   "kind": "enumvalue",
                   "decorators": [],
                   "name": "EnumValue2",
+                  "isExactName": false,
                   "value": "value2",
                   "valueType": {
                     "$ref": "233"
@@ -2693,7 +2695,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -2810,7 +2817,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -2819,7 +2831,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -2959,7 +2972,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3076,7 +3094,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3085,7 +3108,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3225,7 +3249,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3342,7 +3371,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3351,7 +3385,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3491,7 +3526,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3608,7 +3648,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3617,7 +3662,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -3757,7 +3803,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -3874,7 +3925,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -3883,7 +3939,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4023,7 +4080,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4140,7 +4202,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4149,7 +4216,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4289,7 +4357,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4406,7 +4479,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4415,7 +4493,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4555,7 +4634,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4672,7 +4756,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4681,7 +4770,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -4821,7 +4911,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -4938,7 +5033,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -4947,7 +5047,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -5087,7 +5188,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -5204,7 +5310,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -5213,7 +5324,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -5353,7 +5465,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -5470,7 +5587,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -5479,7 +5601,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -5619,7 +5742,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -5736,7 +5864,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -5745,7 +5878,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -5885,7 +6019,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -6002,7 +6141,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -6011,7 +6155,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -6151,7 +6296,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -6268,7 +6418,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -6277,7 +6432,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -6417,7 +6573,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -6534,7 +6695,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -6543,7 +6709,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -6683,7 +6850,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -6800,7 +6972,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -6809,7 +6986,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -6949,7 +7127,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -7066,7 +7249,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -7075,7 +7263,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -7215,7 +7404,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -7332,7 +7526,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -7341,7 +7540,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -7481,7 +7681,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -7598,7 +7803,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -7607,7 +7817,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -7747,7 +7958,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -7864,7 +8080,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -7873,7 +8094,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -8013,7 +8235,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -8130,7 +8357,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -8139,7 +8371,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -8279,7 +8512,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -8396,7 +8634,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -8405,7 +8648,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -8545,7 +8789,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -8662,7 +8911,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -8671,7 +8925,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -8811,7 +9066,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -8928,7 +9188,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -8937,7 +9202,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -9077,7 +9343,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -9194,7 +9465,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -9203,7 +9479,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -9343,7 +9620,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -9460,7 +9742,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -9469,7 +9756,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -9609,7 +9897,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -9726,7 +10019,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -9735,7 +10033,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -9875,7 +10174,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -9992,7 +10296,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -10001,7 +10310,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",
@@ -10141,7 +10451,12 @@
                     "isErrorResponse": false,
                     "contentTypes": [
                       "application/json"
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
                   }
                 ],
                 "httpMethod": "GET",
@@ -10258,7 +10573,12 @@
                         "access": "public",
                         "decorators": []
                       }
-                    ]
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": "body"
+                      }
+                    }
                   }
                 ],
                 "responses": [
@@ -10267,7 +10587,8 @@
                       204
                     ],
                     "headers": [],
-                    "isErrorResponse": false
+                    "isErrorResponse": false,
+                    "serializationOptions": {}
                   }
                 ],
                 "httpMethod": "PUT",

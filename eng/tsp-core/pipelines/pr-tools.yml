@@ -90,10 +90,15 @@ extends:
                   Write-Host "##vso[task.setvariable variable=vscodeUrl]$downloadUrl"
                 displayName: Get vscode artifact URL
 
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+                parameters:
+                  TokenOwners:
+                    - microsoft
+
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
                 env:
-                  GH_TOKEN: $(azuresdk-github-pat)
+                  GH_TOKEN: $(GH_TOKEN)
                   VSCODE_DOWNLOAD_URL: $(vscodeUrl)
 
           # - job: change_comment
@@ -105,4 +110,4 @@ extends:
           #     - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
           #       displayName: Make comment about changes
           #       env:
-          #         GITHUB_TOKEN: $(azuresdk-github-pat)
+          #         GITHUB_TOKEN: $(GH_TOKEN)

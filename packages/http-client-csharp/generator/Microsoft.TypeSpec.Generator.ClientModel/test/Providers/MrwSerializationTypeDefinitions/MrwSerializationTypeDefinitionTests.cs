@@ -919,7 +919,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             public bool PropertiesAccessed => _propertiesAccessed;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 _propertiesAccessed = true;
                 return base.BuildProperties();

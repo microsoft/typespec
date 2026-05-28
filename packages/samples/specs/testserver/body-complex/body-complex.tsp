@@ -107,9 +107,11 @@ namespace Complex {
   @doc("Please put {id: 2, name: 'abc', color: 'Magenta'}")
   @route("/basic/valid")
   @put
-  op putValid(@body value: Basic): {
-    ...Response<200>;
-  } | Error;
+  op putValid(@body value: Basic):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with integer properties")
   @route("/primitive/integer")
@@ -118,9 +120,11 @@ namespace Complex {
   @doc("Put complex types with integer properties")
   @route("/primitive/integer")
   @put
-  op putInt(@body value: IntWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putInt(@body value: IntWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with long properties")
   @route("/primitive/long")
@@ -130,9 +134,11 @@ namespace Complex {
   @doc("Put complex types with long properties")
   @route("/primitive/long")
   @put
-  op putLong(@body value: LongWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putLong(@body value: LongWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with float properties")
   @route("/primitive/float")
@@ -142,9 +148,11 @@ namespace Complex {
   @doc("Put complex types with float properties")
   @route("/primitive/float")
   @put
-  op putFloat(@body value: FloatWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putFloat(@body value: FloatWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with double properties")
   @route("/primitive/double")
@@ -154,9 +162,11 @@ namespace Complex {
   @doc("Put complex types with double properties")
   @route("/primitive/double")
   @put
-  op putDouble(@body value: DoubleWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putDouble(@body value: DoubleWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with bool properties")
   @route("/primitive/bool")
@@ -166,9 +176,11 @@ namespace Complex {
   @doc("Put complex types with bool properties")
   @route("/primitive/bool")
   @put
-  op putBool(@body value: BooleanWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putBool(@body value: BooleanWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with string properties")
   @route("/primitive/string")
@@ -178,9 +190,11 @@ namespace Complex {
   @doc("Put complex types with string properties")
   @route("/primitive/string")
   @put
-  op putString(@body value: StringWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putString(@body value: StringWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with date properties")
   @route("/primitive/date")
@@ -190,9 +204,11 @@ namespace Complex {
   @doc("Put complex types with date properties")
   @route("/primitive/date")
   @put
-  op putPlainDate(@body value: PlainDateWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putPlainDate(@body value: PlainDateWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with DateTime properties")
   @route("/primitive/datetime")
@@ -202,9 +218,11 @@ namespace Complex {
   @doc("Put complex types with DateTime properties")
   @route("/primitive/datetime")
   @put
-  op putZonedDateTime(@body value: DateTimeWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putZonedDateTime(@body value: DateTimeWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with Duration properties")
   @route("/primitive/duration")
@@ -214,9 +232,11 @@ namespace Complex {
   @doc("Put complex types with Duration properties")
   @route("/primitive/duration")
   @put
-  op putZonedDuration(@body value: DurationWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putZonedDuration(@body value: DurationWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with bytes properties")
   @route("/primitive/bytes")
@@ -226,9 +246,11 @@ namespace Complex {
   @doc("Put complex types with bytes properties")
   @route("/primitive/bytes")
   @put
-  op putBytes(@body value: BytesWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putBytes(@body value: BytesWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @doc("Get complex types with array properties")
   @route("/array/valid")
@@ -237,9 +259,11 @@ namespace Complex {
   @doc("Put complex types with array properties")
   @route("/array/valid")
   @put
-  op putArray(@body value: ArrayWrapper): {
-    ...Response<200>;
-  } | Error;
+  op putArray(@body value: ArrayWrapper):
+    | {
+        ...Response<200>;
+      }
+    | Error;
 
   @route("/dictionary")
   namespace Dictionary {
@@ -251,8 +275,10 @@ namespace Complex {
     @doc("Put complex types with dictionary property")
     @route("/typed/valid")
     @put
-    op putArray(@body value: DictionaryWrapper): {
-      ...Response<200>;
-    } | Error;
+    op putArray(@body value: DictionaryWrapper):
+      | {
+          ...Response<200>;
+        }
+      | Error;
   }
 }

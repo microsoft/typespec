@@ -72,10 +72,11 @@ jobs:
                 ls ./release
               displayName: Prepare for packaging
 
-            - task: AzureCLI@1
+            - task: AzureCLI@2
               displayName: "Upload to storage"
               inputs:
                 azureSubscription: "Azure SDK Engineering System"
+                scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
                   echo -n "$(PACKAGE_VERSION)" > latest.txt

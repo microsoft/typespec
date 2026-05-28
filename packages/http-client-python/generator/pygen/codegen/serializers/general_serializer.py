@@ -329,6 +329,7 @@ class GeneralSerializer(BaseSerializer):
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,
                 "CrossLanguageDefinitionId": cross_langauge_def_dict,
+                "CrossLanguageVersion": self.code_model.cross_language_version,
             },
             indent=4,
         )
