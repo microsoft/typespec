@@ -71,6 +71,11 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
+    # Run linting (Linux only, as CI runs on Linux)
+    if ($IsLinux) {
+        Invoke-LoggedCommand "npm run lint" -GroupOutput
+    }
+
     if ($BuildNumber) {
         Write-Host "Updating package.json to version: $emitterVersion`n"
 
@@ -82,6 +87,9 @@ try {
     # pack the emitter
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
+
+    # verify package can be installed
+    Invoke-LoggedCommand "npm install $file" -GroupOutput
 
     Write-PackageInfo -packageName "typespec-http-client-python" -directoryPath "packages/http-client-python/emitter/src" -version $emitterVersion
 }
