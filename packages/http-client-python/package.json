@@ -66,6 +66,7 @@
     "@azure-tools/typespec-azure-rulesets": ">=0.68.0 <1.0.0",
     "@azure-tools/typespec-client-generator-core": ">=0.68.0 <1.0.0",
     "@typespec/compiler": "^1.12.0",
+    "@typespec/emitter-framework": "^0.17.0",
     "@typespec/http": "^1.12.0",
     "@typespec/openapi": "^1.12.0",
     "@typespec/rest": ">=0.82.0 <1.0.0",
@@ -91,6 +92,8 @@
     ]
   },
   "dependencies": {
+    "@alloy-js/core": "^0.23.0",
+    "@alloy-js/python": "^0.4.0",
     "js-yaml": "~4.1.0",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
@@ -105,6 +108,7 @@
     "@azure-tools/typespec-client-generator-core": "~0.68.0",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.40",
     "@typespec/compiler": "^1.12.0",
+    "@typespec/emitter-framework": "^0.17.0",
     "@typespec/http": "^1.12.0",
     "@typespec/openapi": "^1.12.0",
     "@typespec/rest": "~0.82.0",

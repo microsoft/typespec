@@ -384,9 +384,6 @@ catalogs:
     prism-react-renderer:
       specifier: ^2.4.1
       version: 2.4.1
-    pyodide:
-      specifier: ^0.26.2
-      version: 0.26.2
     react:
       specifier: ^19.2.5
       version: 19.2.5
@@ -1277,52 +1274,6 @@ importers:
       yargs:
         specifier: 'catalog:'
         version: 18.0.0
-
-  packages/http-client-py:
-    dependencies:
-      '@alloy-js/core':
-        specifier: 0.23.1
-        version: 0.23.1
-      '@alloy-js/python':
-        specifier: 'catalog:'
-        version: 0.4.0
-      '@typespec/emitter-framework':
-        specifier: workspace:^
-        version: link:../emitter-framework
-      '@typespec/http-client':
-        specifier: workspace:^
-        version: link:../http-client
-      pyodide:
-        specifier: 'catalog:'
-        version: 0.26.2
-    devDependencies:
-      '@alloy-js/cli':
-        specifier: 'catalog:'
-        version: 0.23.0
-      '@alloy-js/rollup-plugin':
-        specifier: 'catalog:'
-        version: 0.1.1(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.60.1)
-      '@typespec/compiler':
-        specifier: workspace:^
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:^
-        version: link:../http
-      '@typespec/rest':
-        specifier: workspace:^
-        version: link:../rest
-      '@vitest/ui':
-        specifier: 'catalog:'
-        version: 4.1.3(vitest@4.1.3)
-      rimraf:
-        specifier: 'catalog:'
-        version: 6.1.3
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.2
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.3(@types/node@25.5.2)(@vitest/coverage-v8@4.1.3)(@vitest/ui@4.1.3)(happy-dom@20.9.0)(jsdom@25.0.1)(vite@8.0.8(@types/node@25.5.2)(esbuild@0.28.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/http-server-csharp:
     dependencies:
@@ -11630,10 +11581,6 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
-
-  pyodide@0.26.2:
-    resolution: {integrity: sha512-8VCRdFX83gBsWs6XP2rhG8HMaB+JaVyyav4q/EMzoV8fXH8HN6T5IISC92SNma6i1DRA3SVXA61S1rJcB8efgA==}
-    engines: {node: '>=18.0.0'}
 
   qs@6.15.0:
     resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
@@ -24896,13 +24843,6 @@ snapshots:
   punycode.js@2.3.1: {}
 
   punycode@2.3.1: {}
-
-  pyodide@0.26.2:
-    dependencies:
-      ws: 8.20.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   qs@6.15.0:
     dependencies:

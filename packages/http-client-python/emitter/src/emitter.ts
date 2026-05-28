@@ -8,6 +8,7 @@ import path, { dirname } from "path";
 import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 import pkgJson from "../../package.json" with { type: "json" };
+import { renderWithAlloy } from "./alloy/index.js";
 import { emitCodeModel } from "./code-model.js";
 import {
   blackExcludeDirs,
@@ -195,10 +196,9 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
-  const yamlMap = emitCodeModel(sdkContext);
-  const parsedYamlMap = walkThroughNodes(yamlMap);
 
-  // Python emitter requires an SDK client in the TypeSpec
+  // Python emitter requires an SDK client in the TypeSpec — applies to both
+  // the pygen path and the alloy path below.
   if (sdkContext.sdkPackage.clients.length === 0) {
     reportDiagnostic(program, {
       code: "no-sdk-clients",
@@ -206,6 +206,17 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     });
     return;
   }
+
+  // Opt-in alloy renderer path. Bypasses pygen + Pyodide entirely and emits
+  // Python from Node using alloy + emitter-framework. See `./alloy/README.md`
+  // for current scope.
+  if (sdkContext.emitContext.options["use-alloy-renderer"]) {
+    await renderWithAlloy(context, sdkContext);
+    return;
+  }
+
+  const yamlMap = emitCodeModel(sdkContext);
+  const parsedYamlMap = walkThroughNodes(yamlMap);
 
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};

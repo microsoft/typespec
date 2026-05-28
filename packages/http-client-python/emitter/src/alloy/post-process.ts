@@ -4,16 +4,17 @@ import type { PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 
 /**
- * Pyodide version to load. Pinned to match the version shipped with the
- * existing `@typespec/http-client-python` emitter for behavioral parity.
+ * Pyodide version used by the post-processor. Pinned to match the version
+ * shipped by `@typespec/http-client-python` so behavior is consistent across
+ * the pygen path and the alloy path.
  */
 export const PYODIDE_VERSION = "0.26.2";
 
 /**
- * Directories (relative to the package root) that should be excluded from
- * black formatting and pylint linting. Mirrors `blackExcludeDirs` from
- * `@typespec/http-client-python/emitter/src/constants.ts` so generated samples
- * or vendored content don't get rewritten.
+ * Directories (relative to the output dir) that should be excluded from
+ * `black` formatting and pylint header injection. Mirrors `blackExcludeDirs`
+ * from `constants.ts` so generated samples or vendored content are not
+ * rewritten.
  */
 export const DEFAULT_EXCLUDE_DIRS = [
   "__pycache__/",
@@ -41,35 +42,28 @@ export const DEFAULT_EXCLUDE_DIRS = [
  * Options accepted by {@link postProcessPython}.
  */
 export interface PostProcessOptions {
-  /**
-   * Whether to run `black` to format every `.py` file. Defaults to `true`.
-   */
+  /** Whether to run `black` over every `.py` file. Defaults to `true`. */
   format?: boolean;
   /**
    * Whether to inject `pylint: disable=line-too-long,too-many-lines` headers
-   * into files that exceed those limits, matching the behavior of the
-   * existing Python emitter. Defaults to `true`.
+   * into files that exceed those limits. Defaults to `true`.
    */
   pylintHeader?: boolean;
-  /**
-   * Maximum line length passed to `black --line-length`. Defaults to `120`.
-   */
+  /** Maximum line length passed to `black --line-length`. Defaults to `120`. */
   lineLength?: number;
   /**
    * Additional directories (relative to `outputDir`) to exclude from
-   * formatting. These are joined with {@link DEFAULT_EXCLUDE_DIRS}.
+   * formatting. Joined with {@link DEFAULT_EXCLUDE_DIRS}.
    */
   excludeDirs?: string[];
-  /**
-   * Function used to log progress and errors. Defaults to `console.log`.
-   */
+  /** Function used to log progress and errors. Defaults to stdout. */
   log?: (message: string) => void;
 }
 
-/**
- * Walks `outputDir`, lists every `.py` file outside the excluded directories,
- * and returns the relative paths.
- */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function listPythonFiles(outputDir: string, excludeDirs: string[]): string[] {
   const result: string[] = [];
   const stack: string[] = [outputDir];
@@ -99,15 +93,6 @@ function listPythonFiles(outputDir: string, excludeDirs: string[]): string[] {
   return result;
 }
 
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/**
- * Loads Pyodide using the local copy installed under `node_modules/pyodide`.
- * Mounts `outputDir` into the Pyodide MEMFS so `black` can read/write files
- * directly without an extra copy step.
- */
 async function loadPyodideForPostProcess(outputDir: string): Promise<PyodideInterface> {
   const { loadPyodide } = await import("pyodide");
   const pyodide = await loadPyodide({
@@ -119,22 +104,11 @@ async function loadPyodideForPostProcess(outputDir: string): Promise<PyodideInte
   return pyodide;
 }
 
-/**
- * Inside Pyodide, install `black` (and its small dependency closure) via
- * micropip. We tolerate version drift — if a pinned wheel isn't available
- * for the current Pyodide build, micropip falls back to the most recent
- * compatible release.
- */
 async function installBlack(pyodide: PyodideInterface): Promise<void> {
   const micropip = pyodide.pyimport("micropip");
   await micropip.install("black");
 }
 
-/**
- * Runs `black` over every `.py` file under `/work` in the Pyodide MEMFS,
- * using the same line-length and "fast" settings as the existing Python
- * emitter so the output is bytewise consistent across the two emitters.
- */
 async function runBlack(
   pyodide: PyodideInterface,
   lineLength: number,
@@ -164,12 +138,6 @@ for root, _dirs, files in os.walk("/work"):
 `);
 }
 
-/**
- * Adds `# pylint: disable=line-too-long,too-many-lines` headers to files that
- * exceed pylint's defaults, so downstream pylint runs against the generated
- * code don't produce noise the user can't fix. Mirrors the behavior of the
- * existing `@typespec/http-client-python` emitter.
- */
 function injectPylintHeaders(files: string[], log: (m: string) => void): void {
   for (const filePath of files) {
     let fileContent: string;
@@ -205,9 +173,9 @@ function injectPylintHeaders(files: string[], log: (m: string) => void): void {
  * Runs `black` and (optionally) `pylint` header injection against every
  * Python file under `outputDir`.
  *
- * Pyodide is loaded lazily — the first call to this function pays the
- * ~one-time cost of bootstrapping a Python VM in WASM, but subsequent files
- * are formatted in-process without spawning external interpreters.
+ * Pyodide is loaded lazily — the first call pays the ~one-time cost of
+ * bootstrapping a Python VM in WASM, but subsequent files are formatted
+ * in-process without spawning external interpreters.
  */
 export async function postProcessPython(
   outputDir: string,

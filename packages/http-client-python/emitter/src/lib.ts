@@ -26,6 +26,7 @@ export interface PythonEmitterOptions {
   "keep-setup-py"?: boolean;
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
+  "use-alloy-renderer"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -116,6 +117,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Emit YAML code model only, without running Python generator. For batch processing.",
+    },
+    "use-alloy-renderer": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "EXPERIMENTAL. When `true`, emit Python directly from Node using alloy + emitter-framework instead of running the pygen pipeline in Pyodide / native Python. The alloy renderer currently emits only the package skeleton; models, clients, operations, paging, and LROs are not yet implemented. Defaults to `false`.",
     },
   },
   required: [],

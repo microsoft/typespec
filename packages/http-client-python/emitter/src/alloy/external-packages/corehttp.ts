@@ -1,9 +1,9 @@
 import { createModule } from "@alloy-js/python";
 
 /**
- * Descriptor for the `corehttp` runtime package, the unbranded equivalent of
- * `azure-core`. We expose only the symbols this emitter currently references;
- * additional symbols should be added as needed when new features are wired up.
+ * Descriptor for the `corehttp` runtime package (the unbranded equivalent of
+ * `azure-core`). Only the symbols this renderer references are listed;
+ * additional symbols should be added as needed.
  */
 export const coreHttpModule = createModule({
   name: "corehttp",
@@ -26,9 +26,9 @@ export const coreHttpModule = createModule({
 });
 
 /**
- * Descriptor for the `azure.core` runtime package (used when `flavor: azure`).
- * Wired up but not yet meaningfully different from `corehttp`; reserved for
- * Azure-specific behavior in a later phase.
+ * Descriptor for the `azure.core` runtime package (used when the SDK flavor is
+ * azure). Wired up but not yet meaningfully different from `corehttp`;
+ * reserved for Azure-specific behavior in a later slice.
  */
 export const azureCoreModule = createModule({
   name: "azure.core",
