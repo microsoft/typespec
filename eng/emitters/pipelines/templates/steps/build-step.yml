@@ -85,8 +85,8 @@ steps:
       arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
       workingDirectory: $(selfRepositoryPath)
 
-  - script: npm install -g pnpm @chronus/chronus
-    displayName: Install pnpm and chronus
+  - script: npm install -g pnpm
+    displayName: Install pnpm
 
   - task: PowerShell@2
     displayName: "Run build script"
