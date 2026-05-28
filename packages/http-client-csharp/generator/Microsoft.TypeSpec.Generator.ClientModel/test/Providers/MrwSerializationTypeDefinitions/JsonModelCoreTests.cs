@@ -126,10 +126,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         // Validates that duration properties encoded as integer milliseconds/seconds are always
         // serialized as integers, regardless of the wire-type integer kind (e.g. integer, int64, etc.).
-        [TestCase(nameof(InputPrimitiveType.Int32), ExpectedResult = true)]
-        [TestCase(nameof(InputPrimitiveType.Int64), ExpectedResult = true)]
-        [TestCase(nameof(InputPrimitiveTypeKind.Integer), ExpectedResult = true)]
-        public bool DurationMillisecondsIntegerWireTypeWritesAsInt(string wireKindName)
+        [TestCase(nameof(InputPrimitiveType.Int32))]
+        [TestCase(nameof(InputPrimitiveType.Int64))]
+        [TestCase(nameof(InputPrimitiveTypeKind.Integer))]
+        public void DurationMillisecondsIntegerWireTypeWritesAsInt(string wireKindName)
         {
             var wireType = wireKindName switch
             {
@@ -145,15 +145,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
-            var content = writer.Write().Content;
-
-            // Always wrap TotalMilliseconds in Convert.ToInt32 so the JSON value is an integer,
-            // and never emit the raw double value.
-            Assert.That(
-                content,
-                Does.Contain("writer.WriteNumberValue(global::System.Convert.ToInt32(AudioEndMs.TotalMilliseconds));"));
-            Assert.That(content, Does.Not.Contain("writer.WriteNumberValue(AudioEndMs.TotalMilliseconds)"));
-            return true;
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
         }
 
         // Validates that duration properties encoded as float/double milliseconds preserve the
@@ -175,10 +168,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
-            var content = writer.Write().Content;
-
-            Assert.That(content, Does.Contain("writer.WriteNumberValue(AudioEndMs.TotalMilliseconds);"));
-            Assert.That(content, Does.Not.Contain("global::System.Convert.ToInt32(AudioEndMs.TotalMilliseconds)"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
         }
     }
 }
