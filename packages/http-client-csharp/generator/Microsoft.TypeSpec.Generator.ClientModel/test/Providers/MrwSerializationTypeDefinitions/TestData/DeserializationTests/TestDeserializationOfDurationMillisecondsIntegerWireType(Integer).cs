@@ -24,7 +24,7 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("audio_end_ms"u8))
                 {
-                    audioEndMs = global::System.TimeSpan.FromMilliseconds(prop.Value.GetInt32());
+                    audioEndMs = global::System.TimeSpan.FromMilliseconds(prop.Value.GetInt64());
                     continue;
                 }
                 if ((options.Format != "W"))

@@ -169,11 +169,20 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var wireName = wireKind.ToString().ToLower();
             var wireType = new InputPrimitiveType(wireKind, wireName, $"TypeSpec.{wireName}", null, null);
 
+            // Wire types whose .NET range fits in System.Int32 use the Int32 format;
+            // larger integer kinds (Int64, UInt32, UInt64, SafeInt, unbounded Integer) use the Int64 format
+            // so that ser/deser uses GetInt64 / Convert.ToInt64 instead of GetInt32 / Convert.ToInt32.
+            var fitsInInt32 = wireKind is
+                InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16;
+            var expectedMs = fitsInInt32 ? SerializationFormat.Duration_Milliseconds : SerializationFormat.Duration_Milliseconds_Int64;
+            var expectedS = fitsInInt32 ? SerializationFormat.Duration_Seconds : SerializationFormat.Duration_Seconds_Int64;
+
             var ms = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
-            Assert.AreEqual(SerializationFormat.Duration_Milliseconds, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
+            Assert.AreEqual(expectedMs, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(ms));
 
             var s = new InputDurationType(DurationKnownEncoding.Seconds, "duration", "TypeSpec.duration", wireType, null);
-            Assert.AreEqual(SerializationFormat.Duration_Seconds, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
+            Assert.AreEqual(expectedS, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(s));
         }
 
         [Test]

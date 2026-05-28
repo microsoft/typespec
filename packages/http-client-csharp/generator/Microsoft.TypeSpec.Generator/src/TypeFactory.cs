@@ -379,17 +379,19 @@ namespace Microsoft.TypeSpec.Generator
                 var e when e == DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
                 var e when e == DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
                 {
-                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
-                        or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 or InputPrimitiveTypeKind.UInt32
-                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Seconds,
+                    InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                        or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 => SerializationFormat.Duration_Seconds,
+                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt32
+                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Seconds_Int64,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Seconds_Float,
                     _ => SerializationFormat.Duration_Seconds_Double
                 },
                 var e when e == DurationKnownEncoding.Milliseconds => durationType.WireType.Kind switch
                 {
-                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
-                        or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 or InputPrimitiveTypeKind.UInt32
-                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Milliseconds,
+                    InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
+                        or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 => SerializationFormat.Duration_Milliseconds,
+                    InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt32
+                        or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt => SerializationFormat.Duration_Milliseconds_Int64,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Milliseconds_Float,
                     _ => SerializationFormat.Duration_Milliseconds_Double
                 },
