@@ -55,6 +55,46 @@ describe("modifier validation", () => {
     const diagnostics = await Tester.diagnose(`model Foo {}`);
     expectDiagnosticEmpty(diagnostics);
   });
+
+  it("does not emit experimental warning for project code when internal-modifier feature is enabled", async () => {
+    const diagnostics = await Tester.diagnose(`internal model Foo {}`, {
+      compilerOptions: {
+        configFile: {
+          diagnostics: [],
+          outputDir: "{cwd}/tsp-output",
+          projectRoot: "",
+          kind: "project",
+          features: ["internal-modifier"],
+        },
+      },
+    });
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("still emits experimental warning for library code when project enables internal-modifier feature", async () => {
+    const diagnostics = await Tester.files({
+      "node_modules/my-lib/package.json": JSON.stringify({
+        name: "my-lib",
+        version: "1.0.0",
+        exports: { ".": { typespec: "./main.tsp" } },
+      }),
+      "node_modules/my-lib/main.tsp": "internal model LibModel {}",
+    })
+      .import("my-lib")
+      .diagnose(`model Foo {}`, {
+        compilerOptions: {
+          configFile: {
+            diagnostics: [],
+            outputDir: "{cwd}/tsp-output",
+            projectRoot: "",
+            kind: "project",
+            features: ["internal-modifier"],
+          },
+        },
+      });
+
+    expectDiagnostics(diagnostics, { code: "experimental-feature" });
+  });
 });
 
 describe("access control", () => {

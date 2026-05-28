@@ -1,3 +1,4 @@
+import { isCompilerFeatureName } from "../core/features.js";
 import { createDiagnostic } from "../core/messages.js";
 import {
   getBaseFileName,
@@ -205,6 +206,30 @@ async function loadConfigFile(
     );
   }
 
+  if (data.features !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "features" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.kind === "project" && data.features !== undefined) {
+    for (const feature of data.features) {
+      if (!isCompilerFeatureName(feature)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "config-unknown-feature",
+            format: { feature },
+            target: getLocationInYamlScript(yamlScript, ["features", feature]),
+          }),
+        );
+      }
+    }
+  }
+
   const emit = data.emit;
   const options = data.options;
 
@@ -216,6 +241,7 @@ async function loadConfigFile(
     extends: data.extends,
     kind: data.kind,
     entrypoint: data.entrypoint,
+    features: data.features,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",
