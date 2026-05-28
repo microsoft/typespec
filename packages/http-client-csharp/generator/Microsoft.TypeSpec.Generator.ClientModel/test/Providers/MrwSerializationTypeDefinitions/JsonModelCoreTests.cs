@@ -123,5 +123,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        // Validates that duration properties encoded as integer milliseconds/seconds are always
+        // serialized as integers, regardless of the wire-type integer kind (e.g. integer, int64, etc.).
+        [TestCase(nameof(InputPrimitiveType.Int32), ExpectedResult = true)]
+        [TestCase(nameof(InputPrimitiveType.Int64), ExpectedResult = true)]
+        [TestCase(nameof(InputPrimitiveTypeKind.Integer), ExpectedResult = true)]
+        public bool DurationMillisecondsIntegerWireTypeWritesAsInt(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Int32) => InputPrimitiveType.Int32,
+                nameof(InputPrimitiveType.Int64) => InputPrimitiveType.Int64,
+                nameof(InputPrimitiveTypeKind.Integer) => new InputPrimitiveType(InputPrimitiveTypeKind.Integer, "integer", "TypeSpec.integer"),
+                _ => throw new System.ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var content = writer.Write().Content;
+
+            // Always wrap TotalMilliseconds in Convert.ToInt32 so the JSON value is an integer,
+            // and never emit the raw double value.
+            Assert.That(
+                content,
+                Does.Contain("writer.WriteNumberValue(global::System.Convert.ToInt32(AudioEndMs.TotalMilliseconds));"));
+            Assert.That(content, Does.Not.Contain("writer.WriteNumberValue(AudioEndMs.TotalMilliseconds)"));
+            return true;
+        }
+
+        // Validates that duration properties encoded as float/double milliseconds preserve the
+        // floating-point value (no integer rounding).
+        [TestCase(nameof(InputPrimitiveType.Float32))]
+        [TestCase(nameof(InputPrimitiveType.Float64))]
+        public void DurationMillisecondsFloatWireTypeWritesAsDouble(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Float32) => InputPrimitiveType.Float32,
+                nameof(InputPrimitiveType.Float64) => InputPrimitiveType.Float64,
+                _ => throw new System.ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var content = writer.Write().Content;
+
+            Assert.That(content, Does.Contain("writer.WriteNumberValue(AudioEndMs.TotalMilliseconds);"));
+            Assert.That(content, Does.Not.Contain("global::System.Convert.ToInt32(AudioEndMs.TotalMilliseconds)"));
+        }
     }
 }

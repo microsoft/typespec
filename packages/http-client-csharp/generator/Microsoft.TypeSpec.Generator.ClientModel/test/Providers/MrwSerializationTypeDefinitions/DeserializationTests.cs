@@ -113,5 +113,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(methodBody.Contains("global::System.UriKind.RelativeOrAbsolute"),
                 $"Uri property should specify UriKind.RelativeOrAbsolute. Actual:\n{methodBody}");
         }
+
+        // Validates that duration properties encoded as integer milliseconds are deserialized
+        // from an integer JSON value (GetInt32) regardless of the wire-type integer kind.
+        [TestCase(nameof(InputPrimitiveType.Int32))]
+        [TestCase(nameof(InputPrimitiveType.Int64))]
+        [TestCase(nameof(InputPrimitiveTypeKind.Integer))]
+        public void TestDeserializationOfDurationMillisecondsIntegerWireType(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Int32) => InputPrimitiveType.Int32,
+                nameof(InputPrimitiveType.Int64) => InputPrimitiveType.Int64,
+                nameof(InputPrimitiveTypeKind.Integer) => new InputPrimitiveType(InputPrimitiveTypeKind.Integer, "integer", "TypeSpec.integer"),
+                _ => throw new ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+
+            var deserializationMethod = mrwProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(
+                methodBody.Contains("global::System.TimeSpan.FromMilliseconds(prop.Value.GetInt32())"),
+                $"Duration milliseconds with integer wire type should deserialize via GetInt32. Actual:\n{methodBody}");
+            Assert.IsFalse(
+                methodBody.Contains("prop.Value.GetDouble()"),
+                $"Duration milliseconds with integer wire type should not call GetDouble. Actual:\n{methodBody}");
+        }
     }
 }
