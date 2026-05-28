@@ -130,6 +130,41 @@ describe("Test completion items for options and emitters", () => {
   });
 });
 
+describe("Test completion items for features", () => {
+  it.each([
+    {
+      config: `features:\n  - ┆`,
+      expected: ['"function-declarations"', '"internal-modifier"'],
+    },
+    {
+      config: `features:\n  - "┆"`,
+      expected: ["function-declarations", "internal-modifier"],
+    },
+    {
+      config: `features:\n  - "internal┆"`,
+      expected: ["function-declarations", "internal-modifier"],
+    },
+    {
+      config: `features:\n  - internal-modifier\n  - ┆`,
+      expected: ['"function-declarations"'],
+    },
+  ])("#%# Test features: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected);
+  });
+
+  it("includes feature descriptions", async () => {
+    await checkCompletionItems(
+      `features:\n  - ┆`,
+      true,
+      [
+        "Allows use of function declarations without experimental warnings in project code.",
+        "Allows use of the internal modifier without experimental warnings in project code.",
+      ],
+      true,
+    );
+  });
+});
+
 describe("Test completion items for emitters options", () => {
   it.each([
     {
