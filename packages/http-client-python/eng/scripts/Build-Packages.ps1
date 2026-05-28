@@ -88,14 +88,19 @@ try {
     }
 
     # Step 3: Stamp prerelease version if this is a prerelease build
-    if ($BuildNumber) {
-        $versionTag = $Prerelease ? "-alpha" : "-beta"
-        $emitterVersion = "$emitterVersion$versionTag.$BuildNumber"
-        Write-Host "`n=== Stamping prerelease version: $emitterVersion ===" -ForegroundColor Cyan
+    if ($Prerelease) {
+        # Only stamp if there are pending chronus change files for this package
+        $changeFiles = Get-ChildItem -Path "$packageRoot/../../.chronus/changes" -Filter "*.md" -ErrorAction SilentlyContinue |
+            Where-Object { (Get-Content $_.FullName -Raw) -match "http-client-python" }
 
-        $packageJson = Get-Content -Raw "package.json" | ConvertFrom-Json -AsHashtable
-        $packageJson.version = $emitterVersion
-        $packageJson | ConvertTo-Json -Depth 100 | Out-File -Path "package.json" -Encoding utf8 -NoNewline -Force
+        if ($changeFiles) {
+            Write-Host "`n=== Stamping prerelease version ===" -ForegroundColor Cyan
+            Invoke-LoggedCommand "pnpm chronus version --prerelease --only @typespec/http-client-python"
+            $emitterVersion = node -p -e "require('./package.json').version"
+            Write-Host "Stamped version: $emitterVersion"
+        } else {
+            Write-Host "`n=== No pending changes for @typespec/http-client-python, skipping prerelease version stamp ===" -ForegroundColor Yellow
+        }
     }
 
     Write-Host "`n=== Creating npm package ===" -ForegroundColor Cyan
