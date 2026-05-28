@@ -2,7 +2,9 @@
 
 ## 1.12.0
 
-No changes, version bump only.
+### Bug Fixes
+
+- Remove obsolete explicit Visual Studio transitive NuGet package overrides.
 
 ## 1.11.0
 
