@@ -217,3 +217,40 @@ async def test_file_upload_file_array(client: MultiPartClient):
             ],
         )
     )
+
+
+# -- Bare IO variants: verify _normalize_multipart_file_entry synthesizes
+#    filename from IO.name so the server receives filename= in Content-Disposition.
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_required_filename_bare_io(client: MultiPartClient):
+    """Pass bare open() IO — filename should be derived from IO.name ('image.png')."""
+    await client.form_data.file.upload_file_required_filename(
+        file_models.UploadFileRequiredFilenameRequest(
+            file=open(str(PNG), "rb"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_specific_content_type_bare_io(client: MultiPartClient):
+    """Pass bare open() IO — filename derived from IO.name, content type guessed."""
+    await client.form_data.file.upload_file_specific_content_type(
+        file_models.UploadFileSpecificContentTypeRequest(
+            file=open(str(PNG), "rb"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_array_bare_io(client: MultiPartClient):
+    """Pass bare open() IO in a list — each gets filename from IO.name."""
+    await client.form_data.file.upload_file_array(
+        file_models.UploadFileArrayRequest(
+            files=[
+                open(str(PNG), "rb"),
+                open(str(PNG), "rb"),
+            ],
+        )
+    )
