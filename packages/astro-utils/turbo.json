@@ -2,7 +2,8 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**", ".astro/**", "temp/turbo-build-skipped"]
+      "cache": false,
+      "outputs": []
     }
   }
 }
