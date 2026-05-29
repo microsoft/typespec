@@ -531,7 +531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dataDeclStatement = Declare("data", typeof(BinaryData),
                 Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [
                     new InvokeMethodExpression(null, $"Active{property.Name}", []),
-                    New.Instance(typeof(ModelReaderWriterOptions), Literal("J")),
+                    Static(typeof(ModelReaderWriterOptions)).Property(nameof(ModelReaderWriterOptions.Json)),
                     ModelReaderWriterContextSnippets.Default
                 ]),
                 out var dataVar);

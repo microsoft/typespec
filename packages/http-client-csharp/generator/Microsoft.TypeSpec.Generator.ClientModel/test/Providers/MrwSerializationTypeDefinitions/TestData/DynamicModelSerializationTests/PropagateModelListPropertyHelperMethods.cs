@@ -15,7 +15,7 @@ namespace Sample
         private bool TryResolveP1Array(out global::System.ClientModel.Primitives.JsonPatch.EncodedValue value)
         {
             value = default;
-            global::System.BinaryData data = global::System.ClientModel.Primitives.ModelReaderWriter.Write(ActiveP1(), new global::System.ClientModel.Primitives.ModelReaderWriterOptions("J"), global::Sample.SampleContext.Default);
+            global::System.BinaryData data = global::System.ClientModel.Primitives.ModelReaderWriter.Write(ActiveP1(), global::System.ClientModel.Primitives.ModelReaderWriterOptions.Json, global::Sample.SampleContext.Default);
             global::System.ClientModel.Primitives.JsonPatch tempPatch = new global::System.ClientModel.Primitives.JsonPatch();
             tempPatch.Set("$"u8, data.ToMemory().Span);
             return tempPatch.TryGetEncodedValue("$"u8, out value);
