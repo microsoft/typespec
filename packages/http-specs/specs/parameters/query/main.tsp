@@ -20,3 +20,59 @@ interface Constant {
     queryParam: "constantValue",
   ): void;
 }
+
+@doc("Dollar-sign prefixed query parameter verification")
+@route("/dollar-sign")
+interface DollarSign {
+  @scenario
+  @scenarioDoc("""
+    Send a request with a `$filter` query parameter.
+    
+    Expected query parameter:
+    - `$filter` = "status eq 'active'"
+    
+    Expected response status code: 204
+    """)
+  @route("/filter")
+  @get
+  filter(
+    @query("$filter")
+    filter: string,
+  ): void;
+
+  @scenario
+  @scenarioDoc("""
+    Send a request with `$top` and `$skip` query parameters.
+    
+    Expected query parameters:
+    - `$top` = 10
+    - `$skip` = 5
+    
+    Expected response status code: 204
+    """)
+  @route("/top-and-skip")
+  @get
+  topAndSkip(
+    @query("$top")
+    top: int32,
+
+    @query("$skip")
+    skip: int32,
+  ): void;
+
+  @scenario
+  @scenarioDoc("""
+    Send a request with a `$orderby` query parameter.
+    
+    Expected query parameter:
+    - `$orderby` = "name asc"
+    
+    Expected response status code: 204
+    """)
+  @route("/orderby")
+  @get
+  orderby(
+    @query("$orderby")
+    orderby: string,
+  ): void;
+}
