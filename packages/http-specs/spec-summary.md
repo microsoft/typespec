@@ -1534,6 +1534,43 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
+### Parameters_Query_DollarSign_filter
+
+- Endpoint: `get /parameters/query/dollar-sign/filter`
+
+Send a request with a `$filter` query parameter.
+
+Expected query parameter:
+
+- `$filter` = "status eq 'active'"
+
+Expected response status code: 204
+
+### Parameters_Query_DollarSign_orderby
+
+- Endpoint: `get /parameters/query/dollar-sign/orderby`
+
+Send a request with a `$orderby` query parameter.
+
+Expected query parameter:
+
+- `$orderby` = "name asc"
+
+Expected response status code: 204
+
+### Parameters_Query_DollarSign_topAndSkip
+
+- Endpoint: `get /parameters/query/dollar-sign/top-and-skip`
+
+Send a request with `$top` and `$skip` query parameters.
+
+Expected query parameters:
+
+- `$top` = 10
+- `$skip` = 5
+
+Expected response status code: 204
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -6226,6 +6263,18 @@ Expected response body:
 { "wingspan": 1, "kind": "sparrow" }
 ```
 
+### Type_Model_Inheritance_SingleDiscriminator_getNoSubtypesModel
+
+- Endpoint: `get /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Generate and receive a discriminated model that has no defined subtypes.
+The base model declares a discriminator but no models extend it.
+Expected response body:
+
+```json
+{ "kind": "salmon", "size": 10 }
+```
+
 ### Type_Model_Inheritance_SingleDiscriminator_getRecursiveModel
 
 - Endpoint: `get /type/model/inheritance/single-discriminator/recursivemodel`
@@ -6276,6 +6325,17 @@ Expected input body:
 
 ```json
 { "wingspan": 1, "kind": "sparrow" }
+```
+
+### Type_Model_Inheritance_SingleDiscriminator_putNoSubtypesModel
+
+- Endpoint: `put /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Send a discriminated model that has no defined subtypes.
+Expected input body:
+
+```json
+{ "kind": "salmon", "size": 10 }
 ```
 
 ### Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel
