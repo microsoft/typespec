@@ -242,6 +242,7 @@ class GeneralSerializer(BaseSerializer):
                 ImportType.LOCAL,
             )
             file_import.add_import("json", ImportType.STDLIB)
+            file_import.add_import("os", ImportType.STDLIB)
 
         return template.render(
             code_model=self.code_model,
