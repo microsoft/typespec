@@ -19,9 +19,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         Duration_ISO8601,
         Duration_Constant,
         Duration_Seconds,
+        Duration_Seconds_Int64,
         Duration_Seconds_Float,
         Duration_Seconds_Double,
         Duration_Milliseconds,
+        Duration_Milliseconds_Int64,
         Duration_Milliseconds_Float,
         Duration_Milliseconds_Double,
         Time_ISO8601,
@@ -32,7 +34,5 @@ namespace Microsoft.TypeSpec.Generator.Input
         Array_SpaceDelimited,
         Array_PipeDelimited,
         Array_NewlineDelimited,
-        Duration_Seconds_Int64,
-        Duration_Milliseconds_Int64,
     }
 }
