@@ -23,6 +23,36 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
+
+// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+function createBodyIntServerTests(uri: string) {
+  return passOnSuccess({
+    uri,
+    method: "post",
+    request: {
+      body: json({ value: 36 }),
+    },
+    response: {
+      status: 200,
+      body: json({ value: 36 }),
+    },
+    handler: (req: MockRequest) => {
+      const value = req.body?.value;
+      if (typeof value !== "number" || !Number.isInteger(value)) {
+        throw new ValidationError(
+          `Expected body property "value" to be serialized as an integer but got ${value}`,
+          "an integer",
+          value,
+        );
+      }
+      return {
+        status: 200,
+        body: json({ value }),
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   "/encode/duration/property/default",
   {
@@ -50,6 +80,9 @@ Scenarios.Encode_Duration_Property_int32Seconds = createBodyServerTests(
     value: 36,
   },
   36,
+);
+Scenarios.Encode_Duration_Property_int32SecondsFractional = createBodyIntServerTests(
+  "/encode/duration/property/int32-seconds-fractional",
 );
 Scenarios.Encode_Duration_Property_iso8601 = createBodyServerTests(
   "/encode/duration/property/iso8601",
@@ -175,6 +208,34 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
     kind: "MockApiDefinition",
   });
 }
+
+// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+function createQueryIntServerTests(uri: string, paramData: any) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: paramData,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Query_default = createQueryServerTests(
   "/encode/duration/query/default",
   {
@@ -195,6 +256,12 @@ Scenarios.Encode_Duration_Query_int32Seconds = createQueryServerTests(
     input: 36,
   },
   "36",
+);
+Scenarios.Encode_Duration_Query_int32SecondsFractional = createQueryIntServerTests(
+  "/encode/duration/query/int32-seconds-fractional",
+  {
+    input: 36,
+  },
 );
 Scenarios.Encode_Duration_Query_int32SecondsArray = createQueryServerTests(
   "/encode/duration/query/int32-seconds-array",
@@ -321,6 +388,36 @@ function createHeaderFloatServerTests(uri: string, value: number) {
   });
 }
 
+// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+function createHeaderIntServerTests(uri: string) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      headers: {
+        duration: "36",
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.headers["duration"];
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected header duration to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
 Scenarios.Encode_Duration_Header_default = createHeaderServerTests(
   "/encode/duration/header/default",
   {
@@ -341,6 +438,9 @@ Scenarios.Encode_Duration_Header_int32Seconds = createHeaderServerTests(
     duration: "36",
   },
   "36",
+);
+Scenarios.Encode_Duration_Header_int32SecondsFractional = createHeaderIntServerTests(
+  "/encode/duration/header/int32-seconds-fractional",
 );
 Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
   "/encode/duration/header/float-seconds",

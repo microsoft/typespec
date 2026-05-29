@@ -888,6 +888,15 @@ Expected header `duration: 180000`
 Test int32 seconds encode for a duration header.
 Expected header `duration: 36`
 
+### Encode_Duration_Header_int32SecondsFractional
+
+- Endpoint: `get /encode/duration/header/int32-seconds-fractional`
+
+Test int32 seconds encode for a duration header whose value has a fractional (sub-second) component.
+The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number), e.g. `duration: 36`.
+Expected header to be an integer (the fractional part is dropped during serialization).
+
 ### Encode_Duration_Header_int32SecondsLargerUnit
 
 - Endpoint: `get /encode/duration/header/int32-seconds-larger-unit`
@@ -1165,6 +1174,29 @@ Expected response body:
 }
 ```
 
+### Encode_Duration_Property_int32SecondsFractional
+
+- Endpoint: `get /encode/duration/property/int32-seconds-fractional`
+
+Test operation with request and response model contains a duration property with int32 seconds encode whose value has a fractional (sub-second) component.
+The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number).
+Expected request body:
+
+```json
+{
+  "value": 36
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": 36
+}
+```
+
 ### Encode_Duration_Property_int32SecondsLargerUnit
 
 - Endpoint: `get /encode/duration/property/int32-seconds-larger-unit`
@@ -1294,6 +1326,15 @@ Expected query parameter `input=36`
 
 Test int32 seconds encode for a duration array parameter.
 Expected query parameter `input=36,47`
+
+### Encode_Duration_Query_int32SecondsFractional
+
+- Endpoint: `get /encode/duration/query/int32-seconds-fractional`
+
+Test int32 seconds encode for a duration parameter whose value has a fractional (sub-second) component.
+The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number), e.g. `input=36`.
+Expected query parameter to be an integer (the fractional part is dropped during serialization).
 
 ### Encode_Duration_Query_int32SecondsLargerUnit
 
