@@ -316,6 +316,7 @@ export async function activate(context: ExtensionContext) {
             }
             // client will be undefined only when we can't find compiler locally or globally
             // otherwise, the client should always be created though the start command may fail which is a different case
+            ssTel.lastStep = "Compiler not found (prompting to install)";
             const choice: "Yes" | "Ignore" | undefined = await vscode.window.showWarningMessage(
               "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
               "Yes",
@@ -355,6 +356,8 @@ export async function activate(context: ExtensionContext) {
                 { showPopup: true },
               );
               ssTel.lastStep = "Failed to install TypeSpec compiler.";
+            } else {
+              ssTel.lastStep = "Install TypeSpec compiler cancelled.";
             }
             return installResult.code;
           },
