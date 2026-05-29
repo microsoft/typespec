@@ -40,8 +40,6 @@ cspell.yaml
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin
-/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin
-/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin
-
-
+/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
+/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
