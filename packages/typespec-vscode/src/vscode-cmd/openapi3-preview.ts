@@ -134,9 +134,7 @@ async function loadOpenApi3PreviewPanel(
     });
     panel.reveal();
   } else {
-    const getOpenApi3OutputFilePath = async (
-      selectOutput: boolean,
-    ): Promise<Result<string>> => {
+    const getOpenApi3OutputFilePath = async (selectOutput: boolean): Promise<Result<string>> => {
       return await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
