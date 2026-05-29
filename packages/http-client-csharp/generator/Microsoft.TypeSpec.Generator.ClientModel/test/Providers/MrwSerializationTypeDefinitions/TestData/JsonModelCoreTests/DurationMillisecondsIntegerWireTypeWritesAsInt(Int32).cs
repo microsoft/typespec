@@ -18,7 +18,7 @@ namespace Sample.Models
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestModel)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("audio_end_ms"u8);
-            writer.WriteNumberValue(global::System.Convert.ToInt32(AudioEndMs.TotalMilliseconds));
+            writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(AudioEndMs.TotalMilliseconds)));
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
