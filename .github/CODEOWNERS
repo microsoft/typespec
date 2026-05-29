@@ -9,8 +9,8 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @JoshLove-msft @iscai-msft @srnagar @timotheeguerin
-/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
+/eng/emitters/                               @JoshLove-msft @iscai-msft @srnagar @timotheeguerin @l0lawrence
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao @l0lawrence
 
 ######################
 # CSharp
@@ -29,8 +29,8 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 @l0lawrence
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 @l0lawrence
 
 ######################
 # JavaScript
