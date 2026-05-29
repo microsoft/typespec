@@ -1,5 +1,5 @@
 # Catch all
-*                                            @bterlson @markcowl @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
+*                                            @bterlson @markcowl @timotheeguerin @witemple-msft @iscai-msft @catalinaperalta
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
@@ -29,19 +29,19 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 @l0lawrence
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 @l0lawrence
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence
 
 ######################
 # JavaScript
 ######################
-/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @witemple-msft @chrisradek @AlitzelMendez
+/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @witemple-msft
 
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
-/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
-/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin
+/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin
 
 
