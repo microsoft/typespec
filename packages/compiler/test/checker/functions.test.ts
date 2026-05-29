@@ -43,6 +43,20 @@ function expectFunctionDiagnosticsEmpty(diagnostics: readonly Diagnostic[]) {
 
 let tester: Tester = BaseTester;
 
+function createTesterForFn(fnName: string, impl: (...args: any[]) => any) {
+  return BaseTester.files({
+    [`${fnName}.js`]: mockFile.js({
+      $functions: {
+        "": {
+          [fnName]: impl,
+        },
+      },
+    }),
+  })
+    .import(`./${fnName}.js`)
+    .using("TypeSpec.Reflection");
+}
+
 describe("declaration", () => {
   let testImpl: any;
   let nsFnImpl: any;
@@ -70,6 +84,7 @@ describe("declaration", () => {
     it("defined at root via direct export", async () => {
       const [{ program }, diagnostics] = await tester.compileAndDiagnose(`
           extern fn testFn();
+          namespace Foo.Bar { extern fn nsFn(); }
         `);
 
       expectFunctionDiagnosticsEmpty(diagnostics);
@@ -79,6 +94,7 @@ describe("declaration", () => {
 
     it("in namespace via $functions map", async () => {
       const [{ program }, diagnostics] = await tester.compileAndDiagnose(`
+        extern fn testFn();
         namespace Foo.Bar { extern fn nsFn(); }
       `);
       expectFunctionDiagnosticsEmpty(diagnostics);
@@ -89,7 +105,10 @@ describe("declaration", () => {
   });
 
   it("errors if function is missing extern modifier", async () => {
-    const diagnostics = await tester.diagnose(`fn testFn();`);
+    const diagnostics = await tester.diagnose(`
+      namespace Foo.Bar { extern fn nsFn(); }
+      fn testFn();
+    `);
     expectFunctionDiagnostics(diagnostics, {
       code: "invalid-modifier",
       message: "Declaration of type 'function' is missing required modifier 'extern'.",
@@ -97,7 +116,11 @@ describe("declaration", () => {
   });
 
   it("errors if extern function is missing implementation", async () => {
-    const diagnostics = await tester.diagnose(`extern fn missing();`);
+    const diagnostics = await tester.diagnose(`
+      extern fn testFn();
+      namespace Foo.Bar { extern fn nsFn(); }
+      extern fn missing();
+    `);
     expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
       message: "Extern declaration must have an implementation in JS file.",
@@ -105,7 +128,11 @@ describe("declaration", () => {
   });
 
   it("errors if rest parameter type is not array", async () => {
-    const diagnostics = await tester.diagnose(`extern fn f(...rest: string);`);
+    const diagnostics = await tester.diagnose(`
+      extern fn testFn();
+      namespace Foo.Bar { extern fn nsFn(); }
+      extern fn f(...rest: string);
+    `);
     expectFunctionDiagnostics(diagnostics, [
       {
         code: "missing-implementation",
@@ -117,38 +144,46 @@ describe("declaration", () => {
       },
     ]);
   });
+
+  it("errors if $functions export has no matching extern fn declaration", async () => {
+    const diagnostics = await tester.diagnose(``);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "missing-extern-declaration",
+        message: `Function implementation "testFn" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
+      },
+      {
+        code: "missing-extern-declaration",
+        message: `Function implementation "nsFn" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
+      },
+    ]);
+  });
 });
 
 describe("usage", () => {
   let calledArgs: any[] | undefined;
+
   beforeEach(() => {
     calledArgs = undefined;
-
-    tester = BaseTester.files({
-      "test.js": mockFile.js({
-        $functions: {
-          "": {
-            testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
-              calledArgs = [ctx, a, b, ...rest];
-              return a; // Return first arg
-            },
-            sum(_ctx: FunctionContext, ...addends: number[]) {
-              return addends.reduce((a, b) => a + b, 0);
-            },
-            valFirst(_ctx: FunctionContext, v: any) {
-              return v;
-            },
-            voidFn(ctx: FunctionContext, arg: any) {
-              calledArgs = [ctx, arg];
-              // No return value
-            },
-          },
-        },
-      }),
-    })
-      .import("./test.js")
-      .using("TypeSpec.Reflection");
   });
+
+  function testFnImpl(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
+    calledArgs = [ctx, a, b, ...rest];
+    return a; // Return first arg
+  }
+
+  function sumImpl(_ctx: FunctionContext, ...addends: number[]) {
+    return addends.reduce((a, b) => a + b, 0);
+  }
+
+  function valFirstImpl(_ctx: FunctionContext, v: any) {
+    return v;
+  }
+
+  function voidFnImpl(ctx: FunctionContext, arg: any) {
+    calledArgs = [ctx, arg];
+    // No return value
+  }
 
   function expectNotCalled() {
     ok(calledArgs === undefined, "Expected function not to be called.");
@@ -162,12 +197,30 @@ describe("usage", () => {
     }
   }
 
+  function getTesterForSignature(signature: string): Tester {
+    const match = signature.match(/extern fn (\w+)/);
+    const fnName = match?.[1];
+    switch (fnName) {
+      case "testFn":
+        return createTesterForFn("testFn", testFnImpl);
+      case "sum":
+        return createTesterForFn("sum", sumImpl);
+      case "valFirst":
+        return createTesterForFn("valFirst", valFirstImpl);
+      case "voidFn":
+        return createTesterForFn("voidFn", voidFnImpl);
+      default:
+        throw new Error(`Unknown function in signature: ${signature}`);
+    }
+  }
+
   async function expectFunctionTypeUsage(
     signature: string,
     call: string,
     match: DiagnosticMatch[] = [],
   ): Promise<Type> {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = getTesterForSignature(signature);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         ${signature};
         
         model Observer {
@@ -184,7 +237,8 @@ describe("usage", () => {
     call: string,
     match: DiagnosticMatch[] = [],
   ): Promise<Value | undefined> {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = getTesterForSignature(signature);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         ${signature};
 
         model Observer {
@@ -198,9 +252,12 @@ describe("usage", () => {
   }
 
   it("errors if function not declared", async () => {
-    const diagnostics = await tester.diagnose(`const X = missing();`);
-
-    expectDiagnostics(diagnostics, {
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const diagnostics = await fnTester.diagnose(`
+      extern fn testFn(...args: unknown[]): unknown;
+      const X = missing();
+    `);
+    expectFunctionDiagnostics(diagnostics, {
       code: "invalid-ref",
       message: "Unknown identifier missing",
     });
@@ -389,7 +446,8 @@ describe("usage", () => {
   });
 
   it("accepts valueof model argument", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         model M { x: string }
         extern fn testFn(m: valueof M): valueof M;
 
@@ -413,7 +471,8 @@ describe("usage", () => {
   });
 
   it("does not accept invalid valueof model argument", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const diagnostics = await fnTester.diagnose(`
         model M { x: string }
 
         extern fn testFn(m: valueof M): valueof M;
@@ -484,7 +543,8 @@ describe("usage", () => {
   });
 
   it("accepts literal types where parameter is a rest array of a literal union", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const diagnostics = await fnTester.diagnose(`
         alias U = "a" | 10 | true;
         extern fn testFn(...args: U[]): "a" | 10 | true;
 
@@ -513,7 +573,8 @@ describe("usage", () => {
   });
 
   it("accepts enum member where parameter is enum", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const diagnostics = await fnTester.diagnose(`
         enum E { A, B }
 
         extern fn testFn(e: E): E;
@@ -529,7 +590,8 @@ describe("usage", () => {
   });
 
   it("accepts enum value where parameter is valueof enum", async () => {
-    const [{ E, p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const [{ E, p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         enum ${t.enum("E")} { A, B }
         extern fn testFn(e: valueof E): valueof E;
 
@@ -556,7 +618,8 @@ describe("usage", () => {
   });
 
   it("calls function bound to const", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("sum", sumImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn sum(...addends: valueof int32[]): valueof int32;
 
         const f = sum;
@@ -728,41 +791,45 @@ describe("value marshalling", () => {
 
   beforeEach(() => {
     receivedValue = undefined;
-    tester = BaseTester.files({
-      "test.js": mockFile.js({
-        $functions: {
-          "": {
-            expect(_ctx: FunctionContext, arg: any) {
-              receivedValue = arg;
-              return arg;
-            },
-            returnInvalidJsValue(_ctx: FunctionContext) {
-              return Symbol("invalid");
-            },
-            returnComplexObject(_ctx: FunctionContext) {
-              return {
-                nested: { value: 42 },
-                array: [1, "test", true],
-                null: null,
-              };
-            },
-            returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
-              return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
-            },
-          },
-        },
-      }),
-    })
-      .import("./test.js")
-      .using("TypeSpec.Reflection");
   });
+
+  function expectImpl(_ctx: FunctionContext, arg: any) {
+    receivedValue = arg;
+    return arg;
+  }
+
+  function returnInvalidJsValueImpl(_ctx: FunctionContext) {
+    return Symbol("invalid");
+  }
+
+  function returnComplexObjectImpl(_ctx: FunctionContext) {
+    return {
+      nested: { value: 42 },
+      array: [1, "test", true],
+      null: null,
+    };
+  }
+
+  function returnIndeterminateImpl(ctx: FunctionContext): IndeterminateEntity {
+    return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+  }
 
   async function expectValueUsage(
     signature: string,
     argument: string,
     match: DiagnosticMatch[] = [],
   ): Promise<Value | undefined> {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnName = signature.match(/extern fn (\w+)/)![1];
+    const impl =
+      fnName === "expect"
+        ? expectImpl
+        : fnName === "returnInvalidJsValue"
+          ? returnInvalidJsValueImpl
+          : fnName === "returnComplexObject"
+            ? returnComplexObjectImpl
+            : returnIndeterminateImpl;
+    const fnTester = createTesterForFn(fnName, impl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         ${signature};
 
         model Observer {
@@ -905,7 +972,19 @@ describe("value marshalling", () => {
   });
 
   it("handles indeterminate entities coerced to values", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const indeterminateTester = BaseTester.files({
+      "indeterminate.js": mockFile.js({
+        $functions: {
+          "": {
+            returnIndeterminate: returnIndeterminateImpl,
+            expect: expectImpl,
+          },
+        },
+      }),
+    })
+      .import("./indeterminate.js")
+      .using("TypeSpec.Reflection");
+    const [{ p }, diagnostics] = await indeterminateTester.compileAndDiagnose(t.code`
         extern fn returnIndeterminate(): valueof int32;
         extern fn expect(n: valueof int32): valueof int32;
         const X = expect(returnIndeterminate());
@@ -923,7 +1002,8 @@ describe("value marshalling", () => {
   });
 
   it("handles indeterminate entities coerced to types", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("returnIndeterminate", returnIndeterminateImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn returnIndeterminate(): int32;
 
         alias X = returnIndeterminate();
@@ -943,35 +1023,27 @@ describe("value marshalling", () => {
 describe("union type constraints", () => {
   let receivedArg: any;
 
+  function acceptImpl(_ctx: FunctionContext, arg: any) {
+    receivedArg = arg;
+    return arg;
+  }
+
+  function returnTypeOrValueImpl(ctx: FunctionContext, returnType: boolean) {
+    receivedArg = returnType;
+    if (returnType) {
+      return ctx.program.checker.getStdType("string");
+    } else {
+      return "hello";
+    }
+  }
+
   beforeEach(() => {
     receivedArg = undefined;
-
-    tester = BaseTester.files({
-      "test.js": mockFile.js({
-        $functions: {
-          "": {
-            accept(_ctx: FunctionContext, arg: any) {
-              receivedArg = arg;
-              return arg;
-            },
-            returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
-              receivedArg = returnType;
-              if (returnType) {
-                return ctx.program.checker.getStdType("string");
-              } else {
-                return "hello";
-              }
-            },
-          },
-        },
-      }),
-    })
-      .import("./test.js")
-      .using("TypeSpec.Reflection");
   });
 
   it("accepts type parameter", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("accept", acceptImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn accept(arg: unknown | valueof unknown): unknown;
         
         alias TypeResult = accept(string);
@@ -985,7 +1057,8 @@ describe("union type constraints", () => {
   });
 
   it("prefers value when applicable", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("accept", acceptImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn accept(arg: string | valueof string): valueof string;
         
         const ValueResult = accept("hello");
@@ -997,7 +1070,8 @@ describe("union type constraints", () => {
   });
 
   it("accepts multiple specific types", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("accept", acceptImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn accept(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
         
         model TestModel {}
@@ -1011,7 +1085,8 @@ describe("union type constraints", () => {
   });
 
   it("accepts multiple value types", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("accept", acceptImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn accept(arg: valueof (string | int32)): valueof (string | int32);
         
         const StringResult = accept("test");
@@ -1022,7 +1097,8 @@ describe("union type constraints", () => {
   });
 
   it("errors when argument doesn't match union constraint", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("accept", acceptImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn accept(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
         
         scalar TestScalar extends string;
@@ -1038,7 +1114,8 @@ describe("union type constraints", () => {
   });
 
   it("can return type from function", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("returnTypeOrValue", returnTypeOrValueImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn returnTypeOrValue(returnType: valueof boolean): unknown;
 
         model Observer {
@@ -1055,7 +1132,8 @@ describe("union type constraints", () => {
   });
 
   it("can return value from function", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("returnTypeOrValue", returnTypeOrValueImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn returnTypeOrValue(returnType: valueof boolean): valueof string;
         
         const ValueResult = returnTypeOrValue(false);
@@ -1076,40 +1154,29 @@ describe("union type constraints", () => {
 });
 
 describe("error cases and edge cases", () => {
-  beforeEach(() => {
-    tester = BaseTester.files({
-      "test.js": mockFile.js({
-        $functions: {
-          "": {
-            testFn() {},
-            returnWrongEntityKind(_ctx: FunctionContext) {
-              return "string value"; // Returns value when type expected
-            },
-            returnWrongValueType(_ctx: FunctionContext) {
-              return 42; // Returns number when string expected
-            },
-            throwError(_ctx: FunctionContext) {
-              throw new Error("JS error");
-            },
-            returnUndefined(_ctx: FunctionContext) {
-              return undefined;
-            },
-            returnNull(_ctx: FunctionContext) {
-              return null;
-            },
-            expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
-              return req;
-            },
-          },
-        },
-      }),
-    })
-      .import("./test.js")
-      .using("TypeSpec.Reflection");
-  });
+  const testFnImpl = () => {};
+  const returnWrongEntityKindImpl = (_ctx: FunctionContext) => {
+    return "string value"; // Returns value when type expected
+  };
+  const returnWrongValueTypeImpl = (_ctx: FunctionContext) => {
+    return 42; // Returns number when string expected
+  };
+  const throwErrorImpl = (_ctx: FunctionContext) => {
+    throw new Error("JS error");
+  };
+  const returnUndefinedImpl = (_ctx: FunctionContext) => {
+    return undefined;
+  };
+  const returnNullImpl = (_ctx: FunctionContext) => {
+    return null;
+  };
+  const expectNonOptionalAfterOptionalImpl = (_ctx: FunctionContext, _opt: any, req: any) => {
+    return req;
+  };
 
   it("errors when function returns wrong entity kind", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("returnWrongEntityKind", returnWrongEntityKindImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn returnWrongEntityKind(): unknown;
         alias X = returnWrongEntityKind();
       `);
@@ -1122,7 +1189,8 @@ describe("error cases and edge cases", () => {
   });
 
   it("errors when function returns wrong value type", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("returnWrongValueType", returnWrongValueTypeImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn returnWrongValueType(): valueof string;
         const X = returnWrongValueType();
       `);
@@ -1135,8 +1203,9 @@ describe("error cases and edge cases", () => {
   });
 
   it("thrown JS error bubbles up as ICE", async () => {
+    const fnTester = createTesterForFn("throwError", throwErrorImpl);
     try {
-      await tester.diagnose(`
+      await fnTester.diagnose(`
           extern fn throwError(): unknown;
           alias X = throwError();
         `);
@@ -1149,7 +1218,8 @@ describe("error cases and edge cases", () => {
   });
 
   it("returns null for undefined return in value position", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("returnUndefined", returnUndefinedImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn returnUndefined(): valueof unknown;
 
         model Observer {
@@ -1164,7 +1234,8 @@ describe("error cases and edge cases", () => {
   });
 
   it("handles null return value", async () => {
-    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+    const fnTester = createTesterForFn("returnNull", returnNullImpl);
+    const [{ p }, diagnostics] = await fnTester.compileAndDiagnose(t.code`
         extern fn returnNull(): valueof unknown;
         const X = returnNull();
 
@@ -1180,7 +1251,11 @@ describe("error cases and edge cases", () => {
   });
 
   it("validates required parameter after optional not allowed in regular param position", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn(
+      "expectNonOptionalAfterOptional",
+      expectNonOptionalAfterOptionalImpl,
+    );
+    const diagnostics = await fnTester.diagnose(`
         extern fn expectNonOptionalAfterOptional(opt?: valueof string, req: valueof string): valueof string;
         const X = expectNonOptionalAfterOptional("test");
       `);
@@ -1192,7 +1267,8 @@ describe("error cases and edge cases", () => {
   });
 
   it("cannot be used as a type", async () => {
-    const diagnostics = await tester.diagnose(`
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const diagnostics = await fnTester.diagnose(`
         extern fn testFn(): unknown;
         
         model M {
@@ -1208,6 +1284,10 @@ describe("error cases and edge cases", () => {
 });
 
 describe("default function results", () => {
+  beforeEach(() => {
+    tester = BaseTester;
+  });
+
   it("collapses to undefined for missing value-returning function", async () => {
     const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn missingValueFn(): valueof string;
@@ -1269,6 +1349,10 @@ describe("default function results", () => {
 describe("template and generic scenarios", () => {
   beforeEach(() => {
     tester = BaseTester.files({
+      "templates.tsp": `
+        extern fn processGeneric(T: unknown): unknown;
+        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
+      `,
       "templates.js": mockFile.js({
         $functions: {
           "": {
@@ -1282,13 +1366,13 @@ describe("template and generic scenarios", () => {
         },
       }),
     })
+      .import("./templates.tsp")
       .import("./templates.js")
       .using("TypeSpec.Reflection");
   });
 
   it("works with template aliases", async () => {
     const [{ program, prop }, diagnostics] = await tester.compileAndDiagnose(t.code`
-        extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
@@ -1305,8 +1389,6 @@ describe("template and generic scenarios", () => {
 
   it("works with constrained templates", async () => {
     const diagnostics = await tester.diagnose(`
-        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
-        
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
         
         model TestModel {}
@@ -1318,7 +1400,6 @@ describe("template and generic scenarios", () => {
 
   it("errors when template constraint not satisfied", async () => {
     const diagnostics = await tester.diagnose(`
-        extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
         
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
         
@@ -1333,7 +1414,6 @@ describe("template and generic scenarios", () => {
 
   it("template instantiations of function calls yield identical instances", async () => {
     const [{ program, A, B }, diagnostics] = await tester.compileAndDiagnose(t.code`
-        extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
@@ -1460,6 +1540,10 @@ describe("assignability of functions to fn types", () => {
 });
 
 describe("function type assignability", () => {
+  beforeEach(() => {
+    tester = BaseTester;
+  });
+
   async function diagnoseFunctionAssignment(source: string, target: string) {
     const diagnostics = await tester.diagnose(`
         alias Source = ${source};
@@ -1583,12 +1667,13 @@ describe("calling template arguments", () => {
 
   it("does not allow calling an unconstrained template parameter", async () => {
     const diagnostics = await tester.diagnose(`
+        extern fn f(T: Model): string;
         model Test<T extends Model, F> {
           p: string = F();
         }
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "non-callable",
       message:
         "Template parameter 'F extends unknown' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
@@ -1597,12 +1682,13 @@ describe("calling template arguments", () => {
 
   it("does not allow calling a template paremeter constrained to a type that is possibly not a function", async () => {
     const diagnostics = await tester.diagnose(`
+        extern fn f(T: Model): string;
         model Test<F extends Model | valueof fn() => valueof string> {
           p: string = F();
         }
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "non-callable",
       message:
         "Template parameter 'F extends Model | valueof fn () => valueof string' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
