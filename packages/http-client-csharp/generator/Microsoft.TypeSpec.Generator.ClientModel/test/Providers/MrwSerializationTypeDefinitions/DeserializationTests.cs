@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         // Validates that duration properties encoded as integer milliseconds are deserialized
-        // from an integer JSON value (GetInt32) regardless of the wire-type integer kind.
+        // from an integer JSON value (GetInt32 for Int32 wire type, GetInt64 for larger integer kinds).
         [TestCase(nameof(InputPrimitiveType.Int32))]
         [TestCase(nameof(InputPrimitiveType.Int64))]
         [TestCase(nameof(InputPrimitiveTypeKind.Integer))]
