@@ -29,16 +29,12 @@ namespace SampleTypeSpec
         Duration_Constant = 8,
         /// <summary> The seconds duration format. </summary>
         Duration_Seconds = 9,
-        /// <summary> The seconds duration format with int64 precision. </summary>
-        Duration_Seconds_Int64 = 18,
         /// <summary> The seconds duration format with float precision. </summary>
         Duration_Seconds_Float = 10,
         /// <summary> The seconds duration format with double precision. </summary>
         Duration_Seconds_Double = 11,
         /// <summary> The milliseconds duration format. </summary>
         Duration_Milliseconds = 12,
-        /// <summary> The milliseconds duration format with int64 precision. </summary>
-        Duration_Milliseconds_Int64 = 19,
         /// <summary> The milliseconds duration format with float precision. </summary>
         Duration_Milliseconds_Float = 13,
         /// <summary> The milliseconds duration format with double precision. </summary>
@@ -48,6 +44,10 @@ namespace SampleTypeSpec
         /// <summary> The Base64Url bytes format. </summary>
         Bytes_Base64Url = 16,
         /// <summary> The Base64 bytes format. </summary>
-        Bytes_Base64 = 17
+        Bytes_Base64 = 17,
+        /// <summary> The seconds duration format with int64 precision. </summary>
+        Duration_Seconds_Int64 = 18,
+        /// <summary> The milliseconds duration format with int64 precision. </summary>
+        Duration_Milliseconds_Int64 = 19
     }
 }
