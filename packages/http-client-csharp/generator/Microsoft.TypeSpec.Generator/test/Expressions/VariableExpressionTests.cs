@@ -10,23 +10,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
     public class VariableExpressionTests
     {
         [Test]
-        public void VariableExpressionWithoutRef()
+        public void VariableExpressionWritesName()
         {
             var variableExpression = new VariableExpression(typeof(int), "foo");
             using CodeWriter writer = new CodeWriter();
             variableExpression.Write(writer);
 
             Assert.AreEqual("foo", writer.ToString(false));
-        }
-
-        [Test]
-        public void VariableExpressionWithRef()
-        {
-            var variableExpression = new VariableExpression(typeof(int), "foo", true);
-            using CodeWriter writer = new CodeWriter();
-            variableExpression.Write(writer);
-
-            Assert.AreEqual("ref foo", writer.ToString(false));
         }
     }
 }

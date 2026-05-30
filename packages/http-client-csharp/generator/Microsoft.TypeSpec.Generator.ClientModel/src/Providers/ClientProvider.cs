@@ -1171,7 +1171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var cachedClientFieldVar = new VariableExpression(subClient.Type, subClient._clientCachingField.Declaration, IsRef: true);
+                var cachedClientFieldVar = new ArgumentExpression(new VariableExpression(subClient.Type, subClient._clientCachingField.Declaration), IsRef: true);
                 List<ValueExpression> subClientConstructorArgs = new(3);
                 List<ParameterProvider> accessorMethodParams = [];
 
