@@ -14,6 +14,9 @@ pnpm-lock.yaml
 # Agentic workflow lock file
 **/*.lock.yml
 
+# NuGet lock file
+**/*.lock.json
+
 # Emu spec file, formatting is wrong
 packages/spec/src/spec.emu.html
 

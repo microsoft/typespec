@@ -351,6 +351,7 @@ ignorePaths:
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
   - "**/*.lock.yml"
+  - "**/*.lock.json"
   - pnpm-workspace.yaml
   - "**/dependabot.yml"
   - "**/*.mp4"
