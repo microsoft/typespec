@@ -24,18 +24,19 @@ function createBodyServerTests(uri: string, data: any, value: any) {
   });
 }
 
-// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
-// The duration (36.25s) is chosen so rounding and truncating both yield 36.
-function createBodyIntServerTests(uri: string) {
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyBodyServerTests(uri: string, allowed: number[]) {
   return passOnSuccess({
     uri,
     method: "post",
     request: {
-      body: json({ value: 36 }),
+      body: json({ value: allowed[0] }),
     },
     response: {
       status: 200,
-      body: json({ value: 36 }),
+      body: json({ value: allowed[0] }),
     },
     handler: (req: MockRequest) => {
       const value = req.body?.value;
@@ -46,10 +47,10 @@ function createBodyIntServerTests(uri: string) {
           value,
         );
       }
-      if (value !== 36) {
+      if (!allowed.includes(value)) {
         throw new ValidationError(
-          `Expected body property "value" to be 36 but got ${value}`,
-          "36",
+          `Expected body property "value" to be one of ${allowed.join(", ")} but got ${value}`,
+          allowed.join(" | "),
           value,
         );
       }
@@ -88,9 +89,6 @@ Scenarios.Encode_Duration_Property_int32Seconds = createBodyServerTests(
     value: 36,
   },
   36,
-);
-Scenarios.Encode_Duration_Property_int32SecondsFractional = createBodyIntServerTests(
-  "/encode/duration/property/int32-seconds-fractional",
 );
 Scenarios.Encode_Duration_Property_iso8601 = createBodyServerTests(
   "/encode/duration/property/iso8601",
@@ -217,14 +215,17 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
   });
 }
 
-// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
-// The duration (36.25s) is chosen so rounding and truncating both yield 36.
-function createQueryIntServerTests(uri: string, paramData: any) {
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyQueryServerTests(uri: string, allowed: number[]) {
   return passOnSuccess({
     uri,
     method: "get",
     request: {
-      query: paramData,
+      query: {
+        input: allowed[0],
+      },
     },
     response: {
       status: 204,
@@ -238,8 +239,12 @@ function createQueryIntServerTests(uri: string, paramData: any) {
           actual,
         );
       }
-      if (actual !== "36") {
-        throw new ValidationError(`Expected query param input=36 but got ${actual}`, "36", actual);
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
+          actual,
+        );
       }
       return {
         status: 204,
@@ -268,12 +273,6 @@ Scenarios.Encode_Duration_Query_int32Seconds = createQueryServerTests(
     input: 36,
   },
   "36",
-);
-Scenarios.Encode_Duration_Query_int32SecondsFractional = createQueryIntServerTests(
-  "/encode/duration/query/int32-seconds-fractional",
-  {
-    input: 36,
-  },
 );
 Scenarios.Encode_Duration_Query_int32SecondsArray = createQueryServerTests(
   "/encode/duration/query/int32-seconds-array",
@@ -400,15 +399,16 @@ function createHeaderFloatServerTests(uri: string, value: number) {
   });
 }
 
-// Validates that a duration with a fractional (sub-second) component is serialized as an integer.
-// The duration (36.25s) is chosen so rounding and truncating both yield 36.
-function createHeaderIntServerTests(uri: string) {
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyHeaderServerTests(uri: string, allowed: number[]) {
   return passOnSuccess({
     uri,
     method: "get",
     request: {
       headers: {
-        duration: "36",
+        duration: String(allowed[0]),
       },
     },
     response: {
@@ -423,8 +423,12 @@ function createHeaderIntServerTests(uri: string) {
           actual,
         );
       }
-      if (actual !== "36") {
-        throw new ValidationError(`Expected header duration=36 but got ${actual}`, "36", actual);
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected header duration to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
+          actual,
+        );
       }
       return {
         status: 204,
@@ -454,9 +458,6 @@ Scenarios.Encode_Duration_Header_int32Seconds = createHeaderServerTests(
     duration: "36",
   },
   "36",
-);
-Scenarios.Encode_Duration_Header_int32SecondsFractional = createHeaderIntServerTests(
-  "/encode/duration/header/int32-seconds-fractional",
 );
 Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
   "/encode/duration/header/float-seconds",
@@ -523,4 +524,31 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
 Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
   210000,
+);
+
+// Lossy encode scenarios: the source duration carries more precision than the target integer
+// encoding, so floor/round/ceil are all acceptable results (e.g. 36.25s -> 36 or 37).
+Scenarios.Encode_Duration_Lossy_Query_int32Seconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/query/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_Query_int32Milliseconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/query/int32-milliseconds",
+  [36250, 36251],
+);
+Scenarios.Encode_Duration_Lossy_Property_int32Seconds = createLossyBodyServerTests(
+  "/encode/duration/lossy/property/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_Property_int32Milliseconds = createLossyBodyServerTests(
+  "/encode/duration/lossy/property/int32-milliseconds",
+  [36250, 36251],
+);
+Scenarios.Encode_Duration_Lossy_Header_int32Seconds = createLossyHeaderServerTests(
+  "/encode/duration/lossy/header/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_Header_int32Milliseconds = createLossyHeaderServerTests(
+  "/encode/duration/lossy/header/int32-milliseconds",
+  [36250, 36251],
 );
