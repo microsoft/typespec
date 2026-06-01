@@ -245,6 +245,7 @@ export async function activate(context: ExtensionContext) {
             await telemetryClient.doOperationWithTelemetry(
               TelemetryEventName.ServerPathSettingChanged,
               async (tel) => {
+                tel.lastStep = "Recreate LSP client for path change";
                 return await recreateLSPClient(context, tel.activityId);
               },
               undefined,
