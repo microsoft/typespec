@@ -19,6 +19,8 @@ When specified, builds the Azure emitter locally and regenerates Azure data plan
 When specified, builds the management plane emitter locally and regenerates mgmt SDK libraries. Implies Azure emitter build since mgmt depends on it.
 .PARAMETER BuildArtifactsPath
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
+.PARAMETER PipelineRunUrl
+The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -48,6 +50,9 @@ param(
 
   [Parameter(Mandatory = $false)]
   [string]$BuildArtifactsPath,
+
+  [Parameter(Mandatory = $false)]
+  [string]$PipelineRunUrl,
 
   [Parameter(Mandatory = $false)]
   [switch]$UseTypeSpecNext
@@ -80,7 +85,12 @@ This PR updates the UnbrandedGeneratorVersion property in eng/centralpackagemana
 
 ## Details
 
-- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl
+- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl$(if ($PipelineRunUrl) {
+@"
+
+- Pipeline run that produced this PR: $PipelineRunUrl
+"@
+})
 
 ## Changes
 
