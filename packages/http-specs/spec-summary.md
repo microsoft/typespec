@@ -910,7 +910,7 @@ Expected header `duration: P40D`
 Test iso8601 encode for a duration array header.
 Expected header `duration: [P40D,P50D]`
 
-### Encode_Duration_Lossy_Header_int32Milliseconds
+### Encode_Duration_Lossy_headerInt32Milliseconds
 
 - Endpoint: `get /encode/duration/lossy/header/int32-milliseconds`
 
@@ -919,7 +919,7 @@ The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) 
 The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
 Because emitters may floor, round, or ceil when discarding that precision, the expected header is `duration: 36250` or `duration: 36251`.
 
-### Encode_Duration_Lossy_Header_int32Seconds
+### Encode_Duration_Lossy_headerInt32Seconds
 
 - Endpoint: `get /encode/duration/lossy/header/int32-seconds`
 
@@ -928,25 +928,25 @@ The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
 The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
 Because emitters may floor, round, or ceil when discarding that precision, the expected header is `duration: 36` or `duration: 37`.
 
-### Encode_Duration_Lossy_Property_int32Milliseconds
+### Encode_Duration_Lossy_propertyInt32Milliseconds
 
-- Endpoint: `get /encode/duration/lossy/property/int32-milliseconds`
+- Endpoint: `post /encode/duration/lossy/property/int32-milliseconds`
 
 Test int32 milliseconds encode for a duration property whose value has a sub-millisecond fractional component.
 The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
 The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
 Because emitters may floor, round, or ceil when discarding that precision, the expected request body `value` is `36250` or `36251`.
 
-### Encode_Duration_Lossy_Property_int32Seconds
+### Encode_Duration_Lossy_propertyInt32Seconds
 
-- Endpoint: `get /encode/duration/lossy/property/int32-seconds`
+- Endpoint: `post /encode/duration/lossy/property/int32-seconds`
 
 Test int32 seconds encode for a duration property whose value has a fractional (sub-second) component.
 The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
 The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
 Because emitters may floor, round, or ceil when discarding that precision, the expected request body `value` is `36` or `37`.
 
-### Encode_Duration_Lossy_Query_int32Milliseconds
+### Encode_Duration_Lossy_queryInt32Milliseconds
 
 - Endpoint: `get /encode/duration/lossy/query/int32-milliseconds`
 
@@ -955,7 +955,7 @@ The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) 
 The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
 Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
 
-### Encode_Duration_Lossy_Query_int32Seconds
+### Encode_Duration_Lossy_queryInt32Seconds
 
 - Endpoint: `get /encode/duration/lossy/query/int32-seconds`
 

@@ -528,27 +528,27 @@ Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloat
 
 // Lossy encode scenarios: the source duration carries more precision than the target integer
 // encoding, so floor/round/ceil are all acceptable results (e.g. 36.25s -> 36 or 37).
-Scenarios.Encode_Duration_Lossy_Query_int32Seconds = createLossyQueryServerTests(
+Scenarios.Encode_Duration_Lossy_queryInt32Seconds = createLossyQueryServerTests(
   "/encode/duration/lossy/query/int32-seconds",
   [36, 37],
 );
-Scenarios.Encode_Duration_Lossy_Query_int32Milliseconds = createLossyQueryServerTests(
+Scenarios.Encode_Duration_Lossy_queryInt32Milliseconds = createLossyQueryServerTests(
   "/encode/duration/lossy/query/int32-milliseconds",
   [36250, 36251],
 );
-Scenarios.Encode_Duration_Lossy_Property_int32Seconds = createLossyBodyServerTests(
+Scenarios.Encode_Duration_Lossy_propertyInt32Seconds = createLossyBodyServerTests(
   "/encode/duration/lossy/property/int32-seconds",
   [36, 37],
 );
-Scenarios.Encode_Duration_Lossy_Property_int32Milliseconds = createLossyBodyServerTests(
+Scenarios.Encode_Duration_Lossy_propertyInt32Milliseconds = createLossyBodyServerTests(
   "/encode/duration/lossy/property/int32-milliseconds",
   [36250, 36251],
 );
-Scenarios.Encode_Duration_Lossy_Header_int32Seconds = createLossyHeaderServerTests(
+Scenarios.Encode_Duration_Lossy_headerInt32Seconds = createLossyHeaderServerTests(
   "/encode/duration/lossy/header/int32-seconds",
   [36, 37],
 );
-Scenarios.Encode_Duration_Lossy_Header_int32Milliseconds = createLossyHeaderServerTests(
+Scenarios.Encode_Duration_Lossy_headerInt32Milliseconds = createLossyHeaderServerTests(
   "/encode/duration/lossy/header/int32-milliseconds",
   [36250, 36251],
 );
