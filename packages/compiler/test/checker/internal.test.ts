@@ -15,13 +15,9 @@ describe("modifier validation", () => {
   ];
 
   for (const { keyword, code } of declarationKinds) {
-    it(`allows 'internal' on ${keyword} declaration (with experimental warning)`, async () => {
+    it(`allows 'internal' on ${keyword} declaration`, async () => {
       const diagnostics = await Tester.diagnose(code);
-      expectDiagnostics(diagnostics, {
-        code: "experimental-feature",
-        severity: "warning",
-        message: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
-      });
+      expectDiagnosticEmpty(diagnostics);
     });
   }
 
@@ -32,18 +28,12 @@ describe("modifier validation", () => {
       .import("./test.js")
       .diagnose(`internal extern dec myDec(target: unknown);`);
 
-    // Only the experimental warning, no error
-    expectDiagnostics(diagnostics, {
-      code: "experimental-feature",
-    });
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("does not allow 'internal' on namespace", async () => {
     const diagnostics = await Tester.diagnose(`internal namespace Foo {}`);
     expectDiagnostics(diagnostics, [
-      {
-        code: "experimental-feature",
-      },
       {
         code: "invalid-modifier",
         message: "Modifier 'internal' cannot be used on declarations of type 'namespace'.",
@@ -54,9 +44,6 @@ describe("modifier validation", () => {
   it("does not allow 'internal' on blockless namespace", async () => {
     const diagnostics = await Tester.diagnose(`internal namespace Foo;`);
     expectDiagnostics(diagnostics, [
-      {
-        code: "experimental-feature",
-      },
       {
         code: "invalid-modifier",
         message: "Modifier 'internal' cannot be used on declarations of type 'namespace'.",
@@ -123,10 +110,7 @@ describe("access control", () => {
           model Consumer { x: LibModel }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal scalar from another package", async () => {
@@ -137,10 +121,7 @@ describe("access control", () => {
           model Consumer { x: LibScalar }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal interface from another package", async () => {
@@ -151,10 +132,7 @@ describe("access control", () => {
           interface Consumer extends LibIface {}
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal union from another package", async () => {
@@ -165,10 +143,7 @@ describe("access control", () => {
           model Consumer { x: LibUnion }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal op from another package", async () => {
@@ -179,10 +154,7 @@ describe("access control", () => {
           op consumer is libOp;
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal enum from another package", async () => {
@@ -193,10 +165,7 @@ describe("access control", () => {
           model Consumer { x: LibEnum }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal alias from another package", async () => {
@@ -210,10 +179,7 @@ describe("access control", () => {
           model Consumer { x: LibAlias }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal model in a namespace from another package", async () => {
@@ -227,10 +193,7 @@ describe("access control", () => {
           model Consumer { x: MyLib.Secret }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects access to internal model via 'using' from another package", async () => {
@@ -245,10 +208,7 @@ describe("access control", () => {
           model Consumer { x: Secret }
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
 
     it("rejects extending an internal model from another package", async () => {
@@ -259,10 +219,7 @@ describe("access control", () => {
           model Consumer extends Base {}
         `);
 
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-feature" },
-      ]);
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
     });
   });
 
@@ -273,8 +230,7 @@ describe("access control", () => {
           model Consumer { x: Secret }
         `);
 
-      // Only the experimental warning, no access error
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to internal enum within the same project", async () => {
@@ -283,7 +239,7 @@ describe("access control", () => {
           model Consumer { x: Status }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to internal model across files in the same project", async () => {
@@ -297,7 +253,7 @@ describe("access control", () => {
           `,
       });
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to internal op within the same project", async () => {
@@ -306,7 +262,7 @@ describe("access control", () => {
           op consumer is helper;
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to internal scalar within the same project", async () => {
@@ -315,7 +271,7 @@ describe("access control", () => {
           model Consumer { x: MyScalar }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to internal alias within the same project", async () => {
@@ -324,7 +280,7 @@ describe("access control", () => {
           model Consumer { x: Shorthand }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 
@@ -343,8 +299,7 @@ describe("access control", () => {
           model Consumer { x: Public }
         `);
 
-      // experimental-feature for InternalHelper in the library, no access error
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 
@@ -361,7 +316,7 @@ describe("access control", () => {
           model Consumer { x: PublicModel }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("allows access to non-internal model in a namespace from another package", async () => {
@@ -378,7 +333,7 @@ describe("access control", () => {
           model Consumer { x: MyLib.PublicModel }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-feature" });
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });
