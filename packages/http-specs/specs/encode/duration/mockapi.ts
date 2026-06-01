@@ -25,6 +25,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
 }
 
 // Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+// The duration (36.25s) is chosen so rounding and truncating both yield 36.
 function createBodyIntServerTests(uri: string) {
   return passOnSuccess({
     uri,
@@ -42,6 +43,13 @@ function createBodyIntServerTests(uri: string) {
         throw new ValidationError(
           `Expected body property "value" to be serialized as an integer but got ${value}`,
           "an integer",
+          value,
+        );
+      }
+      if (value !== 36) {
+        throw new ValidationError(
+          `Expected body property "value" to be 36 but got ${value}`,
+          "36",
           value,
         );
       }
@@ -210,6 +218,7 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
 }
 
 // Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+// The duration (36.25s) is chosen so rounding and truncating both yield 36.
 function createQueryIntServerTests(uri: string, paramData: any) {
   return passOnSuccess({
     uri,
@@ -228,6 +237,9 @@ function createQueryIntServerTests(uri: string, paramData: any) {
           "an integer",
           actual,
         );
+      }
+      if (actual !== "36") {
+        throw new ValidationError(`Expected query param input=36 but got ${actual}`, "36", actual);
       }
       return {
         status: 204,
@@ -389,6 +401,7 @@ function createHeaderFloatServerTests(uri: string, value: number) {
 }
 
 // Validates that a duration with a fractional (sub-second) component is serialized as an integer.
+// The duration (36.25s) is chosen so rounding and truncating both yield 36.
 function createHeaderIntServerTests(uri: string) {
   return passOnSuccess({
     uri,
@@ -409,6 +422,9 @@ function createHeaderIntServerTests(uri: string) {
           "an integer",
           actual,
         );
+      }
+      if (actual !== "36") {
+        throw new ValidationError(`Expected header duration=36 but got ${actual}`, "36", actual);
       }
       return {
         status: 204,
