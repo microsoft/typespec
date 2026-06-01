@@ -198,9 +198,8 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const yamlMap = emitCodeModel(sdkContext);
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
-  // Python emitter requires an SDK client in the TypeSpec (unless models-only typeddict mode)
-  const modelsMode = (sdkContext.emitContext.options as any)["models-mode"];
-  if (sdkContext.sdkPackage.clients.length === 0 && modelsMode !== "typeddict") {
+  // Python emitter requires an SDK client in the TypeSpec
+  if (sdkContext.sdkPackage.clients.length === 0) {
     reportDiagnostic(program, {
       code: "no-sdk-clients",
       target: NoTarget,
