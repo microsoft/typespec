@@ -102,6 +102,13 @@ def _normalize_multipart_file_entry(field_name: str, entry: Any, index: int) -> 
         filename = os.path.basename(name_attr)
     if not filename:
         filename = f"{field_name}_{index}" if index else field_name
+
+    # Return a 3-tuple with an explicit "application/octet-stream" content type.
+    # A 2-tuple (filename, content) would leave the part's Content-Type unset, and
+    # the sdk core library only defaults to "application/octet-stream" for bare
+    # (non-tuple) values - a tuple bypasses that default and falls back to the
+    # HTTP "text/plain" default instead. Setting it explicitly preserves the
+    # pre-existing behavior for bare bytes/IO across all transports.
     return (filename, entry, "application/octet-stream")
 
 def prepare_multipart_form_data(
