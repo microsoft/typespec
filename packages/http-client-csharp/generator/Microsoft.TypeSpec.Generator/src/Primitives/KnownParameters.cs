@@ -19,9 +19,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public static ParameterProvider NextLink => _nextLink ??= new("nextLink", $"Continuation token", typeof(string));
 
         private static ParameterProvider? _cancellationTokenParameter;
-        public static ParameterProvider CancellationTokenParameter => _cancellationTokenParameter ??= new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippet.DefaultOf(typeof(CancellationToken)));
+        public static ParameterProvider CancellationTokenParameter => _cancellationTokenParameter ??= new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippet.Default);
 
         private static ParameterProvider? _enumerationCancellationTokenParameter;
-        public static ParameterProvider EnumeratorCancellationTokenParameter => _enumerationCancellationTokenParameter ??= new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippet.DefaultOf(typeof(CancellationToken)), attributes: [new AttributeStatement(typeof(EnumeratorCancellationAttribute))]);
+        public static ParameterProvider EnumeratorCancellationTokenParameter => _enumerationCancellationTokenParameter ??= new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippet.Default, attributes: [new AttributeStatement(typeof(EnumeratorCancellationAttribute))]);
     }
 }

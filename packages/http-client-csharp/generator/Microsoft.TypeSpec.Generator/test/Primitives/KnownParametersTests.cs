@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Primitives
@@ -23,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(CancellationToken))));
+            Assert.AreSame(Snippet.Default, result.DefaultValue);
         }
 
         [TestCase]
@@ -32,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(CancellationToken))));
+            Assert.AreSame(Snippet.Default, result.DefaultValue);
             Assert.IsTrue(result.Attributes.Any(statement => statement.Type.FrameworkType == typeof(EnumeratorCancellationAttribute)));
         }
     }

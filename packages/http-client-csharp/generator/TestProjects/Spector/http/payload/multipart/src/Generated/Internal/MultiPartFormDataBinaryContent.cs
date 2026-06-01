@@ -41,9 +41,9 @@ namespace Payload.MultiPart
 
         public override bool TryComputeLength(out long length) => throw null;
 
-        public override void WriteTo(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = ((global::System.Threading.CancellationToken)default)) => throw null;
+        public override void WriteTo(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public override global::System.Threading.Tasks.Task WriteToAsync(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = ((global::System.Threading.CancellationToken)default)) => throw null;
+        public override global::System.Threading.Tasks.Task WriteToAsync(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
         public override void Dispose() => throw null;
     }
