@@ -88,8 +88,6 @@ namespace Microsoft.TypeSpec.Generator
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
 
-            root = root.WithAdditionalAnnotations(Simplifier.Annotation);
-            document = document.WithSyntaxRoot(root);
             _project = document.Project;
         }
 
@@ -148,7 +146,10 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
-            document = await Simplifier.ReduceAsync(document);
+            if (root.GetAnnotatedNodesAndTokens(Simplifier.Annotation).Any())
+            {
+                document = await Simplifier.ReduceAsync(document);
+            }
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
