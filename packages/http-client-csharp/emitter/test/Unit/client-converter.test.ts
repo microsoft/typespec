@@ -688,3 +688,28 @@ describe("client name suffix", () => {
     }
   });
 });
+
+describe("Test isExactName propagation on clients", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("propagates isExactName from @clientName decorator with exact() on a client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @@clientName(Azure.Csharp.Testing, Azure.ClientGenerator.Core.exact("snake_case_client"), "csharp");
+        op test(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const client = root.clients.find((c) => c.name === "snake_case_client");
+    ok(client);
+    strictEqual(client.isExactName, true);
+  });
+});

@@ -16,6 +16,7 @@ export type InputServiceMethod =
 interface InputServiceMethodBase {
   kind: string;
   name: string;
+  isExactName?: boolean;
   accessibility?: string;
   apiVersions: string[];
   doc?: string;

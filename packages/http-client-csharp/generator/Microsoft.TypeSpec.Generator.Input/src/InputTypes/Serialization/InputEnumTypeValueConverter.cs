@@ -31,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            bool isExactName = false;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
@@ -40,7 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("enumType", options, ref enumType)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -58,23 +60,23 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             InputEnumTypeValue enumValue = valueType.Kind switch
             {
-                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, summary, doc, enumType) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
                 InputPrimitiveTypeKind.Integer or
                 InputPrimitiveTypeKind.Int8 or
                 InputPrimitiveTypeKind.Int16 or
                 InputPrimitiveTypeKind.Int32 or
                 InputPrimitiveTypeKind.UInt8 or
-                InputPrimitiveTypeKind.UInt16 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, summary, doc, enumType) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.UInt16 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
                 InputPrimitiveTypeKind.Int64 or
                 InputPrimitiveTypeKind.UInt32 or
                 InputPrimitiveTypeKind.UInt64 or
-                InputPrimitiveTypeKind.SafeInt => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt64(), valueType, summary, doc, enumType) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.SafeInt => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt64(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
                 InputPrimitiveTypeKind.Float or
                 InputPrimitiveTypeKind.Float32 or
                 InputPrimitiveTypeKind.Float64 or
                 InputPrimitiveTypeKind.Numeric or
                 InputPrimitiveTypeKind.Decimal or
-                InputPrimitiveTypeKind.Decimal128 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc, enumType) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Decimal128 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc, enumType) { Decorators = decorators ?? [], IsExactName = isExactName },
                 _ => throw new JsonException($"Unsupported enum valueType kind '{valueType.Kind}' for enum '{enumType.Name}' value '{name}'.")
             };
             if (id != null)
