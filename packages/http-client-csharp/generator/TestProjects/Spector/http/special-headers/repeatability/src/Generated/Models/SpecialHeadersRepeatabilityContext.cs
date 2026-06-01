@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace SpecialHeaders.Repeatability
 {
-    public partial class SpecialHeadersRepeatabilityContext : ModelReaderWriterContext
+    public partial class SpecialHeadersRepeatabilityContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

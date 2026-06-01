@@ -6,11 +6,11 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Bytes
 {
-    [ModelReaderWriterBuildable(typeof(Base64BytesProperty))]
-    [ModelReaderWriterBuildable(typeof(Base64urlArrayBytesProperty))]
-    [ModelReaderWriterBuildable(typeof(Base64urlBytesProperty))]
-    [ModelReaderWriterBuildable(typeof(DefaultBytesProperty))]
-    public partial class EncodeBytesContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Bytes.Base64BytesProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Bytes.Base64urlArrayBytesProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Bytes.Base64urlBytesProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Bytes.DefaultBytesProperty))]
+    public partial class EncodeBytesContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

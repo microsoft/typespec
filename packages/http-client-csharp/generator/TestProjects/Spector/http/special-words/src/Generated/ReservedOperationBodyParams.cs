@@ -15,16 +15,16 @@ namespace SpecialWords._ReservedOperationBodyParams
     {
         protected ReservedOperationBodyParams() => throw null;
 
-        internal ReservedOperationBodyParams(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ReservedOperationBodyParams(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult WithItems(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithItems(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> WithItemsAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithItemsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult WithItems(IEnumerable<string> items, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithItems(global::System.Collections.Generic.IEnumerable<string> items, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithItemsAsync(IEnumerable<string> items, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithItemsAsync(global::System.Collections.Generic.IEnumerable<string> items, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

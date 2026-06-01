@@ -9,6 +9,6 @@ namespace Versioning.RenamedFrom.V2
 {
     public static partial class VersioningRenamedFromV2ModelFactory
     {
-        public static NewModel NewModel(string newProp = default, NewEnum enumProp = default, BinaryData unionProp = default) => throw null;
+        public static global::Versioning.RenamedFrom.NewModel NewModel(string newProp = default, global::Versioning.RenamedFrom.NewEnum enumProp = default, global::System.BinaryData unionProp = default) => throw null;
     }
 }

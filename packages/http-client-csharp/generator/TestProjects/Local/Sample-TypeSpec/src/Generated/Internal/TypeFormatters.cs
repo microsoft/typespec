@@ -19,60 +19,60 @@ namespace SampleTypeSpec
 
         public static string ToString(bool value) => value ? "true" : "false";
 
-        public static string ToString(DateTime value, string format) => value.Kind switch
+        public static string ToString(global::System.DateTime value, string format) => value.Kind switch
         {
-            DateTimeKind.Utc => ToString((DateTimeOffset)value, format),
-            _ => throw new NotSupportedException($"DateTime {value} has a Kind of {value.Kind}. Generated clients require it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.")
+            global::System.DateTimeKind.Utc => global::SampleTypeSpec.TypeFormatters.ToString(((global::System.DateTimeOffset)value), format),
+            _ => throw new global::System.NotSupportedException($"DateTime {value} has a Kind of {value.Kind}. Generated clients require it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.")
         };
 
-        public static string ToString(DateTimeOffset value, string format) => format switch
+        public static string ToString(global::System.DateTimeOffset value, string format) => format switch
         {
-            "D" => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            "U" => value.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
-            "O" => value.ToUniversalTime().ToString(RoundtripZFormat, CultureInfo.InvariantCulture),
-            "o" => value.ToUniversalTime().ToString(RoundtripZFormat, CultureInfo.InvariantCulture),
-            "R" => value.ToString("r", CultureInfo.InvariantCulture),
-            _ => value.ToString(format, CultureInfo.InvariantCulture)
+            "D" => value.ToString("yyyy-MM-dd", global::System.Globalization.CultureInfo.InvariantCulture),
+            "U" => value.ToUnixTimeSeconds().ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+            "O" => value.ToUniversalTime().ToString(RoundtripZFormat, global::System.Globalization.CultureInfo.InvariantCulture),
+            "o" => value.ToUniversalTime().ToString(RoundtripZFormat, global::System.Globalization.CultureInfo.InvariantCulture),
+            "R" => value.ToString("r", global::System.Globalization.CultureInfo.InvariantCulture),
+            _ => value.ToString(format, global::System.Globalization.CultureInfo.InvariantCulture)
         };
 
-        public static string ToString(TimeSpan value, string format) => format switch
+        public static string ToString(global::System.TimeSpan value, string format) => format switch
         {
-            "P" => XmlConvert.ToString(value),
-            _ => value.ToString(format, CultureInfo.InvariantCulture)
+            "P" => global::System.Xml.XmlConvert.ToString(value),
+            _ => value.ToString(format, global::System.Globalization.CultureInfo.InvariantCulture)
         };
 
-        public static string ToString(byte[] value, string format) => format switch
+        public static string ToString(global::System.Byte[] value, string format) => format switch
         {
-            "U" => ToBase64UrlString(value),
-            "D" => Convert.ToBase64String(value),
-            _ => throw new ArgumentException($"Format is not supported: '{format}'", nameof(format))
+            "U" => global::SampleTypeSpec.TypeFormatters.ToBase64UrlString(value),
+            "D" => global::System.Convert.ToBase64String(value),
+            _ => throw new global::System.ArgumentException($"Format is not supported: '{format}'", nameof(format))
         };
 
-        public static string ToBase64UrlString(byte[] value)
+        public static string ToBase64UrlString(global::System.Byte[] value)
         {
-            int numWholeOrPartialInputBlocks = checked (value.Length + 2) / 3;
+            int numWholeOrPartialInputBlocks = (checked (value.Length + 2) / 3);
             int size = checked (numWholeOrPartialInputBlocks * 4);
-            char[] output = new char[size];
+            global::System.Char[] output = new char[size];
 
-            int numBase64Chars = Convert.ToBase64CharArray(value, 0, value.Length, output, 0);
+            int numBase64Chars = global::System.Convert.ToBase64CharArray(value, 0, value.Length, output, 0);
 
             int i = 0;
-            for (; i < numBase64Chars; i++)
+            for (; (i < numBase64Chars); i++)
             {
                 char ch = output[i];
-                if (ch == '+')
+                if ((ch == '+'))
                 {
                     output[i] = '-';
                 }
                 else
                 {
-                    if (ch == '/')
+                    if ((ch == '/'))
                     {
                         output[i] = '_';
                     }
                     else
                     {
-                        if (ch == '=')
+                        if ((ch == '='))
                         {
                             break;
                         }
@@ -83,27 +83,27 @@ namespace SampleTypeSpec
             return new string(output, 0, i);
         }
 
-        public static byte[] FromBase64UrlString(string value)
+        public static global::System.Byte[] FromBase64UrlString(string value)
         {
             int paddingCharsToAdd = (value.Length % 4) switch
             {
                 0 => 0,
                 2 => 2,
                 3 => 1,
-                _ => throw new InvalidOperationException("Malformed input")
+                _ => throw new global::System.InvalidOperationException("Malformed input")
             };
-            char[] output = new char[(value.Length + paddingCharsToAdd)];
+            global::System.Char[] output = new char[(value.Length + paddingCharsToAdd)];
             int i = 0;
-            for (; i < value.Length; i++)
+            for (; (i < value.Length); i++)
             {
                 char ch = value[i];
-                if (ch == '-')
+                if ((ch == '-'))
                 {
                     output[i] = '+';
                 }
                 else
                 {
-                    if (ch == '_')
+                    if ((ch == '_'))
                     {
                         output[i] = '/';
                     }
@@ -114,68 +114,68 @@ namespace SampleTypeSpec
                 }
             }
 
-            for (; i < output.Length; i++)
+            for (; (i < output.Length); i++)
             {
                 output[i] = '=';
             }
 
-            return Convert.FromBase64CharArray(output, 0, output.Length);
+            return global::System.Convert.FromBase64CharArray(output, 0, output.Length);
         }
 
-        public static DateTimeOffset ParseDateTimeOffset(string value, string format) => format switch
+        public static global::System.DateTimeOffset ParseDateTimeOffset(string value, string format) => format switch
         {
-            "U" => DateTimeOffset.FromUnixTimeSeconds(long.Parse(value, CultureInfo.InvariantCulture)),
-            _ => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+            "U" => global::System.DateTimeOffset.FromUnixTimeSeconds(long.Parse(value, global::System.Globalization.CultureInfo.InvariantCulture)),
+            _ => global::System.DateTimeOffset.Parse(value, global::System.Globalization.CultureInfo.InvariantCulture, global::System.Globalization.DateTimeStyles.AssumeUniversal)
         };
 
-        public static TimeSpan ParseTimeSpan(string value, string format) => format switch
+        public static global::System.TimeSpan ParseTimeSpan(string value, string format) => format switch
         {
-            "P" => XmlConvert.ToTimeSpan(value),
-            _ => TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
+            "P" => global::System.Xml.XmlConvert.ToTimeSpan(value),
+            _ => global::System.TimeSpan.ParseExact(value, format, global::System.Globalization.CultureInfo.InvariantCulture)
         };
 
-        public static string ToFormatSpecifier(SerializationFormat format) => format switch
+        public static string ToFormatSpecifier(global::SampleTypeSpec.SerializationFormat format) => format switch
         {
-            SerializationFormat.DateTime_RFC1123 => "R",
-            SerializationFormat.DateTime_RFC3339 => "O",
-            SerializationFormat.DateTime_RFC7231 => "R",
-            SerializationFormat.DateTime_ISO8601 => "O",
-            SerializationFormat.Date_ISO8601 => "D",
-            SerializationFormat.DateTime_Unix => "U",
-            SerializationFormat.Bytes_Base64Url => "U",
-            SerializationFormat.Bytes_Base64 => "D",
-            SerializationFormat.Duration_ISO8601 => "P",
-            SerializationFormat.Duration_Constant => "c",
-            SerializationFormat.Duration_Seconds => "%s",
-            SerializationFormat.Duration_Seconds_Float => "s\\.FFF",
-            SerializationFormat.Duration_Seconds_Double => "s\\.FFFFFF",
-            SerializationFormat.Time_ISO8601 => "T",
+            global::SampleTypeSpec.SerializationFormat.DateTime_RFC1123 => "R",
+            global::SampleTypeSpec.SerializationFormat.DateTime_RFC3339 => "O",
+            global::SampleTypeSpec.SerializationFormat.DateTime_RFC7231 => "R",
+            global::SampleTypeSpec.SerializationFormat.DateTime_ISO8601 => "O",
+            global::SampleTypeSpec.SerializationFormat.Date_ISO8601 => "D",
+            global::SampleTypeSpec.SerializationFormat.DateTime_Unix => "U",
+            global::SampleTypeSpec.SerializationFormat.Bytes_Base64Url => "U",
+            global::SampleTypeSpec.SerializationFormat.Bytes_Base64 => "D",
+            global::SampleTypeSpec.SerializationFormat.Duration_ISO8601 => "P",
+            global::SampleTypeSpec.SerializationFormat.Duration_Constant => "c",
+            global::SampleTypeSpec.SerializationFormat.Duration_Seconds => "%s",
+            global::SampleTypeSpec.SerializationFormat.Duration_Seconds_Float => "s\\.FFF",
+            global::SampleTypeSpec.SerializationFormat.Duration_Seconds_Double => "s\\.FFFFFF",
+            global::SampleTypeSpec.SerializationFormat.Time_ISO8601 => "T",
             _ => null
         };
 
-        public static string ConvertToString(object value, SerializationFormat format = SerializationFormat.Default)
+        public static string ConvertToString(object value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default)
         {
-            string formatSpecifier = ToFormatSpecifier(format);
+            string formatSpecifier = global::SampleTypeSpec.TypeFormatters.ToFormatSpecifier(format);
 
             return value switch
             {
                 null => "null",
                 string s => s,
-                bool b => ToString(b),
-                int  or  float  or  double  or  long  or  decimal => ((IFormattable)value).ToString(DefaultNumberFormat, CultureInfo.InvariantCulture),
-                byte[] b0 when formatSpecifier != null => ToString(b0, formatSpecifier),
-                IEnumerable<string> s0 => string.Join(",", s0),
-                DateTimeOffset dateTime when formatSpecifier != null => ToString(dateTime, formatSpecifier),
-                TimeSpan timeSpan when format == SerializationFormat.Duration_Seconds => Convert.ToInt32(Math.Round(timeSpan.TotalSeconds)).ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan0 when format == SerializationFormat.Duration_Seconds_Int64 => Convert.ToInt64(Math.Round(timeSpan0.TotalSeconds)).ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan1 when format == SerializationFormat.Duration_Seconds_Float || format == SerializationFormat.Duration_Seconds_Double => timeSpan1.TotalSeconds.ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan2 when format == SerializationFormat.Duration_Milliseconds => Convert.ToInt32(Math.Round(timeSpan2.TotalMilliseconds)).ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan3 when format == SerializationFormat.Duration_Milliseconds_Int64 => Convert.ToInt64(Math.Round(timeSpan3.TotalMilliseconds)).ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan4 when format == SerializationFormat.Duration_Milliseconds_Float || format == SerializationFormat.Duration_Milliseconds_Double => timeSpan4.TotalMilliseconds.ToString(CultureInfo.InvariantCulture),
-                TimeSpan timeSpan5 when formatSpecifier != null => ToString(timeSpan5, formatSpecifier),
-                TimeSpan timeSpan6 => XmlConvert.ToString(timeSpan6),
-                Guid guid => guid.ToString(),
-                BinaryData binaryData => ConvertToString(binaryData.ToArray(), format),
+                bool b => global::SampleTypeSpec.TypeFormatters.ToString(b),
+                (int  or  (float  or  (double  or  (long  or  decimal)))) => ((global::System.IFormattable)value).ToString(DefaultNumberFormat, global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.Byte[] b0 when (formatSpecifier != null) => global::SampleTypeSpec.TypeFormatters.ToString(b0, formatSpecifier),
+                global::System.Collections.Generic.IEnumerable<string> s0 => string.Join(",", s0),
+                global::System.DateTimeOffset dateTime when (formatSpecifier != null) => global::SampleTypeSpec.TypeFormatters.ToString(dateTime, formatSpecifier),
+                global::System.TimeSpan timeSpan when (format == global::SampleTypeSpec.SerializationFormat.Duration_Seconds) => global::System.Convert.ToInt32(global::System.Math.Round(timeSpan.TotalSeconds)).ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan0 when (format == global::SampleTypeSpec.SerializationFormat.Duration_Seconds_Int64) => global::System.Convert.ToInt64(global::System.Math.Round(timeSpan0.TotalSeconds)).ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan1 when ((format == global::SampleTypeSpec.SerializationFormat.Duration_Seconds_Float) || (format == global::SampleTypeSpec.SerializationFormat.Duration_Seconds_Double)) => timeSpan1.TotalSeconds.ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan2 when (format == global::SampleTypeSpec.SerializationFormat.Duration_Milliseconds) => global::System.Convert.ToInt32(global::System.Math.Round(timeSpan2.TotalMilliseconds)).ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan3 when (format == global::SampleTypeSpec.SerializationFormat.Duration_Milliseconds_Int64) => global::System.Convert.ToInt64(global::System.Math.Round(timeSpan3.TotalMilliseconds)).ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan4 when ((format == global::SampleTypeSpec.SerializationFormat.Duration_Milliseconds_Float) || (format == global::SampleTypeSpec.SerializationFormat.Duration_Milliseconds_Double)) => timeSpan4.TotalMilliseconds.ToString(global::System.Globalization.CultureInfo.InvariantCulture),
+                global::System.TimeSpan timeSpan5 when (formatSpecifier != null) => global::SampleTypeSpec.TypeFormatters.ToString(timeSpan5, formatSpecifier),
+                global::System.TimeSpan timeSpan6 => global::System.Xml.XmlConvert.ToString(timeSpan6),
+                global::System.Guid guid => guid.ToString(),
+                global::System.BinaryData binaryData => global::SampleTypeSpec.TypeFormatters.ConvertToString(binaryData.ToArray(), format),
                 _ => value.ToString()
             };
         }

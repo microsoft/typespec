@@ -16,25 +16,25 @@ namespace Client.Structure.AnotherClientOperationGroup
     {
         protected SubNamespaceSecondClient() => throw null;
 
-        public SubNamespaceSecondClient(Uri endpoint, ClientType client) : this(endpoint, client, new SubNamespaceSecondClientOptions()) => throw null;
+        public SubNamespaceSecondClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) : this(endpoint, client, new global::Client.Structure.AnotherClientOperationGroup.SubNamespaceSecondClientOptions()) => throw null;
 
-        internal SubNamespaceSecondClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) => throw null;
+        internal SubNamespaceSecondClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.AnotherClientOperationGroup.SubNamespaceSecondClientOptions options) => throw null;
 
-        public SubNamespaceSecondClient(Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public SubNamespaceSecondClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.AnotherClientOperationGroup.SubNamespaceSecondClientOptions options) : this(null, endpoint, client, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public SubNamespaceSecondClient(SubNamespaceSecondClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public SubNamespaceSecondClient(global::Client.Structure.AnotherClientOperationGroup.SubNamespaceSecondClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Five(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Five(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FiveAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Five(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FiveAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Group5 GetGroup5Client() => throw null;
+        public virtual global::Client.Structure.AnotherClientOperationGroup.Group5 GetGroup5Client() => throw null;
     }
 }

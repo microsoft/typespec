@@ -15,24 +15,24 @@ namespace _Type.Scalar
     {
         protected Decimal128Verify() => throw null;
 
-        internal Decimal128Verify(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Decimal128Verify(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PrepareVerify(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult PrepareVerify(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PrepareVerifyAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PrepareVerifyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult<IReadOnlyList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<decimal>> PrepareVerify(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IReadOnlyList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<decimal>>> PrepareVerifyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Verify(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Verify(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> VerifyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Verify(decimal body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Verify(decimal body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> VerifyAsync(decimal body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

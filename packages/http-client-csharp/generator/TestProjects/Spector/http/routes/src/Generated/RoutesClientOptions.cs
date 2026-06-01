@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Routes
 {
-    public partial class RoutesClientOptions : ClientPipelineOptions
+    public partial class RoutesClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public RoutesClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal RoutesClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal RoutesClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

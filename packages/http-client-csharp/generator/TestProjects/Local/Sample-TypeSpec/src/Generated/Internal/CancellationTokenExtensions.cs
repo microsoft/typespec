@@ -12,6 +12,6 @@ namespace SampleTypeSpec
 {
     internal static partial class CancellationTokenExtensions
     {
-        public static RequestOptions ToRequestOptions(this CancellationToken cancellationToken) => cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null;
+        public static global::System.ClientModel.Primitives.RequestOptions ToRequestOptions(this global::System.Threading.CancellationToken cancellationToken) => cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null;
     }
 }

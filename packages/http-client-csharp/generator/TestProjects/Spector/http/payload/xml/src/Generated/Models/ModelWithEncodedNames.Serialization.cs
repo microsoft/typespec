@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithEncodedNames : IPersistableModel<ModelWithEncodedNames>
+    public partial class ModelWithEncodedNames : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEncodedNames>
     {
         internal ModelWithEncodedNames() => throw null;
 
-        protected virtual ModelWithEncodedNames PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Xml.ModelWithEncodedNames PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithEncodedNames>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEncodedNames>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelWithEncodedNames IPersistableModel<ModelWithEncodedNames>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Xml.ModelWithEncodedNames global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEncodedNames>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithEncodedNames>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEncodedNames>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(ModelWithEncodedNames modelWithEncodedNames) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithEncodedNames modelWithEncodedNames) => throw null;
 
-        public static explicit operator ModelWithEncodedNames(ClientResult result) => throw null;
+        public static explicit operator ModelWithEncodedNames(global::System.ClientModel.ClientResult result) => throw null;
     }
 }

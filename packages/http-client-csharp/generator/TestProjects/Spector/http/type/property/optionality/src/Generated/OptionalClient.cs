@@ -10,47 +10,47 @@ namespace _Type.Property.Optional
 {
     public partial class OptionalClient
     {
-        public OptionalClient() : this(new Uri("http://localhost:3000"), new OptionalClientOptions()) => throw null;
+        public OptionalClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Property.Optional.OptionalClientOptions()) => throw null;
 
-        internal OptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, OptionalClientOptions options) => throw null;
+        internal OptionalClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Property.Optional.OptionalClientOptions options) => throw null;
 
-        public OptionalClient(Uri endpoint, OptionalClientOptions options) : this(null, endpoint, options) => throw null;
+        public OptionalClient(global::System.Uri endpoint, global::_Type.Property.Optional.OptionalClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public OptionalClient(OptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public OptionalClient(global::_Type.Property.Optional.OptionalClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual String GetStringClient() => throw null;
+        public virtual global::_Type.Property.Optional.String GetStringClient() => throw null;
 
-        public virtual Bytes GetBytesClient() => throw null;
+        public virtual global::_Type.Property.Optional.Bytes GetBytesClient() => throw null;
 
-        public virtual Datetime GetDatetimeClient() => throw null;
+        public virtual global::_Type.Property.Optional.Datetime GetDatetimeClient() => throw null;
 
-        public virtual Duration GetDurationClient() => throw null;
+        public virtual global::_Type.Property.Optional.Duration GetDurationClient() => throw null;
 
-        public virtual PlainDate GetPlainDateClient() => throw null;
+        public virtual global::_Type.Property.Optional.PlainDate GetPlainDateClient() => throw null;
 
-        public virtual PlainTime GetPlainTimeClient() => throw null;
+        public virtual global::_Type.Property.Optional.PlainTime GetPlainTimeClient() => throw null;
 
-        public virtual CollectionsByte GetCollectionsByteClient() => throw null;
+        public virtual global::_Type.Property.Optional.CollectionsByte GetCollectionsByteClient() => throw null;
 
-        public virtual CollectionsModel GetCollectionsModelClient() => throw null;
+        public virtual global::_Type.Property.Optional.CollectionsModel GetCollectionsModelClient() => throw null;
 
-        public virtual StringLiteral GetStringLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.StringLiteral GetStringLiteralClient() => throw null;
 
-        public virtual IntLiteral GetIntLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.IntLiteral GetIntLiteralClient() => throw null;
 
-        public virtual FloatLiteral GetFloatLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.FloatLiteral GetFloatLiteralClient() => throw null;
 
-        public virtual BooleanLiteral GetBooleanLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.BooleanLiteral GetBooleanLiteralClient() => throw null;
 
-        public virtual UnionStringLiteral GetUnionStringLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.UnionStringLiteral GetUnionStringLiteralClient() => throw null;
 
-        public virtual UnionIntLiteral GetUnionIntLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.UnionIntLiteral GetUnionIntLiteralClient() => throw null;
 
-        public virtual UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
+        public virtual global::_Type.Property.Optional.UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
 
-        public virtual RequiredAndOptional GetRequiredAndOptionalClient() => throw null;
+        public virtual global::_Type.Property.Optional.RequiredAndOptional GetRequiredAndOptionalClient() => throw null;
     }
 }

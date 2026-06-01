@@ -13,31 +13,31 @@ namespace Parameters.Path
 {
     public partial class PathClient
     {
-        public PathClient() : this(new Uri("http://localhost:3000"), new PathClientOptions()) => throw null;
+        public PathClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.Path.PathClientOptions()) => throw null;
 
-        internal PathClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, PathClientOptions options) => throw null;
+        internal PathClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.Path.PathClientOptions options) => throw null;
 
-        public PathClient(Uri endpoint, PathClientOptions options) : this(null, endpoint, options) => throw null;
+        public PathClient(global::System.Uri endpoint, global::Parameters.Path.PathClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public PathClient(PathClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public PathClient(global::Parameters.Path.PathClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Normal(string name, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Normal(string name, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NormalAsync(string name, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NormalAsync(string name, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Normal(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Normal(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NormalAsync(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Optional(string name, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Optional(string name, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OptionalAsync(string name, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Optional(string name = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OptionalAsync(string name = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

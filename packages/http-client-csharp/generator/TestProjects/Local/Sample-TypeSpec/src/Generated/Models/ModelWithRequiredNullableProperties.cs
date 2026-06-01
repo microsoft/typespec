@@ -14,25 +14,25 @@ namespace SampleTypeSpec
     public partial class ModelWithRequiredNullableProperties
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ModelWithRequiredNullableProperties"/>. </summary>
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
-        public ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum)
+        public ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, global::SampleTypeSpec.StringExtensibleEnum? requiredExtensibleEnum, global::SampleTypeSpec.StringFixedEnum? requiredFixedEnum)
         {
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
             RequiredFixedEnum = requiredFixedEnum;
         }
 
-        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ModelWithRequiredNullableProperties"/>. </summary>
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, global::SampleTypeSpec.StringExtensibleEnum? requiredExtensibleEnum, global::SampleTypeSpec.StringFixedEnum? requiredFixedEnum, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
@@ -44,9 +44,9 @@ namespace SampleTypeSpec
         public int? RequiredNullablePrimitive { get; set; }
 
         /// <summary> required nullable extensible enum type. </summary>
-        public StringExtensibleEnum? RequiredExtensibleEnum { get; set; }
+        public global::SampleTypeSpec.StringExtensibleEnum? RequiredExtensibleEnum { get; set; }
 
         /// <summary> required nullable fixed enum type. </summary>
-        public StringFixedEnum? RequiredFixedEnum { get; set; }
+        public global::SampleTypeSpec.StringFixedEnum? RequiredFixedEnum { get; set; }
     }
 }

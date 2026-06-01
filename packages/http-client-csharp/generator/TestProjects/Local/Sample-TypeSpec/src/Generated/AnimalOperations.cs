@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     /// <summary> The AnimalOperations sub-client. </summary>
     public partial class AnimalOperations
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
 
         /// <summary> Initializes a new instance of AnimalOperations for mocking. </summary>
         protected AnimalOperations()
@@ -26,14 +26,14 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal AnimalOperations(ClientPipeline pipeline, Uri endpoint)
+        internal AnimalOperations(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
 
         /// <summary>
         /// [Protocol Method] Update a pet as an animal
@@ -45,15 +45,15 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult UpdatePetAsAnimal(BinaryContent content, RequestOptions options = null)
+        public virtual global::System.ClientModel.ClientResult UpdatePetAsAnimal(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdatePetAsAnimalRequest(content, options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -66,41 +66,41 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> UpdatePetAsAnimalAsync(BinaryContent content, RequestOptions options = null)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdatePetAsAnimalAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdatePetAsAnimalRequest(content, options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update a pet as an animal. </summary>
         /// <param name="animal"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="animal"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Animal> UpdatePetAsAnimal(Animal animal, CancellationToken cancellationToken = default)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="animal"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Animal> UpdatePetAsAnimal(global::SampleTypeSpec.Animal animal, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            global::SampleTypeSpec.Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            global::System.ClientModel.ClientResult result = this.UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
+            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Animal)result), result.GetRawResponse());
         }
 
         /// <summary> Update a pet as an animal. </summary>
         /// <param name="animal"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="animal"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Animal>> UpdatePetAsAnimalAsync(Animal animal, CancellationToken cancellationToken = default)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="animal"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Animal>> UpdatePetAsAnimalAsync(global::SampleTypeSpec.Animal animal, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            global::SampleTypeSpec.Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            global::System.ClientModel.ClientResult result = await this.UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Animal)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -113,15 +113,15 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult UpdateDogAsAnimal(BinaryContent content, RequestOptions options = null)
+        public virtual global::System.ClientModel.ClientResult UpdateDogAsAnimal(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateDogAsAnimalRequest(content, options);
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -134,41 +134,41 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> UpdateDogAsAnimalAsync(BinaryContent content, RequestOptions options = null)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateDogAsAnimalAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateDogAsAnimalRequest(content, options);
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update a dog as an animal. </summary>
         /// <param name="animal"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="animal"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Animal> UpdateDogAsAnimal(Animal animal, CancellationToken cancellationToken = default)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="animal"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Animal> UpdateDogAsAnimal(global::SampleTypeSpec.Animal animal, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            global::SampleTypeSpec.Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            global::System.ClientModel.ClientResult result = this.UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
+            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Animal)result), result.GetRawResponse());
         }
 
         /// <summary> Update a dog as an animal. </summary>
         /// <param name="animal"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="animal"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Animal>> UpdateDogAsAnimalAsync(Animal animal, CancellationToken cancellationToken = default)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="animal"/> is null. </exception>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Animal>> UpdateDogAsAnimalAsync(global::SampleTypeSpec.Animal animal, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            global::SampleTypeSpec.Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            global::System.ClientModel.ClientResult result = await this.UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Animal)result), result.GetRawResponse());
         }
     }
 }

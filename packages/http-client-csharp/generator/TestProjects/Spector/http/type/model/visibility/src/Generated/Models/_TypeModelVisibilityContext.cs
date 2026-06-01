@@ -6,9 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Visibility
 {
-    [ModelReaderWriterBuildable(typeof(ReadOnlyModel))]
-    [ModelReaderWriterBuildable(typeof(VisibilityModel))]
-    public partial class _TypeModelVisibilityContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Visibility.ReadOnlyModel))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Visibility.VisibilityModel))]
+    public partial class _TypeModelVisibilityContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    [Experimental("SCME0002")]
-    public partial class EnumDiscriminatorClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class EnumDiscriminatorClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public EnumDiscriminatorClientOptions Options
+        public global::_Type.Model.Inheritance.EnumDiscriminator.EnumDiscriminatorClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

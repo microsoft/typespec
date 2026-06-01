@@ -16,36 +16,36 @@ namespace Routes._QueryParameters
     {
         protected QueryParameters() => throw null;
 
-        internal QueryParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal QueryParameters(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult TemplateOnly(string @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult TemplateOnly(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TemplateOnlyAsync(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult TemplateOnly(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TemplateOnlyAsync(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Explicit(string @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Explicit(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExplicitAsync(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Explicit(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExplicitAsync(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult AnnotationOnly(string @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult AnnotationOnly(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AnnotationOnlyAsync(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult AnnotationOnly(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AnnotationOnlyAsync(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual QueryParametersQueryExpansion GetQueryParametersQueryExpansionClient() => throw null;
+        public virtual global::Routes._QueryParameters.QueryExpansion.QueryParametersQueryExpansion GetQueryParametersQueryExpansionClient() => throw null;
 
-        public virtual QueryParametersQueryContinuation GetQueryParametersQueryContinuationClient() => throw null;
+        public virtual global::Routes._QueryParameters.QueryContinuation.QueryParametersQueryContinuation GetQueryParametersQueryContinuationClient() => throw null;
     }
 }

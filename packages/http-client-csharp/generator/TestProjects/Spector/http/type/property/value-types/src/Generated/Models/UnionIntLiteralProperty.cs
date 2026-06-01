@@ -6,9 +6,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class UnionIntLiteralProperty
     {
-        public UnionIntLiteralProperty(UnionIntLiteralPropertyProperty @property) => throw null;
+        public UnionIntLiteralProperty(global::_Type.Property.ValueTypes.UnionIntLiteralPropertyProperty @property) => throw null;
 
-        public UnionIntLiteralPropertyProperty Property
+        public global::_Type.Property.ValueTypes.UnionIntLiteralPropertyProperty Property
         {
             get => throw null;
             set => throw null;

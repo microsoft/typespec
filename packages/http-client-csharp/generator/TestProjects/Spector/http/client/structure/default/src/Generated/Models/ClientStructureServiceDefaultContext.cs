@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.Service.Default
 {
-    public partial class ClientStructureServiceDefaultContext : ModelReaderWriterContext
+    public partial class ClientStructureServiceDefaultContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

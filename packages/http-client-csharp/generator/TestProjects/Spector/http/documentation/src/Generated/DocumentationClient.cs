@@ -12,19 +12,19 @@ namespace Documentation
 {
     public partial class DocumentationClient
     {
-        public DocumentationClient() : this(new Uri("http://localhost:3000"), new DocumentationClientOptions()) => throw null;
+        public DocumentationClient() : this(new global::System.Uri("http://localhost:3000"), new global::Documentation.DocumentationClientOptions()) => throw null;
 
-        internal DocumentationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DocumentationClientOptions options) => throw null;
+        internal DocumentationClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Documentation.DocumentationClientOptions options) => throw null;
 
-        public DocumentationClient(Uri endpoint, DocumentationClientOptions options) : this(null, endpoint, options) => throw null;
+        public DocumentationClient(global::System.Uri endpoint, global::Documentation.DocumentationClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public DocumentationClient(DocumentationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public DocumentationClient(global::Documentation.DocumentationClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Lists GetListsClient() => throw null;
+        public virtual global::Documentation._Lists.Lists GetListsClient() => throw null;
 
-        public virtual TextFormatting GetTextFormattingClient() => throw null;
+        public virtual global::Documentation._TextFormatting.TextFormatting GetTextFormattingClient() => throw null;
     }
 }

@@ -7,28 +7,28 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct InnerEnum : IEquatable<InnerEnum>
+    public readonly partial struct InnerEnum : global::System.IEquatable<global::_Type.Property.ValueTypes.InnerEnum>
     {
         public InnerEnum(string value) => throw null;
 
-        public static InnerEnum ValueOne => throw null;
+        public static global::_Type.Property.ValueTypes.InnerEnum ValueOne => throw null;
 
-        public static InnerEnum ValueTwo => throw null;
+        public static global::_Type.Property.ValueTypes.InnerEnum ValueTwo => throw null;
 
-        public static bool operator ==(InnerEnum left, InnerEnum right) => throw null;
+        public static bool operator ==(global::_Type.Property.ValueTypes.InnerEnum left, global::_Type.Property.ValueTypes.InnerEnum right) => throw null;
 
-        public static bool operator !=(InnerEnum left, InnerEnum right) => throw null;
+        public static bool operator !=(global::_Type.Property.ValueTypes.InnerEnum left, global::_Type.Property.ValueTypes.InnerEnum right) => throw null;
 
-        public static implicit operator InnerEnum(string value) => throw null;
+        public static implicit operator global::_Type.Property.ValueTypes.InnerEnum(string value) => throw null;
 
-        public static implicit operator InnerEnum?(string value) => throw null;
+        public static implicit operator global::_Type.Property.ValueTypes.InnerEnum?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(InnerEnum other) => throw null;
+        public bool Equals(global::_Type.Property.ValueTypes.InnerEnum other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

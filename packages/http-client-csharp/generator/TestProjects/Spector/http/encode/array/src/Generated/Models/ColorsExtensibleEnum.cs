@@ -7,30 +7,30 @@ using System.ComponentModel;
 
 namespace Encode._Array
 {
-    public readonly partial struct ColorsExtensibleEnum : IEquatable<ColorsExtensibleEnum>
+    public readonly partial struct ColorsExtensibleEnum : global::System.IEquatable<global::Encode._Array.ColorsExtensibleEnum>
     {
         public ColorsExtensibleEnum(string value) => throw null;
 
-        public static ColorsExtensibleEnum Blue => throw null;
+        public static global::Encode._Array.ColorsExtensibleEnum Blue => throw null;
 
-        public static ColorsExtensibleEnum Red => throw null;
+        public static global::Encode._Array.ColorsExtensibleEnum Red => throw null;
 
-        public static ColorsExtensibleEnum Green => throw null;
+        public static global::Encode._Array.ColorsExtensibleEnum Green => throw null;
 
-        public static bool operator ==(ColorsExtensibleEnum left, ColorsExtensibleEnum right) => throw null;
+        public static bool operator ==(global::Encode._Array.ColorsExtensibleEnum left, global::Encode._Array.ColorsExtensibleEnum right) => throw null;
 
-        public static bool operator !=(ColorsExtensibleEnum left, ColorsExtensibleEnum right) => throw null;
+        public static bool operator !=(global::Encode._Array.ColorsExtensibleEnum left, global::Encode._Array.ColorsExtensibleEnum right) => throw null;
 
-        public static implicit operator ColorsExtensibleEnum(string value) => throw null;
+        public static implicit operator global::Encode._Array.ColorsExtensibleEnum(string value) => throw null;
 
-        public static implicit operator ColorsExtensibleEnum?(string value) => throw null;
+        public static implicit operator global::Encode._Array.ColorsExtensibleEnum?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(ColorsExtensibleEnum other) => throw null;
+        public bool Equals(global::Encode._Array.ColorsExtensibleEnum other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

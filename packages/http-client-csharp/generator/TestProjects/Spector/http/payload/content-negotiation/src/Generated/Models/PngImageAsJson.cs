@@ -10,6 +10,6 @@ namespace Payload.ContentNegotiation._DifferentBody
     {
         public string ContentType => throw null;
 
-        public BinaryData Content => throw null;
+        public global::System.BinaryData Content => throw null;
     }
 }

@@ -14,16 +14,16 @@ namespace Parameters.Basic._ImplicitBody
     {
         protected ImplicitBody() => throw null;
 
-        internal ImplicitBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ImplicitBody(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Simple(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SimpleAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Simple(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Simple(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SimpleAsync(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

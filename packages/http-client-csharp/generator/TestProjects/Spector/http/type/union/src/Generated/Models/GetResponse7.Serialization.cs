@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace _Type.Union
 {
-    public partial class GetResponse7 : IJsonModel<GetResponse7>
+    public partial class GetResponse7 : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.GetResponse7>
     {
         internal GetResponse7() => throw null;
 
-        protected virtual GetResponse7 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Union.GetResponse7 PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<GetResponse7>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.GetResponse7>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        GetResponse7 IPersistableModel<GetResponse7>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Union.GetResponse7 global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.GetResponse7>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<GetResponse7>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.GetResponse7>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static explicit operator GetResponse7(ClientResult result) => throw null;
+        public static explicit operator GetResponse7(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<GetResponse7>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.GetResponse7>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        GetResponse7 IJsonModel<GetResponse7>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Union.GetResponse7 global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.GetResponse7>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual GetResponse7 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Union.GetResponse7 JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

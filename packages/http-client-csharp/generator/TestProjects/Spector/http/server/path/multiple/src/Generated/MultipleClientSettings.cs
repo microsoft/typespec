@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Server.Path.Multiple
 {
-    [Experimental("SCME0002")]
-    public partial class MultipleClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class MultipleClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public MultipleClientOptions Options
+        public global::Server.Path.Multiple.MultipleClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

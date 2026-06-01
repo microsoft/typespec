@@ -8,10 +8,10 @@ namespace Encode.Numeric
 {
     public static partial class EncodeNumericModelFactory
     {
-        public static SafeintAsStringProperty SafeintAsStringProperty(long value = default) => throw null;
+        public static global::Encode.Numeric._Property.SafeintAsStringProperty SafeintAsStringProperty(long value = default) => throw null;
 
-        public static Uint32AsStringProperty Uint32AsStringProperty(object value = default) => throw null;
+        public static global::Encode.Numeric._Property.Uint32AsStringProperty Uint32AsStringProperty(object value = default) => throw null;
 
-        public static Uint8AsStringProperty Uint8AsStringProperty(byte value = default) => throw null;
+        public static global::Encode.Numeric._Property.Uint8AsStringProperty Uint8AsStringProperty(byte value = default) => throw null;
     }
 }

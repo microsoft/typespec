@@ -16,24 +16,24 @@ namespace SampleTypeSpec
     /// <summary> Another sample dynamic model. </summary>
     public partial class AnotherDynamicModel
     {
-        [Experimental("SCME0001")]
-        private JsonPatch _patch;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        private global::System.ClientModel.Primitives.JsonPatch _patch;
 
-        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="bar"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="bar"/> is null. </exception>
         public AnotherDynamicModel(string bar)
         {
-            Argument.AssertNotNull(bar, nameof(bar));
+            global::SampleTypeSpec.Argument.AssertNotNull(bar, nameof(bar));
 
             Bar = bar;
         }
 
-        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
         /// <param name="patch"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal AnotherDynamicModel(string bar, in JsonPatch patch)
+        internal AnotherDynamicModel(string bar, in global::System.ClientModel.Primitives.JsonPatch patch)
         {
             Bar = bar;
             _patch = patch;
@@ -41,10 +41,10 @@ namespace SampleTypeSpec
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Gets the Patch. </summary>
-        [JsonIgnore]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Experimental("SCME0001")]
-        public ref JsonPatch Patch => ref _patch;
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
 
         /// <summary> Gets the Bar. </summary>
         public string Bar { get; }

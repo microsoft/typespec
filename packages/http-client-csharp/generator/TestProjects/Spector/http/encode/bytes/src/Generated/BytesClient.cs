@@ -15,25 +15,25 @@ namespace Encode.Bytes
 {
     public partial class BytesClient
     {
-        public BytesClient() : this(new Uri("http://localhost:3000"), new BytesClientOptions()) => throw null;
+        public BytesClient() : this(new global::System.Uri("http://localhost:3000"), new global::Encode.Bytes.BytesClientOptions()) => throw null;
 
-        internal BytesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BytesClientOptions options) => throw null;
+        internal BytesClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Encode.Bytes.BytesClientOptions options) => throw null;
 
-        public BytesClient(Uri endpoint, BytesClientOptions options) : this(null, endpoint, options) => throw null;
+        public BytesClient(global::System.Uri endpoint, global::Encode.Bytes.BytesClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public BytesClient(BytesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public BytesClient(global::Encode.Bytes.BytesClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Query GetQueryClient() => throw null;
+        public virtual global::Encode.Bytes._Query.Query GetQueryClient() => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual global::Encode.Bytes._Property.Property GetPropertyClient() => throw null;
 
-        public virtual Header GetHeaderClient() => throw null;
+        public virtual global::Encode.Bytes._Header.Header GetHeaderClient() => throw null;
 
-        public virtual RequestBody GetRequestBodyClient() => throw null;
+        public virtual global::Encode.Bytes._RequestBody.RequestBody GetRequestBodyClient() => throw null;
 
-        public virtual ResponseBody GetResponseBodyClient() => throw null;
+        public virtual global::Encode.Bytes._ResponseBody.ResponseBody GetResponseBodyClient() => throw null;
     }
 }

@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class Await : IJsonModel<Await>
+    public partial class Await : global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Await>
     {
         internal Await() => throw null;
 
-        protected virtual Await PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::SpecialWords._Models.Await PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Await>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Await>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Await IPersistableModel<Await>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::SpecialWords._Models.Await global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Await>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Await>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Await>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Await @await) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::SpecialWords._Models.Await @await) => throw null;
 
-        void IJsonModel<Await>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Await>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Await IJsonModel<Await>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::SpecialWords._Models.Await global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Await>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Await JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::SpecialWords._Models.Await JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

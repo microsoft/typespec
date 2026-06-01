@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace SpecialWords
 {
-    public partial class SpecialWordsClientOptions : ClientPipelineOptions
+    public partial class SpecialWordsClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public SpecialWordsClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal SpecialWordsClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal SpecialWordsClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

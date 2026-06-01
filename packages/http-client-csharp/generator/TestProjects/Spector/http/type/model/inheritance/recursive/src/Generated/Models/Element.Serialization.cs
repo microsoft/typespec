@@ -8,24 +8,24 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.Recursive
 {
-    public partial class Element : IJsonModel<Element>
+    public partial class Element : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.Recursive.Element>
     {
-        protected virtual Element PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.Recursive.Element PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Element>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.Recursive.Element>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Element IPersistableModel<Element>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.Recursive.Element global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.Recursive.Element>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Element>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.Recursive.Element>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<Element>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.Recursive.Element>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Element IJsonModel<Element>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.Recursive.Element global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.Recursive.Element>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Element JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.Recursive.Element JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -9,11 +9,11 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public abstract partial class Dog
     {
-        private protected Dog(DogKind kind, int weight) => throw null;
+        private protected Dog(global::_Type.Model.Inheritance.EnumDiscriminator.DogKind kind, int weight) => throw null;
 
-        internal Dog(DogKind kind, int weight, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Dog(global::_Type.Model.Inheritance.EnumDiscriminator.DogKind kind, int weight, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
 
-        internal DogKind Kind
+        internal global::_Type.Model.Inheritance.EnumDiscriminator.DogKind Kind
         {
             get => throw null;
             set => throw null;

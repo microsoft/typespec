@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class SpreadFloatRecord : IJsonModel<SpreadFloatRecord>
+    public partial class SpreadFloatRecord : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>
     {
         internal SpreadFloatRecord() => throw null;
 
-        protected virtual SpreadFloatRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.SpreadFloatRecord PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SpreadFloatRecord>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpreadFloatRecord IPersistableModel<SpreadFloatRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.SpreadFloatRecord global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SpreadFloatRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(SpreadFloatRecord spreadFloatRecord) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.SpreadFloatRecord spreadFloatRecord) => throw null;
 
-        public static explicit operator SpreadFloatRecord(ClientResult result) => throw null;
+        public static explicit operator SpreadFloatRecord(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<SpreadFloatRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpreadFloatRecord IJsonModel<SpreadFloatRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.SpreadFloatRecord global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadFloatRecord>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SpreadFloatRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.SpreadFloatRecord JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

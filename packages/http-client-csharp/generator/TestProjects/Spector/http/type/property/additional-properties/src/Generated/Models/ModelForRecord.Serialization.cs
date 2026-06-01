@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class ModelForRecord : IJsonModel<ModelForRecord>
+    public partial class ModelForRecord : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ModelForRecord>
     {
         internal ModelForRecord() => throw null;
 
-        protected virtual ModelForRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.ModelForRecord PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelForRecord>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ModelForRecord>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelForRecord IPersistableModel<ModelForRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.ModelForRecord global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ModelForRecord>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelForRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ModelForRecord>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<ModelForRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ModelForRecord>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelForRecord IJsonModel<ModelForRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.ModelForRecord global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ModelForRecord>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual ModelForRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.ModelForRecord JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

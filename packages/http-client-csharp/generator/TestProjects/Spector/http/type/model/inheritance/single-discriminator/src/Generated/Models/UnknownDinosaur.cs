@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    internal partial class UnknownDinosaur : Dinosaur
+    internal partial class UnknownDinosaur : global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur
     {
-        internal UnknownDinosaur(string kind, int size, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind ?? "unknown", size, additionalBinaryDataProperties) => throw null;
+        internal UnknownDinosaur(string kind, int size, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), size, additionalBinaryDataProperties) => throw null;
     }
 }

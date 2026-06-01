@@ -15,40 +15,40 @@ namespace Encode.Bytes._Header
     {
         protected Header() => throw null;
 
-        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Header(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Default(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Default(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Base64(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Base64Async(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64Async(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Base64(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Base64Async(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64Async(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Base64url(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64url(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Base64urlAsync(BinaryData value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64urlAsync(global::System.BinaryData value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Base64url(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64url(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Base64urlAsync(BinaryData value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64urlAsync(global::System.BinaryData value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Base64urlArray(IEnumerable<BinaryData> value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64urlArray(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Base64urlArrayAsync(IEnumerable<BinaryData> value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64urlArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Base64urlArray(IEnumerable<BinaryData> value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Base64urlArray(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Base64urlArrayAsync(IEnumerable<BinaryData> value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Base64urlArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

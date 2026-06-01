@@ -10,7 +10,7 @@ namespace _Type.Property.Optional
     {
         public PlainTimeProperty() => throw null;
 
-        public TimeSpan? Property
+        public global::System.TimeSpan? Property
         {
             get => throw null;
             set => throw null;

@@ -8,6 +8,6 @@ namespace _Type.Dictionary
 {
     public static partial class TypeDictionaryModelFactory
     {
-        public static InnerModel InnerModel(string @property = default, IDictionary<string, InnerModel> children = default) => throw null;
+        public static global::_Type.Dictionary.InnerModel InnerModel(string @property = default, global::System.Collections.Generic.IDictionary<string, global::_Type.Dictionary.InnerModel> children = default) => throw null;
     }
 }

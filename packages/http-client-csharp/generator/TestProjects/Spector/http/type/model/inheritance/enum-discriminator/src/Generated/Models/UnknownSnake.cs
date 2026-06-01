@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    internal partial class UnknownSnake : Snake
+    internal partial class UnknownSnake : global::_Type.Model.Inheritance.EnumDiscriminator.Snake
     {
-        internal UnknownSnake(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, length, additionalBinaryDataProperties) => throw null;
+        internal UnknownSnake(global::_Type.Model.Inheritance.EnumDiscriminator.SnakeKind kind, int length, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(kind, length, additionalBinaryDataProperties) => throw null;
     }
 }

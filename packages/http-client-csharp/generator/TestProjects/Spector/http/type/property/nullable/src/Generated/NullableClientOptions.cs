@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.Nullable
 {
-    public partial class NullableClientOptions : ClientPipelineOptions
+    public partial class NullableClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public NullableClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal NullableClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal NullableClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

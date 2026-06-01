@@ -11,19 +11,19 @@ namespace Service.MultipleServices.ServiceA
 {
     public partial class ServiceAClient
     {
-        public ServiceAClient() : this(new Uri("http://localhost:3000"), new ServiceAClientOptions()) => throw null;
+        public ServiceAClient() : this(new global::System.Uri("http://localhost:3000"), new global::Service.MultipleServices.ServiceA.ServiceAClientOptions()) => throw null;
 
-        internal ServiceAClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ServiceAClientOptions options) => throw null;
+        internal ServiceAClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Service.MultipleServices.ServiceA.ServiceAClientOptions options) => throw null;
 
-        public ServiceAClient(Uri endpoint, ServiceAClientOptions options) : this(null, endpoint, options) => throw null;
+        public ServiceAClient(global::System.Uri endpoint, global::Service.MultipleServices.ServiceA.ServiceAClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public ServiceAClient(ServiceAClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public ServiceAClient(global::Service.MultipleServices.ServiceA.ServiceAClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ASubNamespace GetASubNamespaceClient() => throw null;
+        public virtual global::Service.MultipleServices.ServiceA.SubNamespace.ASubNamespace GetASubNamespaceClient() => throw null;
 
-        public virtual AOperations GetAOperationsClient() => throw null;
+        public virtual global::Service.MultipleServices.ServiceA.AOperations GetAOperationsClient() => throw null;
     }
 }

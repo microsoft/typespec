@@ -10,37 +10,37 @@ namespace _Type.Dictionary
 {
     public partial class DictionaryClient
     {
-        public DictionaryClient() : this(new Uri("http://localhost:3000"), new DictionaryClientOptions()) => throw null;
+        public DictionaryClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Dictionary.DictionaryClientOptions()) => throw null;
 
-        internal DictionaryClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DictionaryClientOptions options) => throw null;
+        internal DictionaryClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Dictionary.DictionaryClientOptions options) => throw null;
 
-        public DictionaryClient(Uri endpoint, DictionaryClientOptions options) : this(null, endpoint, options) => throw null;
+        public DictionaryClient(global::System.Uri endpoint, global::_Type.Dictionary.DictionaryClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public DictionaryClient(DictionaryClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public DictionaryClient(global::_Type.Dictionary.DictionaryClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Int32Value GetInt32ValueClient() => throw null;
+        public virtual global::_Type.Dictionary.Int32Value GetInt32ValueClient() => throw null;
 
-        public virtual Int64Value GetInt64ValueClient() => throw null;
+        public virtual global::_Type.Dictionary.Int64Value GetInt64ValueClient() => throw null;
 
-        public virtual BooleanValue GetBooleanValueClient() => throw null;
+        public virtual global::_Type.Dictionary.BooleanValue GetBooleanValueClient() => throw null;
 
-        public virtual StringValue GetStringValueClient() => throw null;
+        public virtual global::_Type.Dictionary.StringValue GetStringValueClient() => throw null;
 
-        public virtual Float32Value GetFloat32ValueClient() => throw null;
+        public virtual global::_Type.Dictionary.Float32Value GetFloat32ValueClient() => throw null;
 
-        public virtual DatetimeValue GetDatetimeValueClient() => throw null;
+        public virtual global::_Type.Dictionary.DatetimeValue GetDatetimeValueClient() => throw null;
 
-        public virtual DurationValue GetDurationValueClient() => throw null;
+        public virtual global::_Type.Dictionary.DurationValue GetDurationValueClient() => throw null;
 
-        public virtual UnknownValue GetUnknownValueClient() => throw null;
+        public virtual global::_Type.Dictionary.UnknownValue GetUnknownValueClient() => throw null;
 
-        public virtual ModelValue GetModelValueClient() => throw null;
+        public virtual global::_Type.Dictionary.ModelValue GetModelValueClient() => throw null;
 
-        public virtual RecursiveModelValue GetRecursiveModelValueClient() => throw null;
+        public virtual global::_Type.Dictionary.RecursiveModelValue GetRecursiveModelValueClient() => throw null;
 
-        public virtual NullableFloatValue GetNullableFloatValueClient() => throw null;
+        public virtual global::_Type.Dictionary.NullableFloatValue GetNullableFloatValueClient() => throw null;
     }
 }

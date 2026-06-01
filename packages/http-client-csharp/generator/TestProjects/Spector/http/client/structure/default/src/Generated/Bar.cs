@@ -14,24 +14,24 @@ namespace Client.Structure.Service
     {
         protected Bar() => throw null;
 
-        internal Bar(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Bar(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Five(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Five(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FiveAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Five(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FiveAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Six(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Six(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SixAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Six(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Six(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SixAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

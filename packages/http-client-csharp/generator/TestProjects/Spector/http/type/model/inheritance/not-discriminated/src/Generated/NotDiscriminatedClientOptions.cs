@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    public partial class NotDiscriminatedClientOptions : ClientPipelineOptions
+    public partial class NotDiscriminatedClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public NotDiscriminatedClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal NotDiscriminatedClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal NotDiscriminatedClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

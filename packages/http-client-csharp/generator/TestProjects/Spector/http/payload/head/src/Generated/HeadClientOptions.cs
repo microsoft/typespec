@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.Head
 {
-    public partial class HeadClientOptions : ClientPipelineOptions
+    public partial class HeadClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public HeadClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal HeadClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal HeadClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

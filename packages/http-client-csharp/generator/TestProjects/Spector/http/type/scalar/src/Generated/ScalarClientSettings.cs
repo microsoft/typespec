@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Scalar
 {
-    [Experimental("SCME0002")]
-    public partial class ScalarClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class ScalarClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ScalarClientOptions Options
+        public global::_Type.Scalar.ScalarClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

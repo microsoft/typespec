@@ -9,6 +9,6 @@ namespace Documentation
     public static partial class DocumentationModelFactory
     {
 
-        public static BulletPointsModel BulletPointsModel(BulletPointsEnum prop = default) => throw null;
+        public static global::Documentation._Lists.BulletPointsModel BulletPointsModel(global::Documentation._Lists.BulletPointsEnum prop = default) => throw null;
     }
 }

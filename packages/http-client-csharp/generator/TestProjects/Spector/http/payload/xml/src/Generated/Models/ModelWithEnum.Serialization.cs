@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithEnum : IPersistableModel<ModelWithEnum>
+    public partial class ModelWithEnum : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEnum>
     {
         internal ModelWithEnum() => throw null;
 
-        protected virtual ModelWithEnum PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Xml.ModelWithEnum PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithEnum>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEnum>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelWithEnum IPersistableModel<ModelWithEnum>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Xml.ModelWithEnum global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEnum>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithEnum>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEnum>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(ModelWithEnum modelWithEnum) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithEnum modelWithEnum) => throw null;
 
-        public static explicit operator ModelWithEnum(ClientResult result) => throw null;
+        public static explicit operator ModelWithEnum(global::System.ClientModel.ClientResult result) => throw null;
     }
 }

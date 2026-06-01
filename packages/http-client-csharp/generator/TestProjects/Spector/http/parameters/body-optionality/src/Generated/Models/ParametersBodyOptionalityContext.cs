@@ -6,8 +6,8 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.BodyOptionality
 {
-    [ModelReaderWriterBuildable(typeof(BodyModel))]
-    public partial class ParametersBodyOptionalityContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Parameters.BodyOptionality.BodyModel))]
+    public partial class ParametersBodyOptionalityContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

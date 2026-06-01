@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.Xml
 {
-    public partial class XmlClientOptions : ClientPipelineOptions
+    public partial class XmlClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public XmlClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal XmlClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal XmlClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

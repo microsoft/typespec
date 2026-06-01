@@ -15,39 +15,39 @@ namespace Server.Versions.NotVersioned
     {
         protected NotVersionedClient() => throw null;
 
-        public NotVersionedClient(Uri endpoint) : this(endpoint, new NotVersionedClientOptions()) => throw null;
+        public NotVersionedClient(global::System.Uri endpoint) : this(endpoint, new global::Server.Versions.NotVersioned.NotVersionedClientOptions()) => throw null;
 
-        internal NotVersionedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotVersionedClientOptions options) => throw null;
+        internal NotVersionedClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Server.Versions.NotVersioned.NotVersionedClientOptions options) => throw null;
 
-        public NotVersionedClient(Uri endpoint, NotVersionedClientOptions options) : this(null, endpoint, options) => throw null;
+        public NotVersionedClient(global::System.Uri endpoint, global::Server.Versions.NotVersioned.NotVersionedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public NotVersionedClient(NotVersionedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public NotVersionedClient(global::Server.Versions.NotVersioned.NotVersionedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult WithoutApiVersion(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithoutApiVersion(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithoutApiVersionAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult WithoutApiVersion(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithoutApiVersion(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithoutApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithoutApiVersionAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithQueryApiVersion(string apiVersion, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithQueryApiVersion(string apiVersion, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithQueryApiVersionAsync(string apiVersion, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult WithQueryApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithQueryApiVersion(string apiVersion, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithQueryApiVersionAsync(string apiVersion, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithPathApiVersion(string apiVersion, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithPathApiVersion(string apiVersion, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithPathApiVersionAsync(string apiVersion, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult WithPathApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult WithPathApiVersion(string apiVersion, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithPathApiVersionAsync(string apiVersion, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

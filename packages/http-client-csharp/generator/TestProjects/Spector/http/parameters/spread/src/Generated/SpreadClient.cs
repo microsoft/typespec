@@ -12,19 +12,19 @@ namespace Parameters.Spread
 {
     public partial class SpreadClient
     {
-        public SpreadClient() : this(new Uri("http://localhost:3000"), new SpreadClientOptions()) => throw null;
+        public SpreadClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.Spread.SpreadClientOptions()) => throw null;
 
-        internal SpreadClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SpreadClientOptions options) => throw null;
+        internal SpreadClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.Spread.SpreadClientOptions options) => throw null;
 
-        public SpreadClient(Uri endpoint, SpreadClientOptions options) : this(null, endpoint, options) => throw null;
+        public SpreadClient(global::System.Uri endpoint, global::Parameters.Spread.SpreadClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public SpreadClient(SpreadClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public SpreadClient(global::Parameters.Spread.SpreadClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Model GetModelClient() => throw null;
+        public virtual global::Parameters.Spread._Model.Model GetModelClient() => throw null;
 
-        public virtual Alias GetAliasClient() => throw null;
+        public virtual global::Parameters.Spread._Alias.Alias GetAliasClient() => throw null;
     }
 }

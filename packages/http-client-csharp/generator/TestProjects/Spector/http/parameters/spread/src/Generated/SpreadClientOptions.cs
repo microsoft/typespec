@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Spread
 {
-    public partial class SpreadClientOptions : ClientPipelineOptions
+    public partial class SpreadClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public SpreadClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal SpreadClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal SpreadClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

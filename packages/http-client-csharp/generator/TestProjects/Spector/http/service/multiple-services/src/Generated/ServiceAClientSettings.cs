@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Service.MultipleServices.ServiceA
 {
-    [Experimental("SCME0002")]
-    public partial class ServiceAClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class ServiceAClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ServiceAClientOptions Options
+        public global::Service.MultipleServices.ServiceA.ServiceAClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

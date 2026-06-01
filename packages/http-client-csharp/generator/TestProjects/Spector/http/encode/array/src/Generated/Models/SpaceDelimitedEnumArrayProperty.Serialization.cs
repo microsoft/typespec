@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode._Array
 {
-    public partial class SpaceDelimitedEnumArrayProperty : IJsonModel<SpaceDelimitedEnumArrayProperty>
+    public partial class SpaceDelimitedEnumArrayProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>
     {
         internal SpaceDelimitedEnumArrayProperty() => throw null;
 
-        protected virtual SpaceDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode._Array.SpaceDelimitedEnumArrayProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SpaceDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpaceDelimitedEnumArrayProperty IPersistableModel<SpaceDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Encode._Array.SpaceDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(SpaceDelimitedEnumArrayProperty spaceDelimitedEnumArrayProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode._Array.SpaceDelimitedEnumArrayProperty spaceDelimitedEnumArrayProperty) => throw null;
 
-        public static explicit operator SpaceDelimitedEnumArrayProperty(ClientResult result) => throw null;
+        public static explicit operator SpaceDelimitedEnumArrayProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<SpaceDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpaceDelimitedEnumArrayProperty IJsonModel<SpaceDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Encode._Array.SpaceDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SpaceDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode._Array.SpaceDelimitedEnumArrayProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -32,13 +32,13 @@ namespace SampleTypeSpec
         /// This tests:
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Thing"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Thing Thing(string rename = default, global::System.BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, global::SampleTypeSpec.ThingOptionalLiteralString? optionalLiteralString = default, global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, global::SampleTypeSpec.ThingOptionalLiteralInt? optionalLiteralInt = default, global::SampleTypeSpec.ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, global::System.Collections.Generic.IEnumerable<int> optionalNullableList = default, global::System.Collections.Generic.IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
         {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableList ??= new global::SampleTypeSpec.ChangeTrackingList<int>();
+            requiredNullableList ??= new global::SampleTypeSpec.ChangeTrackingList<int>();
 
-            return new Thing(
+            return new global::SampleTypeSpec.Thing(
                 rename,
                 requiredUnion,
                 "accept",
@@ -84,21 +84,21 @@ namespace SampleTypeSpec
         /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.RoundTripModel"/> instance for mocking. </returns>
-        public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<StringFixedEnum> requiredCollection = default, IDictionary<string, StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, BinaryData> requiredRecordUnknown = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.RoundTripModel"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.StringFixedEnum> requiredCollection = default, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> requiredDictionary = default, global::SampleTypeSpec.Thing requiredModel = default, global::SampleTypeSpec.IntExtensibleEnum? intExtensibleEnum = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.IntExtensibleEnum> intExtensibleEnumCollection = default, global::SampleTypeSpec.FloatExtensibleEnum? floatExtensibleEnum = default, global::SampleTypeSpec.FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.FloatExtensibleEnum> floatExtensibleEnumCollection = default, global::SampleTypeSpec.FloatFixedEnum? floatFixedEnum = default, global::SampleTypeSpec.FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.FloatFixedEnum> floatFixedEnumCollection = default, global::SampleTypeSpec.IntFixedEnum? intFixedEnum = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.IntFixedEnum> intFixedEnumCollection = default, global::SampleTypeSpec.StringFixedEnum? stringFixedEnum = default, global::System.BinaryData requiredUnknown = default, global::System.BinaryData optionalUnknown = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> requiredRecordUnknown = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> optionalRecordUnknown = default, global::System.Collections.Generic.IReadOnlyDictionary<string, global::System.BinaryData> readOnlyRequiredRecordUnknown = default, global::System.Collections.Generic.IReadOnlyDictionary<string, global::System.BinaryData> readOnlyOptionalRecordUnknown = default, global::SampleTypeSpec.ModelWithRequiredNullableProperties modelWithRequiredNullable = default, global::System.BinaryData requiredBytes = default)
         {
-            requiredCollection ??= new ChangeTrackingList<StringFixedEnum>();
-            requiredDictionary ??= new ChangeTrackingDictionary<string, StringExtensibleEnum>();
-            intExtensibleEnumCollection ??= new ChangeTrackingList<IntExtensibleEnum>();
-            floatExtensibleEnumCollection ??= new ChangeTrackingList<FloatExtensibleEnum>();
-            floatFixedEnumCollection ??= new ChangeTrackingList<FloatFixedEnum>();
-            intFixedEnumCollection ??= new ChangeTrackingList<IntFixedEnum>();
-            requiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyRequiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyOptionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            requiredCollection ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.StringFixedEnum>();
+            requiredDictionary ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::SampleTypeSpec.StringExtensibleEnum>();
+            intExtensibleEnumCollection ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.IntExtensibleEnum>();
+            floatExtensibleEnumCollection ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.FloatExtensibleEnum>();
+            floatFixedEnumCollection ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.FloatFixedEnum>();
+            intFixedEnumCollection ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.IntFixedEnum>();
+            requiredRecordUnknown ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            optionalRecordUnknown ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            readOnlyRequiredRecordUnknown ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            readOnlyOptionalRecordUnknown ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
-            return new RoundTripModel(
+            return new global::SampleTypeSpec.RoundTripModel(
                 requiredString,
                 requiredInt,
                 requiredCollection.ToList(),
@@ -130,44 +130,44 @@ namespace SampleTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
-        public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, global::SampleTypeSpec.StringExtensibleEnum? requiredExtensibleEnum = default, global::SampleTypeSpec.StringFixedEnum? requiredFixedEnum = default)
         {
-            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The Wrapper. </summary>
         /// <param name="p1"> header parameter. </param>
         /// <param name="action"> body parameter. </param>
         /// <param name="p2"> path parameter. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
-        public static Wrapper Wrapper(string p1 = default, RoundTripModel action = default, string p2 = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Wrapper Wrapper(string p1 = default, global::SampleTypeSpec.RoundTripModel action = default, string p2 = default)
         {
-            return new Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
         }
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
-        public static Friend Friend(string name = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Models.Custom.Friend"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Models.Custom.Friend Friend(string name = default)
         {
-            return new Friend(name, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.Models.Custom.Friend(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="otherName"> name of the ModelWithClientName. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
-        public static RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
         {
-            return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
+            return new global::SampleTypeSpec.RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
-        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
-        public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
+        /// <returns> A new <see cref="global::SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
         {
-            return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
@@ -176,10 +176,10 @@ namespace SampleTypeSpec
         /// <param name="optionalHeader"> optional header parameter. </param>
         /// <param name="requiredQuery"> required query parameter. </param>
         /// <param name="optionalQuery"> optional query parameter. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
-        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
         {
-            return new ModelWithEmbeddedNonBodyParameters(
+            return new global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters(
                 name,
                 requiredHeader,
                 optionalHeader,
@@ -204,22 +204,22 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
-        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.DynamicModel DynamicModel(string name = default, global::System.BinaryData optionalUnknown = default, int? optionalInt = default, global::System.Collections.Generic.IEnumerable<int> optionalNullableList = default, global::System.Collections.Generic.IEnumerable<int> requiredNullableList = default, global::System.Collections.Generic.IDictionary<string, int> optionalNullableDictionary = default, global::System.Collections.Generic.IDictionary<string, int> requiredNullableDictionary = default, global::System.Collections.Generic.IDictionary<string, int> primitiveDictionary = default, global::SampleTypeSpec.AnotherDynamicModel foo = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.AnotherDynamicModel> listFoo = default, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo = default, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionaryFoo = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo = default, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo = default)
         {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
-            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
-            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
-            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
-            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
-            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
-            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
-            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
-            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
-            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+            optionalNullableList ??= new global::SampleTypeSpec.ChangeTrackingList<int>();
+            requiredNullableList ??= new global::SampleTypeSpec.ChangeTrackingList<int>();
+            optionalNullableDictionary ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, int>();
+            requiredNullableDictionary ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, int>();
+            primitiveDictionary ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, int>();
+            listFoo ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.AnotherDynamicModel>();
+            listOfListFoo ??= new global::SampleTypeSpec.ChangeTrackingList<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+            dictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>();
+            dictionaryOfDictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
+            dictionaryListFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
 
-            return new DynamicModel(
+            return new global::SampleTypeSpec.DynamicModel(
                 name,
                 optionalUnknown,
                 optionalInt,
@@ -240,10 +240,10 @@ namespace SampleTypeSpec
 
         /// <summary> Another sample dynamic model. </summary>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
-        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.AnotherDynamicModel AnotherDynamicModel(string bar = default)
         {
-            return new AnotherDynamicModel(bar, default);
+            return new global::SampleTypeSpec.AnotherDynamicModel(bar, default);
         }
 
         /// <summary> An advanced XML model for testing various property types and XML features. </summary>
@@ -287,26 +287,26 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
-        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, global::System.Collections.Generic.IEnumerable<string> unwrappedStrings = default, global::System.Collections.Generic.IEnumerable<int> unwrappedCounts = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlItem> unwrappedItems = default, global::System.Collections.Generic.IEnumerable<string> wrappedColors = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlItem> items = default, global::SampleTypeSpec.XmlNestedModel nestedModel = default, global::SampleTypeSpec.XmlNestedModel optionalNestedModel = default, global::System.Collections.Generic.IDictionary<string, string> metadata = default, global::System.DateTimeOffset createdAt = default, global::System.TimeSpan duration = default, global::System.BinaryData data = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> optionalRecordUnknown = default, global::SampleTypeSpec.StringFixedEnum fixedEnum = default, global::SampleTypeSpec.StringExtensibleEnum extensibleEnum = default, global::SampleTypeSpec.IntFixedEnum? optionalFixedEnum = default, global::SampleTypeSpec.IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, global::System.Collections.Generic.IEnumerable<string> fooItems = default, global::SampleTypeSpec.XmlNestedModel anotherModel = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> modelsWithNamespaces = default, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> listOfListFoo = default, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem> dictionaryFoo = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> dictionaryOfDictionaryFoo = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> dictionaryListFoo = default, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> listOfDictionaryFoo = default)
         {
-            unwrappedStrings ??= new ChangeTrackingList<string>();
-            unwrappedCounts ??= new ChangeTrackingList<int>();
-            unwrappedItems ??= new ChangeTrackingList<XmlItem>();
-            wrappedColors ??= new ChangeTrackingList<string>();
-            items ??= new ChangeTrackingList<XmlItem>();
-            metadata ??= new ChangeTrackingDictionary<string, string>();
-            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            fooItems ??= new ChangeTrackingList<string>();
-            modelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
-            unwrappedModelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
-            listOfListFoo ??= new ChangeTrackingList<IList<XmlItem>>();
-            dictionaryFoo ??= new ChangeTrackingDictionary<string, XmlItem>();
-            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, XmlItem>>();
-            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<XmlItem>>();
-            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, XmlItem>>();
+            unwrappedStrings ??= new global::SampleTypeSpec.ChangeTrackingList<string>();
+            unwrappedCounts ??= new global::SampleTypeSpec.ChangeTrackingList<int>();
+            unwrappedItems ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.XmlItem>();
+            wrappedColors ??= new global::SampleTypeSpec.ChangeTrackingList<string>();
+            items ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.XmlItem>();
+            metadata ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, string>();
+            optionalRecordUnknown ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            fooItems ??= new global::SampleTypeSpec.ChangeTrackingList<string>();
+            modelsWithNamespaces ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.XmlModelWithNamespace>();
+            unwrappedModelsWithNamespaces ??= new global::SampleTypeSpec.ChangeTrackingList<global::SampleTypeSpec.XmlModelWithNamespace>();
+            listOfListFoo ??= new global::SampleTypeSpec.ChangeTrackingList<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>>();
+            dictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::SampleTypeSpec.XmlItem>();
+            dictionaryOfDictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>>();
+            dictionaryListFoo ??= new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>>();
+            listOfDictionaryFoo ??= new global::SampleTypeSpec.ChangeTrackingList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>>();
 
-            return new XmlAdvancedModel(
+            return new global::SampleTypeSpec.XmlAdvancedModel(
                 name,
                 age,
                 enabled,
@@ -353,27 +353,27 @@ namespace SampleTypeSpec
         /// <param name="itemName"> The item name. </param>
         /// <param name="itemValue"> The item value. </param>
         /// <param name="itemId"> Item ID as attribute. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlItem"/> instance for mocking. </returns>
-        public static XmlItem XmlItem(string itemName = default, int itemValue = default, string itemId = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.XmlItem"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.XmlItem XmlItem(string itemName = default, int itemValue = default, string itemId = default)
         {
-            return new XmlItem(itemName, itemValue, itemId);
+            return new global::SampleTypeSpec.XmlItem(itemName, itemValue, itemId);
         }
 
         /// <summary> A nested model for XML testing. </summary>
         /// <param name="value"> The value of the nested model. </param>
         /// <param name="nestedId"> An attribute on the nested model. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlNestedModel"/> instance for mocking. </returns>
-        public static XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.XmlNestedModel"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
         {
-            return new XmlNestedModel(value, nestedId);
+            return new global::SampleTypeSpec.XmlNestedModel(value, nestedId);
         }
 
         /// <summary> The XmlModelWithNamespace. </summary>
         /// <param name="foo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
-        public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
         {
-            return new XmlModelWithNamespace(foo);
+            return new global::SampleTypeSpec.XmlModelWithNamespace(foo);
         }
 
         /// <summary>
@@ -382,39 +382,39 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
-        public static Animal Animal(string kind = default, string name = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Animal Animal(string kind = default, string name = default)
         {
-            return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> Pet is a discriminated animal. </summary>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
-        public static Pet Pet(string name = default, bool trained = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Pet Pet(string name = default, bool trained = default)
         {
-            return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
+            return new global::SampleTypeSpec.Pet("pet", name, additionalBinaryDataProperties: null, trained);
         }
 
         /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
-        public static Dog Dog(string name = default, bool trained = default, string breed = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Dog Dog(string name = default, bool trained = default, string breed = default)
         {
-            return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
+            return new global::SampleTypeSpec.Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
         }
 
         /// <summary> Tree is a specific type of plant. </summary>
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
-        public static Tree Tree(string id = default, int height = default, int age = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Tree"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Tree Tree(string id = default, int height = default, int age = default)
         {
-            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+            return new global::SampleTypeSpec.Tree("tree", id, height, additionalBinaryDataProperties: null, age);
         }
 
         /// <summary>
@@ -424,28 +424,28 @@ namespace SampleTypeSpec
         /// <param name="species"> The species of plant. </param>
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Plant"/> instance for mocking. </returns>
-        public static Plant Plant(string species = default, string id = default, int height = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.Plant"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.Plant Plant(string species = default, string id = default, int height = default)
         {
-            return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The GetWidgetMetricsResponse. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
-        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
         {
-            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The GetNotebookResponse. </summary>
         /// <param name="name"></param>
         /// <param name="content"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
-        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
+        /// <returns> A new <see cref="global::SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
+        public static global::SampleTypeSpec.GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
         {
-            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
+            return new global::SampleTypeSpec.GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
         }
     }
 }

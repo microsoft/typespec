@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.JsonMergePatch
 {
-    public partial class JsonMergePatchClientOptions : ClientPipelineOptions
+    public partial class JsonMergePatchClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public JsonMergePatchClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal JsonMergePatchClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal JsonMergePatchClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

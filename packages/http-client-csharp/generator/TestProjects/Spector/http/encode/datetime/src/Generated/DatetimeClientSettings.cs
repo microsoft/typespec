@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Encode.Datetime
 {
-    [Experimental("SCME0002")]
-    public partial class DatetimeClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class DatetimeClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public DatetimeClientOptions Options
+        public global::Encode.Datetime.DatetimeClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Response.StatusCodeRange
 {
-    public partial class StatusCodeRangeClientOptions : ClientPipelineOptions
+    public partial class StatusCodeRangeClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public StatusCodeRangeClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal StatusCodeRangeClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal StatusCodeRangeClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

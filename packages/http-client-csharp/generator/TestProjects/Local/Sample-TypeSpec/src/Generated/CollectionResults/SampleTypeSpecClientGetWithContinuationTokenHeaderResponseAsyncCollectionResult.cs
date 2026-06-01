@@ -13,17 +13,17 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
     {
-        private readonly SampleTypeSpecClient _client;
+        private readonly global::SampleTypeSpec.SampleTypeSpecClient _client;
         private readonly string _token;
-        private readonly RequestOptions _options;
+        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(global::SampleTypeSpec.SampleTypeSpecClient client, string token, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -32,16 +32,16 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetWithContinuationTokenHeaderResponseRequest(_token, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
+                global::System.ClientModel.ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
+                if ((result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value)))
                 {
                     nextToken = value;
                 }
@@ -56,11 +56,11 @@ namespace SampleTypeSpec
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
-        public override ContinuationToken GetContinuationToken(ClientResult page)
+        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
+            if ((page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value)))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(value));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }
             else
             {
@@ -70,9 +70,9 @@ namespace SampleTypeSpec
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
         {
-            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

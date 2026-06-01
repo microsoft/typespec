@@ -15,16 +15,16 @@ namespace Client.Structure.ClientOperationGroup
     {
         protected Group4() => throw null;
 
-        internal Group4(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Group4(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Four(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Four(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FourAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FourAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Four(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Four(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FourAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

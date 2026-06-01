@@ -7,26 +7,26 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct StringLiteralPropertyProperty : IEquatable<StringLiteralPropertyProperty>
+    public readonly partial struct StringLiteralPropertyProperty : global::System.IEquatable<global::_Type.Property.Optional.StringLiteralPropertyProperty>
     {
         public StringLiteralPropertyProperty(string value) => throw null;
 
-        public static StringLiteralPropertyProperty Hello => throw null;
+        public static global::_Type.Property.Optional.StringLiteralPropertyProperty Hello => throw null;
 
-        public static bool operator ==(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;
+        public static bool operator ==(global::_Type.Property.Optional.StringLiteralPropertyProperty left, global::_Type.Property.Optional.StringLiteralPropertyProperty right) => throw null;
 
-        public static bool operator !=(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;
+        public static bool operator !=(global::_Type.Property.Optional.StringLiteralPropertyProperty left, global::_Type.Property.Optional.StringLiteralPropertyProperty right) => throw null;
 
-        public static implicit operator StringLiteralPropertyProperty(string value) => throw null;
+        public static implicit operator global::_Type.Property.Optional.StringLiteralPropertyProperty(string value) => throw null;
 
-        public static implicit operator StringLiteralPropertyProperty?(string value) => throw null;
+        public static implicit operator global::_Type.Property.Optional.StringLiteralPropertyProperty?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(StringLiteralPropertyProperty other) => throw null;
+        public bool Equals(global::_Type.Property.Optional.StringLiteralPropertyProperty other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

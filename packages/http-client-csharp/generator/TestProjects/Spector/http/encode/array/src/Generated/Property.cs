@@ -15,104 +15,104 @@ namespace Encode._Array._Property
     {
         protected Property() => throw null;
 
-        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Property(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult CommaDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult CommaDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> CommaDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CommaDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<CommaDelimitedArrayProperty> CommaDelimited(CommaDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedArrayProperty> CommaDelimited(global::Encode._Array.CommaDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<CommaDelimitedArrayProperty>> CommaDelimitedAsync(CommaDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedArrayProperty>> CommaDelimitedAsync(global::Encode._Array.CommaDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult SpaceDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpaceDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpaceDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpaceDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<SpaceDelimitedArrayProperty> SpaceDelimited(SpaceDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedArrayProperty> SpaceDelimited(global::Encode._Array.SpaceDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SpaceDelimitedArrayProperty>> SpaceDelimitedAsync(SpaceDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedArrayProperty>> SpaceDelimitedAsync(global::Encode._Array.SpaceDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PipeDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PipeDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PipeDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PipeDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<PipeDelimitedArrayProperty> PipeDelimited(PipeDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedArrayProperty> PipeDelimited(global::Encode._Array.PipeDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<PipeDelimitedArrayProperty>> PipeDelimitedAsync(PipeDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedArrayProperty>> PipeDelimitedAsync(global::Encode._Array.PipeDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult NewlineDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult NewlineDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> NewlineDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NewlineDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<NewlineDelimitedArrayProperty> NewlineDelimited(NewlineDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedArrayProperty> NewlineDelimited(global::Encode._Array.NewlineDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<NewlineDelimitedArrayProperty>> NewlineDelimitedAsync(NewlineDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedArrayProperty>> NewlineDelimitedAsync(global::Encode._Array.NewlineDelimitedArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult EnumCommaDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult EnumCommaDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> EnumCommaDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EnumCommaDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<CommaDelimitedEnumArrayProperty> EnumCommaDelimited(CommaDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedEnumArrayProperty> EnumCommaDelimited(global::Encode._Array.CommaDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<CommaDelimitedEnumArrayProperty>> EnumCommaDelimitedAsync(CommaDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedEnumArrayProperty>> EnumCommaDelimitedAsync(global::Encode._Array.CommaDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult EnumSpaceDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult EnumSpaceDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> EnumSpaceDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EnumSpaceDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<SpaceDelimitedEnumArrayProperty> EnumSpaceDelimited(SpaceDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedEnumArrayProperty> EnumSpaceDelimited(global::Encode._Array.SpaceDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SpaceDelimitedEnumArrayProperty>> EnumSpaceDelimitedAsync(SpaceDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedEnumArrayProperty>> EnumSpaceDelimitedAsync(global::Encode._Array.SpaceDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult EnumPipeDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult EnumPipeDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> EnumPipeDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EnumPipeDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<PipeDelimitedEnumArrayProperty> EnumPipeDelimited(PipeDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedEnumArrayProperty> EnumPipeDelimited(global::Encode._Array.PipeDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<PipeDelimitedEnumArrayProperty>> EnumPipeDelimitedAsync(PipeDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedEnumArrayProperty>> EnumPipeDelimitedAsync(global::Encode._Array.PipeDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult EnumNewlineDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult EnumNewlineDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> EnumNewlineDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EnumNewlineDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<NewlineDelimitedEnumArrayProperty> EnumNewlineDelimited(NewlineDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedEnumArrayProperty> EnumNewlineDelimited(global::Encode._Array.NewlineDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<NewlineDelimitedEnumArrayProperty>> EnumNewlineDelimitedAsync(NewlineDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedEnumArrayProperty>> EnumNewlineDelimitedAsync(global::Encode._Array.NewlineDelimitedEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult ExtensibleEnumCommaDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult ExtensibleEnumCommaDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ExtensibleEnumCommaDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExtensibleEnumCommaDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<CommaDelimitedExtensibleEnumArrayProperty> ExtensibleEnumCommaDelimited(CommaDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty> ExtensibleEnumCommaDelimited(global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<CommaDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumCommaDelimitedAsync(CommaDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumCommaDelimitedAsync(global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult ExtensibleEnumSpaceDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult ExtensibleEnumSpaceDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ExtensibleEnumSpaceDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExtensibleEnumSpaceDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<SpaceDelimitedExtensibleEnumArrayProperty> ExtensibleEnumSpaceDelimited(SpaceDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty> ExtensibleEnumSpaceDelimited(global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SpaceDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumSpaceDelimitedAsync(SpaceDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumSpaceDelimitedAsync(global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult ExtensibleEnumPipeDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult ExtensibleEnumPipeDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ExtensibleEnumPipeDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExtensibleEnumPipeDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<PipeDelimitedExtensibleEnumArrayProperty> ExtensibleEnumPipeDelimited(PipeDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty> ExtensibleEnumPipeDelimited(global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<PipeDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumPipeDelimitedAsync(PipeDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumPipeDelimitedAsync(global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult ExtensibleEnumNewlineDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult ExtensibleEnumNewlineDelimited(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ExtensibleEnumNewlineDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExtensibleEnumNewlineDelimitedAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<NewlineDelimitedExtensibleEnumArrayProperty> ExtensibleEnumNewlineDelimited(NewlineDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty> ExtensibleEnumNewlineDelimited(global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<NewlineDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumNewlineDelimitedAsync(NewlineDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumNewlineDelimitedAsync(global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

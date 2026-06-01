@@ -7,8 +7,8 @@ using Payload.ContentNegotiation._DifferentBody;
 
 namespace Payload.ContentNegotiation
 {
-    [ModelReaderWriterBuildable(typeof(PngImageAsJson))]
-    public partial class PayloadContentNegotiationContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson))]
+    public partial class PayloadContentNegotiationContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

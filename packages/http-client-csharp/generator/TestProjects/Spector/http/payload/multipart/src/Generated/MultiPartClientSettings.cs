@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.MultiPart
 {
-    [Experimental("SCME0002")]
-    public partial class MultiPartClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class MultiPartClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public MultiPartClientOptions Options
+        public global::Payload.MultiPart.MultiPartClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

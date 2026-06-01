@@ -8,7 +8,7 @@ namespace _Type.Property.Optional
     {
         public StringLiteralProperty() => throw null;
 
-        public StringLiteralPropertyProperty? Property
+        public global::_Type.Property.Optional.StringLiteralPropertyProperty? Property
         {
             get => throw null;
             set => throw null;

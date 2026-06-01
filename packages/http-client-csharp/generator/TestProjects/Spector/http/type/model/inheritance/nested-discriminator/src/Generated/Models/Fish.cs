@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     {
         private protected Fish(string kind, int age) => throw null;
 
-        internal Fish(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Fish(string kind, int age, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal string Kind
         {

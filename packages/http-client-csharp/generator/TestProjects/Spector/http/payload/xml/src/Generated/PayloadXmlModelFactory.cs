@@ -9,58 +9,58 @@ namespace Payload.Xml
 {
     public static partial class PayloadXmlModelFactory
     {
-        public static SimpleModel SimpleModel(string name = default, int age = default) => throw null;
+        public static global::Payload.Xml.SimpleModel SimpleModel(string name = default, int age = default) => throw null;
 
-        public static ModelWithRenamedProperty ModelWithRenamedProperty(string title = default, string author = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedProperty ModelWithRenamedProperty(string title = default, string author = default) => throw null;
 
-        public static ModelWithRenamedFields ModelWithRenamedFields(SimpleModel inputData = default, SimpleModel outputData = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedFields ModelWithRenamedFields(global::Payload.Xml.SimpleModel inputData = default, global::Payload.Xml.SimpleModel outputData = default) => throw null;
 
-        public static ModelWithNestedModel ModelWithNestedModel(SimpleModel nested = default) => throw null;
+        public static global::Payload.Xml.ModelWithNestedModel ModelWithNestedModel(global::Payload.Xml.SimpleModel nested = default) => throw null;
 
-        public static ModelWithRenamedNestedModel ModelWithRenamedNestedModel(Author author = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedNestedModel ModelWithRenamedNestedModel(global::Payload.Xml.Author author = default) => throw null;
 
-        public static Author Author(string name = default) => throw null;
+        public static global::Payload.Xml.Author Author(string name = default) => throw null;
 
-        public static ModelWithSimpleArrays ModelWithSimpleArrays(IEnumerable<string> colors = default, IEnumerable<int> counts = default) => throw null;
+        public static global::Payload.Xml.ModelWithSimpleArrays ModelWithSimpleArrays(global::System.Collections.Generic.IEnumerable<string> colors = default, global::System.Collections.Generic.IEnumerable<int> counts = default) => throw null;
 
-        public static ModelWithUnwrappedArray ModelWithUnwrappedArray(IEnumerable<string> colors = default, IEnumerable<int> counts = default) => throw null;
+        public static global::Payload.Xml.ModelWithUnwrappedArray ModelWithUnwrappedArray(global::System.Collections.Generic.IEnumerable<string> colors = default, global::System.Collections.Generic.IEnumerable<int> counts = default) => throw null;
 
-        public static ModelWithRenamedArrays ModelWithRenamedArrays(IEnumerable<string> colors = default, IEnumerable<int> counts = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedArrays ModelWithRenamedArrays(global::System.Collections.Generic.IEnumerable<string> colors = default, global::System.Collections.Generic.IEnumerable<int> counts = default) => throw null;
 
-        public static ModelWithWrappedPrimitiveCustomItemNames ModelWithWrappedPrimitiveCustomItemNames(IEnumerable<string> tags = default) => throw null;
+        public static global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames ModelWithWrappedPrimitiveCustomItemNames(global::System.Collections.Generic.IEnumerable<string> tags = default) => throw null;
 
-        public static ModelWithArrayOfModel ModelWithArrayOfModel(IEnumerable<SimpleModel> items = default) => throw null;
+        public static global::Payload.Xml.ModelWithArrayOfModel ModelWithArrayOfModel(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items = default) => throw null;
 
-        public static ModelWithUnwrappedModelArray ModelWithUnwrappedModelArray(IEnumerable<SimpleModel> items = default) => throw null;
+        public static global::Payload.Xml.ModelWithUnwrappedModelArray ModelWithUnwrappedModelArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items = default) => throw null;
 
-        public static ModelWithRenamedWrappedModelArray ModelWithRenamedWrappedModelArray(IEnumerable<SimpleModel> items = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedWrappedModelArray ModelWithRenamedWrappedModelArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items = default) => throw null;
 
-        public static ModelWithRenamedUnwrappedModelArray ModelWithRenamedUnwrappedModelArray(IEnumerable<SimpleModel> items = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedUnwrappedModelArray ModelWithRenamedUnwrappedModelArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items = default) => throw null;
 
-        public static ModelWithRenamedWrappedAndItemModelArray ModelWithRenamedWrappedAndItemModelArray(IEnumerable<Book> books = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedWrappedAndItemModelArray ModelWithRenamedWrappedAndItemModelArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.Book> books = default) => throw null;
 
-        public static Book Book(string title = default) => throw null;
+        public static global::Payload.Xml.Book Book(string title = default) => throw null;
 
-        public static ModelWithAttributes ModelWithAttributes(int id1 = default, string id2 = default, bool enabled = default) => throw null;
+        public static global::Payload.Xml.ModelWithAttributes ModelWithAttributes(int id1 = default, string id2 = default, bool enabled = default) => throw null;
 
-        public static ModelWithRenamedAttribute ModelWithRenamedAttribute(int id = default, string title = default, string author = default) => throw null;
+        public static global::Payload.Xml.ModelWithRenamedAttribute ModelWithRenamedAttribute(int id = default, string title = default, string author = default) => throw null;
 
-        public static ModelWithNamespace ModelWithNamespace(int id = default, string title = default) => throw null;
+        public static global::Payload.Xml.ModelWithNamespace ModelWithNamespace(int id = default, string title = default) => throw null;
 
-        public static ModelWithNamespaceOnProperties ModelWithNamespaceOnProperties(int id = default, string title = default, string author = default) => throw null;
+        public static global::Payload.Xml.ModelWithNamespaceOnProperties ModelWithNamespaceOnProperties(int id = default, string title = default, string author = default) => throw null;
 
-        public static ModelWithText ModelWithText(string language = default, string content = default) => throw null;
+        public static global::Payload.Xml.ModelWithText ModelWithText(string language = default, string content = default) => throw null;
 
-        public static ModelWithOptionalField ModelWithOptionalField(string item = default, int? value = default) => throw null;
+        public static global::Payload.Xml.ModelWithOptionalField ModelWithOptionalField(string item = default, int? value = default) => throw null;
 
-        public static ModelWithEmptyArray ModelWithEmptyArray(IEnumerable<SimpleModel> items = default) => throw null;
+        public static global::Payload.Xml.ModelWithEmptyArray ModelWithEmptyArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items = default) => throw null;
 
-        public static ModelWithDictionary ModelWithDictionary(IDictionary<string, string> metadata = default) => throw null;
+        public static global::Payload.Xml.ModelWithDictionary ModelWithDictionary(global::System.Collections.Generic.IDictionary<string, string> metadata = default) => throw null;
 
-        public static ModelWithEncodedNames ModelWithEncodedNames(SimpleModel modelData = default, IEnumerable<string> colors = default) => throw null;
+        public static global::Payload.Xml.ModelWithEncodedNames ModelWithEncodedNames(global::Payload.Xml.SimpleModel modelData = default, global::System.Collections.Generic.IEnumerable<string> colors = default) => throw null;
 
-        public static ModelWithEnum ModelWithEnum(Status status = default) => throw null;
+        public static global::Payload.Xml.ModelWithEnum ModelWithEnum(global::Payload.Xml.Status status = default) => throw null;
 
-        public static ModelWithDatetime ModelWithDatetime(DateTimeOffset rfc3339 = default, DateTimeOffset rfc7231 = default) => throw null;
+        public static global::Payload.Xml.ModelWithDatetime ModelWithDatetime(global::System.DateTimeOffset rfc3339 = default, global::System.DateTimeOffset rfc7231 = default) => throw null;
     }
 }

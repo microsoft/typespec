@@ -14,84 +14,84 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The GetWidgetMetricsResponse. </summary>
-    public partial class GetWidgetMetricsResponse : IJsonModel<GetWidgetMetricsResponse>
+    public partial class GetWidgetMetricsResponse : global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.GetWidgetMetricsResponse>
     {
-        /// <summary> Initializes a new instance of <see cref="GetWidgetMetricsResponse"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.GetWidgetMetricsResponse"/> for deserialization. </summary>
         internal GetWidgetMetricsResponse()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual GetWidgetMetricsResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual global::SampleTypeSpec.GetWidgetMetricsResponse PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializeGetWidgetMetricsResponse(document.RootElement, options);
+                        return global::SampleTypeSpec.GetWidgetMetricsResponse.DeserializeGetWidgetMetricsResponse(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(GetWidgetMetricsResponse)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.GetWidgetMetricsResponse)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(GetWidgetMetricsResponse)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.GetWidgetMetricsResponse)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<GetWidgetMetricsResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        GetWidgetMetricsResponse IPersistableModel<GetWidgetMetricsResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        global::SampleTypeSpec.GetWidgetMetricsResponse global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<GetWidgetMetricsResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="GetWidgetMetricsResponse"/> from. </param>
-        public static explicit operator GetWidgetMetricsResponse(ClientResult result)
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.GetWidgetMetricsResponse"/> from. </param>
+        public static explicit operator GetWidgetMetricsResponse(global::System.ClientModel.ClientResult result)
         {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeGetWidgetMetricsResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
+            global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions);
+            return global::SampleTypeSpec.GetWidgetMetricsResponse.DeserializeGetWidgetMetricsResponse(document.RootElement, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<GetWidgetMetricsResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.GetWidgetMetricsResponse>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
+            this.JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(GetWidgetMetricsResponse)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.GetWidgetMetricsResponse)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("numSold"u8);
             writer.WriteNumberValue(NumSold);
             writer.WritePropertyName("averagePrice"u8);
             writer.WriteNumberValue(AveragePrice);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
                 {
@@ -99,9 +99,9 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
                     {
-                        JsonSerializer.Serialize(writer, document.RootElement);
+                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }
@@ -110,32 +110,32 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        GetWidgetMetricsResponse IJsonModel<GetWidgetMetricsResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        global::SampleTypeSpec.GetWidgetMetricsResponse global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.GetWidgetMetricsResponse>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual GetWidgetMetricsResponse JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual global::SampleTypeSpec.GetWidgetMetricsResponse JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.GetWidgetMetricsResponse>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(GetWidgetMetricsResponse)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.GetWidgetMetricsResponse)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeGetWidgetMetricsResponse(document.RootElement, options);
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::SampleTypeSpec.GetWidgetMetricsResponse.DeserializeGetWidgetMetricsResponse(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static GetWidgetMetricsResponse DeserializeGetWidgetMetricsResponse(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.GetWidgetMetricsResponse DeserializeGetWidgetMetricsResponse(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element.ValueKind == JsonValueKind.Null)
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             int numSold = default;
             float averagePrice = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("numSold"u8))
@@ -148,12 +148,12 @@ namespace SampleTypeSpec
                     averagePrice = prop.Value.GetSingle();
                     continue;
                 }
-                if (options.Format != "W")
+                if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties);
+            return new global::SampleTypeSpec.GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties);
         }
     }
 }

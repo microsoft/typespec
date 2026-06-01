@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithWrappedPrimitiveCustomItemNames : IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>
+    public partial class ModelWithWrappedPrimitiveCustomItemNames : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>
     {
         internal ModelWithWrappedPrimitiveCustomItemNames() => throw null;
 
-        protected virtual ModelWithWrappedPrimitiveCustomItemNames PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelWithWrappedPrimitiveCustomItemNames IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(ModelWithWrappedPrimitiveCustomItemNames modelWithWrappedPrimitiveCustomItemNames) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames modelWithWrappedPrimitiveCustomItemNames) => throw null;
 
-        public static explicit operator ModelWithWrappedPrimitiveCustomItemNames(ClientResult result) => throw null;
+        public static explicit operator ModelWithWrappedPrimitiveCustomItemNames(global::System.ClientModel.ClientResult result) => throw null;
     }
 }

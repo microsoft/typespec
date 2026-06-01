@@ -10,73 +10,73 @@ namespace _Type.Property.ValueTypes
 {
     public partial class ValueTypesClient
     {
-        public ValueTypesClient() : this(new Uri("http://localhost:3000"), new ValueTypesClientOptions()) => throw null;
+        public ValueTypesClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Property.ValueTypes.ValueTypesClientOptions()) => throw null;
 
-        internal ValueTypesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ValueTypesClientOptions options) => throw null;
+        internal ValueTypesClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Property.ValueTypes.ValueTypesClientOptions options) => throw null;
 
-        public ValueTypesClient(Uri endpoint, ValueTypesClientOptions options) : this(null, endpoint, options) => throw null;
+        public ValueTypesClient(global::System.Uri endpoint, global::_Type.Property.ValueTypes.ValueTypesClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public ValueTypesClient(ValueTypesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public ValueTypesClient(global::_Type.Property.ValueTypes.ValueTypesClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Boolean GetBooleanClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Boolean GetBooleanClient() => throw null;
 
-        public virtual String GetStringClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.String GetStringClient() => throw null;
 
-        public virtual Bytes GetBytesClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Bytes GetBytesClient() => throw null;
 
-        public virtual Int GetIntClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Int GetIntClient() => throw null;
 
-        public virtual Float GetFloatClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Float GetFloatClient() => throw null;
 
-        public virtual Decimal GetDecimalClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Decimal GetDecimalClient() => throw null;
 
-        public virtual Decimal128 GetDecimal128Client() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Decimal128 GetDecimal128Client() => throw null;
 
-        public virtual Datetime GetDatetimeClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Datetime GetDatetimeClient() => throw null;
 
-        public virtual Duration GetDurationClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Duration GetDurationClient() => throw null;
 
-        public virtual Enum GetEnumClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Enum GetEnumClient() => throw null;
 
-        public virtual ExtensibleEnum GetExtensibleEnumClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.ExtensibleEnum GetExtensibleEnumClient() => throw null;
 
-        public virtual Model GetModelClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Model GetModelClient() => throw null;
 
-        public virtual CollectionsString GetCollectionsStringClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.CollectionsString GetCollectionsStringClient() => throw null;
 
-        public virtual CollectionsInt GetCollectionsIntClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.CollectionsInt GetCollectionsIntClient() => throw null;
 
-        public virtual CollectionsModel GetCollectionsModelClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.CollectionsModel GetCollectionsModelClient() => throw null;
 
-        public virtual DictionaryString GetDictionaryStringClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.DictionaryString GetDictionaryStringClient() => throw null;
 
-        public virtual Never GetNeverClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.Never GetNeverClient() => throw null;
 
-        public virtual UnknownString GetUnknownStringClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnknownString GetUnknownStringClient() => throw null;
 
-        public virtual UnknownInt GetUnknownIntClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnknownInt GetUnknownIntClient() => throw null;
 
-        public virtual UnknownDict GetUnknownDictClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnknownDict GetUnknownDictClient() => throw null;
 
-        public virtual UnknownArray GetUnknownArrayClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnknownArray GetUnknownArrayClient() => throw null;
 
-        public virtual StringLiteral GetStringLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.StringLiteral GetStringLiteralClient() => throw null;
 
-        public virtual IntLiteral GetIntLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.IntLiteral GetIntLiteralClient() => throw null;
 
-        public virtual FloatLiteral GetFloatLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.FloatLiteral GetFloatLiteralClient() => throw null;
 
-        public virtual BooleanLiteral GetBooleanLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.BooleanLiteral GetBooleanLiteralClient() => throw null;
 
-        public virtual UnionStringLiteral GetUnionStringLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnionStringLiteral GetUnionStringLiteralClient() => throw null;
 
-        public virtual UnionIntLiteral GetUnionIntLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnionIntLiteral GetUnionIntLiteralClient() => throw null;
 
-        public virtual UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnionFloatLiteral GetUnionFloatLiteralClient() => throw null;
 
-        public virtual UnionEnumValue GetUnionEnumValueClient() => throw null;
+        public virtual global::_Type.Property.ValueTypes.UnionEnumValue GetUnionEnumValueClient() => throw null;
     }
 }

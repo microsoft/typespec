@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.MediaType
 {
-    public partial class PayloadMediaTypeContext : ModelReaderWriterContext
+    public partial class PayloadMediaTypeContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.Service
 {
-    public partial class ServiceClientOptions : ClientPipelineOptions
+    public partial class ServiceClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public ServiceClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal ServiceClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal ServiceClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

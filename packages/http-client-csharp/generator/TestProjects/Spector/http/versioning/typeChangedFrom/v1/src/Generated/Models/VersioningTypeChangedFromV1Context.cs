@@ -7,8 +7,8 @@ using Versioning.TypeChangedFrom;
 
 namespace Versioning.TypeChangedFrom.V1
 {
-    [ModelReaderWriterBuildable(typeof(TestModel))]
-    public partial class VersioningTypeChangedFromV1Context : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.TypeChangedFrom.TestModel))]
+    public partial class VersioningTypeChangedFromV1Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

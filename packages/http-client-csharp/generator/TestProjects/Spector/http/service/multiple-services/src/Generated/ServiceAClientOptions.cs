@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Service.MultipleServices.ServiceA
 {
-    public partial class ServiceAClientOptions : ClientPipelineOptions
+    public partial class ServiceAClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.Vav2;
+        private const global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion LatestVersion = global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion.Vav2;
 
-        public ServiceAClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        public ServiceAClientOptions(global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [Experimental("SCME0002")]
-        internal ServiceAClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal ServiceAClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

@@ -7,17 +7,17 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class Eagle : Bird
+    public partial class Eagle : global::_Type.Model.Inheritance.SingleDiscriminator.Bird
     {
         public Eagle(int wingspan) : base("eagle", wingspan) => throw null;
 
-        internal Eagle(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties, IList<Bird> friends, IDictionary<string, Bird> hate, Bird partner) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
+        internal Eagle(string kind, int wingspan, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> friends, global::System.Collections.Generic.IDictionary<string, global::_Type.Model.Inheritance.SingleDiscriminator.Bird> hate, global::_Type.Model.Inheritance.SingleDiscriminator.Bird partner) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
 
-        public IList<Bird> Friends => throw null;
+        public global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> Friends => throw null;
 
-        public IDictionary<string, Bird> Hate => throw null;
+        public global::System.Collections.Generic.IDictionary<string, global::_Type.Model.Inheritance.SingleDiscriminator.Bird> Hate => throw null;
 
-        public Bird Partner
+        public global::_Type.Model.Inheritance.SingleDiscriminator.Bird Partner
         {
             get => throw null;
             set => throw null;

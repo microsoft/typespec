@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace SpecialHeaders.Repeatability
 {
-    public partial class RepeatabilityClientOptions : ClientPipelineOptions
+    public partial class RepeatabilityClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public RepeatabilityClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal RepeatabilityClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal RepeatabilityClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

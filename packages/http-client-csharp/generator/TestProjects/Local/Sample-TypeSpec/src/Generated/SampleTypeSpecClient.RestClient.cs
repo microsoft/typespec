@@ -14,39 +14,39 @@ namespace SampleTypeSpec
     /// <summary></summary>
     public partial class SampleTypeSpecClient
     {
-        private static PipelineMessageClassifier _pipelineMessageClassifier200;
-        private static PipelineMessageClassifier _pipelineMessageClassifier204;
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier204;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
-        internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/hello", false);
             uri.AppendQuery("queryParameter", queryParameter, true);
-            if (optionalQuery != null)
+            if ((optionalQuery != null))
             {
                 uri.AppendQuery("optionalQuery", optionalQuery, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("head-parameter", headParameter);
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateHelloAgainRequest(string p2, string p1, BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateHelloAgainRequest(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/againHi/", false);
             uri.AppendPath(p2, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "text/plain");
             request.Headers.Set("Accept", "application/json");
@@ -55,14 +55,14 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNoContentTypeRequest(string p2, string p1, BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateNoContentTypeRequest(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/noContentType/", false);
             uri.AppendPath(p2, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
@@ -71,25 +71,25 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateHelloDemo2Request(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/demoHi", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateCreateLiteralRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/literal", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -97,53 +97,53 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateHelloLiteralRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
             uri.AppendPath(123.ToString(), true);
-            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true), true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            uri.AppendQuery("p3", global::SampleTypeSpec.TypeFormatters.ConvertToString(true), true);
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("p1", "test");
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateTopActionRequest(global::System.DateTimeOffset action, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/top/", false);
             uri.AppendPath(action.ToString("O"), true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateTopAction2Request(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateTopAction2Request(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/top2", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreatePatchActionRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/patch", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PATCH", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PATCH", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -151,14 +151,14 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateAnonymousBodyRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
             uri.AppendQuery("requiredQueryParam", "someRequiredLiteralQueryParam", true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("required-header", "someRequiredLiteralHeader");
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
@@ -167,13 +167,13 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateFriendlyModelRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/friendlyName", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -181,25 +181,25 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateAddTimeHeaderRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateAddTimeHeaderRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
-            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, SerializationFormat.DateTime_RFC7231));
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Headers.Set("Repeatability-First-Sent", global::SampleTypeSpec.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, global::SampleTypeSpec.SerializationFormat.DateTime_RFC7231));
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateProjectedNameModelRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/projectedName", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -207,37 +207,37 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateReturnsAnonymousModelRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/returnsAnonymousModel", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetUnknownValueRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/unknown-value", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "text/plain");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateInternalProtocolRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/internalProtocol", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -245,163 +245,163 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateStillConvenientRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/stillConvenient", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateHeadAsBooleanRequest(string id, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/headAsBoolean/", false);
             uri.AppendPath(id, true);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "HEAD", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateWithApiVersionRequest(string p1, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateWithApiVersionRequest(string p1, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);
-            if (_apiVersion != null)
+            if ((_apiVersion != null))
             {
                 uri.AppendQuery("apiVersion", _apiVersion, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetWithNextLinkRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetWithNextLinkRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/link", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateNextGetWithNextLinkRequest(global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
             {
                 uri.Reset(nextPage);
             }
             else
             {
-                uri.Reset(new Uri(_endpoint, nextPage));
+                uri.Reset(new global::System.Uri(_endpoint, nextPage));
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetWithStringNextLinkRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetWithStringNextLinkRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/linkString", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(Uri nextPage, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateNextGetWithStringNextLinkRequest(global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
             {
                 uri.Reset(nextPage);
             }
             else
             {
-                uri.Reset(new Uri(_endpoint, nextPage));
+                uri.Reset(new global::System.Uri(_endpoint, nextPage));
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetWithContinuationTokenRequest(string token, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetWithContinuationTokenRequest(string token, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/continuation", false);
-            if (token != null)
+            if ((token != null))
             {
                 uri.AppendQuery("token", token, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetWithContinuationTokenHeaderResponseRequest(string token, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/continuation/header", false);
-            if (token != null)
+            if ((token != null))
             {
                 uri.AppendQuery("token", token, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetWithPagingRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetWithPagingRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/list/paging", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateEmbeddedParametersRequest(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader, string optionalQuery, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateEmbeddedParametersRequest(string requiredHeader, string requiredQuery, global::System.ClientModel.BinaryContent content, string optionalHeader, string optionalQuery, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/embeddedParameters", false);
             uri.AppendQuery("requiredQuery", requiredQuery, true);
-            if (optionalQuery != null)
+            if ((optionalQuery != null))
             {
                 uri.AppendQuery("optionalQuery", optionalQuery, true);
             }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("required-header", requiredHeader);
-            if (optionalHeader != null)
+            if ((optionalHeader != null))
             {
                 request.Headers.Set("optional-header", optionalHeader);
             }
@@ -411,38 +411,38 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateDynamicModelOperationRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateDynamicModelOperationRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/dynamicModel", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateGetXmlAdvancedModelRequest(RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetXmlAdvancedModelRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/xmlAdvanced", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/xml");
             message.Apply(options);
             return message;
         }
 
-        internal PipelineMessage CreateUpdateXmlAdvancedModelRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateUpdateXmlAdvancedModelRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/xmlAdvanced", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/xml");
             request.Headers.Set("Accept", "application/xml");
             request.Content = content;

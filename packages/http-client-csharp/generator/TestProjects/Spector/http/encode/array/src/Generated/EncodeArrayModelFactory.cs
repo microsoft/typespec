@@ -8,28 +8,28 @@ namespace Encode._Array
 {
     public static partial class EncodeArrayModelFactory
     {
-        public static CommaDelimitedArrayProperty CommaDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        public static global::Encode._Array.CommaDelimitedArrayProperty CommaDelimitedArrayProperty(global::System.Collections.Generic.IEnumerable<string> value = default) => throw null;
 
-        public static SpaceDelimitedArrayProperty SpaceDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        public static global::Encode._Array.SpaceDelimitedArrayProperty SpaceDelimitedArrayProperty(global::System.Collections.Generic.IEnumerable<string> value = default) => throw null;
 
-        public static PipeDelimitedArrayProperty PipeDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        public static global::Encode._Array.PipeDelimitedArrayProperty PipeDelimitedArrayProperty(global::System.Collections.Generic.IEnumerable<string> value = default) => throw null;
 
-        public static NewlineDelimitedArrayProperty NewlineDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        public static global::Encode._Array.NewlineDelimitedArrayProperty NewlineDelimitedArrayProperty(global::System.Collections.Generic.IEnumerable<string> value = default) => throw null;
 
-        public static CommaDelimitedEnumArrayProperty CommaDelimitedEnumArrayProperty(IEnumerable<Colors> value = default) => throw null;
+        public static global::Encode._Array.CommaDelimitedEnumArrayProperty CommaDelimitedEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.Colors> value = default) => throw null;
 
-        public static SpaceDelimitedEnumArrayProperty SpaceDelimitedEnumArrayProperty(IEnumerable<Colors> value = default) => throw null;
+        public static global::Encode._Array.SpaceDelimitedEnumArrayProperty SpaceDelimitedEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.Colors> value = default) => throw null;
 
-        public static PipeDelimitedEnumArrayProperty PipeDelimitedEnumArrayProperty(IEnumerable<Colors> value = default) => throw null;
+        public static global::Encode._Array.PipeDelimitedEnumArrayProperty PipeDelimitedEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.Colors> value = default) => throw null;
 
-        public static NewlineDelimitedEnumArrayProperty NewlineDelimitedEnumArrayProperty(IEnumerable<Colors> value = default) => throw null;
+        public static global::Encode._Array.NewlineDelimitedEnumArrayProperty NewlineDelimitedEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.Colors> value = default) => throw null;
 
-        public static CommaDelimitedExtensibleEnumArrayProperty CommaDelimitedExtensibleEnumArrayProperty(IEnumerable<ColorsExtensibleEnum> value = default) => throw null;
+        public static global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty CommaDelimitedExtensibleEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.ColorsExtensibleEnum> value = default) => throw null;
 
-        public static SpaceDelimitedExtensibleEnumArrayProperty SpaceDelimitedExtensibleEnumArrayProperty(IEnumerable<ColorsExtensibleEnum> value = default) => throw null;
+        public static global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty SpaceDelimitedExtensibleEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.ColorsExtensibleEnum> value = default) => throw null;
 
-        public static PipeDelimitedExtensibleEnumArrayProperty PipeDelimitedExtensibleEnumArrayProperty(IEnumerable<ColorsExtensibleEnum> value = default) => throw null;
+        public static global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty PipeDelimitedExtensibleEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.ColorsExtensibleEnum> value = default) => throw null;
 
-        public static NewlineDelimitedExtensibleEnumArrayProperty NewlineDelimitedExtensibleEnumArrayProperty(IEnumerable<ColorsExtensibleEnum> value = default) => throw null;
+        public static global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty NewlineDelimitedExtensibleEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.ColorsExtensibleEnum> value = default) => throw null;
     }
 }

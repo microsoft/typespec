@@ -7,21 +7,21 @@ using Encode.Duration._Property;
 
 namespace Encode.Duration
 {
-    [ModelReaderWriterBuildable(typeof(DefaultDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Float64MillisecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Float64SecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatMillisecondsDurationArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatMillisecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatMillisecondsLargerUnitDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatSecondsDurationArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatSecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatSecondsLargerUnitDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Int32MillisecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Int32MillisecondsLargerUnitDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Int32SecondsDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(Int32SecondsLargerUnitDurationProperty))]
-    [ModelReaderWriterBuildable(typeof(ISO8601DurationProperty))]
-    public partial class EncodeDurationContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.DefaultDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Float64MillisecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Float64SecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatMillisecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatSecondsDurationArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatSecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Int32MillisecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Int32SecondsDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Duration._Property.ISO8601DurationProperty))]
+    public partial class EncodeDurationContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

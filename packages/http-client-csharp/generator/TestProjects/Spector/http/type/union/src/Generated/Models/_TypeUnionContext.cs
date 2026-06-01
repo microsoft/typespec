@@ -6,23 +6,23 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Union
 {
-    [ModelReaderWriterBuildable(typeof(Cat))]
-    [ModelReaderWriterBuildable(typeof(Dog))]
-    [ModelReaderWriterBuildable(typeof(EnumsOnlyCases))]
-    [ModelReaderWriterBuildable(typeof(GetResponse))]
-    [ModelReaderWriterBuildable(typeof(GetResponse1))]
-    [ModelReaderWriterBuildable(typeof(GetResponse2))]
-    [ModelReaderWriterBuildable(typeof(GetResponse3))]
-    [ModelReaderWriterBuildable(typeof(GetResponse4))]
-    [ModelReaderWriterBuildable(typeof(GetResponse5))]
-    [ModelReaderWriterBuildable(typeof(GetResponse6))]
-    [ModelReaderWriterBuildable(typeof(GetResponse7))]
-    [ModelReaderWriterBuildable(typeof(GetResponse8))]
-    [ModelReaderWriterBuildable(typeof(GetResponse9))]
-    [ModelReaderWriterBuildable(typeof(MixedLiteralsCases))]
-    [ModelReaderWriterBuildable(typeof(MixedTypesCases))]
-    [ModelReaderWriterBuildable(typeof(StringAndArrayCases))]
-    public partial class _TypeUnionContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.Cat))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.Dog))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.EnumsOnlyCases))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse1))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse2))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse3))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse4))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse5))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse6))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse7))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse8))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.GetResponse9))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.MixedLiteralsCases))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.MixedTypesCases))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Union.StringAndArrayCases))]
+    public partial class _TypeUnionContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

@@ -11,17 +11,17 @@ namespace Payload.MultiPart
 {
     public partial class MultiPartClient
     {
-        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions()) => throw null;
+        public MultiPartClient() : this(new global::System.Uri("http://localhost:3000"), new global::Payload.MultiPart.MultiPartClientOptions()) => throw null;
 
-        internal MultiPartClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultiPartClientOptions options) => throw null;
+        internal MultiPartClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Payload.MultiPart.MultiPartClientOptions options) => throw null;
 
-        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) : this(null, endpoint, options) => throw null;
+        public MultiPartClient(global::System.Uri endpoint, global::Payload.MultiPart.MultiPartClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public MultiPartClient(MultiPartClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public MultiPartClient(global::Payload.MultiPart.MultiPartClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual FormData GetFormDataClient() => throw null;
+        public virtual global::Payload.MultiPart._FormData.FormData GetFormDataClient() => throw null;
     }
 }

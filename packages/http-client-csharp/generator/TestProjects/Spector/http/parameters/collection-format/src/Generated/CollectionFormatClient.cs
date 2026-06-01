@@ -12,19 +12,19 @@ namespace Parameters.CollectionFormat
 {
     public partial class CollectionFormatClient
     {
-        public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
+        public CollectionFormatClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.CollectionFormat.CollectionFormatClientOptions()) => throw null;
 
-        internal CollectionFormatClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CollectionFormatClientOptions options) => throw null;
+        internal CollectionFormatClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.CollectionFormat.CollectionFormatClientOptions options) => throw null;
 
-        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) : this(null, endpoint, options) => throw null;
+        public CollectionFormatClient(global::System.Uri endpoint, global::Parameters.CollectionFormat.CollectionFormatClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public CollectionFormatClient(CollectionFormatClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public CollectionFormatClient(global::Parameters.CollectionFormat.CollectionFormatClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Query GetQueryClient() => throw null;
+        public virtual global::Parameters.CollectionFormat._Query.Query GetQueryClient() => throw null;
 
-        public virtual Header GetHeaderClient() => throw null;
+        public virtual global::Parameters.CollectionFormat._Header.Header GetHeaderClient() => throw null;
     }
 }

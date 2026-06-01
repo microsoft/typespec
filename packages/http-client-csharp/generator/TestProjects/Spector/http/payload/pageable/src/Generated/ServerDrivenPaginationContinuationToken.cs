@@ -14,56 +14,56 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
     {
         protected ServerDrivenPaginationContinuationToken() => throw null;
 
-        internal ServerDrivenPaginationContinuationToken(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ServerDrivenPaginationContinuationToken(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual CollectionResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestQueryResponseBody(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestQueryResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestQueryResponseBody(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestQueryResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestQueryResponseBodyAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestHeaderResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestHeaderResponseBody(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestHeaderResponseBodyAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestQueryResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestQueryResponseHeader(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestQueryResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestQueryResponseHeaderAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult RequestQueryNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestQueryNestedResponseBody(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestQueryNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestQueryNestedResponseBodyAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestQueryNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestQueryNestedResponseBody(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestQueryNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestQueryNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult RequestHeaderNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult RequestHeaderNestedResponseBody(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult RequestHeaderNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult RequestHeaderNestedResponseBodyAsync(string token, string foo, string bar, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> RequestHeaderNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> RequestHeaderNestedResponseBody(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> RequestHeaderNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> RequestHeaderNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

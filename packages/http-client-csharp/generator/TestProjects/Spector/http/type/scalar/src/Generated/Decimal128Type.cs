@@ -14,32 +14,32 @@ namespace _Type.Scalar
     {
         protected Decimal128Type() => throw null;
 
-        internal Decimal128Type(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Decimal128Type(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult ResponseBody(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult ResponseBody(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ResponseBodyAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ResponseBodyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult<decimal> ResponseBody(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<decimal> ResponseBody(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<decimal>> ResponseBodyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<decimal>> ResponseBodyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult RequestBody(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult RequestBody(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequestBodyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult RequestBody(decimal body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult RequestBody(decimal body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RequestBodyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequestBodyAsync(decimal body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult RequestParameter(decimal value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult RequestParameter(decimal value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestParameterAsync(decimal value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequestParameterAsync(decimal value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult RequestParameter(decimal value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult RequestParameter(decimal value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RequestParameterAsync(decimal value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequestParameterAsync(decimal value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

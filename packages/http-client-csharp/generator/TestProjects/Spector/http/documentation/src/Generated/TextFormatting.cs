@@ -14,32 +14,32 @@ namespace Documentation._TextFormatting
     {
         protected TextFormatting() => throw null;
 
-        internal TextFormatting(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal TextFormatting(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult BoldText(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult BoldText(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> BoldTextAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BoldTextAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult BoldText(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult BoldText(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BoldTextAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BoldTextAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult ItalicText(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult ItalicText(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ItalicTextAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ItalicTextAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult ItalicText(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult ItalicText(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ItalicTextAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ItalicTextAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult CombinedFormatting(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult CombinedFormatting(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> CombinedFormattingAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CombinedFormattingAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult CombinedFormatting(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult CombinedFormatting(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> CombinedFormattingAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CombinedFormattingAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

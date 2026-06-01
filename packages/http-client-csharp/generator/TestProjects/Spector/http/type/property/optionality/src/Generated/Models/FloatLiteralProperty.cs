@@ -8,7 +8,7 @@ namespace _Type.Property.Optional
     {
         public FloatLiteralProperty() => throw null;
 
-        public FloatLiteralPropertyProperty? Property
+        public global::_Type.Property.Optional.FloatLiteralPropertyProperty? Property
         {
             get => throw null;
             set => throw null;

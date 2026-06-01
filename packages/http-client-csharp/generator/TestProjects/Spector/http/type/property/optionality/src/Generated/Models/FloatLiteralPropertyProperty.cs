@@ -7,24 +7,24 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct FloatLiteralPropertyProperty : IEquatable<FloatLiteralPropertyProperty>
+    public readonly partial struct FloatLiteralPropertyProperty : global::System.IEquatable<global::_Type.Property.Optional.FloatLiteralPropertyProperty>
     {
         public FloatLiteralPropertyProperty(float value) => throw null;
 
-        public static FloatLiteralPropertyProperty _125 => throw null;
+        public static global::_Type.Property.Optional.FloatLiteralPropertyProperty _125 => throw null;
 
-        public static bool operator ==(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;
+        public static bool operator ==(global::_Type.Property.Optional.FloatLiteralPropertyProperty left, global::_Type.Property.Optional.FloatLiteralPropertyProperty right) => throw null;
 
-        public static bool operator !=(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;
+        public static bool operator !=(global::_Type.Property.Optional.FloatLiteralPropertyProperty left, global::_Type.Property.Optional.FloatLiteralPropertyProperty right) => throw null;
 
-        public static implicit operator FloatLiteralPropertyProperty(float value) => throw null;
+        public static implicit operator global::_Type.Property.Optional.FloatLiteralPropertyProperty(float value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(FloatLiteralPropertyProperty other) => throw null;
+        public bool Equals(global::_Type.Property.Optional.FloatLiteralPropertyProperty other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

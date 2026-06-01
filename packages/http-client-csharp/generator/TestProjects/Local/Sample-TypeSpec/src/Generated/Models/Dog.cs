@@ -11,28 +11,28 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
-    public partial class Dog : Pet
+    public partial class Dog : global::SampleTypeSpec.Pet
     {
-        /// <summary> Initializes a new instance of <see cref="Dog"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Dog"/>. </summary>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> or <paramref name="breed"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/> or <paramref name="breed"/> is null. </exception>
         public Dog(string name, bool trained, string breed) : base("dog", name, trained)
         {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(breed, nameof(breed));
+            global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
+            global::SampleTypeSpec.Argument.AssertNotNull(breed, nameof(breed));
 
             Breed = breed;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Dog"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Dog"/>. </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
-        internal Dog(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool trained, string breed) : base(kind, name, additionalBinaryDataProperties, trained)
+        internal Dog(string kind, string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, bool trained, string breed) : base(kind, name, additionalBinaryDataProperties, trained)
         {
             Breed = breed;
         }

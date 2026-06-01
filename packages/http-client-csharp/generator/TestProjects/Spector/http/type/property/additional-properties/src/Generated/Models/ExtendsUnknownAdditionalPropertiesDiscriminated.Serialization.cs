@@ -9,31 +9,31 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    [PersistableModelProxy(typeof(UnknownExtendsUnknownAdditionalPropertiesDiscriminated))]
-    public abstract partial class ExtendsUnknownAdditionalPropertiesDiscriminated : IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>
+    [global::System.ClientModel.Primitives.PersistableModelProxyAttribute(typeof(global::_Type.Property.AdditionalProperties.UnknownExtendsUnknownAdditionalPropertiesDiscriminated))]
+    public abstract partial class ExtendsUnknownAdditionalPropertiesDiscriminated : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>
     {
         internal ExtendsUnknownAdditionalPropertiesDiscriminated() => throw null;
 
-        protected virtual ExtendsUnknownAdditionalPropertiesDiscriminated PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ExtendsUnknownAdditionalPropertiesDiscriminated>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ExtendsUnknownAdditionalPropertiesDiscriminated IPersistableModel<ExtendsUnknownAdditionalPropertiesDiscriminated>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ExtendsUnknownAdditionalPropertiesDiscriminated>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(ExtendsUnknownAdditionalPropertiesDiscriminated extendsUnknownAdditionalPropertiesDiscriminated) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated extendsUnknownAdditionalPropertiesDiscriminated) => throw null;
 
-        public static explicit operator ExtendsUnknownAdditionalPropertiesDiscriminated(ClientResult result) => throw null;
+        public static explicit operator ExtendsUnknownAdditionalPropertiesDiscriminated(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ExtendsUnknownAdditionalPropertiesDiscriminated IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual ExtendsUnknownAdditionalPropertiesDiscriminated JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

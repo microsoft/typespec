@@ -13,12 +13,12 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
     {
         protected FormDataHttpPartsNonString() => throw null;
 
-        internal FormDataHttpPartsNonString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataHttpPartsNonString(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Float(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
     }
 }

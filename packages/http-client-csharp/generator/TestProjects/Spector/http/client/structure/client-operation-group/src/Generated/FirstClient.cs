@@ -16,27 +16,27 @@ namespace Client.Structure.ClientOperationGroup
     {
         protected FirstClient() => throw null;
 
-        public FirstClient(Uri endpoint, ClientType client) : this(endpoint, client, new FirstClientOptions()) => throw null;
+        public FirstClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) : this(endpoint, client, new global::Client.Structure.ClientOperationGroup.FirstClientOptions()) => throw null;
 
-        internal FirstClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, FirstClientOptions options) => throw null;
+        internal FirstClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.ClientOperationGroup.FirstClientOptions options) => throw null;
 
-        public FirstClient(Uri endpoint, ClientType client, FirstClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public FirstClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.ClientOperationGroup.FirstClientOptions options) : this(null, endpoint, client, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public FirstClient(FirstClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public FirstClient(global::Client.Structure.ClientOperationGroup.FirstClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult One(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult One(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OneAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult One(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OneAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Group3 GetGroup3Client() => throw null;
+        public virtual global::Client.Structure.ClientOperationGroup.Group3 GetGroup3Client() => throw null;
 
-        public virtual Group4 GetGroup4Client() => throw null;
+        public virtual global::Client.Structure.ClientOperationGroup.Group4 GetGroup4Client() => throw null;
     }
 }

@@ -9,14 +9,14 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class IsModelAdditionalProperties
     {
-        public IsModelAdditionalProperties(ModelForRecord knownProp) => throw null;
+        public IsModelAdditionalProperties(global::_Type.Property.AdditionalProperties.ModelForRecord knownProp) => throw null;
 
-        public ModelForRecord KnownProp
+        public global::_Type.Property.AdditionalProperties.ModelForRecord KnownProp
         {
             get => throw null;
             set => throw null;
         }
 
-        public IDictionary<string, BinaryData> AdditionalProperties => throw null;
+        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> AdditionalProperties => throw null;
     }
 }

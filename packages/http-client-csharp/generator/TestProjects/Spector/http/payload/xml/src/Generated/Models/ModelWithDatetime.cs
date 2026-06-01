@@ -8,15 +8,15 @@ namespace Payload.Xml
 {
     public partial class ModelWithDatetime
     {
-        public ModelWithDatetime(DateTimeOffset rfc3339, DateTimeOffset rfc7231) => throw null;
+        public ModelWithDatetime(global::System.DateTimeOffset rfc3339, global::System.DateTimeOffset rfc7231) => throw null;
 
-        public DateTimeOffset Rfc3339
+        public global::System.DateTimeOffset Rfc3339
         {
             get => throw null;
             set => throw null;
         }
 
-        public DateTimeOffset Rfc7231
+        public global::System.DateTimeOffset Rfc7231
         {
             get => throw null;
             set => throw null;

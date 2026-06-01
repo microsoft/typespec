@@ -8,24 +8,24 @@ using System.Text.Json;
 
 namespace Payload.JsonMergePatch
 {
-    public partial class InnerModel : IJsonModel<InnerModel>
+    public partial class InnerModel : global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.InnerModel>
     {
-        protected virtual InnerModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.JsonMergePatch.InnerModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<InnerModel>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.InnerModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        InnerModel IPersistableModel<InnerModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.JsonMergePatch.InnerModel global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.InnerModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<InnerModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.InnerModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<InnerModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.InnerModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        InnerModel IJsonModel<InnerModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Payload.JsonMergePatch.InnerModel global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.InnerModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual InnerModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.JsonMergePatch.InnerModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

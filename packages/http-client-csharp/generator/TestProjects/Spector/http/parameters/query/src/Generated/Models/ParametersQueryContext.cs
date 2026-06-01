@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.Query
 {
-    public partial class ParametersQueryContext : ModelReaderWriterContext
+    public partial class ParametersQueryContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

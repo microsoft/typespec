@@ -14,16 +14,16 @@ namespace SpecialWords._ExtensibleStrings
     {
         protected ExtensibleStrings() => throw null;
 
-        internal ExtensibleStrings(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtensibleStrings(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PutExtensibleStringValue(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutExtensibleStringValue(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutExtensibleStringValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutExtensibleStringValueAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ExtensibleString> PutExtensibleStringValue(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::SpecialWords._ExtensibleStrings.ExtensibleString> PutExtensibleStringValue(global::SpecialWords._ExtensibleStrings.ExtensibleString body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ExtensibleString>> PutExtensibleStringValueAsync(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SpecialWords._ExtensibleStrings.ExtensibleString>> PutExtensibleStringValueAsync(global::SpecialWords._ExtensibleStrings.ExtensibleString body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

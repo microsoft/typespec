@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class While : IJsonModel<While>
+    public partial class While : global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.While>
     {
         internal While() => throw null;
 
-        protected virtual While PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::SpecialWords._Models.While PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<While>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.While>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        While IPersistableModel<While>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::SpecialWords._Models.While global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.While>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<While>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.While>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(While @while) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::SpecialWords._Models.While @while) => throw null;
 
-        void IJsonModel<While>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.While>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        While IJsonModel<While>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::SpecialWords._Models.While global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.While>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual While JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::SpecialWords._Models.While JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -7,18 +7,18 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Pageable
 {
-    public partial class XmlPet : IPersistableModel<XmlPet>
+    public partial class XmlPet : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable.XmlPet>
     {
         internal XmlPet() => throw null;
 
-        protected virtual XmlPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Pageable.XmlPet PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<XmlPet>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable.XmlPet>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        XmlPet IPersistableModel<XmlPet>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Pageable.XmlPet global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable.XmlPet>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<XmlPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable.XmlPet>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

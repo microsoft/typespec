@@ -12,14 +12,14 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> Float based extensible enum. </summary>
-    public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>
+    public readonly partial struct FloatExtensibleEnum : global::System.IEquatable<global::SampleTypeSpec.FloatExtensibleEnum>
     {
         private readonly float _value;
         private const float OneDotOneValue = 1.1F;
         private const float TwoDotTwoValue = 2.2F;
         private const float FourDotFourValue = 4.4F;
 
-        /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnum"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.FloatExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
         public FloatExtensibleEnum(float value)
         {
@@ -27,40 +27,40 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the OneDotOne. </summary>
-        public static FloatExtensibleEnum OneDotOne { get; } = new FloatExtensibleEnum(OneDotOneValue);
+        public static global::SampleTypeSpec.FloatExtensibleEnum OneDotOne { get; } = new global::SampleTypeSpec.FloatExtensibleEnum(OneDotOneValue);
 
         /// <summary> Gets the TwoDotTwo. </summary>
-        public static FloatExtensibleEnum TwoDotTwo { get; } = new FloatExtensibleEnum(TwoDotTwoValue);
+        public static global::SampleTypeSpec.FloatExtensibleEnum TwoDotTwo { get; } = new global::SampleTypeSpec.FloatExtensibleEnum(TwoDotTwoValue);
 
         /// <summary> Gets the FourDotFour. </summary>
-        public static FloatExtensibleEnum FourDotFour { get; } = new FloatExtensibleEnum(FourDotFourValue);
+        public static global::SampleTypeSpec.FloatExtensibleEnum FourDotFour { get; } = new global::SampleTypeSpec.FloatExtensibleEnum(FourDotFourValue);
 
-        /// <summary> Determines if two <see cref="FloatExtensibleEnum"/> values are the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.FloatExtensibleEnum"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(FloatExtensibleEnum left, FloatExtensibleEnum right) => left.Equals(right);
+        public static bool operator ==(global::SampleTypeSpec.FloatExtensibleEnum left, global::SampleTypeSpec.FloatExtensibleEnum right) => left.Equals(right);
 
-        /// <summary> Determines if two <see cref="FloatExtensibleEnum"/> values are not the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.FloatExtensibleEnum"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(FloatExtensibleEnum left, FloatExtensibleEnum right) => !left.Equals(right);
+        public static bool operator !=(global::SampleTypeSpec.FloatExtensibleEnum left, global::SampleTypeSpec.FloatExtensibleEnum right) => !left.Equals(right);
 
-        /// <summary> Converts a string to a <see cref="FloatExtensibleEnum"/>. </summary>
+        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.FloatExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator FloatExtensibleEnum(float value) => new FloatExtensibleEnum(value);
+        public static implicit operator global::SampleTypeSpec.FloatExtensibleEnum(float value) => new global::SampleTypeSpec.FloatExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is FloatExtensibleEnum other && Equals(other);
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => ((obj is global::SampleTypeSpec.FloatExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(FloatExtensibleEnum other) => Equals(_value, other._value);
+        public bool Equals(global::SampleTypeSpec.FloatExtensibleEnum other) => float.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
     }
 }

@@ -8,8 +8,8 @@ using Parameters.Spread._Model;
 
 namespace Parameters.Spread
 {
-    [ModelReaderWriterBuildable(typeof(BodyParameter))]
-    public partial class ParametersSpreadContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Parameters.Spread._Model.BodyParameter))]
+    public partial class ParametersSpreadContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

@@ -6,8 +6,8 @@ using System.ClientModel.Primitives;
 
 namespace _Type._Array
 {
-    [ModelReaderWriterBuildable(typeof(InnerModel))]
-    public partial class _Type_ArrayContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type._Array.InnerModel))]
+    public partial class _Type_ArrayContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

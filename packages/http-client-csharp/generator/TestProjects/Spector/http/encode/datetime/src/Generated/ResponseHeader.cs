@@ -14,40 +14,40 @@ namespace Encode.Datetime._ResponseHeader
     {
         protected ResponseHeader() => throw null;
 
-        internal ResponseHeader(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ResponseHeader(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Default(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Default(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc3339(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc3339(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc3339Async(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc3339(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc3339(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc3339Async(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc7231(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc7231(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc7231Async(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc7231(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc7231(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc7231Async(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult UnixTimestamp(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestamp(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestamp(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestamp(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

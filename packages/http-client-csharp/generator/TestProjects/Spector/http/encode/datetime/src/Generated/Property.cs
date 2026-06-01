@@ -15,48 +15,48 @@ namespace Encode.Datetime._Property
     {
         protected Property() => throw null;
 
-        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Property(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Default(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<DefaultDatetimeProperty> Default(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Datetime.DefaultDatetimeProperty> Default(global::Encode.Datetime.DefaultDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<DefaultDatetimeProperty>> DefaultAsync(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Datetime.DefaultDatetimeProperty>> DefaultAsync(global::Encode.Datetime.DefaultDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc3339(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc3339(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc3339Async(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Rfc3339DatetimeProperty> Rfc3339(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Datetime.Rfc3339DatetimeProperty> Rfc3339(global::Encode.Datetime.Rfc3339DatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Rfc3339DatetimeProperty>> Rfc3339Async(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Datetime.Rfc3339DatetimeProperty>> Rfc3339Async(global::Encode.Datetime.Rfc3339DatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc7231(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc7231(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc7231Async(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Rfc7231DatetimeProperty> Rfc7231(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Datetime.Rfc7231DatetimeProperty> Rfc7231(global::Encode.Datetime.Rfc7231DatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Rfc7231DatetimeProperty>> Rfc7231Async(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Datetime.Rfc7231DatetimeProperty>> Rfc7231Async(global::Encode.Datetime.Rfc7231DatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult UnixTimestamp(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestamp(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<UnixTimestampDatetimeProperty> UnixTimestamp(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Datetime.UnixTimestampDatetimeProperty> UnixTimestamp(global::Encode.Datetime.UnixTimestampDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnixTimestampDatetimeProperty>> UnixTimestampAsync(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Datetime.UnixTimestampDatetimeProperty>> UnixTimestampAsync(global::Encode.Datetime.UnixTimestampDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestampArray(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampArrayAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<UnixTimestampArrayDatetimeProperty> UnixTimestampArray(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty> UnixTimestampArray(global::Encode.Datetime.UnixTimestampArrayDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnixTimestampArrayDatetimeProperty>> UnixTimestampArrayAsync(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>> UnixTimestampArrayAsync(global::Encode.Datetime.UnixTimestampArrayDatetimeProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

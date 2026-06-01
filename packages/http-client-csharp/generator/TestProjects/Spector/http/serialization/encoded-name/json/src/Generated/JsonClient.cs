@@ -11,17 +11,17 @@ namespace Serialization.EncodedName.Json
 {
     public partial class JsonClient
     {
-        public JsonClient() : this(new Uri("http://localhost:3000"), new JsonClientOptions()) => throw null;
+        public JsonClient() : this(new global::System.Uri("http://localhost:3000"), new global::Serialization.EncodedName.Json.JsonClientOptions()) => throw null;
 
-        internal JsonClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, JsonClientOptions options) => throw null;
+        internal JsonClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Serialization.EncodedName.Json.JsonClientOptions options) => throw null;
 
-        public JsonClient(Uri endpoint, JsonClientOptions options) : this(null, endpoint, options) => throw null;
+        public JsonClient(global::System.Uri endpoint, global::Serialization.EncodedName.Json.JsonClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public JsonClient(JsonClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public JsonClient(global::Serialization.EncodedName.Json.JsonClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual global::Serialization.EncodedName.Json._Property.Property GetPropertyClient() => throw null;
     }
 }

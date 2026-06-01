@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode.Numeric._Property
 {
-    public partial class SafeintAsStringProperty : IJsonModel<SafeintAsStringProperty>
+    public partial class SafeintAsStringProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>
     {
         internal SafeintAsStringProperty() => throw null;
 
-        protected virtual SafeintAsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Numeric._Property.SafeintAsStringProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SafeintAsStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SafeintAsStringProperty IPersistableModel<SafeintAsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Numeric._Property.SafeintAsStringProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SafeintAsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(SafeintAsStringProperty safeintAsStringProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Numeric._Property.SafeintAsStringProperty safeintAsStringProperty) => throw null;
 
-        public static explicit operator SafeintAsStringProperty(ClientResult result) => throw null;
+        public static explicit operator SafeintAsStringProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<SafeintAsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SafeintAsStringProperty IJsonModel<SafeintAsStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Numeric._Property.SafeintAsStringProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SafeintAsStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Numeric._Property.SafeintAsStringProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

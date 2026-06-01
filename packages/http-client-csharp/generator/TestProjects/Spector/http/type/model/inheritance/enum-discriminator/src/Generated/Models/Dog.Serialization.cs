@@ -9,31 +9,31 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    [PersistableModelProxy(typeof(UnknownDog))]
-    public abstract partial class Dog : IJsonModel<Dog>
+    [global::System.ClientModel.Primitives.PersistableModelProxyAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.UnknownDog))]
+    public abstract partial class Dog : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>
     {
         internal Dog() => throw null;
 
-        protected virtual Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.EnumDiscriminator.Dog PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Dog global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Dog dog) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Inheritance.EnumDiscriminator.Dog dog) => throw null;
 
-        public static explicit operator Dog(ClientResult result) => throw null;
+        public static explicit operator Dog(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<Dog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Dog IJsonModel<Dog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Dog global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Dog JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.EnumDiscriminator.Dog JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

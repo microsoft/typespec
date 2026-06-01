@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Spread
 {
-    [Experimental("SCME0002")]
-    public partial class SpreadClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class SpreadClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public SpreadClientOptions Options
+        public global::Parameters.Spread.SpreadClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

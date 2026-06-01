@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.CollectionFormat
 {
-    [Experimental("SCME0002")]
-    public partial class CollectionFormatClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class CollectionFormatClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public CollectionFormatClientOptions Options
+        public global::Parameters.CollectionFormat.CollectionFormatClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

@@ -13,12 +13,12 @@ namespace Routes._PathParameters.SimpleExpansion
     {
         protected PathParametersSimpleExpansion() => throw null;
 
-        internal PathParametersSimpleExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersSimpleExpansion(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual PathParametersSimpleExpansionStandard GetPathParametersSimpleExpansionStandardClient() => throw null;
+        public virtual global::Routes._PathParameters.SimpleExpansion.Standard.PathParametersSimpleExpansionStandard GetPathParametersSimpleExpansionStandardClient() => throw null;
 
-        public virtual PathParametersSimpleExpansionExplode GetPathParametersSimpleExpansionExplodeClient() => throw null;
+        public virtual global::Routes._PathParameters.SimpleExpansion.Explode.PathParametersSimpleExpansionExplode GetPathParametersSimpleExpansionExplodeClient() => throw null;
     }
 }

@@ -14,16 +14,16 @@ namespace Service.MultipleServices.ServiceA
     {
         protected AOperations() => throw null;
 
-        internal AOperations(ClientPipeline pipeline, Uri endpoint, string apiVersion) => throw null;
+        internal AOperations(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, string apiVersion) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult OpA(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult OpA(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> OpAAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OpAAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult OpA(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult OpA(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OpAAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OpAAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

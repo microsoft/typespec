@@ -7,30 +7,30 @@ using System.ComponentModel;
 
 namespace Payload.Xml
 {
-    public readonly partial struct Status : IEquatable<Status>
+    public readonly partial struct Status : global::System.IEquatable<global::Payload.Xml.Status>
     {
         public Status(string value) => throw null;
 
-        public static Status Pending => throw null;
+        public static global::Payload.Xml.Status Pending => throw null;
 
-        public static Status Success => throw null;
+        public static global::Payload.Xml.Status Success => throw null;
 
-        public static Status Error => throw null;
+        public static global::Payload.Xml.Status Error => throw null;
 
-        public static bool operator ==(Status left, Status right) => throw null;
+        public static bool operator ==(global::Payload.Xml.Status left, global::Payload.Xml.Status right) => throw null;
 
-        public static bool operator !=(Status left, Status right) => throw null;
+        public static bool operator !=(global::Payload.Xml.Status left, global::Payload.Xml.Status right) => throw null;
 
-        public static implicit operator Status(string value) => throw null;
+        public static implicit operator global::Payload.Xml.Status(string value) => throw null;
 
-        public static implicit operator Status?(string value) => throw null;
+        public static implicit operator global::Payload.Xml.Status?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(Status other) => throw null;
+        public bool Equals(global::Payload.Xml.Status other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class UnknownStringProperty : IJsonModel<UnknownStringProperty>
+    public partial class UnknownStringProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnknownStringProperty>
     {
         internal UnknownStringProperty() => throw null;
 
-        protected virtual UnknownStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.UnknownStringProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<UnknownStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnknownStringProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        UnknownStringProperty IPersistableModel<UnknownStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.UnknownStringProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnknownStringProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<UnknownStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnknownStringProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(UnknownStringProperty unknownStringProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.ValueTypes.UnknownStringProperty unknownStringProperty) => throw null;
 
-        public static explicit operator UnknownStringProperty(ClientResult result) => throw null;
+        public static explicit operator UnknownStringProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<UnknownStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnknownStringProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        UnknownStringProperty IJsonModel<UnknownStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.UnknownStringProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnknownStringProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual UnknownStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.UnknownStringProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     {
         private protected Bird(string kind, int wingspan) => throw null;
 
-        internal Bird(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Bird(string kind, int wingspan, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal string Kind
         {

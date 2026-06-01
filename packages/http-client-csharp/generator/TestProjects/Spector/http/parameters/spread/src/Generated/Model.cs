@@ -14,48 +14,48 @@ namespace Parameters.Spread._Model
     {
         protected Model() => throw null;
 
-        internal Model(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Model(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadAsRequestBody(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestBodyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadAsRequestBody(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadAsRequestBody(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestBodyAsync(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestOnlyWithBody(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestOnlyWithBody(global::Parameters.Spread._Model.BodyParameter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(global::Parameters.Spread._Model.BodyParameter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestWithoutBodyAsync(string name, string testHeader, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequest(string name, string testHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequest(string name, string testHeader, global::Parameters.Spread._Model.BodyParameter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, global::Parameters.Spread._Model.BodyParameter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestMix(string name, string testHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, string prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult SpreadCompositeRequestMix(string name, string testHeader, string prop, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, string prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadCompositeRequestMixAsync(string name, string testHeader, string prop, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

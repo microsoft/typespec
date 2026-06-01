@@ -13,12 +13,12 @@ namespace Routes._PathParameters.LabelExpansion
     {
         protected PathParametersLabelExpansion() => throw null;
 
-        internal PathParametersLabelExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersLabelExpansion(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual PathParametersLabelExpansionStandard GetPathParametersLabelExpansionStandardClient() => throw null;
+        public virtual global::Routes._PathParameters.LabelExpansion.Standard.PathParametersLabelExpansionStandard GetPathParametersLabelExpansionStandardClient() => throw null;
 
-        public virtual PathParametersLabelExpansionExplode GetPathParametersLabelExpansionExplodeClient() => throw null;
+        public virtual global::Routes._PathParameters.LabelExpansion.Explode.PathParametersLabelExpansionExplode GetPathParametersLabelExpansionExplodeClient() => throw null;
     }
 }

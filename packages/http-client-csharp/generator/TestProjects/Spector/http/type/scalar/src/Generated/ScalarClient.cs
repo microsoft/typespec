@@ -10,29 +10,29 @@ namespace _Type.Scalar
 {
     public partial class ScalarClient
     {
-        public ScalarClient() : this(new Uri("http://localhost:3000"), new ScalarClientOptions()) => throw null;
+        public ScalarClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Scalar.ScalarClientOptions()) => throw null;
 
-        internal ScalarClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ScalarClientOptions options) => throw null;
+        internal ScalarClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Scalar.ScalarClientOptions options) => throw null;
 
-        public ScalarClient(Uri endpoint, ScalarClientOptions options) : this(null, endpoint, options) => throw null;
+        public ScalarClient(global::System.Uri endpoint, global::_Type.Scalar.ScalarClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public ScalarClient(ScalarClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public ScalarClient(global::_Type.Scalar.ScalarClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual String GetStringClient() => throw null;
+        public virtual global::_Type.Scalar.String GetStringClient() => throw null;
 
-        public virtual Boolean GetBooleanClient() => throw null;
+        public virtual global::_Type.Scalar.Boolean GetBooleanClient() => throw null;
 
-        public virtual Unknown GetUnknownClient() => throw null;
+        public virtual global::_Type.Scalar.Unknown GetUnknownClient() => throw null;
 
-        public virtual DecimalType GetDecimalTypeClient() => throw null;
+        public virtual global::_Type.Scalar.DecimalType GetDecimalTypeClient() => throw null;
 
-        public virtual Decimal128Type GetDecimal128TypeClient() => throw null;
+        public virtual global::_Type.Scalar.Decimal128Type GetDecimal128TypeClient() => throw null;
 
-        public virtual DecimalVerify GetDecimalVerifyClient() => throw null;
+        public virtual global::_Type.Scalar.DecimalVerify GetDecimalVerifyClient() => throw null;
 
-        public virtual Decimal128Verify GetDecimal128VerifyClient() => throw null;
+        public virtual global::_Type.Scalar.Decimal128Verify GetDecimal128VerifyClient() => throw null;
     }
 }

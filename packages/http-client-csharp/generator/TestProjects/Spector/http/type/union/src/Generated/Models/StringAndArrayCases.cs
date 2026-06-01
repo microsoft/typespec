@@ -8,15 +8,15 @@ namespace _Type.Union
 {
     public partial class StringAndArrayCases
     {
-        public StringAndArrayCases(BinaryData @string, BinaryData array) => throw null;
+        public StringAndArrayCases(global::System.BinaryData @string, global::System.BinaryData array) => throw null;
 
-        public BinaryData String
+        public global::System.BinaryData String
         {
             get => throw null;
             set => throw null;
         }
 
-        public BinaryData Array
+        public global::System.BinaryData Array
         {
             get => throw null;
             set => throw null;

@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadModelArrayDerived : DifferentSpreadModelArrayRecord, IJsonModel<DifferentSpreadModelArrayDerived>
+    public partial class DifferentSpreadModelArrayDerived : global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>
     {
         internal DifferentSpreadModelArrayDerived() => throw null;
 
-        protected override DifferentSpreadModelArrayRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DifferentSpreadModelArrayDerived>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadModelArrayDerived IPersistableModel<DifferentSpreadModelArrayDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DifferentSpreadModelArrayDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(DifferentSpreadModelArrayDerived differentSpreadModelArrayDerived) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived differentSpreadModelArrayDerived) => throw null;
 
-        public static explicit operator DifferentSpreadModelArrayDerived(ClientResult result) => throw null;
+        public static explicit operator DifferentSpreadModelArrayDerived(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<DifferentSpreadModelArrayDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadModelArrayDerived IJsonModel<DifferentSpreadModelArrayDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override DifferentSpreadModelArrayRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

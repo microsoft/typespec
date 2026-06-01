@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.TwoOperationGroup
 {
-    public partial class TwoOperationGroupClientOptions : ClientPipelineOptions
+    public partial class TwoOperationGroupClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public TwoOperationGroupClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal TwoOperationGroupClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal TwoOperationGroupClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

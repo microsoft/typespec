@@ -15,16 +15,16 @@ namespace Payload.MultiPart._FormData.HttpParts
     {
         protected FormDataHttpParts() => throw null;
 
-        internal FormDataHttpParts(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataHttpParts(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult JsonArrayAndFileArray(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> JsonArrayAndFileArrayAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient() => throw null;
+        public virtual global::Payload.MultiPart._FormData.HttpParts.ContentType.FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient() => throw null;
 
-        public virtual FormDataHttpPartsNonString GetFormDataHttpPartsNonStringClient() => throw null;
+        public virtual global::Payload.MultiPart._FormData.HttpParts.NonString.FormDataHttpPartsNonString GetFormDataHttpPartsNonStringClient() => throw null;
     }
 }

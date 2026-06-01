@@ -6,23 +6,23 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Property.Optional
 {
-    [ModelReaderWriterBuildable(typeof(BooleanLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(BytesProperty))]
-    [ModelReaderWriterBuildable(typeof(CollectionsByteProperty))]
-    [ModelReaderWriterBuildable(typeof(CollectionsModelProperty))]
-    [ModelReaderWriterBuildable(typeof(DatetimeProperty))]
-    [ModelReaderWriterBuildable(typeof(DurationProperty))]
-    [ModelReaderWriterBuildable(typeof(FloatLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(IntLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(PlainDateProperty))]
-    [ModelReaderWriterBuildable(typeof(PlainTimeProperty))]
-    [ModelReaderWriterBuildable(typeof(RequiredAndOptionalProperty))]
-    [ModelReaderWriterBuildable(typeof(StringLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(StringProperty))]
-    [ModelReaderWriterBuildable(typeof(UnionFloatLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(UnionIntLiteralProperty))]
-    [ModelReaderWriterBuildable(typeof(UnionStringLiteralProperty))]
-    public partial class _TypePropertyOptionalContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.BooleanLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.BytesProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.CollectionsByteProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.CollectionsModelProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.DatetimeProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.DurationProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.FloatLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.IntLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.PlainDateProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.PlainTimeProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.RequiredAndOptionalProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.StringLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.StringProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.UnionFloatLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.UnionIntLiteralProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Optional.UnionStringLiteralProperty))]
+    public partial class _TypePropertyOptionalContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

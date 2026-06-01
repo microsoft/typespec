@@ -13,67 +13,67 @@ namespace _Type.Model.Visibility
 {
     public partial class VisibilityClient
     {
-        public VisibilityClient() : this(new Uri("http://localhost:3000"), new VisibilityClientOptions()) => throw null;
+        public VisibilityClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Visibility.VisibilityClientOptions()) => throw null;
 
-        internal VisibilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, VisibilityClientOptions options) => throw null;
+        internal VisibilityClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Visibility.VisibilityClientOptions options) => throw null;
 
-        public VisibilityClient(Uri endpoint, VisibilityClientOptions options) : this(null, endpoint, options) => throw null;
+        public VisibilityClient(global::System.Uri endpoint, global::_Type.Model.Visibility.VisibilityClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public VisibilityClient(VisibilityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public VisibilityClient(global::_Type.Model.Visibility.VisibilityClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult GetModel(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult GetModel(int queryProp, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> GetModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetModelAsync(int queryProp, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<VisibilityModel> GetModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Visibility.VisibilityModel> GetModel(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Visibility.VisibilityModel>> GetModelAsync(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult HeadModel(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult HeadModel(int queryProp, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> HeadModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadModelAsync(int queryProp, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult HeadModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult HeadModel(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> HeadModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadModelAsync(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutModel(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutModelAsync(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PatchModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PatchModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PatchModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PostModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PostModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PostModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PostModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult PostModel(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PostModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostModelAsync(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult DeleteModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult DeleteModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> DeleteModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DeleteModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult DeleteModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult DeleteModel(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DeleteModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DeleteModelAsync(global::_Type.Model.Visibility.VisibilityModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutReadOnlyModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutReadOnlyModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutReadOnlyModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutReadOnlyModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ReadOnlyModel> PutReadOnlyModel(ReadOnlyModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Visibility.ReadOnlyModel> PutReadOnlyModel(global::_Type.Model.Visibility.ReadOnlyModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ReadOnlyModel>> PutReadOnlyModelAsync(ReadOnlyModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Visibility.ReadOnlyModel>> PutReadOnlyModelAsync(global::_Type.Model.Visibility.ReadOnlyModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

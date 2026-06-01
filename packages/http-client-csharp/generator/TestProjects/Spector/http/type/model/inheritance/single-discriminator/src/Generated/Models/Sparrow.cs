@@ -7,10 +7,10 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class Sparrow : Bird
+    public partial class Sparrow : global::_Type.Model.Inheritance.SingleDiscriminator.Bird
     {
         public Sparrow(int wingspan) : base("sparrow", wingspan) => throw null;
 
-        internal Sparrow(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
+        internal Sparrow(string kind, int wingspan, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
     }
 }

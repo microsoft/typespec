@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Server.Versions.Versioned
 {
-    [Experimental("SCME0002")]
-    public partial class VersionedClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class VersionedClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public VersionedClientOptions Options
+        public global::Server.Versions.Versioned.VersionedClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

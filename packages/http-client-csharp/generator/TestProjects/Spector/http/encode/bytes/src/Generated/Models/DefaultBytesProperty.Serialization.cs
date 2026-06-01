@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode.Bytes
 {
-    public partial class DefaultBytesProperty : IJsonModel<DefaultBytesProperty>
+    public partial class DefaultBytesProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Bytes.DefaultBytesProperty>
     {
         internal DefaultBytesProperty() => throw null;
 
-        protected virtual DefaultBytesProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Bytes.DefaultBytesProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DefaultBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        DefaultBytesProperty IPersistableModel<DefaultBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Bytes.DefaultBytesProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DefaultBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(DefaultBytesProperty defaultBytesProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Bytes.DefaultBytesProperty defaultBytesProperty) => throw null;
 
-        public static explicit operator DefaultBytesProperty(ClientResult result) => throw null;
+        public static explicit operator DefaultBytesProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<DefaultBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Bytes.DefaultBytesProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        DefaultBytesProperty IJsonModel<DefaultBytesProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Bytes.DefaultBytesProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Bytes.DefaultBytesProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual DefaultBytesProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Bytes.DefaultBytesProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

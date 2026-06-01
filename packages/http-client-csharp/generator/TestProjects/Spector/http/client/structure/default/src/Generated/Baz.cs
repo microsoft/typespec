@@ -12,10 +12,10 @@ namespace Client.Structure.Service._Baz
     {
         protected Baz() => throw null;
 
-        internal Baz(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Baz(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual BazFoo GetBazFooClient() => throw null;
+        public virtual global::Client.Structure.Service._Baz.BazFoo GetBazFooClient() => throw null;
     }
 }

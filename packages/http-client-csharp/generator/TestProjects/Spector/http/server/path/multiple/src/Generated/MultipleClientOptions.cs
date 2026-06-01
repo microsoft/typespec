@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Server.Path.Multiple
 {
-    public partial class MultipleClientOptions : ClientPipelineOptions
+    public partial class MultipleClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V1_0;
+        private const global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion LatestVersion = global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion.V1_0;
 
-        public MultipleClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        public MultipleClientOptions(global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [Experimental("SCME0002")]
-        internal MultipleClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal MultipleClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

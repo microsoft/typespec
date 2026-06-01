@@ -10,43 +10,43 @@ namespace _Type._Array
 {
     public partial class ArrayClient
     {
-        public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions()) => throw null;
+        public ArrayClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type._Array.ArrayClientOptions()) => throw null;
 
-        internal ArrayClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ArrayClientOptions options) => throw null;
+        internal ArrayClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type._Array.ArrayClientOptions options) => throw null;
 
-        public ArrayClient(Uri endpoint, ArrayClientOptions options) : this(null, endpoint, options) => throw null;
+        public ArrayClient(global::System.Uri endpoint, global::_Type._Array.ArrayClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public ArrayClient(ArrayClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public ArrayClient(global::_Type._Array.ArrayClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Int32Value GetInt32ValueClient() => throw null;
+        public virtual global::_Type._Array.Int32Value GetInt32ValueClient() => throw null;
 
-        public virtual Int64Value GetInt64ValueClient() => throw null;
+        public virtual global::_Type._Array.Int64Value GetInt64ValueClient() => throw null;
 
-        public virtual BooleanValue GetBooleanValueClient() => throw null;
+        public virtual global::_Type._Array.BooleanValue GetBooleanValueClient() => throw null;
 
-        public virtual StringValue GetStringValueClient() => throw null;
+        public virtual global::_Type._Array.StringValue GetStringValueClient() => throw null;
 
-        public virtual Float32Value GetFloat32ValueClient() => throw null;
+        public virtual global::_Type._Array.Float32Value GetFloat32ValueClient() => throw null;
 
-        public virtual DatetimeValue GetDatetimeValueClient() => throw null;
+        public virtual global::_Type._Array.DatetimeValue GetDatetimeValueClient() => throw null;
 
-        public virtual DurationValue GetDurationValueClient() => throw null;
+        public virtual global::_Type._Array.DurationValue GetDurationValueClient() => throw null;
 
-        public virtual UnknownValue GetUnknownValueClient() => throw null;
+        public virtual global::_Type._Array.UnknownValue GetUnknownValueClient() => throw null;
 
-        public virtual ModelValue GetModelValueClient() => throw null;
+        public virtual global::_Type._Array.ModelValue GetModelValueClient() => throw null;
 
-        public virtual NullableFloatValue GetNullableFloatValueClient() => throw null;
+        public virtual global::_Type._Array.NullableFloatValue GetNullableFloatValueClient() => throw null;
 
-        public virtual NullableInt32Value GetNullableInt32ValueClient() => throw null;
+        public virtual global::_Type._Array.NullableInt32Value GetNullableInt32ValueClient() => throw null;
 
-        public virtual NullableBooleanValue GetNullableBooleanValueClient() => throw null;
+        public virtual global::_Type._Array.NullableBooleanValue GetNullableBooleanValueClient() => throw null;
 
-        public virtual NullableStringValue GetNullableStringValueClient() => throw null;
+        public virtual global::_Type._Array.NullableStringValue GetNullableStringValueClient() => throw null;
 
-        public virtual NullableModelValue GetNullableModelValueClient() => throw null;
+        public virtual global::_Type._Array.NullableModelValue GetNullableModelValueClient() => throw null;
     }
 }

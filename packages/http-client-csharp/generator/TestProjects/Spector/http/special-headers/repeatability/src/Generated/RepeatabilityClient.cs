@@ -13,23 +13,23 @@ namespace SpecialHeaders.Repeatability
 {
     public partial class RepeatabilityClient
     {
-        public RepeatabilityClient() : this(new Uri("http://localhost:3000"), new RepeatabilityClientOptions()) => throw null;
+        public RepeatabilityClient() : this(new global::System.Uri("http://localhost:3000"), new global::SpecialHeaders.Repeatability.RepeatabilityClientOptions()) => throw null;
 
-        internal RepeatabilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RepeatabilityClientOptions options) => throw null;
+        internal RepeatabilityClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::SpecialHeaders.Repeatability.RepeatabilityClientOptions options) => throw null;
 
-        public RepeatabilityClient(Uri endpoint, RepeatabilityClientOptions options) : this(null, endpoint, options) => throw null;
+        public RepeatabilityClient(global::System.Uri endpoint, global::SpecialHeaders.Repeatability.RepeatabilityClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public RepeatabilityClient(RepeatabilityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public RepeatabilityClient(global::SpecialHeaders.Repeatability.RepeatabilityClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult ImmediateSuccess(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult ImmediateSuccess(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ImmediateSuccessAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ImmediateSuccessAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult ImmediateSuccess(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult ImmediateSuccess(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ImmediateSuccessAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

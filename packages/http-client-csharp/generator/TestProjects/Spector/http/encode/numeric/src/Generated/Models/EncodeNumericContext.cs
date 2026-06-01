@@ -7,10 +7,10 @@ using Encode.Numeric._Property;
 
 namespace Encode.Numeric
 {
-    [ModelReaderWriterBuildable(typeof(SafeintAsStringProperty))]
-    [ModelReaderWriterBuildable(typeof(Uint32AsStringProperty))]
-    [ModelReaderWriterBuildable(typeof(Uint8AsStringProperty))]
-    public partial class EncodeNumericContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Numeric._Property.SafeintAsStringProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Numeric._Property.Uint32AsStringProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Numeric._Property.Uint8AsStringProperty))]
+    public partial class EncodeNumericContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    public partial class Golden : Dog, IJsonModel<Golden>
+    public partial class Golden : global::_Type.Model.Inheritance.EnumDiscriminator.Dog, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>
     {
         internal Golden() => throw null;
 
-        protected override Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.EnumDiscriminator.Dog PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Golden>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Golden IPersistableModel<Golden>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Golden global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Golden>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<Golden>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Golden IJsonModel<Golden>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Golden global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Golden>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override Dog JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.EnumDiscriminator.Dog JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

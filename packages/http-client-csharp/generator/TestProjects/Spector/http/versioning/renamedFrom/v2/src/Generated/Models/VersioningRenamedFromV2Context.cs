@@ -7,8 +7,8 @@ using Versioning.RenamedFrom;
 
 namespace Versioning.RenamedFrom.V2
 {
-    [ModelReaderWriterBuildable(typeof(NewModel))]
-    public partial class VersioningRenamedFromV2Context : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.RenamedFrom.NewModel))]
+    public partial class VersioningRenamedFromV2Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

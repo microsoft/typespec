@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    public partial class NestedDiscriminatorClientOptions : ClientPipelineOptions
+    public partial class NestedDiscriminatorClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public NestedDiscriminatorClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal NestedDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal NestedDiscriminatorClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

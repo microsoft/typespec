@@ -6,6 +6,6 @@ namespace _Type.Union
 {
     public partial class GetResponse7
     {
-        public StringAndArrayCases Prop => throw null;
+        public global::_Type.Union.StringAndArrayCases Prop => throw null;
     }
 }

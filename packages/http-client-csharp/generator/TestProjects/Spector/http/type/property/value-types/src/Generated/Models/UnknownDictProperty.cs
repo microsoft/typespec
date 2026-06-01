@@ -8,9 +8,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class UnknownDictProperty
     {
-        public UnknownDictProperty(BinaryData @property) => throw null;
+        public UnknownDictProperty(global::System.BinaryData @property) => throw null;
 
-        public BinaryData Property
+        public global::System.BinaryData Property
         {
             get => throw null;
             set => throw null;

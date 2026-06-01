@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Union
 {
-    public partial class MixedTypesCases : IJsonModel<MixedTypesCases>
+    public partial class MixedTypesCases : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.MixedTypesCases>
     {
         internal MixedTypesCases() => throw null;
 
-        protected virtual MixedTypesCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Union.MixedTypesCases PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<MixedTypesCases>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.MixedTypesCases>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        MixedTypesCases IPersistableModel<MixedTypesCases>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Union.MixedTypesCases global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.MixedTypesCases>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<MixedTypesCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.MixedTypesCases>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<MixedTypesCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.MixedTypesCases>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        MixedTypesCases IJsonModel<MixedTypesCases>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Union.MixedTypesCases global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.MixedTypesCases>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual MixedTypesCases JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Union.MixedTypesCases JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

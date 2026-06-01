@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class Decimal128Property : IJsonModel<Decimal128Property>
+    public partial class Decimal128Property : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>
     {
         internal Decimal128Property() => throw null;
 
-        protected virtual Decimal128Property PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.Decimal128Property PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Decimal128Property>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Decimal128Property IPersistableModel<Decimal128Property>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.Decimal128Property global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Decimal128Property>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Decimal128Property decimal128Property) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.ValueTypes.Decimal128Property decimal128Property) => throw null;
 
-        public static explicit operator Decimal128Property(ClientResult result) => throw null;
+        public static explicit operator Decimal128Property(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<Decimal128Property>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Decimal128Property IJsonModel<Decimal128Property>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.Decimal128Property global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Decimal128Property JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.Decimal128Property JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

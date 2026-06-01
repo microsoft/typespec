@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Versioning.MadeOptional
 {
-    public partial class MadeOptionalClientOptions : ClientPipelineOptions
+    public partial class MadeOptionalClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V2;
+        private const global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion LatestVersion = global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion.V2;
 
-        public MadeOptionalClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        public MadeOptionalClientOptions(global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [Experimental("SCME0002")]
-        internal MadeOptionalClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal MadeOptionalClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

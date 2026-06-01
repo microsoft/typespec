@@ -8,9 +8,9 @@ namespace Encode.Datetime
 {
     public partial class UnixTimestampDatetimeProperty
     {
-        public UnixTimestampDatetimeProperty(DateTimeOffset value) => throw null;
+        public UnixTimestampDatetimeProperty(global::System.DateTimeOffset value) => throw null;
 
-        public DateTimeOffset Value
+        public global::System.DateTimeOffset Value
         {
             get => throw null;
             set => throw null;

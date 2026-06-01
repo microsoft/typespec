@@ -9,20 +9,20 @@ namespace _Type.Property.Nullable
 {
     public static partial class TypePropertyNullableModelFactory
     {
-        public static StringProperty StringProperty(string requiredProperty = default, string nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.StringProperty StringProperty(string requiredProperty = default, string nullableProperty = default) => throw null;
 
-        public static BytesProperty BytesProperty(string requiredProperty = default, BinaryData nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.BytesProperty BytesProperty(string requiredProperty = default, global::System.BinaryData nullableProperty = default) => throw null;
 
-        public static DatetimeProperty DatetimeProperty(string requiredProperty = default, DateTimeOffset? nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.DatetimeProperty DatetimeProperty(string requiredProperty = default, global::System.DateTimeOffset? nullableProperty = default) => throw null;
 
-        public static DurationProperty DurationProperty(string requiredProperty = default, TimeSpan? nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.DurationProperty DurationProperty(string requiredProperty = default, global::System.TimeSpan? nullableProperty = default) => throw null;
 
-        public static CollectionsByteProperty CollectionsByteProperty(string requiredProperty = default, IEnumerable<BinaryData> nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.CollectionsByteProperty CollectionsByteProperty(string requiredProperty = default, global::System.Collections.Generic.IEnumerable<global::System.BinaryData> nullableProperty = default) => throw null;
 
-        public static CollectionsModelProperty CollectionsModelProperty(string requiredProperty = default, IEnumerable<InnerModel> nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.CollectionsModelProperty CollectionsModelProperty(string requiredProperty = default, global::System.Collections.Generic.IEnumerable<global::_Type.Property.Nullable.InnerModel> nullableProperty = default) => throw null;
 
-        public static InnerModel InnerModel(string @property = default) => throw null;
+        public static global::_Type.Property.Nullable.InnerModel InnerModel(string @property = default) => throw null;
 
-        public static CollectionsStringProperty CollectionsStringProperty(string requiredProperty = default, IEnumerable<string> nullableProperty = default) => throw null;
+        public static global::_Type.Property.Nullable.CollectionsStringProperty CollectionsStringProperty(string requiredProperty = default, global::System.Collections.Generic.IEnumerable<string> nullableProperty = default) => throw null;
     }
 }

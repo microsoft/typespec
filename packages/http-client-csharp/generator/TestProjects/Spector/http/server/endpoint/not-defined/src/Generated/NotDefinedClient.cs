@@ -15,23 +15,23 @@ namespace Server.Endpoint.NotDefined
     {
         protected NotDefinedClient() => throw null;
 
-        public NotDefinedClient(Uri endpoint) : this(endpoint, new NotDefinedClientOptions()) => throw null;
+        public NotDefinedClient(global::System.Uri endpoint) : this(endpoint, new global::Server.Endpoint.NotDefined.NotDefinedClientOptions()) => throw null;
 
-        internal NotDefinedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotDefinedClientOptions options) => throw null;
+        internal NotDefinedClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Server.Endpoint.NotDefined.NotDefinedClientOptions options) => throw null;
 
-        public NotDefinedClient(Uri endpoint, NotDefinedClientOptions options) : this(null, endpoint, options) => throw null;
+        public NotDefinedClient(global::System.Uri endpoint, global::Server.Endpoint.NotDefined.NotDefinedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public NotDefinedClient(NotDefinedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public NotDefinedClient(global::Server.Endpoint.NotDefined.NotDefinedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Valid(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Valid(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Valid(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

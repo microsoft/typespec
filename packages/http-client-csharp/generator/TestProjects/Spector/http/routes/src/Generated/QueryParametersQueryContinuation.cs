@@ -13,12 +13,12 @@ namespace Routes._QueryParameters.QueryContinuation
     {
         protected QueryParametersQueryContinuation() => throw null;
 
-        internal QueryParametersQueryContinuation(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal QueryParametersQueryContinuation(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual QueryParametersQueryContinuationStandard GetQueryParametersQueryContinuationStandardClient() => throw null;
+        public virtual global::Routes._QueryParameters.QueryContinuation.Standard.QueryParametersQueryContinuationStandard GetQueryParametersQueryContinuationStandardClient() => throw null;
 
-        public virtual QueryParametersQueryContinuationExplode GetQueryParametersQueryContinuationExplodeClient() => throw null;
+        public virtual global::Routes._QueryParameters.QueryContinuation.Explode.QueryParametersQueryContinuationExplode GetQueryParametersQueryContinuationExplodeClient() => throw null;
     }
 }

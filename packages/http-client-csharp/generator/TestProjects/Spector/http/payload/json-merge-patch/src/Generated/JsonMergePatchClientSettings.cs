@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.JsonMergePatch
 {
-    [Experimental("SCME0002")]
-    public partial class JsonMergePatchClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class JsonMergePatchClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public JsonMergePatchClientOptions Options
+        public global::Payload.JsonMergePatch.JsonMergePatchClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

@@ -6,15 +6,15 @@ namespace Payload.Xml
 {
     public partial class ModelWithRenamedFields
     {
-        public ModelWithRenamedFields(SimpleModel inputData, SimpleModel outputData) => throw null;
+        public ModelWithRenamedFields(global::Payload.Xml.SimpleModel inputData, global::Payload.Xml.SimpleModel outputData) => throw null;
 
-        public SimpleModel InputData
+        public global::Payload.Xml.SimpleModel InputData
         {
             get => throw null;
             set => throw null;
         }
 
-        public SimpleModel OutputData
+        public global::Payload.Xml.SimpleModel OutputData
         {
             get => throw null;
             set => throw null;

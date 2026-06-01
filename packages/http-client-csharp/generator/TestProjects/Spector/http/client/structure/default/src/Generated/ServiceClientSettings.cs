@@ -9,27 +9,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.Service
 {
-    [Experimental("SCME0002")]
-    public partial class ServiceClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class ServiceClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ClientType? Client
+        public global::Client.Structure.Service.ClientType? Client
         {
             get => throw null;
             set => throw null;
         }
 
-        public ServiceClientOptions Options
+        public global::Client.Structure.Service.ServiceClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

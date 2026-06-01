@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class NeverProperty : IJsonModel<NeverProperty>
+    public partial class NeverProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.NeverProperty>
     {
-        protected virtual NeverProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.NeverProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<NeverProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.NeverProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        NeverProperty IPersistableModel<NeverProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.NeverProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.NeverProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<NeverProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.NeverProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(NeverProperty neverProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.ValueTypes.NeverProperty neverProperty) => throw null;
 
-        public static explicit operator NeverProperty(ClientResult result) => throw null;
+        public static explicit operator NeverProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<NeverProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.NeverProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        NeverProperty IJsonModel<NeverProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.ValueTypes.NeverProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.NeverProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual NeverProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.ValueTypes.NeverProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

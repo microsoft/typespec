@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type._Enum.Extensible
 {
-    [Experimental("SCME0002")]
-    public partial class ExtensibleClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class ExtensibleClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ExtensibleClientOptions Options
+        public global::_Type._Enum.Extensible.ExtensibleClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

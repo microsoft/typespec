@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Service.MultipleServices
 {
-    public partial class ServiceMultipleServicesContext : ModelReaderWriterContext
+    public partial class ServiceMultipleServicesContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

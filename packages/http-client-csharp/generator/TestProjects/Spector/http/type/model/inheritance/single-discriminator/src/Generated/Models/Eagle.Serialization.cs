@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class Eagle : Bird, IJsonModel<Eagle>
+    public partial class Eagle : global::_Type.Model.Inheritance.SingleDiscriminator.Bird, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>
     {
         internal Eagle() => throw null;
 
-        protected override Bird PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.SingleDiscriminator.Bird PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Eagle>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Eagle IPersistableModel<Eagle>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.SingleDiscriminator.Eagle global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Eagle>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<Eagle>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Eagle IJsonModel<Eagle>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.SingleDiscriminator.Eagle global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Eagle>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override Bird JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.SingleDiscriminator.Bird JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

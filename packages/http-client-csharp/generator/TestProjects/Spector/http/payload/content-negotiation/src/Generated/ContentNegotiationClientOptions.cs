@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.ContentNegotiation
 {
-    public partial class ContentNegotiationClientOptions : ClientPipelineOptions
+    public partial class ContentNegotiationClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public ContentNegotiationClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal ContentNegotiationClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal ContentNegotiationClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

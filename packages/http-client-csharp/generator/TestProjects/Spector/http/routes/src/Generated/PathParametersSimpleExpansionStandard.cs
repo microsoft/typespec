@@ -15,32 +15,32 @@ namespace Routes._PathParameters.SimpleExpansion.Standard
     {
         protected PathParametersSimpleExpansionStandard() => throw null;
 
-        internal PathParametersSimpleExpansionStandard(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersSimpleExpansionStandard(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Primitive(string @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Primitive(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PrimitiveAsync(string @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PrimitiveAsync(string @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Primitive(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Primitive(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PrimitiveAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PrimitiveAsync(string @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Array(IEnumerable<string> @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Array(global::System.Collections.Generic.IEnumerable<string> @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ArrayAsync(global::System.Collections.Generic.IEnumerable<string> @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Array(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Array(global::System.Collections.Generic.IEnumerable<string> @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ArrayAsync(global::System.Collections.Generic.IEnumerable<string> @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Record(IDictionary<string, int> @param, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Record(global::System.Collections.Generic.IDictionary<string, int> @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RecordAsync(global::System.Collections.Generic.IDictionary<string, int> @param, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Record(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Record(global::System.Collections.Generic.IDictionary<string, int> @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RecordAsync(global::System.Collections.Generic.IDictionary<string, int> @param, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

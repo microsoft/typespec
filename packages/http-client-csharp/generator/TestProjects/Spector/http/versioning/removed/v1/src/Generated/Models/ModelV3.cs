@@ -6,7 +6,7 @@ namespace Versioning.Removed
 {
     public partial class ModelV3
     {
-        public ModelV3(string id, EnumV3 enumProp) => throw null;
+        public ModelV3(string id, global::Versioning.Removed.EnumV3 enumProp) => throw null;
 
         public string Id
         {
@@ -14,7 +14,7 @@ namespace Versioning.Removed
             set => throw null;
         }
 
-        public EnumV3 EnumProp
+        public global::Versioning.Removed.EnumV3 EnumProp
         {
             get => throw null;
             set => throw null;

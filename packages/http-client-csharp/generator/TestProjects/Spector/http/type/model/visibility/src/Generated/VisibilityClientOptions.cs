@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Visibility
 {
-    public partial class VisibilityClientOptions : ClientPipelineOptions
+    public partial class VisibilityClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public VisibilityClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal VisibilityClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal VisibilityClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

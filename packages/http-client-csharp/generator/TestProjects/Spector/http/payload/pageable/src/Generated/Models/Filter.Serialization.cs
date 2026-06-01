@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
 {
-    public partial class Filter : IJsonModel<Filter>
+    public partial class Filter : global::System.ClientModel.Primitives.IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>
     {
         internal Filter() => throw null;
 
-        protected virtual Filter PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Filter>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Filter IPersistableModel<Filter>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Filter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Filter filter) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter filter) => throw null;
 
-        void IJsonModel<Filter>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Filter IJsonModel<Filter>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter global::System.ClientModel.Primitives.IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Filter JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

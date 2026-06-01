@@ -8,6 +8,6 @@ namespace Versioning.MadeOptional.V1
 {
     public static partial class VersioningMadeOptionalV1ModelFactory
     {
-        public static TestModel TestModel(string prop = default, string changedProp = default) => throw null;
+        public static global::Versioning.MadeOptional.TestModel TestModel(string prop = default, string changedProp = default) => throw null;
     }
 }

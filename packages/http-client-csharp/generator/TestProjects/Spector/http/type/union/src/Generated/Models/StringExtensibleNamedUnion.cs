@@ -7,28 +7,28 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct StringExtensibleNamedUnion : IEquatable<StringExtensibleNamedUnion>
+    public readonly partial struct StringExtensibleNamedUnion : global::System.IEquatable<global::_Type.Union.StringExtensibleNamedUnion>
     {
         public StringExtensibleNamedUnion(string value) => throw null;
 
-        public static StringExtensibleNamedUnion OptionB => throw null;
+        public static global::_Type.Union.StringExtensibleNamedUnion OptionB => throw null;
 
-        public static StringExtensibleNamedUnion C => throw null;
+        public static global::_Type.Union.StringExtensibleNamedUnion C => throw null;
 
-        public static bool operator ==(StringExtensibleNamedUnion left, StringExtensibleNamedUnion right) => throw null;
+        public static bool operator ==(global::_Type.Union.StringExtensibleNamedUnion left, global::_Type.Union.StringExtensibleNamedUnion right) => throw null;
 
-        public static bool operator !=(StringExtensibleNamedUnion left, StringExtensibleNamedUnion right) => throw null;
+        public static bool operator !=(global::_Type.Union.StringExtensibleNamedUnion left, global::_Type.Union.StringExtensibleNamedUnion right) => throw null;
 
-        public static implicit operator StringExtensibleNamedUnion(string value) => throw null;
+        public static implicit operator global::_Type.Union.StringExtensibleNamedUnion(string value) => throw null;
 
-        public static implicit operator StringExtensibleNamedUnion?(string value) => throw null;
+        public static implicit operator global::_Type.Union.StringExtensibleNamedUnion?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(StringExtensibleNamedUnion other) => throw null;
+        public bool Equals(global::_Type.Union.StringExtensibleNamedUnion other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

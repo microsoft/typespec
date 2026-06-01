@@ -14,32 +14,32 @@ namespace Documentation._Lists
     {
         protected Lists() => throw null;
 
-        internal Lists(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Lists(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult BulletPointsOp(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult BulletPointsOp(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsOpAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BulletPointsOpAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult BulletPointsOp(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult BulletPointsOp(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsOpAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BulletPointsOpAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult BulletPointsModel(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult BulletPointsModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BulletPointsModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult BulletPointsModel(BulletPointsModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult BulletPointsModel(global::Documentation._Lists.BulletPointsModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsModelAsync(BulletPointsModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BulletPointsModelAsync(global::Documentation._Lists.BulletPointsModel input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Numbered(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Numbered(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NumberedAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NumberedAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Numbered(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Numbered(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NumberedAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NumberedAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

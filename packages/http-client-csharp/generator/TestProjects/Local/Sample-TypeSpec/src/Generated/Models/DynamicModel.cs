@@ -19,10 +19,10 @@ namespace SampleTypeSpec
     /// <summary> A sample dynamic model. </summary>
     public partial class DynamicModel
     {
-        [Experimental("SCME0001")]
-        private JsonPatch _patch;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        private global::System.ClientModel.Primitives.JsonPatch _patch;
 
-        /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.DynamicModel"/>. </summary>
         /// <param name="name"></param>
         /// <param name="requiredNullableList"></param>
         /// <param name="requiredNullableDictionary"></param>
@@ -34,23 +34,23 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryOfDictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
-        public DynamicModel(string name, IEnumerable<int> requiredNullableList, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryOfDictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
+        public DynamicModel(string name, global::System.Collections.Generic.IEnumerable<int> requiredNullableList, global::System.Collections.Generic.IDictionary<string, int> requiredNullableDictionary, global::System.Collections.Generic.IDictionary<string, int> primitiveDictionary, global::SampleTypeSpec.AnotherDynamicModel foo, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.AnotherDynamicModel> listFoo, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo)
         {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(primitiveDictionary, nameof(primitiveDictionary));
-            Argument.AssertNotNull(foo, nameof(foo));
-            Argument.AssertNotNull(listFoo, nameof(listFoo));
-            Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
-            Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
-            Argument.AssertNotNull(dictionaryOfDictionaryFoo, nameof(dictionaryOfDictionaryFoo));
-            Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
-            Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
+            global::SampleTypeSpec.Argument.AssertNotNull(primitiveDictionary, nameof(primitiveDictionary));
+            global::SampleTypeSpec.Argument.AssertNotNull(foo, nameof(foo));
+            global::SampleTypeSpec.Argument.AssertNotNull(listFoo, nameof(listFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryOfDictionaryFoo, nameof(dictionaryOfDictionaryFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
+            global::SampleTypeSpec.Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
 
             Name = name;
-            OptionalNullableList = new ChangeTrackingList<int>();
+            OptionalNullableList = new global::SampleTypeSpec.ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
-            OptionalNullableDictionary = new ChangeTrackingDictionary<string, int>();
+            OptionalNullableDictionary = new global::SampleTypeSpec.ChangeTrackingDictionary<string, int>();
             RequiredNullableDictionary = requiredNullableDictionary;
             PrimitiveDictionary = primitiveDictionary;
             Foo = foo;
@@ -62,7 +62,7 @@ namespace SampleTypeSpec
             ListOfDictionaryFoo = listOfDictionaryFoo.ToList();
         }
 
-        /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.DynamicModel"/>. </summary>
         /// <param name="name"></param>
         /// <param name="optionalUnknown"></param>
         /// <param name="optionalInt"></param>
@@ -80,7 +80,7 @@ namespace SampleTypeSpec
         /// <param name="listOfDictionaryFoo"></param>
         /// <param name="patch"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, in JsonPatch patch)
+        internal DynamicModel(string name, global::System.BinaryData optionalUnknown, int? optionalInt, global::System.Collections.Generic.IList<int> optionalNullableList, global::System.Collections.Generic.IList<int> requiredNullableList, global::System.Collections.Generic.IDictionary<string, int> optionalNullableDictionary, global::System.Collections.Generic.IDictionary<string, int> requiredNullableDictionary, global::System.Collections.Generic.IDictionary<string, int> primitiveDictionary, global::SampleTypeSpec.AnotherDynamicModel foo, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel> listFoo, global::System.Collections.Generic.IList<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo, global::System.Collections.Generic.IList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo, in global::System.ClientModel.Primitives.JsonPatch patch)
         {
             Name = name;
             OptionalUnknown = optionalUnknown;
@@ -103,18 +103,18 @@ namespace SampleTypeSpec
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Gets the Patch. </summary>
-        [JsonIgnore]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Experimental("SCME0001")]
-        public ref JsonPatch Patch => ref _patch;
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
 
         /// <summary> Gets the Name. </summary>
         public string Name { get; }
 
         /// <summary>
         /// Gets or sets the OptionalUnknown.
-        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para> To assign an object to this property use <see cref="global::System.BinaryData.FromObjectAsJson{T}(T, global::System.Text.Json.JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="global::System.BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
@@ -137,45 +137,45 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData OptionalUnknown { get; set; }
+        public global::System.BinaryData OptionalUnknown { get; set; }
 
         /// <summary> Gets or sets the OptionalInt. </summary>
         public int? OptionalInt { get; set; }
 
         /// <summary> Gets or sets the OptionalNullableList. </summary>
-        public IList<int> OptionalNullableList { get; set; }
+        public global::System.Collections.Generic.IList<int> OptionalNullableList { get; set; }
 
         /// <summary> Gets the RequiredNullableList. </summary>
-        public IList<int> RequiredNullableList { get; }
+        public global::System.Collections.Generic.IList<int> RequiredNullableList { get; }
 
         /// <summary> Gets or sets the OptionalNullableDictionary. </summary>
-        public IDictionary<string, int> OptionalNullableDictionary { get; set; }
+        public global::System.Collections.Generic.IDictionary<string, int> OptionalNullableDictionary { get; set; }
 
         /// <summary> Gets the RequiredNullableDictionary. </summary>
-        public IDictionary<string, int> RequiredNullableDictionary { get; }
+        public global::System.Collections.Generic.IDictionary<string, int> RequiredNullableDictionary { get; }
 
         /// <summary> Gets the PrimitiveDictionary. </summary>
-        public IDictionary<string, int> PrimitiveDictionary { get; }
+        public global::System.Collections.Generic.IDictionary<string, int> PrimitiveDictionary { get; }
 
         /// <summary> Gets the Foo. </summary>
-        public AnotherDynamicModel Foo { get; }
+        public global::SampleTypeSpec.AnotherDynamicModel Foo { get; }
 
         /// <summary> Gets the ListFoo. </summary>
-        public IList<AnotherDynamicModel> ListFoo { get; }
+        public global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel> ListFoo { get; }
 
         /// <summary> Gets the ListOfListFoo. </summary>
-        public IList<IList<AnotherDynamicModel>> ListOfListFoo { get; }
+        public global::System.Collections.Generic.IList<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> ListOfListFoo { get; }
 
         /// <summary> Gets the DictionaryFoo. </summary>
-        public IDictionary<string, AnotherDynamicModel> DictionaryFoo { get; }
+        public global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> DictionaryFoo { get; }
 
         /// <summary> Gets the DictionaryOfDictionaryFoo. </summary>
-        public IDictionary<string, IDictionary<string, AnotherDynamicModel>> DictionaryOfDictionaryFoo { get; }
+        public global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> DictionaryOfDictionaryFoo { get; }
 
         /// <summary> Gets the DictionaryListFoo. </summary>
-        public IDictionary<string, IList<AnotherDynamicModel>> DictionaryListFoo { get; }
+        public global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> DictionaryListFoo { get; }
 
         /// <summary> Gets the ListOfDictionaryFoo. </summary>
-        public IList<IDictionary<string, AnotherDynamicModel>> ListOfDictionaryFoo { get; }
+        public global::System.Collections.Generic.IList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> ListOfDictionaryFoo { get; }
     }
 }

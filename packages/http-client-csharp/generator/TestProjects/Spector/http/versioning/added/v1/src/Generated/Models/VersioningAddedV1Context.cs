@@ -7,8 +7,8 @@ using Versioning.Added;
 
 namespace Versioning.Added.V1
 {
-    [ModelReaderWriterBuildable(typeof(ModelV1))]
-    public partial class VersioningAddedV1Context : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.Added.ModelV1))]
+    public partial class VersioningAddedV1Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

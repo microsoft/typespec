@@ -14,32 +14,32 @@ namespace Encode.Numeric._Property
     {
         protected Property() => throw null;
 
-        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Property(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult SafeintAsString(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult SafeintAsString(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SafeintAsStringAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SafeintAsStringAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<SafeintAsStringProperty> SafeintAsString(SafeintAsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.SafeintAsStringProperty> SafeintAsString(global::Encode.Numeric._Property.SafeintAsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SafeintAsStringProperty>> SafeintAsStringAsync(SafeintAsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.SafeintAsStringProperty>> SafeintAsStringAsync(global::Encode.Numeric._Property.SafeintAsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Uint32AsStringOptional(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Uint32AsStringOptional(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> Uint32AsStringOptionalAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Uint32AsStringOptionalAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Uint32AsStringProperty> Uint32AsStringOptional(Uint32AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.Uint32AsStringProperty> Uint32AsStringOptional(global::Encode.Numeric._Property.Uint32AsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Uint32AsStringProperty>> Uint32AsStringOptionalAsync(Uint32AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.Uint32AsStringProperty>> Uint32AsStringOptionalAsync(global::Encode.Numeric._Property.Uint32AsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Uint8AsString(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult Uint8AsString(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> Uint8AsStringAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Uint8AsStringAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Uint8AsStringProperty> Uint8AsString(Uint8AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.Uint8AsStringProperty> Uint8AsString(global::Encode.Numeric._Property.Uint8AsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Uint8AsStringProperty>> Uint8AsStringAsync(Uint8AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Numeric._Property.Uint8AsStringProperty>> Uint8AsStringAsync(global::Encode.Numeric._Property.Uint8AsStringProperty value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

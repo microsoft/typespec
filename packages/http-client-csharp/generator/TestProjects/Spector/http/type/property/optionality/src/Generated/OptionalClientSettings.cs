@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.Optional
 {
-    [Experimental("SCME0002")]
-    public partial class OptionalClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class OptionalClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public OptionalClientOptions Options
+        public global::_Type.Property.Optional.OptionalClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

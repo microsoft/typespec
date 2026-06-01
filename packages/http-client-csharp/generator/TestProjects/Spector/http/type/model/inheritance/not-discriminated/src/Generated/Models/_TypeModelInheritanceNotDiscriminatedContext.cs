@@ -6,10 +6,10 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    [ModelReaderWriterBuildable(typeof(Cat))]
-    [ModelReaderWriterBuildable(typeof(Pet))]
-    [ModelReaderWriterBuildable(typeof(Siamese))]
-    public partial class _TypeModelInheritanceNotDiscriminatedContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NotDiscriminated.Cat))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NotDiscriminated.Pet))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NotDiscriminated.Siamese))]
+    public partial class _TypeModelInheritanceNotDiscriminatedContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

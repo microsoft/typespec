@@ -14,88 +14,88 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> A model with a few properties of literal types. </summary>
-    public partial class Thing : IJsonModel<Thing>
+    public partial class Thing : global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Thing>
     {
-        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Thing"/> for deserialization. </summary>
         internal Thing()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual global::SampleTypeSpec.Thing PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializeThing(document.RootElement, options);
+                        return global::SampleTypeSpec.Thing.DeserializeThing(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Thing)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Thing)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        global::SampleTypeSpec.Thing global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
-        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Thing thing)
+        /// <param name="thing"> The <see cref="global::SampleTypeSpec.Thing"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
+        public static implicit operator global::System.ClientModel.BinaryContent(global::SampleTypeSpec.Thing thing)
         {
-            if (thing == null)
+            if ((thing == null))
             {
                 return null;
             }
-            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
+            return global::System.ClientModel.BinaryContent.Create(thing, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
-        public static explicit operator Thing(ClientResult result)
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.Thing"/> from. </param>
+        public static explicit operator Thing(global::System.ClientModel.ClientResult result)
         {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
+            global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions);
+            return global::SampleTypeSpec.Thing.DeserializeThing(document.RootElement, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Thing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Thing>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
+            this.JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Thing)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Rename);
@@ -103,14 +103,14 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(RequiredUnion);
 #else
-            using (JsonDocument document = JsonDocument.Parse(RequiredUnion))
+            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(RequiredUnion))
             {
-                JsonSerializer.Serialize(writer, document.RootElement);
+                global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
             }
 #endif
             writer.WritePropertyName("requiredLiteralString"u8);
             writer.WriteStringValue(RequiredLiteralString);
-            if (Optional.IsDefined(RequiredNullableString))
+            if (global::SampleTypeSpec.Optional.IsDefined(RequiredNullableString))
             {
                 writer.WritePropertyName("requiredNullableString"u8);
                 writer.WriteStringValue(RequiredNullableString);
@@ -119,7 +119,7 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableString"u8);
             }
-            if (Optional.IsDefined(OptionalNullableString))
+            if (global::SampleTypeSpec.Optional.IsDefined(OptionalNullableString))
             {
                 writer.WritePropertyName("optionalNullableString"u8);
                 writer.WriteStringValue(OptionalNullableString);
@@ -130,12 +130,12 @@ namespace SampleTypeSpec
             writer.WriteNumberValue(RequiredLiteralFloat);
             writer.WritePropertyName("requiredLiteralBool"u8);
             writer.WriteBooleanValue(RequiredLiteralBool);
-            if (Optional.IsDefined(OptionalLiteralString))
+            if (global::SampleTypeSpec.Optional.IsDefined(OptionalLiteralString))
             {
                 writer.WritePropertyName("optionalLiteralString"u8);
                 writer.WriteStringValue(OptionalLiteralString.Value.ToString());
             }
-            if (Optional.IsDefined(RequiredNullableLiteralString))
+            if (global::SampleTypeSpec.Optional.IsDefined(RequiredNullableLiteralString))
             {
                 writer.WritePropertyName("requiredNullableLiteralString"u8);
                 writer.WriteStringValue(RequiredNullableLiteralString.Value.ToString());
@@ -144,24 +144,24 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableLiteralString"u8);
             }
-            if (Optional.IsDefined(OptionalLiteralInt))
+            if (global::SampleTypeSpec.Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
                 writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
             }
-            if (Optional.IsDefined(OptionalLiteralFloat))
+            if (global::SampleTypeSpec.Optional.IsDefined(OptionalLiteralFloat))
             {
                 writer.WritePropertyName("optionalLiteralFloat"u8);
                 writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
             }
-            if (Optional.IsDefined(OptionalLiteralBool))
+            if (global::SampleTypeSpec.Optional.IsDefined(OptionalLiteralBool))
             {
                 writer.WritePropertyName("optionalLiteralBool"u8);
                 writer.WriteBooleanValue(OptionalLiteralBool.Value);
             }
             writer.WritePropertyName("requiredBadDescription"u8);
             writer.WriteStringValue(RequiredBadDescription);
-            if (Optional.IsCollectionDefined(OptionalNullableList))
+            if (global::SampleTypeSpec.Optional.IsCollectionDefined(OptionalNullableList))
             {
                 writer.WritePropertyName("optionalNullableList"u8);
                 writer.WriteStartArray();
@@ -171,7 +171,7 @@ namespace SampleTypeSpec
                 }
                 writer.WriteEndArray();
             }
-            if (Optional.IsCollectionDefined(RequiredNullableList))
+            if (global::SampleTypeSpec.Optional.IsCollectionDefined(RequiredNullableList))
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
@@ -187,7 +187,7 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("propertyWithSpecialDocs"u8);
             writer.WriteStringValue(PropertyWithSpecialDocs);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
                 {
@@ -195,9 +195,9 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
                     {
-                        JsonSerializer.Serialize(writer, document.RootElement);
+                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }
@@ -206,47 +206,47 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        global::SampleTypeSpec.Thing global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Thing>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual global::SampleTypeSpec.Thing JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Thing>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Thing)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Thing)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeThing(document.RootElement, options);
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::SampleTypeSpec.Thing.DeserializeThing(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.Thing DeserializeThing(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element.ValueKind == JsonValueKind.Null)
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             string rename = default;
-            BinaryData requiredUnion = default;
+            global::System.BinaryData requiredUnion = default;
             string requiredLiteralString = default;
             string requiredNullableString = default;
             string optionalNullableString = default;
             int requiredLiteralInt = default;
             float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
-            ThingOptionalLiteralString? optionalLiteralString = default;
-            ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default;
-            ThingOptionalLiteralInt? optionalLiteralInt = default;
-            ThingOptionalLiteralFloat? optionalLiteralFloat = default;
+            global::SampleTypeSpec.ThingOptionalLiteralString? optionalLiteralString = default;
+            global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default;
+            global::SampleTypeSpec.ThingOptionalLiteralInt? optionalLiteralInt = default;
+            global::SampleTypeSpec.ThingOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
-            IList<int> optionalNullableList = default;
-            IList<int> requiredNullableList = default;
+            global::System.Collections.Generic.IList<int> optionalNullableList = default;
+            global::System.Collections.Generic.IList<int> requiredNullableList = default;
             string propertyWithSpecialDocs = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -256,7 +256,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredUnion"u8))
                 {
-                    requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
+                    requiredUnion = global::System.BinaryData.FromString(prop.Value.GetRawText());
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
@@ -266,7 +266,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredNullableString"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         requiredNullableString = null;
                         continue;
@@ -276,7 +276,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalNullableString"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         optionalNullableString = null;
                         continue;
@@ -301,44 +301,44 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalLiteralString"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    optionalLiteralString = new global::SampleTypeSpec.ThingOptionalLiteralString(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredNullableLiteralString"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         requiredNullableLiteralString = null;
                         continue;
                     }
-                    requiredNullableLiteralString = new ThingRequiredNullableLiteralString1(prop.Value.GetString());
+                    requiredNullableLiteralString = new global::SampleTypeSpec.ThingRequiredNullableLiteralString1(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    optionalLiteralInt = new global::SampleTypeSpec.ThingOptionalLiteralInt(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralFloat"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    optionalLiteralFloat = new global::SampleTypeSpec.ThingOptionalLiteralFloat(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralBool"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
@@ -352,11 +352,11 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalNullableList"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    List<int> array = new List<int>();
+                    global::System.Collections.Generic.List<int> array = new global::System.Collections.Generic.List<int>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(item.GetInt32());
@@ -366,12 +366,12 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredNullableList"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        requiredNullableList = new ChangeTrackingList<int>();
+                        requiredNullableList = new global::SampleTypeSpec.ChangeTrackingList<int>();
                         continue;
                     }
-                    List<int> array = new List<int>();
+                    global::System.Collections.Generic.List<int> array = new global::System.Collections.Generic.List<int>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(item.GetInt32());
@@ -384,12 +384,12 @@ namespace SampleTypeSpec
                     propertyWithSpecialDocs = prop.Value.GetString();
                     continue;
                 }
-                if (options.Format != "W")
+                if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new Thing(
+            return new global::SampleTypeSpec.Thing(
                 rename,
                 requiredUnion,
                 requiredLiteralString,
@@ -404,7 +404,7 @@ namespace SampleTypeSpec
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
-                optionalNullableList ?? new ChangeTrackingList<int>(),
+                (optionalNullableList ?? new global::SampleTypeSpec.ChangeTrackingList<int>()),
                 requiredNullableList,
                 propertyWithSpecialDocs,
                 additionalBinaryDataProperties);

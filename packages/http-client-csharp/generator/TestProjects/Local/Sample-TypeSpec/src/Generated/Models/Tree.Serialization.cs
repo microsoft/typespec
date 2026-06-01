@@ -17,129 +17,129 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> Tree is a specific type of plant. </summary>
-    public partial class Tree : Plant, IJsonModel<Tree>
+    public partial class Tree : global::SampleTypeSpec.Plant, global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Tree>
     {
-        /// <summary> Initializes a new instance of <see cref="Tree"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Tree"/> for deserialization. </summary>
         internal Tree()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override global::SampleTypeSpec.Plant PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializeTree(document.RootElement, options);
+                        return global::SampleTypeSpec.Tree.DeserializeTree(document.RootElement, options);
                     }
                 case "X":
-                    using (Stream dataStream = data.ToStream())
+                    using (global::System.IO.Stream dataStream = data.ToStream())
                     {
-                        return DeserializeTree(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                        return global::SampleTypeSpec.Tree.DeserializeTree(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Tree)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Tree)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
                 case "X":
-                    using (MemoryStream stream = new MemoryStream(256))
+                    using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStream(256))
                     {
-                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
+                        using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            WriteXml(writer, options, "Tree");
+                            this.WriteXml(writer, options, "Tree");
                         }
-                        if (stream.Position > int.MaxValue)
+                        if ((stream.Position > int.MaxValue))
                         {
-                            return BinaryData.FromStream(stream);
+                            return global::System.BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
+                            return new global::System.BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Tree)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Tree)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Tree>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => (Tree)PersistableModelCreateCore(data, options);
+        global::SampleTypeSpec.Tree global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::SampleTypeSpec.Tree)this.PersistableModelCreateCore(data, options));
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
-        /// <param name="tree"> The <see cref="Tree"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Tree tree)
+        /// <param name="tree"> The <see cref="global::SampleTypeSpec.Tree"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
+        public static implicit operator global::System.ClientModel.BinaryContent(global::SampleTypeSpec.Tree tree)
         {
-            if (tree == null)
+            if ((tree == null))
             {
                 return null;
             }
-            return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
+            return global::System.ClientModel.BinaryContent.Create(tree, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <summary> Converts the model to BinaryContent using the specified format. </summary>
         /// <param name="format"> The format to use for serialization. </param>
-        internal BinaryContent ToBinaryContent(string format)
+        internal global::System.ClientModel.BinaryContent ToBinaryContent(string format)
         {
-            ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
-            return BinaryContent.Create(this, options);
+            global::System.ClientModel.Primitives.ModelReaderWriterOptions options = new global::System.ClientModel.Primitives.ModelReaderWriterOptions(format);
+            return global::System.ClientModel.BinaryContent.Create(this, options);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
-        public static explicit operator Tree(ClientResult result)
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.Tree"/> from. </param>
+        public static explicit operator Tree(global::System.ClientModel.ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            using global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
 
-            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            if ((response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", global::System.StringComparison.OrdinalIgnoreCase)))
             {
-                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-                return DeserializeTree(document.RootElement, ModelSerializationExtensions.WireOptions);
+                using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions);
+                return global::SampleTypeSpec.Tree.DeserializeTree(document.RootElement, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
             }
 
-            using Stream stream = response.ContentStream;
-            if (stream == null)
+            using global::System.IO.Stream stream = response.ContentStream;
+            if ((stream == null))
             {
                 return default;
             }
 
-            return DeserializeTree(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
+            return global::SampleTypeSpec.Tree.DeserializeTree(global::System.Xml.Linq.XElement.Load(stream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Tree>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Tree>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
+            this.JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Tree)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Tree)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
             writer.WritePropertyName("age"u8);
@@ -148,33 +148,33 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Tree IJsonModel<Tree>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (Tree)JsonModelCreateCore(ref reader, options);
+        global::SampleTypeSpec.Tree global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Tree>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::SampleTypeSpec.Tree)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Plant JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override global::SampleTypeSpec.Plant JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Tree)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Tree)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeTree(document.RootElement, options);
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::SampleTypeSpec.Tree.DeserializeTree(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Tree DeserializeTree(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.Tree DeserializeTree(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element.ValueKind == JsonValueKind.Null)
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             string species = "tree";
             string id = default;
             int height = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
             int age = default;
             foreach (var prop in element.EnumerateObject())
             {
@@ -198,27 +198,27 @@ namespace SampleTypeSpec
                     age = prop.Value.GetInt32();
                     continue;
                 }
-                if (options.Format != "W")
+                if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new Tree(species, id, height, additionalBinaryDataProperties, age);
+            return new global::SampleTypeSpec.Tree(species, id, height, additionalBinaryDataProperties, age);
         }
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
-            if (nameHint != null)
+            if ((nameHint != null))
             {
                 writer.WriteStartElement(nameHint);
             }
 
-            XmlModelWriteCore(writer, options);
+            this.XmlModelWriteCore(writer, options);
 
-            if (nameHint != null)
+            if ((nameHint != null))
             {
                 writer.WriteEndElement();
             }
@@ -226,12 +226,12 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal override void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal override void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "X")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Tree>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(Tree)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Tree)} does not support writing '{format}' format.");
             }
 
             base.XmlModelWriteCore(writer, options);
@@ -242,9 +242,9 @@ namespace SampleTypeSpec
 
         /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Tree DeserializeTree(XElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.Tree DeserializeTree(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element == null)
+            if ((element == null))
             {
                 return null;
             }
@@ -252,34 +252,34 @@ namespace SampleTypeSpec
             string species = "tree";
             string id = default;
             int height = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
             int age = default;
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                if (localName == "species")
+                if ((localName == "species"))
                 {
-                    species = (string)child;
+                    species = ((string)child);
                     continue;
                 }
-                if (localName == "id")
+                if ((localName == "id"))
                 {
-                    id = (string)child;
+                    id = ((string)child);
                     continue;
                 }
-                if (localName == "height")
+                if ((localName == "height"))
                 {
-                    height = (int)child;
+                    height = ((int)child);
                     continue;
                 }
-                if (localName == "age")
+                if ((localName == "age"))
                 {
-                    age = (int)child;
+                    age = ((int)child);
                     continue;
                 }
             }
-            return new Tree(species, id, height, additionalBinaryDataProperties, age);
+            return new global::SampleTypeSpec.Tree(species, id, height, additionalBinaryDataProperties, age);
         }
     }
 }

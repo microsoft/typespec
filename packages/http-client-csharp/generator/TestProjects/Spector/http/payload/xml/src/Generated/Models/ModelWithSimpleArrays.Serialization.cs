@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithSimpleArrays : IPersistableModel<ModelWithSimpleArrays>
+    public partial class ModelWithSimpleArrays : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithSimpleArrays>
     {
         internal ModelWithSimpleArrays() => throw null;
 
-        protected virtual ModelWithSimpleArrays PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Payload.Xml.ModelWithSimpleArrays PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithSimpleArrays>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithSimpleArrays>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        ModelWithSimpleArrays IPersistableModel<ModelWithSimpleArrays>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Payload.Xml.ModelWithSimpleArrays global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithSimpleArrays>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithSimpleArrays>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithSimpleArrays>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(ModelWithSimpleArrays modelWithSimpleArrays) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithSimpleArrays modelWithSimpleArrays) => throw null;
 
-        public static explicit operator ModelWithSimpleArrays(ClientResult result) => throw null;
+        public static explicit operator ModelWithSimpleArrays(global::System.ClientModel.ClientResult result) => throw null;
     }
 }

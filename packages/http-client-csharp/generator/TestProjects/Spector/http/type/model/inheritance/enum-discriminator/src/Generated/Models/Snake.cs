@@ -9,11 +9,11 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public abstract partial class Snake
     {
-        private protected Snake(SnakeKind kind, int length) => throw null;
+        private protected Snake(global::_Type.Model.Inheritance.EnumDiscriminator.SnakeKind kind, int length) => throw null;
 
-        internal Snake(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Snake(global::_Type.Model.Inheritance.EnumDiscriminator.SnakeKind kind, int length, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
 
-        internal SnakeKind Kind
+        internal global::_Type.Model.Inheritance.EnumDiscriminator.SnakeKind Kind
         {
             get => throw null;
             set => throw null;

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Resiliency.SrvDriven.V1
 {
-    public partial class ResiliencySrvDrivenV1Context : ModelReaderWriterContext
+    public partial class ResiliencySrvDrivenV1Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

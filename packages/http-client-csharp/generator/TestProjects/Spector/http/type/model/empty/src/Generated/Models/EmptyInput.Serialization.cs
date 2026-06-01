@@ -9,26 +9,26 @@ using System.Text.Json;
 
 namespace _Type.Model.Empty
 {
-    public partial class EmptyInput : IJsonModel<EmptyInput>
+    public partial class EmptyInput : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Empty.EmptyInput>
     {
-        protected virtual EmptyInput PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Empty.EmptyInput PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<EmptyInput>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Empty.EmptyInput>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        EmptyInput IPersistableModel<EmptyInput>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Empty.EmptyInput global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Empty.EmptyInput>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<EmptyInput>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Empty.EmptyInput>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(EmptyInput emptyInput) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Empty.EmptyInput emptyInput) => throw null;
 
-        void IJsonModel<EmptyInput>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Empty.EmptyInput>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        EmptyInput IJsonModel<EmptyInput>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Empty.EmptyInput global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Empty.EmptyInput>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual EmptyInput JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Empty.EmptyInput JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

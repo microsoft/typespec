@@ -9,31 +9,31 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    [PersistableModelProxy(typeof(UnknownSnake))]
-    public abstract partial class Snake : IJsonModel<Snake>
+    [global::System.ClientModel.Primitives.PersistableModelProxyAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.UnknownSnake))]
+    public abstract partial class Snake : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>
     {
         internal Snake() => throw null;
 
-        protected virtual Snake PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.EnumDiscriminator.Snake PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Snake>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Snake IPersistableModel<Snake>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Snake global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Snake>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Snake snake) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Inheritance.EnumDiscriminator.Snake snake) => throw null;
 
-        public static explicit operator Snake(ClientResult result) => throw null;
+        public static explicit operator Snake(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Snake IJsonModel<Snake>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.EnumDiscriminator.Snake global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Snake JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Inheritance.EnumDiscriminator.Snake JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -13,19 +13,19 @@ namespace Client.Structure.TwoOperationGroup
     {
         protected TwoOperationGroupClient() => throw null;
 
-        public TwoOperationGroupClient(Uri endpoint, ClientType client) : this(endpoint, client, new TwoOperationGroupClientOptions()) => throw null;
+        public TwoOperationGroupClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) : this(endpoint, client, new global::Client.Structure.TwoOperationGroup.TwoOperationGroupClientOptions()) => throw null;
 
-        internal TwoOperationGroupClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) => throw null;
+        internal TwoOperationGroupClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.TwoOperationGroup.TwoOperationGroupClientOptions options) => throw null;
 
-        public TwoOperationGroupClient(Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public TwoOperationGroupClient(global::System.Uri endpoint, global::Client.Structure.Service.ClientType client, global::Client.Structure.TwoOperationGroup.TwoOperationGroupClientOptions options) : this(null, endpoint, client, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public TwoOperationGroupClient(TwoOperationGroupClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public TwoOperationGroupClient(global::Client.Structure.TwoOperationGroup.TwoOperationGroupClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Group1 GetGroup1Client() => throw null;
+        public virtual global::Client.Structure.TwoOperationGroup.Group1 GetGroup1Client() => throw null;
 
-        public virtual Group2 GetGroup2Client() => throw null;
+        public virtual global::Client.Structure.TwoOperationGroup.Group2 GetGroup2Client() => throw null;
     }
 }

@@ -12,59 +12,59 @@ using System.Linq;
 
 namespace SampleTypeSpec
 {
-    internal partial class ChangeTrackingList<T> : IList<T>, IReadOnlyList<T>
+    internal partial class ChangeTrackingList<T> : global::System.Collections.Generic.IList<T>, global::System.Collections.Generic.IReadOnlyList<T>
     {
-        private IList<T> _innerList;
+        private global::System.Collections.Generic.IList<T> _innerList;
 
         public ChangeTrackingList()
         {
         }
 
         /// <param name="innerList"> The inner list. </param>
-        public ChangeTrackingList(IList<T> innerList)
+        public ChangeTrackingList(global::System.Collections.Generic.IList<T> innerList)
         {
-            if (innerList != null)
+            if ((innerList != null))
             {
                 _innerList = innerList;
             }
         }
 
         /// <param name="innerList"> The inner list. </param>
-        public ChangeTrackingList(IReadOnlyList<T> innerList)
+        public ChangeTrackingList(global::System.Collections.Generic.IReadOnlyList<T> innerList)
         {
-            if (innerList != null)
+            if ((innerList != null))
             {
                 _innerList = innerList.ToList();
             }
         }
 
         /// <summary> Gets the IsUndefined. </summary>
-        public bool IsUndefined => _innerList == null;
+        public bool IsUndefined => (_innerList == null);
 
         /// <summary> Gets the Count. </summary>
-        public int Count => IsUndefined ? 0 : EnsureList().Count;
+        public int Count => this.IsUndefined ? 0 : this.EnsureList().Count;
 
         /// <summary> Gets the IsReadOnly. </summary>
-        public bool IsReadOnly => IsUndefined ? false : EnsureList().IsReadOnly;
+        public bool IsReadOnly => this.IsUndefined ? false : this.EnsureList().IsReadOnly;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public T this[int index]
         {
             get
             {
-                if (IsUndefined)
+                if (this.IsUndefined)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    throw new global::System.ArgumentOutOfRangeException(nameof(index));
                 }
-                return EnsureList()[index];
+                return this.EnsureList()[index];
             }
             set
             {
-                if (IsUndefined)
+                if (this.IsUndefined)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    throw new global::System.ArgumentOutOfRangeException(nameof(index));
                 }
-                EnsureList()[index] = value;
+                this.EnsureList()[index] = value;
             }
         }
 
@@ -73,96 +73,96 @@ namespace SampleTypeSpec
             _innerList = null;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public global::System.Collections.Generic.IEnumerator<T> GetEnumerator()
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
-                IEnumerator<T> enumerateEmpty()
+                global::System.Collections.Generic.IEnumerator<T> enumerateEmpty()
                 {
                     yield break;
                 }
                 return enumerateEmpty();
             }
-            return EnsureList().GetEnumerator();
+            return this.EnsureList().GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return this.GetEnumerator();
         }
 
         /// <param name="item"> The item to add. </param>
         public void Add(T item)
         {
-            EnsureList().Add(item);
+            this.EnsureList().Add(item);
         }
 
         public void Clear()
         {
-            EnsureList().Clear();
+            this.EnsureList().Clear();
         }
 
         /// <param name="item"> The item. </param>
         public bool Contains(T item)
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
                 return false;
             }
-            return EnsureList().Contains(item);
+            return this.EnsureList().Contains(item);
         }
 
         /// <param name="array"> The array to copy to. </param>
         /// <param name="arrayIndex"> The array index. </param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
                 return;
             }
-            EnsureList().CopyTo(array, arrayIndex);
+            this.EnsureList().CopyTo(array, arrayIndex);
         }
 
         /// <param name="item"> The item. </param>
         public bool Remove(T item)
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
                 return false;
             }
-            return EnsureList().Remove(item);
+            return this.EnsureList().Remove(item);
         }
 
         /// <param name="item"> The item. </param>
         public int IndexOf(T item)
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
                 return -1;
             }
-            return EnsureList().IndexOf(item);
+            return this.EnsureList().IndexOf(item);
         }
 
         /// <param name="index"> The inner list. </param>
         /// <param name="item"> The item. </param>
         public void Insert(int index, T item)
         {
-            EnsureList().Insert(index, item);
+            this.EnsureList().Insert(index, item);
         }
 
         /// <param name="index"> The inner list. </param>
         public void RemoveAt(int index)
         {
-            if (IsUndefined)
+            if (this.IsUndefined)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new global::System.ArgumentOutOfRangeException(nameof(index));
             }
-            EnsureList().RemoveAt(index);
+            this.EnsureList().RemoveAt(index);
         }
 
-        public IList<T> EnsureList()
+        public global::System.Collections.Generic.IList<T> EnsureList()
         {
-            return _innerList ??= new List<T>();
+            return (_innerList ??= new global::System.Collections.Generic.List<T>());
         }
     }
 }

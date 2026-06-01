@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.Service.TwoOperationGroup
 {
-    public partial class ClientStructureServiceTwoOperationGroupContext : ModelReaderWriterContext
+    public partial class ClientStructureServiceTwoOperationGroupContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

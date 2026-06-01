@@ -8,9 +8,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class DatetimeProperty
     {
-        public DatetimeProperty(DateTimeOffset @property) => throw null;
+        public DatetimeProperty(global::System.DateTimeOffset @property) => throw null;
 
-        public DateTimeOffset Property
+        public global::System.DateTimeOffset Property
         {
             get => throw null;
             set => throw null;

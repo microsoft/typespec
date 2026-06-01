@@ -37,7 +37,7 @@ namespace Sample
 #else
             key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
 #endif
-            (bytesConsumed += (jsonPath.Length - local.Length));
+            bytesConsumed = (bytesConsumed + (jsonPath.Length - local.Length));
             return key;
         }
     }

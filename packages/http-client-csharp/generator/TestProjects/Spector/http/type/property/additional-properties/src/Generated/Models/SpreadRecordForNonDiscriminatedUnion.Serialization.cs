@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class SpreadRecordForNonDiscriminatedUnion : IJsonModel<SpreadRecordForNonDiscriminatedUnion>
+    public partial class SpreadRecordForNonDiscriminatedUnion : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>
     {
         internal SpreadRecordForNonDiscriminatedUnion() => throw null;
 
-        protected virtual SpreadRecordForNonDiscriminatedUnion PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpreadRecordForNonDiscriminatedUnion IPersistableModel<SpreadRecordForNonDiscriminatedUnion>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SpreadRecordForNonDiscriminatedUnion>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion spreadRecordForNonDiscriminatedUnion) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion spreadRecordForNonDiscriminatedUnion) => throw null;
 
-        public static explicit operator SpreadRecordForNonDiscriminatedUnion(ClientResult result) => throw null;
+        public static explicit operator SpreadRecordForNonDiscriminatedUnion(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<SpreadRecordForNonDiscriminatedUnion>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        SpreadRecordForNonDiscriminatedUnion IJsonModel<SpreadRecordForNonDiscriminatedUnion>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SpreadRecordForNonDiscriminatedUnion JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

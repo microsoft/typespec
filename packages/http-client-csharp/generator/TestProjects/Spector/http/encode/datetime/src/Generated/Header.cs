@@ -15,48 +15,48 @@ namespace Encode.Datetime._Header
     {
         protected Header() => throw null;
 
-        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Header(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Default(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Default(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Default(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc3339(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc3339(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc3339Async(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc3339(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc3339(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc3339Async(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Rfc7231(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc7231(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc7231Async(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc7231(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Rfc7231(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Rfc7231Async(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult UnixTimestamp(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestamp(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampAsync(global::System.DateTimeOffset value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestamp(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestamp(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampAsync(global::System.DateTimeOffset value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestampArray(global::System.Collections.Generic.IEnumerable<global::System.DateTimeOffset> value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.DateTimeOffset> value, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult UnixTimestampArray(global::System.Collections.Generic.IEnumerable<global::System.DateTimeOffset> value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UnixTimestampArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.DateTimeOffset> value, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

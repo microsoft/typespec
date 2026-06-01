@@ -9,21 +9,21 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Struct), AllowMultiple = true)]
-    internal partial class CodeGenSuppressAttribute : Attribute
+    [global::System.AttributeUsageAttribute(((global::System.AttributeTargets.Class | global::System.AttributeTargets.Enum) | global::System.AttributeTargets.Struct), AllowMultiple = true)]
+    internal partial class CodeGenSuppressAttribute : global::System.Attribute
     {
         /// <param name="member"> The member to suppress. </param>
         /// <param name="parameters"> The types of the parameters of the member. </param>
-        public CodeGenSuppressAttribute(string member, params Type[] parameters)
+        public CodeGenSuppressAttribute(string member, params global::System.Type[] parameters)
         {
-            Member = member;
-            Parameters = parameters;
+            this.Member = member;
+            this.Parameters = parameters;
         }
 
         /// <summary> Gets the Member. </summary>
         public string Member { get; }
 
         /// <summary> Gets the Parameters. </summary>
-        public Type[] Parameters { get; }
+        public global::System.Type[] Parameters { get; }
     }
 }

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    public partial class Cat : Pet
+    public partial class Cat : global::_Type.Model.Inheritance.NotDiscriminated.Pet
     {
         public Cat(string name, int age) : base(name) => throw null;
 
-        internal Cat(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, int age) : base(name, additionalBinaryDataProperties) => throw null;
+        internal Cat(string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, int age) : base(name, additionalBinaryDataProperties) => throw null;
 
         public int Age
         {

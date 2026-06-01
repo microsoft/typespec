@@ -8,27 +8,27 @@ namespace _Type.Union
 {
     public partial class MixedLiteralsCases
     {
-        public MixedLiteralsCases(BinaryData stringLiteral, BinaryData intLiteral, BinaryData floatLiteral, BinaryData booleanLiteral) => throw null;
+        public MixedLiteralsCases(global::System.BinaryData stringLiteral, global::System.BinaryData intLiteral, global::System.BinaryData floatLiteral, global::System.BinaryData booleanLiteral) => throw null;
 
-        public BinaryData StringLiteral
+        public global::System.BinaryData StringLiteral
         {
             get => throw null;
             set => throw null;
         }
 
-        public BinaryData IntLiteral
+        public global::System.BinaryData IntLiteral
         {
             get => throw null;
             set => throw null;
         }
 
-        public BinaryData FloatLiteral
+        public global::System.BinaryData FloatLiteral
         {
             get => throw null;
             set => throw null;
         }
 
-        public BinaryData BooleanLiteral
+        public global::System.BinaryData BooleanLiteral
         {
             get => throw null;
             set => throw null;

@@ -10,6 +10,6 @@ namespace Parameters.Spread
 {
     public static partial class ParametersSpreadModelFactory
     {
-        public static BodyParameter BodyParameter(string name = default) => throw null;
+        public static global::Parameters.Spread._Model.BodyParameter BodyParameter(string name = default) => throw null;
     }
 }

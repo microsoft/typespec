@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class AdditionalPropertiesClientOptions : ClientPipelineOptions
+    public partial class AdditionalPropertiesClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public AdditionalPropertiesClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal AdditionalPropertiesClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal AdditionalPropertiesClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

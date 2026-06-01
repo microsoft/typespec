@@ -14,23 +14,23 @@ namespace Encode.Datetime
 {
     public partial class DatetimeClient
     {
-        public DatetimeClient() : this(new Uri("http://localhost:3000"), new DatetimeClientOptions()) => throw null;
+        public DatetimeClient() : this(new global::System.Uri("http://localhost:3000"), new global::Encode.Datetime.DatetimeClientOptions()) => throw null;
 
-        internal DatetimeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DatetimeClientOptions options) => throw null;
+        internal DatetimeClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Encode.Datetime.DatetimeClientOptions options) => throw null;
 
-        public DatetimeClient(Uri endpoint, DatetimeClientOptions options) : this(null, endpoint, options) => throw null;
+        public DatetimeClient(global::System.Uri endpoint, global::Encode.Datetime.DatetimeClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public DatetimeClient(DatetimeClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public DatetimeClient(global::Encode.Datetime.DatetimeClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Query GetQueryClient() => throw null;
+        public virtual global::Encode.Datetime._Query.Query GetQueryClient() => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual global::Encode.Datetime._Property.Property GetPropertyClient() => throw null;
 
-        public virtual Header GetHeaderClient() => throw null;
+        public virtual global::Encode.Datetime._Header.Header GetHeaderClient() => throw null;
 
-        public virtual ResponseHeader GetResponseHeaderClient() => throw null;
+        public virtual global::Encode.Datetime._ResponseHeader.ResponseHeader GetResponseHeaderClient() => throw null;
     }
 }

@@ -14,27 +14,27 @@ namespace SpecialWords
 {
     public partial class SpecialWordsClient
     {
-        public SpecialWordsClient() : this(new Uri("http://localhost:3000"), new SpecialWordsClientOptions()) => throw null;
+        public SpecialWordsClient() : this(new global::System.Uri("http://localhost:3000"), new global::SpecialWords.SpecialWordsClientOptions()) => throw null;
 
-        internal SpecialWordsClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SpecialWordsClientOptions options) => throw null;
+        internal SpecialWordsClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::SpecialWords.SpecialWordsClientOptions options) => throw null;
 
-        public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) : this(null, endpoint, options) => throw null;
+        public SpecialWordsClient(global::System.Uri endpoint, global::SpecialWords.SpecialWordsClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [Experimental("SCME0002")]
-        public SpecialWordsClient(SpecialWordsClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        public SpecialWordsClient(global::SpecialWords.SpecialWordsClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual Models GetModelsClient() => throw null;
+        public virtual global::SpecialWords._Models.Models GetModelsClient() => throw null;
 
-        public virtual ModelProperties GetModelPropertiesClient() => throw null;
+        public virtual global::SpecialWords._ModelProperties.ModelProperties GetModelPropertiesClient() => throw null;
 
-        public virtual ReservedOperationBodyParams GetReservedOperationBodyParamsClient() => throw null;
+        public virtual global::SpecialWords._ReservedOperationBodyParams.ReservedOperationBodyParams GetReservedOperationBodyParamsClient() => throw null;
 
-        public virtual ExtensibleStrings GetExtensibleStringsClient() => throw null;
+        public virtual global::SpecialWords._ExtensibleStrings.ExtensibleStrings GetExtensibleStringsClient() => throw null;
 
-        public virtual Operations GetOperationsClient() => throw null;
+        public virtual global::SpecialWords.Operations GetOperationsClient() => throw null;
 
-        public virtual Parameters GetParametersClient() => throw null;
+        public virtual global::SpecialWords.Parameters GetParametersClient() => throw null;
     }
 }

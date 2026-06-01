@@ -8,6 +8,6 @@ namespace Versioning.Added.V1
 {
     public static partial class VersioningAddedV1ModelFactory
     {
-        public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default) => throw null;
+        public static global::Versioning.Added.ModelV1 ModelV1(string prop = default, global::Versioning.Added.EnumV1 enumProp = default) => throw null;
     }
 }

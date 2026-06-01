@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    public partial class Siamese : Cat, IJsonModel<Siamese>
+    public partial class Siamese : global::_Type.Model.Inheritance.NotDiscriminated.Cat, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>
     {
         internal Siamese() => throw null;
 
-        protected override Pet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.NotDiscriminated.Pet PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Siamese>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Siamese IPersistableModel<Siamese>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.NotDiscriminated.Siamese global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Siamese>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Siamese siamese) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Inheritance.NotDiscriminated.Siamese siamese) => throw null;
 
-        public static explicit operator Siamese(ClientResult result) => throw null;
+        public static explicit operator Siamese(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<Siamese>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Siamese IJsonModel<Siamese>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Inheritance.NotDiscriminated.Siamese global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected override Pet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected override global::_Type.Model.Inheritance.NotDiscriminated.Pet JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

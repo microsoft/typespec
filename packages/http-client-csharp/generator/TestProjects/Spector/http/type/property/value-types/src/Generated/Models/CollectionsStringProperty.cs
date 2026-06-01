@@ -8,8 +8,8 @@ namespace _Type.Property.ValueTypes
 {
     public partial class CollectionsStringProperty
     {
-        public CollectionsStringProperty(IEnumerable<string> @property) => throw null;
+        public CollectionsStringProperty(global::System.Collections.Generic.IEnumerable<string> @property) => throw null;
 
-        public IList<string> Property => throw null;
+        public global::System.Collections.Generic.IList<string> Property => throw null;
     }
 }

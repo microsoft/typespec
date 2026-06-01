@@ -14,30 +14,30 @@ namespace SampleTypeSpec
     public partial class Wrapper
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="Wrapper"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Wrapper"/>. </summary>
         /// <param name="p1"> header parameter. </param>
         /// <param name="action"> body parameter. </param>
         /// <param name="p2"> path parameter. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="action"/> or <paramref name="p2"/> is null. </exception>
-        public Wrapper(string p1, RoundTripModel action, string p2)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="p1"/>, <paramref name="action"/> or <paramref name="p2"/> is null. </exception>
+        public Wrapper(string p1, global::SampleTypeSpec.RoundTripModel action, string p2)
         {
-            Argument.AssertNotNull(p1, nameof(p1));
-            Argument.AssertNotNull(action, nameof(action));
-            Argument.AssertNotNull(p2, nameof(p2));
+            global::SampleTypeSpec.Argument.AssertNotNull(p1, nameof(p1));
+            global::SampleTypeSpec.Argument.AssertNotNull(action, nameof(action));
+            global::SampleTypeSpec.Argument.AssertNotNull(p2, nameof(p2));
 
             P1 = p1;
             Action = action;
             P2 = p2;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Wrapper"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Wrapper"/>. </summary>
         /// <param name="p1"> header parameter. </param>
         /// <param name="action"> body parameter. </param>
         /// <param name="p2"> path parameter. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Wrapper(string p1, RoundTripModel action, string p2, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Wrapper(string p1, global::SampleTypeSpec.RoundTripModel action, string p2, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             P1 = p1;
             Action = action;
@@ -49,7 +49,7 @@ namespace SampleTypeSpec
         public string P1 { get; }
 
         /// <summary> body parameter. </summary>
-        public RoundTripModel Action { get; }
+        public global::SampleTypeSpec.RoundTripModel Action { get; }
 
         /// <summary> path parameter. </summary>
         public string P2 { get; }

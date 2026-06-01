@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.ApiKey
 {
-    [Experimental("SCME0002")]
-    public partial class ApiKeyClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class ApiKeyClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ApiKeyClientOptions Options
+        public global::Authentication.ApiKey.ApiKeyClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

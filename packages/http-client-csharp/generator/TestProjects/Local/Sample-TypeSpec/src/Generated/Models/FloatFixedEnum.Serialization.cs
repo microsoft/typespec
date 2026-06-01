@@ -12,30 +12,30 @@ namespace SampleTypeSpec
     internal static partial class FloatFixedEnumExtensions
     {
         /// <param name="value"> The value to serialize. </param>
-        public static float ToSerialSingle(this FloatFixedEnum value) => value switch
+        public static float ToSerialSingle(this global::SampleTypeSpec.FloatFixedEnum value) => value switch
         {
-            FloatFixedEnum.OneDotOne => 1.1F,
-            FloatFixedEnum.TwoDotTwo => 2.2F,
-            FloatFixedEnum.FourDotFour => 4.4F,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
+            global::SampleTypeSpec.FloatFixedEnum.OneDotOne => 1.1F,
+            global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo => 2.2F,
+            global::SampleTypeSpec.FloatFixedEnum.FourDotFour => 4.4F,
+            _ => throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
         };
 
         /// <param name="value"> The value to deserialize. </param>
-        public static FloatFixedEnum ToFloatFixedEnum(this float value)
+        public static global::SampleTypeSpec.FloatFixedEnum ToFloatFixedEnum(this float value)
         {
-            if (value == 1.1F)
+            if ((value == 1.1F))
             {
-                return FloatFixedEnum.OneDotOne;
+                return global::SampleTypeSpec.FloatFixedEnum.OneDotOne;
             }
-            if (value == 2.2F)
+            if ((value == 2.2F))
             {
-                return FloatFixedEnum.TwoDotTwo;
+                return global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo;
             }
-            if (value == 4.4F)
+            if ((value == 4.4F))
             {
-                return FloatFixedEnum.FourDotFour;
+                return global::SampleTypeSpec.FloatFixedEnum.FourDotFour;
             }
-            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
+            throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
         }
     }
 }

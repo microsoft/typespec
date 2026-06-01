@@ -7,8 +7,8 @@ using Serialization.EncodedName.Json._Property;
 
 namespace Serialization.EncodedName.Json
 {
-    [ModelReaderWriterBuildable(typeof(JsonEncodedNameModel))]
-    public partial class SerializationEncodedNameJsonContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel))]
+    public partial class SerializationEncodedNameJsonContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

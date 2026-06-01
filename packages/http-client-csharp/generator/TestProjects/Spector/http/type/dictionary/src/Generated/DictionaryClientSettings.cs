@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Dictionary
 {
-    [Experimental("SCME0002")]
-    public partial class DictionaryClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class DictionaryClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public DictionaryClientOptions Options
+        public global::_Type.Dictionary.DictionaryClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

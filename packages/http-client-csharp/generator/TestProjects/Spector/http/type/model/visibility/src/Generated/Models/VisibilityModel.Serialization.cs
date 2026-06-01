@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Model.Visibility
 {
-    public partial class VisibilityModel : IJsonModel<VisibilityModel>
+    public partial class VisibilityModel : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Visibility.VisibilityModel>
     {
         internal VisibilityModel() => throw null;
 
-        protected virtual VisibilityModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Visibility.VisibilityModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<VisibilityModel>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Visibility.VisibilityModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        VisibilityModel IPersistableModel<VisibilityModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Visibility.VisibilityModel global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Visibility.VisibilityModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<VisibilityModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Visibility.VisibilityModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(VisibilityModel visibilityModel) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Visibility.VisibilityModel visibilityModel) => throw null;
 
-        public static explicit operator VisibilityModel(ClientResult result) => throw null;
+        public static explicit operator VisibilityModel(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<VisibilityModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Visibility.VisibilityModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        VisibilityModel IJsonModel<VisibilityModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::_Type.Model.Visibility.VisibilityModel global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Visibility.VisibilityModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual VisibilityModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::_Type.Model.Visibility.VisibilityModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

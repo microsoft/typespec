@@ -14,24 +14,24 @@ namespace Payload.Pageable._PageSize
     {
         protected PageSize() => throw null;
 
-        internal PageSize(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PageSize(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual CollectionResult GetWithoutContinuation(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithoutContinuation(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult GetWithoutContinuationAsync(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithoutContinuationAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> GetWithoutContinuation(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> GetWithoutContinuation(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> GetWithoutContinuationAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual CollectionResult GetWithPageSize(int? pageSize, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithPageSize(int? pageSize, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual AsyncCollectionResult GetWithPageSizeAsync(int? pageSize, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithPageSizeAsync(int? pageSize, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> GetWithPageSize(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> GetWithPageSize(int? pageSize = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> GetWithPageSizeAsync(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> GetWithPageSizeAsync(int? pageSize = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

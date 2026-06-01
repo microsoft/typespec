@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace Parameters.Spread._Model
 {
-    public partial class BodyParameter : IJsonModel<BodyParameter>
+    public partial class BodyParameter : global::System.ClientModel.Primitives.IJsonModel<global::Parameters.Spread._Model.BodyParameter>
     {
         internal BodyParameter() => throw null;
 
-        protected virtual BodyParameter PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Parameters.Spread._Model.BodyParameter PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<BodyParameter>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Parameters.Spread._Model.BodyParameter>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BodyParameter IPersistableModel<BodyParameter>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Parameters.Spread._Model.BodyParameter global::System.ClientModel.Primitives.IPersistableModel<global::Parameters.Spread._Model.BodyParameter>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<BodyParameter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Parameters.Spread._Model.BodyParameter>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(BodyParameter bodyParameter) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Parameters.Spread._Model.BodyParameter bodyParameter) => throw null;
 
-        void IJsonModel<BodyParameter>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Parameters.Spread._Model.BodyParameter>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BodyParameter IJsonModel<BodyParameter>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Parameters.Spread._Model.BodyParameter global::System.ClientModel.Primitives.IJsonModel<global::Parameters.Spread._Model.BodyParameter>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BodyParameter JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Parameters.Spread._Model.BodyParameter JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

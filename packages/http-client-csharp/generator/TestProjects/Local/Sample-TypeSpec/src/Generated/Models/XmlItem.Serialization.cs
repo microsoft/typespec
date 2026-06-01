@@ -14,80 +14,80 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> An item model for XML array testing. </summary>
-    public partial class XmlItem : IPersistableModel<XmlItem>
+    public partial class XmlItem : global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>
     {
-        /// <summary> Initializes a new instance of <see cref="XmlItem"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlItem"/> for deserialization. </summary>
         internal XmlItem()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual XmlItem PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual global::SampleTypeSpec.XmlItem PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (Stream dataStream = data.ToStream())
+                    using (global::System.IO.Stream dataStream = data.ToStream())
                     {
-                        return DeserializeXmlItem(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                        return global::SampleTypeSpec.XmlItem.DeserializeXmlItem(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(XmlItem)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
-                    using (MemoryStream stream = new MemoryStream(256))
+                    using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStream(256))
                     {
-                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
+                        using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            WriteXml(writer, options, "Item");
+                            this.WriteXml(writer, options, "Item");
                         }
-                        if (stream.Position > int.MaxValue)
+                        if ((stream.Position > int.MaxValue))
                         {
-                            return BinaryData.FromStream(stream);
+                            return global::System.BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
+                            return new global::System.BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<XmlItem>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlItem IPersistableModel<XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        global::SampleTypeSpec.XmlItem global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
-            if (nameHint != null)
+            if ((nameHint != null))
             {
                 writer.WriteStartElement(nameHint);
             }
 
-            XmlModelWriteCore(writer, options);
+            this.XmlModelWriteCore(writer, options);
 
-            if (nameHint != null)
+            if ((nameHint != null))
             {
                 writer.WriteEndElement();
             }
@@ -95,12 +95,12 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "X")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "X"))
             {
-                throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartAttribute("itemId");
@@ -116,9 +116,9 @@ namespace SampleTypeSpec
 
         /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static XmlItem DeserializeXmlItem(XElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.XmlItem DeserializeXmlItem(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element == null)
+            if ((element == null))
             {
                 return null;
             }
@@ -130,9 +130,9 @@ namespace SampleTypeSpec
             foreach (var attr in element.Attributes())
             {
                 string localName = attr.Name.LocalName;
-                if (localName == "itemId")
+                if ((localName == "itemId"))
                 {
-                    itemId = (string)attr;
+                    itemId = ((string)attr);
                     continue;
                 }
             }
@@ -140,18 +140,18 @@ namespace SampleTypeSpec
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                if (localName == "itemName")
+                if ((localName == "itemName"))
                 {
-                    itemName = (string)child;
+                    itemName = ((string)child);
                     continue;
                 }
-                if (localName == "itemValue")
+                if ((localName == "itemValue"))
                 {
-                    itemValue = (int)child;
+                    itemValue = ((int)child);
                     continue;
                 }
             }
-            return new XmlItem(itemName, itemValue, itemId);
+            return new global::SampleTypeSpec.XmlItem(itemName, itemValue, itemId);
         }
     }
 }

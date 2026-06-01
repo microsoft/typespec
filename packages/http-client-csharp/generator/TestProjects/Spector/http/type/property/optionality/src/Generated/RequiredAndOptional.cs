@@ -14,40 +14,40 @@ namespace _Type.Property.Optional
     {
         protected RequiredAndOptional() => throw null;
 
-        internal RequiredAndOptional(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal RequiredAndOptional(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult GetAll(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult GetAll(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAllAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequiredAndOptionalProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Optional.RequiredAndOptionalProperty> GetAll(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.RequiredAndOptionalProperty>> GetAllAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult GetRequiredOnly(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult GetRequiredOnly(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetRequiredOnlyAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetRequiredOnlyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Optional.RequiredAndOptionalProperty> GetRequiredOnly(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.RequiredAndOptionalProperty>> GetRequiredOnlyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutAll(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAllAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutAll(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutAll(global::_Type.Property.Optional.RequiredAndOptionalProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAllAsync(global::_Type.Property.Optional.RequiredAndOptionalProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutRequiredOnly(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutRequiredOnlyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult PutRequiredOnly(global::_Type.Property.Optional.RequiredAndOptionalProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutRequiredOnlyAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutRequiredOnlyAsync(global::_Type.Property.Optional.RequiredAndOptionalProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

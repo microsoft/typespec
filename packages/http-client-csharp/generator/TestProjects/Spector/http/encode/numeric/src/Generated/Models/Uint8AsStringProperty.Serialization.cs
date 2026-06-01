@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode.Numeric._Property
 {
-    public partial class Uint8AsStringProperty : IJsonModel<Uint8AsStringProperty>
+    public partial class Uint8AsStringProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint8AsStringProperty>
     {
         internal Uint8AsStringProperty() => throw null;
 
-        protected virtual Uint8AsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Numeric._Property.Uint8AsStringProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Uint8AsStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint8AsStringProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Uint8AsStringProperty IPersistableModel<Uint8AsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Numeric._Property.Uint8AsStringProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint8AsStringProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Uint8AsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint8AsStringProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Uint8AsStringProperty uint8AsStringProperty) => throw null;
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Numeric._Property.Uint8AsStringProperty uint8AsStringProperty) => throw null;
 
-        public static explicit operator Uint8AsStringProperty(ClientResult result) => throw null;
+        public static explicit operator Uint8AsStringProperty(global::System.ClientModel.ClientResult result) => throw null;
 
-        void IJsonModel<Uint8AsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint8AsStringProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        Uint8AsStringProperty IJsonModel<Uint8AsStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        global::Encode.Numeric._Property.Uint8AsStringProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint8AsStringProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Uint8AsStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        protected virtual global::Encode.Numeric._Property.Uint8AsStringProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
     }
 }

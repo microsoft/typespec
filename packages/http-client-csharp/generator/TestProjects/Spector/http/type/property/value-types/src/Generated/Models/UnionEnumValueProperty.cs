@@ -8,6 +8,6 @@ namespace _Type.Property.ValueTypes
     {
         public UnionEnumValueProperty() => throw null;
 
-        public ExtendedEnum Property => throw null;
+        public global::_Type.Property.ValueTypes.ExtendedEnum Property => throw null;
     }
 }

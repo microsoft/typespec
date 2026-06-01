@@ -9,10 +9,10 @@ namespace Versioning.Removed.V2Preview
 {
     public static partial class VersioningRemovedV2PreviewModelFactory
     {
-        public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default, BinaryData unionProp = default) => throw null;
+        public static global::Versioning.Removed.ModelV1 ModelV1(string prop = default, global::Versioning.Removed.EnumV1 enumProp = default, global::System.BinaryData unionProp = default) => throw null;
 
-        public static ModelV2 ModelV2(string prop = default, string removedProp = default, EnumV2 enumProp = default, BinaryData unionProp = default) => throw null;
+        public static global::Versioning.Removed.ModelV2 ModelV2(string prop = default, string removedProp = default, global::Versioning.Removed.EnumV2 enumProp = default, global::System.BinaryData unionProp = default) => throw null;
 
-        public static ModelV3 ModelV3(string id = default) => throw null;
+        public static global::Versioning.Removed.ModelV3 ModelV3(string id = default) => throw null;
     }
 }

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.Path
 {
-    public partial class ParametersPathContext : ModelReaderWriterContext
+    public partial class ParametersPathContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

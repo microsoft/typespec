@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type._Enum.Fixed
 {
-    public partial class FixedClientOptions : ClientPipelineOptions
+    public partial class FixedClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
         public FixedClientOptions() => throw null;
 
-        [Experimental("SCME0002")]
-        internal FixedClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal FixedClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
     }
 }

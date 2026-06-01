@@ -10,27 +10,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.TwoOperationGroup
 {
-    [Experimental("SCME0002")]
-    public partial class TwoOperationGroupClientSettings : ClientSettings
+    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+    public partial class TwoOperationGroupClientSettings : global::System.ClientModel.Primitives.ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public ClientType? Client
+        public global::Client.Structure.Service.ClientType? Client
         {
             get => throw null;
             set => throw null;
         }
 
-        public TwoOperationGroupClientOptions Options
+        public global::Client.Structure.TwoOperationGroup.TwoOperationGroupClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
     }
 }

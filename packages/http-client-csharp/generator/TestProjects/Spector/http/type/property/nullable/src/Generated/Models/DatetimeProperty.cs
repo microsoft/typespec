@@ -8,7 +8,7 @@ namespace _Type.Property.Nullable
 {
     public partial class DatetimeProperty
     {
-        public DatetimeProperty(string requiredProperty, DateTimeOffset? nullableProperty) => throw null;
+        public DatetimeProperty(string requiredProperty, global::System.DateTimeOffset? nullableProperty) => throw null;
 
         public string RequiredProperty
         {
@@ -16,7 +16,7 @@ namespace _Type.Property.Nullable
             set => throw null;
         }
 
-        public DateTimeOffset? NullableProperty
+        public global::System.DateTimeOffset? NullableProperty
         {
             get => throw null;
             set => throw null;

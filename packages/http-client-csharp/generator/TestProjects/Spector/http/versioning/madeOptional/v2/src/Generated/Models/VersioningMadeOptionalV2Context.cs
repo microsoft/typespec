@@ -7,8 +7,8 @@ using Versioning.MadeOptional;
 
 namespace Versioning.MadeOptional.V2
 {
-    [ModelReaderWriterBuildable(typeof(TestModel))]
-    public partial class VersioningMadeOptionalV2Context : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.MadeOptional.TestModel))]
+    public partial class VersioningMadeOptionalV2Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

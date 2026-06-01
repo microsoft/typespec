@@ -15,40 +15,40 @@ namespace Parameters.CollectionFormat._Query
     {
         protected Query() => throw null;
 
-        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Query(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Multi(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Multi(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> MultiAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Multi(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Multi(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> MultiAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Ssv(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Ssv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Ssv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Ssv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Pipes(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Pipes(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PipesAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Pipes(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Pipes(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PipesAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Csv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Csv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

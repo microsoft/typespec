@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.CollectionFormat
 {
-    public partial class ParametersCollectionFormatContext : ModelReaderWriterContext
+    public partial class ParametersCollectionFormatContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }

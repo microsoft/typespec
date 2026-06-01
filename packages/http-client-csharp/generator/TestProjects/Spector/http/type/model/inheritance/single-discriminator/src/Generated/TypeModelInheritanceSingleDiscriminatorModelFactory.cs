@@ -8,18 +8,18 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public static partial class TypeModelInheritanceSingleDiscriminatorModelFactory
     {
-        public static Bird Bird(string kind = default, int wingspan = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.Bird Bird(string kind = default, int wingspan = default) => throw null;
 
-        public static SeaGull SeaGull(int wingspan = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull SeaGull(int wingspan = default) => throw null;
 
-        public static Sparrow Sparrow(int wingspan = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.Sparrow Sparrow(int wingspan = default) => throw null;
 
-        public static Goose Goose(int wingspan = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.Goose Goose(int wingspan = default) => throw null;
 
-        public static Eagle Eagle(int wingspan = default, IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.Eagle Eagle(int wingspan = default, global::System.Collections.Generic.IEnumerable<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> friends = default, global::System.Collections.Generic.IDictionary<string, global::_Type.Model.Inheritance.SingleDiscriminator.Bird> hate = default, global::_Type.Model.Inheritance.SingleDiscriminator.Bird partner = default) => throw null;
 
-        public static Dinosaur Dinosaur(string kind = default, int size = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur Dinosaur(string kind = default, int size = default) => throw null;
 
-        public static TRex TRex(int size = default) => throw null;
+        public static global::_Type.Model.Inheritance.SingleDiscriminator.TRex TRex(int size = default) => throw null;
     }
 }

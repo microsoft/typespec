@@ -11,30 +11,30 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> Pet is a discriminated animal. </summary>
-    public partial class Pet : Animal
+    public partial class Pet : global::SampleTypeSpec.Animal
     {
-        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Pet"/>. </summary>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/> is null. </exception>
         public Pet(string name, bool trained) : base("pet", name)
         {
-            Argument.AssertNotNull(name, nameof(name));
+            global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
 
             Trained = trained;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Pet"/>. </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
-        internal Pet(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool trained) : base(kind, name, additionalBinaryDataProperties)
+        internal Pet(string kind, string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, bool trained) : base(kind, name, additionalBinaryDataProperties)
         {
             Trained = trained;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Pet"/>. </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="trained"> Whether the pet is trained. </param>

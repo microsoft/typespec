@@ -7,38 +7,38 @@ using System.ComponentModel;
 
 namespace _Type._Enum.Extensible
 {
-    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<DaysOfWeekExtensibleEnum>
+    public readonly partial struct DaysOfWeekExtensibleEnum : global::System.IEquatable<global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum>
     {
         public DaysOfWeekExtensibleEnum(string value) => throw null;
 
-        public static DaysOfWeekExtensibleEnum Monday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Monday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Tuesday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Tuesday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Wednesday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Wednesday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Thursday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Thursday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Friday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Friday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Saturday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Saturday => throw null;
 
-        public static DaysOfWeekExtensibleEnum Sunday => throw null;
+        public static global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum Sunday => throw null;
 
-        public static bool operator ==(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => throw null;
+        public static bool operator ==(global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum left, global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum right) => throw null;
 
-        public static bool operator !=(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => throw null;
+        public static bool operator !=(global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum left, global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum right) => throw null;
 
-        public static implicit operator DaysOfWeekExtensibleEnum(string value) => throw null;
+        public static implicit operator global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum(string value) => throw null;
 
-        public static implicit operator DaysOfWeekExtensibleEnum?(string value) => throw null;
+        public static implicit operator global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum?(string value) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(DaysOfWeekExtensibleEnum other) => throw null;
+        public bool Equals(global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum other) => throw null;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

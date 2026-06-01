@@ -9,6 +9,6 @@ namespace Parameters.Basic
 {
     public static partial class ParametersBasicModelFactory
     {
-        public static User User(string name = default) => throw null;
+        public static global::Parameters.Basic._ExplicitBody.User User(string name = default) => throw null;
     }
 }

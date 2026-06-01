@@ -8,8 +8,8 @@ namespace Encode._Array
 {
     public partial class SpaceDelimitedEnumArrayProperty
     {
-        public SpaceDelimitedEnumArrayProperty(IEnumerable<Colors> value) => throw null;
+        public SpaceDelimitedEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.Colors> value) => throw null;
 
-        public IList<Colors> Value => throw null;
+        public global::System.Collections.Generic.IList<global::Encode._Array.Colors> Value => throw null;
     }
 }

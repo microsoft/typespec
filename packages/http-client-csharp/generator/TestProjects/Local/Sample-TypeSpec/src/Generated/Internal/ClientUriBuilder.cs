@@ -14,21 +14,21 @@ namespace SampleTypeSpec
 {
     internal partial class ClientUriBuilder
     {
-        private UriBuilder _uriBuilder;
-        private StringBuilder _pathAndQuery;
+        private global::System.UriBuilder _uriBuilder;
+        private global::System.Text.StringBuilder _pathAndQuery;
         private int _pathLength;
 
         public ClientUriBuilder()
         {
         }
 
-        private UriBuilder UriBuilder => _uriBuilder ??= new UriBuilder();
+        private global::System.UriBuilder UriBuilder => (_uriBuilder ??= new global::System.UriBuilder());
 
-        private StringBuilder PathAndQuery => _pathAndQuery ??= new StringBuilder();
+        private global::System.Text.StringBuilder PathAndQuery => (_pathAndQuery ??= new global::System.Text.StringBuilder());
 
-        public void Reset(Uri uri)
+        public void Reset(global::System.Uri uri)
         {
-            _uriBuilder = new UriBuilder(uri);
+            _uriBuilder = new global::System.UriBuilder(uri);
             PathAndQuery.Clear();
             PathAndQuery.Append(UriBuilder.Path);
             _pathLength = PathAndQuery.Length;
@@ -39,125 +39,125 @@ namespace SampleTypeSpec
         {
             if (escape)
             {
-                value = Uri.EscapeDataString(value);
+                value = global::System.Uri.EscapeDataString(value);
             }
-            if (_pathLength > 0 && PathAndQuery[_pathLength - 1] == '/' && value[0] == '/')
+            if ((((_pathLength > 0) && (PathAndQuery[(_pathLength - 1)] == '/')) && (value[0] == '/')))
             {
-                PathAndQuery.Remove(_pathLength - 1, 1);
-                _pathLength = _pathLength - 1;
+                PathAndQuery.Remove((_pathLength - 1), 1);
+                _pathLength = (_pathLength - 1);
             }
             PathAndQuery.Insert(_pathLength, value);
-            _pathLength = _pathLength + value.Length;
+            _pathLength = (_pathLength + value.Length);
         }
 
-        public void AppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(bool value, bool escape = false) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(float value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(float value, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(double value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(double value, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(int value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(int value, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(byte[] value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(global::System.Byte[] value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(DateTimeOffset value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(global::System.DateTimeOffset value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(TimeSpan value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(global::System.TimeSpan value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(global::System.Guid value, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(long value, bool escape = true) => AppendPath(global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, SerializationFormat format = SerializationFormat.Default, bool escape = true)
+        public void AppendPathDelimited<T>(global::System.Collections.Generic.IEnumerable<T> value, string delimiter, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true)
         {
             delimiter ??= ",";
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
+            global::System.Collections.Generic.IEnumerable<string> stringValues = value.Select(v => global::SampleTypeSpec.TypeFormatters.ConvertToString(v, format));
             AppendPath(string.Join(delimiter, stringValues), escape);
         }
 
         public void AppendQuery(string name, string value, bool escape)
         {
-            if (PathAndQuery.Length == _pathLength)
+            if ((PathAndQuery.Length == _pathLength))
             {
                 PathAndQuery.Append('?');
             }
-            if (PathAndQuery.Length > _pathLength && PathAndQuery[PathAndQuery.Length - 1] != '?')
+            if (((PathAndQuery.Length > _pathLength) && (PathAndQuery[(PathAndQuery.Length - 1)] != '?')))
             {
                 PathAndQuery.Append('&');
             }
             if (escape)
             {
-                value = Uri.EscapeDataString(value);
+                value = global::System.Uri.EscapeDataString(value);
             }
             PathAndQuery.Append(name);
             PathAndQuery.Append('=');
             PathAndQuery.Append(value);
         }
 
-        public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, DateTimeOffset value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, global::System.DateTimeOffset value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendQuery(string name, TimeSpan value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, global::System.TimeSpan value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, decimal value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, decimal value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, int value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, int value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, long value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, long value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, global::System.TimeSpan value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, byte[] value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, global::System.Byte[] value, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, global::System.Guid value, bool escape = true) => AppendQuery(name, global::SampleTypeSpec.TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, SerializationFormat format = SerializationFormat.Default, bool escape = true)
+        public void AppendQueryDelimited<T>(string name, global::System.Collections.Generic.IEnumerable<T> value, string delimiter, global::SampleTypeSpec.SerializationFormat format = global::SampleTypeSpec.SerializationFormat.Default, bool escape = true)
         {
             delimiter ??= ",";
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
+            global::System.Collections.Generic.IEnumerable<string> stringValues = value.Select(v => global::SampleTypeSpec.TypeFormatters.ConvertToString(v, format));
             AppendQuery(name, string.Join(delimiter, stringValues), escape);
         }
 
         public void UpdateQuery(string name, string value)
         {
-            if (PathAndQuery.Length == _pathLength)
+            if ((PathAndQuery.Length == _pathLength))
             {
                 AppendQuery(name, value, false);
             }
             else
             {
-                int queryStartIndex = _pathLength + 1;
-                string searchPattern = name + "=";
-                string queryString = PathAndQuery.ToString(queryStartIndex, PathAndQuery.Length - queryStartIndex);
+                int queryStartIndex = (_pathLength + 1);
+                string searchPattern = (name + "=");
+                string queryString = PathAndQuery.ToString(queryStartIndex, (PathAndQuery.Length - queryStartIndex));
                 int paramStartIndex = -1;
                 if (queryString.StartsWith(searchPattern))
                 {
                     paramStartIndex = 0;
                 }
-                if (paramStartIndex == -1)
+                if ((paramStartIndex == -1))
                 {
-                    int prefixedIndex = queryString.IndexOf("&" + searchPattern);
-                    if (prefixedIndex >= 0)
+                    int prefixedIndex = queryString.IndexOf(("&" + searchPattern));
+                    if ((prefixedIndex >= 0))
                     {
-                        paramStartIndex = prefixedIndex + 1;
+                        paramStartIndex = (prefixedIndex + 1);
                     }
                 }
-                if (paramStartIndex >= 0)
+                if ((paramStartIndex >= 0))
                 {
-                    int valueStartIndex = paramStartIndex + searchPattern.Length;
+                    int valueStartIndex = (paramStartIndex + searchPattern.Length);
                     int valueEndIndex = queryString.IndexOf('&', valueStartIndex);
-                    if (valueEndIndex == -1)
+                    if ((valueEndIndex == -1))
                     {
                         valueEndIndex = queryString.Length;
                     }
-                    int globalStart = queryStartIndex + valueStartIndex;
-                    int globalEnd = queryStartIndex + valueEndIndex;
-                    PathAndQuery.Remove(globalStart, globalEnd - globalStart);
+                    int globalStart = (queryStartIndex + valueStartIndex);
+                    int globalEnd = (queryStartIndex + valueEndIndex);
+                    PathAndQuery.Remove(globalStart, (globalEnd - globalStart));
                     PathAndQuery.Insert(globalStart, value);
                 }
                 else
@@ -167,14 +167,14 @@ namespace SampleTypeSpec
             }
         }
 
-        public Uri ToUri()
+        public global::System.Uri ToUri()
         {
             UriBuilder.Path = PathAndQuery.ToString(0, _pathLength);
-            if (PathAndQuery.Length > _pathLength)
+            if ((PathAndQuery.Length > _pathLength))
             {
-                UriBuilder.Query = PathAndQuery.ToString(_pathLength + 1, PathAndQuery.Length - _pathLength - 1);
+                UriBuilder.Query = PathAndQuery.ToString((_pathLength + 1), ((PathAndQuery.Length - _pathLength) - 1));
             }
-            if (PathAndQuery.Length == _pathLength)
+            if ((PathAndQuery.Length == _pathLength))
             {
                 UriBuilder.Query = "";
             }

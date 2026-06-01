@@ -9,10 +9,10 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class IsModelArrayAdditionalProperties
     {
-        public IsModelArrayAdditionalProperties(IEnumerable<ModelForRecord> knownProp) => throw null;
+        public IsModelArrayAdditionalProperties(global::System.Collections.Generic.IEnumerable<global::_Type.Property.AdditionalProperties.ModelForRecord> knownProp) => throw null;
 
-        public IList<ModelForRecord> KnownProp => throw null;
+        public global::System.Collections.Generic.IList<global::_Type.Property.AdditionalProperties.ModelForRecord> KnownProp => throw null;
 
-        public IDictionary<string, IList<BinaryData>> AdditionalProperties => throw null;
+        public global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> AdditionalProperties => throw null;
     }
 }

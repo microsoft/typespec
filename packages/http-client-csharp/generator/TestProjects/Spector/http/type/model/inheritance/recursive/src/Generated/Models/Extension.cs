@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.Recursive
 {
-    public partial class Extension : Element
+    public partial class Extension : global::_Type.Model.Inheritance.Recursive.Element
     {
         public Extension(sbyte level) => throw null;
 
-        internal Extension(IList<Extension> extension, IDictionary<string, BinaryData> additionalBinaryDataProperties, sbyte level) : base(extension, additionalBinaryDataProperties) => throw null;
+        internal Extension(global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.Recursive.Extension> extension, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, sbyte level) : base(extension, additionalBinaryDataProperties) => throw null;
 
         public sbyte Level
         {

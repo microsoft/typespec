@@ -13,17 +13,17 @@ namespace SampleTypeSpec
     /// <summary></summary>
     public partial class PetOperations
     {
-        private static PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal PipelineMessage CreateUpdatePetAsPetRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateUpdatePetAsPetRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/pets/pet/as-pet", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -31,13 +31,13 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateUpdateDogAsPetRequest(BinaryContent content, RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateUpdateDogAsPetRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            ClientUriBuilder uri = new ClientUriBuilder();
+            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/pets/dog/as-pet", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;

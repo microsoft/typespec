@@ -14,16 +14,16 @@ namespace Routes
     {
         protected InInterface() => throw null;
 
-        internal InInterface(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal InInterface(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
-        public ClientPipeline Pipeline => throw null;
+        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Fixed(RequestOptions options) => throw null;
+        public virtual global::System.ClientModel.ClientResult Fixed(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FixedAsync(RequestOptions options) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FixedAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
 
-        public virtual ClientResult Fixed(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.ClientModel.ClientResult Fixed(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FixedAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
     }
 }

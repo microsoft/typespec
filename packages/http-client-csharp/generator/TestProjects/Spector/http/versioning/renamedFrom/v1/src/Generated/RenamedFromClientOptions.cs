@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Versioning.RenamedFrom
 {
-    public partial class RenamedFromClientOptions : ClientPipelineOptions
+    public partial class RenamedFromClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V1;
+        private const global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion LatestVersion = global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion.V1;
 
-        public RenamedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        public RenamedFromClientOptions(global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [Experimental("SCME0002")]
-        internal RenamedFromClientOptions(IConfigurationSection section) : base(section) => throw null;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal RenamedFromClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

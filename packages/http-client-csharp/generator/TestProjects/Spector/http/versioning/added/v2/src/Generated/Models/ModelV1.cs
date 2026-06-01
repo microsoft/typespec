@@ -8,7 +8,7 @@ namespace Versioning.Added
 {
     public partial class ModelV1
     {
-        public ModelV1(string prop, EnumV1 enumProp, BinaryData unionProp) => throw null;
+        public ModelV1(string prop, global::Versioning.Added.EnumV1 enumProp, global::System.BinaryData unionProp) => throw null;
 
         public string Prop
         {
@@ -16,13 +16,13 @@ namespace Versioning.Added
             set => throw null;
         }
 
-        public EnumV1 EnumProp
+        public global::Versioning.Added.EnumV1 EnumProp
         {
             get => throw null;
             set => throw null;
         }
 
-        public BinaryData UnionProp
+        public global::System.BinaryData UnionProp
         {
             get => throw null;
             set => throw null;

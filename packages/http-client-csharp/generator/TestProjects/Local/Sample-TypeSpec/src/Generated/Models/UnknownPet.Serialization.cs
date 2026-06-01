@@ -12,102 +12,102 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnknownPet : Pet, IJsonModel<Pet>
+    internal partial class UnknownPet : global::SampleTypeSpec.Pet, global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Pet>
     {
-        /// <summary> Initializes a new instance of <see cref="UnknownPet"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.UnknownPet"/> for deserialization. </summary>
         internal UnknownPet()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Animal PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override global::SampleTypeSpec.Animal PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializePet(document.RootElement, options);
+                        return global::SampleTypeSpec.Pet.DeserializePet(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Pet)} does not support reading '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Pet)} does not support writing '{options.Format}' format.");
+                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Pet>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IPersistableModel<Pet>.Create(BinaryData data, ModelReaderWriterOptions options) => (Pet)PersistableModelCreateCore(data, options);
+        global::SampleTypeSpec.Pet global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::SampleTypeSpec.Pet)this.PersistableModelCreateCore(data, options));
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Pet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Pet>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
+            this.JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Pet)} does not support writing '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
         }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IJsonModel<Pet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (Pet)JsonModelCreateCore(ref reader, options);
+        global::SampleTypeSpec.Pet global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Pet>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::SampleTypeSpec.Pet)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Animal JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override global::SampleTypeSpec.Animal JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Pet)} does not support reading '{format}' format.");
+                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializePet(document.RootElement, options);
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::SampleTypeSpec.Pet.DeserializePet(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static UnknownPet DeserializeUnknownPet(JsonElement element, ModelReaderWriterOptions options)
+        internal static global::SampleTypeSpec.UnknownPet DeserializeUnknownPet(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            if (element.ValueKind == JsonValueKind.Null)
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             string kind = "unknown";
             string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
             bool trained = default;
             foreach (var prop in element.EnumerateObject())
             {
@@ -126,12 +126,12 @@ namespace SampleTypeSpec
                     trained = prop.Value.GetBoolean();
                     continue;
                 }
-                if (options.Format != "W")
+                if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new UnknownPet(kind, name, additionalBinaryDataProperties, trained);
+            return new global::SampleTypeSpec.UnknownPet(kind, name, additionalBinaryDataProperties, trained);
         }
     }
 }

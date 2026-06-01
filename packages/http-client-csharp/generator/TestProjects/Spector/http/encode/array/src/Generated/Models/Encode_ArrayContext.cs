@@ -6,19 +6,19 @@ using System.ClientModel.Primitives;
 
 namespace Encode._Array
 {
-    [ModelReaderWriterBuildable(typeof(CommaDelimitedArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(CommaDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(CommaDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(NewlineDelimitedArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(NewlineDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(NewlineDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(PipeDelimitedArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(PipeDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(PipeDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(SpaceDelimitedArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(SpaceDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildable(typeof(SpaceDelimitedExtensibleEnumArrayProperty))]
-    public partial class Encode_ArrayContext : ModelReaderWriterContext
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.CommaDelimitedArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.CommaDelimitedEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.CommaDelimitedExtensibleEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.NewlineDelimitedArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.NewlineDelimitedEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.NewlineDelimitedExtensibleEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.PipeDelimitedArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.PipeDelimitedEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.PipeDelimitedExtensibleEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.SpaceDelimitedArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.SpaceDelimitedEnumArrayProperty))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode._Array.SpaceDelimitedExtensibleEnumArrayProperty))]
+    public partial class Encode_ArrayContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
 }
