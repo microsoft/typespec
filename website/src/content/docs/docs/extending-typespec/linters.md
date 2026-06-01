@@ -62,7 +62,7 @@ export const requiredDocRule = createRule({
 });
 ```
 
-#### Choose a rule name
+#### Naming convention
 
 Rule names are user-facing in diagnostics, `tspconfig.yaml`, docs URLs, and suppression comments, so keep them concise and readable.
 
