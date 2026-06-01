@@ -2033,9 +2033,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [internalModel]);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
 
-            var convenienceMethods = methodCollection.Where(m =>
+            var convenienceMethods = client!.Methods.Where(m =>
                 m.Signature.Parameters.All(p => p.Name != "content") &&
                 m.Signature.Name.StartsWith("Foo")).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -2083,9 +2082,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 inputModels: () => [customInternalModel]);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
 
-            var convenienceMethods = methodCollection.Where(m =>
+            var convenienceMethods = client!.Methods.Where(m =>
                 m.Signature.Parameters.All(p => p.Name != "content") &&
                 m.Signature.Name.StartsWith("Foo")).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
@@ -2128,9 +2126,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [publicModel]);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
 
-            var convenienceMethods = methodCollection.Where(m =>
+            var convenienceMethods = client!.Methods.Where(m =>
                 m.Signature.Parameters.All(p => p.Name != "content") &&
                 m.Signature.Name.StartsWith("Foo")).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
