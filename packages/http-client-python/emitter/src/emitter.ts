@@ -1,6 +1,7 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
+import { randomUUID } from "crypto";
 import fs from "fs";
 import jsyaml from "js-yaml";
 import os from "os";
@@ -330,8 +331,60 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
           `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
         );
         await checkForPylintIssues(outputDir, excludePattern);
+
+        if (resolvedOptions["generate-api-md"]) {
+          await generateApiMd(program, venvPath, yamlPath, outputDir, root);
+        }
       }
     }
+  }
+}
+
+async function generateApiMd(
+  program: any,
+  venvPath: string,
+  yamlPath: string,
+  outputDir: string,
+  root: string,
+): Promise<void> {
+  const apiviewOutDir = path.join(os.tmpdir(), `tsp-apiview-${randomUUID()}`);
+  try {
+    fs.mkdirSync(apiviewOutDir, { recursive: true });
+
+    // Run apistubgen with --code-model-path to generate token JSON
+    execFileSync(venvPath, [
+      "-m",
+      "apistub",
+      "--code-model-path",
+      yamlPath,
+      "--out-path",
+      apiviewOutDir,
+      "--skip-pylint",
+    ]);
+
+    // Find the generated token JSON file
+    const tokenFiles = fs.readdirSync(apiviewOutDir).filter((f: string) => f.endsWith(".json"));
+    if (tokenFiles.length === 0) {
+      reportDiagnostic(program, {
+        code: "api-md-generation-failed",
+        target: NoTarget,
+        format: { details: "apistubgen did not produce a token JSON file" },
+      });
+      return;
+    }
+
+    // Convert token JSON to api.md using the Python conversion script
+    const tokenJsonPath = path.join(apiviewOutDir, tokenFiles[0]);
+    const mdScript = path.join(root, "eng", "scripts", "setup", "export_apiview_markdown.py");
+    execFileSync(venvPath, [mdScript, tokenJsonPath, outputDir]);
+  } catch (e: any) {
+    reportDiagnostic(program, {
+      code: "api-md-generation-failed",
+      target: NoTarget,
+      format: { details: e.message || String(e) },
+    });
+  } finally {
+    fs.rmSync(apiviewOutDir, { recursive: true, force: true });
   }
 }
 
