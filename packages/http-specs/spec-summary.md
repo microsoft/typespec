@@ -894,8 +894,8 @@ Expected header `duration: 36`
 
 Test int32 seconds encode for a duration header whose value has a fractional (sub-second) component.
 The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
-Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number), e.g. `duration: 36`.
-Expected header to be an integer (the fractional part is dropped during serialization).
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `35.625`).
+Whether the fractional part is rounded or truncated is an emitter implementation detail; the test only validates that an integer is sent (e.g. `duration: 35` or `duration: 36`).
 
 ### Encode_Duration_Header_int32SecondsLargerUnit
 
@@ -1180,22 +1180,8 @@ Expected response body:
 
 Test operation with request and response model contains a duration property with int32 seconds encode whose value has a fractional (sub-second) component.
 The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
-Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number).
-Expected request body:
-
-```json
-{
-  "value": 36
-}
-```
-
-Expected response body:
-
-```json
-{
-  "value": 36
-}
-```
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `35.625`).
+Whether the fractional part is rounded or truncated is an emitter implementation detail; the test only validates that an integer is sent (e.g. `35` or `36`).
 
 ### Encode_Duration_Property_int32SecondsLargerUnit
 
@@ -1333,8 +1319,8 @@ Expected query parameter `input=36,47`
 
 Test int32 seconds encode for a duration parameter whose value has a fractional (sub-second) component.
 The duration is 35.625 seconds, e.g. TimeSpan.FromSeconds(35.625) in C#.
-Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number), e.g. `input=36`.
-Expected query parameter to be an integer (the fractional part is dropped during serialization).
+Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `35.625`).
+Whether the fractional part is rounded or truncated is an emitter implementation detail; the test only validates that an integer is sent (e.g. `input=35` or `input=36`).
 
 ### Encode_Duration_Query_int32SecondsLargerUnit
 
