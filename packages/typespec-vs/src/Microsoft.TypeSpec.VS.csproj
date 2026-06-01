@@ -11,6 +11,7 @@
     <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
     <NuGetAuditMode>all</NuGetAuditMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
     <Version>42.42.42</Version>
     <!-- Only deploy extension when building inside Visual Studio-->
@@ -45,8 +46,8 @@
   <ItemGroup>
     <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" NoWarn="NU1603" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" NoWarn="NU1603" />
     <!-- https://github.com/advisories/GHSA-w3q9-fxm7-j8fq -->
     <PackageReference Include="Microsoft.Build" Version="17.14.28"/>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2120">

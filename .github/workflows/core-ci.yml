@@ -40,7 +40,7 @@ jobs:
         run: pnpm install
 
       - name: Restore .NET dependencies
-        run: dotnet restore
+        run: dotnet restore --locked-mode
         working-directory: packages/typespec-vs
 
       - name: Build

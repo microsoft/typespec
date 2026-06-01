@@ -216,6 +216,9 @@ packages/*/etc/
 
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
+
+# typespec-vs NuGet lock file for deterministic CI restores
+!packages/typespec-vs/src/packages.lock.json
 packages/http-client-csharp/generator/artifacts/
 packages/http-client-csharp/debug/
 packages/http-client-csharp/generated-defs/**/*.js
