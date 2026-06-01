@@ -40,6 +40,10 @@ import {
 import type { Program } from "./program.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
+  ResolutionKind as NewResolutionKind,
+  TypeResolver,
+} from "./type-resolver.js";
+import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isArrayModelType,
@@ -530,6 +534,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const typeResolver = new TypeResolver();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -1184,8 +1189,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSym(node), ResolutionKind.Constraint);
+        if (ctx.mapper === undefined) {
+          typeResolver.startResolution({
+            kind: NewResolutionKind.Constraint,
+            sym: getNodeSym(node),
+            node: node,
+            description: `Constraint of '${node.id.sv}'`,
+          });
+        }
         type.constraint = getParamConstraintEntityForNode(ctx, node.constraint);
         pendingResolutions.finish(getNodeSym(node), ResolutionKind.Constraint);
+        if (ctx.mapper === undefined) {
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.Constraint,
+            sym: getNodeSym(node),
+            node: node,
+            description: `Constraint of '${node.id.sv}'`,
+          });
+        }
       }
       if (node.default) {
         // Set this to unknownType in case the default points back to the template itself causing failures
@@ -2076,11 +2097,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    const description = `${awaitingType.kind}${
+      "name" in awaitingType ? ` '${String(awaitingType.name)}'` : ""
+    }`;
+
     function check() {
       if (waitingFor.size === 0) {
+        typeResolver.resolveDeferredCompletion(description);
         callback();
       }
     }
+
+    if (waitingFor.size > 0) {
+      typeResolver.trackDeferredCompletion(description, waitingFor.size);
+    }
+
     for (const type of waitingFor) {
       waitingForResolution.set(type, [
         ...(waitingForResolution.get(type) || []),
@@ -2730,6 +2761,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (opSymId) {
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (opSymId && ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: opSymId,
+        node: opReference,
+        description: `Operation '${opSymId.name}' is`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-op-signature",
+            format: { typeName: opSymId.name },
+            target: opReference,
+          }),
+        );
+        if (opSymId) {
+          pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+        }
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(opReference).resolvedSymbol;
 
@@ -2743,8 +2796,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: opReference,
           }),
         );
-      }
 
+        if (opSymId) {
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.BaseType,
+            sym: opSymId,
+            node: opReference,
+            description: `Operation '${opSymId.name}' is`,
+          });
+        }
+      }
+      if (opSymId) {
+        pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+      }
       return undefined;
     }
 
@@ -2752,6 +2816,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const baseOperation = getTypeForNode(opReference, ctx);
     if (opSymId) {
       pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
+    }
+    if (opSymId && ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: opSymId,
+        node: opReference,
+        description: `Operation '${opSymId.name}' is`,
+      });
     }
 
     if (isErrorType(baseOperation)) {
@@ -4064,7 +4136,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     let memberSymbol = getMemberSymbol(containerSymbol, memberName);
     if (!memberSymbol?.type && containerSymbol.flags & SymbolFlags.LateBound) {
+      // Late-bind members on demand — track this in the resolver for visibility
+      const containerName = "name" in containerType ? containerType.name : containerSymbol.name;
+      const request = {
+        kind: NewResolutionKind.MemberType,
+        sym: containerSymbol,
+        node: containerType.node!,
+        description: `Member '${memberName}' of ${containerType.kind} '${containerName}'`,
+      };
+      const result = typeResolver.startResolution(request);
+      if (result.status === "cycle") {
+        // Cycle in member resolution — return undefined to propagate the error
+        typeResolver.finishResolution(request);
+        return undefined;
+      }
       lateBindMembers(containerType);
+      typeResolver.finishResolution(request);
       memberSymbol = getMemberSymbol(containerSymbol, memberName);
     }
 
@@ -4439,6 +4526,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    // If the type is still being created (e.g., model A is Template<{t: B}> where B
+    // references A.t), check if we can find the member from its `is` base or spreads
+    // that are already resolved.
+    if (type.creating && type.kind === "Model") {
+      const memberFromCreating = tryResolveMemberFromCreatingModel(ctx, type, node.id.sv);
+      if (memberFromCreating) {
+        return memberFromCreating;
+      }
+    }
+
     // Late-bind the container and its members.
     switch (type.kind) {
       case "Model":
@@ -4454,6 +4551,178 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return getCanonicalResolvedMemberSymbol(type, node.id.sv);
+  }
+
+  /**
+   * Try to resolve a member from a model that is still being created.
+   * This handles the case where `model A is Template<{t: B}>` and B references `A.t`.
+   * The member 't' comes from the `is` base (the template instantiation) which may
+   * already have its properties resolved even though A hasn't copied them yet.
+   */
+  function tryResolveMemberFromCreatingModel(
+    ctx: CheckContext,
+    model: Model,
+    memberName: string,
+  ): Sym | undefined {
+    // First check if the model already has the property (from its own declared properties)
+    const existingProp = model.properties.get(memberName);
+    if (existingProp) {
+      return getTypeSymbol(existingProp) ?? undefined;
+    }
+
+    // Check the model's AST node for `is` base and spreads
+    const modelNode = model.node;
+    if (!modelNode || modelNode.kind !== SyntaxKind.ModelStatement) {
+      return undefined;
+    }
+
+    // If there's an `is` clause, resolve the `is` expression type.
+    // getTypeForNode will return a cached type if the `is` target was already checked.
+    if (modelNode.is) {
+      const isBaseType = getTypeForNode(modelNode.is, ctx);
+      if (isBaseType && isBaseType.kind === "Model") {
+        // First check if the is-base already has the member (even if creating)
+        const prop = isBaseType.properties.get(memberName);
+        if (prop) {
+          return createLateBoundMemberSym(model, prop, memberName, modelNode);
+        }
+        // If the is-base is still creating, look at ITS spread sources recursively
+        if (isBaseType.creating) {
+          const found = findMemberInCreatingModelSources(ctx, isBaseType, memberName);
+          if (found) {
+            return createLateBoundMemberSym(model, found, memberName, modelNode);
+          }
+        }
+      }
+    }
+
+    // Check spread targets
+    for (const propNode of modelNode.properties) {
+      if (propNode.kind === SyntaxKind.ModelSpreadProperty) {
+        const spreadType = getTypeForNode(propNode.target, ctx);
+        if (spreadType && spreadType.kind === "Model") {
+          const prop = spreadType.properties.get(memberName);
+          if (prop) {
+            return createLateBoundMemberSym(model, prop, memberName, modelNode);
+          }
+          if (spreadType.creating) {
+            const found = findMemberInCreatingModelSources(ctx, spreadType, memberName);
+            if (found) {
+              return createLateBoundMemberSym(model, found, memberName, modelNode);
+            }
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  function createLateBoundMemberSym(
+    model: Model,
+    prop: ModelProperty,
+    memberName: string,
+    containerNode: Node,
+  ): Sym | undefined {
+    const sym = createSymbol(
+      prop.node ?? containerNode,
+      memberName,
+      SymbolFlags.Member | SymbolFlags.Declaration | SymbolFlags.LateBound,
+      model.symbol,
+    );
+    mutate(sym).type = prop;
+    if (model.symbol?.members) {
+      const containerMembers: Mutable<SymbolTable> = resolver.getAugmentedSymbolTable(
+        model.symbol.members,
+      );
+      containerMembers.set(memberName, sym);
+    }
+    return sym;
+  }
+
+  /**
+   * Search for a member in a model that's still being created by looking at its
+   * source models (spreads and `is` targets). This handles the case where:
+   *   model Template<T> {...T}
+   *   model A is Template<{t: B}>
+   * When A is creating and its properties haven't been copied yet, we can look
+   * at Template<{t:B}>'s spread sources to find property `t`.
+   */
+  function findMemberInCreatingModelSources(
+    ctx: CheckContext,
+    model: Model,
+    memberName: string,
+    visited: Set<Model> = new Set(),
+  ): ModelProperty | undefined {
+    if (visited.has(model)) return undefined;
+    visited.add(model);
+
+    // Check own properties first (already resolved)
+    const ownProp = model.properties.get(memberName);
+    if (ownProp) return ownProp;
+
+    // Look at the model's AST node for spread sources.
+    // Use the model's templateMapper when resolving references in its body,
+    // since template instances share the same AST node as the template declaration.
+    const modelNode = model.node;
+    if (!modelNode) return undefined;
+
+    const resolveCtx = model.templateMapper ? ctx.withMapper(model.templateMapper) : ctx;
+
+    if (
+      modelNode.kind === SyntaxKind.ModelStatement ||
+      modelNode.kind === SyntaxKind.ModelExpression
+    ) {
+      // Check direct property declarations that might not be resolved yet.
+      // If the model expression has `t: B` as a declared property but hasn't
+      // been fully checked, we can still resolve the property from its member symbol.
+      // Due to early linkType on properties, the symbol may already have a type.
+      if (model.creating) {
+        const memberSym = model.node?.symbol?.members
+          ? getMemberSymbol(model.node.symbol, memberName)
+          : undefined;
+        if (memberSym) {
+          const memberLinks = resolver.getSymbolLinks(memberSym);
+          if (memberLinks.declaredType && memberLinks.declaredType.kind === "ModelProperty") {
+            return memberLinks.declaredType as ModelProperty;
+          }
+        }
+      }
+
+      for (const propNode of modelNode.properties) {
+        if (propNode.kind === SyntaxKind.ModelSpreadProperty) {
+          const spreadType = getTypeForNode(propNode.target, resolveCtx);
+          if (spreadType && spreadType.kind === "Model") {
+            const prop = spreadType.properties.get(memberName);
+            if (prop) return prop;
+            if (spreadType.creating) {
+              const found = findMemberInCreatingModelSources(ctx, spreadType, memberName, visited);
+              if (found) return found;
+            }
+          }
+        }
+      }
+
+      // For model statements, also check the `is` base
+      if (modelNode.kind === SyntaxKind.ModelStatement && modelNode.is) {
+        const isBaseType = getTypeForNode(modelNode.is, resolveCtx);
+        if (isBaseType && isBaseType.kind === "Model") {
+          const prop = isBaseType.properties.get(memberName);
+          if (prop) return prop;
+          if (isBaseType.creating) {
+            const found = findMemberInCreatingModelSources(
+              ctx,
+              isBaseType,
+              memberName,
+              visited,
+            );
+            if (found) return found;
+          }
+        }
+      }
+    }
+
+    return undefined;
   }
 
   function getMemberKindName(node: Node) {
@@ -4640,8 +4909,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(sym, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: sym,
+        node: node,
+        description: `Template container '${sym.name}'`,
+      });
+    }
     const type = checkTypeReferenceSymbol(ctx, sym, node);
     pendingResolutions.finish(sym, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: sym,
+        node: node,
+        description: `Template container '${sym.name}'`,
+      });
+    }
 
     return lateBindContainer(type, sym);
   }
@@ -4860,6 +5145,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return;
     }
 
+    const unresolvedDeferred = typeResolver.unresolvedDeferredCompletions;
     const message = [
       "Unexpected pending resolutions found",
       ...[...waitingForResolution.entries()].flatMap(([type, items]) => {
@@ -4868,6 +5154,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           ([item], index) => `${index === 0 ? base : " ".repeat(base.length)}${getTypeName(item)}`,
         );
       }),
+      ...(unresolvedDeferred.length > 0
+        ? [
+            "  Deferred completions still pending:",
+            ...unresolvedDeferred.map(
+              (d) => `    ${d.description} (waiting for ${d.dependencyCount} dependencies)`,
+            ),
+          ]
+        : []),
     ].join("\n");
     compilerAssert(false, message);
   }
@@ -5020,6 +5314,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       derivedModels: [],
     });
     linkType(ctx, links, type);
+    // Set templateMapper early so that member lookups on this creating model
+    // can resolve spread targets through the correct mapper context.
+    linkMapper(type, ctx.mapper);
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
@@ -5085,7 +5382,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
         decorators.push(...checkDecorators(ctx, type, node));
 
-        linkMapper(type, ctx.mapper);
         finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
 
         lateBindMemberContainer(type);
@@ -6451,6 +6747,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: heritageRef,
+        description: `Model '${modelSymId.name}' extends`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: modelSymId.name },
+            target: heritageRef,
+          }),
+        );
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(heritageRef).resolvedSymbol;
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
@@ -6462,11 +6778,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: target,
           }),
         );
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: heritageRef,
+          description: `Model '${modelSymId.name}' extends`,
+        });
       }
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
     const heritageType = getTypeForNode(heritageRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: heritageRef,
+        description: `Model '${modelSymId.name}' extends`,
+      });
+    }
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
       return undefined;
@@ -6499,6 +6830,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: isExpr,
+        description: `Model '${modelSymId.name}' is`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: modelSymId.name },
+            target: isExpr,
+          }),
+        );
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
     let isType;
     if (isExpr.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
@@ -6508,6 +6859,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: isExpr,
         }),
       );
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: isExpr,
+          description: `Model '${modelSymId.name}' is`,
+        });
+      }
       pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
@@ -6523,6 +6882,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               target: target,
             }),
           );
+          typeResolver.finishResolution({
+            kind: NewResolutionKind.BaseType,
+            sym: modelSymId,
+            node: isExpr,
+            description: `Model '${modelSymId.name}' is`,
+          });
         }
         pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
@@ -6530,11 +6895,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       isType = getTypeForNode(isExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: modelSymId,
+          node: isExpr,
+          description: `Model '${modelSymId.name}' is`,
+        });
+      }
       pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
 
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: modelSymId,
+        node: isExpr,
+        description: `Model '${modelSymId.name}' is`,
+      });
+    }
 
     if (isType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
@@ -6673,6 +7054,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(ctx, links, type);
     }
 
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.PropertyType,
+        sym: sym,
+        node: prop,
+        description: `Property '${name}'`,
+      });
+    }
     type.type = getTypeForNode(prop.value, ctx);
 
     // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
@@ -6708,6 +7097,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.PropertyType,
+        sym: sym,
+        node: prop,
+        description: `Property '${name}'`,
+      });
+    }
     return finishType(type, { skipDecorators: !shouldRunDecorators });
   }
 
@@ -7273,6 +7670,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Scalar | undefined {
     const symId = getNodeSym(scalar);
     pendingResolutions.start(symId, ResolutionKind.BaseType);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      const resolution = typeResolver.startResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: symId,
+        node: extendsRef,
+        description: `Scalar '${symId.name}' extends`,
+      });
+      if (resolution.status === "cycle") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: symId.name },
+            target: extendsRef,
+          }),
+        );
+        pendingResolutions.finish(symId, ResolutionKind.BaseType);
+        return undefined;
+      }
+    }
 
     const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
 
@@ -7285,11 +7702,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             target: target,
           }),
         );
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.BaseType,
+          sym: symId,
+          node: extendsRef,
+          description: `Scalar '${symId.name}' extends`,
+        });
       }
+      pendingResolutions.finish(symId, ResolutionKind.BaseType);
       return undefined;
     }
     const extendsType = getTypeForNode(extendsRef, ctx);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.BaseType,
+        sym: symId,
+        node: extendsRef,
+        description: `Scalar '${symId.name}' extends`,
+      });
+    }
     if (isErrorType(extendsType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", extendsRef);
       return undefined;
@@ -7415,18 +7847,53 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
+    // In non-template contexts, also use the stack-based resolver for richer cycle diagnostics
+    if (ctx.mapper === undefined) {
+      typeResolver.startResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: aliasSymId,
+        node: node,
+        description: `Alias '${node.id.sv}'`,
+      });
+    }
     const type = checkNode(ctx, node.value);
     if (type === null) {
       links.declaredType = errorType;
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.AliasTarget,
+          sym: aliasSymId,
+          node: node,
+          description: `Alias '${node.id.sv}'`,
+        });
+      }
       return errorType;
     }
     if (isValue(type)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
       links.declaredType = errorType;
+      pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+      if (ctx.mapper === undefined) {
+        typeResolver.finishResolution({
+          kind: NewResolutionKind.AliasTarget,
+          sym: aliasSymId,
+          node: node,
+          description: `Alias '${node.id.sv}'`,
+        });
+      }
       return errorType;
     }
     linkType(ctx, links, type as any);
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
+    if (ctx.mapper === undefined) {
+      typeResolver.finishResolution({
+        kind: NewResolutionKind.AliasTarget,
+        sym: aliasSymId,
+        node: node,
+        description: `Alias '${node.id.sv}'`,
+      });
+    }
 
     return type;
   }
@@ -7452,8 +7919,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(node.symbol, ResolutionKind.Value);
+    // Also track on the stack-based resolver for richer diagnostics
+    typeResolver.startResolution({
+      kind: NewResolutionKind.ConstValue,
+      sym: node.symbol,
+      node: node,
+      description: `Const '${node.id.sv}'`,
+    });
     const value = getValueForNode(node.value, undefined, type && { kind: "assignment", type });
     pendingResolutions.finish(node.symbol, ResolutionKind.Value);
+    typeResolver.finishResolution({
+      kind: NewResolutionKind.ConstValue,
+      sym: node.symbol,
+      node: node,
+      description: `Const '${node.id.sv}'`,
+    });
     if (value === null || (type && !checkValueOfType(value, type, node.id))) {
       links.value = null;
       return links.value;
