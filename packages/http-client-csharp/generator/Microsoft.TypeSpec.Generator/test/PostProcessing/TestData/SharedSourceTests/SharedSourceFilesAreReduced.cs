@@ -8,6 +8,6 @@ namespace Sample.Models
 {
     public partial class TypeUsingSharedSourceType
     {
-        public SharedSourceType TestMethod() => throw null;
+        public global::Sample.Models.Shared.SharedSourceType TestMethod() => throw null;
     }
 }

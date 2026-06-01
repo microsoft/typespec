@@ -147,13 +147,7 @@ namespace Microsoft.TypeSpec.Generator
             document = document.WithSyntaxRoot(root);
 
             var containsSimplifierAnnotations = root.GetAnnotatedNodesAndTokens(Simplifier.Annotation).Any();
-            var containsGlobalAlias = root.ToFullString().Contains("global::", StringComparison.Ordinal);
-            if (containsGlobalAlias && !containsSimplifierAnnotations)
-            {
-                document = document.WithSyntaxRoot(root.WithAdditionalAnnotations(Simplifier.Annotation));
-            }
-
-            if (containsSimplifierAnnotations || containsGlobalAlias)
+            if (containsSimplifierAnnotations)
             {
                 document = await Simplifier.ReduceAsync(document);
             }

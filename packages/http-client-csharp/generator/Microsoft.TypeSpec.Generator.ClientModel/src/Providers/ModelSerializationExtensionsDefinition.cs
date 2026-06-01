@@ -687,8 +687,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     key.Assign(
                         Utf8Snippets.GetString(
                             ReadOnlySpanSnippets.Slice(local, Int(0), bytesConsumedParameter).Invoke("ToArray"))).Terminate()),
-                bytesConsumedInt.AddAndAssign(ReadOnlySpanSnippets.Length(jsonPathParameter)
-                    .Minus(ReadOnlySpanSnippets.Length(local))),
+                bytesConsumedParameter.Assign(bytesConsumedInt.Add(ReadOnlySpanSnippets.Length(jsonPathParameter)
+                    .Minus(ReadOnlySpanSnippets.Length(local)))).Terminate(),
                 Return(key)
             };
 
