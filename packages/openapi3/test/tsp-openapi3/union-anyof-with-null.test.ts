@@ -73,7 +73,7 @@ on reasoning in a response.`,
   });
 
   it("generates proper TypeSpec code with description and null", () => {
-    const context = createContext(doc as OpenAPI3Document);
+    const context = createContext(doc as unknown as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -100,7 +100,7 @@ on reasoning in a response.`,
   });
 
   it("preserves description from oneOf members with constraints when one is null", () => {
-    const context = createContext(doc as OpenAPI3Document);
+    const context = createContext(doc as unknown as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -119,7 +119,7 @@ on reasoning in a response.`,
   });
 
   it("handles reference + null anyOf correctly", () => {
-    const context = createContext(doc as OpenAPI3Document);
+    const context = createContext(doc as unknown as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -162,7 +162,7 @@ on reasoning in a response.`,
     }
     const docWithTypeArray = specification;
 
-    const context = createContext(docWithTypeArray as OpenAPI3Document);
+    const context = createContext(docWithTypeArray as unknown as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 

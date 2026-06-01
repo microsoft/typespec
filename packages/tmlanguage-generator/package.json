@@ -17,7 +17,13 @@
     "textmate",
     "tmlanguage"
   ],
+  "type": "module",
   "main": "dist/tmlanguage-generator.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tmlanguage-generator.js"
+    }
+  },
   "engines": {
     "node": ">=22.0.0"
   },
