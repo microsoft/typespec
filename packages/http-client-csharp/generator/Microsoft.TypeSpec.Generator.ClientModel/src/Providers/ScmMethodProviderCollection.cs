@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                    protocolMethod.Signature.Modifiers,
+                    GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
                     GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
                     null,
                     signatureParameters);
@@ -213,6 +213,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
+        }
+
+        /// <summary>
+        /// Determines the modifiers for a convenience method. When a convenience method would be
+        /// generated as public on a public type but has a parameter whose type is internal (for example,
+        /// a model that was customized to be internal via client.tsp or custom code), the method is
+        /// downgraded to internal to avoid an inconsistent accessibility compilation error.
+        /// </summary>
+        private MethodSignatureModifiers GetConvenienceMethodModifiers(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<ParameterProvider> signatureParameters)
+        {
+            // Only public methods on a public enclosing type are affected. If the enclosing type is
+            // already internal, the convenience method is effectively internal and needs no adjustment.
+            if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                EnclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                signatureParameters.Any(p => !p.Type.IsPublic))
+            {
+                modifiers &= ~MethodSignatureModifiers.Public;
+                modifiers |= MethodSignatureModifiers.Internal;
+            }
+
+            return modifiers;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
