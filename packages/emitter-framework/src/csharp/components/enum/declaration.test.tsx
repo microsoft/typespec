@@ -203,7 +203,7 @@ it("renders multiple enums in the same namespace", async () => {
   `);
 });
 
-it("renders an enum with doc comments", async () => {
+it("renders an enum with member doc comments", async () => {
   const { TestEnum } = await runner.compile(t.code`
     @test enum ${t.enum("TestEnum")} {
       @doc("This is value one")
@@ -227,6 +227,31 @@ it("renders an enum with doc comments", async () => {
         /// <summary>
         /// This is value two
         /// </summary>
+        Value2
+    }
+  `);
+});
+
+it("renders an enum with a type-level doc comment", async () => {
+  const { TestEnum } = await runner.compile(t.code`
+    /** Represents available colors */
+    @test enum ${t.enum("TestEnum")} {
+      Value1;
+      Value2;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <EnumDeclaration type={TestEnum} />
+    </Wrapper>,
+  ).toRenderTo(`
+    /// <summary>
+    /// Represents available colors
+    /// </summary>
+    enum TestEnum
+    {
+        Value1,
         Value2
     }
   `);

@@ -11,6 +11,7 @@ catalog:
   "@alloy-js/core": ^0.23.0
   "@alloy-js/csharp": ^0.23.0
   "@alloy-js/markdown": ^0.23.0
+  "@alloy-js/msbuild": ^0.23.0
   "@alloy-js/python": ^0.4.0
   "@alloy-js/rollup-plugin": ^0.1.1
   "@alloy-js/typescript": ^0.23.0
@@ -39,7 +40,7 @@ catalog:
   "@octokit/core": ^7.0.6
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
-  "@playwright/test": ^1.59.1
+  "@playwright/test": ^1.60.0
   "@pnpm/workspace.find-packages": ^1000.0.65
   "@scalar/json-magic": ^0.12.5
   "@scalar/openapi-parser": ^0.25.8
@@ -126,7 +127,7 @@ catalog:
   p-limit: ^7.3.0
   pathe: ^2.0.3
   picocolors: ^1.1.1
-  playwright: ^1.59.1
+  playwright: ^1.60.0
   plist: ^3.1.0
   postject: 1.0.0-alpha.6
   prettier: ^3.8.1
@@ -159,6 +160,7 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
+  turbo: ^2.9.5
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
@@ -188,4 +190,3 @@ overrides:
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"
-  "@alloy-js/core": 0.23.1

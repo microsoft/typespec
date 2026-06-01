@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Memory;
 using PlaygroundServer;
@@ -36,6 +38,16 @@ if (!string.IsNullOrEmpty(playgroundUrls))
         }
     }
 }
+
+// Application Insights instrumentation. The SDK reads the connection string from the
+// APPLICATIONINSIGHTS_CONNECTION_STRING environment variable (or ApplicationInsights:ConnectionString
+// configuration value). When neither is set, telemetry is silently dropped.
+builder.Services.AddApplicationInsightsTelemetry();
+var appInsightsConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")
+    ?? builder.Configuration["ApplicationInsights:ConnectionString"];
+Console.WriteLine(string.IsNullOrWhiteSpace(appInsightsConnectionString)
+    ? "Application Insights connection string not set; telemetry disabled."
+    : "Application Insights telemetry enabled.");
 
 builder.Services.AddCors();
 builder.Services.AddMemoryCache(options =>
@@ -133,11 +145,27 @@ app.MapGet("/health", () =>
     });
 });
 
-app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
+app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, TelemetryClient? telemetryClient) =>
 {
+    var stopwatch = Stopwatch.StartNew();
+    var telemetryProperties = new Dictionary<string, string>();
+
+    void TrackGenerateEvent(string outcome)
+    {
+        if (telemetryClient is null) return;
+        stopwatch.Stop();
+        telemetryProperties["outcome"] = outcome;
+        telemetryProperties["durationMs"] = stopwatch.Elapsed.TotalMilliseconds.ToString("F0", System.Globalization.CultureInfo.InvariantCulture);
+        var evt = new EventTelemetry("PlaygroundGenerate");
+        foreach (var kvp in telemetryProperties) evt.Properties[kvp.Key] = kvp.Value;
+        telemetryClient.TrackEvent(evt);
+        telemetryClient.GetMetric("PlaygroundGenerateDurationMs", "outcome").TrackValue(stopwatch.Elapsed.TotalMilliseconds, outcome);
+    }
+
     // Validate content type
     if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
     {
+        TrackGenerateEvent("invalid_content_type");
         return Results.BadRequest(new { error = "Content-Type must be application/json" });
     }
 
@@ -149,18 +177,23 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
     }
     catch (JsonException)
     {
+        TrackGenerateEvent("invalid_json");
         return Results.BadRequest(new { error = "Invalid JSON in request body" });
     }
 
     if (body?.CodeModel is null || body?.Configuration is null)
     {
+        TrackGenerateEvent("missing_fields");
         return Results.BadRequest(new { error = "Missing 'codeModel' or 'configuration' fields" });
     }
 
     var generatorName = body.GeneratorName ?? "ScmCodeModelGenerator";
+    telemetryProperties["generatorName"] = generatorName;
+    telemetryProperties["codeModelSizeBytes"] = body.CodeModel.Length.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     if (!File.Exists(generatorPath))
     {
+        TrackGenerateEvent("generator_missing");
         return Results.StatusCode(503);
     }
 
@@ -229,6 +262,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
         catch (OperationCanceledException)
         {
             process.Kill(entireProcessTree: true);
+            TrackGenerateEvent("timeout");
             return Results.Json(
                 new GenerateErrorResponse("Generator timed out", $"Process did not complete within {GeneratorTimeoutSeconds} seconds"),
                 GenerateJsonContext.Default.GenerateErrorResponse,
@@ -238,11 +272,18 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
 
         var exitCode = process.ExitCode;
         Console.WriteLine($"Generator exited with code {exitCode}");
+        telemetryProperties["exitCode"] = exitCode.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         if (exitCode != 0)
         {
+            var stderrTail = string.Join("\n", stderrLines.TakeLast(50));
+            telemetryClient?.TrackTrace(
+                $"Generator failed (exit {exitCode}): {stderrTail}",
+                SeverityLevel.Error,
+                telemetryProperties);
+            TrackGenerateEvent("generator_failed");
             return Results.Json(
-                new GenerateErrorResponse($"Generator failed with exit code {exitCode}", string.Join("\n", stderrLines.TakeLast(50))),
+                new GenerateErrorResponse($"Generator failed with exit code {exitCode}", stderrTail),
                 GenerateJsonContext.Default.GenerateErrorResponse,
                 statusCode: 500);
         }
@@ -264,11 +305,24 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache) =>
             }
         }
 
+        telemetryProperties["generatedFileCount"] = files.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        TrackGenerateEvent("success");
         var responseBytes = JsonSerializer.SerializeToUtf8Bytes(
             new GenerateResponse(files),
             GenerateJsonContext.Default.GenerateResponse);
         cache.Set(cacheKey, new CachedGenerationResponse(responseBytes, "application/json"));
         return Results.Bytes(responseBytes, "application/json");
+    }
+    catch (Exception ex)
+    {
+        if (telemetryClient is not null)
+        {
+            var exTelemetry = new ExceptionTelemetry(ex);
+            foreach (var kvp in telemetryProperties) exTelemetry.Properties[kvp.Key] = kvp.Value;
+            telemetryClient.TrackException(exTelemetry);
+        }
+        TrackGenerateEvent("exception");
+        throw;
     }
     finally
     {

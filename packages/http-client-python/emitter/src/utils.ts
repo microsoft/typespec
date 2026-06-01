@@ -107,6 +107,10 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
+export function getClientName(named: { name: string; isExactName: boolean }): string {
+  return named.isExactName ? named.name : camelToSnakeCase(named.name);
+}
+
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
@@ -146,6 +150,7 @@ type ParamBase = {
   description: string;
   addedOn: string | undefined;
   clientName: string;
+  isExactName: boolean;
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
@@ -220,7 +225,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
-  let clientName = camelToSnakeCase(parameter.name);
+  let clientName = getClientName(parameter);
   if (
     parameter.kind !== "method" &&
     parameter.kind !== "credential" &&
@@ -228,13 +233,14 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
-    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+    clientName = getClientName(parameter.correspondingMethodParams[0]);
   }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
+    isExactName: parameter.isExactName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken:
