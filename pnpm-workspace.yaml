@@ -40,7 +40,7 @@ catalog:
   "@octokit/core": ^7.0.6
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
-  "@playwright/test": ^1.59.1
+  "@playwright/test": ^1.60.0
   "@pnpm/workspace.find-packages": ^1000.0.65
   "@scalar/json-magic": ^0.12.5
   "@scalar/openapi-parser": ^0.25.8
@@ -127,7 +127,7 @@ catalog:
   p-limit: ^7.3.0
   pathe: ^2.0.3
   picocolors: ^1.1.1
-  playwright: ^1.59.1
+  playwright: ^1.60.0
   plist: ^3.1.0
   postject: 1.0.0-alpha.6
   prettier: ^3.8.1
@@ -190,4 +190,3 @@ overrides:
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"
-  "@alloy-js/core": 0.23.1

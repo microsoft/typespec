@@ -56,10 +56,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? ns = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputOperationExample>? examples = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
                     || reader.TryReadString("resourceName", ref resourceName)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
@@ -87,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
+            operation.IsExactName = isExactName;
             operation.OriginalName = name;
             operation.ResourceName = resourceName;
             operation.Summary = summary;
