@@ -44,7 +44,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/plist": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

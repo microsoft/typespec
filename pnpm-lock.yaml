@@ -162,9 +162,6 @@ catalogs:
     '@types/node':
       specifier: ^25.5.2
       version: 25.9.1
-    '@types/plist':
-      specifier: ^3.0.5
-      version: 3.0.5
     '@types/react':
       specifier: ^19.2.14
       version: 19.2.15
@@ -2663,9 +2660,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.1
-      '@types/plist':
-        specifier: 'catalog:'
-        version: 3.0.5
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -7178,9 +7172,6 @@ packages:
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
-
-  '@types/plist@3.0.5':
-    resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
 
   '@types/prismjs@1.26.6':
     resolution: {integrity: sha512-vqlvI7qlMvcCBbVe0AKAb4f97//Hy0EBTaiW8AalRnG/xAN5zOiWWyrNqNXeq8+KAuvRewjCVY1+IPxk4RdNYw==}
@@ -19246,11 +19237,6 @@ snapshots:
       undici-types: 7.24.6
 
   '@types/normalize-package-data@2.4.4': {}
-
-  '@types/plist@3.0.5':
-    dependencies:
-      '@types/node': 25.9.1
-      xmlbuilder: 15.1.1
 
   '@types/prismjs@1.26.6': {}
 
