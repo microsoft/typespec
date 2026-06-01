@@ -978,7 +978,7 @@ namespace SampleTypeSpec
         private bool TryResolveListFooArray(out JsonPatch.EncodedValue value)
         {
             value = default;
-            BinaryData data = ModelReaderWriter.Write(ActiveListFoo(), new ModelReaderWriterOptions("J"));
+            BinaryData data = ModelReaderWriter.Write(ActiveListFoo(), ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
             JsonPatch tempPatch = new JsonPatch();
             tempPatch.Set("$"u8, data.ToMemory().Span);
             return tempPatch.TryGetEncodedValue("$"u8, out value);

@@ -95,6 +95,7 @@ import {
   IntersectionExpressionNode,
   IntrinsicScalarName,
   JsNamespaceDeclarationNode,
+  JsSourceFileNode,
   LiteralNode,
   LiteralType,
   LocationContext,
@@ -529,6 +530,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const spreadResolutionAncestors = new Map<Sym, Set<Sym>>();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -4848,6 +4850,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkSourceFile(file);
     }
 
+    checkOrphanedFunctionImplementations();
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
@@ -4876,6 +4879,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
         program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
+
+  /**
+   * Check that all function implementations exported via $functions have a corresponding
+   * `extern fn` declaration in TypeSpec. Reports an error for each orphaned implementation.
+   */
+  function checkOrphanedFunctionImplementations() {
+    for (const file of program.jsSourceFiles.values()) {
+      checkSymbolTableForOrphanedFunctions(file.symbol.exports, file);
+    }
+  }
+
+  function checkSymbolTableForOrphanedFunctions(
+    exports: SymbolTable | undefined,
+    sourceFile: JsSourceFileNode,
+  ) {
+    if (!exports) return;
+    for (const sym of exports.values()) {
+      if (sym.flags & SymbolFlags.Function && sym.flags & SymbolFlags.Implementation) {
+        const merged = getMergedSymbol(sym);
+        const hasFunctionDeclaration = merged.declarations.some(
+          (d) => d.kind === SyntaxKind.FunctionDeclarationStatement,
+        );
+        if (!hasFunctionDeclaration) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "missing-extern-declaration",
+              format: { name: sym.name },
+              target: sourceFile,
+            }),
+          );
+        }
+      }
+      // Recurse into namespace symbols
+      if (sym.flags & SymbolFlags.Namespace && sym.exports) {
+        checkSymbolTableForOrphanedFunctions(sym.exports, sourceFile);
       }
     }
   }
@@ -6532,6 +6573,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
+
+    // Ancestors are models that already depend on this model via spread.
+    const modelAncestors = spreadResolutionAncestors.get(modelSymId);
+    if (targetSym && modelAncestors?.has(targetSym)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "spread-model",
+            messageId: "selfSpread",
+            target: target,
+          }),
+        );
+      }
+      return undefined;
+    }
+
+    if (targetSym) {
+      let targetAncestors = spreadResolutionAncestors.get(targetSym);
+      if (!targetAncestors) {
+        targetAncestors = new Set<Sym>();
+        spreadResolutionAncestors.set(targetSym, targetAncestors);
+      }
+      targetAncestors.add(modelSymId);
+      for (const ancestor of modelAncestors ?? []) {
+        targetAncestors.add(ancestor);
+      }
+    }
+
     const type = getTypeForNode(target, ctx);
     return type;
   }
@@ -7360,7 +7429,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return inProgressType;
         }
       }
-
+      if (node.value.kind === SyntaxKind.ModelExpression) {
+        return getTypeForNode(node.value, ctx);
+      }
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

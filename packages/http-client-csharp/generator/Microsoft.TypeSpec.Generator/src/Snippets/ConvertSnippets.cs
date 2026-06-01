@@ -14,5 +14,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static InvokeMethodExpression InvokeToInt32(ValueExpression arg)
             => Static(typeof(Convert)).Invoke(nameof(Convert.ToInt32), arg);
+
+        public static InvokeMethodExpression InvokeToInt64(ValueExpression arg)
+            => Static(typeof(Convert)).Invoke(nameof(Convert.ToInt64), arg);
     }
 }

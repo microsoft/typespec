@@ -3,7 +3,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
 import debounce from "debounce";
-import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, MarkerTag, Uri, editor } from "monaco-editor";
 import {
   useCallback,
   useEffect,
@@ -13,7 +13,6 @@ import {
   type FunctionComponent,
   type ReactNode,
 } from "react";
-import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
@@ -289,7 +288,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
-        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
+        tags: diag.code === "deprecated" ? [MarkerTag.Deprecated] : undefined,
       }));
 
       // Update code action provider with current diagnostics (for codefix support).
