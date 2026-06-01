@@ -62,6 +62,17 @@ export const requiredDocRule = createRule({
 });
 ```
 
+#### Choose a rule name
+
+Rule names are user-facing in diagnostics, `tspconfig.yaml`, docs URLs, and suppression comments, so keep them concise and readable.
+
+- Use short **kebab-case** names.
+- Do **not** include the package or library name in `name`.
+  - `name` should be only the rule part (for example `no-foo`), not `@typespec/my-linter/no-foo`.
+- Use `no-<thing>` when the rule bans a construct or usage.
+- Use `use-<preferred-thing>` when the rule guides users toward a standard or preferred TypeSpec pattern.
+- For domain-specific validation where `no-`/`use-` does not fit, use short subject-oriented names such as `<subject>-missing-<thing>` or `<subject>-invalid-<condition>`.
+
 #### Define rules with options
 
 Rules can accept user-configurable options via `defaultOptions` and `context.options`. When enabled with `true`, the rule uses the default options. When enabled with an object, the provided values override the defaults.
