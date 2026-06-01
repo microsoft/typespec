@@ -40,9 +40,7 @@ test.describe("playground UI tests", () => {
     await page.goto(host);
     const typespecEditor = page.locator(".monaco-editor").first();
     await typespecEditor.click();
-    // // Select all existing content and replace it
-    // await page.keyboard.press(`${ctrlOrCmd}+KeyA`);
-    await typespecEditor.pressSequentially("op sharedCode(): string;", { delay: 50 });
+    await typespecEditor.pressSequentially("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       page.waitForURL(

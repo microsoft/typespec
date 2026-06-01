@@ -208,16 +208,26 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [content, typespecModel]);
 
+  // Use refs to avoid re-subscribing to onDidChangeContent on every keystroke
+  const contentRef = useRef(content);
+  const onContentChangeRef = useRef(onContentChange);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
+
   // Update state when Monaco model changes
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
+      if (newContent !== contentRef.current) {
+        onContentChangeRef.current(newContent);
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
