@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Union
 {
-    public partial class UnionClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class UnionClientOptions : ClientPipelineOptions
     {
         public UnionClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal UnionClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal UnionClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

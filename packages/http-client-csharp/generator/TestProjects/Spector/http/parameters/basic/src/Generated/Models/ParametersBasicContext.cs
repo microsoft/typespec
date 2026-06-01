@@ -8,8 +8,8 @@ using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Parameters.Basic._ExplicitBody.User))]
-    public partial class ParametersBasicContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(User))]
+    public partial class ParametersBasicContext : ModelReaderWriterContext
     {
     }
 }

@@ -14,40 +14,40 @@ namespace Payload.MediaType._StringBody
     {
         protected StringBody() => throw null;
 
-        internal StringBody(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal StringBody(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SendAsText(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsTextAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SendAsText(string text, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SendAsText(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsTextAsync(string text, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SendAsTextAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetAsText(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetAsText(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAsTextAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsTextAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<string> GetAsText(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<string> GetAsText(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetAsTextAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<string>> GetAsTextAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SendAsJson(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsJsonAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SendAsJson(string text, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SendAsJson(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsJsonAsync(string text, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SendAsJsonAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetAsJson(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetAsJson(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAsJsonAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsJsonAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<string> GetAsJson(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<string> GetAsJson(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetAsJsonAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<string>> GetAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

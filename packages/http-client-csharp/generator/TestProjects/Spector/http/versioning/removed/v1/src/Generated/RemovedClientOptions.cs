@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Versioning.Removed
 {
-    public partial class RemovedClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class RemovedClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.Removed.RemovedClientOptions.ServiceVersion LatestVersion = global::Versioning.Removed.RemovedClientOptions.ServiceVersion.V1;
+        private const global::Versioning.Removed.RemovedClientOptions.ServiceVersion LatestVersion = RemovedClientOptions.ServiceVersion.V1;
 
         public RemovedClientOptions(global::Versioning.Removed.RemovedClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal RemovedClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal RemovedClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

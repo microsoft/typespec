@@ -12,21 +12,21 @@ namespace SampleTypeSpec
     internal static partial class IntFixedEnumExtensions
     {
         /// <param name="value"> The value to deserialize. </param>
-        public static global::SampleTypeSpec.IntFixedEnum ToIntFixedEnum(this int value)
+        public static IntFixedEnum ToIntFixedEnum(this int value)
         {
             if ((value == 1))
             {
-                return global::SampleTypeSpec.IntFixedEnum.One;
+                return IntFixedEnum.One;
             }
             if ((value == 2))
             {
-                return global::SampleTypeSpec.IntFixedEnum.Two;
+                return IntFixedEnum.Two;
             }
             if ((value == 4))
             {
-                return global::SampleTypeSpec.IntFixedEnum.Four;
+                return IntFixedEnum.Four;
             }
-            throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
         }
     }
 }

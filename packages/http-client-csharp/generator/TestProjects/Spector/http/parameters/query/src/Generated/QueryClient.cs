@@ -10,17 +10,17 @@ namespace Parameters.Query
 {
     public partial class QueryClient
     {
-        public QueryClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.Query.QueryClientOptions()) => throw null;
+        public QueryClient() : this(new Uri("http://localhost:3000"), new QueryClientOptions()) => throw null;
 
-        internal QueryClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.Query.QueryClientOptions options) => throw null;
+        internal QueryClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, QueryClientOptions options) => throw null;
 
-        public QueryClient(global::System.Uri endpoint, global::Parameters.Query.QueryClientOptions options) : this(null, endpoint, options) => throw null;
+        public QueryClient(Uri endpoint, QueryClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public QueryClient(global::Parameters.Query.QueryClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public QueryClient(QueryClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Parameters.Query.Constant GetConstantClient() => throw null;
+        public virtual Constant GetConstantClient() => throw null;
     }
 }

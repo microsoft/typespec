@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithDatetime : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithDatetime>
+    public partial class ModelWithDatetime : IPersistableModel<ModelWithDatetime>
     {
         internal ModelWithDatetime() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithDatetime PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithDatetime PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithDatetime>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithDatetime>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithDatetime global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithDatetime>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithDatetime IPersistableModel<ModelWithDatetime>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithDatetime>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithDatetime>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithDatetime modelWithDatetime) => throw null;
+        public static implicit operator BinaryContent(ModelWithDatetime modelWithDatetime) => throw null;
 
-        public static explicit operator ModelWithDatetime(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithDatetime(ClientResult result) => throw null;
     }
 }

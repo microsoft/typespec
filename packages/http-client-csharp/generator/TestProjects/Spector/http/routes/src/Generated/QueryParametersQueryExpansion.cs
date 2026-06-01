@@ -13,12 +13,12 @@ namespace Routes._QueryParameters.QueryExpansion
     {
         protected QueryParametersQueryExpansion() => throw null;
 
-        internal QueryParametersQueryExpansion(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal QueryParametersQueryExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Routes._QueryParameters.QueryExpansion.Standard.QueryParametersQueryExpansionStandard GetQueryParametersQueryExpansionStandardClient() => throw null;
+        public virtual QueryParametersQueryExpansionStandard GetQueryParametersQueryExpansionStandardClient() => throw null;
 
-        public virtual global::Routes._QueryParameters.QueryExpansion.Explode.QueryParametersQueryExpansionExplode GetQueryParametersQueryExpansionExplodeClient() => throw null;
+        public virtual QueryParametersQueryExpansionExplode GetQueryParametersQueryExpansionExplodeClient() => throw null;
     }
 }

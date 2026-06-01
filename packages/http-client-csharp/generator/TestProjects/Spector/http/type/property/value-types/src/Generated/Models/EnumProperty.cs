@@ -6,9 +6,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class EnumProperty
     {
-        public EnumProperty(global::_Type.Property.ValueTypes.FixedInnerEnum @property) => throw null;
+        public EnumProperty(FixedInnerEnum @property) => throw null;
 
-        public global::_Type.Property.ValueTypes.FixedInnerEnum Property
+        public FixedInnerEnum Property
         {
             get => throw null;
             set => throw null;

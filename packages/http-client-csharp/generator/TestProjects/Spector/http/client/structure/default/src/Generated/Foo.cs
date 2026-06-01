@@ -14,24 +14,24 @@ namespace Client.Structure.Service
     {
         protected Foo() => throw null;
 
-        internal Foo(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) => throw null;
+        internal Foo(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Three(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Three(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ThreeAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ThreeAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Three(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Three(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ThreeAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Four(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Four(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FourAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FourAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Four(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Four(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FourAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

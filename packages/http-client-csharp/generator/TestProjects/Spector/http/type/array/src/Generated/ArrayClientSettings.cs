@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type._Array
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class ArrayClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class ArrayClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::_Type._Array.ArrayClientOptions Options
+        public ArrayClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
+        protected override void BindCore(IConfigurationSection section) => throw null;
     }
 }

@@ -15,24 +15,24 @@ namespace Parameters.BodyOptionality._OptionalExplicit
     {
         protected OptionalExplicit() => throw null;
 
-        internal OptionalExplicit(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal OptionalExplicit(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Set(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Set(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SetAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Set(global::Parameters.BodyOptionality.BodyModel body = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Set(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SetAsync(global::Parameters.BodyOptionality.BodyModel body = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Omit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Omit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OmitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Omit(global::Parameters.BodyOptionality.BodyModel body = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Omit(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OmitAsync(global::Parameters.BodyOptionality.BodyModel body = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

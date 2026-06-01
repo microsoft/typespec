@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    internal partial class UnknownShark : global::_Type.Model.Inheritance.NestedDiscriminator.Shark
+    internal partial class UnknownShark : Shark
     {
-        internal UnknownShark(string kind, int age, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, string sharktype) : base((kind ?? "unknown"), age, additionalBinaryDataProperties, (sharktype ?? "unknown")) => throw null;
+        internal UnknownShark(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, string sharktype) : base((kind ?? "unknown"), age, additionalBinaryDataProperties, (sharktype ?? "unknown")) => throw null;
     }
 }

@@ -7,24 +7,24 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct IntLiteralPropertyProperty : global::System.IEquatable<global::_Type.Property.Optional.IntLiteralPropertyProperty>
+    public readonly partial struct IntLiteralPropertyProperty : IEquatable<IntLiteralPropertyProperty>
     {
         public IntLiteralPropertyProperty(int value) => throw null;
 
-        public static global::_Type.Property.Optional.IntLiteralPropertyProperty _1 => throw null;
+        public static IntLiteralPropertyProperty _1 => throw null;
 
-        public static bool operator ==(global::_Type.Property.Optional.IntLiteralPropertyProperty left, global::_Type.Property.Optional.IntLiteralPropertyProperty right) => throw null;
+        public static bool operator ==(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;
 
-        public static bool operator !=(global::_Type.Property.Optional.IntLiteralPropertyProperty left, global::_Type.Property.Optional.IntLiteralPropertyProperty right) => throw null;
+        public static bool operator !=(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;
 
-        public static implicit operator global::_Type.Property.Optional.IntLiteralPropertyProperty(int value) => throw null;
+        public static implicit operator IntLiteralPropertyProperty(int value) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(global::_Type.Property.Optional.IntLiteralPropertyProperty other) => throw null;
+        public bool Equals(IntLiteralPropertyProperty other) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

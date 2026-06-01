@@ -8,10 +8,10 @@ namespace Payload.Xml
 {
     public partial class ModelWithRenamedArrays
     {
-        public ModelWithRenamedArrays(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Collections.Generic.IEnumerable<int> counts) => throw null;
+        public ModelWithRenamedArrays(IEnumerable<string> colors, IEnumerable<int> counts) => throw null;
 
-        public global::System.Collections.Generic.IList<string> Colors => throw null;
+        public IList<string> Colors => throw null;
 
-        public global::System.Collections.Generic.IList<int> Counts => throw null;
+        public IList<int> Counts => throw null;
     }
 }

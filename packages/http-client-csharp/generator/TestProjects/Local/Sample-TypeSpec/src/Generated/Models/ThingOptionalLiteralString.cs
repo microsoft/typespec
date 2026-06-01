@@ -11,7 +11,7 @@ using System.ComponentModel;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingOptionalLiteralString : global::System.IEquatable<global::SampleTypeSpec.ThingOptionalLiteralString>
+    public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
     {
         private readonly string _value;
         private const string RejectValue = "reject";
@@ -21,42 +21,42 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public ThingOptionalLiteralString(string value)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
+            Argument.AssertNotNull(value, nameof(value));
 
             _value = value;
         }
 
         /// <summary> Gets the Reject. </summary>
-        public static global::SampleTypeSpec.ThingOptionalLiteralString Reject { get; } = new global::SampleTypeSpec.ThingOptionalLiteralString(RejectValue);
+        public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(global::SampleTypeSpec.ThingOptionalLiteralString left, global::SampleTypeSpec.ThingOptionalLiteralString right) => left.Equals(right);
+        public static bool operator ==(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => left.Equals(right);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(global::SampleTypeSpec.ThingOptionalLiteralString left, global::SampleTypeSpec.ThingOptionalLiteralString right) => !left.Equals(right);
+        public static bool operator !=(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => !left.Equals(right);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.ThingOptionalLiteralString(string value) => new global::SampleTypeSpec.ThingOptionalLiteralString(value);
+        public static implicit operator ThingOptionalLiteralString(string value) => new ThingOptionalLiteralString(value);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.ThingOptionalLiteralString?(string value) => (value == null) ? null : new global::SampleTypeSpec.ThingOptionalLiteralString(value);
+        public static implicit operator ThingOptionalLiteralString?(string value) => (value == null) ? null : new ThingOptionalLiteralString(value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => ((obj is global::SampleTypeSpec.ThingOptionalLiteralString other) && this.Equals(other));
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => ((obj is ThingOptionalLiteralString other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(global::SampleTypeSpec.ThingOptionalLiteralString other) => string.Equals(_value, other._value, global::System.StringComparison.InvariantCultureIgnoreCase);
+        public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override int GetHashCode() => (_value != null) ? global::System.StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override int GetHashCode() => (_value != null) ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;

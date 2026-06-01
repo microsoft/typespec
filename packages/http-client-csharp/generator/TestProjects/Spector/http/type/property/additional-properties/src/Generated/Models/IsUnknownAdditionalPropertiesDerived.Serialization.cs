@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class IsUnknownAdditionalPropertiesDerived : global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>
+    public partial class IsUnknownAdditionalPropertiesDerived : IsUnknownAdditionalProperties, IJsonModel<IsUnknownAdditionalPropertiesDerived>
     {
         internal IsUnknownAdditionalPropertiesDerived() => throw null;
 
-        protected override global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override IsUnknownAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<IsUnknownAdditionalPropertiesDerived>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        IsUnknownAdditionalPropertiesDerived IPersistableModel<IsUnknownAdditionalPropertiesDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<IsUnknownAdditionalPropertiesDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived isUnknownAdditionalPropertiesDerived) => throw null;
+        public static implicit operator BinaryContent(IsUnknownAdditionalPropertiesDerived isUnknownAdditionalPropertiesDerived) => throw null;
 
-        public static explicit operator IsUnknownAdditionalPropertiesDerived(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator IsUnknownAdditionalPropertiesDerived(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<IsUnknownAdditionalPropertiesDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        IsUnknownAdditionalPropertiesDerived IJsonModel<IsUnknownAdditionalPropertiesDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override IsUnknownAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

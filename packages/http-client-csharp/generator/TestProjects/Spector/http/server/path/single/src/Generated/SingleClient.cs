@@ -15,23 +15,23 @@ namespace Server.Path.Single
     {
         protected SingleClient() => throw null;
 
-        public SingleClient(global::System.Uri endpoint) : this(endpoint, new global::Server.Path.Single.SingleClientOptions()) => throw null;
+        public SingleClient(Uri endpoint) : this(endpoint, new SingleClientOptions()) => throw null;
 
-        internal SingleClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Server.Path.Single.SingleClientOptions options) => throw null;
+        internal SingleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SingleClientOptions options) => throw null;
 
-        public SingleClient(global::System.Uri endpoint, global::Server.Path.Single.SingleClientOptions options) : this(null, endpoint, options) => throw null;
+        public SingleClient(Uri endpoint, SingleClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public SingleClient(global::Server.Path.Single.SingleClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public SingleClient(SingleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult MyOp(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult MyOp(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> MyOpAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult MyOp(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult MyOp(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> MyOpAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

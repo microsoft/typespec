@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace Response.StatusCodeRange
 {
-    public partial class NotFoundError : global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.NotFoundError>
+    public partial class NotFoundError : IJsonModel<NotFoundError>
     {
         internal NotFoundError() => throw null;
 
-        protected virtual global::Response.StatusCodeRange.NotFoundError PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual NotFoundError PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<NotFoundError>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Response.StatusCodeRange.NotFoundError global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        NotFoundError IPersistableModel<NotFoundError>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<NotFoundError>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.NotFoundError>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<NotFoundError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Response.StatusCodeRange.NotFoundError global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.NotFoundError>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        NotFoundError IJsonModel<NotFoundError>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Response.StatusCodeRange.NotFoundError JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual NotFoundError JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

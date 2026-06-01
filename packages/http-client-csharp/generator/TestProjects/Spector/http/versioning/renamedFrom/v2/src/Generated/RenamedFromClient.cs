@@ -15,25 +15,25 @@ namespace Versioning.RenamedFrom
     {
         protected RenamedFromClient() => throw null;
 
-        public RenamedFromClient(global::System.Uri endpoint) : this(endpoint, new global::Versioning.RenamedFrom.RenamedFromClientOptions()) => throw null;
+        public RenamedFromClient(Uri endpoint) : this(endpoint, new RenamedFromClientOptions()) => throw null;
 
-        internal RenamedFromClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Versioning.RenamedFrom.RenamedFromClientOptions options) => throw null;
+        internal RenamedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RenamedFromClientOptions options) => throw null;
 
-        public RenamedFromClient(global::System.Uri endpoint, global::Versioning.RenamedFrom.RenamedFromClientOptions options) : this(null, endpoint, options) => throw null;
+        public RenamedFromClient(Uri endpoint, RenamedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public RenamedFromClient(global::Versioning.RenamedFrom.RenamedFromClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public RenamedFromClient(RenamedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult NewOp(string newQuery, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult NewOp(string newQuery, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NewOpAsync(string newQuery, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> NewOpAsync(string newQuery, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.RenamedFrom.NewModel> NewOp(string newQuery, global::Versioning.RenamedFrom.NewModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<NewModel> NewOp(string newQuery, NewModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.RenamedFrom.NewModel>> NewOpAsync(string newQuery, global::Versioning.RenamedFrom.NewModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<NewModel>> NewOpAsync(string newQuery, NewModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::Versioning.RenamedFrom.NewInterface GetNewInterfaceClient() => throw null;
+        public virtual NewInterface GetNewInterfaceClient() => throw null;
     }
 }

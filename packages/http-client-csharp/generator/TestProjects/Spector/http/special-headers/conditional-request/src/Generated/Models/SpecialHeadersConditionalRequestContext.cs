@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace SpecialHeaders.ConditionalRequest
 {
-    public partial class SpecialHeadersConditionalRequestContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class SpecialHeadersConditionalRequestContext : ModelReaderWriterContext
     {
     }
 }

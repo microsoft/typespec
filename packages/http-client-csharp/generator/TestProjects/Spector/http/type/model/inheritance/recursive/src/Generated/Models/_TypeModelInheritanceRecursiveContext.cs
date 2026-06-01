@@ -6,9 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.Recursive
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.Recursive.Element))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.Recursive.Extension))]
-    public partial class _TypeModelInheritanceRecursiveContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(Element))]
+    [ModelReaderWriterBuildableAttribute(typeof(Extension))]
+    public partial class _TypeModelInheritanceRecursiveContext : ModelReaderWriterContext
     {
     }
 }

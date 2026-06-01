@@ -6,15 +6,15 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Property.Nullable
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.BytesProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.CollectionsByteProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.CollectionsModelProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.CollectionsStringProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.DatetimeProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.DurationProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.InnerModel))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Property.Nullable.StringProperty))]
-    public partial class _TypePropertyNullableContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(BytesProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(CollectionsByteProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(CollectionsModelProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(CollectionsStringProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(DatetimeProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(DurationProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(InnerModel))]
+    [ModelReaderWriterBuildableAttribute(typeof(StringProperty))]
+    public partial class _TypePropertyNullableContext : ModelReaderWriterContext
     {
     }
 }

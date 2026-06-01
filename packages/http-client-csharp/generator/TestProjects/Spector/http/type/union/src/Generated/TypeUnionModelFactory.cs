@@ -9,36 +9,36 @@ namespace _Type.Union
 {
     public static partial class TypeUnionModelFactory
     {
-        public static global::_Type.Union.GetResponse GetResponse(global::_Type.Union.GetResponseProp prop = default) => throw null;
+        public static GetResponse GetResponse(GetResponseProp prop = default) => throw null;
 
-        public static global::_Type.Union.GetResponse1 GetResponse1(global::_Type.Union.GetResponseProp1 prop = default) => throw null;
+        public static GetResponse1 GetResponse1(GetResponseProp1 prop = default) => throw null;
 
-        public static global::_Type.Union.GetResponse2 GetResponse2(global::_Type.Union.StringExtensibleNamedUnion prop = default) => throw null;
+        public static GetResponse2 GetResponse2(StringExtensibleNamedUnion prop = default) => throw null;
 
-        public static global::_Type.Union.GetResponse3 GetResponse3(global::_Type.Union.GetResponseProp2 prop = default) => throw null;
+        public static GetResponse3 GetResponse3(GetResponseProp2 prop = default) => throw null;
 
-        public static global::_Type.Union.GetResponse4 GetResponse4(global::_Type.Union.GetResponseProp3 prop = default) => throw null;
+        public static GetResponse4 GetResponse4(GetResponseProp3 prop = default) => throw null;
 
-        public static global::_Type.Union.GetResponse5 GetResponse5(global::System.BinaryData prop = default) => throw null;
+        public static GetResponse5 GetResponse5(BinaryData prop = default) => throw null;
 
-        public static global::_Type.Union.Cat Cat(string name = default) => throw null;
+        public static Cat Cat(string name = default) => throw null;
 
-        public static global::_Type.Union.Dog Dog(string bark = default) => throw null;
+        public static Dog Dog(string bark = default) => throw null;
 
-        public static global::_Type.Union.GetResponse6 GetResponse6(global::_Type.Union.EnumsOnlyCases prop = default) => throw null;
+        public static GetResponse6 GetResponse6(EnumsOnlyCases prop = default) => throw null;
 
-        public static global::_Type.Union.EnumsOnlyCases EnumsOnlyCases(global::_Type.Union.EnumsOnlyCasesLr lr = default, global::_Type.Union.EnumsOnlyCasesUd ud = default) => throw null;
+        public static EnumsOnlyCases EnumsOnlyCases(EnumsOnlyCasesLr lr = default, EnumsOnlyCasesUd ud = default) => throw null;
 
-        public static global::_Type.Union.GetResponse7 GetResponse7(global::_Type.Union.StringAndArrayCases prop = default) => throw null;
+        public static GetResponse7 GetResponse7(StringAndArrayCases prop = default) => throw null;
 
-        public static global::_Type.Union.StringAndArrayCases StringAndArrayCases(global::System.BinaryData @string = default, global::System.BinaryData array = default) => throw null;
+        public static StringAndArrayCases StringAndArrayCases(BinaryData @string = default, BinaryData array = default) => throw null;
 
-        public static global::_Type.Union.GetResponse8 GetResponse8(global::_Type.Union.MixedLiteralsCases prop = default) => throw null;
+        public static GetResponse8 GetResponse8(MixedLiteralsCases prop = default) => throw null;
 
-        public static global::_Type.Union.MixedLiteralsCases MixedLiteralsCases(global::System.BinaryData stringLiteral = default, global::System.BinaryData intLiteral = default, global::System.BinaryData floatLiteral = default, global::System.BinaryData booleanLiteral = default) => throw null;
+        public static MixedLiteralsCases MixedLiteralsCases(BinaryData stringLiteral = default, BinaryData intLiteral = default, BinaryData floatLiteral = default, BinaryData booleanLiteral = default) => throw null;
 
-        public static global::_Type.Union.GetResponse9 GetResponse9(global::_Type.Union.MixedTypesCases prop = default) => throw null;
+        public static GetResponse9 GetResponse9(MixedTypesCases prop = default) => throw null;
 
-        public static global::_Type.Union.MixedTypesCases MixedTypesCases(global::System.BinaryData model = default, global::System.BinaryData literal = default, global::System.BinaryData @int = default, global::System.BinaryData boolean = default, global::System.Collections.Generic.IEnumerable<global::System.BinaryData> array = default) => throw null;
+        public static MixedTypesCases MixedTypesCases(BinaryData model = default, BinaryData literal = default, BinaryData @int = default, BinaryData boolean = default, IEnumerable<BinaryData> array = default) => throw null;
     }
 }

@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithAttributes : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithAttributes>
+    public partial class ModelWithAttributes : IPersistableModel<ModelWithAttributes>
     {
         internal ModelWithAttributes() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithAttributes PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithAttributes PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithAttributes>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithAttributes>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithAttributes global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithAttributes>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithAttributes IPersistableModel<ModelWithAttributes>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithAttributes>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithAttributes>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithAttributes modelWithAttributes) => throw null;
+        public static implicit operator BinaryContent(ModelWithAttributes modelWithAttributes) => throw null;
 
-        public static explicit operator ModelWithAttributes(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithAttributes(ClientResult result) => throw null;
     }
 }

@@ -13,21 +13,21 @@ namespace Payload.Pageable
 {
     public partial class PageableClient
     {
-        public PageableClient() : this(new global::System.Uri("http://localhost:3000"), new global::Payload.Pageable.PageableClientOptions()) => throw null;
+        public PageableClient() : this(new Uri("http://localhost:3000"), new PageableClientOptions()) => throw null;
 
-        internal PageableClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Payload.Pageable.PageableClientOptions options) => throw null;
+        internal PageableClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, PageableClientOptions options) => throw null;
 
-        public PageableClient(global::System.Uri endpoint, global::Payload.Pageable.PageableClientOptions options) : this(null, endpoint, options) => throw null;
+        public PageableClient(Uri endpoint, PageableClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public PageableClient(global::Payload.Pageable.PageableClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public PageableClient(PageableClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Payload.Pageable._ServerDrivenPagination.ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
+        public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
 
-        public virtual global::Payload.Pageable._PageSize.PageSize GetPageSizeClient() => throw null;
+        public virtual PageSize GetPageSizeClient() => throw null;
 
-        public virtual global::Payload.Pageable._XmlPagination.XmlPagination GetXmlPaginationClient() => throw null;
+        public virtual XmlPagination GetXmlPaginationClient() => throw null;
     }
 }

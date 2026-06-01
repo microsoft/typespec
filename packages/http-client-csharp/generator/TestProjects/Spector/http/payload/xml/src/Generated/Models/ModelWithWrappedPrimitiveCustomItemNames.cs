@@ -8,8 +8,8 @@ namespace Payload.Xml
 {
     public partial class ModelWithWrappedPrimitiveCustomItemNames
     {
-        public ModelWithWrappedPrimitiveCustomItemNames(global::System.Collections.Generic.IEnumerable<string> tags) => throw null;
+        public ModelWithWrappedPrimitiveCustomItemNames(IEnumerable<string> tags) => throw null;
 
-        public global::System.Collections.Generic.IList<string> Tags => throw null;
+        public IList<string> Tags => throw null;
     }
 }

@@ -6,6 +6,6 @@ namespace _Type.Union
 {
     public partial class GetResponse6
     {
-        public global::_Type.Union.EnumsOnlyCases Prop => throw null;
+        public EnumsOnlyCases Prop => throw null;
     }
 }

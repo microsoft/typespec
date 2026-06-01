@@ -8,9 +8,9 @@ namespace Encode.Duration._Property
 {
     public partial class DefaultDurationProperty
     {
-        public DefaultDurationProperty(global::System.TimeSpan value) => throw null;
+        public DefaultDurationProperty(TimeSpan value) => throw null;
 
-        public global::System.TimeSpan Value
+        public TimeSpan Value
         {
             get => throw null;
             set => throw null;

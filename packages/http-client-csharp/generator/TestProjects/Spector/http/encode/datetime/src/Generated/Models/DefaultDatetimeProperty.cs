@@ -8,9 +8,9 @@ namespace Encode.Datetime
 {
     public partial class DefaultDatetimeProperty
     {
-        public DefaultDatetimeProperty(global::System.DateTimeOffset value) => throw null;
+        public DefaultDatetimeProperty(DateTimeOffset value) => throw null;
 
-        public global::System.DateTimeOffset Value
+        public DateTimeOffset Value
         {
             get => throw null;
             set => throw null;

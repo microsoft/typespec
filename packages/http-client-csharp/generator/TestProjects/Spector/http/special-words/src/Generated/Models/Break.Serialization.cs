@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class Break : global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Break>
+    public partial class Break : IJsonModel<Break>
     {
         internal Break() => throw null;
 
-        protected virtual global::SpecialWords._Models.Break PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Break PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Break>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Break>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._Models.Break global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Break>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Break IPersistableModel<Break>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._Models.Break>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Break>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::SpecialWords._Models.Break @break) => throw null;
+        public static implicit operator BinaryContent(Break @break) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Break>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Break>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._Models.Break global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._Models.Break>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Break IJsonModel<Break>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::SpecialWords._Models.Break JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Break JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

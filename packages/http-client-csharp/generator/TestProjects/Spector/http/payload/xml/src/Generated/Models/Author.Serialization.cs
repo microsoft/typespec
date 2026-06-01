@@ -7,18 +7,18 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class Author : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.Author>
+    public partial class Author : IPersistableModel<Author>
     {
         internal Author() => throw null;
 
-        protected virtual global::Payload.Xml.Author PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Author PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.Author>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Author>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.Author global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.Author>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Author IPersistableModel<Author>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.Author>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Author>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Basic
 {
-    public partial class BasicClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class BasicClientOptions : ClientPipelineOptions
     {
         public BasicClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal BasicClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal BasicClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

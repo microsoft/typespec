@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Union
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class UnionClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class UnionClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::_Type.Union.UnionClientOptions Options
+        public UnionClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
+        protected override void BindCore(IConfigurationSection section) => throw null;
     }
 }

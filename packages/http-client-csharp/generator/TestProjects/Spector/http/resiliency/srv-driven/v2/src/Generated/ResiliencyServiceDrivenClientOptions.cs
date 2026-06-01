@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Resiliency.ServiceDriven
 {
-    public partial class ResiliencyServiceDrivenClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ResiliencyServiceDrivenClientOptions : ClientPipelineOptions
     {
-        private const global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion LatestVersion = global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion.V2;
+        private const global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion LatestVersion = ResiliencyServiceDrivenClientOptions.ServiceVersion.V2;
 
         public ResiliencyServiceDrivenClientOptions(global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ResiliencyServiceDrivenClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ResiliencyServiceDrivenClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

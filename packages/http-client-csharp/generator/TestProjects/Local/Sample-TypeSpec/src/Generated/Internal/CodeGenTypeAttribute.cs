@@ -9,8 +9,8 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [global::System.AttributeUsageAttribute(((global::System.AttributeTargets.Class | global::System.AttributeTargets.Enum) | global::System.AttributeTargets.Struct))]
-    internal partial class CodeGenTypeAttribute : global::System.Attribute
+    [AttributeUsageAttribute(((AttributeTargets.Class | AttributeTargets.Enum) | AttributeTargets.Struct))]
+    internal partial class CodeGenTypeAttribute : Attribute
     {
         /// <param name="originalName"> The original name of the type. </param>
         public CodeGenTypeAttribute(string originalName)

@@ -8,7 +8,7 @@ namespace _Type.Property.Optional
     {
         public UnionFloatLiteralProperty() => throw null;
 
-        public global::_Type.Property.Optional.UnionFloatLiteralPropertyProperty? Property
+        public UnionFloatLiteralPropertyProperty? Property
         {
             get => throw null;
             set => throw null;

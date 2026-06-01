@@ -7,26 +7,26 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct ExtendedEnum : global::System.IEquatable<global::_Type.Property.ValueTypes.ExtendedEnum>
+    public readonly partial struct ExtendedEnum : IEquatable<ExtendedEnum>
     {
         public ExtendedEnum(string value) => throw null;
 
-        public static global::_Type.Property.ValueTypes.ExtendedEnum EnumValue2 => throw null;
+        public static ExtendedEnum EnumValue2 => throw null;
 
-        public static bool operator ==(global::_Type.Property.ValueTypes.ExtendedEnum left, global::_Type.Property.ValueTypes.ExtendedEnum right) => throw null;
+        public static bool operator ==(ExtendedEnum left, ExtendedEnum right) => throw null;
 
-        public static bool operator !=(global::_Type.Property.ValueTypes.ExtendedEnum left, global::_Type.Property.ValueTypes.ExtendedEnum right) => throw null;
+        public static bool operator !=(ExtendedEnum left, ExtendedEnum right) => throw null;
 
-        public static implicit operator global::_Type.Property.ValueTypes.ExtendedEnum(string value) => throw null;
+        public static implicit operator ExtendedEnum(string value) => throw null;
 
-        public static implicit operator global::_Type.Property.ValueTypes.ExtendedEnum?(string value) => throw null;
+        public static implicit operator ExtendedEnum?(string value) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(global::_Type.Property.ValueTypes.ExtendedEnum other) => throw null;
+        public bool Equals(ExtendedEnum other) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

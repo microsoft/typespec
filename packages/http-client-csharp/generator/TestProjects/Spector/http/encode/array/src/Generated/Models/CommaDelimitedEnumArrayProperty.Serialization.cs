@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode._Array
 {
-    public partial class CommaDelimitedEnumArrayProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>
+    public partial class CommaDelimitedEnumArrayProperty : IJsonModel<CommaDelimitedEnumArrayProperty>
     {
         internal CommaDelimitedEnumArrayProperty() => throw null;
 
-        protected virtual global::Encode._Array.CommaDelimitedEnumArrayProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual CommaDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<CommaDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.CommaDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        CommaDelimitedEnumArrayProperty IPersistableModel<CommaDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<CommaDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode._Array.CommaDelimitedEnumArrayProperty commaDelimitedEnumArrayProperty) => throw null;
+        public static implicit operator BinaryContent(CommaDelimitedEnumArrayProperty commaDelimitedEnumArrayProperty) => throw null;
 
-        public static explicit operator CommaDelimitedEnumArrayProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator CommaDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<CommaDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.CommaDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedEnumArrayProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        CommaDelimitedEnumArrayProperty IJsonModel<CommaDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode._Array.CommaDelimitedEnumArrayProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual CommaDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

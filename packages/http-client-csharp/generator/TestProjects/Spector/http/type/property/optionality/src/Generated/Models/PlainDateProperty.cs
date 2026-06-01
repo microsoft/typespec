@@ -10,7 +10,7 @@ namespace _Type.Property.Optional
     {
         public PlainDateProperty() => throw null;
 
-        public global::System.DateTimeOffset? Property
+        public DateTimeOffset? Property
         {
             get => throw null;
             set => throw null;

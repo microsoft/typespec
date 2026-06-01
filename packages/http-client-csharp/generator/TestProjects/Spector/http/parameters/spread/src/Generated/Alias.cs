@@ -15,48 +15,48 @@ namespace Parameters.Spread._Alias
     {
         protected Alias() => throw null;
 
-        internal Alias(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Alias(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadAsRequestBody(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SpreadAsRequestBody(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestBodyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadAsRequestBody(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadAsRequestBody(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestBodyAsync(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestBodyAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerModel(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerModelAsync(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadAsRequestParameter(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadAsRequestParameterAsync(string id, string xMsTestHeader, string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, string requiredString, global::System.Collections.Generic.IEnumerable<int> requiredIntList, int? optionalInt = default, global::System.Collections.Generic.IEnumerable<string> optionalStringList = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadWithMultipleParameters(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, string requiredString, global::System.Collections.Generic.IEnumerable<int> requiredIntList, int? optionalInt = default, global::System.Collections.Generic.IEnumerable<string> optionalStringList = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadWithMultipleParametersAsync(string id, string xMsTestHeader, string requiredString, IEnumerable<int> requiredIntList, int? optionalInt = default, IEnumerable<string> optionalStringList = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, string name, int age, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadParameterWithInnerAlias(string id, string xMsTestHeader, string name, int age, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, string name, int age, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadParameterWithInnerAliasAsync(string id, string xMsTestHeader, string name, int age, CancellationToken cancellationToken = default) => throw null;
     }
 }

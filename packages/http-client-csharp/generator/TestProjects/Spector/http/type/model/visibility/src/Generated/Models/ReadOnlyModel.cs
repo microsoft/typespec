@@ -10,8 +10,8 @@ namespace _Type.Model.Visibility
     {
         public ReadOnlyModel() => throw null;
 
-        public global::System.Collections.Generic.IReadOnlyList<int> OptionalNullableIntList => throw null;
+        public IReadOnlyList<int> OptionalNullableIntList => throw null;
 
-        public global::System.Collections.Generic.IReadOnlyDictionary<string, string> OptionalStringRecord => throw null;
+        public IReadOnlyDictionary<string, string> OptionalStringRecord => throw null;
     }
 }

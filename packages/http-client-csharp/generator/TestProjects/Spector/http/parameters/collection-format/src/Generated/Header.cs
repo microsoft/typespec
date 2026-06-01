@@ -15,16 +15,16 @@ namespace Parameters.CollectionFormat._Header
     {
         protected Header() => throw null;
 
-        internal Header(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Csv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Csv(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CsvAsync(global::System.Collections.Generic.IEnumerable<string> colors, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
     }
 }

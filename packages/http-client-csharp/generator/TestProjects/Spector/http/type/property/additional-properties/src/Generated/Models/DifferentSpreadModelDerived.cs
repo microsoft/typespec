@@ -7,13 +7,13 @@ using System.Collections.Generic;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadModelDerived : global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord
+    public partial class DifferentSpreadModelDerived : DifferentSpreadModelRecord
     {
-        public DifferentSpreadModelDerived(string knownProp, global::_Type.Property.AdditionalProperties.ModelForRecord derivedProp) : base(knownProp) => throw null;
+        public DifferentSpreadModelDerived(string knownProp, ModelForRecord derivedProp) : base(knownProp) => throw null;
 
-        internal DifferentSpreadModelDerived(string knownProp, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties, global::_Type.Property.AdditionalProperties.ModelForRecord derivedProp) : base(knownProp, additionalProperties) => throw null;
+        internal DifferentSpreadModelDerived(string knownProp, IDictionary<string, BinaryData> additionalProperties, ModelForRecord derivedProp) : base(knownProp, additionalProperties) => throw null;
 
-        public global::_Type.Property.AdditionalProperties.ModelForRecord DerivedProp
+        public ModelForRecord DerivedProp
         {
             get => throw null;
             set => throw null;

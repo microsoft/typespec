@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Payload.JsonMergePatch
 {
-    public partial class Resource : global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.Resource>
+    public partial class Resource : IJsonModel<Resource>
     {
         internal Resource() => throw null;
 
-        protected virtual global::Payload.JsonMergePatch.Resource PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Resource PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.Resource>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Resource>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.JsonMergePatch.Resource global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.Resource>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Resource IPersistableModel<Resource>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.JsonMergePatch.Resource>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Resource>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.JsonMergePatch.Resource resource) => throw null;
+        public static implicit operator BinaryContent(Resource resource) => throw null;
 
-        public static explicit operator Resource(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator Resource(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.Resource>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Resource>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.JsonMergePatch.Resource global::System.ClientModel.Primitives.IJsonModel<global::Payload.JsonMergePatch.Resource>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Resource IJsonModel<Resource>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Payload.JsonMergePatch.Resource JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Resource JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

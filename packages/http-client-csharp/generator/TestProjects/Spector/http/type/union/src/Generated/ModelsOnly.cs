@@ -14,24 +14,24 @@ namespace _Type.Union
     {
         protected ModelsOnly() => throw null;
 
-        internal ModelsOnly(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelsOnly(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Get(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Union.GetResponse5> Get(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<GetResponse5> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Union.GetResponse5>> GetAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<GetResponse5>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Send(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Send(global::System.BinaryData prop, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Send(BinaryData prop, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SendAsync(global::System.BinaryData prop, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SendAsync(BinaryData prop, CancellationToken cancellationToken = default) => throw null;
     }
 }

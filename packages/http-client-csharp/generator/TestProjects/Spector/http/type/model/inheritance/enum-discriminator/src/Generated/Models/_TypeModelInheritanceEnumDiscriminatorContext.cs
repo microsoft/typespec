@@ -6,13 +6,13 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.Cobra))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.Dog))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.Golden))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.Snake))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.UnknownDog))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.EnumDiscriminator.UnknownSnake))]
-    public partial class _TypeModelInheritanceEnumDiscriminatorContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(Cobra))]
+    [ModelReaderWriterBuildableAttribute(typeof(Dog))]
+    [ModelReaderWriterBuildableAttribute(typeof(Golden))]
+    [ModelReaderWriterBuildableAttribute(typeof(Snake))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownDog))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownSnake))]
+    public partial class _TypeModelInheritanceEnumDiscriminatorContext : ModelReaderWriterContext
     {
     }
 }

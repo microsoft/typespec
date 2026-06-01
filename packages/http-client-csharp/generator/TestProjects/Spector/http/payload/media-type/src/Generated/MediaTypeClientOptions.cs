@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.MediaType
 {
-    public partial class MediaTypeClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class MediaTypeClientOptions : ClientPipelineOptions
     {
         public MediaTypeClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal MediaTypeClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal MediaTypeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode.Duration._Property
 {
-    public partial class Float64SecondsDurationProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>
+    public partial class Float64SecondsDurationProperty : IJsonModel<Float64SecondsDurationProperty>
     {
         internal Float64SecondsDurationProperty() => throw null;
 
-        protected virtual global::Encode.Duration._Property.Float64SecondsDurationProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Float64SecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Float64SecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Duration._Property.Float64SecondsDurationProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Float64SecondsDurationProperty IPersistableModel<Float64SecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Float64SecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Duration._Property.Float64SecondsDurationProperty float64SecondsDurationProperty) => throw null;
+        public static implicit operator BinaryContent(Float64SecondsDurationProperty float64SecondsDurationProperty) => throw null;
 
-        public static explicit operator Float64SecondsDurationProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator Float64SecondsDurationProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Float64SecondsDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Duration._Property.Float64SecondsDurationProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Duration._Property.Float64SecondsDurationProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Float64SecondsDurationProperty IJsonModel<Float64SecondsDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode.Duration._Property.Float64SecondsDurationProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Float64SecondsDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

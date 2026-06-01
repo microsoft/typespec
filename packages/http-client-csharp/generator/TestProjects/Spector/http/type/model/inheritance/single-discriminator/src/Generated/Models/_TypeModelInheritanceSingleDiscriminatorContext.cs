@@ -6,16 +6,16 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.Bird))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.Eagle))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.Goose))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.Sparrow))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.TRex))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.UnknownBird))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.UnknownDinosaur))]
-    public partial class _TypeModelInheritanceSingleDiscriminatorContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(Bird))]
+    [ModelReaderWriterBuildableAttribute(typeof(Dinosaur))]
+    [ModelReaderWriterBuildableAttribute(typeof(Eagle))]
+    [ModelReaderWriterBuildableAttribute(typeof(Goose))]
+    [ModelReaderWriterBuildableAttribute(typeof(SeaGull))]
+    [ModelReaderWriterBuildableAttribute(typeof(Sparrow))]
+    [ModelReaderWriterBuildableAttribute(typeof(TRex))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownBird))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownDinosaur))]
+    public partial class _TypeModelInheritanceSingleDiscriminatorContext : ModelReaderWriterContext
     {
     }
 }

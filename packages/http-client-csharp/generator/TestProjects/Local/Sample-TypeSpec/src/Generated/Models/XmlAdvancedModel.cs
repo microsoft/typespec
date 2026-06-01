@@ -51,31 +51,31 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/>, <paramref name="id"/>, <paramref name="originalName"/>, <paramref name="xmlIdentifier"/>, <paramref name="content"/>, <paramref name="unwrappedStrings"/>, <paramref name="unwrappedCounts"/>, <paramref name="unwrappedItems"/>, <paramref name="wrappedColors"/>, <paramref name="items"/>, <paramref name="nestedModel"/>, <paramref name="metadata"/>, <paramref name="data"/>, <paramref name="label"/>, <paramref name="fooItems"/>, <paramref name="anotherModel"/>, <paramref name="modelsWithNamespaces"/>, <paramref name="unwrappedModelsWithNamespaces"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryOfDictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
-        public XmlAdvancedModel(string name, int age, bool enabled, float score, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, global::System.Collections.Generic.IEnumerable<string> unwrappedStrings, global::System.Collections.Generic.IEnumerable<int> unwrappedCounts, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlItem> unwrappedItems, global::System.Collections.Generic.IEnumerable<string> wrappedColors, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlItem> items, global::SampleTypeSpec.XmlNestedModel nestedModel, global::System.Collections.Generic.IDictionary<string, string> metadata, global::System.DateTimeOffset createdAt, global::System.TimeSpan duration, global::System.BinaryData data, global::SampleTypeSpec.StringFixedEnum fixedEnum, global::SampleTypeSpec.StringExtensibleEnum extensibleEnum, string label, int daysUsed, global::System.Collections.Generic.IEnumerable<string> fooItems, global::SampleTypeSpec.XmlNestedModel anotherModel, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> modelsWithNamespaces, global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> unwrappedModelsWithNamespaces, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> listOfListFoo, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem> dictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> dictionaryOfDictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> dictionaryListFoo, global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> listOfDictionaryFoo)
+        public XmlAdvancedModel(string name, int age, bool enabled, float score, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IEnumerable<string> unwrappedStrings, IEnumerable<int> unwrappedCounts, IEnumerable<XmlItem> unwrappedItems, IEnumerable<string> wrappedColors, IEnumerable<XmlItem> items, XmlNestedModel nestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum, string label, int daysUsed, IEnumerable<string> fooItems, XmlNestedModel anotherModel, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces, IEnumerable<IList<XmlItem>> listOfListFoo, IDictionary<string, XmlItem> dictionaryFoo, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo, IDictionary<string, IList<XmlItem>> dictionaryListFoo, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
-            global::SampleTypeSpec.Argument.AssertNotNull(id, nameof(id));
-            global::SampleTypeSpec.Argument.AssertNotNull(originalName, nameof(originalName));
-            global::SampleTypeSpec.Argument.AssertNotNull(xmlIdentifier, nameof(xmlIdentifier));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
-            global::SampleTypeSpec.Argument.AssertNotNull(unwrappedStrings, nameof(unwrappedStrings));
-            global::SampleTypeSpec.Argument.AssertNotNull(unwrappedCounts, nameof(unwrappedCounts));
-            global::SampleTypeSpec.Argument.AssertNotNull(unwrappedItems, nameof(unwrappedItems));
-            global::SampleTypeSpec.Argument.AssertNotNull(wrappedColors, nameof(wrappedColors));
-            global::SampleTypeSpec.Argument.AssertNotNull(items, nameof(items));
-            global::SampleTypeSpec.Argument.AssertNotNull(nestedModel, nameof(nestedModel));
-            global::SampleTypeSpec.Argument.AssertNotNull(metadata, nameof(metadata));
-            global::SampleTypeSpec.Argument.AssertNotNull(data, nameof(data));
-            global::SampleTypeSpec.Argument.AssertNotNull(label, nameof(label));
-            global::SampleTypeSpec.Argument.AssertNotNull(fooItems, nameof(fooItems));
-            global::SampleTypeSpec.Argument.AssertNotNull(anotherModel, nameof(anotherModel));
-            global::SampleTypeSpec.Argument.AssertNotNull(modelsWithNamespaces, nameof(modelsWithNamespaces));
-            global::SampleTypeSpec.Argument.AssertNotNull(unwrappedModelsWithNamespaces, nameof(unwrappedModelsWithNamespaces));
-            global::SampleTypeSpec.Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
-            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
-            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryOfDictionaryFoo, nameof(dictionaryOfDictionaryFoo));
-            global::SampleTypeSpec.Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
-            global::SampleTypeSpec.Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
+            Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(originalName, nameof(originalName));
+            Argument.AssertNotNull(xmlIdentifier, nameof(xmlIdentifier));
+            Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(unwrappedStrings, nameof(unwrappedStrings));
+            Argument.AssertNotNull(unwrappedCounts, nameof(unwrappedCounts));
+            Argument.AssertNotNull(unwrappedItems, nameof(unwrappedItems));
+            Argument.AssertNotNull(wrappedColors, nameof(wrappedColors));
+            Argument.AssertNotNull(items, nameof(items));
+            Argument.AssertNotNull(nestedModel, nameof(nestedModel));
+            Argument.AssertNotNull(metadata, nameof(metadata));
+            Argument.AssertNotNull(data, nameof(data));
+            Argument.AssertNotNull(label, nameof(label));
+            Argument.AssertNotNull(fooItems, nameof(fooItems));
+            Argument.AssertNotNull(anotherModel, nameof(anotherModel));
+            Argument.AssertNotNull(modelsWithNamespaces, nameof(modelsWithNamespaces));
+            Argument.AssertNotNull(unwrappedModelsWithNamespaces, nameof(unwrappedModelsWithNamespaces));
+            Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
+            Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
+            Argument.AssertNotNull(dictionaryOfDictionaryFoo, nameof(dictionaryOfDictionaryFoo));
+            Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
+            Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
 
             Name = name;
             Age = age;
@@ -98,7 +98,7 @@ namespace SampleTypeSpec
             CreatedAt = createdAt;
             Duration = duration;
             Data = data;
-            OptionalRecordUnknown = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
             FixedEnum = fixedEnum;
             ExtensibleEnum = extensibleEnum;
             Label = label;
@@ -155,7 +155,7 @@ namespace SampleTypeSpec
         /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string optionalString, int? optionalInt, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, global::System.Collections.Generic.IList<string> unwrappedStrings, global::System.Collections.Generic.IList<int> unwrappedCounts, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem> unwrappedItems, global::System.Collections.Generic.IList<string> wrappedColors, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem> items, global::SampleTypeSpec.XmlNestedModel nestedModel, global::SampleTypeSpec.XmlNestedModel optionalNestedModel, global::System.Collections.Generic.IDictionary<string, string> metadata, global::System.DateTimeOffset createdAt, global::System.TimeSpan duration, global::System.BinaryData data, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> optionalRecordUnknown, global::SampleTypeSpec.StringFixedEnum fixedEnum, global::SampleTypeSpec.StringExtensibleEnum extensibleEnum, global::SampleTypeSpec.IntFixedEnum? optionalFixedEnum, global::SampleTypeSpec.IntExtensibleEnum? optionalExtensibleEnum, string label, int daysUsed, global::System.Collections.Generic.IList<string> fooItems, global::SampleTypeSpec.XmlNestedModel anotherModel, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlModelWithNamespace> modelsWithNamespaces, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlModelWithNamespace> unwrappedModelsWithNamespaces, global::System.Collections.Generic.IList<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> listOfListFoo, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem> dictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> dictionaryOfDictionaryFoo, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> dictionaryListFoo, global::System.Collections.Generic.IList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> listOfDictionaryFoo)
+        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string optionalString, int? optionalInt, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IList<string> unwrappedStrings, IList<int> unwrappedCounts, IList<XmlItem> unwrappedItems, IList<string> wrappedColors, IList<XmlItem> items, XmlNestedModel nestedModel, XmlNestedModel optionalNestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, IDictionary<string, BinaryData> optionalRecordUnknown, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum, IntFixedEnum? optionalFixedEnum, IntExtensibleEnum? optionalExtensibleEnum, string label, int daysUsed, IList<string> fooItems, XmlNestedModel anotherModel, IList<XmlModelWithNamespace> modelsWithNamespaces, IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces, IList<IList<XmlItem>> listOfListFoo, IDictionary<string, XmlItem> dictionaryFoo, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo, IDictionary<string, IList<XmlItem>> dictionaryListFoo, IList<IDictionary<string, XmlItem>> listOfDictionaryFoo)
         {
             Name = name;
             Age = age;
@@ -239,34 +239,34 @@ namespace SampleTypeSpec
         public string Content { get; set; }
 
         /// <summary> An unwrapped array of strings - items appear directly without wrapper. </summary>
-        public global::System.Collections.Generic.IList<string> UnwrappedStrings { get; }
+        public IList<string> UnwrappedStrings { get; }
 
         /// <summary> An unwrapped array of integers. </summary>
-        public global::System.Collections.Generic.IList<int> UnwrappedCounts { get; }
+        public IList<int> UnwrappedCounts { get; }
 
         /// <summary> An unwrapped array of models. </summary>
-        public global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem> UnwrappedItems { get; }
+        public IList<XmlItem> UnwrappedItems { get; }
 
         /// <summary> A wrapped array of strings (default). </summary>
-        public global::System.Collections.Generic.IList<string> WrappedColors { get; }
+        public IList<string> WrappedColors { get; }
 
         /// <summary> A wrapped array with custom wrapper name. </summary>
-        public global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem> Items { get; }
+        public IList<XmlItem> Items { get; }
 
         /// <summary> A nested model property. </summary>
-        public global::SampleTypeSpec.XmlNestedModel NestedModel { get; set; }
+        public XmlNestedModel NestedModel { get; set; }
 
         /// <summary> An optional nested model. </summary>
-        public global::SampleTypeSpec.XmlNestedModel OptionalNestedModel { get; set; }
+        public XmlNestedModel OptionalNestedModel { get; set; }
 
         /// <summary> A dictionary property. </summary>
-        public global::System.Collections.Generic.IDictionary<string, string> Metadata { get; }
+        public IDictionary<string, string> Metadata { get; }
 
         /// <summary> A date-time property. </summary>
-        public global::System.DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         /// <summary> A duration property. </summary>
-        public global::System.TimeSpan Duration { get; set; }
+        public TimeSpan Duration { get; set; }
 
         /// <summary>
         /// A bytes property
@@ -284,7 +284,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public global::System.BinaryData Data { get; set; }
+        public BinaryData Data { get; set; }
 
         /// <summary>
         /// optional record of unknown
@@ -312,19 +312,19 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> OptionalRecordUnknown { get; }
+        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; }
 
         /// <summary> A fixed enum property. </summary>
-        public global::SampleTypeSpec.StringFixedEnum FixedEnum { get; set; }
+        public StringFixedEnum FixedEnum { get; set; }
 
         /// <summary> An extensible enum property. </summary>
-        public global::SampleTypeSpec.StringExtensibleEnum ExtensibleEnum { get; set; }
+        public StringExtensibleEnum ExtensibleEnum { get; set; }
 
         /// <summary> An optional fixed enum property. </summary>
-        public global::SampleTypeSpec.IntFixedEnum? OptionalFixedEnum { get; set; }
+        public IntFixedEnum? OptionalFixedEnum { get; set; }
 
         /// <summary> An optional extensible enum property. </summary>
-        public global::SampleTypeSpec.IntExtensibleEnum? OptionalExtensibleEnum { get; set; }
+        public IntExtensibleEnum? OptionalExtensibleEnum { get; set; }
 
         /// <summary> Gets or sets the Label. </summary>
         public string Label { get; set; }
@@ -333,30 +333,30 @@ namespace SampleTypeSpec
         public int DaysUsed { get; set; }
 
         /// <summary> Gets the FooItems. </summary>
-        public global::System.Collections.Generic.IList<string> FooItems { get; }
+        public IList<string> FooItems { get; }
 
         /// <summary> Gets or sets the AnotherModel. </summary>
-        public global::SampleTypeSpec.XmlNestedModel AnotherModel { get; set; }
+        public XmlNestedModel AnotherModel { get; set; }
 
         /// <summary> Gets the ModelsWithNamespaces. </summary>
-        public global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlModelWithNamespace> ModelsWithNamespaces { get; }
+        public IList<XmlModelWithNamespace> ModelsWithNamespaces { get; }
 
         /// <summary> Gets the UnwrappedModelsWithNamespaces. </summary>
-        public global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlModelWithNamespace> UnwrappedModelsWithNamespaces { get; }
+        public IList<XmlModelWithNamespace> UnwrappedModelsWithNamespaces { get; }
 
         /// <summary> Gets the ListOfListFoo. </summary>
-        public global::System.Collections.Generic.IList<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> ListOfListFoo { get; }
+        public IList<IList<XmlItem>> ListOfListFoo { get; }
 
         /// <summary> Gets the DictionaryFoo. </summary>
-        public global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem> DictionaryFoo { get; }
+        public IDictionary<string, XmlItem> DictionaryFoo { get; }
 
         /// <summary> Gets the DictionaryOfDictionaryFoo. </summary>
-        public global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> DictionaryOfDictionaryFoo { get; }
+        public IDictionary<string, IDictionary<string, XmlItem>> DictionaryOfDictionaryFoo { get; }
 
         /// <summary> Gets the DictionaryListFoo. </summary>
-        public global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> DictionaryListFoo { get; }
+        public IDictionary<string, IList<XmlItem>> DictionaryListFoo { get; }
 
         /// <summary> Gets the ListOfDictionaryFoo. </summary>
-        public global::System.Collections.Generic.IList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> ListOfDictionaryFoo { get; }
+        public IList<IDictionary<string, XmlItem>> ListOfDictionaryFoo { get; }
     }
 }

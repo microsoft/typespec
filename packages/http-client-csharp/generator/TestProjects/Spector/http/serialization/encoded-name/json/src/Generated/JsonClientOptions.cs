@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Serialization.EncodedName.Json
 {
-    public partial class JsonClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class JsonClientOptions : ClientPipelineOptions
     {
         public JsonClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal JsonClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal JsonClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

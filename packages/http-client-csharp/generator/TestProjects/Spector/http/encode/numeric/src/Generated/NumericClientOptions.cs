@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Encode.Numeric
 {
-    public partial class NumericClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class NumericClientOptions : ClientPipelineOptions
     {
         public NumericClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal NumericClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal NumericClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

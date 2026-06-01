@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithRenamedUnwrappedModelArray : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray>
+    public partial class ModelWithRenamedUnwrappedModelArray : IPersistableModel<ModelWithRenamedUnwrappedModelArray>
     {
         internal ModelWithRenamedUnwrappedModelArray() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithRenamedUnwrappedModelArray PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithRenamedUnwrappedModelArray PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithRenamedUnwrappedModelArray>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithRenamedUnwrappedModelArray global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithRenamedUnwrappedModelArray IPersistableModel<ModelWithRenamedUnwrappedModelArray>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithRenamedUnwrappedModelArray>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithRenamedUnwrappedModelArray modelWithRenamedUnwrappedModelArray) => throw null;
+        public static implicit operator BinaryContent(ModelWithRenamedUnwrappedModelArray modelWithRenamedUnwrappedModelArray) => throw null;
 
-        public static explicit operator ModelWithRenamedUnwrappedModelArray(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithRenamedUnwrappedModelArray(ClientResult result) => throw null;
     }
 }

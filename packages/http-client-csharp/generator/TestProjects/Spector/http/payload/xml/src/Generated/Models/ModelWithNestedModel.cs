@@ -6,9 +6,9 @@ namespace Payload.Xml
 {
     public partial class ModelWithNestedModel
     {
-        public ModelWithNestedModel(global::Payload.Xml.SimpleModel nested) => throw null;
+        public ModelWithNestedModel(SimpleModel nested) => throw null;
 
-        public global::Payload.Xml.SimpleModel Nested
+        public SimpleModel Nested
         {
             get => throw null;
             set => throw null;

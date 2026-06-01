@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Versioning.TypeChangedFrom
 {
-    public partial class TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Versioning.TypeChangedFrom.TestModel>
+    public partial class TestModel : IJsonModel<TestModel>
     {
         internal TestModel() => throw null;
 
-        protected virtual global::Versioning.TypeChangedFrom.TestModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual TestModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Versioning.TypeChangedFrom.TestModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<TestModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Versioning.TypeChangedFrom.TestModel global::System.ClientModel.Primitives.IPersistableModel<global::Versioning.TypeChangedFrom.TestModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        TestModel IPersistableModel<TestModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Versioning.TypeChangedFrom.TestModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<TestModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Versioning.TypeChangedFrom.TestModel testModel) => throw null;
+        public static implicit operator BinaryContent(TestModel testModel) => throw null;
 
-        public static explicit operator TestModel(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator TestModel(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Versioning.TypeChangedFrom.TestModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<TestModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Versioning.TypeChangedFrom.TestModel global::System.ClientModel.Primitives.IJsonModel<global::Versioning.TypeChangedFrom.TestModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        TestModel IJsonModel<TestModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Versioning.TypeChangedFrom.TestModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual TestModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

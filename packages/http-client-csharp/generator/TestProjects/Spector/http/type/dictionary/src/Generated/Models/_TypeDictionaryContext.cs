@@ -6,8 +6,8 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Dictionary
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Dictionary.InnerModel))]
-    public partial class _TypeDictionaryContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(InnerModel))]
+    public partial class _TypeDictionaryContext : ModelReaderWriterContext
     {
     }
 }

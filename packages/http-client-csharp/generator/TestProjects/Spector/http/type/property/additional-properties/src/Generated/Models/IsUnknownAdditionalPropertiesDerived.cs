@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class IsUnknownAdditionalPropertiesDerived : global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties
+    public partial class IsUnknownAdditionalPropertiesDerived : IsUnknownAdditionalProperties
     {
         public IsUnknownAdditionalPropertiesDerived(string name, int index) : base(name) => throw null;
 
-        internal IsUnknownAdditionalPropertiesDerived(string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties, int index, float? age) : base(name, additionalProperties) => throw null;
+        internal IsUnknownAdditionalPropertiesDerived(string name, IDictionary<string, BinaryData> additionalProperties, int index, float? age) : base(name, additionalProperties) => throw null;
 
         public int Index
         {

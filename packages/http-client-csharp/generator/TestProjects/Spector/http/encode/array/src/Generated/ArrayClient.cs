@@ -11,17 +11,17 @@ namespace Encode._Array
 {
     public partial class ArrayClient
     {
-        public ArrayClient() : this(new global::System.Uri("http://localhost:3000"), new global::Encode._Array.ArrayClientOptions()) => throw null;
+        public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions()) => throw null;
 
-        internal ArrayClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Encode._Array.ArrayClientOptions options) => throw null;
+        internal ArrayClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ArrayClientOptions options) => throw null;
 
-        public ArrayClient(global::System.Uri endpoint, global::Encode._Array.ArrayClientOptions options) : this(null, endpoint, options) => throw null;
+        public ArrayClient(Uri endpoint, ArrayClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public ArrayClient(global::Encode._Array.ArrayClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public ArrayClient(ArrayClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Encode._Array._Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
     }
 }

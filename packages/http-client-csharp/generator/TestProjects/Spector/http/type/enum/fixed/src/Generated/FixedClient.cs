@@ -10,17 +10,17 @@ namespace _Type._Enum.Fixed
 {
     public partial class FixedClient
     {
-        public FixedClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type._Enum.Fixed.FixedClientOptions()) => throw null;
+        public FixedClient() : this(new Uri("http://localhost:3000"), new FixedClientOptions()) => throw null;
 
-        internal FixedClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type._Enum.Fixed.FixedClientOptions options) => throw null;
+        internal FixedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, FixedClientOptions options) => throw null;
 
-        public FixedClient(global::System.Uri endpoint, global::_Type._Enum.Fixed.FixedClientOptions options) : this(null, endpoint, options) => throw null;
+        public FixedClient(Uri endpoint, FixedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public FixedClient(global::_Type._Enum.Fixed.FixedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public FixedClient(FixedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::_Type._Enum.Fixed.String GetStringClient() => throw null;
+        public virtual String GetStringClient() => throw null;
     }
 }

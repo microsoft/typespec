@@ -6,8 +6,8 @@ namespace Documentation._Lists
 {
     public partial class BulletPointsModel
     {
-        public BulletPointsModel(global::Documentation._Lists.BulletPointsEnum prop) => throw null;
+        public BulletPointsModel(BulletPointsEnum prop) => throw null;
 
-        public global::Documentation._Lists.BulletPointsEnum Prop => throw null;
+        public BulletPointsEnum Prop => throw null;
     }
 }

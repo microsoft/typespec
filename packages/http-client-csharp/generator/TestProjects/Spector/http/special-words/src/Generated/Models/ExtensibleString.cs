@@ -7,90 +7,90 @@ using System.ComponentModel;
 
 namespace SpecialWords._ExtensibleStrings
 {
-    public readonly partial struct ExtensibleString : global::System.IEquatable<global::SpecialWords._ExtensibleStrings.ExtensibleString>
+    public readonly partial struct ExtensibleString : IEquatable<ExtensibleString>
     {
         public ExtensibleString(string value) => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString And => throw null;
+        public static ExtensibleString And => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString As => throw null;
+        public static ExtensibleString As => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Assert => throw null;
+        public static ExtensibleString Assert => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Async => throw null;
+        public static ExtensibleString Async => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Await => throw null;
+        public static ExtensibleString Await => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Break => throw null;
+        public static ExtensibleString Break => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Class => throw null;
+        public static ExtensibleString Class => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Constructor => throw null;
+        public static ExtensibleString Constructor => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Continue => throw null;
+        public static ExtensibleString Continue => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Def => throw null;
+        public static ExtensibleString Def => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Del => throw null;
+        public static ExtensibleString Del => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Elif => throw null;
+        public static ExtensibleString Elif => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Else => throw null;
+        public static ExtensibleString Else => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Except => throw null;
+        public static ExtensibleString Except => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Exec => throw null;
+        public static ExtensibleString Exec => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Finally => throw null;
+        public static ExtensibleString Finally => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString For => throw null;
+        public static ExtensibleString For => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString From => throw null;
+        public static ExtensibleString From => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Global => throw null;
+        public static ExtensibleString Global => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString If => throw null;
+        public static ExtensibleString If => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Import => throw null;
+        public static ExtensibleString Import => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString In => throw null;
+        public static ExtensibleString In => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Is => throw null;
+        public static ExtensibleString Is => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Lambda => throw null;
+        public static ExtensibleString Lambda => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Not => throw null;
+        public static ExtensibleString Not => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Or => throw null;
+        public static ExtensibleString Or => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Pass => throw null;
+        public static ExtensibleString Pass => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Raise => throw null;
+        public static ExtensibleString Raise => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Return => throw null;
+        public static ExtensibleString Return => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Try => throw null;
+        public static ExtensibleString Try => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString While => throw null;
+        public static ExtensibleString While => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString With => throw null;
+        public static ExtensibleString With => throw null;
 
-        public static global::SpecialWords._ExtensibleStrings.ExtensibleString Yield => throw null;
+        public static ExtensibleString Yield => throw null;
 
-        public static bool operator ==(global::SpecialWords._ExtensibleStrings.ExtensibleString left, global::SpecialWords._ExtensibleStrings.ExtensibleString right) => throw null;
+        public static bool operator ==(ExtensibleString left, ExtensibleString right) => throw null;
 
-        public static bool operator !=(global::SpecialWords._ExtensibleStrings.ExtensibleString left, global::SpecialWords._ExtensibleStrings.ExtensibleString right) => throw null;
+        public static bool operator !=(ExtensibleString left, ExtensibleString right) => throw null;
 
-        public static implicit operator global::SpecialWords._ExtensibleStrings.ExtensibleString(string value) => throw null;
+        public static implicit operator ExtensibleString(string value) => throw null;
 
-        public static implicit operator global::SpecialWords._ExtensibleStrings.ExtensibleString?(string value) => throw null;
+        public static implicit operator ExtensibleString?(string value) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(global::SpecialWords._ExtensibleStrings.ExtensibleString other) => throw null;
+        public bool Equals(ExtensibleString other) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

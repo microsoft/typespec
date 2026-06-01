@@ -8,8 +8,8 @@ namespace Payload.Xml
 {
     public partial class ModelWithEmptyArray
     {
-        public ModelWithEmptyArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.SimpleModel> items) => throw null;
+        public ModelWithEmptyArray(IEnumerable<SimpleModel> items) => throw null;
 
-        public global::System.Collections.Generic.IList<global::Payload.Xml.SimpleModel> Items => throw null;
+        public IList<SimpleModel> Items => throw null;
     }
 }

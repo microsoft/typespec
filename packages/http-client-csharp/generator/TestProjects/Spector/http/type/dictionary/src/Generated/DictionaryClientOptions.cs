@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Dictionary
 {
-    public partial class DictionaryClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class DictionaryClientOptions : ClientPipelineOptions
     {
         public DictionaryClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal DictionaryClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal DictionaryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -6,8 +6,8 @@ namespace Response.StatusCodeRange
 {
     public static partial class ResponseStatusCodeRangeModelFactory
     {
-        public static global::Response.StatusCodeRange.ErrorInRange ErrorInRange(string code = default, string message = default) => throw null;
+        public static ErrorInRange ErrorInRange(string code = default, string message = default) => throw null;
 
-        public static global::Response.StatusCodeRange.NotFoundError NotFoundError(string code = default, string resourceId = default) => throw null;
+        public static NotFoundError NotFoundError(string code = default, string resourceId = default) => throw null;
     }
 }

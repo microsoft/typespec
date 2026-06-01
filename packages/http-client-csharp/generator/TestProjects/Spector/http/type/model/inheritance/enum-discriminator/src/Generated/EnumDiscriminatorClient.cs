@@ -13,79 +13,79 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public partial class EnumDiscriminatorClient
     {
-        public EnumDiscriminatorClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Inheritance.EnumDiscriminator.EnumDiscriminatorClientOptions()) => throw null;
+        public EnumDiscriminatorClient() : this(new Uri("http://localhost:3000"), new EnumDiscriminatorClientOptions()) => throw null;
 
-        internal EnumDiscriminatorClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Inheritance.EnumDiscriminator.EnumDiscriminatorClientOptions options) => throw null;
+        internal EnumDiscriminatorClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, EnumDiscriminatorClientOptions options) => throw null;
 
-        public EnumDiscriminatorClient(global::System.Uri endpoint, global::_Type.Model.Inheritance.EnumDiscriminator.EnumDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
+        public EnumDiscriminatorClient(Uri endpoint, EnumDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public EnumDiscriminatorClient(global::_Type.Model.Inheritance.EnumDiscriminator.EnumDiscriminatorClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public EnumDiscriminatorClient(EnumDiscriminatorClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetExtensibleModel(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetExtensibleModel(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetExtensibleModelAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetExtensibleModelAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog> GetExtensibleModel(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>> GetExtensibleModelAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Dog>> GetExtensibleModelAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutExtensibleModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutExtensibleModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutExtensibleModel(global::_Type.Model.Inheritance.EnumDiscriminator.Dog input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutExtensibleModel(Dog input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutExtensibleModelAsync(global::_Type.Model.Inheritance.EnumDiscriminator.Dog input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutExtensibleModelAsync(Dog input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetExtensibleModelMissingDiscriminator(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetExtensibleModelMissingDiscriminator(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetExtensibleModelMissingDiscriminatorAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetExtensibleModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog> GetExtensibleModelMissingDiscriminator(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>> GetExtensibleModelMissingDiscriminatorAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Dog>> GetExtensibleModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetExtensibleModelWrongDiscriminator(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetExtensibleModelWrongDiscriminator(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetExtensibleModelWrongDiscriminatorAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetExtensibleModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog> GetExtensibleModelWrongDiscriminator(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Dog>> GetExtensibleModelWrongDiscriminatorAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Dog>> GetExtensibleModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetFixedModel(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetFixedModel(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetFixedModelAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetFixedModelAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake> GetFixedModel(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Snake> GetFixedModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>> GetFixedModelAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Snake>> GetFixedModelAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutFixedModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutFixedModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutFixedModel(global::_Type.Model.Inheritance.EnumDiscriminator.Snake input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutFixedModel(Snake input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutFixedModelAsync(global::_Type.Model.Inheritance.EnumDiscriminator.Snake input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutFixedModelAsync(Snake input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetFixedModelMissingDiscriminator(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetFixedModelMissingDiscriminator(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetFixedModelMissingDiscriminatorAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetFixedModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake> GetFixedModelMissingDiscriminator(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>> GetFixedModelMissingDiscriminatorAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Snake>> GetFixedModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetFixedModelWrongDiscriminator(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetFixedModelWrongDiscriminator(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetFixedModelWrongDiscriminatorAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetFixedModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake> GetFixedModelWrongDiscriminator(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>> GetFixedModelWrongDiscriminatorAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Snake>> GetFixedModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

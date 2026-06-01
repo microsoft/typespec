@@ -13,39 +13,39 @@ namespace _Type.Model.Usage
 {
     public partial class UsageClient
     {
-        public UsageClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Usage.UsageClientOptions()) => throw null;
+        public UsageClient() : this(new Uri("http://localhost:3000"), new UsageClientOptions()) => throw null;
 
-        internal UsageClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Usage.UsageClientOptions options) => throw null;
+        internal UsageClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UsageClientOptions options) => throw null;
 
-        public UsageClient(global::System.Uri endpoint, global::_Type.Model.Usage.UsageClientOptions options) : this(null, endpoint, options) => throw null;
+        public UsageClient(Uri endpoint, UsageClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public UsageClient(global::_Type.Model.Usage.UsageClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public UsageClient(UsageClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Input(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Input(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InputAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Input(global::_Type.Model.Usage.InputRecord input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Input(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InputAsync(global::_Type.Model.Usage.InputRecord input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> InputAsync(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Output(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Output(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OutputAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OutputAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Usage.OutputRecord> Output(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<OutputRecord> Output(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Usage.OutputRecord>> OutputAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<OutputRecord>> OutputAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult InputAndOutput(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InputAndOutputAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Usage.InputOutputRecord> InputAndOutput(global::_Type.Model.Usage.InputOutputRecord body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Usage.InputOutputRecord>> InputAndOutputAsync(global::_Type.Model.Usage.InputOutputRecord body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }

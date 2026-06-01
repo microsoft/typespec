@@ -14,16 +14,16 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
     {
         protected ServerDrivenPaginationAlternateInitialVerb() => throw null;
 
-        internal ServerDrivenPaginationAlternateInitialVerb(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ServerDrivenPaginationAlternateInitialVerb(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult Post(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual CollectionResult Post(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult PostAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual AsyncCollectionResult PostAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> Post(global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> Post(Filter body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> PostAsync(global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> PostAsync(Filter body, CancellationToken cancellationToken = default) => throw null;
     }
 }

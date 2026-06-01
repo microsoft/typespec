@@ -14,24 +14,24 @@ namespace Payload.Pageable._XmlPagination
     {
         protected XmlPagination() => throw null;
 
-        internal XmlPagination(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal XmlPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithContinuation(string marker, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual CollectionResult GetWithContinuation(string marker, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithContinuationAsync(string marker, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult GetWithContinuationAsync(string marker, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.XmlPet> GetWithContinuation(string marker = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<XmlPet> GetWithContinuation(string marker = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.XmlPet> GetWithContinuationAsync(string marker = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<XmlPet> GetWithContinuationAsync(string marker = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithNextLink(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual CollectionResult GetWithNextLink(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithNextLinkAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.XmlPet> GetWithNextLink(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<XmlPet> GetWithNextLink(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.XmlPet> GetWithNextLinkAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<XmlPet> GetWithNextLinkAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

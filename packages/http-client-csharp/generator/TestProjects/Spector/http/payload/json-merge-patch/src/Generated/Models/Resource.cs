@@ -22,9 +22,9 @@ namespace Payload.JsonMergePatch
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IDictionary<string, global::Payload.JsonMergePatch.InnerModel> Map => throw null;
+        public IDictionary<string, InnerModel> Map => throw null;
 
-        public global::System.Collections.Generic.IList<global::Payload.JsonMergePatch.InnerModel> Array => throw null;
+        public IList<InnerModel> Array => throw null;
 
         public int? IntValue
         {
@@ -38,12 +38,12 @@ namespace Payload.JsonMergePatch
             set => throw null;
         }
 
-        public global::Payload.JsonMergePatch.InnerModel InnerModel
+        public InnerModel InnerModel
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IList<int> IntArray => throw null;
+        public IList<int> IntArray => throw null;
     }
 }

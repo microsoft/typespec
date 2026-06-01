@@ -16,6 +16,6 @@ namespace _Type.Dictionary
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IDictionary<string, global::_Type.Dictionary.InnerModel> Children => throw null;
+        public IDictionary<string, InnerModel> Children => throw null;
     }
 }

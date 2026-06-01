@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace _Type.Property.Optional
 {
-    public partial class PlainTimeProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.PlainTimeProperty>
+    public partial class PlainTimeProperty : IJsonModel<PlainTimeProperty>
     {
-        protected virtual global::_Type.Property.Optional.PlainTimeProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual PlainTimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.PlainTimeProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<PlainTimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.Optional.PlainTimeProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.PlainTimeProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        PlainTimeProperty IPersistableModel<PlainTimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.PlainTimeProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<PlainTimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.Optional.PlainTimeProperty plainTimeProperty) => throw null;
+        public static implicit operator BinaryContent(PlainTimeProperty plainTimeProperty) => throw null;
 
-        public static explicit operator PlainTimeProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator PlainTimeProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.PlainTimeProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<PlainTimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.Optional.PlainTimeProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.PlainTimeProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        PlainTimeProperty IJsonModel<PlainTimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Property.Optional.PlainTimeProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual PlainTimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

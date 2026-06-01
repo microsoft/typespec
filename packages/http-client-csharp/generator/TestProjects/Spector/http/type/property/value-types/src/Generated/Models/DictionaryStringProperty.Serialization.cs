@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class DictionaryStringProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>
+    public partial class DictionaryStringProperty : IJsonModel<DictionaryStringProperty>
     {
         internal DictionaryStringProperty() => throw null;
 
-        protected virtual global::_Type.Property.ValueTypes.DictionaryStringProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual DictionaryStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<DictionaryStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.ValueTypes.DictionaryStringProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        DictionaryStringProperty IPersistableModel<DictionaryStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<DictionaryStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.ValueTypes.DictionaryStringProperty dictionaryStringProperty) => throw null;
+        public static implicit operator BinaryContent(DictionaryStringProperty dictionaryStringProperty) => throw null;
 
-        public static explicit operator DictionaryStringProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator DictionaryStringProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<DictionaryStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.ValueTypes.DictionaryStringProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        DictionaryStringProperty IJsonModel<DictionaryStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Property.ValueTypes.DictionaryStringProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual DictionaryStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

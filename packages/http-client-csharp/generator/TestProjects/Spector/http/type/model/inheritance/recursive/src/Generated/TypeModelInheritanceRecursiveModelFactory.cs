@@ -8,8 +8,8 @@ namespace _Type.Model.Inheritance.Recursive
 {
     public static partial class TypeModelInheritanceRecursiveModelFactory
     {
-        public static global::_Type.Model.Inheritance.Recursive.Extension Extension(global::System.Collections.Generic.IEnumerable<global::_Type.Model.Inheritance.Recursive.Extension> extension = default, sbyte level = default) => throw null;
+        public static Extension Extension(IEnumerable<Extension> extension = default, sbyte level = default) => throw null;
 
-        public static global::_Type.Model.Inheritance.Recursive.Element Element(global::System.Collections.Generic.IEnumerable<global::_Type.Model.Inheritance.Recursive.Extension> extension = default) => throw null;
+        public static Element Element(IEnumerable<Extension> extension = default) => throw null;
     }
 }

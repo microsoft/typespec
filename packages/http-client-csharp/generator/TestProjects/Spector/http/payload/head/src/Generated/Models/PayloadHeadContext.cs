@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Head
 {
-    public partial class PayloadHeadContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class PayloadHeadContext : ModelReaderWriterContext
     {
     }
 }

@@ -12,17 +12,17 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT : global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing>
+    internal partial class SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
     {
-        private readonly global::SampleTypeSpec.SampleTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(global::SampleTypeSpec.SampleTypeSpecClient client, string token, global::System.ClientModel.Primitives.RequestOptions options)
+        public SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -31,16 +31,16 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
+            PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
+                ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
-                nextToken = ((global::SampleTypeSpec.ListWithContinuationTokenResponse)result).NextToken;
+                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -52,12 +52,12 @@ namespace SampleTypeSpec
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((global::SampleTypeSpec.ListWithContinuationTokenResponse)page).NextToken;
+            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {
@@ -68,16 +68,16 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override global::System.Collections.Generic.IEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPage(global::System.ClientModel.ClientResult page)
+        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((global::SampleTypeSpec.ListWithContinuationTokenResponse)page).Things;
+            return ((ListWithContinuationTokenResponse)page).Things;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

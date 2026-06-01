@@ -8,8 +8,8 @@ namespace Payload.Xml
 {
     public partial class ModelWithDictionary
     {
-        public ModelWithDictionary(global::System.Collections.Generic.IDictionary<string, string> metadata) => throw null;
+        public ModelWithDictionary(IDictionary<string, string> metadata) => throw null;
 
-        public global::System.Collections.Generic.IDictionary<string, string> Metadata => throw null;
+        public IDictionary<string, string> Metadata => throw null;
     }
 }

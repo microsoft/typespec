@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Encode.Datetime
 {
-    public partial class DatetimeClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class DatetimeClientOptions : ClientPipelineOptions
     {
         public DatetimeClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal DatetimeClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal DatetimeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

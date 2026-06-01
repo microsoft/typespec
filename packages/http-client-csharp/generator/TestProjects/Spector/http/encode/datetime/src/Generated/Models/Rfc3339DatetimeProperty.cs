@@ -8,9 +8,9 @@ namespace Encode.Datetime
 {
     public partial class Rfc3339DatetimeProperty
     {
-        public Rfc3339DatetimeProperty(global::System.DateTimeOffset value) => throw null;
+        public Rfc3339DatetimeProperty(DateTimeOffset value) => throw null;
 
-        public global::System.DateTimeOffset Value
+        public DateTimeOffset Value
         {
             get => throw null;
             set => throw null;

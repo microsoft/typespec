@@ -8,9 +8,9 @@ namespace Encode.Duration._Property
 {
     public partial class ISO8601DurationProperty
     {
-        public ISO8601DurationProperty(global::System.TimeSpan value) => throw null;
+        public ISO8601DurationProperty(TimeSpan value) => throw null;
 
-        public global::System.TimeSpan Value
+        public TimeSpan Value
         {
             get => throw null;
             set => throw null;

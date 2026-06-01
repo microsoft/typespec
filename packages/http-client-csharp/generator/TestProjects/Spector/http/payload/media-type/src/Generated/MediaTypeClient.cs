@@ -11,17 +11,17 @@ namespace Payload.MediaType
 {
     public partial class MediaTypeClient
     {
-        public MediaTypeClient() : this(new global::System.Uri("http://localhost:3000"), new global::Payload.MediaType.MediaTypeClientOptions()) => throw null;
+        public MediaTypeClient() : this(new Uri("http://localhost:3000"), new MediaTypeClientOptions()) => throw null;
 
-        internal MediaTypeClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Payload.MediaType.MediaTypeClientOptions options) => throw null;
+        internal MediaTypeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MediaTypeClientOptions options) => throw null;
 
-        public MediaTypeClient(global::System.Uri endpoint, global::Payload.MediaType.MediaTypeClientOptions options) : this(null, endpoint, options) => throw null;
+        public MediaTypeClient(Uri endpoint, MediaTypeClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public MediaTypeClient(global::Payload.MediaType.MediaTypeClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public MediaTypeClient(MediaTypeClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Payload.MediaType._StringBody.StringBody GetStringBodyClient() => throw null;
+        public virtual StringBody GetStringBodyClient() => throw null;
     }
 }

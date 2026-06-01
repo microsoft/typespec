@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Path
 {
-    public partial class PathClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class PathClientOptions : ClientPipelineOptions
     {
         public PathClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal PathClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal PathClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -6,6 +6,6 @@ namespace _Type.Union
 {
     public partial class GetResponse
     {
-        public global::_Type.Union.GetResponseProp Prop => throw null;
+        public GetResponseProp Prop => throw null;
     }
 }

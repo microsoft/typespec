@@ -13,31 +13,31 @@ namespace Payload.JsonMergePatch
 {
     public partial class JsonMergePatchClient
     {
-        public JsonMergePatchClient() : this(new global::System.Uri("http://localhost:3000"), new global::Payload.JsonMergePatch.JsonMergePatchClientOptions()) => throw null;
+        public JsonMergePatchClient() : this(new Uri("http://localhost:3000"), new JsonMergePatchClientOptions()) => throw null;
 
-        internal JsonMergePatchClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Payload.JsonMergePatch.JsonMergePatchClientOptions options) => throw null;
+        internal JsonMergePatchClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, JsonMergePatchClientOptions options) => throw null;
 
-        public JsonMergePatchClient(global::System.Uri endpoint, global::Payload.JsonMergePatch.JsonMergePatchClientOptions options) : this(null, endpoint, options) => throw null;
+        public JsonMergePatchClient(Uri endpoint, JsonMergePatchClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public JsonMergePatchClient(global::Payload.JsonMergePatch.JsonMergePatchClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public JsonMergePatchClient(JsonMergePatchClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult CreateResource(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult CreateResource(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CreateResourceAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> CreateResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Payload.JsonMergePatch.Resource> CreateResource(global::Payload.JsonMergePatch.Resource body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Resource> CreateResource(Resource body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Payload.JsonMergePatch.Resource>> CreateResourceAsync(global::Payload.JsonMergePatch.Resource body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Resource>> CreateResourceAsync(Resource body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult UpdateResource(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult UpdateResource(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateResourceAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> UpdateResourceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult UpdateOptionalResource(global::System.ClientModel.BinaryContent content = null, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult UpdateOptionalResource(BinaryContent content = null, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateOptionalResourceAsync(global::System.ClientModel.BinaryContent content = null, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> UpdateOptionalResourceAsync(BinaryContent content = null, RequestOptions options = null) => throw null;
     }
 }

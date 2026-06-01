@@ -16,6 +16,6 @@ namespace _Type.Property.AdditionalProperties
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IDictionary<string, string> AdditionalProperties => throw null;
+        public IDictionary<string, string> AdditionalProperties => throw null;
     }
 }

@@ -13,39 +13,39 @@ namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public partial class NotDiscriminatedClient
     {
-        public NotDiscriminatedClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClientOptions()) => throw null;
+        public NotDiscriminatedClient() : this(new Uri("http://localhost:3000"), new NotDiscriminatedClientOptions()) => throw null;
 
-        internal NotDiscriminatedClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClientOptions options) => throw null;
+        internal NotDiscriminatedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotDiscriminatedClientOptions options) => throw null;
 
-        public NotDiscriminatedClient(global::System.Uri endpoint, global::_Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClientOptions options) : this(null, endpoint, options) => throw null;
+        public NotDiscriminatedClient(Uri endpoint, NotDiscriminatedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public NotDiscriminatedClient(global::_Type.Model.Inheritance.NotDiscriminated.NotDiscriminatedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public NotDiscriminatedClient(NotDiscriminatedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostValid(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PostValid(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostValidAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PostValidAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostValid(global::_Type.Model.Inheritance.NotDiscriminated.Siamese input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PostValid(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostValidAsync(global::_Type.Model.Inheritance.NotDiscriminated.Siamese input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostValidAsync(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetValid(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetValid(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetValidAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetValidAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NotDiscriminated.Siamese> GetValid(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Siamese> GetValid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>> GetValidAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Siamese>> GetValidAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutValid(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutValid(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutValidAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutValidAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NotDiscriminated.Siamese> PutValid(global::_Type.Model.Inheritance.NotDiscriminated.Siamese input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Siamese> PutValid(Siamese input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NotDiscriminated.Siamese>> PutValidAsync(global::_Type.Model.Inheritance.NotDiscriminated.Siamese input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Siamese>> PutValidAsync(Siamese input, CancellationToken cancellationToken = default) => throw null;
     }
 }

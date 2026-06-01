@@ -8,6 +8,6 @@ namespace Serialization.EncodedName.Json
 {
     public static partial class SerializationEncodedNameJsonModelFactory
     {
-        public static global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel JsonEncodedNameModel(bool defaultName = default) => throw null;
+        public static JsonEncodedNameModel JsonEncodedNameModel(bool defaultName = default) => throw null;
     }
 }

@@ -14,32 +14,32 @@ namespace _Type.Property.Nullable
     {
         protected Datetime() => throw null;
 
-        internal Datetime(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Datetime(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetNonNull(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetNonNull(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetNonNullAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty> GetNonNull(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DatetimeProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty>> GetNonNullAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetNull(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetNullAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty> GetNull(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DatetimeProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty>> GetNullAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PatchNonNull(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PatchNonNullAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PatchNull(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PatchNullAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

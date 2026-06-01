@@ -13,31 +13,31 @@ namespace _Type.Model.Inheritance.Recursive
 {
     public partial class RecursiveClient
     {
-        public RecursiveClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Inheritance.Recursive.RecursiveClientOptions()) => throw null;
+        public RecursiveClient() : this(new Uri("http://localhost:3000"), new RecursiveClientOptions()) => throw null;
 
-        internal RecursiveClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Inheritance.Recursive.RecursiveClientOptions options) => throw null;
+        internal RecursiveClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RecursiveClientOptions options) => throw null;
 
-        public RecursiveClient(global::System.Uri endpoint, global::_Type.Model.Inheritance.Recursive.RecursiveClientOptions options) : this(null, endpoint, options) => throw null;
+        public RecursiveClient(Uri endpoint, RecursiveClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public RecursiveClient(global::_Type.Model.Inheritance.Recursive.RecursiveClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public RecursiveClient(RecursiveClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Put(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Put(global::_Type.Model.Inheritance.Recursive.Extension input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Put(Extension input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAsync(global::_Type.Model.Inheritance.Recursive.Extension input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(Extension input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Get(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.Recursive.Extension> Get(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Extension> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.Recursive.Extension>> GetAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Extension>> GetAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -8,7 +8,7 @@ namespace _Type.Property.Optional
     {
         public UnionIntLiteralProperty() => throw null;
 
-        public global::_Type.Property.Optional.UnionIntLiteralPropertyProperty? Property
+        public UnionIntLiteralPropertyProperty? Property
         {
             get => throw null;
             set => throw null;

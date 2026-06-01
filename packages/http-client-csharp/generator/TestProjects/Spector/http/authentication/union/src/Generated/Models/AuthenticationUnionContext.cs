@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Authentication.Union
 {
-    public partial class AuthenticationUnionContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class AuthenticationUnionContext : ModelReaderWriterContext
     {
     }
 }

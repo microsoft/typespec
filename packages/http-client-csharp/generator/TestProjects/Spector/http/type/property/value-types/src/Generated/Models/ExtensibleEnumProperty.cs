@@ -6,9 +6,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class ExtensibleEnumProperty
     {
-        public ExtensibleEnumProperty(global::_Type.Property.ValueTypes.InnerEnum @property) => throw null;
+        public ExtensibleEnumProperty(InnerEnum @property) => throw null;
 
-        public global::_Type.Property.ValueTypes.InnerEnum Property
+        public InnerEnum Property
         {
             get => throw null;
             set => throw null;

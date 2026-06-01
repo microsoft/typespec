@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.MultiPart
 {
-    public partial class MultiPartClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class MultiPartClientOptions : ClientPipelineOptions
     {
         public MultiPartClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal MultiPartClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal MultiPartClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

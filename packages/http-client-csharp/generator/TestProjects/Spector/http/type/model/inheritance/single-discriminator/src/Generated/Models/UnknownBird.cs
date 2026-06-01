@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    internal partial class UnknownBird : global::_Type.Model.Inheritance.SingleDiscriminator.Bird
+    internal partial class UnknownBird : Bird
     {
-        internal UnknownBird(string kind, int wingspan, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), wingspan, additionalBinaryDataProperties) => throw null;
+        internal UnknownBird(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), wingspan, additionalBinaryDataProperties) => throw null;
     }
 }

@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace _Type.Property.AdditionalProperties
 {
-    internal partial class UnknownIsUnknownAdditionalPropertiesDiscriminated : global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated
+    internal partial class UnknownIsUnknownAdditionalPropertiesDiscriminated : IsUnknownAdditionalPropertiesDiscriminated
     {
-        internal UnknownIsUnknownAdditionalPropertiesDiscriminated(string name, string kind, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties) : base(name, (kind ?? "unknown"), additionalProperties) => throw null;
+        internal UnknownIsUnknownAdditionalPropertiesDiscriminated(string name, string kind, IDictionary<string, BinaryData> additionalProperties) : base(name, (kind ?? "unknown"), additionalProperties) => throw null;
     }
 }

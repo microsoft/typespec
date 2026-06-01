@@ -14,33 +14,33 @@ namespace Parameters.BodyOptionality
 {
     public partial class BodyOptionalityClient
     {
-        public BodyOptionalityClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.BodyOptionality.BodyOptionalityClientOptions()) => throw null;
+        public BodyOptionalityClient() : this(new Uri("http://localhost:3000"), new BodyOptionalityClientOptions()) => throw null;
 
-        internal BodyOptionalityClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.BodyOptionality.BodyOptionalityClientOptions options) => throw null;
+        internal BodyOptionalityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BodyOptionalityClientOptions options) => throw null;
 
-        public BodyOptionalityClient(global::System.Uri endpoint, global::Parameters.BodyOptionality.BodyOptionalityClientOptions options) : this(null, endpoint, options) => throw null;
+        public BodyOptionalityClient(Uri endpoint, BodyOptionalityClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public BodyOptionalityClient(global::Parameters.BodyOptionality.BodyOptionalityClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult RequiredExplicit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult RequiredExplicit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequiredExplicitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RequiredExplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult RequiredExplicit(global::Parameters.BodyOptionality.BodyModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult RequiredExplicit(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequiredExplicitAsync(global::Parameters.BodyOptionality.BodyModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> RequiredExplicitAsync(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult RequiredImplicit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult RequiredImplicit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequiredImplicitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> RequiredImplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult RequiredImplicit(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult RequiredImplicit(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RequiredImplicitAsync(string name, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::Parameters.BodyOptionality._OptionalExplicit.OptionalExplicit GetOptionalExplicitClient() => throw null;
+        public virtual OptionalExplicit GetOptionalExplicitClient() => throw null;
     }
 }

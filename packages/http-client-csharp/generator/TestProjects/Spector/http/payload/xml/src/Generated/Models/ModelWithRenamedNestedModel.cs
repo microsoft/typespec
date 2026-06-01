@@ -6,9 +6,9 @@ namespace Payload.Xml
 {
     public partial class ModelWithRenamedNestedModel
     {
-        public ModelWithRenamedNestedModel(global::Payload.Xml.Author author) => throw null;
+        public ModelWithRenamedNestedModel(Author author) => throw null;
 
-        public global::Payload.Xml.Author Author
+        public Author Author
         {
             get => throw null;
             set => throw null;

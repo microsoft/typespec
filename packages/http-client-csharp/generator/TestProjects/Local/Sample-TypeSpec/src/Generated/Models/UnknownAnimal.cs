@@ -10,13 +10,13 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnknownAnimal : global::SampleTypeSpec.Animal
+    internal partial class UnknownAnimal : Animal
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.UnknownAnimal"/>. </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownAnimal(string kind, string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), name, additionalBinaryDataProperties)
+        internal UnknownAnimal(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), name, additionalBinaryDataProperties)
         {
         }
     }

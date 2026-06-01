@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.RenamedOperation
 {
-    public partial class RenamedOperationClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class RenamedOperationClientOptions : ClientPipelineOptions
     {
         public RenamedOperationClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal RenamedOperationClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal RenamedOperationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

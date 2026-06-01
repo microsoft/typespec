@@ -12,19 +12,19 @@ namespace Payload.ContentNegotiation
 {
     public partial class ContentNegotiationClient
     {
-        public ContentNegotiationClient() : this(new global::System.Uri("http://localhost:3000"), new global::Payload.ContentNegotiation.ContentNegotiationClientOptions()) => throw null;
+        public ContentNegotiationClient() : this(new Uri("http://localhost:3000"), new ContentNegotiationClientOptions()) => throw null;
 
-        internal ContentNegotiationClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Payload.ContentNegotiation.ContentNegotiationClientOptions options) => throw null;
+        internal ContentNegotiationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ContentNegotiationClientOptions options) => throw null;
 
-        public ContentNegotiationClient(global::System.Uri endpoint, global::Payload.ContentNegotiation.ContentNegotiationClientOptions options) : this(null, endpoint, options) => throw null;
+        public ContentNegotiationClient(Uri endpoint, ContentNegotiationClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public ContentNegotiationClient(global::Payload.ContentNegotiation.ContentNegotiationClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public ContentNegotiationClient(ContentNegotiationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Payload.ContentNegotiation._SameBody.SameBody GetSameBodyClient() => throw null;
+        public virtual SameBody GetSameBodyClient() => throw null;
 
-        public virtual global::Payload.ContentNegotiation._DifferentBody.DifferentBody GetDifferentBodyClient() => throw null;
+        public virtual DifferentBody GetDifferentBodyClient() => throw null;
     }
 }

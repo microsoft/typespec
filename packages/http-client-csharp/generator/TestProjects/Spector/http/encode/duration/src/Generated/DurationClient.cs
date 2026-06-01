@@ -13,21 +13,21 @@ namespace Encode.Duration
 {
     public partial class DurationClient
     {
-        public DurationClient() : this(new global::System.Uri("http://localhost:3000"), new global::Encode.Duration.DurationClientOptions()) => throw null;
+        public DurationClient() : this(new Uri("http://localhost:3000"), new DurationClientOptions()) => throw null;
 
-        internal DurationClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Encode.Duration.DurationClientOptions options) => throw null;
+        internal DurationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DurationClientOptions options) => throw null;
 
-        public DurationClient(global::System.Uri endpoint, global::Encode.Duration.DurationClientOptions options) : this(null, endpoint, options) => throw null;
+        public DurationClient(Uri endpoint, DurationClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public DurationClient(global::Encode.Duration.DurationClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public DurationClient(DurationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Encode.Duration._Query.Query GetQueryClient() => throw null;
+        public virtual Query GetQueryClient() => throw null;
 
-        public virtual global::Encode.Duration._Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
 
-        public virtual global::Encode.Duration._Header.Header GetHeaderClient() => throw null;
+        public virtual Header GetHeaderClient() => throw null;
     }
 }

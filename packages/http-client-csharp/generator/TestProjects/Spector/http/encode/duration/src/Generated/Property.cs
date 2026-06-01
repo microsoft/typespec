@@ -14,120 +14,120 @@ namespace Encode.Duration._Property
     {
         protected Property() => throw null;
 
-        internal Property(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Default(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Default(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.DefaultDurationProperty> Default(global::Encode.Duration._Property.DefaultDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DefaultDurationProperty> Default(DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.DefaultDurationProperty>> DefaultAsync(global::Encode.Duration._Property.DefaultDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DefaultDurationProperty>> DefaultAsync(DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Iso8601(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Iso8601(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Iso8601Async(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Iso8601Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.ISO8601DurationProperty> Iso8601(global::Encode.Duration._Property.ISO8601DurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ISO8601DurationProperty> Iso8601(ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.ISO8601DurationProperty>> Iso8601Async(global::Encode.Duration._Property.ISO8601DurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ISO8601DurationProperty>> Iso8601Async(ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Seconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Int32Seconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Int32SecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32SecondsDurationProperty> Int32Seconds(global::Encode.Duration._Property.Int32SecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Int32SecondsDurationProperty> Int32Seconds(Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32SecondsDurationProperty>> Int32SecondsAsync(global::Encode.Duration._Property.Int32SecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Int32SecondsDurationProperty>> Int32SecondsAsync(Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSeconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatSeconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatSecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsDurationProperty> FloatSeconds(global::Encode.Duration._Property.FloatSecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatSecondsDurationProperty> FloatSeconds(FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsDurationProperty>> FloatSecondsAsync(global::Encode.Duration._Property.FloatSecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatSecondsDurationProperty>> FloatSecondsAsync(FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Seconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Float64Seconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64SecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Float64SecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Float64SecondsDurationProperty> Float64Seconds(global::Encode.Duration._Property.Float64SecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Float64SecondsDurationProperty> Float64Seconds(Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Float64SecondsDurationProperty>> Float64SecondsAsync(global::Encode.Duration._Property.Float64SecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Float64SecondsDurationProperty>> Float64SecondsAsync(Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Milliseconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Int32Milliseconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32MillisecondsDurationProperty> Int32Milliseconds(global::Encode.Duration._Property.Int32MillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Int32MillisecondsDurationProperty> Int32Milliseconds(Int32MillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32MillisecondsDurationProperty>> Int32MillisecondsAsync(global::Encode.Duration._Property.Int32MillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Int32MillisecondsDurationProperty>> Int32MillisecondsAsync(Int32MillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMilliseconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatMilliseconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsDurationProperty> FloatMilliseconds(global::Encode.Duration._Property.FloatMillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatMillisecondsDurationProperty> FloatMilliseconds(FloatMillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsDurationProperty>> FloatMillisecondsAsync(global::Encode.Duration._Property.FloatMillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatMillisecondsDurationProperty>> FloatMillisecondsAsync(FloatMillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Milliseconds(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Float64Milliseconds(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64MillisecondsAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Float64MillisecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Float64MillisecondsDurationProperty> Float64Milliseconds(global::Encode.Duration._Property.Float64MillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Float64MillisecondsDurationProperty> Float64Milliseconds(Float64MillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Float64MillisecondsDurationProperty>> Float64MillisecondsAsync(global::Encode.Duration._Property.Float64MillisecondsDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Float64MillisecondsDurationProperty>> Float64MillisecondsAsync(Float64MillisecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSecondsArray(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatSecondsArray(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsArrayAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatSecondsArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsDurationArrayProperty> FloatSecondsArray(global::Encode.Duration._Property.FloatSecondsDurationArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatSecondsDurationArrayProperty> FloatSecondsArray(FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsDurationArrayProperty>> FloatSecondsArrayAsync(global::Encode.Duration._Property.FloatSecondsDurationArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatSecondsDurationArrayProperty>> FloatSecondsArrayAsync(FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMillisecondsArray(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatMillisecondsArray(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsArrayAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty> FloatMillisecondsArray(global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatMillisecondsDurationArrayProperty> FloatMillisecondsArray(FloatMillisecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>> FloatMillisecondsArrayAsync(global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatMillisecondsDurationArrayProperty>> FloatMillisecondsArrayAsync(FloatMillisecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32SecondsLargerUnit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Int32SecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsLargerUnitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Int32SecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty> Int32SecondsLargerUnit(global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Int32SecondsLargerUnitDurationProperty> Int32SecondsLargerUnit(Int32SecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty>> Int32SecondsLargerUnitAsync(global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Int32SecondsLargerUnitDurationProperty>> Int32SecondsLargerUnitAsync(Int32SecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSecondsLargerUnit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatSecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsLargerUnitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatSecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty> FloatSecondsLargerUnit(global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatSecondsLargerUnitDurationProperty> FloatSecondsLargerUnit(FloatSecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty>> FloatSecondsLargerUnitAsync(global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatSecondsLargerUnitDurationProperty>> FloatSecondsLargerUnitAsync(FloatSecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32MillisecondsLargerUnit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Int32MillisecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsLargerUnitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty> Int32MillisecondsLargerUnit(global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Int32MillisecondsLargerUnitDurationProperty> Int32MillisecondsLargerUnit(Int32MillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty>> Int32MillisecondsLargerUnitAsync(global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Int32MillisecondsLargerUnitDurationProperty>> Int32MillisecondsLargerUnitAsync(Int32MillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMillisecondsLargerUnit(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FloatMillisecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsLargerUnitAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty> FloatMillisecondsLargerUnit(global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatMillisecondsLargerUnitDurationProperty> FloatMillisecondsLargerUnit(FloatMillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty>> FloatMillisecondsLargerUnitAsync(global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatMillisecondsLargerUnitDurationProperty>> FloatMillisecondsLargerUnitAsync(FloatMillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -8,7 +8,7 @@ namespace Versioning.RenamedFrom
 {
     public partial class NewModel
     {
-        public NewModel(string newProp, global::Versioning.RenamedFrom.NewEnum enumProp, global::System.BinaryData unionProp) => throw null;
+        public NewModel(string newProp, NewEnum enumProp, BinaryData unionProp) => throw null;
 
         public string NewProp
         {
@@ -16,13 +16,13 @@ namespace Versioning.RenamedFrom
             set => throw null;
         }
 
-        public global::Versioning.RenamedFrom.NewEnum EnumProp
+        public NewEnum EnumProp
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.BinaryData UnionProp
+        public BinaryData UnionProp
         {
             get => throw null;
             set => throw null;

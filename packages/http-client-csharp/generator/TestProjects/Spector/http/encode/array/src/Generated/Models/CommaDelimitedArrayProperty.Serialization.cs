@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode._Array
 {
-    public partial class CommaDelimitedArrayProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedArrayProperty>
+    public partial class CommaDelimitedArrayProperty : IJsonModel<CommaDelimitedArrayProperty>
     {
         internal CommaDelimitedArrayProperty() => throw null;
 
-        protected virtual global::Encode._Array.CommaDelimitedArrayProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual CommaDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedArrayProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<CommaDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.CommaDelimitedArrayProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedArrayProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        CommaDelimitedArrayProperty IPersistableModel<CommaDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.CommaDelimitedArrayProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<CommaDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode._Array.CommaDelimitedArrayProperty commaDelimitedArrayProperty) => throw null;
+        public static implicit operator BinaryContent(CommaDelimitedArrayProperty commaDelimitedArrayProperty) => throw null;
 
-        public static explicit operator CommaDelimitedArrayProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator CommaDelimitedArrayProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedArrayProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<CommaDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.CommaDelimitedArrayProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.CommaDelimitedArrayProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        CommaDelimitedArrayProperty IJsonModel<CommaDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode._Array.CommaDelimitedArrayProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual CommaDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

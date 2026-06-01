@@ -10,12 +10,12 @@ using System.ClientModel.Primitives;
 
 namespace SampleTypeSpec
 {
-    internal partial class ErrorResult<T> : global::System.ClientModel.ClientResult<T>
+    internal partial class ErrorResult<T> : ClientResult<T>
     {
-        private readonly global::System.ClientModel.Primitives.PipelineResponse _response;
-        private readonly global::System.ClientModel.ClientResultException _exception;
+        private readonly PipelineResponse _response;
+        private readonly ClientResultException _exception;
 
-        public ErrorResult(global::System.ClientModel.Primitives.PipelineResponse response, global::System.ClientModel.ClientResultException exception) : base(default, response)
+        public ErrorResult(PipelineResponse response, ClientResultException exception) : base(default, response)
         {
             _response = response;
             _exception = exception;

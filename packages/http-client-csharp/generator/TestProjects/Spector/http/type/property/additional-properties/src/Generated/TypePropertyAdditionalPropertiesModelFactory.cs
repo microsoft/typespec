@@ -9,78 +9,78 @@ namespace _Type.Property.AdditionalProperties
 {
     public static partial class TypePropertyAdditionalPropertiesModelFactory
     {
-        public static global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties ExtendsUnknownAdditionalProperties(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static ExtendsUnknownAdditionalProperties ExtendsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived ExtendsUnknownAdditionalPropertiesDerived(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
+        public static ExtendsUnknownAdditionalPropertiesDerived ExtendsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated ExtendsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static ExtendsUnknownAdditionalPropertiesDiscriminated ExtendsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
+        public static ExtendsUnknownAdditionalPropertiesDiscriminatedDerived ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties IsUnknownAdditionalProperties(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static IsUnknownAdditionalProperties IsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived IsUnknownAdditionalPropertiesDerived(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
+        public static IsUnknownAdditionalPropertiesDerived IsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated IsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static IsUnknownAdditionalPropertiesDiscriminated IsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived IsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
+        public static IsUnknownAdditionalPropertiesDiscriminatedDerived IsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties ExtendsStringAdditionalProperties(string name = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default) => throw null;
+        public static ExtendsStringAdditionalProperties ExtendsStringAdditionalProperties(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties IsStringAdditionalProperties(string name = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default) => throw null;
+        public static IsStringAdditionalProperties IsStringAdditionalProperties(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadStringRecord SpreadStringRecord(string name = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default) => throw null;
+        public static SpreadStringRecord SpreadStringRecord(string name = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties ExtendsFloatAdditionalProperties(float id = default, global::System.Collections.Generic.IDictionary<string, float> additionalProperties = default) => throw null;
+        public static ExtendsFloatAdditionalProperties ExtendsFloatAdditionalProperties(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsFloatAdditionalProperties IsFloatAdditionalProperties(float id = default, global::System.Collections.Generic.IDictionary<string, float> additionalProperties = default) => throw null;
+        public static IsFloatAdditionalProperties IsFloatAdditionalProperties(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadFloatRecord SpreadFloatRecord(float id = default, global::System.Collections.Generic.IDictionary<string, float> additionalProperties = default) => throw null;
+        public static SpreadFloatRecord SpreadFloatRecord(float id = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties ExtendsModelAdditionalProperties(global::_Type.Property.AdditionalProperties.ModelForRecord knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static ExtendsModelAdditionalProperties ExtendsModelAdditionalProperties(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ModelForRecord ModelForRecord(string state = default) => throw null;
+        public static ModelForRecord ModelForRecord(string state = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsModelAdditionalProperties IsModelAdditionalProperties(global::_Type.Property.AdditionalProperties.ModelForRecord knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static IsModelAdditionalProperties IsModelAdditionalProperties(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadModelRecord SpreadModelRecord(global::_Type.Property.AdditionalProperties.ModelForRecord knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static SpreadModelRecord SpreadModelRecord(ModelForRecord knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties ExtendsModelArrayAdditionalProperties(global::System.Collections.Generic.IEnumerable<global::_Type.Property.AdditionalProperties.ModelForRecord> knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties = default) => throw null;
+        public static ExtendsModelArrayAdditionalProperties ExtendsModelArrayAdditionalProperties(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties IsModelArrayAdditionalProperties(global::System.Collections.Generic.IEnumerable<global::_Type.Property.AdditionalProperties.ModelForRecord> knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties = default) => throw null;
+        public static IsModelArrayAdditionalProperties IsModelArrayAdditionalProperties(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord SpreadModelArrayRecord(global::System.Collections.Generic.IEnumerable<global::_Type.Property.AdditionalProperties.ModelForRecord> knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties = default) => throw null;
+        public static SpreadModelArrayRecord SpreadModelArrayRecord(IEnumerable<ModelForRecord> knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadStringRecord DifferentSpreadStringRecord(float id = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default) => throw null;
+        public static DifferentSpreadStringRecord DifferentSpreadStringRecord(float id = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadFloatRecord DifferentSpreadFloatRecord(string name = default, global::System.Collections.Generic.IDictionary<string, float> additionalProperties = default) => throw null;
+        public static DifferentSpreadFloatRecord DifferentSpreadFloatRecord(string name = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord DifferentSpreadModelRecord(string knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static DifferentSpreadModelRecord DifferentSpreadModelRecord(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord DifferentSpreadModelArrayRecord(string knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties = default) => throw null;
+        public static DifferentSpreadModelArrayRecord DifferentSpreadModelArrayRecord(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived DifferentSpreadStringDerived(float id = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default, string derivedProp = default) => throw null;
+        public static DifferentSpreadStringDerived DifferentSpreadStringDerived(float id = default, IDictionary<string, string> additionalProperties = default, string derivedProp = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadFloatDerived DifferentSpreadFloatDerived(string name = default, global::System.Collections.Generic.IDictionary<string, float> additionalProperties = default, float derivedProp = default) => throw null;
+        public static DifferentSpreadFloatDerived DifferentSpreadFloatDerived(string name = default, IDictionary<string, float> additionalProperties = default, float derivedProp = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadModelDerived DifferentSpreadModelDerived(string knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default, global::_Type.Property.AdditionalProperties.ModelForRecord derivedProp = default) => throw null;
+        public static DifferentSpreadModelDerived DifferentSpreadModelDerived(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default, ModelForRecord derivedProp = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived DifferentSpreadModelArrayDerived(string knownProp = default, global::System.Collections.Generic.IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties = default, global::System.Collections.Generic.IEnumerable<global::_Type.Property.AdditionalProperties.ModelForRecord> derivedProp = default) => throw null;
+        public static DifferentSpreadModelArrayDerived DifferentSpreadModelArrayDerived(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default, IEnumerable<ModelForRecord> derivedProp = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.MultipleSpreadRecord MultipleSpreadRecord(bool flag = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default, global::System.Collections.Generic.IDictionary<string, float> additionalSingleProperties = default) => throw null;
+        public static MultipleSpreadRecord MultipleSpreadRecord(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadRecordForUnion SpreadRecordForUnion(bool flag = default, global::System.Collections.Generic.IDictionary<string, string> additionalProperties = default, global::System.Collections.Generic.IDictionary<string, float> additionalSingleProperties = default) => throw null;
+        public static SpreadRecordForUnion SpreadRecordForUnion(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion SpreadRecordForNonDiscriminatedUnion(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static SpreadRecordForNonDiscriminatedUnion SpreadRecordForNonDiscriminatedUnion(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.WidgetData0 WidgetData0(string fooProp = default) => throw null;
+        public static WidgetData0 WidgetData0(string fooProp = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.WidgetData1 WidgetData1(global::System.DateTimeOffset start = default, global::System.DateTimeOffset? end = default) => throw null;
+        public static WidgetData1 WidgetData1(DateTimeOffset start = default, DateTimeOffset? end = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2 SpreadRecordForNonDiscriminatedUnion2(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static SpreadRecordForNonDiscriminatedUnion2 SpreadRecordForNonDiscriminatedUnion2(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.WidgetData2 WidgetData2(string start = default) => throw null;
+        public static WidgetData2 WidgetData2(string start = default) => throw null;
 
-        public static global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3 SpreadRecordForNonDiscriminatedUnion3(string name = default, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties = default) => throw null;
+        public static SpreadRecordForNonDiscriminatedUnion3 SpreadRecordForNonDiscriminatedUnion3(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
     }
 }

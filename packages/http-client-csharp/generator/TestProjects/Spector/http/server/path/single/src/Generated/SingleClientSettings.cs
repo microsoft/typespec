@@ -9,21 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Server.Path.Single
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class SingleClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class SingleClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::Server.Path.Single.SingleClientOptions Options
+        public SingleClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
+        protected override void BindCore(IConfigurationSection section) => throw null;
     }
 }

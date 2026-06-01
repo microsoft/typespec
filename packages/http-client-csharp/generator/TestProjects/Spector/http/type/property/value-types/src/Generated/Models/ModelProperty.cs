@@ -6,9 +6,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class ModelProperty
     {
-        public ModelProperty(global::_Type.Property.ValueTypes.InnerModel @property) => throw null;
+        public ModelProperty(InnerModel @property) => throw null;
 
-        public global::_Type.Property.ValueTypes.InnerModel Property
+        public InnerModel Property
         {
             get => throw null;
             set => throw null;

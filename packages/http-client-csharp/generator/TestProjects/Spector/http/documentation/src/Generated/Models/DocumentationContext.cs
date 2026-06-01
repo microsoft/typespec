@@ -7,8 +7,8 @@ using Documentation._Lists;
 
 namespace Documentation
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Documentation._Lists.BulletPointsModel))]
-    public partial class DocumentationContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(BulletPointsModel))]
+    public partial class DocumentationContext : ModelReaderWriterContext
     {
     }
 }

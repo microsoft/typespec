@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode._Array
 {
-    public partial class PipeDelimitedEnumArrayProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>
+    public partial class PipeDelimitedEnumArrayProperty : IJsonModel<PipeDelimitedEnumArrayProperty>
     {
         internal PipeDelimitedEnumArrayProperty() => throw null;
 
-        protected virtual global::Encode._Array.PipeDelimitedEnumArrayProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual PipeDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<PipeDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.PipeDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        PipeDelimitedEnumArrayProperty IPersistableModel<PipeDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<PipeDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode._Array.PipeDelimitedEnumArrayProperty pipeDelimitedEnumArrayProperty) => throw null;
+        public static implicit operator BinaryContent(PipeDelimitedEnumArrayProperty pipeDelimitedEnumArrayProperty) => throw null;
 
-        public static explicit operator PipeDelimitedEnumArrayProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator PipeDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<PipeDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode._Array.PipeDelimitedEnumArrayProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode._Array.PipeDelimitedEnumArrayProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        PipeDelimitedEnumArrayProperty IJsonModel<PipeDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode._Array.PipeDelimitedEnumArrayProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual PipeDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

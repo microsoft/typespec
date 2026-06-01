@@ -10,27 +10,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.RenamedOperation
 {
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class RenamedOperationClientSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class RenamedOperationClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::Client.Structure.Service.ClientType? Client
+        public ClientType? Client
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::Client.Structure.RenamedOperation.RenamedOperationClientOptions Options
+        public RenamedOperationClientOptions Options
         {
             get => throw null;
             set => throw null;
         }
 
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section) => throw null;
+        protected override void BindCore(IConfigurationSection section) => throw null;
     }
 }

@@ -15,23 +15,23 @@ namespace Versioning.TypeChangedFrom
     {
         protected TypeChangedFromClient() => throw null;
 
-        public TypeChangedFromClient(global::System.Uri endpoint) : this(endpoint, new global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions()) => throw null;
+        public TypeChangedFromClient(Uri endpoint) : this(endpoint, new TypeChangedFromClientOptions()) => throw null;
 
-        internal TypeChangedFromClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions options) => throw null;
+        internal TypeChangedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, TypeChangedFromClientOptions options) => throw null;
 
-        public TypeChangedFromClient(global::System.Uri endpoint, global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
+        public TypeChangedFromClient(Uri endpoint, TypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public TypeChangedFromClient(global::Versioning.TypeChangedFrom.TypeChangedFromClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public TypeChangedFromClient(TypeChangedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Test(int @param, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Test(int @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TestAsync(int @param, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(int @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.TypeChangedFrom.TestModel> Test(int @param, global::Versioning.TypeChangedFrom.TestModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(int @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.TypeChangedFrom.TestModel>> TestAsync(int @param, global::Versioning.TypeChangedFrom.TestModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<TestModel>> TestAsync(int @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

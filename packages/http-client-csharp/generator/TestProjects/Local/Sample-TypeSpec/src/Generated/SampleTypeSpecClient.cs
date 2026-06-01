@@ -20,23 +20,23 @@ namespace SampleTypeSpec
     /// <summary> This is a sample typespec project. </summary>
     public partial class SampleTypeSpecClient
     {
-        private readonly global::System.Uri _endpoint;
+        private readonly Uri _endpoint;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
-        private static readonly global::System.Collections.Generic.Dictionary<string, object>[] _flows = new global::System.Collections.Generic.Dictionary<string, object>[]
+        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
         {
-            new global::System.Collections.Generic.Dictionary<string, object>
+            new Dictionary<string, object>
             {
-                { global::System.ClientModel.Primitives.GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
-                { global::System.ClientModel.Primitives.GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
-                { global::System.ClientModel.Primitives.GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
+                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
+                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
             }
         };
         private readonly string _apiVersion;
-        private global::SampleTypeSpec.AnimalOperations _cachedAnimalOperations;
-        private global::SampleTypeSpec.PetOperations _cachedPetOperations;
-        private global::SampleTypeSpec.DogOperations _cachedDogOperations;
-        private global::SampleTypeSpec.PlantOperations _cachedPlantOperations;
+        private AnimalOperations _cachedAnimalOperations;
+        private PetOperations _cachedPetOperations;
+        private DogOperations _cachedDogOperations;
+        private PlantOperations _cachedPlantOperations;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -47,7 +47,7 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public SampleTypeSpecClient(global::System.Uri endpoint, global::System.ClientModel.ApiKeyCredential credential) : this(endpoint, credential, new global::SampleTypeSpec.SampleTypeSpecClientOptions())
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -55,20 +55,20 @@ namespace SampleTypeSpec
         /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal SampleTypeSpecClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::SampleTypeSpec.SampleTypeSpecClientOptions options)
+        internal SampleTypeSpecClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SampleTypeSpecClientOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-            options ??= new global::SampleTypeSpec.SampleTypeSpecClientOptions();
+            options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
             if ((authenticationPolicy != null))
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::SampleTypeSpec.SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::SampleTypeSpec.SampleTypeSpecClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly) }, Array.Empty<PipelinePolicy>());
             }
             _apiVersion = options.Version;
         }
@@ -78,7 +78,7 @@ namespace SampleTypeSpec
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public SampleTypeSpecClient(global::System.Uri endpoint, global::System.ClientModel.ApiKeyCredential credential, global::SampleTypeSpec.SampleTypeSpecClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options)
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options)
         {
         }
 
@@ -87,19 +87,19 @@ namespace SampleTypeSpec
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
-        public SampleTypeSpecClient(global::System.Uri endpoint, global::System.ClientModel.AuthenticationTokenProvider tokenProvider, global::SampleTypeSpec.SampleTypeSpecClientOptions options) : this(new global::System.ClientModel.Primitives.BearerTokenPolicy(tokenProvider, _flows), endpoint, options)
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options)
         {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient from a <see cref="SampleTypeSpecClientSettings"/>. </summary>
         /// <param name="settings"> The settings for SampleTypeSpecClient. </param>
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public SampleTypeSpecClient(global::SampleTypeSpec.SampleTypeSpecClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.Options)
+        [ExperimentalAttribute("SCME0002")]
+        public SampleTypeSpecClient(SampleTypeSpecClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.Options)
         {
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
+        public ClientPipeline Pipeline { get; }
 
         /// <summary>
         /// [Protocol Method] Return hi
@@ -117,13 +117,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -142,13 +142,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi. </summary>
@@ -159,13 +159,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            global::System.ClientModel.ClientResult result = this.SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> Return hi. </summary>
@@ -176,13 +176,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            global::System.ClientModel.ClientResult result = await this.SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -201,14 +201,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult HelloAgain(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult HelloAgain(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloAgainRequest(p2, p1, content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateHelloAgainRequest(p2, p1, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -227,14 +227,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HelloAgainAsync(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> HelloAgainAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloAgainRequest(p2, p1, content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateHelloAgainRequest(p2, p1, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi again. </summary>
@@ -245,14 +245,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.RoundTripModel> HelloAgain(string p2, string p1, global::SampleTypeSpec.RoundTripModel action, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<RoundTripModel> HelloAgain(string p2, string p1, RoundTripModel action, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(action, nameof(action));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(action, nameof(action));
 
-            global::System.ClientModel.ClientResult result = this.HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RoundTripModel)result), result.GetRawResponse());
+            ClientResult result = this.HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((RoundTripModel)result), result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -263,14 +263,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p2"/>, <paramref name="p1"/> or <paramref name="action"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.RoundTripModel>> HelloAgainAsync(string p2, string p1, global::SampleTypeSpec.RoundTripModel action, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RoundTripModel>> HelloAgainAsync(string p2, string p1, RoundTripModel action, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(action, nameof(action));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(action, nameof(action));
 
-            global::System.ClientModel.ClientResult result = await this.HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RoundTripModel)result), result.GetRawResponse());
+            ClientResult result = await this.HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((RoundTripModel)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -289,14 +289,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult NoContentType(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult NoContentType(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateNoContentTypeRequest(p2, p1, content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateNoContentTypeRequest(p2, p1, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -315,14 +315,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p2"/> or <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NoContentTypeAsync(string p2, string p1, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> NoContentTypeAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateNoContentTypeRequest(p2, p1, content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateNoContentTypeRequest(p2, p1, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi again. </summary>
@@ -330,12 +330,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="info"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.RoundTripModel> NoContentType(global::SampleTypeSpec.Wrapper info, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<RoundTripModel> NoContentType(Wrapper info, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(info, nameof(info));
+            Argument.AssertNotNull(info, nameof(info));
 
-            global::System.ClientModel.ClientResult result = this.NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RoundTripModel)result), result.GetRawResponse());
+            ClientResult result = this.NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((RoundTripModel)result), result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -343,12 +343,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="info"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.RoundTripModel>> NoContentTypeAsync(global::SampleTypeSpec.Wrapper info, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RoundTripModel>> NoContentTypeAsync(Wrapper info, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(info, nameof(info));
+            Argument.AssertNotNull(info, nameof(info));
 
-            global::System.ClientModel.ClientResult result = await this.NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RoundTripModel)result), result.GetRawResponse());
+            ClientResult result = await this.NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((RoundTripModel)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -362,10 +362,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult HelloDemo2(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult HelloDemo2(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloDemo2Request(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateHelloDemo2Request(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -379,28 +379,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HelloDemo2Async(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloDemo2Request(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateHelloDemo2Request(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> HelloDemo2(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.HelloDemo2(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.HelloDemo2(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> HelloDemo2Async(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -416,12 +416,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult CreateLiteral(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateCreateLiteralRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateCreateLiteralRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -437,12 +437,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CreateLiteralAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateCreateLiteralRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateCreateLiteralRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Create with literal value. </summary>
@@ -450,12 +450,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> CreateLiteral(global::SampleTypeSpec.Thing body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> CreateLiteral(Thing body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = this.CreateLiteral(body, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.CreateLiteral(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> Create with literal value. </summary>
@@ -463,12 +463,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> CreateLiteralAsync(global::SampleTypeSpec.Thing body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> CreateLiteralAsync(Thing body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = await this.CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -482,10 +482,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult HelloLiteral(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult HelloLiteral(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloLiteralRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateHelloLiteralRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -499,28 +499,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HelloLiteralAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHelloLiteralRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateHelloLiteralRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Send literal parameters. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> HelloLiteral(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> HelloLiteral(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.HelloLiteral(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.HelloLiteral(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> Send literal parameters. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> HelloLiteralAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -535,10 +535,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult TopAction(global::System.DateTimeOffset action, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateTopActionRequest(action, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateTopActionRequest(action, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -553,30 +553,30 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TopActionAsync(global::System.DateTimeOffset action, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateTopActionRequest(action, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateTopActionRequest(action, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> TopAction(global::System.DateTimeOffset action, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.TopAction(action, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.TopAction(action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> TopActionAsync(global::System.DateTimeOffset action, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -590,10 +590,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult TopAction2(global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult TopAction2(RequestOptions options = null)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateTopAction2Request(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateTopAction2Request(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -607,10 +607,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TopAction2Async(global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options = null)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateTopAction2Request(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateTopAction2Request(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -626,12 +626,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult PatchAction(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreatePatchActionRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreatePatchActionRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -647,12 +647,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PatchActionAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreatePatchActionRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreatePatchActionRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -668,12 +668,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult AnonymousBody(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateAnonymousBodyRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateAnonymousBodyRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -689,12 +689,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AnonymousBodyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateAnonymousBodyRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateAnonymousBodyRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -718,14 +718,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> AnonymousBody(string name, global::System.BinaryData requiredUnion, string requiredNullableString, global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, global::System.Collections.Generic.IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, global::SampleTypeSpec.ThingOptionalLiteralString? optionalLiteralString = default, global::SampleTypeSpec.ThingOptionalLiteralInt? optionalLiteralInt = default, global::SampleTypeSpec.ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, global::System.Collections.Generic.IEnumerable<int> optionalNullableList = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(name, nameof(name));
-            global::SampleTypeSpec.Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
-            global::SampleTypeSpec.Thing spreadModel = new global::SampleTypeSpec.Thing(
+            Thing spreadModel = new Thing(
                 name,
                 requiredUnion,
                 "accept",
@@ -740,12 +740,12 @@ namespace SampleTypeSpec
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
-                (optionalNullableList?.ToList() as global::System.Collections.Generic.IList<int> ?? new global::SampleTypeSpec.ChangeTrackingList<int>()),
-                (requiredNullableList?.ToList() as global::System.Collections.Generic.IList<int> ?? new global::SampleTypeSpec.ChangeTrackingList<int>()),
+                (optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>()),
+                (requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>()),
                 propertyWithSpecialDocs,
                 default);
-            global::System.ClientModel.ClientResult result = this.AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -769,14 +769,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> AnonymousBodyAsync(string name, global::System.BinaryData requiredUnion, string requiredNullableString, global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, global::System.Collections.Generic.IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, global::SampleTypeSpec.ThingOptionalLiteralString? optionalLiteralString = default, global::SampleTypeSpec.ThingOptionalLiteralInt? optionalLiteralInt = default, global::SampleTypeSpec.ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, global::System.Collections.Generic.IEnumerable<int> optionalNullableList = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(name, nameof(name));
-            global::SampleTypeSpec.Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
-            global::SampleTypeSpec.Thing spreadModel = new global::SampleTypeSpec.Thing(
+            Thing spreadModel = new Thing(
                 name,
                 requiredUnion,
                 "accept",
@@ -791,12 +791,12 @@ namespace SampleTypeSpec
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
-                (optionalNullableList?.ToList() as global::System.Collections.Generic.IList<int> ?? new global::SampleTypeSpec.ChangeTrackingList<int>()),
-                (requiredNullableList?.ToList() as global::System.Collections.Generic.IList<int> ?? new global::SampleTypeSpec.ChangeTrackingList<int>()),
+                (optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>()),
+                (requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>()),
                 propertyWithSpecialDocs,
                 default);
-            global::System.ClientModel.ClientResult result = await this.AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -812,12 +812,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult FriendlyModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateFriendlyModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateFriendlyModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -833,12 +833,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FriendlyModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateFriendlyModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateFriendlyModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -847,13 +847,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Models.Custom.Friend> FriendlyModel(string name, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Friend> FriendlyModel(string name, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            global::SampleTypeSpec.Models.Custom.Friend spreadModel = new global::SampleTypeSpec.Models.Custom.Friend(name, default);
-            global::System.ClientModel.ClientResult result = this.FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Models.Custom.Friend)result), result.GetRawResponse());
+            Friend spreadModel = new Friend(name, default);
+            ClientResult result = this.FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Friend)result), result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -862,13 +862,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Models.Custom.Friend>> FriendlyModelAsync(string name, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Friend>> FriendlyModelAsync(string name, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            global::SampleTypeSpec.Models.Custom.Friend spreadModel = new global::SampleTypeSpec.Models.Custom.Friend(name, default);
-            global::System.ClientModel.ClientResult result = await this.FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Models.Custom.Friend)result), result.GetRawResponse());
+            Friend spreadModel = new Friend(name, default);
+            ClientResult result = await this.FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Friend)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -882,10 +882,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult AddTimeHeader(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult AddTimeHeader(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateAddTimeHeaderRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateAddTimeHeaderRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -899,16 +899,16 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AddTimeHeaderAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> AddTimeHeaderAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateAddTimeHeaderRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateAddTimeHeaderRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> AddTimeHeader. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult AddTimeHeader(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult AddTimeHeader(CancellationToken cancellationToken = default)
         {
             return this.AddTimeHeader(cancellationToken.ToRequestOptions());
         }
@@ -916,7 +916,7 @@ namespace SampleTypeSpec
         /// <summary> AddTimeHeader. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AddTimeHeaderAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> AddTimeHeaderAsync(CancellationToken cancellationToken = default)
         {
             return await this.AddTimeHeaderAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -934,12 +934,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult ProjectedNameModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateProjectedNameModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateProjectedNameModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -955,12 +955,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ProjectedNameModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateProjectedNameModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateProjectedNameModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -969,13 +969,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.RenamedModelCustom> ProjectedNameModel(string otherName, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string otherName, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
+            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            global::SampleTypeSpec.RenamedModelCustom spreadModel = new global::SampleTypeSpec.RenamedModelCustom(default, otherName);
-            global::System.ClientModel.ClientResult result = this.ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RenamedModelCustom)result), result.GetRawResponse());
+            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
+            ClientResult result = this.ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((RenamedModelCustom)result), result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -984,13 +984,13 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.RenamedModelCustom>> ProjectedNameModelAsync(string otherName, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string otherName, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
+            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            global::SampleTypeSpec.RenamedModelCustom spreadModel = new global::SampleTypeSpec.RenamedModelCustom(default, otherName);
-            global::System.ClientModel.ClientResult result = await this.ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.RenamedModelCustom)result), result.GetRawResponse());
+            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
+            ClientResult result = await this.ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((RenamedModelCustom)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1004,10 +1004,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult ReturnsAnonymousModel(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateReturnsAnonymousModelRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateReturnsAnonymousModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1021,28 +1021,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ReturnsAnonymousModelAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateReturnsAnonymousModelRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateReturnsAnonymousModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.ReturnsAnonymousModelResponse> ReturnsAnonymousModel(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.ReturnsAnonymousModelResponse)result), result.GetRawResponse());
+            ClientResult result = this.ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((ReturnsAnonymousModelResponse)result), result.GetRawResponse());
         }
 
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.ReturnsAnonymousModelResponse)result), result.GetRawResponse());
+            ClientResult result = await this.ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((ReturnsAnonymousModelResponse)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1056,10 +1056,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult GetUnknownValue(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult GetUnknownValue(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetUnknownValueRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateGetUnknownValueRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1073,28 +1073,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetUnknownValueAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetUnknownValueRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateGetUnknownValueRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> get extensible enum. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.DaysOfWeekExtensibleEnum> GetUnknownValue(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.GetUnknownValue(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            ClientResult result = this.GetUnknownValue(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            ClientResult result = await this.GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1110,12 +1110,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult InternalProtocol(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateInternalProtocolRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateInternalProtocolRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1131,12 +1131,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InternalProtocolAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateInternalProtocolRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateInternalProtocolRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1144,12 +1144,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing> InternalProtocol(global::SampleTypeSpec.Thing body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> InternalProtocol(Thing body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = this.InternalProtocol(body, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = this.InternalProtocol(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1157,12 +1157,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Thing>> InternalProtocolAsync(global::SampleTypeSpec.Thing body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> InternalProtocolAsync(Thing body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = await this.InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Thing)result), result.GetRawResponse());
+            ClientResult result = await this.InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Thing)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1176,10 +1176,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult StillConvenient(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult StillConvenient(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateStillConvenientRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateStillConvenientRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1193,16 +1193,16 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> StillConvenientAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateStillConvenientRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateStillConvenientRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult StillConvenient(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult StillConvenient(CancellationToken cancellationToken = default)
         {
             return this.StillConvenient(cancellationToken.ToRequestOptions());
         }
@@ -1210,7 +1210,7 @@ namespace SampleTypeSpec
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> StillConvenientAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> StillConvenientAsync(CancellationToken cancellationToken = default)
         {
             return await this.StillConvenientAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -1229,12 +1229,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult HeadAsBoolean(string id, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(id, nameof(id));
+            Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHeadAsBooleanRequest(id, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateHeadAsBooleanRequest(id, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1251,12 +1251,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadAsBooleanAsync(string id, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(id, nameof(id));
+            Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateHeadAsBooleanRequest(id, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateHeadAsBooleanRequest(id, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> head as boolean. </summary>
@@ -1265,9 +1265,9 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult HeadAsBoolean(string id, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult HeadAsBoolean(string id, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(id, nameof(id));
+            Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             return this.HeadAsBoolean(id, cancellationToken.ToRequestOptions());
         }
@@ -1278,9 +1278,9 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="id"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="id"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadAsBooleanAsync(string id, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(id, nameof(id));
+            Argument.AssertNotNullOrEmpty(id, nameof(id));
 
             return await this.HeadAsBooleanAsync(id, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -1299,12 +1299,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult WithApiVersion(string p1, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult WithApiVersion(string p1, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateWithApiVersionRequest(p1, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateWithApiVersionRequest(p1, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1321,12 +1321,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithApiVersionAsync(string p1, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> WithApiVersionAsync(string p1, RequestOptions options)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateWithApiVersionRequest(p1, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateWithApiVersionRequest(p1, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Return hi again. </summary>
@@ -1335,9 +1335,9 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult WithApiVersion(string p1, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult WithApiVersion(string p1, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
             return this.WithApiVersion(p1, cancellationToken.ToRequestOptions());
         }
@@ -1348,9 +1348,9 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="p1"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="p1"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithApiVersionAsync(string p1, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> WithApiVersionAsync(string p1, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
             return await this.WithApiVersionAsync(p1, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -1366,9 +1366,9 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithNextLink(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1382,25 +1382,25 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithNextLinkAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing> GetWithNextLink(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing> GetWithNextLinkAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1414,9 +1414,9 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithStringNextLink(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1430,25 +1430,25 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithStringNextLinkAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing> GetWithStringNextLink(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing> GetWithStringNextLinkAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1463,9 +1463,9 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithContinuationToken(string token, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1480,27 +1480,27 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithContinuationTokenAsync(string token, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token. </summary>
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing> GetWithContinuationToken(string token = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token. </summary>
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing> GetWithContinuationTokenAsync(string token = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1515,9 +1515,9 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithContinuationTokenHeaderResponse(string token, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1532,27 +1532,27 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token header response. </summary>
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing> GetWithContinuationTokenHeaderResponse(string token = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token header response. </summary>
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1566,9 +1566,9 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.CollectionResult GetWithPaging(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual CollectionResult GetWithPaging(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithPagingCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithPagingCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1582,25 +1582,25 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetWithPagingAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual AsyncCollectionResult GetWithPagingAsync(RequestOptions options)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, options);
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.CollectionResult<global::SampleTypeSpec.Thing> GetWithPaging(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing> GetWithPagingAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new global::SampleTypeSpec.SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1621,14 +1621,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="requiredHeader"/> or <paramref name="requiredQuery"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult EmbeddedParameters(string requiredHeader, string requiredQuery, global::System.ClientModel.BinaryContent content, string optionalHeader = default, string optionalQuery = default, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult EmbeddedParameters(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
+            Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1649,14 +1649,14 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentException"> <paramref name="requiredHeader"/> or <paramref name="requiredQuery"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EmbeddedParametersAsync(string requiredHeader, string requiredQuery, global::System.ClientModel.BinaryContent content, string optionalHeader = default, string optionalQuery = default, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> EmbeddedParametersAsync(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
+            Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1664,9 +1664,9 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult EmbeddedParameters(global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult EmbeddedParameters(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
             return this.EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
         }
@@ -1676,9 +1676,9 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EmbeddedParametersAsync(global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> EmbeddedParametersAsync(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
             return await this.EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -1696,12 +1696,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult DynamicModelOperation(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateDynamicModelOperationRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateDynamicModelOperationRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1717,12 +1717,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DynamicModelOperationAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateDynamicModelOperationRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateDynamicModelOperationRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1730,9 +1730,9 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult DynamicModelOperation(global::SampleTypeSpec.DynamicModel body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
             return this.DynamicModelOperation(body, cancellationToken.ToRequestOptions());
         }
@@ -1742,9 +1742,9 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DynamicModelOperationAsync(global::SampleTypeSpec.DynamicModel body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
             return await this.DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
@@ -1760,10 +1760,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult GetXmlAdvancedModel(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult GetXmlAdvancedModel(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetXmlAdvancedModelRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateGetXmlAdvancedModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1777,28 +1777,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetXmlAdvancedModelAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> GetXmlAdvancedModelAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetXmlAdvancedModelRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateGetXmlAdvancedModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Get an advanced XML model with various property types. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.XmlAdvancedModel> GetXmlAdvancedModel(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<XmlAdvancedModel> GetXmlAdvancedModel(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.XmlAdvancedModel)result), result.GetRawResponse());
+            ClientResult result = this.GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((XmlAdvancedModel)result), result.GetRawResponse());
         }
 
         /// <summary> Get an advanced XML model with various property types. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.XmlAdvancedModel>> GetXmlAdvancedModelAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<XmlAdvancedModel>> GetXmlAdvancedModelAsync(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.XmlAdvancedModel)result), result.GetRawResponse());
+            ClientResult result = await this.GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((XmlAdvancedModel)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1814,12 +1814,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult UpdateXmlAdvancedModel(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult UpdateXmlAdvancedModel(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateXmlAdvancedModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateUpdateXmlAdvancedModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -1835,12 +1835,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateXmlAdvancedModelAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> UpdateXmlAdvancedModelAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateXmlAdvancedModelRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateUpdateXmlAdvancedModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update an advanced XML model with various property types. </summary>
@@ -1848,12 +1848,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.XmlAdvancedModel> UpdateXmlAdvancedModel(global::SampleTypeSpec.XmlAdvancedModel body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<XmlAdvancedModel> UpdateXmlAdvancedModel(XmlAdvancedModel body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = this.UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.XmlAdvancedModel)result), result.GetRawResponse());
+            ClientResult result = this.UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((XmlAdvancedModel)result), result.GetRawResponse());
         }
 
         /// <summary> Update an advanced XML model with various property types. </summary>
@@ -1861,56 +1861,56 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.XmlAdvancedModel>> UpdateXmlAdvancedModelAsync(global::SampleTypeSpec.XmlAdvancedModel body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<XmlAdvancedModel>> UpdateXmlAdvancedModelAsync(XmlAdvancedModel body, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(body, nameof(body));
+            Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = await this.UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.XmlAdvancedModel)result), result.GetRawResponse());
+            ClientResult result = await this.UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((XmlAdvancedModel)result), result.GetRawResponse());
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
-        public virtual global::SampleTypeSpec.AnimalOperations GetAnimalOperationsClient()
+        public virtual AnimalOperations GetAnimalOperationsClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedAnimalOperations) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimalOperations, new global::SampleTypeSpec.AnimalOperations(Pipeline, _endpoint), null) ?? _cachedAnimalOperations));
+            return (Volatile.Read(ref _cachedAnimalOperations) ?? (Interlocked.CompareExchange(ref _cachedAnimalOperations, new AnimalOperations(Pipeline, _endpoint), null) ?? _cachedAnimalOperations));
         }
 
         /// <summary> Initializes a new instance of PetOperations. </summary>
-        public virtual global::SampleTypeSpec.PetOperations GetPetOperationsClient()
+        public virtual PetOperations GetPetOperationsClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedPetOperations) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedPetOperations, new global::SampleTypeSpec.PetOperations(Pipeline, _endpoint), null) ?? _cachedPetOperations));
+            return (Volatile.Read(ref _cachedPetOperations) ?? (Interlocked.CompareExchange(ref _cachedPetOperations, new PetOperations(Pipeline, _endpoint), null) ?? _cachedPetOperations));
         }
 
         /// <summary> Initializes a new instance of DogOperations. </summary>
-        public virtual global::SampleTypeSpec.DogOperations GetDogOperationsClient()
+        public virtual DogOperations GetDogOperationsClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedDogOperations) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDogOperations, new global::SampleTypeSpec.DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations));
+            return (Volatile.Read(ref _cachedDogOperations) ?? (Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations));
         }
 
         /// <summary> Initializes a new instance of PlantOperations. </summary>
-        public virtual global::SampleTypeSpec.PlantOperations GetPlantOperationsClient()
+        public virtual PlantOperations GetPlantOperationsClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedPlantOperations) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedPlantOperations, new global::SampleTypeSpec.PlantOperations(Pipeline, _endpoint), null) ?? _cachedPlantOperations));
+            return (Volatile.Read(ref _cachedPlantOperations) ?? (Interlocked.CompareExchange(ref _cachedPlantOperations, new PlantOperations(Pipeline, _endpoint), null) ?? _cachedPlantOperations));
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>
         /// <param name="metricsNamespace"></param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="metricsNamespace"/> is null. </exception>
-        public virtual global::SampleTypeSpec.Metrics GetMetricsClient(string metricsNamespace)
+        public virtual Metrics GetMetricsClient(string metricsNamespace)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
+            Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
 
-            return new global::SampleTypeSpec.Metrics(Pipeline, _endpoint, metricsNamespace);
+            return new Metrics(Pipeline, _endpoint, metricsNamespace);
         }
 
         /// <summary> Initializes a new instance of Notebooks. </summary>
         /// <param name="notebook"></param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="notebook"/> is null. </exception>
-        public virtual global::SampleTypeSpec.Notebooks GetNotebooksClient(string notebook)
+        public virtual Notebooks GetNotebooksClient(string notebook)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(notebook, nameof(notebook));
+            Argument.AssertNotNull(notebook, nameof(notebook));
 
-            return new global::SampleTypeSpec.Notebooks(Pipeline, _endpoint, notebook);
+            return new Notebooks(Pipeline, _endpoint, notebook);
         }
     }
 }

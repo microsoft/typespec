@@ -9,7 +9,7 @@ namespace _Type.Property.Nullable
 {
     public partial class CollectionsByteProperty
     {
-        public CollectionsByteProperty(string requiredProperty, global::System.Collections.Generic.IEnumerable<global::System.BinaryData> nullableProperty) => throw null;
+        public CollectionsByteProperty(string requiredProperty, IEnumerable<BinaryData> nullableProperty) => throw null;
 
         public string RequiredProperty
         {
@@ -17,7 +17,7 @@ namespace _Type.Property.Nullable
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IList<global::System.BinaryData> NullableProperty
+        public IList<BinaryData> NullableProperty
         {
             get => throw null;
             set => throw null;

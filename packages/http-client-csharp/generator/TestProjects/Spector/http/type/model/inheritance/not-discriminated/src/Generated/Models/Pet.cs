@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.NotDiscriminated
     {
         public Pet(string name) => throw null;
 
-        internal Pet(string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Pet(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         public string Name
         {

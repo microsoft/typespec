@@ -6,9 +6,9 @@ namespace Payload.Xml
 {
     public partial class ModelWithEnum
     {
-        public ModelWithEnum(global::Payload.Xml.Status status) => throw null;
+        public ModelWithEnum(Status status) => throw null;
 
-        public global::Payload.Xml.Status Status
+        public Status Status
         {
             get => throw null;
             set => throw null;

@@ -11,33 +11,33 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class ChangeTrackingDictionary<TKey, TValue> : global::System.Collections.Generic.IDictionary<TKey, TValue>, global::System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>
+    internal partial class ChangeTrackingDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
         where TKey : notnull
     {
-        private global::System.Collections.Generic.IDictionary<TKey, TValue> _innerDictionary;
+        private IDictionary<TKey, TValue> _innerDictionary;
 
         public ChangeTrackingDictionary()
         {
         }
 
         /// <param name="dictionary"> The inner dictionary. </param>
-        public ChangeTrackingDictionary(global::System.Collections.Generic.IDictionary<TKey, TValue> dictionary)
+        public ChangeTrackingDictionary(IDictionary<TKey, TValue> dictionary)
         {
             if ((dictionary == null))
             {
                 return;
             }
-            _innerDictionary = new global::System.Collections.Generic.Dictionary<TKey, TValue>(dictionary);
+            _innerDictionary = new Dictionary<TKey, TValue>(dictionary);
         }
 
         /// <param name="dictionary"> The inner dictionary. </param>
-        public ChangeTrackingDictionary(global::System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> dictionary)
+        public ChangeTrackingDictionary(IReadOnlyDictionary<TKey, TValue> dictionary)
         {
             if ((dictionary == null))
             {
                 return;
             }
-            _innerDictionary = new global::System.Collections.Generic.Dictionary<TKey, TValue>();
+            _innerDictionary = new Dictionary<TKey, TValue>();
             foreach (var pair in dictionary)
             {
                 _innerDictionary.Add(pair);
@@ -54,10 +54,10 @@ namespace SampleTypeSpec
         public bool IsReadOnly => this.IsUndefined ? false : this.EnsureDictionary().IsReadOnly;
 
         /// <summary> Gets the Keys. </summary>
-        public global::System.Collections.Generic.ICollection<TKey> Keys => this.IsUndefined ? global::System.Array.Empty<TKey>() : this.EnsureDictionary().Keys;
+        public ICollection<TKey> Keys => this.IsUndefined ? Array.Empty<TKey>() : this.EnsureDictionary().Keys;
 
         /// <summary> Gets the Values. </summary>
-        public global::System.Collections.Generic.ICollection<TValue> Values => this.IsUndefined ? global::System.Array.Empty<TValue>() : this.EnsureDictionary().Values;
+        public ICollection<TValue> Values => this.IsUndefined ? Array.Empty<TValue>() : this.EnsureDictionary().Values;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public TValue this[TKey key]
@@ -66,7 +66,7 @@ namespace SampleTypeSpec
             {
                 if (this.IsUndefined)
                 {
-                    throw new global::System.Collections.Generic.KeyNotFoundException(nameof(key));
+                    throw new KeyNotFoundException(nameof(key));
                 }
                 return this.EnsureDictionary()[key];
             }
@@ -77,16 +77,16 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the Keys. </summary>
-        global::System.Collections.Generic.IEnumerable<TKey> global::System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>.Keys => this.Keys;
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => this.Keys;
 
         /// <summary> Gets the Values. </summary>
-        global::System.Collections.Generic.IEnumerable<TValue> global::System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>.Values => this.Values;
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => this.Values;
 
-        public global::System.Collections.Generic.IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             if (this.IsUndefined)
             {
-                global::System.Collections.Generic.IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> enumerateEmpty()
+                IEnumerator<KeyValuePair<TKey, TValue>> enumerateEmpty()
                 {
                     yield break;
                 }
@@ -95,13 +95,13 @@ namespace SampleTypeSpec
             return this.EnsureDictionary().GetEnumerator();
         }
 
-        global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
         /// <param name="item"> The item to add. </param>
-        public void Add(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
+        public void Add(KeyValuePair<TKey, TValue> item)
         {
             this.EnsureDictionary().Add(item);
         }
@@ -112,7 +112,7 @@ namespace SampleTypeSpec
         }
 
         /// <param name="item"> The item to search for. </param>
-        public bool Contains(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
+        public bool Contains(KeyValuePair<TKey, TValue> item)
         {
             if (this.IsUndefined)
             {
@@ -123,7 +123,7 @@ namespace SampleTypeSpec
 
         /// <param name="array"> The array to copy. </param>
         /// <param name="index"> The index. </param>
-        public void CopyTo(global::System.Collections.Generic.KeyValuePair<TKey, TValue>[] array, int index)
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
             if (this.IsUndefined)
             {
@@ -133,7 +133,7 @@ namespace SampleTypeSpec
         }
 
         /// <param name="item"> The item to remove. </param>
-        public bool Remove(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
+        public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             if (this.IsUndefined)
             {
@@ -181,9 +181,9 @@ namespace SampleTypeSpec
             return this.EnsureDictionary().TryGetValue(key, out value);
         }
 
-        public global::System.Collections.Generic.IDictionary<TKey, TValue> EnsureDictionary()
+        public IDictionary<TKey, TValue> EnsureDictionary()
         {
-            return (_innerDictionary ??= new global::System.Collections.Generic.Dictionary<TKey, TValue>());
+            return (_innerDictionary ??= new Dictionary<TKey, TValue>());
         }
     }
 }

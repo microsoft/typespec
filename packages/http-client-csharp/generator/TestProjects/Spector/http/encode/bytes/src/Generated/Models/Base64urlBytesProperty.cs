@@ -8,9 +8,9 @@ namespace Encode.Bytes
 {
     public partial class Base64urlBytesProperty
     {
-        public Base64urlBytesProperty(global::System.BinaryData value) => throw null;
+        public Base64urlBytesProperty(BinaryData value) => throw null;
 
-        public global::System.BinaryData Value
+        public BinaryData Value
         {
             get => throw null;
             set => throw null;

@@ -8,14 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace Versioning.ReturnTypeChangedFrom
 {
-    public partial class ReturnTypeChangedFromClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ReturnTypeChangedFromClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion LatestVersion = global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion.V1;
+        private const global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion LatestVersion = ReturnTypeChangedFromClientOptions.ServiceVersion.V1;
 
         public ReturnTypeChangedFromClientOptions(global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion version = LatestVersion) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ReturnTypeChangedFromClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ReturnTypeChangedFromClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

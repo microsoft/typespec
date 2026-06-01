@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Http.Custom
 {
-    public partial class CustomClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class CustomClientOptions : ClientPipelineOptions
     {
         public CustomClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal CustomClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal CustomClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

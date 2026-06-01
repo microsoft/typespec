@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.OAuth2
 {
-    public partial class OAuth2ClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class OAuth2ClientOptions : ClientPipelineOptions
     {
         public OAuth2ClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal OAuth2ClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal OAuth2ClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

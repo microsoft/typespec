@@ -13,7 +13,7 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The Wrapper. </summary>
-    public partial class Wrapper : global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Wrapper>
+    public partial class Wrapper : IJsonModel<Wrapper>
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Wrapper"/> for deserialization. </summary>
         internal Wrapper()
@@ -22,47 +22,47 @@ namespace SampleTypeSpec
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::SampleTypeSpec.Wrapper PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual Wrapper PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return global::SampleTypeSpec.Wrapper.DeserializeWrapper(document.RootElement, options);
+                        return Wrapper.DeserializeWrapper(document.RootElement, options);
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Wrapper>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::SampleTypeSpec.Wrapper global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        Wrapper IPersistableModel<Wrapper>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<Wrapper>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Wrapper>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void IJsonModel<Wrapper>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -71,15 +71,15 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("action"u8);
-            writer.WriteObjectValue<global::SampleTypeSpec.RoundTripModel>(Action, options);
+            writer.WriteObjectValue<RoundTripModel>(Action, options);
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -88,9 +88,9 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
                     {
-                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                        JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }
@@ -99,46 +99,46 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::SampleTypeSpec.Wrapper global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.Wrapper>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        Wrapper IJsonModel<Wrapper>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::SampleTypeSpec.Wrapper JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual Wrapper JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support reading '{format}' format.");
             }
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::SampleTypeSpec.Wrapper.DeserializeWrapper(document.RootElement, options);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return Wrapper.DeserializeWrapper(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static global::SampleTypeSpec.Wrapper DeserializeWrapper(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static Wrapper DeserializeWrapper(JsonElement element, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
             string p1 = default;
-            global::SampleTypeSpec.RoundTripModel action = default;
+            RoundTripModel action = default;
             string p2 = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("action"u8))
                 {
-                    action = global::SampleTypeSpec.RoundTripModel.DeserializeRoundTripModel(prop.Value, options);
+                    action = RoundTripModel.DeserializeRoundTripModel(prop.Value, options);
                     continue;
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::SampleTypeSpec.Wrapper(p1, action, p2, additionalBinaryDataProperties);
+            return new Wrapper(p1, action, p2, additionalBinaryDataProperties);
         }
     }
 }

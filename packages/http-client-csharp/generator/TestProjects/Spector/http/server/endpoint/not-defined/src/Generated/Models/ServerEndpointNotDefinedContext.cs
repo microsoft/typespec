@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Server.Endpoint.NotDefined
 {
-    public partial class ServerEndpointNotDefinedContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class ServerEndpointNotDefinedContext : ModelReaderWriterContext
     {
     }
 }

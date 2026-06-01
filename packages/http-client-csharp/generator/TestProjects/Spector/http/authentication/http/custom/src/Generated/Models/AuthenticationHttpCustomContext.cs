@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Authentication.Http.Custom
 {
-    public partial class AuthenticationHttpCustomContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class AuthenticationHttpCustomContext : ModelReaderWriterContext
     {
     }
 }

@@ -8,9 +8,9 @@ namespace Encode.Duration._Property
 {
     public partial class Int32MillisecondsLargerUnitDurationProperty
     {
-        public Int32MillisecondsLargerUnitDurationProperty(global::System.TimeSpan value) => throw null;
+        public Int32MillisecondsLargerUnitDurationProperty(TimeSpan value) => throw null;
 
-        public global::System.TimeSpan Value
+        public TimeSpan Value
         {
             get => throw null;
             set => throw null;

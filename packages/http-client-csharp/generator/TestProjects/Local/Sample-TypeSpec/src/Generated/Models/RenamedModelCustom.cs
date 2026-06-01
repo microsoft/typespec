@@ -12,7 +12,7 @@ using SampleTypeSpec.Models.Custom;
 namespace SampleTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
-    public partial class RenamedModelCustom : global::SampleTypeSpec.Models.Custom.Friend
+    public partial class RenamedModelCustom : Friend
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RenamedModelCustom"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="otherName"> name of the ModelWithClientName. </param>
-        internal RenamedModelCustom(string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
+        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
         {
             OtherName = otherName;
         }

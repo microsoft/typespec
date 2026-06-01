@@ -15,23 +15,23 @@ namespace Versioning.MadeOptional
     {
         protected MadeOptionalClient() => throw null;
 
-        public MadeOptionalClient(global::System.Uri endpoint) : this(endpoint, new global::Versioning.MadeOptional.MadeOptionalClientOptions()) => throw null;
+        public MadeOptionalClient(Uri endpoint) : this(endpoint, new MadeOptionalClientOptions()) => throw null;
 
-        internal MadeOptionalClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Versioning.MadeOptional.MadeOptionalClientOptions options) => throw null;
+        internal MadeOptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MadeOptionalClientOptions options) => throw null;
 
-        public MadeOptionalClient(global::System.Uri endpoint, global::Versioning.MadeOptional.MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
+        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public MadeOptionalClient(global::Versioning.MadeOptional.MadeOptionalClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public MadeOptionalClient(MadeOptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Test(global::System.ClientModel.BinaryContent content, string @param = default, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Test(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TestAsync(global::System.ClientModel.BinaryContent content, string @param = default, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.MadeOptional.TestModel> Test(global::Versioning.MadeOptional.TestModel body, string @param = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.MadeOptional.TestModel>> TestAsync(global::Versioning.MadeOptional.TestModel body, string @param = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

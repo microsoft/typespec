@@ -8,7 +8,7 @@ namespace _Type.Model.Visibility
 {
     public partial class VisibilityModel
     {
-        public VisibilityModel(int queryProp, global::System.Collections.Generic.IEnumerable<string> createProp, global::System.Collections.Generic.IEnumerable<int> updateProp, bool deleteProp) => throw null;
+        public VisibilityModel(int queryProp, IEnumerable<string> createProp, IEnumerable<int> updateProp, bool deleteProp) => throw null;
 
         public string ReadProp => throw null;
 
@@ -18,9 +18,9 @@ namespace _Type.Model.Visibility
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IList<string> CreateProp => throw null;
+        public IList<string> CreateProp => throw null;
 
-        public global::System.Collections.Generic.IList<int> UpdateProp => throw null;
+        public IList<int> UpdateProp => throw null;
 
         public bool DeleteProp
         {

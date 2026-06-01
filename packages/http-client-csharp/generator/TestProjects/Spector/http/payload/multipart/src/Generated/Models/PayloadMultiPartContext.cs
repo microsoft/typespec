@@ -9,7 +9,7 @@ using Payload.MultiPart._FormData.HttpParts.NonString;
 
 namespace Payload.MultiPart
 {
-    public partial class PayloadMultiPartContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class PayloadMultiPartContext : ModelReaderWriterContext
     {
     }
 }

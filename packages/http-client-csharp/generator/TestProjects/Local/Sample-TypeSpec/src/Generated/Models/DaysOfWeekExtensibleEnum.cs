@@ -11,7 +11,7 @@ using System.ComponentModel;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct DaysOfWeekExtensibleEnum : global::System.IEquatable<global::SampleTypeSpec.DaysOfWeekExtensibleEnum>
+    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<DaysOfWeekExtensibleEnum>
     {
         private readonly string _value;
         private const string MondayValue = "Monday";
@@ -27,60 +27,60 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public DaysOfWeekExtensibleEnum(string value)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
+            Argument.AssertNotNull(value, nameof(value));
 
             _value = value;
         }
 
         /// <summary> Gets the Monday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Monday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(MondayValue);
+        public static DaysOfWeekExtensibleEnum Monday { get; } = new DaysOfWeekExtensibleEnum(MondayValue);
 
         /// <summary> Gets the Tuesday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Tuesday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(TuesdayValue);
+        public static DaysOfWeekExtensibleEnum Tuesday { get; } = new DaysOfWeekExtensibleEnum(TuesdayValue);
 
         /// <summary> Gets the Wednesday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Wednesday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(WednesdayValue);
+        public static DaysOfWeekExtensibleEnum Wednesday { get; } = new DaysOfWeekExtensibleEnum(WednesdayValue);
 
         /// <summary> Gets the Thursday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Thursday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(ThursdayValue);
+        public static DaysOfWeekExtensibleEnum Thursday { get; } = new DaysOfWeekExtensibleEnum(ThursdayValue);
 
         /// <summary> Gets the Friday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Friday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(FridayValue);
+        public static DaysOfWeekExtensibleEnum Friday { get; } = new DaysOfWeekExtensibleEnum(FridayValue);
 
         /// <summary> Gets the Saturday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Saturday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(SaturdayValue);
+        public static DaysOfWeekExtensibleEnum Saturday { get; } = new DaysOfWeekExtensibleEnum(SaturdayValue);
 
         /// <summary> Gets the Sunday. </summary>
-        public static global::SampleTypeSpec.DaysOfWeekExtensibleEnum Sunday { get; } = new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(SundayValue);
+        public static DaysOfWeekExtensibleEnum Sunday { get; } = new DaysOfWeekExtensibleEnum(SundayValue);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.DaysOfWeekExtensibleEnum"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(global::SampleTypeSpec.DaysOfWeekExtensibleEnum left, global::SampleTypeSpec.DaysOfWeekExtensibleEnum right) => left.Equals(right);
+        public static bool operator ==(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => left.Equals(right);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.DaysOfWeekExtensibleEnum"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(global::SampleTypeSpec.DaysOfWeekExtensibleEnum left, global::SampleTypeSpec.DaysOfWeekExtensibleEnum right) => !left.Equals(right);
+        public static bool operator !=(DaysOfWeekExtensibleEnum left, DaysOfWeekExtensibleEnum right) => !left.Equals(right);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.DaysOfWeekExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.DaysOfWeekExtensibleEnum(string value) => new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(value);
+        public static implicit operator DaysOfWeekExtensibleEnum(string value) => new DaysOfWeekExtensibleEnum(value);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.DaysOfWeekExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.DaysOfWeekExtensibleEnum?(string value) => (value == null) ? null : new global::SampleTypeSpec.DaysOfWeekExtensibleEnum(value);
+        public static implicit operator DaysOfWeekExtensibleEnum?(string value) => (value == null) ? null : new DaysOfWeekExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => ((obj is global::SampleTypeSpec.DaysOfWeekExtensibleEnum other) && this.Equals(other));
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => ((obj is DaysOfWeekExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(global::SampleTypeSpec.DaysOfWeekExtensibleEnum other) => string.Equals(_value, other._value, global::System.StringComparison.InvariantCultureIgnoreCase);
+        public bool Equals(DaysOfWeekExtensibleEnum other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override int GetHashCode() => (_value != null) ? global::System.StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override int GetHashCode() => (_value != null) ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Versioning.ReturnTypeChangedFrom.V2
 {
-    public partial class VersioningReturnTypeChangedFromV2Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class VersioningReturnTypeChangedFromV2Context : ModelReaderWriterContext
     {
     }
 }

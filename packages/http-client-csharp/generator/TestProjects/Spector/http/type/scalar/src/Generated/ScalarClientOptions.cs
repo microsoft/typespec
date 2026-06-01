@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Scalar
 {
-    public partial class ScalarClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ScalarClientOptions : ClientPipelineOptions
     {
         public ScalarClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ScalarClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ScalarClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

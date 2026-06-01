@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingOptionalLiteralInt : global::System.IEquatable<global::SampleTypeSpec.ThingOptionalLiteralInt>
+    public readonly partial struct ThingOptionalLiteralInt : IEquatable<ThingOptionalLiteralInt>
     {
         private readonly int _value;
         private const int _456Value = 456;
@@ -25,34 +25,34 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the _456. </summary>
-        public static global::SampleTypeSpec.ThingOptionalLiteralInt _456 { get; } = new global::SampleTypeSpec.ThingOptionalLiteralInt(_456Value);
+        public static ThingOptionalLiteralInt _456 { get; } = new ThingOptionalLiteralInt(_456Value);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralInt"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(global::SampleTypeSpec.ThingOptionalLiteralInt left, global::SampleTypeSpec.ThingOptionalLiteralInt right) => left.Equals(right);
+        public static bool operator ==(ThingOptionalLiteralInt left, ThingOptionalLiteralInt right) => left.Equals(right);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralInt"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(global::SampleTypeSpec.ThingOptionalLiteralInt left, global::SampleTypeSpec.ThingOptionalLiteralInt right) => !left.Equals(right);
+        public static bool operator !=(ThingOptionalLiteralInt left, ThingOptionalLiteralInt right) => !left.Equals(right);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralInt"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.ThingOptionalLiteralInt(int value) => new global::SampleTypeSpec.ThingOptionalLiteralInt(value);
+        public static implicit operator ThingOptionalLiteralInt(int value) => new ThingOptionalLiteralInt(value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => ((obj is global::SampleTypeSpec.ThingOptionalLiteralInt other) && this.Equals(other));
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => ((obj is ThingOptionalLiteralInt other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(global::SampleTypeSpec.ThingOptionalLiteralInt other) => int.Equals(_value, other._value);
+        public bool Equals(ThingOptionalLiteralInt other) => int.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
     }
 }

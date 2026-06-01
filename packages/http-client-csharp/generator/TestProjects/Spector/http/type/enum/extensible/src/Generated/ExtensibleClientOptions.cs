@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type._Enum.Extensible
 {
-    public partial class ExtensibleClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ExtensibleClientOptions : ClientPipelineOptions
     {
         public ExtensibleClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ExtensibleClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ExtensibleClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived : global::_Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated
+    public partial class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived : ExtendsUnknownAdditionalPropertiesDiscriminated
     {
         public ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name, int index) : base(name, "derived") => throw null;
 
-        internal ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name, string kind, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties, int index, float? age) : base(name, kind, additionalProperties) => throw null;
+        internal ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name, string kind, IDictionary<string, BinaryData> additionalProperties, int index, float? age) : base(name, kind, additionalProperties) => throw null;
 
         public int Index
         {

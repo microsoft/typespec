@@ -14,24 +14,24 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsString() => throw null;
 
-        internal ExtendsString(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ExtendsString(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Get(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties> Get(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ExtendsStringAdditionalProperties> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties>> GetAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ExtendsStringAdditionalProperties>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Put(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Put(global::_Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Put(ExtendsStringAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAsync(global::_Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ExtendsStringAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -11,76 +11,76 @@ namespace SpecialWords
 {
     public static partial class SpecialWordsModelFactory
     {
-        public static global::SpecialWords._Models.And And(string name = default) => throw null;
+        public static And And(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.As As(string name = default) => throw null;
+        public static As As(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Assert Assert(string name = default) => throw null;
+        public static Assert Assert(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Async Async(string name = default) => throw null;
+        public static Async Async(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Await Await(string name = default) => throw null;
+        public static Await Await(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Break Break(string name = default) => throw null;
+        public static Break Break(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Class Class(string name = default) => throw null;
+        public static Class Class(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Constructor Constructor(string name = default) => throw null;
+        public static Constructor Constructor(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Continue Continue(string name = default) => throw null;
+        public static Continue Continue(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Def Def(string name = default) => throw null;
+        public static Def Def(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Del Del(string name = default) => throw null;
+        public static Del Del(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Elif Elif(string name = default) => throw null;
+        public static Elif Elif(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Else Else(string name = default) => throw null;
+        public static Else Else(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Except Except(string name = default) => throw null;
+        public static Except Except(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Exec Exec(string name = default) => throw null;
+        public static Exec Exec(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Finally Finally(string name = default) => throw null;
+        public static Finally Finally(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.For For(string name = default) => throw null;
+        public static For For(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.From From(string name = default) => throw null;
+        public static From From(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Global Global(string name = default) => throw null;
+        public static Global Global(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.If If(string name = default) => throw null;
+        public static If If(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Import Import(string name = default) => throw null;
+        public static Import Import(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.In In(string name = default) => throw null;
+        public static In In(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Is Is(string name = default) => throw null;
+        public static Is Is(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Lambda Lambda(string name = default) => throw null;
+        public static Lambda Lambda(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Not Not(string name = default) => throw null;
+        public static Not Not(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Or Or(string name = default) => throw null;
+        public static Or Or(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Pass Pass(string name = default) => throw null;
+        public static Pass Pass(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Raise Raise(string name = default) => throw null;
+        public static Raise Raise(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Return Return(string name = default) => throw null;
+        public static Return Return(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Try Try(string name = default) => throw null;
+        public static Try Try(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.While While(string name = default) => throw null;
+        public static While While(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.With With(string name = default) => throw null;
+        public static With With(string name = default) => throw null;
 
-        public static global::SpecialWords._Models.Yield Yield(string name = default) => throw null;
+        public static Yield Yield(string name = default) => throw null;
 
-        public static global::SpecialWords._ModelProperties.SameAsModel SameAsModel(string sameAsModelProperty = default) => throw null;
+        public static SameAsModel SameAsModel(string sameAsModelProperty = default) => throw null;
 
-        public static global::SpecialWords._ModelProperties.DictMethods DictMethods(string keys = default, string items = default, string values = default, string popitem = default, string clear = default, string update = default, string setdefault = default, string pop = default, string @get = default, string copy = default) => throw null;
+        public static DictMethods DictMethods(string keys = default, string items = default, string values = default, string popitem = default, string clear = default, string update = default, string setdefault = default, string pop = default, string @get = default, string copy = default) => throw null;
 
-        public static global::SpecialWords._ModelProperties.ModelWithList ModelWithList(string list = default) => throw null;
+        public static ModelWithList ModelWithList(string list = default) => throw null;
     }
 }

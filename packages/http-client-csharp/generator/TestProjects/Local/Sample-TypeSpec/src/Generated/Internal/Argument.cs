@@ -19,7 +19,7 @@ namespace SampleTypeSpec
         {
             if ((value is null))
             {
-                throw new global::System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
             }
         }
 
@@ -30,30 +30,30 @@ namespace SampleTypeSpec
         {
             if (!value.HasValue)
             {
-                throw new global::System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
             }
         }
 
         /// <param name="value"> The value. </param>
         /// <param name="name"> The name. </param>
-        public static void AssertNotNullOrEmpty<T>(global::System.Collections.Generic.IEnumerable<T> value, string name)
+        public static void AssertNotNullOrEmpty<T>(IEnumerable<T> value, string name)
         {
             if ((value is null))
             {
-                throw new global::System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
             }
-            if (((value is global::System.Collections.Generic.ICollection<T> collectionOfT) && (collectionOfT.Count == 0)))
+            if (((value is ICollection<T> collectionOfT) && (collectionOfT.Count == 0)))
             {
-                throw new global::System.ArgumentException("Value cannot be an empty collection.", name);
+                throw new ArgumentException("Value cannot be an empty collection.", name);
             }
-            if (((value is global::System.Collections.ICollection collection) && (collection.Count == 0)))
+            if (((value is ICollection collection) && (collection.Count == 0)))
             {
-                throw new global::System.ArgumentException("Value cannot be an empty collection.", name);
+                throw new ArgumentException("Value cannot be an empty collection.", name);
             }
-            using global::System.Collections.Generic.IEnumerator<T> e = value.GetEnumerator();
+            using IEnumerator<T> e = value.GetEnumerator();
             if (!e.MoveNext())
             {
-                throw new global::System.ArgumentException("Value cannot be an empty collection.", name);
+                throw new ArgumentException("Value cannot be an empty collection.", name);
             }
         }
 
@@ -63,11 +63,11 @@ namespace SampleTypeSpec
         {
             if ((value is null))
             {
-                throw new global::System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
             }
             if ((value.Length == 0))
             {
-                throw new global::System.ArgumentException("Value cannot be an empty string.", name);
+                throw new ArgumentException("Value cannot be an empty string.", name);
             }
         }
 
@@ -77,11 +77,11 @@ namespace SampleTypeSpec
         {
             if ((value is null))
             {
-                throw new global::System.ArgumentNullException(name);
+                throw new ArgumentNullException(name);
             }
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new global::System.ArgumentException("Value cannot be empty or contain only white-space characters.", name);
+                throw new ArgumentException("Value cannot be empty or contain only white-space characters.", name);
             }
         }
 
@@ -90,15 +90,15 @@ namespace SampleTypeSpec
         /// <param name="maximum"> The maximum value. </param>
         /// <param name="name"> The name. </param>
         public static void AssertInRange<T>(T value, T minimum, T maximum, string name)
-            where T : notnull, global::System.IComparable<T>
+            where T : notnull, IComparable<T>
         {
             if ((minimum.CompareTo(value) > 0))
             {
-                throw new global::System.ArgumentOutOfRangeException(name, "Value is less than the minimum allowed.");
+                throw new ArgumentOutOfRangeException(name, "Value is less than the minimum allowed.");
             }
             if ((maximum.CompareTo(value) < 0))
             {
-                throw new global::System.ArgumentOutOfRangeException(name, "Value is greater than the maximum allowed.");
+                throw new ArgumentOutOfRangeException(name, "Value is greater than the maximum allowed.");
             }
         }
 
@@ -106,7 +106,7 @@ namespace SampleTypeSpec
         /// <param name="name"> The name. </param>
         public static string CheckNotNullOrEmpty(string value, string name)
         {
-            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(value, name);
+            Argument.AssertNotNullOrEmpty(value, name);
             return value;
         }
     }

@@ -17,7 +17,7 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="foo"/> is null. </exception>
         public XmlModelWithNamespace(string foo)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(foo, nameof(foo));
 
             Foo = foo;
         }

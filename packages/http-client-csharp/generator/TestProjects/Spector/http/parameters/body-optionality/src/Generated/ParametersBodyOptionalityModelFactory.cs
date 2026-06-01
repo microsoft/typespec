@@ -6,6 +6,6 @@ namespace Parameters.BodyOptionality
 {
     public static partial class ParametersBodyOptionalityModelFactory
     {
-        public static global::Parameters.BodyOptionality.BodyModel BodyModel(string name = default) => throw null;
+        public static BodyModel BodyModel(string name = default) => throw null;
     }
 }

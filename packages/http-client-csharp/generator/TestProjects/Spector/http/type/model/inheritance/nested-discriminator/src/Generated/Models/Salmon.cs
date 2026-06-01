@@ -7,17 +7,17 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    public partial class Salmon : global::_Type.Model.Inheritance.NestedDiscriminator.Fish
+    public partial class Salmon : Fish
     {
         public Salmon(int age) : base("salmon", age) => throw null;
 
-        internal Salmon(string kind, int age, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> friends, global::System.Collections.Generic.IDictionary<string, global::_Type.Model.Inheritance.NestedDiscriminator.Fish> hate, global::_Type.Model.Inheritance.NestedDiscriminator.Fish partner) : base(kind, age, additionalBinaryDataProperties) => throw null;
+        internal Salmon(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, IList<Fish> friends, IDictionary<string, Fish> hate, Fish partner) : base(kind, age, additionalBinaryDataProperties) => throw null;
 
-        public global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> Friends => throw null;
+        public IList<Fish> Friends => throw null;
 
-        public global::System.Collections.Generic.IDictionary<string, global::_Type.Model.Inheritance.NestedDiscriminator.Fish> Hate => throw null;
+        public IDictionary<string, Fish> Hate => throw null;
 
-        public global::_Type.Model.Inheritance.NestedDiscriminator.Fish Partner
+        public Fish Partner
         {
             get => throw null;
             set => throw null;

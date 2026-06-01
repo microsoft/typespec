@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Server.Path.Single
 {
-    public partial class SingleClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class SingleClientOptions : ClientPipelineOptions
     {
         public SingleClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal SingleClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal SingleClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -15,120 +15,120 @@ namespace Encode.Duration._Header
     {
         protected Header() => throw null;
 
-        internal Header(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Default(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Default(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> DefaultAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Default(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Default(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefaultAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> DefaultAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Iso8601(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Iso8601(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Iso8601Async(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Iso8601Async(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Iso8601(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Iso8601(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Iso8601Async(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Iso8601Async(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Iso8601Array(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Iso8601Array(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Iso8601ArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Iso8601ArrayAsync(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Iso8601Array(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Iso8601Array(IEnumerable<TimeSpan> duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Iso8601ArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Iso8601ArrayAsync(IEnumerable<TimeSpan> duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Seconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Int32Seconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Seconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Int32Seconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32SecondsLargerUnit(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Int32SecondsLargerUnit(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32SecondsLargerUnitAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32SecondsLargerUnit(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Int32SecondsLargerUnit(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32SecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Int32SecondsLargerUnitAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSeconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FloatSeconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSeconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FloatSeconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSecondsLargerUnit(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FloatSecondsLargerUnit(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FloatSecondsLargerUnitAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatSecondsLargerUnit(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FloatSecondsLargerUnit(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatSecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FloatSecondsLargerUnitAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Seconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Float64Seconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64SecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Seconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Float64Seconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64SecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Milliseconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Int32Milliseconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32Milliseconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Int32Milliseconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32MillisecondsLargerUnit(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Int32MillisecondsLargerUnit(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsLargerUnitAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32MillisecondsLargerUnit(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Int32MillisecondsLargerUnit(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsLargerUnitAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMilliseconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FloatMilliseconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMilliseconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FloatMilliseconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMillisecondsLargerUnit(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FloatMillisecondsLargerUnit(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsLargerUnitAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FloatMillisecondsLargerUnit(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FloatMillisecondsLargerUnit(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FloatMillisecondsLargerUnitAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FloatMillisecondsLargerUnitAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Milliseconds(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Float64Milliseconds(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64MillisecondsAsync(global::System.TimeSpan duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Float64MillisecondsAsync(TimeSpan duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Float64Milliseconds(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Float64Milliseconds(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Float64MillisecondsAsync(global::System.TimeSpan duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Float64MillisecondsAsync(TimeSpan duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32MillisecondsArray(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Int32MillisecondsArray(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsArrayAsync(IEnumerable<TimeSpan> duration, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Int32MillisecondsArray(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Int32MillisecondsArray(IEnumerable<TimeSpan> duration, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> Int32MillisecondsArrayAsync(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> duration, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> Int32MillisecondsArrayAsync(IEnumerable<TimeSpan> duration, CancellationToken cancellationToken = default) => throw null;
     }
 }

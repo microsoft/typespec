@@ -9,6 +9,6 @@ namespace Payload.ContentNegotiation
 {
     public static partial class PayloadContentNegotiationModelFactory
     {
-        public static global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson PngImageAsJson(global::System.BinaryData content = default) => throw null;
+        public static PngImageAsJson PngImageAsJson(BinaryData content = default) => throw null;
     }
 }

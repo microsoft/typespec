@@ -14,16 +14,16 @@ namespace Versioning.Added
     {
         protected InterfaceV2() => throw null;
 
-        internal InterfaceV2(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal InterfaceV2(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult V2InInterface(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult V2InInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> V2InInterfaceAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V2InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV2> V2InInterface(global::Versioning.Added.ModelV2 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV2> V2InInterface(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV2>> V2InInterfaceAsync(global::Versioning.Added.ModelV2 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV2>> V2InInterfaceAsync(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Serialization.EncodedName.Json._Property
 {
-    public partial class JsonEncodedNameModel : global::System.ClientModel.Primitives.IJsonModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>
+    public partial class JsonEncodedNameModel : IJsonModel<JsonEncodedNameModel>
     {
         internal JsonEncodedNameModel() => throw null;
 
-        protected virtual global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual JsonEncodedNameModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<JsonEncodedNameModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel global::System.ClientModel.Primitives.IPersistableModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        JsonEncodedNameModel IPersistableModel<JsonEncodedNameModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<JsonEncodedNameModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel jsonEncodedNameModel) => throw null;
+        public static implicit operator BinaryContent(JsonEncodedNameModel jsonEncodedNameModel) => throw null;
 
-        public static explicit operator JsonEncodedNameModel(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator JsonEncodedNameModel(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<JsonEncodedNameModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel global::System.ClientModel.Primitives.IJsonModel<global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        JsonEncodedNameModel IJsonModel<JsonEncodedNameModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Serialization.EncodedName.Json._Property.JsonEncodedNameModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual JsonEncodedNameModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

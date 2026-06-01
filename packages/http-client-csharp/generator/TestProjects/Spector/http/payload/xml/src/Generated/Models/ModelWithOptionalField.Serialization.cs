@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithOptionalField : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithOptionalField>
+    public partial class ModelWithOptionalField : IPersistableModel<ModelWithOptionalField>
     {
         internal ModelWithOptionalField() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithOptionalField PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithOptionalField PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithOptionalField>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithOptionalField>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithOptionalField global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithOptionalField>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithOptionalField IPersistableModel<ModelWithOptionalField>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithOptionalField>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithOptionalField>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithOptionalField modelWithOptionalField) => throw null;
+        public static implicit operator BinaryContent(ModelWithOptionalField modelWithOptionalField) => throw null;
 
-        public static explicit operator ModelWithOptionalField(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithOptionalField(ClientResult result) => throw null;
     }
 }

@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithRenamedAttribute : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>
+    public partial class ModelWithRenamedAttribute : IPersistableModel<ModelWithRenamedAttribute>
     {
         internal ModelWithRenamedAttribute() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithRenamedAttribute PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithRenamedAttribute PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithRenamedAttribute>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithRenamedAttribute global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithRenamedAttribute IPersistableModel<ModelWithRenamedAttribute>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithRenamedAttribute>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithRenamedAttribute modelWithRenamedAttribute) => throw null;
+        public static implicit operator BinaryContent(ModelWithRenamedAttribute modelWithRenamedAttribute) => throw null;
 
-        public static explicit operator ModelWithRenamedAttribute(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithRenamedAttribute(ClientResult result) => throw null;
     }
 }

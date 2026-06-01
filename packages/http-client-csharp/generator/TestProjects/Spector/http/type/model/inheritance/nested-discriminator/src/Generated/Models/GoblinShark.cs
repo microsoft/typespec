@@ -7,10 +7,10 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    public partial class GoblinShark : global::_Type.Model.Inheritance.NestedDiscriminator.Shark
+    public partial class GoblinShark : Shark
     {
         public GoblinShark(int age) : base(age, "goblin") => throw null;
 
-        internal GoblinShark(string kind, int age, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, string sharktype) : base(kind, age, additionalBinaryDataProperties, sharktype) => throw null;
+        internal GoblinShark(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, string sharktype) : base(kind, age, additionalBinaryDataProperties, sharktype) => throw null;
     }
 }

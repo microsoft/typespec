@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.AnotherClientOperationGroup
 {
-    public partial class SubNamespaceSecondClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class SubNamespaceSecondClientOptions : ClientPipelineOptions
     {
         public SubNamespaceSecondClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal SubNamespaceSecondClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal SubNamespaceSecondClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

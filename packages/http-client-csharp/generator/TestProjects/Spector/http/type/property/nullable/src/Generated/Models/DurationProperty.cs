@@ -8,7 +8,7 @@ namespace _Type.Property.Nullable
 {
     public partial class DurationProperty
     {
-        public DurationProperty(string requiredProperty, global::System.TimeSpan? nullableProperty) => throw null;
+        public DurationProperty(string requiredProperty, TimeSpan? nullableProperty) => throw null;
 
         public string RequiredProperty
         {
@@ -16,7 +16,7 @@ namespace _Type.Property.Nullable
             set => throw null;
         }
 
-        public global::System.TimeSpan? NullableProperty
+        public TimeSpan? NullableProperty
         {
             get => throw null;
             set => throw null;

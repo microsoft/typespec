@@ -9,31 +9,31 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    [global::System.ClientModel.Primitives.PersistableModelProxyAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.UnknownFish))]
-    public abstract partial class Fish : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>
+    [PersistableModelProxyAttribute(typeof(UnknownFish))]
+    public abstract partial class Fish : IJsonModel<Fish>
     {
         internal Fish() => throw null;
 
-        protected virtual global::_Type.Model.Inheritance.NestedDiscriminator.Fish PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Fish PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Fish>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.NestedDiscriminator.Fish global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Fish IPersistableModel<Fish>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Fish>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Model.Inheritance.NestedDiscriminator.Fish fish) => throw null;
+        public static implicit operator BinaryContent(Fish fish) => throw null;
 
-        public static explicit operator Fish(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator Fish(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Fish>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.NestedDiscriminator.Fish global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Fish IJsonModel<Fish>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Model.Inheritance.NestedDiscriminator.Fish JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Fish JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

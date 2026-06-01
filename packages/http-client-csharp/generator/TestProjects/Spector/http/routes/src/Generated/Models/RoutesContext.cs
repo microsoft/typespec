@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Routes
 {
-    public partial class RoutesContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class RoutesContext : ModelReaderWriterContext
     {
     }
 }

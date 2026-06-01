@@ -8,6 +8,6 @@ namespace Versioning.TypeChangedFrom.V2
 {
     public static partial class VersioningTypeChangedFromV2ModelFactory
     {
-        public static global::Versioning.TypeChangedFrom.TestModel TestModel(string prop = default, string changedProp = default) => throw null;
+        public static TestModel TestModel(string prop = default, string changedProp = default) => throw null;
     }
 }

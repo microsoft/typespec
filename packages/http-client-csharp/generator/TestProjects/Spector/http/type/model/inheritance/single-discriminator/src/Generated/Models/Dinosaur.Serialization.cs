@@ -9,29 +9,29 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    [global::System.ClientModel.Primitives.PersistableModelProxyAttribute(typeof(global::_Type.Model.Inheritance.SingleDiscriminator.UnknownDinosaur))]
-    public abstract partial class Dinosaur : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>
+    [PersistableModelProxyAttribute(typeof(UnknownDinosaur))]
+    public abstract partial class Dinosaur : IJsonModel<Dinosaur>
     {
         internal Dinosaur() => throw null;
 
-        protected virtual global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Dinosaur PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Dinosaur>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Dinosaur IPersistableModel<Dinosaur>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Dinosaur>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static explicit operator Dinosaur(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator Dinosaur(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Dinosaur>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Dinosaur IJsonModel<Dinosaur>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Dinosaur JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

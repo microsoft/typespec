@@ -6,14 +6,14 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.Fish))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.Salmon))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.SawShark))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.Shark))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.UnknownFish))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Inheritance.NestedDiscriminator.UnknownShark))]
-    public partial class _TypeModelInheritanceNestedDiscriminatorContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(Fish))]
+    [ModelReaderWriterBuildableAttribute(typeof(GoblinShark))]
+    [ModelReaderWriterBuildableAttribute(typeof(Salmon))]
+    [ModelReaderWriterBuildableAttribute(typeof(SawShark))]
+    [ModelReaderWriterBuildableAttribute(typeof(Shark))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownFish))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnknownShark))]
+    public partial class _TypeModelInheritanceNestedDiscriminatorContext : ModelReaderWriterContext
     {
     }
 }

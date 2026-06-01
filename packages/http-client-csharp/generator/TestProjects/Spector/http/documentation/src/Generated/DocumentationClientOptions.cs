@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Documentation
 {
-    public partial class DocumentationClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class DocumentationClientOptions : ClientPipelineOptions
     {
         public DocumentationClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal DocumentationClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal DocumentationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

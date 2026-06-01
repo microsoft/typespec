@@ -7,28 +7,28 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct GetResponseProp1 : global::System.IEquatable<global::_Type.Union.GetResponseProp1>
+    public readonly partial struct GetResponseProp1 : IEquatable<GetResponseProp1>
     {
         public GetResponseProp1(string value) => throw null;
 
-        public static global::_Type.Union.GetResponseProp1 B => throw null;
+        public static GetResponseProp1 B => throw null;
 
-        public static global::_Type.Union.GetResponseProp1 C => throw null;
+        public static GetResponseProp1 C => throw null;
 
-        public static bool operator ==(global::_Type.Union.GetResponseProp1 left, global::_Type.Union.GetResponseProp1 right) => throw null;
+        public static bool operator ==(GetResponseProp1 left, GetResponseProp1 right) => throw null;
 
-        public static bool operator !=(global::_Type.Union.GetResponseProp1 left, global::_Type.Union.GetResponseProp1 right) => throw null;
+        public static bool operator !=(GetResponseProp1 left, GetResponseProp1 right) => throw null;
 
-        public static implicit operator global::_Type.Union.GetResponseProp1(string value) => throw null;
+        public static implicit operator GetResponseProp1(string value) => throw null;
 
-        public static implicit operator global::_Type.Union.GetResponseProp1?(string value) => throw null;
+        public static implicit operator GetResponseProp1?(string value) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
-        public bool Equals(global::_Type.Union.GetResponseProp1 other) => throw null;
+        public bool Equals(GetResponseProp1 other) => throw null;
 
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

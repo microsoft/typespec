@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace Encode.Datetime
 {
-    public partial class UnixTimestampArrayDatetimeProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>
+    public partial class UnixTimestampArrayDatetimeProperty : IJsonModel<UnixTimestampArrayDatetimeProperty>
     {
         internal UnixTimestampArrayDatetimeProperty() => throw null;
 
-        protected virtual global::Encode.Datetime.UnixTimestampArrayDatetimeProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual UnixTimestampArrayDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<UnixTimestampArrayDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Datetime.UnixTimestampArrayDatetimeProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        UnixTimestampArrayDatetimeProperty IPersistableModel<UnixTimestampArrayDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<UnixTimestampArrayDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Datetime.UnixTimestampArrayDatetimeProperty unixTimestampArrayDatetimeProperty) => throw null;
+        public static implicit operator BinaryContent(UnixTimestampArrayDatetimeProperty unixTimestampArrayDatetimeProperty) => throw null;
 
-        public static explicit operator UnixTimestampArrayDatetimeProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator UnixTimestampArrayDatetimeProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<UnixTimestampArrayDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Datetime.UnixTimestampArrayDatetimeProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Datetime.UnixTimestampArrayDatetimeProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        UnixTimestampArrayDatetimeProperty IJsonModel<UnixTimestampArrayDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode.Datetime.UnixTimestampArrayDatetimeProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual UnixTimestampArrayDatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

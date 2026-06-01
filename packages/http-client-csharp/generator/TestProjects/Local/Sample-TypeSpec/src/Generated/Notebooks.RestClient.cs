@@ -12,18 +12,18 @@ namespace SampleTypeSpec
     /// <summary></summary>
     public partial class Notebooks
     {
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
+        private static PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetNotebookRequest(global::System.ClientModel.Primitives.RequestOptions options)
+        internal PipelineMessage CreateGetNotebookRequest(RequestOptions options)
         {
-            global::SampleTypeSpec.ClientUriBuilder uri = new global::SampleTypeSpec.ClientUriBuilder();
+            ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/notebooks/", false);
             uri.AppendPath(_notebook, true);
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

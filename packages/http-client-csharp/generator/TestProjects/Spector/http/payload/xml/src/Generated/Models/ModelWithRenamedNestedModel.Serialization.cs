@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithRenamedNestedModel : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedNestedModel>
+    public partial class ModelWithRenamedNestedModel : IPersistableModel<ModelWithRenamedNestedModel>
     {
         internal ModelWithRenamedNestedModel() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithRenamedNestedModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithRenamedNestedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedNestedModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithRenamedNestedModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithRenamedNestedModel global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedNestedModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithRenamedNestedModel IPersistableModel<ModelWithRenamedNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithRenamedNestedModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithRenamedNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithRenamedNestedModel modelWithRenamedNestedModel) => throw null;
+        public static implicit operator BinaryContent(ModelWithRenamedNestedModel modelWithRenamedNestedModel) => throw null;
 
-        public static explicit operator ModelWithRenamedNestedModel(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithRenamedNestedModel(ClientResult result) => throw null;
     }
 }

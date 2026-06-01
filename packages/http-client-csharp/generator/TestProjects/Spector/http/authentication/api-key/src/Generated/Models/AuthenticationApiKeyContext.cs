@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Authentication.ApiKey
 {
-    public partial class AuthenticationApiKeyContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class AuthenticationApiKeyContext : ModelReaderWriterContext
     {
     }
 }

@@ -13,57 +13,57 @@ namespace SampleTypeSpec
 {
     internal static partial class ClientPipelineExtensions
     {
-        public static async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.Primitives.PipelineResponse> ProcessMessageAsync(this global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.ClientModel.Primitives.PipelineMessage message, global::System.ClientModel.Primitives.RequestOptions options)
+        public static async ValueTask<PipelineResponse> ProcessMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             await pipeline.SendAsync(message).ConfigureAwait(false);
 
-            if ((message.Response.IsError && ((options?.ErrorOptions & global::System.ClientModel.Primitives.ClientErrorBehaviors.NoThrow) != global::System.ClientModel.Primitives.ClientErrorBehaviors.NoThrow)))
+            if ((message.Response.IsError && ((options?.ErrorOptions & ClientErrorBehaviors.NoThrow) != ClientErrorBehaviors.NoThrow)))
             {
-                throw await global::System.ClientModel.ClientResultException.CreateAsync(message.Response).ConfigureAwait(false);
+                throw await ClientResultException.CreateAsync(message.Response).ConfigureAwait(false);
             }
 
-            global::System.ClientModel.Primitives.PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
+            PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
             return response;
         }
 
-        public static global::System.ClientModel.Primitives.PipelineResponse ProcessMessage(this global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.ClientModel.Primitives.PipelineMessage message, global::System.ClientModel.Primitives.RequestOptions options)
+        public static PipelineResponse ProcessMessage(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             pipeline.Send(message);
 
-            if ((message.Response.IsError && ((options?.ErrorOptions & global::System.ClientModel.Primitives.ClientErrorBehaviors.NoThrow) != global::System.ClientModel.Primitives.ClientErrorBehaviors.NoThrow)))
+            if ((message.Response.IsError && ((options?.ErrorOptions & ClientErrorBehaviors.NoThrow) != ClientErrorBehaviors.NoThrow)))
             {
-                throw new global::System.ClientModel.ClientResultException(message.Response);
+                throw new ClientResultException(message.Response);
             }
 
-            global::System.ClientModel.Primitives.PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
+            PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
             return response;
         }
 
-        public static async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.ClientModel.Primitives.PipelineMessage message, global::System.ClientModel.Primitives.RequestOptions options)
+        public static async ValueTask<ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
+            PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
             switch (response.Status)
             {
                 case ((>= 200) and (< 300)):
-                    return global::System.ClientModel.ClientResult.FromValue<bool>(true, response);
+                    return ClientResult.FromValue<bool>(true, response);
                 case ((>= 400) and (< 500)):
-                    return global::System.ClientModel.ClientResult.FromValue<bool>(false, response);
+                    return ClientResult.FromValue<bool>(false, response);
                 default:
-                    return new global::SampleTypeSpec.ErrorResult<bool>(response, new global::System.ClientModel.ClientResultException(response));
+                    return new ErrorResult<bool>(response, new ClientResultException(response));
             }
         }
 
-        public static global::System.ClientModel.ClientResult<bool> ProcessHeadAsBoolMessage(this global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.ClientModel.Primitives.PipelineMessage message, global::System.ClientModel.Primitives.RequestOptions options)
+        public static ClientResult<bool> ProcessHeadAsBoolMessage(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineResponse response = pipeline.ProcessMessage(message, options);
+            PipelineResponse response = pipeline.ProcessMessage(message, options);
             switch (response.Status)
             {
                 case ((>= 200) and (< 300)):
-                    return global::System.ClientModel.ClientResult.FromValue<bool>(true, response);
+                    return ClientResult.FromValue<bool>(true, response);
                 case ((>= 400) and (< 500)):
-                    return global::System.ClientModel.ClientResult.FromValue<bool>(false, response);
+                    return ClientResult.FromValue<bool>(false, response);
                 default:
-                    return new global::SampleTypeSpec.ErrorResult<bool>(response, new global::System.ClientModel.ClientResultException(response));
+                    return new ErrorResult<bool>(response, new ClientResultException(response));
             }
         }
     }

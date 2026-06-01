@@ -8,7 +8,7 @@ namespace _Type.Property.Nullable
 {
     public partial class BytesProperty
     {
-        public BytesProperty(string requiredProperty, global::System.BinaryData nullableProperty) => throw null;
+        public BytesProperty(string requiredProperty, BinaryData nullableProperty) => throw null;
 
         public string RequiredProperty
         {
@@ -16,7 +16,7 @@ namespace _Type.Property.Nullable
             set => throw null;
         }
 
-        public global::System.BinaryData NullableProperty
+        public BinaryData NullableProperty
         {
             get => throw null;
             set => throw null;

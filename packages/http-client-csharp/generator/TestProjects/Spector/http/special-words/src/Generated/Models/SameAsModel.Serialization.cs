@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace SpecialWords._ModelProperties
 {
-    public partial class SameAsModel : global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>
+    public partial class SameAsModel : IJsonModel<SameAsModel>
     {
         internal SameAsModel() => throw null;
 
-        protected virtual global::SpecialWords._ModelProperties.SameAsModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual SameAsModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<SameAsModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._ModelProperties.SameAsModel global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        SameAsModel IPersistableModel<SameAsModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<SameAsModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::SpecialWords._ModelProperties.SameAsModel sameAsModel) => throw null;
+        public static implicit operator BinaryContent(SameAsModel sameAsModel) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<SameAsModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._ModelProperties.SameAsModel global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        SameAsModel IJsonModel<SameAsModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::SpecialWords._ModelProperties.SameAsModel JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual SameAsModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

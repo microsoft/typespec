@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     public partial class Thing
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Thing"/>. </summary>
         /// <param name="rename"> name of the Thing. </param>
@@ -30,19 +30,19 @@ namespace SampleTypeSpec
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="rename"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
-        public Thing(string rename, global::System.BinaryData requiredUnion, string requiredNullableString, global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, global::System.Collections.Generic.IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs)
+        public Thing(string rename, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(rename, nameof(rename));
-            global::SampleTypeSpec.Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            global::SampleTypeSpec.Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
-            global::SampleTypeSpec.Argument.AssertNotNull(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
+            Argument.AssertNotNull(rename, nameof(rename));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNull(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Rename = rename;
             RequiredUnion = requiredUnion;
             RequiredNullableString = requiredNullableString;
             RequiredNullableLiteralString = requiredNullableLiteralString;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = new global::SampleTypeSpec.ChangeTrackingList<int>();
+            OptionalNullableList = new ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
             PropertyWithSpecialDocs = propertyWithSpecialDocs;
         }
@@ -69,7 +69,7 @@ namespace SampleTypeSpec
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Thing(string rename, global::System.BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, global::SampleTypeSpec.ThingOptionalLiteralString? optionalLiteralString, global::SampleTypeSpec.ThingRequiredNullableLiteralString1? requiredNullableLiteralString, global::SampleTypeSpec.ThingOptionalLiteralInt? optionalLiteralInt, global::SampleTypeSpec.ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, global::System.Collections.Generic.IList<int> optionalNullableList, global::System.Collections.Generic.IList<int> requiredNullableList, string propertyWithSpecialDocs, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal Thing(string rename, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string propertyWithSpecialDocs, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Rename = rename;
             RequiredUnion = requiredUnion;
@@ -133,7 +133,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public global::System.BinaryData RequiredUnion { get; set; }
+        public BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
         public string RequiredLiteralString { get; } = "accept";
@@ -154,16 +154,16 @@ namespace SampleTypeSpec
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public global::SampleTypeSpec.ThingOptionalLiteralString? OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString? OptionalLiteralString { get; set; }
 
         /// <summary> required nullable literal string. </summary>
-        public global::SampleTypeSpec.ThingRequiredNullableLiteralString1? RequiredNullableLiteralString { get; set; }
+        public ThingRequiredNullableLiteralString1? RequiredNullableLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public global::SampleTypeSpec.ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public global::SampleTypeSpec.ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool? OptionalLiteralBool { get; set; }
@@ -172,10 +172,10 @@ namespace SampleTypeSpec
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>
-        public global::System.Collections.Generic.IList<int> OptionalNullableList { get; set; }
+        public IList<int> OptionalNullableList { get; set; }
 
         /// <summary> required nullable collection. </summary>
-        public global::System.Collections.Generic.IList<int> RequiredNullableList { get; set; }
+        public IList<int> RequiredNullableList { get; set; }
 
         /// <summary>
         /// This tests:

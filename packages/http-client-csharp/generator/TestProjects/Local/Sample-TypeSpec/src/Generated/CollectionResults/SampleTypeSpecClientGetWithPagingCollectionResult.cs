@@ -11,15 +11,15 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithPagingCollectionResult : global::System.ClientModel.Primitives.CollectionResult
+    internal partial class SampleTypeSpecClientGetWithPagingCollectionResult : CollectionResult
     {
-        private readonly global::SampleTypeSpec.SampleTypeSpecClient _client;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly SampleTypeSpecClient _client;
+        private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingCollectionResult(global::SampleTypeSpec.SampleTypeSpecClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
@@ -27,25 +27,25 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
+            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return this.GetNextResponse(message);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

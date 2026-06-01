@@ -10,35 +10,35 @@ namespace _Type.Union
 {
     public partial class UnionClient
     {
-        public UnionClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Union.UnionClientOptions()) => throw null;
+        public UnionClient() : this(new Uri("http://localhost:3000"), new UnionClientOptions()) => throw null;
 
-        internal UnionClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Union.UnionClientOptions options) => throw null;
+        internal UnionClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UnionClientOptions options) => throw null;
 
-        public UnionClient(global::System.Uri endpoint, global::_Type.Union.UnionClientOptions options) : this(null, endpoint, options) => throw null;
+        public UnionClient(Uri endpoint, UnionClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public UnionClient(global::_Type.Union.UnionClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public UnionClient(UnionClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::_Type.Union.StringsOnly GetStringsOnlyClient() => throw null;
+        public virtual StringsOnly GetStringsOnlyClient() => throw null;
 
-        public virtual global::_Type.Union.StringExtensible GetStringExtensibleClient() => throw null;
+        public virtual StringExtensible GetStringExtensibleClient() => throw null;
 
-        public virtual global::_Type.Union.StringExtensibleNamed GetStringExtensibleNamedClient() => throw null;
+        public virtual StringExtensibleNamed GetStringExtensibleNamedClient() => throw null;
 
-        public virtual global::_Type.Union.IntsOnly GetIntsOnlyClient() => throw null;
+        public virtual IntsOnly GetIntsOnlyClient() => throw null;
 
-        public virtual global::_Type.Union.FloatsOnly GetFloatsOnlyClient() => throw null;
+        public virtual FloatsOnly GetFloatsOnlyClient() => throw null;
 
-        public virtual global::_Type.Union.ModelsOnly GetModelsOnlyClient() => throw null;
+        public virtual ModelsOnly GetModelsOnlyClient() => throw null;
 
-        public virtual global::_Type.Union.EnumsOnly GetEnumsOnlyClient() => throw null;
+        public virtual EnumsOnly GetEnumsOnlyClient() => throw null;
 
-        public virtual global::_Type.Union.StringAndArray GetStringAndArrayClient() => throw null;
+        public virtual StringAndArray GetStringAndArrayClient() => throw null;
 
-        public virtual global::_Type.Union.MixedLiterals GetMixedLiteralsClient() => throw null;
+        public virtual MixedLiterals GetMixedLiteralsClient() => throw null;
 
-        public virtual global::_Type.Union.MixedTypes GetMixedTypesClient() => throw null;
+        public virtual MixedTypes GetMixedTypesClient() => throw null;
     }
 }

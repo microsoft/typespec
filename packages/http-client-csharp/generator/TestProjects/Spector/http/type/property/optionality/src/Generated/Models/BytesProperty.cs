@@ -10,7 +10,7 @@ namespace _Type.Property.Optional
     {
         public BytesProperty() => throw null;
 
-        public global::System.BinaryData Property
+        public BinaryData Property
         {
             get => throw null;
             set => throw null;

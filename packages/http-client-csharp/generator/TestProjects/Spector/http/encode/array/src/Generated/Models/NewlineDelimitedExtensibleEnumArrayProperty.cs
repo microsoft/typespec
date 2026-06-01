@@ -8,8 +8,8 @@ namespace Encode._Array
 {
     public partial class NewlineDelimitedExtensibleEnumArrayProperty
     {
-        public NewlineDelimitedExtensibleEnumArrayProperty(global::System.Collections.Generic.IEnumerable<global::Encode._Array.ColorsExtensibleEnum> value) => throw null;
+        public NewlineDelimitedExtensibleEnumArrayProperty(IEnumerable<ColorsExtensibleEnum> value) => throw null;
 
-        public global::System.Collections.Generic.IList<global::Encode._Array.ColorsExtensibleEnum> Value => throw null;
+        public IList<ColorsExtensibleEnum> Value => throw null;
     }
 }

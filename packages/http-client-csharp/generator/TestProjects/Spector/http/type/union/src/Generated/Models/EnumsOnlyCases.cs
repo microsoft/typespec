@@ -6,15 +6,15 @@ namespace _Type.Union
 {
     public partial class EnumsOnlyCases
     {
-        public EnumsOnlyCases(global::_Type.Union.EnumsOnlyCasesLr lr, global::_Type.Union.EnumsOnlyCasesUd ud) => throw null;
+        public EnumsOnlyCases(EnumsOnlyCasesLr lr, EnumsOnlyCasesUd ud) => throw null;
 
-        public global::_Type.Union.EnumsOnlyCasesLr Lr
+        public EnumsOnlyCasesLr Lr
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::_Type.Union.EnumsOnlyCasesUd Ud
+        public EnumsOnlyCasesUd Ud
         {
             get => throw null;
             set => throw null;

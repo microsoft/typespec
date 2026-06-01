@@ -16,36 +16,36 @@ namespace Payload.Pageable._ServerDrivenPagination
     {
         protected ServerDrivenPagination() => throw null;
 
-        internal ServerDrivenPagination(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ServerDrivenPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult Link(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual CollectionResult Link(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult LinkAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult LinkAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> Link(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> LinkAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult LinkString(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual CollectionResult LinkString(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult LinkStringAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult LinkStringAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> LinkString(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> LinkString(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> LinkStringAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> LinkStringAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.CollectionResult NestedLink(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual CollectionResult NestedLink(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.Primitives.AsyncCollectionResult NestedLinkAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.CollectionResult<global::Payload.Pageable.Pet> NestedLink(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.AsyncCollectionResult<global::Payload.Pageable.Pet> NestedLinkAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.ServerDrivenPaginationAlternateInitialVerb GetServerDrivenPaginationAlternateInitialVerbClient() => throw null;
+        public virtual ServerDrivenPaginationAlternateInitialVerb GetServerDrivenPaginationAlternateInitialVerbClient() => throw null;
 
-        public virtual global::Payload.Pageable._ServerDrivenPagination.ContinuationToken.ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
+        public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
     }
 }

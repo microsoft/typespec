@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.Pageable
 {
-    public partial class PageableClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class PageableClientOptions : ClientPipelineOptions
     {
         public PageableClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal PageableClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal PageableClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

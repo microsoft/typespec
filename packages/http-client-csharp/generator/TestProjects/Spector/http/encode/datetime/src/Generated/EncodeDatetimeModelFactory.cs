@@ -9,14 +9,14 @@ namespace Encode.Datetime
 {
     public static partial class EncodeDatetimeModelFactory
     {
-        public static global::Encode.Datetime.DefaultDatetimeProperty DefaultDatetimeProperty(global::System.DateTimeOffset value = default) => throw null;
+        public static DefaultDatetimeProperty DefaultDatetimeProperty(DateTimeOffset value = default) => throw null;
 
-        public static global::Encode.Datetime.Rfc3339DatetimeProperty Rfc3339DatetimeProperty(global::System.DateTimeOffset value = default) => throw null;
+        public static Rfc3339DatetimeProperty Rfc3339DatetimeProperty(DateTimeOffset value = default) => throw null;
 
-        public static global::Encode.Datetime.Rfc7231DatetimeProperty Rfc7231DatetimeProperty(global::System.DateTimeOffset value = default) => throw null;
+        public static Rfc7231DatetimeProperty Rfc7231DatetimeProperty(DateTimeOffset value = default) => throw null;
 
-        public static global::Encode.Datetime.UnixTimestampDatetimeProperty UnixTimestampDatetimeProperty(global::System.DateTimeOffset value = default) => throw null;
+        public static UnixTimestampDatetimeProperty UnixTimestampDatetimeProperty(DateTimeOffset value = default) => throw null;
 
-        public static global::Encode.Datetime.UnixTimestampArrayDatetimeProperty UnixTimestampArrayDatetimeProperty(global::System.Collections.Generic.IEnumerable<global::System.DateTimeOffset> value = default) => throw null;
+        public static UnixTimestampArrayDatetimeProperty UnixTimestampArrayDatetimeProperty(IEnumerable<DateTimeOffset> value = default) => throw null;
     }
 }

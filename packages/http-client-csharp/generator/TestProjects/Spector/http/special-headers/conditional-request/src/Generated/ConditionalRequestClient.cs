@@ -13,47 +13,47 @@ namespace SpecialHeaders.ConditionalRequest
 {
     public partial class ConditionalRequestClient
     {
-        public ConditionalRequestClient() : this(new global::System.Uri("http://localhost:3000"), new global::SpecialHeaders.ConditionalRequest.ConditionalRequestClientOptions()) => throw null;
+        public ConditionalRequestClient() : this(new Uri("http://localhost:3000"), new ConditionalRequestClientOptions()) => throw null;
 
-        internal ConditionalRequestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::SpecialHeaders.ConditionalRequest.ConditionalRequestClientOptions options) => throw null;
+        internal ConditionalRequestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ConditionalRequestClientOptions options) => throw null;
 
-        public ConditionalRequestClient(global::System.Uri endpoint, global::SpecialHeaders.ConditionalRequest.ConditionalRequestClientOptions options) : this(null, endpoint, options) => throw null;
+        public ConditionalRequestClient(Uri endpoint, ConditionalRequestClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public ConditionalRequestClient(global::SpecialHeaders.ConditionalRequest.ConditionalRequestClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public ConditionalRequestClient(ConditionalRequestClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfMatch(string ifMatch, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult PostIfMatch(string ifMatch, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfMatchAsync(string ifMatch, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfMatch(string ifMatch = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PostIfMatch(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfMatchAsync(string ifMatch = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfNoneMatch(string ifNoneMatch, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult PostIfNoneMatch(string ifNoneMatch, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfNoneMatch(string ifNoneMatch = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PostIfNoneMatch(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult HeadIfModifiedSince(global::System.DateTimeOffset? ifModifiedSince, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadIfModifiedSinceAsync(global::System.DateTimeOffset? ifModifiedSince, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult HeadIfModifiedSince(global::System.DateTimeOffset? ifModifiedSince = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> HeadIfModifiedSinceAsync(global::System.DateTimeOffset? ifModifiedSince = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfUnmodifiedSince(global::System.DateTimeOffset? ifUnmodifiedSince, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfUnmodifiedSinceAsync(global::System.DateTimeOffset? ifUnmodifiedSince, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostIfUnmodifiedSince(global::System.DateTimeOffset? ifUnmodifiedSince = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostIfUnmodifiedSinceAsync(global::System.DateTimeOffset? ifUnmodifiedSince = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -9,12 +9,12 @@ namespace Encode.Bytes
 {
     public static partial class EncodeBytesModelFactory
     {
-        public static global::Encode.Bytes.DefaultBytesProperty DefaultBytesProperty(global::System.BinaryData value = default) => throw null;
+        public static DefaultBytesProperty DefaultBytesProperty(BinaryData value = default) => throw null;
 
-        public static global::Encode.Bytes.Base64BytesProperty Base64BytesProperty(global::System.BinaryData value = default) => throw null;
+        public static Base64BytesProperty Base64BytesProperty(BinaryData value = default) => throw null;
 
-        public static global::Encode.Bytes.Base64urlBytesProperty Base64urlBytesProperty(global::System.BinaryData value = default) => throw null;
+        public static Base64urlBytesProperty Base64urlBytesProperty(BinaryData value = default) => throw null;
 
-        public static global::Encode.Bytes.Base64urlArrayBytesProperty Base64urlArrayBytesProperty(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> value = default) => throw null;
+        public static Base64urlArrayBytesProperty Base64urlArrayBytesProperty(IEnumerable<BinaryData> value = default) => throw null;
     }
 }

@@ -6,9 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace Payload.JsonMergePatch
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.JsonMergePatch.InnerModel))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.JsonMergePatch.Resource))]
-    public partial class PayloadJsonMergePatchContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(InnerModel))]
+    [ModelReaderWriterBuildableAttribute(typeof(Resource))]
+    public partial class PayloadJsonMergePatchContext : ModelReaderWriterContext
     {
     }
 }

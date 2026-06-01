@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class ValueTypesClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ValueTypesClientOptions : ClientPipelineOptions
     {
         public ValueTypesClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ValueTypesClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ValueTypesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

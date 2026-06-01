@@ -12,19 +12,19 @@ namespace Parameters.Basic
 {
     public partial class BasicClient
     {
-        public BasicClient() : this(new global::System.Uri("http://localhost:3000"), new global::Parameters.Basic.BasicClientOptions()) => throw null;
+        public BasicClient() : this(new Uri("http://localhost:3000"), new BasicClientOptions()) => throw null;
 
-        internal BasicClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Parameters.Basic.BasicClientOptions options) => throw null;
+        internal BasicClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BasicClientOptions options) => throw null;
 
-        public BasicClient(global::System.Uri endpoint, global::Parameters.Basic.BasicClientOptions options) : this(null, endpoint, options) => throw null;
+        public BasicClient(Uri endpoint, BasicClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public BasicClient(global::Parameters.Basic.BasicClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public BasicClient(BasicClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Parameters.Basic._ExplicitBody.ExplicitBody GetExplicitBodyClient() => throw null;
+        public virtual ExplicitBody GetExplicitBodyClient() => throw null;
 
-        public virtual global::Parameters.Basic._ImplicitBody.ImplicitBody GetImplicitBodyClient() => throw null;
+        public virtual ImplicitBody GetImplicitBodyClient() => throw null;
     }
 }

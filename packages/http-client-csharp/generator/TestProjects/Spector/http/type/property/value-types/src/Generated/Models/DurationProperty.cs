@@ -8,9 +8,9 @@ namespace _Type.Property.ValueTypes
 {
     public partial class DurationProperty
     {
-        public DurationProperty(global::System.TimeSpan @property) => throw null;
+        public DurationProperty(TimeSpan @property) => throw null;
 
-        public global::System.TimeSpan Property
+        public TimeSpan Property
         {
             get => throw null;
             set => throw null;

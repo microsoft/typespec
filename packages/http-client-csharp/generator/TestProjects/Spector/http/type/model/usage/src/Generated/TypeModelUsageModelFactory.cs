@@ -6,10 +6,10 @@ namespace _Type.Model.Usage
 {
     public static partial class TypeModelUsageModelFactory
     {
-        public static global::_Type.Model.Usage.InputRecord InputRecord(string requiredProp = default) => throw null;
+        public static InputRecord InputRecord(string requiredProp = default) => throw null;
 
-        public static global::_Type.Model.Usage.OutputRecord OutputRecord(string requiredProp = default) => throw null;
+        public static OutputRecord OutputRecord(string requiredProp = default) => throw null;
 
-        public static global::_Type.Model.Usage.InputOutputRecord InputOutputRecord(string requiredProp = default) => throw null;
+        public static InputOutputRecord InputOutputRecord(string requiredProp = default) => throw null;
     }
 }

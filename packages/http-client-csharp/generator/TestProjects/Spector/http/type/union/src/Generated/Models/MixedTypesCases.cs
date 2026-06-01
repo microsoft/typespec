@@ -9,32 +9,32 @@ namespace _Type.Union
 {
     public partial class MixedTypesCases
     {
-        public MixedTypesCases(global::System.BinaryData model, global::System.BinaryData literal, global::System.BinaryData @int, global::System.BinaryData boolean, global::System.Collections.Generic.IEnumerable<global::System.BinaryData> array) => throw null;
+        public MixedTypesCases(BinaryData model, BinaryData literal, BinaryData @int, BinaryData boolean, IEnumerable<BinaryData> array) => throw null;
 
-        public global::System.BinaryData Model
+        public BinaryData Model
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.BinaryData Literal
+        public BinaryData Literal
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.BinaryData Int
+        public BinaryData Int
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.BinaryData Boolean
+        public BinaryData Boolean
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IList<global::System.BinaryData> Array => throw null;
+        public IList<BinaryData> Array => throw null;
     }
 }

@@ -11,17 +11,17 @@ namespace Encode.Numeric
 {
     public partial class NumericClient
     {
-        public NumericClient() : this(new global::System.Uri("http://localhost:3000"), new global::Encode.Numeric.NumericClientOptions()) => throw null;
+        public NumericClient() : this(new Uri("http://localhost:3000"), new NumericClientOptions()) => throw null;
 
-        internal NumericClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Encode.Numeric.NumericClientOptions options) => throw null;
+        internal NumericClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NumericClientOptions options) => throw null;
 
-        public NumericClient(global::System.Uri endpoint, global::Encode.Numeric.NumericClientOptions options) : this(null, endpoint, options) => throw null;
+        public NumericClient(Uri endpoint, NumericClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public NumericClient(global::Encode.Numeric.NumericClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public NumericClient(NumericClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Encode.Numeric._Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
     }
 }

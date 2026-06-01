@@ -9,8 +9,8 @@ namespace Versioning.Removed.V2
 {
     public static partial class VersioningRemovedV2ModelFactory
     {
-        public static global::Versioning.Removed.ModelV2 ModelV2(string prop = default, global::Versioning.Removed.EnumV2 enumProp = default, global::System.BinaryData unionProp = default) => throw null;
+        public static ModelV2 ModelV2(string prop = default, EnumV2 enumProp = default, BinaryData unionProp = default) => throw null;
 
-        public static global::Versioning.Removed.ModelV3 ModelV3(string id = default, global::Versioning.Removed.EnumV3 enumProp = default) => throw null;
+        public static ModelV3 ModelV3(string id = default, EnumV3 enumProp = default) => throw null;
     }
 }

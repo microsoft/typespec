@@ -7,10 +7,10 @@ using Versioning.Removed;
 
 namespace Versioning.Removed.V1
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.Removed.ModelV1))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.Removed.ModelV2))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Versioning.Removed.ModelV3))]
-    public partial class VersioningRemovedV1Context : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(ModelV1))]
+    [ModelReaderWriterBuildableAttribute(typeof(ModelV2))]
+    [ModelReaderWriterBuildableAttribute(typeof(ModelV3))]
+    public partial class VersioningRemovedV1Context : ModelReaderWriterContext
     {
     }
 }

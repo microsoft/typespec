@@ -14,24 +14,24 @@ namespace Payload.ContentNegotiation._DifferentBody
     {
         protected DifferentBody() => throw null;
 
-        internal DifferentBody(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal DifferentBody(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetAvatarAsPng(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetAvatarAsPng(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAvatarAsPngAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::System.BinaryData> GetAvatarAsPng(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::System.BinaryData>> GetAvatarAsPngAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetAvatarAsJson(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetAvatarAsJson(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAvatarAsJsonAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAvatarAsJsonAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson> GetAvatarAsJson(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>> GetAvatarAsJsonAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

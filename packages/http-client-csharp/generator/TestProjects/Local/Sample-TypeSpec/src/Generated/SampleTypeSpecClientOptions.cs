@@ -13,9 +13,9 @@ using Microsoft.Extensions.Configuration;
 namespace SampleTypeSpec
 {
     /// <summary> Client options for <see cref="global::SampleTypeSpec.SampleTypeSpecClient"/>. </summary>
-    public partial class SampleTypeSpecClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class SampleTypeSpecClientOptions : ClientPipelineOptions
     {
-        private const global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion LatestVersion = global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview;
+        private const global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion LatestVersion = SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientOptions. </summary>
         /// <param name="version"> The service version. </param>
@@ -23,16 +23,16 @@ namespace SampleTypeSpec
         {
             Version = version switch
             {
-                global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_07_16_Preview => "2024-07-16-preview",
-                global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
-                _ => throw new global::System.NotSupportedException()
+                SampleTypeSpecClientOptions.ServiceVersion.V2024_07_16_Preview => "2024-07-16-preview",
+                SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
+                _ => throw new NotSupportedException()
             };
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientOptions from configuration. </summary>
         /// <param name="section"> The configuration section. </param>
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal SampleTypeSpecClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        [ExperimentalAttribute("SCME0002")]
+        internal SampleTypeSpecClientOptions(IConfigurationSection section) : base(section)
         {
             Version = "2024-08-16-preview";
             if (((section is null) || !section.Exists()))

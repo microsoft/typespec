@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.Service.Renamed.Operation
 {
-    public partial class ClientStructureServiceRenamedOperationContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class ClientStructureServiceRenamedOperationContext : ModelReaderWriterContext
     {
     }
 }

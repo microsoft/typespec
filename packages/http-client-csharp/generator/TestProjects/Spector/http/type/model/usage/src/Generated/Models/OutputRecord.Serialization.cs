@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace _Type.Model.Usage
 {
-    public partial class OutputRecord : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Usage.OutputRecord>
+    public partial class OutputRecord : IJsonModel<OutputRecord>
     {
         internal OutputRecord() => throw null;
 
-        protected virtual global::_Type.Model.Usage.OutputRecord PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual OutputRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Usage.OutputRecord>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<OutputRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Usage.OutputRecord global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Usage.OutputRecord>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        OutputRecord IPersistableModel<OutputRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Usage.OutputRecord>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<OutputRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static explicit operator OutputRecord(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator OutputRecord(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Usage.OutputRecord>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<OutputRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Usage.OutputRecord global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Usage.OutputRecord>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        OutputRecord IJsonModel<OutputRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Model.Usage.OutputRecord JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual OutputRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

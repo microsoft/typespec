@@ -15,23 +15,23 @@ namespace Versioning.Added
     {
         protected AddedClient() => throw null;
 
-        public AddedClient(global::System.Uri endpoint) : this(endpoint, new global::Versioning.Added.AddedClientOptions()) => throw null;
+        public AddedClient(Uri endpoint) : this(endpoint, new AddedClientOptions()) => throw null;
 
-        internal AddedClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Versioning.Added.AddedClientOptions options) => throw null;
+        internal AddedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, AddedClientOptions options) => throw null;
 
-        public AddedClient(global::System.Uri endpoint, global::Versioning.Added.AddedClientOptions options) : this(null, endpoint, options) => throw null;
+        public AddedClient(Uri endpoint, AddedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public AddedClient(global::Versioning.Added.AddedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public AddedClient(AddedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult V1(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult V1(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> V1Async(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V1Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV1> V1(global::Versioning.Added.ModelV1 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV1> V1(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV1>> V1Async(global::Versioning.Added.ModelV1 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV1>> V1Async(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

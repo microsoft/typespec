@@ -7,10 +7,10 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class TRex : global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur
+    public partial class TRex : Dinosaur
     {
         internal TRex(int size) : base("t-rex", size) => throw null;
 
-        internal TRex(string kind, int size, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(kind, size, additionalBinaryDataProperties) => throw null;
+        internal TRex(string kind, int size, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, size, additionalBinaryDataProperties) => throw null;
     }
 }

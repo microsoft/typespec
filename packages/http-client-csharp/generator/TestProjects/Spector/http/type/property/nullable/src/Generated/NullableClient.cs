@@ -10,29 +10,29 @@ namespace _Type.Property.Nullable
 {
     public partial class NullableClient
     {
-        public NullableClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Property.Nullable.NullableClientOptions()) => throw null;
+        public NullableClient() : this(new Uri("http://localhost:3000"), new NullableClientOptions()) => throw null;
 
-        internal NullableClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Property.Nullable.NullableClientOptions options) => throw null;
+        internal NullableClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NullableClientOptions options) => throw null;
 
-        public NullableClient(global::System.Uri endpoint, global::_Type.Property.Nullable.NullableClientOptions options) : this(null, endpoint, options) => throw null;
+        public NullableClient(Uri endpoint, NullableClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public NullableClient(global::_Type.Property.Nullable.NullableClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public NullableClient(NullableClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::_Type.Property.Nullable.String GetStringClient() => throw null;
+        public virtual String GetStringClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.Bytes GetBytesClient() => throw null;
+        public virtual Bytes GetBytesClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.Datetime GetDatetimeClient() => throw null;
+        public virtual Datetime GetDatetimeClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.Duration GetDurationClient() => throw null;
+        public virtual Duration GetDurationClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.CollectionsByte GetCollectionsByteClient() => throw null;
+        public virtual CollectionsByte GetCollectionsByteClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.CollectionsModel GetCollectionsModelClient() => throw null;
+        public virtual CollectionsModel GetCollectionsModelClient() => throw null;
 
-        public virtual global::_Type.Property.Nullable.CollectionsString GetCollectionsStringClient() => throw null;
+        public virtual CollectionsString GetCollectionsStringClient() => throw null;
     }
 }

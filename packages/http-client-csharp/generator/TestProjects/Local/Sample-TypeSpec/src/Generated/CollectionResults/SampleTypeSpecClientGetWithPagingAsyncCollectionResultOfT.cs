@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::SampleTypeSpec.Thing>
+    internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
-        private readonly global::SampleTypeSpec.SampleTypeSpecClient _client;
-        private readonly global::System.ClientModel.Primitives.RequestOptions _options;
+        private readonly SampleTypeSpecClient _client;
+        private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(global::SampleTypeSpec.SampleTypeSpecClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
@@ -28,16 +28,16 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
+            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return await this.GetNextResponseAsync(message).ConfigureAwait(false);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
-        public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
+        public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
@@ -45,20 +45,20 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override async global::System.Collections.Generic.IAsyncEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (global::SampleTypeSpec.Thing item in ((global::SampleTypeSpec.PageThing)page).Items)
+            foreach (Thing item in ((PageThing)page).Items)
             {
                 yield return item;
-                await global::System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
             }
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

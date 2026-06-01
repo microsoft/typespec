@@ -15,48 +15,48 @@ namespace Payload.MultiPart._FormData
     {
         protected FormData() => throw null;
 
-        internal FormData(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal FormData(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Basic(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult Basic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BasicAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult WithWireName(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult WithWireName(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithWireNameAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithWireNameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult OptionalParts(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult OptionalParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OptionalPartsAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> OptionalPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FileArrayAndBasic(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FileArrayAndBasicAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> FileArrayAndBasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult JsonPart(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult JsonPart(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> JsonPartAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> JsonPartAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult BinaryArrayParts(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult BinaryArrayParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BinaryArrayPartsAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> BinaryArrayPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult MultiBinaryParts(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult MultiBinaryParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> MultiBinaryPartsAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> MultiBinaryPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult CheckFileNameAndContentType(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult CheckFileNameAndContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> CheckFileNameAndContentTypeAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> CheckFileNameAndContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult AnonymousModel(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult AnonymousModel(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AnonymousModelAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual global::Payload.MultiPart._FormData.HttpParts.FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
+        public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
 
-        public virtual global::Payload.MultiPart._FormData.File.FormDataFile GetFormDataFileClient() => throw null;
+        public virtual FormDataFile GetFormDataFileClient() => throw null;
     }
 }

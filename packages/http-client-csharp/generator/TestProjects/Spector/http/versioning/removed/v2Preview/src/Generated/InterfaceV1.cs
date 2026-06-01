@@ -14,16 +14,16 @@ namespace Versioning.Removed
     {
         protected InterfaceV1() => throw null;
 
-        internal InterfaceV1(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal InterfaceV1(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult V1InInterface(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult V1InInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> V1InInterfaceAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V1InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.Removed.ModelV1> V1InInterface(global::Versioning.Removed.ModelV1 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV1> V1InInterface(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.Removed.ModelV1>> V1InInterfaceAsync(global::Versioning.Removed.ModelV1 body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV1>> V1InInterfaceAsync(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

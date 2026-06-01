@@ -14,272 +14,272 @@ namespace SpecialWords
     {
         protected Operations() => throw null;
 
-        internal Operations(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Operations(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult And(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult And(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AndAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AndAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult And(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult And(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AndAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AndAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult As(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult As(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AsAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AsAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult As(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult As(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AsAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AsAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Assert(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Assert(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AssertAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AssertAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Assert(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Assert(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AssertAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AssertAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Async(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Async(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AsyncAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AsyncAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Async(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Async(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AsyncAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AsyncAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Await(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Await(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AwaitAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AwaitAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Await(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Await(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> AwaitAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AwaitAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Break(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Break(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BreakAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> BreakAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Break(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Break(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> BreakAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> BreakAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Class(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Class(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ClassAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ClassAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Class(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Class(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ClassAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ClassAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Constructor(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Constructor(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ConstructorAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ConstructorAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Constructor(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Constructor(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ConstructorAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ConstructorAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Continue(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Continue(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ContinueAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ContinueAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Continue(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Continue(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ContinueAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ContinueAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Def(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Def(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> DefAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Def(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Def(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DefAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> DefAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Del(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Del(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DelAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> DelAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Del(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Del(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> DelAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> DelAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Elif(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Elif(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ElifAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ElifAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Elif(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Elif(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ElifAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ElifAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Else(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Else(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ElseAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ElseAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Else(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Else(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ElseAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ElseAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Except(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Except(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExceptAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ExceptAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Except(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Except(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExceptAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ExceptAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Exec(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Exec(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExecAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ExecAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Exec(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Exec(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ExecAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ExecAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Finally(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Finally(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FinallyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FinallyAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Finally(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Finally(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FinallyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FinallyAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult For(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult For(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ForAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ForAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult For(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult For(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ForAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ForAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult From(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult From(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult From(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult From(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Global(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Global(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GlobalAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GlobalAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Global(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Global(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GlobalAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> GlobalAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult If(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult If(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> IfAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> IfAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult If(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult If(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> IfAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> IfAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Import(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Import(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ImportAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ImportAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Import(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Import(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ImportAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ImportAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult In(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult In(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult In(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult In(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> InAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> InAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Is(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Is(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> IsAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> IsAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Is(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Is(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> IsAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> IsAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Lambda(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Lambda(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> LambdaAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> LambdaAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Lambda(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Lambda(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> LambdaAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> LambdaAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Not(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Not(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NotAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> NotAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Not(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Not(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NotAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> NotAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Or(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Or(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OrAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OrAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Or(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Or(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OrAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> OrAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Pass(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Pass(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PassAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PassAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Pass(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Pass(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PassAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PassAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Raise(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Raise(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RaiseAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> RaiseAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Raise(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Raise(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> RaiseAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> RaiseAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Return(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Return(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ReturnAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ReturnAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Return(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Return(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ReturnAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ReturnAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Try(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Try(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TryAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> TryAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Try(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Try(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> TryAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> TryAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult While(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult While(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WhileAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WhileAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult While(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult While(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WhileAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WhileAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult With(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult With(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult With(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult With(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> WithAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Yield(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Yield(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> YieldAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> YieldAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Yield(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Yield(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> YieldAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> YieldAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

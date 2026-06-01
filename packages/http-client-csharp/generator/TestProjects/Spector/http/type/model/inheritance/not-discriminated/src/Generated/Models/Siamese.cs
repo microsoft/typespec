@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    public partial class Siamese : global::_Type.Model.Inheritance.NotDiscriminated.Cat
+    public partial class Siamese : Cat
     {
         public Siamese(string name, int age, bool smart) : base(name, age) => throw null;
 
-        internal Siamese(string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, int age, bool smart) : base(name, additionalBinaryDataProperties, age) => throw null;
+        internal Siamese(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, int age, bool smart) : base(name, additionalBinaryDataProperties, age) => throw null;
 
         public bool Smart
         {

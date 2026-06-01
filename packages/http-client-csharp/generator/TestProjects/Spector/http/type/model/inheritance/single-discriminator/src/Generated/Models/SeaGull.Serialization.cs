@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class SeaGull : global::_Type.Model.Inheritance.SingleDiscriminator.Bird, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>
+    public partial class SeaGull : Bird, IJsonModel<SeaGull>
     {
         internal SeaGull() => throw null;
 
-        protected override global::_Type.Model.Inheritance.SingleDiscriminator.Bird PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override Bird PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<SeaGull>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        SeaGull IPersistableModel<SeaGull>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<SeaGull>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<SeaGull>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.SingleDiscriminator.SeaGull>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        SeaGull IJsonModel<SeaGull>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::_Type.Model.Inheritance.SingleDiscriminator.Bird JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override Bird JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

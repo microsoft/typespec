@@ -6,9 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace Response.StatusCodeRange
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Response.StatusCodeRange.ErrorInRange))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Response.StatusCodeRange.NotFoundError))]
-    public partial class ResponseStatusCodeRangeContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(ErrorInRange))]
+    [ModelReaderWriterBuildableAttribute(typeof(NotFoundError))]
+    public partial class ResponseStatusCodeRangeContext : ModelReaderWriterContext
     {
     }
 }

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadFloatDerived : global::_Type.Property.AdditionalProperties.DifferentSpreadFloatRecord
+    public partial class DifferentSpreadFloatDerived : DifferentSpreadFloatRecord
     {
         public DifferentSpreadFloatDerived(string name, float derivedProp) : base(name) => throw null;
 
-        internal DifferentSpreadFloatDerived(string name, global::System.Collections.Generic.IDictionary<string, float> additionalProperties, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, float derivedProp) : base(name, additionalProperties, additionalBinaryDataProperties) => throw null;
+        internal DifferentSpreadFloatDerived(string name, IDictionary<string, float> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties, float derivedProp) : base(name, additionalProperties, additionalBinaryDataProperties) => throw null;
 
         public float DerivedProp
         {

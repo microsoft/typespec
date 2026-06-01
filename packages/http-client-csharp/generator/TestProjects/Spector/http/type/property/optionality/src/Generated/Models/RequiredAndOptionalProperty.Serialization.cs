@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.Optional
 {
-    public partial class RequiredAndOptionalProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>
+    public partial class RequiredAndOptionalProperty : IJsonModel<RequiredAndOptionalProperty>
     {
         internal RequiredAndOptionalProperty() => throw null;
 
-        protected virtual global::_Type.Property.Optional.RequiredAndOptionalProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual RequiredAndOptionalProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<RequiredAndOptionalProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.Optional.RequiredAndOptionalProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        RequiredAndOptionalProperty IPersistableModel<RequiredAndOptionalProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<RequiredAndOptionalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.Optional.RequiredAndOptionalProperty requiredAndOptionalProperty) => throw null;
+        public static implicit operator BinaryContent(RequiredAndOptionalProperty requiredAndOptionalProperty) => throw null;
 
-        public static explicit operator RequiredAndOptionalProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator RequiredAndOptionalProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<RequiredAndOptionalProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.Optional.RequiredAndOptionalProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.Optional.RequiredAndOptionalProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        RequiredAndOptionalProperty IJsonModel<RequiredAndOptionalProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Property.Optional.RequiredAndOptionalProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual RequiredAndOptionalProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

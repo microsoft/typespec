@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Payload.MultiPart
 {
-    internal partial class MultiPartFormDataBinaryContent : global::System.ClientModel.BinaryContent
+    internal partial class MultiPartFormDataBinaryContent : BinaryContent
     {
         public MultiPartFormDataBinaryContent() => throw null;
 
@@ -31,19 +31,19 @@ namespace Payload.MultiPart
 
         public void Add(bool content, string name, string filename = default, string contentType = default) => throw null;
 
-        public void Add(global::System.IO.Stream content, string name, string filename = default, string contentType = default) => throw null;
+        public void Add(Stream content, string name, string filename = default, string contentType = default) => throw null;
 
-        public void Add(global::System.Byte[] content, string name, string filename = default, string contentType = default) => throw null;
+        public void Add(Byte[] content, string name, string filename = default, string contentType = default) => throw null;
 
-        public void Add(global::System.BinaryData content, string name, string filename = default, string contentType = default) => throw null;
+        public void Add(BinaryData content, string name, string filename = default, string contentType = default) => throw null;
 
-        public static void AddContentTypeHeader(global::System.Net.Http.HttpContent content, string contentType) => throw null;
+        public static void AddContentTypeHeader(HttpContent content, string contentType) => throw null;
 
         public override bool TryComputeLength(out long length) => throw null;
 
-        public override void WriteTo(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public override void WriteTo(Stream stream, CancellationToken cancellationToken = default) => throw null;
 
-        public override global::System.Threading.Tasks.Task WriteToAsync(global::System.IO.Stream stream, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public override Task WriteToAsync(Stream stream, CancellationToken cancellationToken = default) => throw null;
 
         public override void Dispose() => throw null;
     }

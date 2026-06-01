@@ -6,12 +6,12 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Datetime
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Datetime.DefaultDatetimeProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Datetime.Rfc3339DatetimeProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Datetime.Rfc7231DatetimeProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Datetime.UnixTimestampArrayDatetimeProperty))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Encode.Datetime.UnixTimestampDatetimeProperty))]
-    public partial class EncodeDatetimeContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(DefaultDatetimeProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(Rfc3339DatetimeProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(Rfc7231DatetimeProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnixTimestampArrayDatetimeProperty))]
+    [ModelReaderWriterBuildableAttribute(typeof(UnixTimestampDatetimeProperty))]
+    public partial class EncodeDatetimeContext : ModelReaderWriterContext
     {
     }
 }

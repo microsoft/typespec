@@ -13,31 +13,31 @@ namespace Response.StatusCodeRange
 {
     public partial class StatusCodeRangeClient
     {
-        public StatusCodeRangeClient() : this(new global::System.Uri("http://localhost:3000"), new global::Response.StatusCodeRange.StatusCodeRangeClientOptions()) => throw null;
+        public StatusCodeRangeClient() : this(new Uri("http://localhost:3000"), new StatusCodeRangeClientOptions()) => throw null;
 
-        internal StatusCodeRangeClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Response.StatusCodeRange.StatusCodeRangeClientOptions options) => throw null;
+        internal StatusCodeRangeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
 
-        public StatusCodeRangeClient(global::System.Uri endpoint, global::Response.StatusCodeRange.StatusCodeRangeClientOptions options) : this(null, endpoint, options) => throw null;
+        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public StatusCodeRangeClient(global::Response.StatusCodeRange.StatusCodeRangeClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public StatusCodeRangeClient(StatusCodeRangeClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ErrorResponseStatusCodeInRange(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult ErrorResponseStatusCodeInRange(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCodeInRangeAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ErrorResponseStatusCodeInRange(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCodeInRangeAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ErrorResponseStatusCode404(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCode404Async(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ErrorResponseStatusCode404(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCode404Async(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
     }
 }

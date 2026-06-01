@@ -11,7 +11,7 @@ namespace _Type.Property.AdditionalProperties
     {
         public DifferentSpreadFloatRecord(string name) => throw null;
 
-        internal DifferentSpreadFloatRecord(string name, global::System.Collections.Generic.IDictionary<string, float> additionalProperties, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
+        internal DifferentSpreadFloatRecord(string name, IDictionary<string, float> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         public string Name
         {
@@ -19,6 +19,6 @@ namespace _Type.Property.AdditionalProperties
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IDictionary<string, float> AdditionalProperties => throw null;
+        public IDictionary<string, float> AdditionalProperties => throw null;
     }
 }

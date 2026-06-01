@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class SingleDiscriminatorClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class SingleDiscriminatorClientOptions : ClientPipelineOptions
     {
         public SingleDiscriminatorClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal SingleDiscriminatorClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal SingleDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

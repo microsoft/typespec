@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.MultiClient
 {
-    public partial class ClientAClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ClientAClientOptions : ClientPipelineOptions
     {
         public ClientAClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ClientAClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ClientAClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -14,40 +14,40 @@ namespace _Type.Property.Optional
     {
         protected UnionFloatLiteral() => throw null;
 
-        internal UnionFloatLiteral(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal UnionFloatLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetAll(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetAll(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetAllAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionFloatLiteralProperty> GetAll(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<UnionFloatLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionFloatLiteralProperty>> GetAllAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<UnionFloatLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetDefault(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetDefaultAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionFloatLiteralProperty> GetDefault(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<UnionFloatLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionFloatLiteralProperty>> GetDefaultAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<UnionFloatLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutAll(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAllAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutAll(global::_Type.Property.Optional.UnionFloatLiteralProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutAll(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutAllAsync(global::_Type.Property.Optional.UnionFloatLiteralProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutDefault(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutDefaultAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutDefault(global::_Type.Property.Optional.UnionFloatLiteralProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutDefault(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutDefaultAsync(global::_Type.Property.Optional.UnionFloatLiteralProperty body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -8,8 +8,8 @@ namespace Payload.JsonMergePatch
 {
     public static partial class PayloadJsonMergePatchModelFactory
     {
-        public static global::Payload.JsonMergePatch.Resource Resource(string name = default, string description = default, global::System.Collections.Generic.IDictionary<string, global::Payload.JsonMergePatch.InnerModel> map = default, global::System.Collections.Generic.IEnumerable<global::Payload.JsonMergePatch.InnerModel> array = default, int? intValue = default, float? floatValue = default, global::Payload.JsonMergePatch.InnerModel innerModel = default, global::System.Collections.Generic.IEnumerable<int> intArray = default) => throw null;
+        public static Resource Resource(string name = default, string description = default, IDictionary<string, InnerModel> map = default, IEnumerable<InnerModel> array = default, int? intValue = default, float? floatValue = default, InnerModel innerModel = default, IEnumerable<int> intArray = default) => throw null;
 
-        public static global::Payload.JsonMergePatch.InnerModel InnerModel(string name = default, string description = default) => throw null;
+        public static InnerModel InnerModel(string name = default, string description = default) => throw null;
     }
 }

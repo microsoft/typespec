@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Server.Versions.NotVersioned
 {
-    public partial class ServerVersionsNotVersionedContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class ServerVersionsNotVersionedContext : ModelReaderWriterContext
     {
     }
 }

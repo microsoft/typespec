@@ -8,17 +8,17 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class WidgetData1
     {
-        public WidgetData1(global::System.DateTimeOffset start) => throw null;
+        public WidgetData1(DateTimeOffset start) => throw null;
 
         public string Kind => throw null;
 
-        public global::System.DateTimeOffset Start
+        public DateTimeOffset Start
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.DateTimeOffset? End
+        public DateTimeOffset? End
         {
             get => throw null;
             set => throw null;

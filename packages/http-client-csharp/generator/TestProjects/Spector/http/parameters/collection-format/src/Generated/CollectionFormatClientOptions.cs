@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.CollectionFormat
 {
-    public partial class CollectionFormatClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class CollectionFormatClientOptions : ClientPipelineOptions
     {
         public CollectionFormatClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal CollectionFormatClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal CollectionFormatClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

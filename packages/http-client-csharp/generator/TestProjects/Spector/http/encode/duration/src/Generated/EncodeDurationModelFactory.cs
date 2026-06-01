@@ -10,32 +10,32 @@ namespace Encode.Duration
 {
     public static partial class EncodeDurationModelFactory
     {
-        public static global::Encode.Duration._Property.DefaultDurationProperty DefaultDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static DefaultDurationProperty DefaultDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.ISO8601DurationProperty ISO8601DurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static ISO8601DurationProperty ISO8601DurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Int32SecondsDurationProperty Int32SecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Int32SecondsDurationProperty Int32SecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatSecondsDurationProperty FloatSecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static FloatSecondsDurationProperty FloatSecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Float64SecondsDurationProperty Float64SecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Float64SecondsDurationProperty Float64SecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Int32MillisecondsDurationProperty Int32MillisecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Int32MillisecondsDurationProperty Int32MillisecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatMillisecondsDurationProperty FloatMillisecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static FloatMillisecondsDurationProperty FloatMillisecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Float64MillisecondsDurationProperty Float64MillisecondsDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Float64MillisecondsDurationProperty Float64MillisecondsDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatSecondsDurationArrayProperty FloatSecondsDurationArrayProperty(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> value = default) => throw null;
+        public static FloatSecondsDurationArrayProperty FloatSecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty FloatMillisecondsDurationArrayProperty(global::System.Collections.Generic.IEnumerable<global::System.TimeSpan> value = default) => throw null;
+        public static FloatMillisecondsDurationArrayProperty FloatMillisecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Int32SecondsLargerUnitDurationProperty Int32SecondsLargerUnitDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Int32SecondsLargerUnitDurationProperty Int32SecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatSecondsLargerUnitDurationProperty FloatSecondsLargerUnitDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static FloatSecondsLargerUnitDurationProperty FloatSecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.Int32MillisecondsLargerUnitDurationProperty Int32MillisecondsLargerUnitDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static Int32MillisecondsLargerUnitDurationProperty Int32MillisecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
 
-        public static global::Encode.Duration._Property.FloatMillisecondsLargerUnitDurationProperty FloatMillisecondsLargerUnitDurationProperty(global::System.TimeSpan value = default) => throw null;
+        public static FloatMillisecondsLargerUnitDurationProperty FloatMillisecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
     }
 }

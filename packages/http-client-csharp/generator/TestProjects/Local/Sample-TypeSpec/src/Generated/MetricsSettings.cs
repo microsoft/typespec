@@ -13,23 +13,23 @@ using Microsoft.Extensions.Configuration;
 namespace SampleTypeSpec
 {
     /// <summary> Represents the settings used to configure a <see cref="Metrics"/> that can be loaded from an <see cref="IConfigurationSection"/>. </summary>
-    [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-    public partial class MetricsSettings : global::System.ClientModel.Primitives.ClientSettings
+    [ExperimentalAttribute("SCME0002")]
+    public partial class MetricsSettings : ClientSettings
     {
         /// <summary> Gets or sets the SampleTypeSpecUrl. </summary>
-        public global::System.Uri SampleTypeSpecUrl { get; set; }
+        public Uri SampleTypeSpecUrl { get; set; }
 
         /// <summary> Gets or sets the MetricsNamespace. </summary>
         public string MetricsNamespace { get; set; }
 
         /// <summary> Gets or sets the Options. </summary>
-        public global::SampleTypeSpec.SampleTypeSpecClientOptions Options { get; set; }
+        public SampleTypeSpecClientOptions Options { get; set; }
 
         /// <summary> Binds configuration values from the given section. </summary>
         /// <param name="section"> The configuration section. </param>
-        protected override void BindCore(global::Microsoft.Extensions.Configuration.IConfigurationSection section)
+        protected override void BindCore(IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
+            if (Uri.TryCreate(section["SampleTypeSpecUrl"], UriKind.Absolute, out Uri sampleTypeSpecUrl))
             {
                 this.SampleTypeSpecUrl = sampleTypeSpecUrl;
             }
@@ -38,10 +38,10 @@ namespace SampleTypeSpec
             {
                 this.MetricsNamespace = metricsNamespace;
             }
-            global::Microsoft.Extensions.Configuration.IConfigurationSection optionsSection = section.GetSection("Options");
+            IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
-                this.Options = new global::SampleTypeSpec.SampleTypeSpecClientOptions(optionsSection);
+                this.Options = new SampleTypeSpecClientOptions(optionsSection);
             }
         }
     }

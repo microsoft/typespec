@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    public partial class EnumDiscriminatorClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class EnumDiscriminatorClientOptions : ClientPipelineOptions
     {
         public EnumDiscriminatorClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal EnumDiscriminatorClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal EnumDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

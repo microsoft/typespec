@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class SimpleModel : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.SimpleModel>
+    public partial class SimpleModel : IPersistableModel<SimpleModel>
     {
         internal SimpleModel() => throw null;
 
-        protected virtual global::Payload.Xml.SimpleModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual SimpleModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.SimpleModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<SimpleModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.SimpleModel global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.SimpleModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        SimpleModel IPersistableModel<SimpleModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.SimpleModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<SimpleModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.SimpleModel simpleModel) => throw null;
+        public static implicit operator BinaryContent(SimpleModel simpleModel) => throw null;
 
-        public static explicit operator SimpleModel(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator SimpleModel(ClientResult result) => throw null;
     }
 }

@@ -8,8 +8,8 @@ namespace _Type.Property.ValueTypes
 {
     public partial class DictionaryStringProperty
     {
-        public DictionaryStringProperty(global::System.Collections.Generic.IDictionary<string, string> @property) => throw null;
+        public DictionaryStringProperty(IDictionary<string, string> @property) => throw null;
 
-        public global::System.Collections.Generic.IDictionary<string, string> Property => throw null;
+        public IDictionary<string, string> Property => throw null;
     }
 }

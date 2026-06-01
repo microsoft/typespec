@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class UnionIntLiteralProperty : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>
+    public partial class UnionIntLiteralProperty : IJsonModel<UnionIntLiteralProperty>
     {
         internal UnionIntLiteralProperty() => throw null;
 
-        protected virtual global::_Type.Property.ValueTypes.UnionIntLiteralProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual UnionIntLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<UnionIntLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.ValueTypes.UnionIntLiteralProperty global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        UnionIntLiteralProperty IPersistableModel<UnionIntLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<UnionIntLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.ValueTypes.UnionIntLiteralProperty unionIntLiteralProperty) => throw null;
+        public static implicit operator BinaryContent(UnionIntLiteralProperty unionIntLiteralProperty) => throw null;
 
-        public static explicit operator UnionIntLiteralProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator UnionIntLiteralProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<UnionIntLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.ValueTypes.UnionIntLiteralProperty global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        UnionIntLiteralProperty IJsonModel<UnionIntLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Property.ValueTypes.UnionIntLiteralProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual UnionIntLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace SpecialWords._ModelProperties
 {
-    public partial class DictMethods : global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.DictMethods>
+    public partial class DictMethods : IJsonModel<DictMethods>
     {
         internal DictMethods() => throw null;
 
-        protected virtual global::SpecialWords._ModelProperties.DictMethods PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual DictMethods PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<DictMethods>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._ModelProperties.DictMethods global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        DictMethods IPersistableModel<DictMethods>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<DictMethods>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::SpecialWords._ModelProperties.DictMethods dictMethods) => throw null;
+        public static implicit operator BinaryContent(DictMethods dictMethods) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.DictMethods>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<DictMethods>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::SpecialWords._ModelProperties.DictMethods global::System.ClientModel.Primitives.IJsonModel<global::SpecialWords._ModelProperties.DictMethods>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        DictMethods IJsonModel<DictMethods>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::SpecialWords._ModelProperties.DictMethods JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual DictMethods JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

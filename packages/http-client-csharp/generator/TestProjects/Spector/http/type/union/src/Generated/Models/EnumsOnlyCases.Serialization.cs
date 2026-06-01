@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Union
 {
-    public partial class EnumsOnlyCases : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.EnumsOnlyCases>
+    public partial class EnumsOnlyCases : IJsonModel<EnumsOnlyCases>
     {
         internal EnumsOnlyCases() => throw null;
 
-        protected virtual global::_Type.Union.EnumsOnlyCases PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual EnumsOnlyCases PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.EnumsOnlyCases>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<EnumsOnlyCases>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Union.EnumsOnlyCases global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.EnumsOnlyCases>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        EnumsOnlyCases IPersistableModel<EnumsOnlyCases>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Union.EnumsOnlyCases>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<EnumsOnlyCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.EnumsOnlyCases>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<EnumsOnlyCases>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Union.EnumsOnlyCases global::System.ClientModel.Primitives.IJsonModel<global::_Type.Union.EnumsOnlyCases>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        EnumsOnlyCases IJsonModel<EnumsOnlyCases>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Union.EnumsOnlyCases JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual EnumsOnlyCases JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

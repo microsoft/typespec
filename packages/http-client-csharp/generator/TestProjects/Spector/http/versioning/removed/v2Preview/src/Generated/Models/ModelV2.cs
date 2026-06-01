@@ -8,7 +8,7 @@ namespace Versioning.Removed
 {
     public partial class ModelV2
     {
-        public ModelV2(string prop, string removedProp, global::Versioning.Removed.EnumV2 enumProp, global::System.BinaryData unionProp) => throw null;
+        public ModelV2(string prop, string removedProp, EnumV2 enumProp, BinaryData unionProp) => throw null;
 
         public string Prop
         {
@@ -22,13 +22,13 @@ namespace Versioning.Removed
             set => throw null;
         }
 
-        public global::Versioning.Removed.EnumV2 EnumProp
+        public EnumV2 EnumProp
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.BinaryData UnionProp
+        public BinaryData UnionProp
         {
             get => throw null;
             set => throw null;

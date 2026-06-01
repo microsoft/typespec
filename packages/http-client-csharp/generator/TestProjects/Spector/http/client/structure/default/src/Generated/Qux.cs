@@ -15,18 +15,18 @@ namespace Client.Structure.Service._Qux
     {
         protected Qux() => throw null;
 
-        internal Qux(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, global::Client.Structure.Service.ClientType client) => throw null;
+        internal Qux(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Eight(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult Eight(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EightAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> EightAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult Eight(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Eight(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> EightAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> EightAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::Client.Structure.Service._Qux.QuxBar GetQuxBarClient() => throw null;
+        public virtual QuxBar GetQuxBarClient() => throw null;
     }
 }

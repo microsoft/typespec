@@ -18,7 +18,7 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public XmlNestedModel(string value, int nestedId)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
+            Argument.AssertNotNull(value, nameof(value));
 
             Value = value;
             NestedId = nestedId;

@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithNamespaceOnProperties : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithNamespaceOnProperties>
+    public partial class ModelWithNamespaceOnProperties : IPersistableModel<ModelWithNamespaceOnProperties>
     {
         internal ModelWithNamespaceOnProperties() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithNamespaceOnProperties PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithNamespaceOnProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithNamespaceOnProperties>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithNamespaceOnProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithNamespaceOnProperties global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithNamespaceOnProperties>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithNamespaceOnProperties IPersistableModel<ModelWithNamespaceOnProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithNamespaceOnProperties>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithNamespaceOnProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithNamespaceOnProperties modelWithNamespaceOnProperties) => throw null;
+        public static implicit operator BinaryContent(ModelWithNamespaceOnProperties modelWithNamespaceOnProperties) => throw null;
 
-        public static explicit operator ModelWithNamespaceOnProperties(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithNamespaceOnProperties(ClientResult result) => throw null;
     }
 }

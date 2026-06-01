@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace SpecialHeaders.ConditionalRequest
 {
-    public partial class ConditionalRequestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ConditionalRequestClientOptions : ClientPipelineOptions
     {
         public ConditionalRequestClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ConditionalRequestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ConditionalRequestClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

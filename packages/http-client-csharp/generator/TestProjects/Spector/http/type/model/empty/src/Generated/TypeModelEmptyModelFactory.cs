@@ -6,10 +6,10 @@ namespace _Type.Model.Empty
 {
     public static partial class TypeModelEmptyModelFactory
     {
-        public static global::_Type.Model.Empty.EmptyInput EmptyInput() => throw null;
+        public static EmptyInput EmptyInput() => throw null;
 
-        public static global::_Type.Model.Empty.EmptyOutput EmptyOutput() => throw null;
+        public static EmptyOutput EmptyOutput() => throw null;
 
-        public static global::_Type.Model.Empty.EmptyInputOutput EmptyInputOutput() => throw null;
+        public static EmptyInputOutput EmptyInputOutput() => throw null;
     }
 }

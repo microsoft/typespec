@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> Int based extensible enum. </summary>
-    public readonly partial struct IntExtensibleEnum : global::System.IEquatable<global::SampleTypeSpec.IntExtensibleEnum>
+    public readonly partial struct IntExtensibleEnum : IEquatable<IntExtensibleEnum>
     {
         private readonly int _value;
         private const int OneValue = 1;
@@ -27,40 +27,40 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the One. </summary>
-        public static global::SampleTypeSpec.IntExtensibleEnum One { get; } = new global::SampleTypeSpec.IntExtensibleEnum(OneValue);
+        public static IntExtensibleEnum One { get; } = new IntExtensibleEnum(OneValue);
 
         /// <summary> Gets the Two. </summary>
-        public static global::SampleTypeSpec.IntExtensibleEnum Two { get; } = new global::SampleTypeSpec.IntExtensibleEnum(TwoValue);
+        public static IntExtensibleEnum Two { get; } = new IntExtensibleEnum(TwoValue);
 
         /// <summary> Gets the Four. </summary>
-        public static global::SampleTypeSpec.IntExtensibleEnum Four { get; } = new global::SampleTypeSpec.IntExtensibleEnum(FourValue);
+        public static IntExtensibleEnum Four { get; } = new IntExtensibleEnum(FourValue);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.IntExtensibleEnum"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(global::SampleTypeSpec.IntExtensibleEnum left, global::SampleTypeSpec.IntExtensibleEnum right) => left.Equals(right);
+        public static bool operator ==(IntExtensibleEnum left, IntExtensibleEnum right) => left.Equals(right);
 
         /// <summary> Determines if two <see cref="global::SampleTypeSpec.IntExtensibleEnum"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(global::SampleTypeSpec.IntExtensibleEnum left, global::SampleTypeSpec.IntExtensibleEnum right) => !left.Equals(right);
+        public static bool operator !=(IntExtensibleEnum left, IntExtensibleEnum right) => !left.Equals(right);
 
         /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.IntExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator global::SampleTypeSpec.IntExtensibleEnum(int value) => new global::SampleTypeSpec.IntExtensibleEnum(value);
+        public static implicit operator IntExtensibleEnum(int value) => new IntExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => ((obj is global::SampleTypeSpec.IntExtensibleEnum other) && this.Equals(other));
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => ((obj is IntExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(global::SampleTypeSpec.IntExtensibleEnum other) => int.Equals(_value, other._value);
+        public bool Equals(IntExtensibleEnum other) => int.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
     }
 }

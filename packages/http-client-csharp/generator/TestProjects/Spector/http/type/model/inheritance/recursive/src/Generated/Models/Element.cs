@@ -11,8 +11,8 @@ namespace _Type.Model.Inheritance.Recursive
     {
         public Element() => throw null;
 
-        internal Element(global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.Recursive.Extension> extension, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Element(IList<Extension> extension, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
-        public global::System.Collections.Generic.IList<global::_Type.Model.Inheritance.Recursive.Extension> Extension => throw null;
+        public IList<Extension> Extension => throw null;
     }
 }

@@ -14,16 +14,16 @@ namespace Versioning.RenamedFrom
     {
         protected NewInterface() => throw null;
 
-        internal NewInterface(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal NewInterface(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult NewOpInNewInterface(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult NewOpInNewInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> NewOpInNewInterfaceAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> NewOpInNewInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::Versioning.RenamedFrom.NewModel> NewOpInNewInterface(global::Versioning.RenamedFrom.NewModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<NewModel> NewOpInNewInterface(NewModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::Versioning.RenamedFrom.NewModel>> NewOpInNewInterfaceAsync(global::Versioning.RenamedFrom.NewModel body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<NewModel>> NewOpInNewInterfaceAsync(NewModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

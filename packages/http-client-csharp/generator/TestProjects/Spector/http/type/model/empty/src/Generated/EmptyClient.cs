@@ -13,39 +13,39 @@ namespace _Type.Model.Empty
 {
     public partial class EmptyClient
     {
-        public EmptyClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type.Model.Empty.EmptyClientOptions()) => throw null;
+        public EmptyClient() : this(new Uri("http://localhost:3000"), new EmptyClientOptions()) => throw null;
 
-        internal EmptyClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type.Model.Empty.EmptyClientOptions options) => throw null;
+        internal EmptyClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, EmptyClientOptions options) => throw null;
 
-        public EmptyClient(global::System.Uri endpoint, global::_Type.Model.Empty.EmptyClientOptions options) : this(null, endpoint, options) => throw null;
+        public EmptyClient(Uri endpoint, EmptyClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public EmptyClient(global::_Type.Model.Empty.EmptyClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public EmptyClient(EmptyClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutEmpty(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutEmptyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PutEmpty(global::_Type.Model.Empty.EmptyInput input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutEmpty(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PutEmptyAsync(global::_Type.Model.Empty.EmptyInput input, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutEmptyAsync(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult GetEmpty(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult GetEmpty(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetEmptyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetEmptyAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyOutput> GetEmpty(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<EmptyOutput> GetEmpty(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyOutput>> GetEmptyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<EmptyOutput>> GetEmptyAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult PostRoundTripEmpty(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> PostRoundTripEmptyAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyInputOutput> PostRoundTripEmpty(global::_Type.Model.Empty.EmptyInputOutput body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyInputOutput>> PostRoundTripEmptyAsync(global::_Type.Model.Empty.EmptyInputOutput body, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
     }
 }

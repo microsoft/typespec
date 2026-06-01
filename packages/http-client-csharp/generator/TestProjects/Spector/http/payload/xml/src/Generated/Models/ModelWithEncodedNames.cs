@@ -8,14 +8,14 @@ namespace Payload.Xml
 {
     public partial class ModelWithEncodedNames
     {
-        public ModelWithEncodedNames(global::Payload.Xml.SimpleModel modelData, global::System.Collections.Generic.IEnumerable<string> colors) => throw null;
+        public ModelWithEncodedNames(SimpleModel modelData, IEnumerable<string> colors) => throw null;
 
-        public global::Payload.Xml.SimpleModel ModelData
+        public SimpleModel ModelData
         {
             get => throw null;
             set => throw null;
         }
 
-        public global::System.Collections.Generic.IList<string> Colors => throw null;
+        public IList<string> Colors => throw null;
     }
 }

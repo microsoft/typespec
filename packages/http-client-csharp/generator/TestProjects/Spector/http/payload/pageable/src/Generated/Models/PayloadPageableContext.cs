@@ -10,10 +10,10 @@ using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.Pageable.Pet))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Payload.Pageable.XmlPet))]
-    public partial class PayloadPageableContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(Filter))]
+    [ModelReaderWriterBuildableAttribute(typeof(Pet))]
+    [ModelReaderWriterBuildableAttribute(typeof(XmlPet))]
+    public partial class PayloadPageableContext : ModelReaderWriterContext
     {
     }
 }

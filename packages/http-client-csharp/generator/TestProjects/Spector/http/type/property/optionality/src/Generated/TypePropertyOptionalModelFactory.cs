@@ -9,36 +9,36 @@ namespace _Type.Property.Optional
 {
     public static partial class TypePropertyOptionalModelFactory
     {
-        public static global::_Type.Property.Optional.StringProperty StringProperty(string @property = default) => throw null;
+        public static StringProperty StringProperty(string @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.BytesProperty BytesProperty(global::System.BinaryData @property = default) => throw null;
+        public static BytesProperty BytesProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.DatetimeProperty DatetimeProperty(global::System.DateTimeOffset? @property = default) => throw null;
+        public static DatetimeProperty DatetimeProperty(DateTimeOffset? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.DurationProperty DurationProperty(global::System.TimeSpan? @property = default) => throw null;
+        public static DurationProperty DurationProperty(TimeSpan? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.PlainDateProperty PlainDateProperty(global::System.DateTimeOffset? @property = default) => throw null;
+        public static PlainDateProperty PlainDateProperty(DateTimeOffset? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.PlainTimeProperty PlainTimeProperty(global::System.TimeSpan? @property = default) => throw null;
+        public static PlainTimeProperty PlainTimeProperty(TimeSpan? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.CollectionsByteProperty CollectionsByteProperty(global::System.Collections.Generic.IEnumerable<global::System.BinaryData> @property = default) => throw null;
+        public static CollectionsByteProperty CollectionsByteProperty(IEnumerable<BinaryData> @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.CollectionsModelProperty CollectionsModelProperty(global::System.Collections.Generic.IEnumerable<global::_Type.Property.Optional.StringProperty> @property = default) => throw null;
+        public static CollectionsModelProperty CollectionsModelProperty(IEnumerable<StringProperty> @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.StringLiteralProperty StringLiteralProperty(global::_Type.Property.Optional.StringLiteralPropertyProperty? @property = default) => throw null;
+        public static StringLiteralProperty StringLiteralProperty(StringLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.IntLiteralProperty IntLiteralProperty(global::_Type.Property.Optional.IntLiteralPropertyProperty? @property = default) => throw null;
+        public static IntLiteralProperty IntLiteralProperty(IntLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.FloatLiteralProperty FloatLiteralProperty(global::_Type.Property.Optional.FloatLiteralPropertyProperty? @property = default) => throw null;
+        public static FloatLiteralProperty FloatLiteralProperty(FloatLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.BooleanLiteralProperty BooleanLiteralProperty(bool? @property = default) => throw null;
+        public static BooleanLiteralProperty BooleanLiteralProperty(bool? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.UnionStringLiteralProperty UnionStringLiteralProperty(global::_Type.Property.Optional.UnionStringLiteralPropertyProperty? @property = default) => throw null;
+        public static UnionStringLiteralProperty UnionStringLiteralProperty(UnionStringLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.UnionIntLiteralProperty UnionIntLiteralProperty(global::_Type.Property.Optional.UnionIntLiteralPropertyProperty? @property = default) => throw null;
+        public static UnionIntLiteralProperty UnionIntLiteralProperty(UnionIntLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.UnionFloatLiteralProperty UnionFloatLiteralProperty(global::_Type.Property.Optional.UnionFloatLiteralPropertyProperty? @property = default) => throw null;
+        public static UnionFloatLiteralProperty UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty? @property = default) => throw null;
 
-        public static global::_Type.Property.Optional.RequiredAndOptionalProperty RequiredAndOptionalProperty(string optionalProperty = default, int requiredProperty = default) => throw null;
+        public static RequiredAndOptionalProperty RequiredAndOptionalProperty(string optionalProperty = default, int requiredProperty = default) => throw null;
     }
 }

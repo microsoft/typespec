@@ -9,64 +9,64 @@ namespace _Type.Property.ValueTypes
 {
     public static partial class TypePropertyValueTypesModelFactory
     {
-        public static global::_Type.Property.ValueTypes.BooleanProperty BooleanProperty(bool @property = default) => throw null;
+        public static BooleanProperty BooleanProperty(bool @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.StringProperty StringProperty(string @property = default) => throw null;
+        public static StringProperty StringProperty(string @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.BytesProperty BytesProperty(global::System.BinaryData @property = default) => throw null;
+        public static BytesProperty BytesProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.IntProperty IntProperty(int @property = default) => throw null;
+        public static IntProperty IntProperty(int @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.FloatProperty FloatProperty(float @property = default) => throw null;
+        public static FloatProperty FloatProperty(float @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.DecimalProperty DecimalProperty(decimal @property = default) => throw null;
+        public static DecimalProperty DecimalProperty(decimal @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.Decimal128Property Decimal128Property(decimal @property = default) => throw null;
+        public static Decimal128Property Decimal128Property(decimal @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.DatetimeProperty DatetimeProperty(global::System.DateTimeOffset @property = default) => throw null;
+        public static DatetimeProperty DatetimeProperty(DateTimeOffset @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.DurationProperty DurationProperty(global::System.TimeSpan @property = default) => throw null;
+        public static DurationProperty DurationProperty(TimeSpan @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.EnumProperty EnumProperty(global::_Type.Property.ValueTypes.FixedInnerEnum @property = default) => throw null;
+        public static EnumProperty EnumProperty(FixedInnerEnum @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.ExtensibleEnumProperty ExtensibleEnumProperty(global::_Type.Property.ValueTypes.InnerEnum @property = default) => throw null;
+        public static ExtensibleEnumProperty ExtensibleEnumProperty(InnerEnum @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.ModelProperty ModelProperty(global::_Type.Property.ValueTypes.InnerModel @property = default) => throw null;
+        public static ModelProperty ModelProperty(InnerModel @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.InnerModel InnerModel(string @property = default) => throw null;
+        public static InnerModel InnerModel(string @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.CollectionsStringProperty CollectionsStringProperty(global::System.Collections.Generic.IEnumerable<string> @property = default) => throw null;
+        public static CollectionsStringProperty CollectionsStringProperty(IEnumerable<string> @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.CollectionsIntProperty CollectionsIntProperty(global::System.Collections.Generic.IEnumerable<int> @property = default) => throw null;
+        public static CollectionsIntProperty CollectionsIntProperty(IEnumerable<int> @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.CollectionsModelProperty CollectionsModelProperty(global::System.Collections.Generic.IEnumerable<global::_Type.Property.ValueTypes.InnerModel> @property = default) => throw null;
+        public static CollectionsModelProperty CollectionsModelProperty(IEnumerable<InnerModel> @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.DictionaryStringProperty DictionaryStringProperty(global::System.Collections.Generic.IDictionary<string, string> @property = default) => throw null;
+        public static DictionaryStringProperty DictionaryStringProperty(IDictionary<string, string> @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.NeverProperty NeverProperty() => throw null;
+        public static NeverProperty NeverProperty() => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnknownStringProperty UnknownStringProperty(global::System.BinaryData @property = default) => throw null;
+        public static UnknownStringProperty UnknownStringProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnknownIntProperty UnknownIntProperty(global::System.BinaryData @property = default) => throw null;
+        public static UnknownIntProperty UnknownIntProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnknownDictProperty UnknownDictProperty(global::System.BinaryData @property = default) => throw null;
+        public static UnknownDictProperty UnknownDictProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnknownArrayProperty UnknownArrayProperty(global::System.BinaryData @property = default) => throw null;
+        public static UnknownArrayProperty UnknownArrayProperty(BinaryData @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.StringLiteralProperty StringLiteralProperty() => throw null;
+        public static StringLiteralProperty StringLiteralProperty() => throw null;
 
-        public static global::_Type.Property.ValueTypes.IntLiteralProperty IntLiteralProperty() => throw null;
+        public static IntLiteralProperty IntLiteralProperty() => throw null;
 
-        public static global::_Type.Property.ValueTypes.FloatLiteralProperty FloatLiteralProperty() => throw null;
+        public static FloatLiteralProperty FloatLiteralProperty() => throw null;
 
-        public static global::_Type.Property.ValueTypes.BooleanLiteralProperty BooleanLiteralProperty() => throw null;
+        public static BooleanLiteralProperty BooleanLiteralProperty() => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnionStringLiteralProperty UnionStringLiteralProperty(global::_Type.Property.ValueTypes.UnionStringLiteralPropertyProperty @property = default) => throw null;
+        public static UnionStringLiteralProperty UnionStringLiteralProperty(UnionStringLiteralPropertyProperty @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnionIntLiteralProperty UnionIntLiteralProperty(global::_Type.Property.ValueTypes.UnionIntLiteralPropertyProperty @property = default) => throw null;
+        public static UnionIntLiteralProperty UnionIntLiteralProperty(UnionIntLiteralPropertyProperty @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnionFloatLiteralProperty UnionFloatLiteralProperty(global::_Type.Property.ValueTypes.UnionFloatLiteralPropertyProperty @property = default) => throw null;
+        public static UnionFloatLiteralProperty UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty @property = default) => throw null;
 
-        public static global::_Type.Property.ValueTypes.UnionEnumValueProperty UnionEnumValueProperty() => throw null;
+        public static UnionEnumValueProperty UnionEnumValueProperty() => throw null;
     }
 }

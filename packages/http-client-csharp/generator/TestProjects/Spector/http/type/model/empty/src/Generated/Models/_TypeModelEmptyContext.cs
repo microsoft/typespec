@@ -6,10 +6,10 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Empty
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Empty.EmptyInput))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Empty.EmptyInputOutput))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::_Type.Model.Empty.EmptyOutput))]
-    public partial class _TypeModelEmptyContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    [ModelReaderWriterBuildableAttribute(typeof(EmptyInput))]
+    [ModelReaderWriterBuildableAttribute(typeof(EmptyInputOutput))]
+    [ModelReaderWriterBuildableAttribute(typeof(EmptyOutput))]
+    public partial class _TypeModelEmptyContext : ModelReaderWriterContext
     {
     }
 }

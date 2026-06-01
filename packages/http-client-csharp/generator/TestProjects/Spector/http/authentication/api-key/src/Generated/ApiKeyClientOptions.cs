@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.ApiKey
 {
-    public partial class ApiKeyClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
+    public partial class ApiKeyClientOptions : ClientPipelineOptions
     {
         public ApiKeyClientOptions() => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        internal ApiKeyClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        internal ApiKeyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

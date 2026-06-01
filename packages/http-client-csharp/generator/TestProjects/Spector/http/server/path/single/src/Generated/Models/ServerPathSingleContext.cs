@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Server.Path.Single
 {
-    public partial class ServerPathSingleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class ServerPathSingleContext : ModelReaderWriterContext
     {
     }
 }

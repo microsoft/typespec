@@ -8,22 +8,22 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithEmptyArray : global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEmptyArray>
+    public partial class ModelWithEmptyArray : IPersistableModel<ModelWithEmptyArray>
     {
         internal ModelWithEmptyArray() => throw null;
 
-        protected virtual global::Payload.Xml.ModelWithEmptyArray PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ModelWithEmptyArray PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEmptyArray>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithEmptyArray>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Payload.Xml.ModelWithEmptyArray global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEmptyArray>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ModelWithEmptyArray IPersistableModel<ModelWithEmptyArray>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Payload.Xml.ModelWithEmptyArray>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithEmptyArray>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Payload.Xml.ModelWithEmptyArray modelWithEmptyArray) => throw null;
+        public static implicit operator BinaryContent(ModelWithEmptyArray modelWithEmptyArray) => throw null;
 
-        public static explicit operator ModelWithEmptyArray(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator ModelWithEmptyArray(ClientResult result) => throw null;
     }
 }

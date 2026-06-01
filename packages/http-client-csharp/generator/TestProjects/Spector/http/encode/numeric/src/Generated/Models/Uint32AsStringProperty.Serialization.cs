@@ -9,28 +9,28 @@ using System.Text.Json;
 
 namespace Encode.Numeric._Property
 {
-    public partial class Uint32AsStringProperty : global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint32AsStringProperty>
+    public partial class Uint32AsStringProperty : IJsonModel<Uint32AsStringProperty>
     {
-        protected virtual global::Encode.Numeric._Property.Uint32AsStringProperty PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Uint32AsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint32AsStringProperty>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Uint32AsStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Numeric._Property.Uint32AsStringProperty global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint32AsStringProperty>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Uint32AsStringProperty IPersistableModel<Uint32AsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Encode.Numeric._Property.Uint32AsStringProperty>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Uint32AsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::Encode.Numeric._Property.Uint32AsStringProperty uint32AsStringProperty) => throw null;
+        public static implicit operator BinaryContent(Uint32AsStringProperty uint32AsStringProperty) => throw null;
 
-        public static explicit operator Uint32AsStringProperty(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator Uint32AsStringProperty(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint32AsStringProperty>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Uint32AsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Encode.Numeric._Property.Uint32AsStringProperty global::System.ClientModel.Primitives.IJsonModel<global::Encode.Numeric._Property.Uint32AsStringProperty>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        Uint32AsStringProperty IJsonModel<Uint32AsStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Encode.Numeric._Property.Uint32AsStringProperty JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual Uint32AsStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

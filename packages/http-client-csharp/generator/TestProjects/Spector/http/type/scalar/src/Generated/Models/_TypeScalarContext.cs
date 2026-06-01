@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Scalar
 {
-    public partial class _TypeScalarContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
+    public partial class _TypeScalarContext : ModelReaderWriterContext
     {
     }
 }

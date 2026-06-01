@@ -14,7 +14,7 @@ namespace SampleTypeSpec
     public partial class GetWidgetMetricsResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.GetWidgetMetricsResponse"/>. </summary>
         /// <param name="numSold"></param>
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal GetWidgetMetricsResponse(int numSold, float averagePrice, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal GetWidgetMetricsResponse(int numSold, float averagePrice, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             NumSold = numSold;
             AveragePrice = averagePrice;

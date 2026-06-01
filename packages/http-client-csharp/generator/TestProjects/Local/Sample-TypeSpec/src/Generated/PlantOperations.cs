@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     /// <summary> The PlantOperations sub-client. </summary>
     public partial class PlantOperations
     {
-        private readonly global::System.Uri _endpoint;
+        private readonly Uri _endpoint;
 
         /// <summary> Initializes a new instance of PlantOperations for mocking. </summary>
         protected PlantOperations()
@@ -26,14 +26,14 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of PlantOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal PlantOperations(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint)
+        internal PlantOperations(ClientPipeline pipeline, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
+        public ClientPipeline Pipeline { get; }
 
         /// <summary>
         /// [Protocol Method] Get a tree as a plant
@@ -46,45 +46,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult GetTree(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult GetTree(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetTreeRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Get a tree as a plant
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetTreeAsync(global::System.ClientModel.Primitives.RequestOptions options)
-        {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetTreeRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Get a tree as a plant. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree> GetTree(global::System.Threading.CancellationToken cancellationToken = default)
-        {
-            global::System.ClientModel.ClientResult result = this.GetTree(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
-        }
-
-        /// <summary> Get a tree as a plant. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree>> GetTreeAsync(global::System.Threading.CancellationToken cancellationToken = default)
-        {
-            global::System.ClientModel.ClientResult result = await this.GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            using PipelineMessage message = this.CreateGetTreeRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -98,10 +63,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult GetTreeAsJson(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual async Task<ClientResult> GetTreeAsync(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetTreeAsJsonRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateGetTreeRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Get a tree as a plant. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Tree> GetTree(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = this.GetTree(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
+        }
+
+        /// <summary> Get a tree as a plant. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Tree>> GetTreeAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await this.GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -115,28 +98,45 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> GetTreeAsJsonAsync(global::System.ClientModel.Primitives.RequestOptions options)
+        public virtual ClientResult GetTreeAsJson(RequestOptions options)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateGetTreeAsJsonRequest(options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateGetTreeAsJsonRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetTreeAsJsonAsync(RequestOptions options)
+        {
+            using PipelineMessage message = this.CreateGetTreeAsJsonRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Get a tree as a plant. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree> GetTreeAsJson(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Tree> GetTreeAsJson(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = this.GetTreeAsJson(cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            ClientResult result = this.GetTreeAsJson(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary> Get a tree as a plant. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree>> GetTreeAsJsonAsync(global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Tree>> GetTreeAsJsonAsync(CancellationToken cancellationToken = default)
         {
-            global::System.ClientModel.ClientResult result = await this.GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            ClientResult result = await this.GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -152,12 +152,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult UpdateTree(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult UpdateTree(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateTreeRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateUpdateTreeRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -173,12 +173,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateTreeAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> UpdateTreeAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateTreeRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateUpdateTreeRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -186,13 +186,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="tree"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree> UpdateTree(global::SampleTypeSpec.Tree tree, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Tree> UpdateTree(Tree tree, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(tree, nameof(tree));
+            Argument.AssertNotNull(tree, nameof(tree));
 
-            using global::System.ClientModel.BinaryContent content = tree.ToBinaryContent("X");
-            global::System.ClientModel.ClientResult result = this.UpdateTree(content, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            using BinaryContent content = tree.ToBinaryContent("X");
+            ClientResult result = this.UpdateTree(content, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -200,13 +200,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="tree"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree>> UpdateTreeAsync(global::SampleTypeSpec.Tree tree, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Tree>> UpdateTreeAsync(Tree tree, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(tree, nameof(tree));
+            Argument.AssertNotNull(tree, nameof(tree));
 
-            using global::System.ClientModel.BinaryContent content = tree.ToBinaryContent("X");
-            global::System.ClientModel.ClientResult result = await this.UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            using BinaryContent content = tree.ToBinaryContent("X");
+            ClientResult result = await this.UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary>
@@ -222,12 +222,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual global::System.ClientModel.ClientResult UpdateTreeAsJson(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual ClientResult UpdateTreeAsJson(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateTreeAsJsonRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            using PipelineMessage message = this.CreateUpdateTreeAsJsonRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -243,12 +243,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UpdateTreeAsJsonAsync(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async Task<ClientResult> UpdateTreeAsJsonAsync(BinaryContent content, RequestOptions options = null)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
+            Argument.AssertNotNull(content, nameof(content));
 
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUpdateTreeAsJsonRequest(content, options);
-            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            using PipelineMessage message = this.CreateUpdateTreeAsJsonRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -256,13 +256,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="tree"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree> UpdateTreeAsJson(global::SampleTypeSpec.Tree tree, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual ClientResult<Tree> UpdateTreeAsJson(Tree tree, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(tree, nameof(tree));
+            Argument.AssertNotNull(tree, nameof(tree));
 
-            using global::System.ClientModel.BinaryContent content = tree.ToBinaryContent("J");
-            global::System.ClientModel.ClientResult result = this.UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            using BinaryContent content = tree.ToBinaryContent("J");
+            ClientResult result = this.UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -270,13 +270,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="tree"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Tree>> UpdateTreeAsJsonAsync(global::SampleTypeSpec.Tree tree, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Tree>> UpdateTreeAsJsonAsync(Tree tree, CancellationToken cancellationToken = default)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(tree, nameof(tree));
+            Argument.AssertNotNull(tree, nameof(tree));
 
-            using global::System.ClientModel.BinaryContent content = tree.ToBinaryContent("J");
-            global::System.ClientModel.ClientResult result = await this.UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(((global::SampleTypeSpec.Tree)result), result.GetRawResponse());
+            using BinaryContent content = tree.ToBinaryContent("J");
+            ClientResult result = await this.UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(((Tree)result), result.GetRawResponse());
         }
     }
 }

@@ -8,8 +8,8 @@ namespace Payload.Xml
 {
     public partial class ModelWithRenamedWrappedAndItemModelArray
     {
-        public ModelWithRenamedWrappedAndItemModelArray(global::System.Collections.Generic.IEnumerable<global::Payload.Xml.Book> books) => throw null;
+        public ModelWithRenamedWrappedAndItemModelArray(IEnumerable<Book> books) => throw null;
 
-        public global::System.Collections.Generic.IList<global::Payload.Xml.Book> Books => throw null;
+        public IList<Book> Books => throw null;
     }
 }

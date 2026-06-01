@@ -13,12 +13,12 @@ namespace Routes._PathParameters.MatrixExpansion
     {
         protected PathParametersMatrixExpansion() => throw null;
 
-        internal PathParametersMatrixExpansion(global::System.ClientModel.Primitives.ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal PathParametersMatrixExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::Routes._PathParameters.MatrixExpansion.Standard.PathParametersMatrixExpansionStandard GetPathParametersMatrixExpansionStandardClient() => throw null;
+        public virtual PathParametersMatrixExpansionStandard GetPathParametersMatrixExpansionStandardClient() => throw null;
 
-        public virtual global::Routes._PathParameters.MatrixExpansion.Explode.PathParametersMatrixExpansionExplode GetPathParametersMatrixExpansionExplodeClient() => throw null;
+        public virtual PathParametersMatrixExpansionExplode GetPathParametersMatrixExpansionExplodeClient() => throw null;
     }
 }

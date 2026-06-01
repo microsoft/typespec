@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace Response.StatusCodeRange
 {
-    public partial class ErrorInRange : global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.ErrorInRange>
+    public partial class ErrorInRange : IJsonModel<ErrorInRange>
     {
         internal ErrorInRange() => throw null;
 
-        protected virtual global::Response.StatusCodeRange.ErrorInRange PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ErrorInRange PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::Response.StatusCodeRange.ErrorInRange global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.ErrorInRange>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::Response.StatusCodeRange.ErrorInRange global::System.ClientModel.Primitives.IJsonModel<global::Response.StatusCodeRange.ErrorInRange>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        ErrorInRange IJsonModel<ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::Response.StatusCodeRange.ErrorInRange JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual ErrorInRange JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

@@ -8,6 +8,6 @@ namespace _Type.Union
 {
     public partial class GetResponse5
     {
-        public global::System.BinaryData Prop => throw null;
+        public BinaryData Prop => throw null;
     }
 }

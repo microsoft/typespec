@@ -8,26 +8,26 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    public partial class GoblinShark : global::_Type.Model.Inheritance.NestedDiscriminator.Shark, global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>
+    public partial class GoblinShark : Shark, IJsonModel<GoblinShark>
     {
         internal GoblinShark() => throw null;
 
-        protected override global::_Type.Model.Inheritance.NestedDiscriminator.Fish PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override Fish PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<GoblinShark>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        GoblinShark IPersistableModel<GoblinShark>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<GoblinShark>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<GoblinShark>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected override void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark global::System.ClientModel.Primitives.IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.GoblinShark>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        GoblinShark IJsonModel<GoblinShark>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected override global::_Type.Model.Inheritance.NestedDiscriminator.Fish JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected override Fish JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

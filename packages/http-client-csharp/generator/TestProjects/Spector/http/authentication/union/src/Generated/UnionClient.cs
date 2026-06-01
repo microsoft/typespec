@@ -16,50 +16,50 @@ namespace Authentication.Union
     {
         private const string AuthorizationHeader = "x-ms-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
-        private static readonly global::System.Collections.Generic.Dictionary<string, object>[] _flows = new global::System.Collections.Generic.Dictionary<string, object>[]
+        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
         {
-            new global::System.Collections.Generic.Dictionary<string, object>
+            new Dictionary<string, object>
             {
-                { global::System.ClientModel.Primitives.GetTokenOptions.ScopesPropertyName, new string[] { "https://security.microsoft.com/.default" } },
-                { global::System.ClientModel.Primitives.GetTokenOptions.AuthorizationUrlPropertyName, "https://login.microsoftonline.com/common/oauth2/authorize" }
+                { GetTokenOptions.ScopesPropertyName, new string[] { "https://security.microsoft.com/.default" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://login.microsoftonline.com/common/oauth2/authorize" }
             }
         };
 
         protected UnionClient() => throw null;
 
-        public UnionClient(global::System.ClientModel.ApiKeyCredential credential) : this(new global::System.Uri("http://localhost:3000"), credential, new global::Authentication.Union.UnionClientOptions()) => throw null;
+        public UnionClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new UnionClientOptions()) => throw null;
 
-        public UnionClient(global::System.ClientModel.ApiKeyCredential credential, global::Authentication.Union.UnionClientOptions options) : this(new global::System.Uri("http://localhost:3000"), credential, options) => throw null;
+        public UnionClient(ApiKeyCredential credential, UnionClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
 
-        public UnionClient(global::System.ClientModel.AuthenticationTokenProvider tokenProvider) : this(new global::System.Uri("http://localhost:3000"), tokenProvider, new global::Authentication.Union.UnionClientOptions()) => throw null;
+        public UnionClient(AuthenticationTokenProvider tokenProvider) : this(new Uri("http://localhost:3000"), tokenProvider, new UnionClientOptions()) => throw null;
 
-        public UnionClient(global::System.ClientModel.AuthenticationTokenProvider tokenProvider, global::Authentication.Union.UnionClientOptions options) : this(new global::System.Uri("http://localhost:3000"), tokenProvider, options) => throw null;
+        public UnionClient(AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
-        internal UnionClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Authentication.Union.UnionClientOptions options) => throw null;
+        internal UnionClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UnionClientOptions options) => throw null;
 
-        public UnionClient(global::System.Uri endpoint, global::System.ClientModel.ApiKeyCredential credential, global::Authentication.Union.UnionClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
+        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
 
-        public UnionClient(global::System.Uri endpoint, global::System.ClientModel.AuthenticationTokenProvider tokenProvider, global::Authentication.Union.UnionClientOptions options) : this(new global::System.ClientModel.Primitives.BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
+        public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public UnionClient(global::Authentication.Union.UnionClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public UnionClient(UnionClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ValidKey(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult ValidKey(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidKeyAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidKeyAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ValidKey(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ValidKey(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidKeyAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ValidKeyAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ValidToken(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult ValidToken(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidTokenAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidTokenAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult ValidToken(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ValidToken(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> ValidTokenAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ValidTokenAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

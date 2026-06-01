@@ -12,30 +12,30 @@ namespace SampleTypeSpec
     internal static partial class FloatFixedEnumExtensions
     {
         /// <param name="value"> The value to serialize. </param>
-        public static float ToSerialSingle(this global::SampleTypeSpec.FloatFixedEnum value) => value switch
+        public static float ToSerialSingle(this FloatFixedEnum value) => value switch
         {
-            global::SampleTypeSpec.FloatFixedEnum.OneDotOne => 1.1F,
-            global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo => 2.2F,
-            global::SampleTypeSpec.FloatFixedEnum.FourDotFour => 4.4F,
-            _ => throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
+            FloatFixedEnum.OneDotOne => 1.1F,
+            FloatFixedEnum.TwoDotTwo => 2.2F,
+            FloatFixedEnum.FourDotFour => 4.4F,
+            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
         };
 
         /// <param name="value"> The value to deserialize. </param>
-        public static global::SampleTypeSpec.FloatFixedEnum ToFloatFixedEnum(this float value)
+        public static FloatFixedEnum ToFloatFixedEnum(this float value)
         {
             if ((value == 1.1F))
             {
-                return global::SampleTypeSpec.FloatFixedEnum.OneDotOne;
+                return FloatFixedEnum.OneDotOne;
             }
             if ((value == 2.2F))
             {
-                return global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo;
+                return FloatFixedEnum.TwoDotTwo;
             }
             if ((value == 4.4F))
             {
-                return global::SampleTypeSpec.FloatFixedEnum.FourDotFour;
+                return FloatFixedEnum.FourDotFour;
             }
-            throw new global::System.ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
         }
     }
 }

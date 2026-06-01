@@ -9,30 +9,30 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class MultipleSpreadRecord : global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>
+    public partial class MultipleSpreadRecord : IJsonModel<MultipleSpreadRecord>
     {
         internal MultipleSpreadRecord() => throw null;
 
-        protected virtual global::_Type.Property.AdditionalProperties.MultipleSpreadRecord PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual MultipleSpreadRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<MultipleSpreadRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.AdditionalProperties.MultipleSpreadRecord global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        MultipleSpreadRecord IPersistableModel<MultipleSpreadRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string global::System.ClientModel.Primitives.IPersistableModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<MultipleSpreadRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator global::System.ClientModel.BinaryContent(global::_Type.Property.AdditionalProperties.MultipleSpreadRecord multipleSpreadRecord) => throw null;
+        public static implicit operator BinaryContent(MultipleSpreadRecord multipleSpreadRecord) => throw null;
 
-        public static explicit operator MultipleSpreadRecord(global::System.ClientModel.ClientResult result) => throw null;
+        public static explicit operator MultipleSpreadRecord(ClientResult result) => throw null;
 
-        void global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<MultipleSpreadRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        global::_Type.Property.AdditionalProperties.MultipleSpreadRecord global::System.ClientModel.Primitives.IJsonModel<global::_Type.Property.AdditionalProperties.MultipleSpreadRecord>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        MultipleSpreadRecord IJsonModel<MultipleSpreadRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual global::_Type.Property.AdditionalProperties.MultipleSpreadRecord JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw null;
+        protected virtual MultipleSpreadRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

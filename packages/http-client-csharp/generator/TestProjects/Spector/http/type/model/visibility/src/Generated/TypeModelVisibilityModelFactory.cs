@@ -8,8 +8,8 @@ namespace _Type.Model.Visibility
 {
     public static partial class TypeModelVisibilityModelFactory
     {
-        public static global::_Type.Model.Visibility.VisibilityModel VisibilityModel(string readProp = default, int queryProp = default, global::System.Collections.Generic.IEnumerable<string> createProp = default, global::System.Collections.Generic.IEnumerable<int> updateProp = default, bool deleteProp = default) => throw null;
+        public static VisibilityModel VisibilityModel(string readProp = default, int queryProp = default, IEnumerable<string> createProp = default, IEnumerable<int> updateProp = default, bool deleteProp = default) => throw null;
 
-        public static global::_Type.Model.Visibility.ReadOnlyModel ReadOnlyModel(global::System.Collections.Generic.IEnumerable<int> optionalNullableIntList = default, global::System.Collections.Generic.IReadOnlyDictionary<string, string> optionalStringRecord = default) => throw null;
+        public static ReadOnlyModel ReadOnlyModel(IEnumerable<int> optionalNullableIntList = default, IReadOnlyDictionary<string, string> optionalStringRecord = default) => throw null;
     }
 }

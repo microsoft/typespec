@@ -17,7 +17,7 @@ namespace SampleTypeSpec
     public abstract partial class Animal
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Animal"/>. </summary>
         /// <param name="kind"> The kind of animal. </param>
@@ -32,7 +32,7 @@ namespace SampleTypeSpec
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Animal(string kind, string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal Animal(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Kind = kind;
             Name = name;

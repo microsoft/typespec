@@ -8,9 +8,9 @@ namespace Encode.Bytes
 {
     public partial class DefaultBytesProperty
     {
-        public DefaultBytesProperty(global::System.BinaryData value) => throw null;
+        public DefaultBytesProperty(BinaryData value) => throw null;
 
-        public global::System.BinaryData Value
+        public BinaryData Value
         {
             get => throw null;
             set => throw null;

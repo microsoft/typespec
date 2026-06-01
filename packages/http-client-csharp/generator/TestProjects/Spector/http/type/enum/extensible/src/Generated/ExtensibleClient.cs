@@ -10,17 +10,17 @@ namespace _Type._Enum.Extensible
 {
     public partial class ExtensibleClient
     {
-        public ExtensibleClient() : this(new global::System.Uri("http://localhost:3000"), new global::_Type._Enum.Extensible.ExtensibleClientOptions()) => throw null;
+        public ExtensibleClient() : this(new Uri("http://localhost:3000"), new ExtensibleClientOptions()) => throw null;
 
-        internal ExtensibleClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::_Type._Enum.Extensible.ExtensibleClientOptions options) => throw null;
+        internal ExtensibleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ExtensibleClientOptions options) => throw null;
 
-        public ExtensibleClient(global::System.Uri endpoint, global::_Type._Enum.Extensible.ExtensibleClientOptions options) : this(null, endpoint, options) => throw null;
+        public ExtensibleClient(Uri endpoint, ExtensibleClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public ExtensibleClient(global::_Type._Enum.Extensible.ExtensibleClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public ExtensibleClient(ExtensibleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::_Type._Enum.Extensible.String GetStringClient() => throw null;
+        public virtual String GetStringClient() => throw null;
     }
 }

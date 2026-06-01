@@ -13,7 +13,7 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> A model with a few required nullable properties. </summary>
-    public partial class ModelWithRequiredNullableProperties : global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>
+    public partial class ModelWithRequiredNullableProperties : IJsonModel<ModelWithRequiredNullableProperties>
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ModelWithRequiredNullableProperties"/> for deserialization. </summary>
         internal ModelWithRequiredNullableProperties()
@@ -22,47 +22,47 @@ namespace SampleTypeSpec
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::SampleTypeSpec.ModelWithRequiredNullableProperties PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual ModelWithRequiredNullableProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return global::SampleTypeSpec.ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
+                        return ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
                     }
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<ModelWithRequiredNullableProperties>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::SampleTypeSpec.ModelWithRequiredNullableProperties global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        ModelWithRequiredNullableProperties IPersistableModel<ModelWithRequiredNullableProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void IJsonModel<ModelWithRequiredNullableProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -71,14 +71,14 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
             }
-            if (global::SampleTypeSpec.Optional.IsDefined(RequiredNullablePrimitive))
+            if (Optional.IsDefined(RequiredNullablePrimitive))
             {
                 writer.WritePropertyName("requiredNullablePrimitive"u8);
                 writer.WriteNumberValue(RequiredNullablePrimitive.Value);
@@ -87,7 +87,7 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullablePrimitive"u8);
             }
-            if (global::SampleTypeSpec.Optional.IsDefined(RequiredExtensibleEnum))
+            if (Optional.IsDefined(RequiredExtensibleEnum))
             {
                 writer.WritePropertyName("requiredExtensibleEnum"u8);
                 writer.WriteStringValue(RequiredExtensibleEnum.Value.ToString());
@@ -96,7 +96,7 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredExtensibleEnum"u8);
             }
-            if (global::SampleTypeSpec.Optional.IsDefined(RequiredFixedEnum))
+            if (Optional.IsDefined(RequiredFixedEnum))
             {
                 writer.WritePropertyName("requiredFixedEnum"u8);
                 writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
@@ -113,9 +113,9 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
                     {
-                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                        JsonSerializer.Serialize(writer, document.RootElement);
                     }
 #endif
                 }
@@ -124,38 +124,38 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        global::SampleTypeSpec.ModelWithRequiredNullableProperties global::System.ClientModel.Primitives.IJsonModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        ModelWithRequiredNullableProperties IJsonModel<ModelWithRequiredNullableProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual global::SampleTypeSpec.ModelWithRequiredNullableProperties JsonModelCreateCore(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual ModelWithRequiredNullableProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::SampleTypeSpec.ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new global::System.FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.ModelWithRequiredNullableProperties)} does not support reading '{format}' format.");
             }
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::SampleTypeSpec.ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static global::SampleTypeSpec.ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(JsonElement element, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if ((element.ValueKind == JsonValueKind.Null))
             {
                 return null;
             }
             int? requiredNullablePrimitive = default;
-            global::SampleTypeSpec.StringExtensibleEnum? requiredExtensibleEnum = default;
-            global::SampleTypeSpec.StringFixedEnum? requiredFixedEnum = default;
-            global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::SampleTypeSpec.ChangeTrackingDictionary<string, global::System.BinaryData>();
+            StringExtensibleEnum? requiredExtensibleEnum = default;
+            StringFixedEnum? requiredFixedEnum = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("requiredNullablePrimitive"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == JsonValueKind.Null))
                     {
                         requiredNullablePrimitive = null;
                         continue;
@@ -165,17 +165,17 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredExtensibleEnum"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == JsonValueKind.Null))
                     {
                         requiredExtensibleEnum = null;
                         continue;
                     }
-                    requiredExtensibleEnum = new global::SampleTypeSpec.StringExtensibleEnum(prop.Value.GetString());
+                    requiredExtensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredFixedEnum"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    if ((prop.Value.ValueKind == JsonValueKind.Null))
                     {
                         requiredFixedEnum = null;
                         continue;
@@ -185,10 +185,10 @@ namespace SampleTypeSpec
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new global::SampleTypeSpec.ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties);
+            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties);
         }
     }
 }

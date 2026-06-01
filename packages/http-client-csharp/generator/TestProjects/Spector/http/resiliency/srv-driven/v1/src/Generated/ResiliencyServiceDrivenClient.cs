@@ -15,39 +15,39 @@ namespace Resiliency.ServiceDriven
     {
         protected ResiliencyServiceDrivenClient() => throw null;
 
-        public ResiliencyServiceDrivenClient(global::System.Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions()) => throw null;
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
 
-        internal ResiliencyServiceDrivenClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string serviceDeploymentVersion, global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions options) => throw null;
+        internal ResiliencyServiceDrivenClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
 
-        public ResiliencyServiceDrivenClient(global::System.Uri endpoint, string serviceDeploymentVersion, global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
 
-        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
-        public ResiliencyServiceDrivenClient(global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
+        [ExperimentalAttribute("SCME0002")]
+        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
 
-        public global::System.ClientModel.Primitives.ClientPipeline Pipeline => throw null;
+        public ClientPipeline Pipeline => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromNone(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FromNone(RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromNoneAsync(global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromNoneAsync(RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromNone(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromNone(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromNoneAsync(global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromNoneAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromOneRequired(string parameter, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FromOneRequired(string parameter, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromOneRequiredAsync(string parameter, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromOneRequired(string parameter, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromOneRequired(string parameter, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromOneRequiredAsync(string parameter, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromOneOptional(string parameter, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter, RequestOptions options) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromOneOptionalAsync(string parameter, global::System.ClientModel.Primitives.RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
 
-        public virtual global::System.ClientModel.ClientResult FromOneOptional(string parameter = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FromOneOptionalAsync(string parameter = default, global::System.Threading.CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }
