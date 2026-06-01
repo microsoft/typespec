@@ -18,15 +18,30 @@ function generateExternalDocs(externalDocs?: TypeSpecExternalDocs): string {
 }
 
 export function generateTags(tags: TypeSpecTagMetadata[]): string {
-  const definitions = tags.map((tag) => {
-    const description = tag.description ? `description: "${tag.description}"` : "";
+  if (tags.length === 0) {
+    return "";
+  }
+
+  const tagItems = tags.map((tag) => {
+    const fields: string[] = [`name: "${tag.name}"`];
+    if (tag.description) {
+      fields.push(`description: "${tag.description}"`);
+    }
     const externalDocs = generateExternalDocs(tag.externalDocs);
-    const tagMetadata =
-      description || externalDocs
-        ? `, #{${[description, externalDocs].filter((x) => !!x).join(", ")}}`
-        : "";
-    return `@tagMetadata("${tag.name}"${tagMetadata})`;
+    if (externalDocs) {
+      fields.push(externalDocs);
+    }
+    if (tag.summary) {
+      fields.push(`summary: "${tag.summary}"`);
+    }
+    if (tag.kind) {
+      fields.push(`kind: "${tag.kind}"`);
+    }
+    if (tag.parent) {
+      fields.push(`parent: "${tag.parent}"`);
+    }
+    return `#{${fields.join(", ")}}`;
   });
 
-  return definitions.join("\n");
+  return `@tagMetadata(#[\n${tagItems.map((item) => `  ${item}`).join(",\n")}\n])`;
 }
