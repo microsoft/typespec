@@ -2001,5 +2001,96 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsFalse(methodBody.Contains("rootNameHint"));
             Assert.IsFalse(methodBody.Contains("childNameHint"));
         }
+
+        [Test]
+        public void ConvenienceMethod_WithInternalParameterType_IsInternal()
+        {
+            // A model that is customized to be internal (for example via client.tsp) results in a
+            // convenience method parameter whose type is internal. The convenience method must be
+            // generated as internal to avoid an inconsistent accessibility compilation error.
+            var internalModel = InputFactory.Model(
+                "InternalModel",
+                access: "internal",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter("body", internalModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                internalModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [internalModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m =>
+                m.Signature.Parameters.All(p => p.Name != "content") &&
+                m.Signature.Name.StartsWith("Foo")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                // The parameter type is internal.
+                Assert.IsTrue(convenienceMethod.Signature.Parameters.Any(p => !p.Type.IsPublic));
+                // The convenience method should therefore be internal, not public.
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+                Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
+        public void ConvenienceMethod_WithPublicParameterType_IsPublic()
+        {
+            // When all convenience method parameter types are public, the method should remain public.
+            var publicModel = InputFactory.Model(
+                "PublicModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter("body", publicModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                publicModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [publicModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m =>
+                m.Signature.Parameters.All(p => p.Name != "content") &&
+                m.Signature.Name.StartsWith("Foo")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Parameters.All(p => p.Type.IsPublic));
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            }
+        }
     }
 }
