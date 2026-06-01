@@ -1,4 +1,3 @@
-import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -202,8 +201,8 @@ export function createServer(
    * The actual server-side crash location (e.g., in the checker or parser) is completely lost.
    *
    * This wrapper catches the error first and re-throws a new Error whose message includes
-   * the full original error details (via `inspect(e)`, which expands the stack, properties,
-   * etc.). The JSON-RPC layer then forwards this enriched message to the client, so the
+   * the full original error details (stack trace for Error instances, String() for others).
+   * The JSON-RPC layer then forwards this enriched message to the client, so the
    * telemetry `unhandled_error_message` will contain the server-side crash location:
    *
    * ```
@@ -218,7 +217,21 @@ export function createServer(
       try {
         return await fn(...args);
       } catch (e) {
-        throw new Error(`[${name}] ${inspect(e)}`, { cause: e });
+        if (e instanceof Error) {
+          const detail = e.stack ? `${e.message}\n${e.stack}` : e.message;
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        } else if (typeof e === "string") {
+          throw new Error(`[${name}] ${e}`, { cause: e });
+        } else if (typeof e === "object" && e !== null) {
+          let detail: string;
+          try {
+            detail = JSON.stringify(e);
+          } catch {
+            throw e;
+          }
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        }
+        throw e;
       }
     }) as T;
   }
