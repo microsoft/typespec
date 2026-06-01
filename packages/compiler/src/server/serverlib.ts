@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -182,6 +183,29 @@ export function createServer(
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
 
+  /**
+   * Wraps an LSP request handler to preserve the server-side error details when
+   * a handler crashes. By default, the JSON-RPC layer (vscode-languageserver) catches
+   * handler errors and creates a new ResponseError using only `error.message`, discarding
+   * the original stack trace. This means the client-side telemetry (unhandled_error_message /
+   * unhandled_error_stack) only sees the client-side message handling stack, not the actual
+   * crash location in the compiler/server code.
+   *
+   * This wrapper catches the error first and re-throws a new Error whose message includes
+   * the full original error details (via `inspect(e)`, which expands the stack, properties,
+   * etc.). The JSON-RPC layer then forwards this enriched message to the client, making
+   * the server-side crash location visible in telemetry for investigation.
+   */
+  function wrapUnhandledError<T extends (...args: any[]) => any>(name: string, fn: T): T {
+    return (async (...args: any[]) => {
+      try {
+        return await fn(...args);
+      } catch (e) {
+        throw new Error(`[${name}] ${inspect(e)}`, { cause: e });
+      }
+    }) as T;
+  }
+
   return {
     get pendingMessages() {
       return pendingMessages;
@@ -189,37 +213,40 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile,
-    initialize,
-    initialized,
-    workspaceFoldersChanged,
-    watchedFilesChanged,
-    formatDocument,
-    gotoDefinition,
-    documentClosed,
-    documentOpened,
-    complete,
-    findReferences,
-    findDocumentHighlight,
-    prepareRename,
-    rename,
-    renameFiles,
-    getSemanticTokens: getSemanticTokensForDocument,
-    buildSemanticTokens,
-    checkChange,
-    getFoldingRanges,
-    getHover,
-    getSignatureHelp,
-    getDocumentSymbols,
-    getCodeActions,
-    resolveCodeAction,
+    compile: wrapUnhandledError("compile", compile),
+    initialize: wrapUnhandledError("initialize", initialize),
+    initialized: wrapUnhandledError("initialized", initialized),
+    workspaceFoldersChanged: wrapUnhandledError("workspaceFoldersChanged", workspaceFoldersChanged),
+    watchedFilesChanged: wrapUnhandledError("watchedFilesChanged", watchedFilesChanged),
+    formatDocument: wrapUnhandledError("formatDocument", formatDocument),
+    gotoDefinition: wrapUnhandledError("gotoDefinition", gotoDefinition),
+    documentClosed: wrapUnhandledError("documentClosed", documentClosed),
+    documentOpened: wrapUnhandledError("documentOpened", documentOpened),
+    complete: wrapUnhandledError("complete", complete),
+    findReferences: wrapUnhandledError("findReferences", findReferences),
+    findDocumentHighlight: wrapUnhandledError("findDocumentHighlight", findDocumentHighlight),
+    prepareRename: wrapUnhandledError("prepareRename", prepareRename),
+    rename: wrapUnhandledError("rename", rename),
+    renameFiles: wrapUnhandledError("renameFiles", renameFiles),
+    getSemanticTokens: wrapUnhandledError("getSemanticTokens", getSemanticTokensForDocument),
+    buildSemanticTokens: wrapUnhandledError("buildSemanticTokens", buildSemanticTokens),
+    checkChange: wrapUnhandledError("checkChange", checkChange),
+    getFoldingRanges: wrapUnhandledError("getFoldingRanges", getFoldingRanges),
+    getHover: wrapUnhandledError("getHover", getHover),
+    getSignatureHelp: wrapUnhandledError("getSignatureHelp", getSignatureHelp),
+    getDocumentSymbols: wrapUnhandledError("getDocumentSymbols", getDocumentSymbols),
+    getCodeActions: wrapUnhandledError("getCodeActions", getCodeActions),
+    resolveCodeAction: wrapUnhandledError("resolveCodeAction", resolveCodeAction),
     log,
-    reportDiagnostics,
+    reportDiagnostics: wrapUnhandledError("reportDiagnostics", reportDiagnostics),
 
-    getInitProjectContext,
-    validateInitProjectTemplate,
-    initProject,
-    internalCompile,
+    getInitProjectContext: wrapUnhandledError("getInitProjectContext", getInitProjectContext),
+    validateInitProjectTemplate: wrapUnhandledError(
+      "validateInitProjectTemplate",
+      validateInitProjectTemplate,
+    ),
+    initProject: wrapUnhandledError("initProject", initProject),
+    internalCompile: wrapUnhandledError("internalCompile", internalCompile),
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
