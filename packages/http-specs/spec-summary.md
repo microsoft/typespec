@@ -895,6 +895,7 @@ Expected header `duration: 36`
 Test int32 seconds encode for a duration header whose value has a fractional (sub-second) component.
 The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
 Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `36.25`).
+This scenario specifically exercises the lossy encode case where the source type carries more precision than the target encoding; it is not about arbitrary type mismatches, which are already covered by other round-trip scenarios.
 The value is chosen so that rounding and truncating both yield the same integer, so the expected header is `duration: 36`.
 
 ### Encode_Duration_Header_int32SecondsLargerUnit
@@ -1181,6 +1182,7 @@ Expected response body:
 Test operation with request and response model contains a duration property with int32 seconds encode whose value has a fractional (sub-second) component.
 The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
 Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `36.25`).
+This scenario specifically exercises the lossy encode case where the source type carries more precision than the target encoding; it is not about arbitrary type mismatches, which are already covered by other round-trip scenarios.
 The value is chosen so that rounding and truncating both yield the same integer.
 Expected request body:
 
@@ -1335,6 +1337,7 @@ Expected query parameter `input=36,47`
 Test int32 seconds encode for a duration parameter whose value has a fractional (sub-second) component.
 The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
 Even though the underlying value is fractional, the client must serialize it as an integer (not a floating point number such as `36.25`).
+This scenario specifically exercises the lossy encode case where the source type carries more precision than the target encoding; it is not about arbitrary type mismatches, which are already covered by other round-trip scenarios.
 The value is chosen so that rounding and truncating both yield the same integer, so the expected query parameter is `input=36`.
 
 ### Encode_Duration_Query_int32SecondsLargerUnit
