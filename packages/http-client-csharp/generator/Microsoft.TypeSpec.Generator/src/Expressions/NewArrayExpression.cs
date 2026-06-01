@@ -38,7 +38,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 }
                 else
                 {
-                    writer.Append($"{newStr} {Type}[] ");
+                    writer.Append($"{newStr} {Type}[]");
+                }
+
+                if (Items.IsInline)
+                {
+                    writer.AppendRaw(" ");
                 }
 
                 Items.Write(writer);
