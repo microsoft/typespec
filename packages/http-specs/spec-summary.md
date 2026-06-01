@@ -1455,6 +1455,22 @@ Expected request body:
 { "name": "foo" }
 ```
 
+### Parameters_BodyRoot_nested
+
+- Endpoint: `post /parameters/body-root/nested`
+
+Test case for a `@bodyRoot` parameter nested inside a wrapper model.
+
+Emitters must resolve the accessor path through the wrapper (e.g.
+`body.bodyRootParameters`) rather than referencing the property name
+directly.
+
+Expected request body:
+
+```json
+{ "category": "widget", "linkType": "hard", "wasSuccessful": true }
+```
+
 ### Parameters_CollectionFormat_Header_csv
 
 - Endpoint: `get /parameters/collection-format/header/csv`
