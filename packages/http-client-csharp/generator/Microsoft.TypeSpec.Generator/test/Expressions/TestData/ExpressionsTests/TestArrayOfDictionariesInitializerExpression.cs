@@ -1,6 +1,6 @@
 public void Foo()
 {
-    global::System.Collections.Generic.Dictionary<string, string>[] foo = new global::System.Collections.Generic.Dictionary<string, string>[] 
+    global::System.Collections.Generic.Dictionary<string, string>[] foo = new global::System.Collections.Generic.Dictionary<string, string>[]
     {
         new global::System.Collections.Generic.Dictionary<string, string>
         {
