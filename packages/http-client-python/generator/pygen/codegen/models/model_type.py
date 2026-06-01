@@ -350,7 +350,9 @@ class GeneratedModelType(ModelType):
                 else:
                     # Cross-namespace model — import from sibling namespace's types module
                     file_import.add_submodule_import(
-                        f"{relative_path}types",
+                        self.code_model.get_relative_import_path(
+                            serialize_namespace, self.client_namespace, module_name="types"
+                        ),
                         self.name,
                         ImportType.LOCAL,
                         typing_section=TypingSection.TYPING,

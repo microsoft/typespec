@@ -168,14 +168,14 @@ class TypesSerializer(BaseSerializer):
                     needs_builtins = True
                 for parent in model.parents:
                     if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
-                        # Import from sibling namespace's types module (not models)
-                        parent_namespace = parent.client_namespace
+                        # Import parent class from sibling namespace's types module
                         file_import.add_submodule_import(
                             self.code_model.get_relative_import_path(
                                 self.serialize_namespace,
-                                parent_namespace,
+                                parent.client_namespace,
+                                module_name="types",
                             ),
-                            "types",
+                            parent.name,
                             ImportType.LOCAL,
                         )
             if has_required:
