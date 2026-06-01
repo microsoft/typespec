@@ -102,7 +102,7 @@ def _normalize_multipart_file_entry(field_name: str, entry: Any, index: int) -> 
         filename = os.path.basename(name_attr)
     if not filename:
         filename = f"{field_name}_{index}" if index else field_name
-    return (filename, entry)
+    return (filename, entry, "application/octet-stream")
 
 def prepare_multipart_form_data(
     body: Mapping[str, Any], multipart_fields: list[str], data_fields: list[str]
