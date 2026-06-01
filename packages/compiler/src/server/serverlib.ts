@@ -184,17 +184,34 @@ export function createServer(
   let pendingMessages: ServerLog[] = [];
 
   /**
-   * Wraps an LSP request handler to preserve the server-side error details when
-   * a handler crashes. By default, the JSON-RPC layer (vscode-languageserver) catches
-   * handler errors and creates a new ResponseError using only `error.message`, discarding
-   * the original stack trace. This means the client-side telemetry (unhandled_error_message /
-   * unhandled_error_stack) only sees the client-side message handling stack, not the actual
-   * crash location in the compiler/server code.
+   * Wraps an LSP handler to preserve the server-side error details when it crashes.
+   *
+   * By default, the JSON-RPC layer (vscode-languageserver) catches handler errors and
+   * creates a new ResponseError using only `error.message`, discarding the original stack
+   * trace. On the client side, the telemetry framework then captures this as an unhandled
+   * error, but the `unhandled_error_stack` only shows the client-side message handling code:
+   *
+   * ```
+   * Error: Request textDocument/hover failed with message: Cannot read properties of undefined (reading 'kind')
+   *     at handleResponse (extension.cjs:2104:40)         // <-- client-side LSP message handler
+   *     at handleMessage (extension.cjs:1914:11)
+   *     at processMessageQueue (extension.cjs:1929:13)
+   *     at Immediate.<anonymous> (extension.cjs:1905:11)
+   * ```
+   *
+   * The actual server-side crash location (e.g., in the checker or parser) is completely lost.
    *
    * This wrapper catches the error first and re-throws a new Error whose message includes
    * the full original error details (via `inspect(e)`, which expands the stack, properties,
-   * etc.). The JSON-RPC layer then forwards this enriched message to the client, making
-   * the server-side crash location visible in telemetry for investigation.
+   * etc.). The JSON-RPC layer then forwards this enriched message to the client, so the
+   * telemetry `unhandled_error_message` will contain the server-side crash location:
+   *
+   * ```
+   * [getHover] TypeError: Cannot read properties of undefined (reading 'kind')
+   *     at Checker.getTypeForNode (checker.ts:1234:15)    // <-- actual crash location
+   *     at getHover (serverlib.ts:826:52)
+   *     ...
+   * ```
    */
   function wrapUnhandledError<T extends (...args: any[]) => any>(name: string, fn: T): T {
     return (async (...args: any[]) => {
