@@ -17,11 +17,11 @@ model BodyRootModel {
 @scenario
 @scenarioDoc("""
   Test case for a \`@bodyRoot\` parameter nested inside a wrapper model.
-
+  
   Emitters must resolve the accessor path through the wrapper (e.g.
   \`body.bodyRootParameters\`) rather than referencing the property name
   directly.
-
+  
   Expected request body:
   \`\`\`json
   { "category": "widget", "linkType": "hard", "wasSuccessful": true }
@@ -29,6 +29,8 @@ model BodyRootModel {
   """)
 @route("/nested")
 @post
-op nested(body: {
-  @bodyRoot bodyRootParameters: BodyRootModel;
-}): NoContentResponse;
+op nested(
+  body: {
+    @bodyRoot bodyRootParameters: BodyRootModel;
+  },
+): NoContentResponse;
