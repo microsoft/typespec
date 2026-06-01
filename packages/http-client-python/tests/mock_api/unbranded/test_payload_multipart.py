@@ -12,6 +12,12 @@ from payload.multipart.formdata.file import models as file_models
 JPG = Path(__file__).parent / "data/image.jpg"
 PNG = Path(__file__).parent / "data/image.png"
 
+# Note: legacy tests below pass file contents as bytes via `.read()` rather than
+# bare `open(...)`. This still exercises `_normalize_multipart_file_entry`'s
+# bytes branch, but avoids the IO-with-`.name` branch that would synthesize a
+# filename and cause the transport to guess a Content-Type (e.g. image/jpeg)
+# instead of the `application/octet-stream` these tests expect.
+
 
 @pytest.fixture
 def client():
@@ -20,14 +26,14 @@ def client():
 
 
 def test_anonymous_model(client: MultiPartClient):
-    client.form_data.anonymous_model({"profileImage": open(str(JPG), "rb")})
+    client.form_data.anonymous_model({"profileImage": open(str(JPG), "rb").read()})
 
 
 def test_basic(client: MultiPartClient):
     client.form_data.basic(
         models.MultiPartRequest(
             id="123",
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -37,8 +43,8 @@ def test_binary_array_parts(client: MultiPartClient):
         models.BinaryArrayPartsRequest(
             id="123",
             pictures=[
-                open(str(PNG), "rb"),
-                open(str(PNG), "rb"),
+                open(str(PNG), "rb").read(),
+                open(str(PNG), "rb").read(),
             ],
         )
     )
@@ -59,10 +65,10 @@ def test_complex(client: MultiPartClient):
             id="123",
             address=models.Address(city="X"),
             pictures=[
-                open(str(PNG), "rb"),
-                open(str(PNG), "rb"),
+                open(str(PNG), "rb").read(),
+                open(str(PNG), "rb").read(),
             ],
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -71,7 +77,7 @@ def test_json_part(client: MultiPartClient):
     client.form_data.json_part(
         models.JsonPartRequest(
             address=models.Address(city="X"),
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -79,13 +85,13 @@ def test_json_part(client: MultiPartClient):
 def test_multi_binary_parts(client: MultiPartClient):
     client.form_data.multi_binary_parts(
         models.MultiBinaryPartsRequest(
-            profile_image=open(str(JPG), "rb"),
-            picture=open(str(PNG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
+            picture=open(str(PNG), "rb").read(),
         )
     )
     client.form_data.multi_binary_parts(
         models.MultiBinaryPartsRequest(
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -101,7 +107,7 @@ def test_file_with_http_part_specific_content_type(client: MultiPartClient):
 def test_file_with_http_part_required_content_type(client: MultiPartClient):
     client.form_data.http_parts.content_type.required_content_type(
         models.FileWithHttpPartRequiredContentTypeRequest(
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -130,10 +136,10 @@ def test_complex_with_http_part(client: MultiPartClient):
             ],
             address=models.Address(city="X"),
             pictures=[
-                open(str(PNG), "rb"),
-                open(str(PNG), "rb"),
+                open(str(PNG), "rb").read(),
+                open(str(PNG), "rb").read(),
             ],
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -146,7 +152,7 @@ def test_with_wire_name(client: MultiPartClient):
     client.form_data.with_wire_name(
         models.MultiPartRequestWithWireName(
             identifier="123",
-            image=open(str(JPG), "rb"),
+            image=open(str(JPG), "rb").read(),
         )
     )
 
@@ -161,14 +167,14 @@ def test_optional_parts(client: MultiPartClient):
     # Second time with only profileImage
     client.form_data.optional_parts(
         models.MultiPartOptionalRequest(
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
     # Third time with both id and profileImage
     client.form_data.optional_parts(
         models.MultiPartOptionalRequest(
             id="123",
-            profile_image=open(str(JPG), "rb"),
+            profile_image=open(str(JPG), "rb").read(),
         )
     )
 

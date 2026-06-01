@@ -78,7 +78,7 @@ class TestNormalizeBareInputs:
         assert filename == FIELD  # fallback
         assert content == CONTENT
 
-    def test_bare_bytesio_gets_field_name_as_filename(self):
+    def test_bare_bytes_io_gets_field_name_as_filename(self):
         """BytesIO without .name falls back to the field name."""
         body = {FIELD: io.BytesIO(CONTENT)}
         result = prepare_multipart_form_data(body, [FIELD], [])

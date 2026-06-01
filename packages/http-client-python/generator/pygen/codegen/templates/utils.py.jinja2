@@ -84,6 +84,15 @@ def _normalize_multipart_file_entry(field_name: str, entry: Any, index: int) -> 
     bare bytes/str/IO the HTTP client omits the filename and the server may
     reject the upload.  This helper wraps bare values into a (filename, content)
     tuple, deriving the name from IO.name when available.
+
+    :param str field_name: The multipart field name used as a filename fallback.
+    :param entry: The user-provided file entry (tuple, bytes, str, or IO).
+    :type entry: any
+    :param int index: The positional index of the entry within the field, used
+        to disambiguate fallback filenames when multiple entries are provided.
+    :return: Either the original tuple entry, or a ``(filename, content)`` tuple
+        wrapping the bare value.
+    :rtype: any
     """
     if isinstance(entry, tuple):
         return entry
