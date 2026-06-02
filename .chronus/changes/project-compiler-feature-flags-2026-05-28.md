@@ -10,6 +10,5 @@ are tracked internally with descriptions and can be listed with `tsp info featur
 ```yaml title=tspconfig.yaml
 kind: project
 features:
-  - internal-modifier
   - function-declarations
 ```

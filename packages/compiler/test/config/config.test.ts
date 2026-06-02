@@ -161,7 +161,7 @@ describe("compiler: config file loading", () => {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
         kind: "project",
-        features: ["internal-modifier"],
+        features: ["function-declarations"],
       });
     });
 
@@ -233,7 +233,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("succeeds with kind: project and features", () => {
-      deepStrictEqual(validate({ kind: "project", features: ["internal-modifier"] }), []);
+      deepStrictEqual(validate({ kind: "project", features: ["function-declarations"] }), []);
     });
 
     it("fails with non-string features", () => {

@@ -14,15 +14,14 @@ describe("formatCompilerFeatures", () => {
         outputDir: "{cwd}/tsp-output",
         projectRoot: "",
         kind: "project",
-        features: ["internal-modifier"],
+        features: ["function-declarations"],
       }).join("\n"),
     ).split("\n");
 
     expect(output).toEqual([
       "Compiler Features",
       "",
-      "  enabled   internal-modifier      Allows use of the internal modifier without experimental warnings in project code.",
-      "  disabled  function-declarations  Allows use of function declarations without experimental warnings in project code.",
+      "  enabled   function-declarations  Allows use of function declarations without experimental warnings in project code.",
     ]);
   });
 });

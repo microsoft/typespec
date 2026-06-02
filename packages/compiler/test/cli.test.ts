@@ -330,7 +330,7 @@ describe("compiler: cli", () => {
     it("auto-inherits features from project tspconfig when using --config", async () => {
       host.addTypeSpecFile(
         "ws/tspconfig.yaml",
-        stringify({ kind: "project", features: ["internal-modifier"] }),
+        stringify({ kind: "project", features: ["function-declarations"] }),
       );
       host.addTypeSpecFile("ws/tspconfig.build.yaml", stringify({ emit: ["openapi"] }));
       const [options, diagnostics] = await getCompilerOptions(
@@ -342,7 +342,7 @@ describe("compiler: cli", () => {
       );
       expectDiagnosticEmpty(diagnostics);
       ok(options, "Options should have been set.");
-      deepStrictEqual(options.configFile?.features, ["internal-modifier"]);
+      deepStrictEqual(options.configFile?.features, ["function-declarations"]);
     });
 
     it("does not auto-inherit build config from project tspconfig", async () => {

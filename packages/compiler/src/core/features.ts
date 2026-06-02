@@ -7,10 +7,6 @@ export interface CompilerFeatureDefinition {
 }
 
 export const compilerFeatures = {
-  "internal-modifier": {
-    description:
-      "Allows use of the internal modifier without experimental warnings in project code.",
-  },
   "function-declarations": {
     description:
       "Allows use of function declarations without experimental warnings in project code.",
