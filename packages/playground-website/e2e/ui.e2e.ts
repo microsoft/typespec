@@ -43,8 +43,7 @@ test.describe("playground UI tests", () => {
     await typespecEditor.pressSequentially("op sharedCode(): string;");
     await page.keyboard.press(`${ctrlOrCmd}+KeyS`);
     // cspell:disable-next-line
-    await expect
-      .poll(() => page.url())
-      .toMatch(new RegExp(`${host}/\\?.*c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7.*`));
+    const sharedCodeQueryPattern = new RegExp(`${host}/\\?.*c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7.*`);
+    await expect.poll(() => page.url()).toMatch(sharedCodeQueryPattern);
   });
 });
