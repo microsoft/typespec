@@ -30,15 +30,11 @@ public sealed class MemoryGenerationCache : IGenerationCache
 {
     public const long DefaultSizeLimitBytes = 256L * 1024 * 1024;
 
-    public static readonly TimeSpan DefaultSlidingExpiration = TimeSpan.FromHours(1);
-
     private readonly IMemoryCache _cache;
-    private readonly TimeSpan _slidingExpiration;
 
-    public MemoryGenerationCache(IMemoryCache cache, TimeSpan? slidingExpiration = null)
+    public MemoryGenerationCache(IMemoryCache cache)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _slidingExpiration = slidingExpiration ?? DefaultSlidingExpiration;
     }
 
     public bool TryGet(string key, out CachedGenerationResponse? value)
@@ -61,7 +57,6 @@ public sealed class MemoryGenerationCache : IGenerationCache
         var entryOptions = new MemoryCacheEntryOptions
         {
             Size = size,
-            SlidingExpiration = _slidingExpiration,
             Priority = CacheItemPriority.Normal,
         };
         _cache.Set(key, value, entryOptions);

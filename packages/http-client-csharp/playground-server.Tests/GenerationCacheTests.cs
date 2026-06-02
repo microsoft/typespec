@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
 using PlaygroundServer;
@@ -13,10 +12,10 @@ namespace PlaygroundServer.Tests;
 [TestFixture]
 public class GenerationCacheTests
 {
-    private static MemoryGenerationCache CreateCache(long sizeLimit = MemoryGenerationCache.DefaultSizeLimitBytes, TimeSpan? sliding = null)
+    private static MemoryGenerationCache CreateCache(long sizeLimit = MemoryGenerationCache.DefaultSizeLimitBytes)
     {
         var memory = new MemoryCache(new MemoryCacheOptions { SizeLimit = sizeLimit });
-        return new MemoryGenerationCache(memory, sliding);
+        return new MemoryGenerationCache(memory);
     }
 
     private static CachedGenerationResponse MakeResponse(string content)
@@ -151,17 +150,5 @@ public class GenerationCacheTests
         backing.Compact(0.0);
 
         Assert.LessOrEqual(backing.Count * 256, 1024);
-    }
-
-    [Test]
-    public async Task SlidingExpiration_EvictsAfterIdle()
-    {
-        var cache = CreateCache(sliding: TimeSpan.FromMilliseconds(50));
-        cache.Set("k", MakeResponse("x"));
-        Assert.IsTrue(cache.TryGet("k", out _));
-
-        await Task.Delay(200);
-        Assert.IsFalse(cache.TryGet("k", out var value));
-        Assert.IsNull(value);
     }
 }
