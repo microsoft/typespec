@@ -168,7 +168,9 @@ export async function resolveTypeSpecServer(
       });
       return { command: "tsp", args: ["--server", serverPath, ...args], options };
     }
-    // Neither node nor tsp is on PATH.
+    // Neither node nor tsp is on PATH. Show an actionable error but still try tsp
+    // as a last resort — it may work in some environments where `which` fails but
+    // the shell can still resolve the command.
     logger.error(
       [
         `TypeSpec compiler was found at '${serverPath}', but it cannot be started because neither 'node' nor 'tsp' is available in PATH.`,
@@ -182,10 +184,10 @@ export async function resolveTypeSpecServer(
       { showPopup: true, showOutput: true },
     );
     telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerStartType: "not-available",
+      compilerStartType: "standalone-tsp-cli-fallback",
       error: "Neither node nor tsp is available in PATH. Compiler found but cannot be started.",
     });
-    return undefined;
+    return { command: "tsp", args: ["--server", serverPath, ...args], options };
   }
 }
 
