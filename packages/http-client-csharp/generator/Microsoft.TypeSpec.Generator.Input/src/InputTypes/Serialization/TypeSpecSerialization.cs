@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputJsonSerializationOptionsConverter(),
                     new InputXmlSerializationOptionsConverter(),
                     new InputXmlNamespaceOptionsConverter(),
+                    new InputBinarySerializationOptionsConverter(),
                     new InputServiceMethodConverter(referenceHandler),
                     new InputBasicServiceMethodConverter(referenceHandler),
                     new InputPagingServiceMethodConverter(referenceHandler),

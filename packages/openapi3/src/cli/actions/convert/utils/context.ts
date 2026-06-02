@@ -58,9 +58,19 @@ export interface Context {
   registerSSEEventSchema(ref: string): void;
 
   /**
+   * Register a schema as being used in an error response body.
+   */
+  registerErrorResponseSchema(ref: string): void;
+
+  /**
    * Checks whether a schema is registered as an SSE event schema.
    */
   isSSEEventSchema(ref: string): boolean;
+
+  /**
+   * Checks whether a schema is registered as an error response body.
+   */
+  isErrorResponseSchema(ref: string): boolean;
 
   /**
    * Mark that SSE features are being used, which will trigger including SSE-related imports.
@@ -88,6 +98,9 @@ export function createContext(
 
   // Track schemas that represent SSE events
   const sseEventSchemas = new Set<string>();
+
+  // Track schemas that are used as error response bodies
+  const errorResponseSchemas = new Set<string>();
 
   // Track if SSE features are used
   let sseUsed = false;
@@ -185,6 +198,12 @@ export function createContext(
     },
     isSSEEventSchema(ref: string): boolean {
       return sseEventSchemas.has(ref);
+    },
+    registerErrorResponseSchema(ref: string) {
+      errorResponseSchemas.add(ref);
+    },
+    isErrorResponseSchema(ref: string): boolean {
+      return errorResponseSchemas.has(ref);
     },
     markSSEUsage() {
       sseUsed = true;

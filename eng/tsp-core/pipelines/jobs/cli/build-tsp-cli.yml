@@ -33,11 +33,11 @@ jobs:
         os: windows
 
     steps:
-      - task: NodeTool@0
+      - task: UseNode@1
         displayName: Install Node.js
         retryCountOnTaskFailure: 3
         inputs:
-          versionSpec: 22.x
+          version: 22.x
 
       # - script: npm install -g bun
       #   displayName: Install bun

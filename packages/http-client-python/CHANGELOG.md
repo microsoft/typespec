@@ -1,5 +1,23 @@
 # Change Log - @typespec/http-client-python
 
+## 0.30.0
+
+### Features
+
+- [#10750](https://github.com/microsoft/typespec/pull/10750) add support for `exact` client names
+
+### Bug Fixes
+
+- [#10804](https://github.com/microsoft/typespec/pull/10804) Lower `black` version to `24.4.0` to be consistent with what's in main
+
+
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
 ## 0.29.1
 
 ### Bump dependencies
