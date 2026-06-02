@@ -12,7 +12,7 @@ namespace Service.MultipleServices.ServiceA
     [ExperimentalAttribute("SCME0002")]
     public partial class ServiceAClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -13,7 +13,7 @@ namespace Routes._PathParameters.LabelExpansion
     {
         protected PathParametersLabelExpansion() => throw null;
 
-        internal PathParametersLabelExpansion(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal PathParametersLabelExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

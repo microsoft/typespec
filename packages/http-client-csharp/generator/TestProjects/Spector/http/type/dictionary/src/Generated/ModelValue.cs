@@ -15,24 +15,24 @@ namespace _Type.Dictionary
     {
         protected ModelValue() => throw null;
 
-        internal ModelValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::System.Collections.Generic.IReadOnlyDictionary<string, global::_Type.Dictionary.InnerModel>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyDictionary<string, global::_Type.Dictionary.InnerModel>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyDictionary<string, global::_Type.Dictionary.InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::System.Collections.Generic.IReadOnlyDictionary<string, global::_Type.Dictionary.InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IDictionary<string, global::_Type.Dictionary.InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Put(IDictionary<string, InnerModel> body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IDictionary<string, global::_Type.Dictionary.InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(IDictionary<string, InnerModel> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

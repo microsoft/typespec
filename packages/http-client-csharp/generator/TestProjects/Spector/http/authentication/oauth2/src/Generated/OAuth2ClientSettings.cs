@@ -12,7 +12,7 @@ namespace Authentication.OAuth2
     [ExperimentalAttribute("SCME0002")]
     public partial class OAuth2ClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

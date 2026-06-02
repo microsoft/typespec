@@ -12,7 +12,7 @@ namespace Serialization.EncodedName.Json
     [ExperimentalAttribute("SCME0002")]
     public partial class JsonClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -14,24 +14,24 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadDifferentString() => throw null;
 
-        internal SpreadDifferentString(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal SpreadDifferentString(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.AdditionalProperties.DifferentSpreadStringRecord> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DifferentSpreadStringRecord> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.DifferentSpreadStringRecord>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::_Type.Property.AdditionalProperties.DifferentSpreadStringRecord>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(DifferentSpreadStringRecord body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(DifferentSpreadStringRecord body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(DifferentSpreadStringRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }

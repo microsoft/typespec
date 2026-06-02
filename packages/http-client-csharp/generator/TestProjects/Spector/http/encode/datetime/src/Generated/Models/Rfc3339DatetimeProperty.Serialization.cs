@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Datetime
 {
-    public partial class Rfc3339DatetimeProperty : IJsonModel<global::Encode.Datetime.Rfc3339DatetimeProperty>
+    public partial class Rfc3339DatetimeProperty : IJsonModel<Rfc3339DatetimeProperty>
     {
         internal Rfc3339DatetimeProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Datetime
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Encode.Datetime.Rfc3339DatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Rfc3339DatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Rfc3339DatetimeProperty IPersistableModel<global::Encode.Datetime.Rfc3339DatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Rfc3339DatetimeProperty IPersistableModel<Rfc3339DatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Encode.Datetime.Rfc3339DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Rfc3339DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Rfc3339DatetimeProperty rfc3339DatetimeProperty) => throw null;
 
         public static explicit operator Rfc3339DatetimeProperty(ClientResult result) => throw null;
 
-        void IJsonModel<global::Encode.Datetime.Rfc3339DatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Rfc3339DatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Rfc3339DatetimeProperty IJsonModel<global::Encode.Datetime.Rfc3339DatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Rfc3339DatetimeProperty IJsonModel<Rfc3339DatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Rfc3339DatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

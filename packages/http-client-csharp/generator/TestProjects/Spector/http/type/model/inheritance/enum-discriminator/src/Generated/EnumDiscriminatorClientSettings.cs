@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     [ExperimentalAttribute("SCME0002")]
     public partial class EnumDiscriminatorClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

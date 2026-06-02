@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Response.StatusCodeRange
 {
-    public partial class NotFoundError : IJsonModel<global::Response.StatusCodeRange.NotFoundError>
+    public partial class NotFoundError : IJsonModel<NotFoundError>
     {
         internal NotFoundError() => throw null;
 
@@ -16,17 +16,17 @@ namespace Response.StatusCodeRange
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<NotFoundError>.Write(ModelReaderWriterOptions options) => throw null;
 
-        NotFoundError IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        NotFoundError IPersistableModel<NotFoundError>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Response.StatusCodeRange.NotFoundError>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<NotFoundError>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<global::Response.StatusCodeRange.NotFoundError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<NotFoundError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        NotFoundError IJsonModel<global::Response.StatusCodeRange.NotFoundError>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        NotFoundError IJsonModel<NotFoundError>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual NotFoundError JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

@@ -12,7 +12,7 @@ namespace Encode.Bytes
     [ExperimentalAttribute("SCME0002")]
     public partial class BytesClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

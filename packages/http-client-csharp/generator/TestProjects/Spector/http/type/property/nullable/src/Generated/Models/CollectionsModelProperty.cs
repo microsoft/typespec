@@ -8,7 +8,7 @@ namespace _Type.Property.Nullable
 {
     public partial class CollectionsModelProperty
     {
-        public CollectionsModelProperty(string requiredProperty, IEnumerable<global::_Type.Property.Nullable.InnerModel> nullableProperty) => throw null;
+        public CollectionsModelProperty(string requiredProperty, IEnumerable<InnerModel> nullableProperty) => throw null;
 
         public string RequiredProperty
         {
@@ -16,7 +16,7 @@ namespace _Type.Property.Nullable
             set => throw null;
         }
 
-        public IList<global::_Type.Property.Nullable.InnerModel> NullableProperty
+        public IList<InnerModel> NullableProperty
         {
             get => throw null;
             set => throw null;

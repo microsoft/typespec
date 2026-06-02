@@ -16,9 +16,9 @@ namespace SampleTypeSpec
     public partial class Thing
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Thing"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// This tests:
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="rename"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="rename"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
         public Thing(string rename, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(rename, nameof(rename));
@@ -47,7 +47,7 @@ namespace SampleTypeSpec
             PropertyWithSpecialDocs = propertyWithSpecialDocs;
         }
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Thing"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
@@ -69,7 +69,7 @@ namespace SampleTypeSpec
         /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Thing(string rename, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string propertyWithSpecialDocs, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal Thing(string rename, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string propertyWithSpecialDocs, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Rename = rename;
             RequiredUnion = requiredUnion;
@@ -103,7 +103,7 @@ namespace SampleTypeSpec
         /// <description> <see cref="string"/>. </description>
         /// </item>
         /// <item>
-        /// <description> <see cref="global::System.Collections.Generic.IList{T}"/> where <c>T</c> is of type <see cref="string"/>. </description>
+        /// <description> <see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/>. </description>
         /// </item>
         /// <item>
         /// <description> <see cref="int"/>. </description>

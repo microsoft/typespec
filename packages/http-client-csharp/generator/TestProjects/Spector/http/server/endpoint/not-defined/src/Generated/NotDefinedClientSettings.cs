@@ -12,7 +12,7 @@ namespace Server.Endpoint.NotDefined
     [ExperimentalAttribute("SCME0002")]
     public partial class NotDefinedClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

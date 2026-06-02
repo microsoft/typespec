@@ -12,11 +12,11 @@ namespace Parameters.CollectionFormat
 {
     public partial class CollectionFormatClient
     {
-        public CollectionFormatClient() : this(new global::System.Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
+        public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
 
-        internal CollectionFormatClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, CollectionFormatClientOptions options) => throw null;
+        internal CollectionFormatClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CollectionFormatClientOptions options) => throw null;
 
-        public CollectionFormatClient(global::System.Uri endpoint, CollectionFormatClientOptions options) : this(null, endpoint, options) => throw null;
+        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public CollectionFormatClient(CollectionFormatClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

@@ -13,11 +13,11 @@ namespace Payload.Head
 {
     public partial class HeadClient
     {
-        public HeadClient() : this(new global::System.Uri("http://localhost:3000"), new HeadClientOptions()) => throw null;
+        public HeadClient() : this(new Uri("http://localhost:3000"), new HeadClientOptions()) => throw null;
 
-        internal HeadClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, HeadClientOptions options) => throw null;
+        internal HeadClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, HeadClientOptions options) => throw null;
 
-        public HeadClient(global::System.Uri endpoint, HeadClientOptions options) : this(null, endpoint, options) => throw null;
+        public HeadClient(Uri endpoint, HeadClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public HeadClient(HeadClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,10 +26,10 @@ namespace Payload.Head
 
         public virtual ClientResult ContentTypeHeaderInResponse(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ContentTypeHeaderInResponseAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ContentTypeHeaderInResponseAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult ContentTypeHeaderInResponse(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ContentTypeHeaderInResponseAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ContentTypeHeaderInResponseAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

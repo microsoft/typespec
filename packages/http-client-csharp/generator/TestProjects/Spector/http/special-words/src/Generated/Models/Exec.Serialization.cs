@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class Exec : IJsonModel<global::SpecialWords._Models.Exec>
+    public partial class Exec : IJsonModel<Exec>
     {
         internal Exec() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._Models
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._Models.Exec>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Exec>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Exec IPersistableModel<global::SpecialWords._Models.Exec>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Exec IPersistableModel<Exec>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._Models.Exec>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Exec>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Exec exec) => throw null;
 
-        void IJsonModel<global::SpecialWords._Models.Exec>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Exec>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Exec IJsonModel<global::SpecialWords._Models.Exec>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Exec IJsonModel<Exec>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Exec JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

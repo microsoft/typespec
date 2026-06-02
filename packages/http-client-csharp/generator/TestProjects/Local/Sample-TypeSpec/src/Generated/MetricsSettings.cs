@@ -17,7 +17,7 @@ namespace SampleTypeSpec
     public partial class MetricsSettings : ClientSettings
     {
         /// <summary> Gets or sets the SampleTypeSpecUrl. </summary>
-        public global::System.Uri SampleTypeSpecUrl { get; set; }
+        public Uri SampleTypeSpecUrl { get; set; }
 
         /// <summary> Gets or sets the MetricsNamespace. </summary>
         public string MetricsNamespace { get; set; }
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <param name="section"> The configuration section. </param>
         protected override void BindCore(IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
+            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out Uri sampleTypeSpecUrl))
             {
                 this.SampleTypeSpecUrl = sampleTypeSpecUrl;
             }

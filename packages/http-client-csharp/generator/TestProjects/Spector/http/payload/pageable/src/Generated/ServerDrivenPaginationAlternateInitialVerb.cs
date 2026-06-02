@@ -14,7 +14,7 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
     {
         protected ServerDrivenPaginationAlternateInitialVerb() => throw null;
 
-        internal ServerDrivenPaginationAlternateInitialVerb(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ServerDrivenPaginationAlternateInitialVerb(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -22,8 +22,8 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
 
         public virtual AsyncCollectionResult PostAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual CollectionResult<global::Payload.Pageable.Pet> Post(Filter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> Post(Filter body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> PostAsync(Filter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> PostAsync(Filter body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -12,11 +12,11 @@ namespace Documentation
 {
     public partial class DocumentationClient
     {
-        public DocumentationClient() : this(new global::System.Uri("http://localhost:3000"), new DocumentationClientOptions()) => throw null;
+        public DocumentationClient() : this(new Uri("http://localhost:3000"), new DocumentationClientOptions()) => throw null;
 
-        internal DocumentationClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, DocumentationClientOptions options) => throw null;
+        internal DocumentationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DocumentationClientOptions options) => throw null;
 
-        public DocumentationClient(global::System.Uri endpoint, DocumentationClientOptions options) : this(null, endpoint, options) => throw null;
+        public DocumentationClient(Uri endpoint, DocumentationClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public DocumentationClient(DocumentationClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

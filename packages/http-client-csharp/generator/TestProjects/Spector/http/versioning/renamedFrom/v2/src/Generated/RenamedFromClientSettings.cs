@@ -12,7 +12,7 @@ namespace Versioning.RenamedFrom
     [ExperimentalAttribute("SCME0002")]
     public partial class RenamedFromClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

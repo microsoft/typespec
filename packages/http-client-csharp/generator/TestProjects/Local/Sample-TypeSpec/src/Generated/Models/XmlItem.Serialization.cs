@@ -14,9 +14,9 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> An item model for XML array testing. </summary>
-    public partial class XmlItem : IPersistableModel<global::SampleTypeSpec.XmlItem>
+    public partial class XmlItem : IPersistableModel<XmlItem>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlItem"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="XmlItem"/> for deserialization. </summary>
         internal XmlItem()
         {
         }
@@ -25,7 +25,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual XmlItem PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
@@ -66,14 +66,14 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.XmlItem>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<XmlItem>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlItem IPersistableModel<global::SampleTypeSpec.XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        XmlItem IPersistableModel<XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string IPersistableModel<XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -97,7 +97,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support writing '{format}' format.");

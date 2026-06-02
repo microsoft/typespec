@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class Author : IPersistableModel<global::Payload.Xml.Author>
+    public partial class Author : IPersistableModel<Author>
     {
         internal Author() => throw null;
 
@@ -15,10 +15,10 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Payload.Xml.Author>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Author>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Author IPersistableModel<global::Payload.Xml.Author>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Author IPersistableModel<Author>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Payload.Xml.Author>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Author>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
     }
 }

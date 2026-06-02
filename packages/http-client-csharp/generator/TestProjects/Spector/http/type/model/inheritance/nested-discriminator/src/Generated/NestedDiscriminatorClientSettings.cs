@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     [ExperimentalAttribute("SCME0002")]
     public partial class NestedDiscriminatorClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

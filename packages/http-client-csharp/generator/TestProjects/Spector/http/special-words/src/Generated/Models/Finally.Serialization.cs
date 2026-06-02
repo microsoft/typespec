@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class Finally : IJsonModel<global::SpecialWords._Models.Finally>
+    public partial class Finally : IJsonModel<Finally>
     {
         internal Finally() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._Models
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._Models.Finally>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Finally>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Finally IPersistableModel<global::SpecialWords._Models.Finally>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Finally IPersistableModel<Finally>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._Models.Finally>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Finally>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Finally @finally) => throw null;
 
-        void IJsonModel<global::SpecialWords._Models.Finally>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Finally>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Finally IJsonModel<global::SpecialWords._Models.Finally>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Finally IJsonModel<Finally>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Finally JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

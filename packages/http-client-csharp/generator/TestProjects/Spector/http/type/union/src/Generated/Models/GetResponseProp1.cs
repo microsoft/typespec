@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct GetResponseProp1 : IEquatable<global::_Type.Union.GetResponseProp1>
+    public readonly partial struct GetResponseProp1 : IEquatable<GetResponseProp1>
     {
         public GetResponseProp1(string value) => throw null;
 

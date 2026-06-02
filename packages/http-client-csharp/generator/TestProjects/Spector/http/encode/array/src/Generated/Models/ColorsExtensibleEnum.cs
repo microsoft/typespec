@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Encode._Array
 {
-    public readonly partial struct ColorsExtensibleEnum : IEquatable<global::Encode._Array.ColorsExtensibleEnum>
+    public readonly partial struct ColorsExtensibleEnum : IEquatable<ColorsExtensibleEnum>
     {
         public ColorsExtensibleEnum(string value) => throw null;
 

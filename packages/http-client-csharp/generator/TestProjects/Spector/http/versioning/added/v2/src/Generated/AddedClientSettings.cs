@@ -12,7 +12,7 @@ namespace Versioning.Added
     [ExperimentalAttribute("SCME0002")]
     public partial class AddedClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -14,16 +14,16 @@ namespace Versioning.Added
     {
         protected InterfaceV2() => throw null;
 
-        internal InterfaceV2(ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal InterfaceV2(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult V2InInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> V2InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V2InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.Added.ModelV2> V2InInterface(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV2> V2InInterface(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV2>> V2InInterfaceAsync(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::Versioning.Added.ModelV2>> V2InInterfaceAsync(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

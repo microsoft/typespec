@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._ModelProperties
 {
-    public partial class DictMethods : IJsonModel<global::SpecialWords._ModelProperties.DictMethods>
+    public partial class DictMethods : IJsonModel<DictMethods>
     {
         internal DictMethods() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._ModelProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<DictMethods>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DictMethods IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DictMethods IPersistableModel<DictMethods>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._ModelProperties.DictMethods>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<DictMethods>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DictMethods dictMethods) => throw null;
 
-        void IJsonModel<global::SpecialWords._ModelProperties.DictMethods>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<DictMethods>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DictMethods IJsonModel<global::SpecialWords._ModelProperties.DictMethods>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DictMethods IJsonModel<DictMethods>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DictMethods JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

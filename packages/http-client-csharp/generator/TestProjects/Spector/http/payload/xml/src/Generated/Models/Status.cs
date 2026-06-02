@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Payload.Xml
 {
-    public readonly partial struct Status : IEquatable<global::Payload.Xml.Status>
+    public readonly partial struct Status : IEquatable<Status>
     {
         public Status(string value) => throw null;
 

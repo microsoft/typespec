@@ -14,13 +14,13 @@ namespace SampleTypeSpec
     public partial class ModelWithEmbeddedNonBodyParameters
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/>. </summary>
         /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
         /// <param name="requiredHeader"> required header parameter. </param>
         /// <param name="requiredQuery"> required query parameter. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredHeader"/> or <paramref name="requiredQuery"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredHeader"/> or <paramref name="requiredQuery"/> is null. </exception>
         public ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string requiredQuery)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
@@ -32,14 +32,14 @@ namespace SampleTypeSpec
             RequiredQuery = requiredQuery;
         }
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/>. </summary>
         /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
         /// <param name="requiredHeader"> required header parameter. </param>
         /// <param name="optionalHeader"> optional header parameter. </param>
         /// <param name="requiredQuery"> required query parameter. </param>
         /// <param name="optionalQuery"> optional query parameter. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string optionalHeader, string requiredQuery, string optionalQuery, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string optionalHeader, string requiredQuery, string optionalQuery, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             RequiredHeader = requiredHeader;

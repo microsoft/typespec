@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class ExtendsModelArrayAdditionalProperties : IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>
+    public partial class ExtendsModelArrayAdditionalProperties : IJsonModel<ExtendsModelArrayAdditionalProperties>
     {
         internal ExtendsModelArrayAdditionalProperties() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ExtendsModelArrayAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ExtendsModelArrayAdditionalProperties IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ExtendsModelArrayAdditionalProperties IPersistableModel<ExtendsModelArrayAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ExtendsModelArrayAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ExtendsModelArrayAdditionalProperties extendsModelArrayAdditionalProperties) => throw null;
 
         public static explicit operator ExtendsModelArrayAdditionalProperties(ClientResult result) => throw null;
 
-        void IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<ExtendsModelArrayAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        ExtendsModelArrayAdditionalProperties IJsonModel<global::_Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        ExtendsModelArrayAdditionalProperties IJsonModel<ExtendsModelArrayAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual ExtendsModelArrayAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

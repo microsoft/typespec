@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -95,6 +96,68 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.AreEqual(ns, testType.ContainingNamespace.Name);
             var fooMethod = testType.GetMembers("Foo").OfType<IMethodSymbol>().FirstOrDefault();
             Assert.NotNull(fooMethod, "Foo method should be found in the SimpleType");
+        }
+
+        [Test]
+        public void SimplifyGlobalAliases_SimplifiesImportedAndCurrentNamespaceTypes()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText("""
+                using System;
+                using System.ClientModel.Primitives;
+                using System.Collections.Generic;
+
+                namespace SampleTypeSpec
+                {
+                    /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Animal"/>. </summary>
+                    public partial class Animal
+                    {
+                        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+                        private protected Animal(string kind, string name)
+                        {
+                            Kind = kind;
+                            Name = name;
+                        }
+                        internal Animal(string kind, string name, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+                        {
+                            Kind = kind;
+                            Name = name;
+                            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+                        }
+                        internal string Kind { get; set; }
+                        public string Name { get; set; }
+                    }
+                }
+
+                namespace SampleTypeSpec.ContinuationToken
+                {
+                    public class Marker
+                    {
+                    }
+                }
+
+                namespace SampleTypeSpec.CollectionResults
+                {
+                    public class Result
+                    {
+                        private global::System.ClientModel.Primitives.ContinuationToken _continuationToken;
+                    }
+                }
+                """);
+            var compilation = CSharpCompilation.Create(
+                "Test",
+                [syntaxTree],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location), MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            var method = typeof(GeneratedCodeWorkspace).GetMethod("SimplifyGlobalAliases", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var simplifiedRoot = (SyntaxNode)method.Invoke(null, [syntaxTree.GetRoot(), compilation])!;
+            var simplifiedText = simplifiedRoot.ToFullString();
+
+            Assert.That(simplifiedText, Does.Contain("IDictionary<string, BinaryData>"));
+            Assert.That(simplifiedText, Does.Contain("<see cref=\"Animal\"/>"));
+            Assert.That(simplifiedText, Does.Contain("global::System.ClientModel.Primitives.ContinuationToken"));
+            Assert.That(simplifiedText, Does.Not.Contain("global::System.BinaryData"));
+            Assert.That(simplifiedText, Does.Not.Contain("global::SampleTypeSpec.Animal"));
         }
 
         [Test]

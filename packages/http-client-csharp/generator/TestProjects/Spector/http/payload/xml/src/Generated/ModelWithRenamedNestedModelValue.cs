@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithRenamedNestedModelValue() => throw null;
 
-        internal ModelWithRenamedNestedModelValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithRenamedNestedModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithRenamedNestedModel> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithRenamedNestedModel> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithRenamedNestedModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::Payload.Xml.ModelWithRenamedNestedModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithRenamedNestedModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithRenamedNestedModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithRenamedNestedModel input, CancellationToken cancellationToken = default) => throw null;
     }
 }

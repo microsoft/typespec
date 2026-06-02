@@ -11,7 +11,7 @@ namespace _Type.Property.AdditionalProperties
     {
         public DifferentSpreadModelArrayRecord(string knownProp) => throw null;
 
-        internal DifferentSpreadModelArrayRecord(string knownProp, IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> additionalProperties, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
+        internal DifferentSpreadModelArrayRecord(string knownProp, IDictionary<string, IList<global::System.BinaryData>> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
 
         public string KnownProp
         {
@@ -19,6 +19,6 @@ namespace _Type.Property.AdditionalProperties
             set => throw null;
         }
 
-        public IDictionary<string, global::System.Collections.Generic.IList<global::System.BinaryData>> AdditionalProperties => throw null;
+        public IDictionary<string, IList<global::System.BinaryData>> AdditionalProperties => throw null;
     }
 }

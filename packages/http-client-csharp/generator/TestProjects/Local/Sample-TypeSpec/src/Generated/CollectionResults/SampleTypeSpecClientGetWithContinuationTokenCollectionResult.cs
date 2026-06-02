@@ -31,7 +31,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
             string nextToken = null;

@@ -12,7 +12,7 @@ namespace Parameters.Query
     [ExperimentalAttribute("SCME0002")]
     public partial class QueryClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -12,11 +12,11 @@ namespace SampleTypeSpec
     /// <summary> An item model for XML array testing. </summary>
     public partial class XmlItem
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlItem"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="XmlItem"/>. </summary>
         /// <param name="itemName"> The item name. </param>
         /// <param name="itemValue"> The item value. </param>
         /// <param name="itemId"> Item ID as attribute. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="itemName"/> or <paramref name="itemId"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="itemName"/> or <paramref name="itemId"/> is null. </exception>
         public XmlItem(string itemName, int itemValue, string itemId)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(itemName, nameof(itemName));

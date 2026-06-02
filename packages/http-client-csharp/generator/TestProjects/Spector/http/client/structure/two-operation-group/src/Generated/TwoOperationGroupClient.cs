@@ -13,11 +13,11 @@ namespace Client.Structure.TwoOperationGroup
     {
         protected TwoOperationGroupClient() => throw null;
 
-        public TwoOperationGroupClient(global::System.Uri endpoint, ClientType client) : this(endpoint, client, new TwoOperationGroupClientOptions()) => throw null;
+        public TwoOperationGroupClient(Uri endpoint, ClientType client) : this(endpoint, client, new TwoOperationGroupClientOptions()) => throw null;
 
-        internal TwoOperationGroupClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) => throw null;
+        internal TwoOperationGroupClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) => throw null;
 
-        public TwoOperationGroupClient(global::System.Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public TwoOperationGroupClient(Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) : this(null, endpoint, client, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public TwoOperationGroupClient(TwoOperationGroupClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;

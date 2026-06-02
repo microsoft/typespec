@@ -14,9 +14,9 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> this is a roundtrip model. </summary>
-    public partial class RoundTripModel : IJsonModel<global::SampleTypeSpec.RoundTripModel>
+    public partial class RoundTripModel : IJsonModel<RoundTripModel>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RoundTripModel"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>
         internal RoundTripModel()
         {
         }
@@ -25,7 +25,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual RoundTripModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -52,16 +52,16 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.RoundTripModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RoundTripModel IPersistableModel<global::SampleTypeSpec.RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="roundTripModel"> The <see cref="global::SampleTypeSpec.RoundTripModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
+        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(RoundTripModel roundTripModel)
         {
             if ((roundTripModel == null))
@@ -71,7 +71,7 @@ namespace SampleTypeSpec
             return global::System.ClientModel.BinaryContent.Create(roundTripModel, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.RoundTripModel"/> from. </param>
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
         public static explicit operator RoundTripModel(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
@@ -81,7 +81,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<global::SampleTypeSpec.RoundTripModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<RoundTripModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -92,7 +92,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.RoundTripModel)} does not support writing '{format}' format.");
@@ -326,13 +326,13 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RoundTripModel IJsonModel<global::SampleTypeSpec.RoundTripModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        RoundTripModel IJsonModel<RoundTripModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.RoundTripModel)} does not support reading '{format}' format.");
@@ -351,29 +351,29 @@ namespace SampleTypeSpec
             }
             string requiredString = default;
             int requiredInt = default;
-            IList<global::SampleTypeSpec.StringFixedEnum> requiredCollection = default;
-            IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> requiredDictionary = default;
+            IList<StringFixedEnum> requiredCollection = default;
+            IDictionary<string, StringExtensibleEnum> requiredDictionary = default;
             Thing requiredModel = default;
             IntExtensibleEnum? intExtensibleEnum = default;
-            IList<global::SampleTypeSpec.IntExtensibleEnum> intExtensibleEnumCollection = default;
+            IList<IntExtensibleEnum> intExtensibleEnumCollection = default;
             FloatExtensibleEnum? floatExtensibleEnum = default;
             FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default;
-            IList<global::SampleTypeSpec.FloatExtensibleEnum> floatExtensibleEnumCollection = default;
+            IList<FloatExtensibleEnum> floatExtensibleEnumCollection = default;
             FloatFixedEnum? floatFixedEnum = default;
             FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default;
-            IList<global::SampleTypeSpec.FloatFixedEnum> floatFixedEnumCollection = default;
+            IList<FloatFixedEnum> floatFixedEnumCollection = default;
             IntFixedEnum? intFixedEnum = default;
-            IList<global::SampleTypeSpec.IntFixedEnum> intFixedEnumCollection = default;
+            IList<IntFixedEnum> intFixedEnumCollection = default;
             StringFixedEnum? stringFixedEnum = default;
             BinaryData requiredUnknown = default;
             BinaryData optionalUnknown = default;
-            IDictionary<string, global::System.BinaryData> requiredRecordUnknown = default;
-            IDictionary<string, global::System.BinaryData> optionalRecordUnknown = default;
-            IReadOnlyDictionary<string, global::System.BinaryData> readOnlyRequiredRecordUnknown = default;
-            IReadOnlyDictionary<string, global::System.BinaryData> readOnlyOptionalRecordUnknown = default;
+            IDictionary<string, BinaryData> requiredRecordUnknown = default;
+            IDictionary<string, BinaryData> optionalRecordUnknown = default;
+            IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default;
+            IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default;
             ModelWithRequiredNullableProperties modelWithRequiredNullable = default;
             BinaryData requiredBytes = default;
-            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("requiredString"u8))
@@ -388,7 +388,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredCollection"u8))
                 {
-                    List<global::SampleTypeSpec.StringFixedEnum> array = new List<global::SampleTypeSpec.StringFixedEnum>();
+                    List<StringFixedEnum> array = new List<StringFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(item.GetString().ToStringFixedEnum());
@@ -398,7 +398,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredDictionary"u8))
                 {
-                    Dictionary<string, global::SampleTypeSpec.StringExtensibleEnum> dictionary = new Dictionary<string, global::SampleTypeSpec.StringExtensibleEnum>();
+                    Dictionary<string, StringExtensibleEnum> dictionary = new Dictionary<string, StringExtensibleEnum>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         dictionary.Add(prop0.Name, new StringExtensibleEnum(prop0.Value.GetString()));
@@ -426,7 +426,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    List<global::SampleTypeSpec.IntExtensibleEnum> array = new List<global::SampleTypeSpec.IntExtensibleEnum>();
+                    List<IntExtensibleEnum> array = new List<IntExtensibleEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(new IntExtensibleEnum(item.GetInt32()));
@@ -458,7 +458,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    List<global::SampleTypeSpec.FloatExtensibleEnum> array = new List<global::SampleTypeSpec.FloatExtensibleEnum>();
+                    List<FloatExtensibleEnum> array = new List<FloatExtensibleEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(new FloatExtensibleEnum(item.GetSingle()));
@@ -490,7 +490,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    List<global::SampleTypeSpec.FloatFixedEnum> array = new List<global::SampleTypeSpec.FloatFixedEnum>();
+                    List<FloatFixedEnum> array = new List<FloatFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(item.GetSingle().ToFloatFixedEnum());
@@ -513,7 +513,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    List<global::SampleTypeSpec.IntFixedEnum> array = new List<global::SampleTypeSpec.IntFixedEnum>();
+                    List<IntFixedEnum> array = new List<IntFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(item.GetInt32().ToIntFixedEnum());
@@ -546,7 +546,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredRecordUnknown"u8))
                 {
-                    Dictionary<string, global::System.BinaryData> dictionary = new Dictionary<string, global::System.BinaryData>();
+                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -567,7 +567,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    Dictionary<string, global::System.BinaryData> dictionary = new Dictionary<string, global::System.BinaryData>();
+                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -584,7 +584,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("readOnlyRequiredRecordUnknown"u8))
                 {
-                    Dictionary<string, global::System.BinaryData> dictionary = new Dictionary<string, global::System.BinaryData>();
+                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -605,7 +605,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    Dictionary<string, global::System.BinaryData> dictionary = new Dictionary<string, global::System.BinaryData>();
+                    Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -642,22 +642,22 @@ namespace SampleTypeSpec
                 requiredDictionary,
                 requiredModel,
                 intExtensibleEnum,
-                (intExtensibleEnumCollection ?? new ChangeTrackingList<global::SampleTypeSpec.IntExtensibleEnum>()),
+                (intExtensibleEnumCollection ?? new ChangeTrackingList<IntExtensibleEnum>()),
                 floatExtensibleEnum,
                 floatExtensibleEnumWithIntValue,
-                (floatExtensibleEnumCollection ?? new ChangeTrackingList<global::SampleTypeSpec.FloatExtensibleEnum>()),
+                (floatExtensibleEnumCollection ?? new ChangeTrackingList<FloatExtensibleEnum>()),
                 floatFixedEnum,
                 floatFixedEnumWithIntValue,
-                (floatFixedEnumCollection ?? new ChangeTrackingList<global::SampleTypeSpec.FloatFixedEnum>()),
+                (floatFixedEnumCollection ?? new ChangeTrackingList<FloatFixedEnum>()),
                 intFixedEnum,
-                (intFixedEnumCollection ?? new ChangeTrackingList<global::SampleTypeSpec.IntFixedEnum>()),
+                (intFixedEnumCollection ?? new ChangeTrackingList<IntFixedEnum>()),
                 stringFixedEnum,
                 requiredUnknown,
                 optionalUnknown,
                 requiredRecordUnknown,
-                (optionalRecordUnknown ?? new ChangeTrackingDictionary<string, global::System.BinaryData>()),
+                (optionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>()),
                 readOnlyRequiredRecordUnknown,
-                (readOnlyOptionalRecordUnknown ?? new ChangeTrackingDictionary<string, global::System.BinaryData>()),
+                (readOnlyOptionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>()),
                 modelWithRequiredNullable,
                 requiredBytes,
                 additionalBinaryDataProperties);

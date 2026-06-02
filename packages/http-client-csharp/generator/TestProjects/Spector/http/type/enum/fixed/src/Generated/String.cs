@@ -14,32 +14,32 @@ namespace _Type._Enum.Fixed
     {
         protected String() => throw null;
 
-        internal String(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal String(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetKnownValue(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type._Enum.Fixed.DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type._Enum.Fixed.DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::_Type._Enum.Fixed.DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutKnownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
     }
 }

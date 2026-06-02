@@ -296,7 +296,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithNextLinkRequest(global::System.Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
@@ -305,7 +305,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(new global::System.Uri(_endpoint, nextPage));
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
@@ -326,7 +326,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(global::System.Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
@@ -335,7 +335,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(new global::System.Uri(_endpoint, nextPage));
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;

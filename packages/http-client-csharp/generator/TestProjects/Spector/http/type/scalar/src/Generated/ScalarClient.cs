@@ -10,11 +10,11 @@ namespace _Type.Scalar
 {
     public partial class ScalarClient
     {
-        public ScalarClient() : this(new global::System.Uri("http://localhost:3000"), new ScalarClientOptions()) => throw null;
+        public ScalarClient() : this(new Uri("http://localhost:3000"), new ScalarClientOptions()) => throw null;
 
-        internal ScalarClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ScalarClientOptions options) => throw null;
+        internal ScalarClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ScalarClientOptions options) => throw null;
 
-        public ScalarClient(global::System.Uri endpoint, ScalarClientOptions options) : this(null, endpoint, options) => throw null;
+        public ScalarClient(Uri endpoint, ScalarClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public ScalarClient(ScalarClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

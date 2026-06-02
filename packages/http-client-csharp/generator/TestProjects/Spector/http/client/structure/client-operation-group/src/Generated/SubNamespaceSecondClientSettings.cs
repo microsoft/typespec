@@ -13,7 +13,7 @@ namespace Client.Structure.AnotherClientOperationGroup
     [ExperimentalAttribute("SCME0002")]
     public partial class SubNamespaceSecondClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

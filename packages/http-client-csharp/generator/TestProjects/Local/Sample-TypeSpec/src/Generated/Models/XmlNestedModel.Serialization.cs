@@ -14,9 +14,9 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> A nested model for XML testing. </summary>
-    public partial class XmlNestedModel : IPersistableModel<global::SampleTypeSpec.XmlNestedModel>
+    public partial class XmlNestedModel : IPersistableModel<XmlNestedModel>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlNestedModel"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="XmlNestedModel"/> for deserialization. </summary>
         internal XmlNestedModel()
         {
         }
@@ -25,7 +25,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual XmlNestedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
@@ -66,14 +66,14 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<XmlNestedModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlNestedModel IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        XmlNestedModel IPersistableModel<XmlNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string IPersistableModel<XmlNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -97,7 +97,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlNestedModel)} does not support writing '{format}' format.");

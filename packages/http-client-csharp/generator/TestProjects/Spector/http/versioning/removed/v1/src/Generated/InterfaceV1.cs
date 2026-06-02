@@ -14,16 +14,16 @@ namespace Versioning.Removed
     {
         protected InterfaceV1() => throw null;
 
-        internal InterfaceV1(ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal InterfaceV1(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult V1InInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> V1InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V1InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.Removed.ModelV1> V1InInterface(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV1> V1InInterface(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Removed.ModelV1>> V1InInterfaceAsync(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::Versioning.Removed.ModelV1>> V1InInterfaceAsync(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

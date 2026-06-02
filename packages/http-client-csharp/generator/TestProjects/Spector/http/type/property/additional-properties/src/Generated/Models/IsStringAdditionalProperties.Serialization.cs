@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class IsStringAdditionalProperties : IJsonModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>
+    public partial class IsStringAdditionalProperties : IJsonModel<IsStringAdditionalProperties>
     {
         internal IsStringAdditionalProperties() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<IsStringAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
-        IsStringAdditionalProperties IPersistableModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        IsStringAdditionalProperties IPersistableModel<IsStringAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<IsStringAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(IsStringAdditionalProperties isStringAdditionalProperties) => throw null;
 
         public static explicit operator IsStringAdditionalProperties(ClientResult result) => throw null;
 
-        void IJsonModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<IsStringAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        IsStringAdditionalProperties IJsonModel<global::_Type.Property.AdditionalProperties.IsStringAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        IsStringAdditionalProperties IJsonModel<IsStringAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual IsStringAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

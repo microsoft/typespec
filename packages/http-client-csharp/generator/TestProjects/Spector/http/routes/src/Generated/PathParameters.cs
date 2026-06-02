@@ -19,33 +19,33 @@ namespace Routes._PathParameters
     {
         protected PathParameters() => throw null;
 
-        internal PathParameters(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal PathParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult TemplateOnly(string @param, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
 
         public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Explicit(string @param, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
 
         public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult AnnotationOnly(string @param, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
 
         public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual PathParametersReservedExpansion GetPathParametersReservedExpansionClient() => throw null;
 

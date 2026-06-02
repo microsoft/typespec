@@ -14,24 +14,24 @@ namespace _Type.Property.ValueTypes
     {
         protected Bytes() => throw null;
 
-        internal Bytes(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Bytes(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.ValueTypes.BytesProperty> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<BytesProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.ValueTypes.BytesProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::_Type.Property.ValueTypes.BytesProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

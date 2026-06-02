@@ -15,16 +15,16 @@ namespace Client.Structure.AnotherClientOperationGroup
     {
         protected Group5() => throw null;
 
-        internal Group5(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
+        internal Group5(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Six(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SixAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Six(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

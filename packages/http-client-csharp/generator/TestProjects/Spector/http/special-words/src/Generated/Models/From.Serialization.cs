@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class From : IJsonModel<global::SpecialWords._Models.From>
+    public partial class From : IJsonModel<From>
     {
         internal From() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._Models
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._Models.From>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<From>.Write(ModelReaderWriterOptions options) => throw null;
 
-        From IPersistableModel<global::SpecialWords._Models.From>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        From IPersistableModel<From>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._Models.From>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<From>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(From @from) => throw null;
 
-        void IJsonModel<global::SpecialWords._Models.From>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<From>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        From IJsonModel<global::SpecialWords._Models.From>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        From IJsonModel<From>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual From JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

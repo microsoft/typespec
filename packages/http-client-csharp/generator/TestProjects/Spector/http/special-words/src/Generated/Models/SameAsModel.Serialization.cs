@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._ModelProperties
 {
-    public partial class SameAsModel : IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>
+    public partial class SameAsModel : IJsonModel<SameAsModel>
     {
         internal SameAsModel() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._ModelProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<SameAsModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        SameAsModel IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        SameAsModel IPersistableModel<SameAsModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._ModelProperties.SameAsModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<SameAsModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SameAsModel sameAsModel) => throw null;
 
-        void IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<SameAsModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        SameAsModel IJsonModel<global::SpecialWords._ModelProperties.SameAsModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        SameAsModel IJsonModel<SameAsModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SameAsModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

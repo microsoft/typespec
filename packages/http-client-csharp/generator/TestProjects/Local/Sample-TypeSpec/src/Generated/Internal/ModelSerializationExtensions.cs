@@ -243,7 +243,7 @@ namespace SampleTypeSpec
                 case DateTime dateTime:
                     writer.WriteStringValue(dateTime, "O");
                     break;
-                case IEnumerable<global::System.Collections.Generic.KeyValuePair<string, object>> enumerable:
+                case IEnumerable<KeyValuePair<string, object>> enumerable:
                     writer.WriteStartObject();
                     foreach (var pair in enumerable)
                     {

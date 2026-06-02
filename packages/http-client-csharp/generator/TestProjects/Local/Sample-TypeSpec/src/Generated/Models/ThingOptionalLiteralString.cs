@@ -11,14 +11,14 @@ using System.ComponentModel;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingOptionalLiteralString : IEquatable<global::SampleTypeSpec.ThingOptionalLiteralString>
+    public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
     {
         private readonly string _value;
         private const string RejectValue = "reject";
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public ThingOptionalLiteralString(string value)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
@@ -29,21 +29,21 @@ namespace SampleTypeSpec
         /// <summary> Gets the Reject. </summary>
         public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
 
-        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/> values are the same. </summary>
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => left.Equals(right);
 
-        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/> values are not the same. </summary>
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => !left.Equals(right);
 
-        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/>. </summary>
+        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
         public static implicit operator ThingOptionalLiteralString(string value) => new ThingOptionalLiteralString(value);
 
-        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralString"/>. </summary>
+        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralString"/>. </summary>
         /// <param name="value"> The value. </param>
         public static implicit operator ThingOptionalLiteralString?(string value) => (value == null) ? null : new ThingOptionalLiteralString(value);
 

@@ -28,10 +28,10 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithStringNextLinkRequest(_options);
-            global::System.Uri nextPageUri = null;
+            Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = this.GetNextResponse(message);
@@ -42,7 +42,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                nextPageUri = new global::System.Uri(nextPageString, global::System.UriKind.RelativeOrAbsolute);
+                nextPageUri = new Uri(nextPageString, global::System.UriKind.RelativeOrAbsolute);
                 message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }

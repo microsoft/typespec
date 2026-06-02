@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Duration._Property
 {
-    public partial class FloatMillisecondsDurationArrayProperty : IJsonModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>
+    public partial class FloatMillisecondsDurationArrayProperty : IJsonModel<FloatMillisecondsDurationArrayProperty>
     {
         internal FloatMillisecondsDurationArrayProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Duration._Property
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<FloatMillisecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        FloatMillisecondsDurationArrayProperty IPersistableModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        FloatMillisecondsDurationArrayProperty IPersistableModel<FloatMillisecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<FloatMillisecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(FloatMillisecondsDurationArrayProperty floatMillisecondsDurationArrayProperty) => throw null;
 
         public static explicit operator FloatMillisecondsDurationArrayProperty(ClientResult result) => throw null;
 
-        void IJsonModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<FloatMillisecondsDurationArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        FloatMillisecondsDurationArrayProperty IJsonModel<global::Encode.Duration._Property.FloatMillisecondsDurationArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        FloatMillisecondsDurationArrayProperty IJsonModel<FloatMillisecondsDurationArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual FloatMillisecondsDurationArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

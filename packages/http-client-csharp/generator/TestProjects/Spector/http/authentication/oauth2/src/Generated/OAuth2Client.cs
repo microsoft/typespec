@@ -26,13 +26,13 @@ namespace Authentication.OAuth2
 
         protected OAuth2Client() => throw null;
 
-        public OAuth2Client(AuthenticationTokenProvider tokenProvider) : this(new global::System.Uri("http://localhost:3000"), tokenProvider, new OAuth2ClientOptions()) => throw null;
+        public OAuth2Client(AuthenticationTokenProvider tokenProvider) : this(new Uri("http://localhost:3000"), tokenProvider, new OAuth2ClientOptions()) => throw null;
 
-        public OAuth2Client(AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new global::System.Uri("http://localhost:3000"), tokenProvider, options) => throw null;
+        public OAuth2Client(AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
-        internal OAuth2Client(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, OAuth2ClientOptions options) => throw null;
+        internal OAuth2Client(AuthenticationPolicy authenticationPolicy, Uri endpoint, OAuth2ClientOptions options) => throw null;
 
-        public OAuth2Client(global::System.Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
+        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public OAuth2Client(OAuth2ClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -41,18 +41,18 @@ namespace Authentication.OAuth2
 
         public virtual ClientResult Valid(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Invalid(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> InvalidAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Invalid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

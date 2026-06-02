@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type._Enum.Extensible
 {
-    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum>
+    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<DaysOfWeekExtensibleEnum>
     {
         public DaysOfWeekExtensibleEnum(string value) => throw null;
 

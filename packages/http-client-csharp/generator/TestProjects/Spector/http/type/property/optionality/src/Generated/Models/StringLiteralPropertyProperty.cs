@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct StringLiteralPropertyProperty : IEquatable<global::_Type.Property.Optional.StringLiteralPropertyProperty>
+    public readonly partial struct StringLiteralPropertyProperty : IEquatable<StringLiteralPropertyProperty>
     {
         public StringLiteralPropertyProperty(string value) => throw null;
 

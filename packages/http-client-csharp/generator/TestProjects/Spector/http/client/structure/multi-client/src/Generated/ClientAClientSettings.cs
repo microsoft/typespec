@@ -13,7 +13,7 @@ namespace Client.Structure.MultiClient
     [ExperimentalAttribute("SCME0002")]
     public partial class ClientAClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

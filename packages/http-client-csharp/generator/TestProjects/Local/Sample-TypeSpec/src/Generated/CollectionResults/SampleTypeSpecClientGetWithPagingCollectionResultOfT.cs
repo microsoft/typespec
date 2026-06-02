@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithPagingCollectionResultOfT : CollectionResult<global::SampleTypeSpec.Thing>
+    internal partial class SampleTypeSpecClientGetWithPagingCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
@@ -27,7 +27,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return this.GetNextResponse(message);
@@ -44,7 +44,7 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override IEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
             return ((PageThing)page).Items;
         }

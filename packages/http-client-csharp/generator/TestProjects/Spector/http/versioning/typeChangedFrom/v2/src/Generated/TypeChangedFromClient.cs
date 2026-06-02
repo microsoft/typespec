@@ -15,11 +15,11 @@ namespace Versioning.TypeChangedFrom
     {
         protected TypeChangedFromClient() => throw null;
 
-        public TypeChangedFromClient(global::System.Uri endpoint) : this(endpoint, new TypeChangedFromClientOptions()) => throw null;
+        public TypeChangedFromClient(Uri endpoint) : this(endpoint, new TypeChangedFromClientOptions()) => throw null;
 
-        internal TypeChangedFromClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, TypeChangedFromClientOptions options) => throw null;
+        internal TypeChangedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, TypeChangedFromClientOptions options) => throw null;
 
-        public TypeChangedFromClient(global::System.Uri endpoint, TypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
+        public TypeChangedFromClient(Uri endpoint, TypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public TypeChangedFromClient(TypeChangedFromClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -28,10 +28,10 @@ namespace Versioning.TypeChangedFrom
 
         public virtual ClientResult Test(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.TypeChangedFrom.TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.TypeChangedFrom.TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::Versioning.TypeChangedFrom.TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

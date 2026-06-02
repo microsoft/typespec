@@ -15,32 +15,32 @@ namespace Client.Structure.TwoOperationGroup
     {
         protected Group2() => throw null;
 
-        internal Group2(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
+        internal Group2(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Two(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TwoAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Five(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> FiveAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Six(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SixAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Six(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

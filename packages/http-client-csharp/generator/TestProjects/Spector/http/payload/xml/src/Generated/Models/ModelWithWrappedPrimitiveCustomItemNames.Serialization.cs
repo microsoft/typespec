@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithWrappedPrimitiveCustomItemNames : IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>
+    public partial class ModelWithWrappedPrimitiveCustomItemNames : IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>
     {
         internal ModelWithWrappedPrimitiveCustomItemNames() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithWrappedPrimitiveCustomItemNames IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithWrappedPrimitiveCustomItemNames IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithWrappedPrimitiveCustomItemNames>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithWrappedPrimitiveCustomItemNames modelWithWrappedPrimitiveCustomItemNames) => throw null;
 

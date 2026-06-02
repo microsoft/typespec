@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithEnumValue() => throw null;
 
-        internal ModelWithEnumValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithEnumValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithEnum> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithEnum> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithEnum>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<global::Payload.Xml.ModelWithEnum>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithEnum input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithEnum input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithEnum input, CancellationToken cancellationToken = default) => throw null;
     }
 }

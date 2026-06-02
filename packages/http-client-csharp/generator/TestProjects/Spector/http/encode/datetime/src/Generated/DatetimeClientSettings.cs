@@ -12,7 +12,7 @@ namespace Encode.Datetime
     [ExperimentalAttribute("SCME0002")]
     public partial class DatetimeClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

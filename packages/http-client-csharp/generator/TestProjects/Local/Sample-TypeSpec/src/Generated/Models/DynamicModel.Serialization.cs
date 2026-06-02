@@ -15,9 +15,9 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> A sample dynamic model. </summary>
-    public partial class DynamicModel : IJsonModel<global::SampleTypeSpec.DynamicModel>
+    public partial class DynamicModel : IJsonModel<DynamicModel>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.DynamicModel"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="DynamicModel"/> for deserialization. </summary>
         internal DynamicModel()
         {
         }
@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DynamicModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -42,7 +42,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -53,16 +53,16 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<DynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        DynamicModel IPersistableModel<global::SampleTypeSpec.DynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        DynamicModel IPersistableModel<DynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.DynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<DynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="dynamicModel"> The <see cref="global::SampleTypeSpec.DynamicModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
+        /// <param name="dynamicModel"> The <see cref="DynamicModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(DynamicModel dynamicModel)
         {
             if ((dynamicModel == null))
@@ -74,7 +74,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<global::SampleTypeSpec.DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -93,7 +93,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.DynamicModel)} does not support writing '{format}' format.");
@@ -486,13 +486,13 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        DynamicModel IJsonModel<global::SampleTypeSpec.DynamicModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        DynamicModel IJsonModel<DynamicModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual DynamicModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<DynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.DynamicModel)} does not support reading '{format}' format.");
@@ -519,12 +519,12 @@ namespace SampleTypeSpec
             IDictionary<string, int> requiredNullableDictionary = default;
             IDictionary<string, int> primitiveDictionary = default;
             AnotherDynamicModel foo = default;
-            IList<global::SampleTypeSpec.AnotherDynamicModel> listFoo = default;
-            IList<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo = default;
-            IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionaryFoo = default;
-            IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo = default;
-            IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo = default;
-            IList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo = default;
+            IList<AnotherDynamicModel> listFoo = default;
+            IList<IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo = default;
+            IDictionary<string, AnotherDynamicModel> dictionaryFoo = default;
+            IDictionary<string, IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo = default;
+            IDictionary<string, IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo = default;
+            IList<IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -628,7 +628,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("listFoo"u8))
                 {
-                    List<global::SampleTypeSpec.AnotherDynamicModel> array = new List<global::SampleTypeSpec.AnotherDynamicModel>();
+                    List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         array.Add(global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(item, item.GetUtf8Bytes(), options));
@@ -638,7 +638,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("listOfListFoo"u8))
                 {
-                    List<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> array = new List<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+                    List<IList<global::SampleTypeSpec.AnotherDynamicModel>> array = new List<IList<global::SampleTypeSpec.AnotherDynamicModel>>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -647,7 +647,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            List<global::SampleTypeSpec.AnotherDynamicModel> array0 = new List<global::SampleTypeSpec.AnotherDynamicModel>();
+                            List<AnotherDynamicModel> array0 = new List<AnotherDynamicModel>();
                             foreach (var item0 in item.EnumerateArray())
                             {
                                 array0.Add(global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, item0.GetUtf8Bytes(), options));
@@ -660,7 +660,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("dictionaryFoo"u8))
                 {
-                    Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionary = new Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel>();
+                    Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         dictionary.Add(prop0.Name, global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, prop0.Value.GetUtf8Bytes(), options));
@@ -670,7 +670,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("dictionaryOfDictionaryFoo"u8))
                 {
-                    Dictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionary = new Dictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
+                    Dictionary<string, IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionary = new Dictionary<string, IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -679,7 +679,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionary0 = new Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel>();
+                            Dictionary<string, AnotherDynamicModel> dictionary0 = new Dictionary<string, AnotherDynamicModel>();
                             foreach (var prop1 in prop0.Value.EnumerateObject())
                             {
                                 dictionary0.Add(prop1.Name, global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(prop1.Value, prop1.Value.GetUtf8Bytes(), options));
@@ -692,7 +692,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("dictionaryListFoo"u8))
                 {
-                    Dictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionary = new Dictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+                    Dictionary<string, IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionary = new Dictionary<string, IList<global::SampleTypeSpec.AnotherDynamicModel>>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
                         if ((prop0.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -701,7 +701,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            List<global::SampleTypeSpec.AnotherDynamicModel> array = new List<global::SampleTypeSpec.AnotherDynamicModel>();
+                            List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                             foreach (var item in prop0.Value.EnumerateArray())
                             {
                                 array.Add(global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(item, item.GetUtf8Bytes(), options));
@@ -714,7 +714,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("listOfDictionaryFoo"u8))
                 {
-                    List<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> array = new List<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
+                    List<IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> array = new List<IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
                         if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -723,7 +723,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionary = new Dictionary<string, global::SampleTypeSpec.AnotherDynamicModel>();
+                            Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                             foreach (var prop0 in item.EnumerateObject())
                             {
                                 dictionary.Add(prop0.Name, global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, prop0.Value.GetUtf8Bytes(), options));
@@ -814,7 +814,7 @@ namespace SampleTypeSpec
                 int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> item))
+                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
                 {
                     return false;
                 }
@@ -831,7 +831,7 @@ namespace SampleTypeSpec
                 int propertyLength = "dictionaryListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!DictionaryListFoo.TryGetValue(key, out IList<global::SampleTypeSpec.AnotherDynamicModel> item))
+                if (!DictionaryListFoo.TryGetValue(key, out IList<AnotherDynamicModel> item))
                 {
                     return false;
                 }
@@ -920,7 +920,7 @@ namespace SampleTypeSpec
                 int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> item))
+                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
                 {
                     return false;
                 }
@@ -938,7 +938,7 @@ namespace SampleTypeSpec
                 int propertyLength = "dictionaryListFoo"u8.Length;
                 ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!DictionaryListFoo.TryGetValue(key, out IList<global::SampleTypeSpec.AnotherDynamicModel> item))
+                if (!DictionaryListFoo.TryGetValue(key, out IList<AnotherDynamicModel> item))
                 {
                     return false;
                 }
@@ -988,7 +988,7 @@ namespace SampleTypeSpec
         /// <summary></summary>
         /// <returns></returns>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        private IEnumerable<global::SampleTypeSpec.AnotherDynamicModel> ActiveListFoo()
+        private IEnumerable<AnotherDynamicModel> ActiveListFoo()
         {
             if (!global::SampleTypeSpec.Optional.IsCollectionDefined(ListFoo))
             {

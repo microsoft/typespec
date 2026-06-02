@@ -18,7 +18,7 @@ namespace SampleTypeSpec
     /// <summary> The Notebooks sub-client. </summary>
     public partial class Notebooks
     {
-        private readonly global::System.Uri _endpoint;
+        private readonly Uri _endpoint;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
-        internal Notebooks(ClientPipeline pipeline, global::System.Uri endpoint, string notebook)
+        internal Notebooks(ClientPipeline pipeline, Uri endpoint, string notebook)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
@@ -52,9 +52,9 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
-        /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential) : this(endpoint, notebook, credential, new SampleTypeSpecClientOptions())
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
+        public Notebooks(Uri endpoint, string notebook, ApiKeyCredential credential) : this(endpoint, notebook, credential, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -62,9 +62,9 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(global::System.Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider) : this(endpoint, notebook, tokenProvider, new SampleTypeSpecClientOptions())
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
+        public Notebooks(Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider) : this(endpoint, notebook, tokenProvider, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -73,7 +73,7 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal Notebooks(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string notebook, SampleTypeSpecClientOptions options)
+        internal Notebooks(AuthenticationPolicy authenticationPolicy, Uri endpoint, string notebook, SampleTypeSpecClientOptions options)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(endpoint, nameof(endpoint));
             global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(notebook, nameof(notebook));
@@ -97,9 +97,9 @@ namespace SampleTypeSpec
         /// <param name="notebook"></param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
-        /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
+        public Notebooks(Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
         {
         }
 
@@ -108,9 +108,9 @@ namespace SampleTypeSpec
         /// <param name="notebook"></param>
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(global::System.Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, notebook, options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
+        public Notebooks(Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, notebook, options)
         {
         }
 
@@ -133,7 +133,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetNotebook(RequestOptions options)
         {
@@ -150,9 +150,9 @@ namespace SampleTypeSpec
         /// </list>
         /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<global::System.ClientModel.ClientResult> GetNotebookAsync(RequestOptions options)
+        public virtual async Task<ClientResult> GetNotebookAsync(RequestOptions options)
         {
             using PipelineMessage message = this.CreateGetNotebookRequest(options);
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
@@ -160,8 +160,8 @@ namespace SampleTypeSpec
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<global::SampleTypeSpec.GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
         {
             ClientResult result = this.GetNotebook(cancellationToken.ToRequestOptions());
             return global::System.ClientModel.ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());
@@ -169,8 +169,8 @@ namespace SampleTypeSpec
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<global::SampleTypeSpec.GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await this.GetNotebookAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return global::System.ClientModel.ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());

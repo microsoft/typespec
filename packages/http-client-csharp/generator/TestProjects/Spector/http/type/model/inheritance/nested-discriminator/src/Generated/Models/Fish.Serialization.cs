@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     [PersistableModelProxyAttribute(typeof(UnknownFish))]
-    public abstract partial class Fish : IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>
+    public abstract partial class Fish : IJsonModel<Fish>
     {
         internal Fish() => throw null;
 
@@ -18,21 +18,21 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Fish>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Fish IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Fish IPersistableModel<Fish>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Fish>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Fish fish) => throw null;
 
         public static explicit operator Fish(ClientResult result) => throw null;
 
-        void IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Fish>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Fish IJsonModel<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Fish IJsonModel<Fish>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Fish JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

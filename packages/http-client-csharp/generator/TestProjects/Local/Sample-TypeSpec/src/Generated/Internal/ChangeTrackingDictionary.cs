@@ -82,11 +82,11 @@ namespace SampleTypeSpec
         /// <summary> Gets the Values. </summary>
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => this.Values;
 
-        public IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             if (this.IsUndefined)
             {
-                IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> enumerateEmpty()
+                IEnumerator<KeyValuePair<TKey, TValue>> enumerateEmpty()
                 {
                     yield break;
                 }

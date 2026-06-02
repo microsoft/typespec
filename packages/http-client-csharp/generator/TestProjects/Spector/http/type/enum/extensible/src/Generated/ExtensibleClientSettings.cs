@@ -12,7 +12,7 @@ namespace _Type._Enum.Extensible
     [ExperimentalAttribute("SCME0002")]
     public partial class ExtensibleClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

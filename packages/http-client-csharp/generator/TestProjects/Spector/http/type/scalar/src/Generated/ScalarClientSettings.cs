@@ -12,7 +12,7 @@ namespace _Type.Scalar
     [ExperimentalAttribute("SCME0002")]
     public partial class ScalarClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

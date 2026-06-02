@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace SampleTypeSpec
 {
-    /// <summary> Client options for <see cref="global::SampleTypeSpec.SampleTypeSpecClient"/>. </summary>
+    /// <summary> Client options for <see cref="SampleTypeSpecClient"/>. </summary>
     public partial class SampleTypeSpecClientOptions : ClientPipelineOptions
     {
         private const global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion LatestVersion = global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview;

@@ -12,7 +12,7 @@ namespace Client.Structure.Service._Baz
     {
         protected Baz() => throw null;
 
-        internal Baz(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
+        internal Baz(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -13,7 +13,7 @@ namespace SampleTypeSpec
 {
     internal static partial class ClientPipelineExtensions
     {
-        public static async ValueTask<global::System.ClientModel.Primitives.PipelineResponse> ProcessMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
+        public static async ValueTask<PipelineResponse> ProcessMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             await pipeline.SendAsync(message).ConfigureAwait(false);
 
@@ -39,7 +39,7 @@ namespace SampleTypeSpec
             return response;
         }
 
-        public static async ValueTask<global::System.ClientModel.ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
+        public static async ValueTask<ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
             switch (response.Status)

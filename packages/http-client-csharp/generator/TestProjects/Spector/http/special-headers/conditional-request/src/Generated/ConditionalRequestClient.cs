@@ -13,11 +13,11 @@ namespace SpecialHeaders.ConditionalRequest
 {
     public partial class ConditionalRequestClient
     {
-        public ConditionalRequestClient() : this(new global::System.Uri("http://localhost:3000"), new ConditionalRequestClientOptions()) => throw null;
+        public ConditionalRequestClient() : this(new Uri("http://localhost:3000"), new ConditionalRequestClientOptions()) => throw null;
 
-        internal ConditionalRequestClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ConditionalRequestClientOptions options) => throw null;
+        internal ConditionalRequestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ConditionalRequestClientOptions options) => throw null;
 
-        public ConditionalRequestClient(global::System.Uri endpoint, ConditionalRequestClientOptions options) : this(null, endpoint, options) => throw null;
+        public ConditionalRequestClient(Uri endpoint, ConditionalRequestClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public ConditionalRequestClient(ConditionalRequestClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,34 +26,34 @@ namespace SpecialHeaders.ConditionalRequest
 
         public virtual ClientResult PostIfMatch(string ifMatch, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfMatch(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfMatchAsync(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfMatchAsync(string ifMatch = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PostIfNoneMatch(string ifNoneMatch, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfNoneMatch(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfNoneMatchAsync(string ifNoneMatch = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince, RequestOptions options) => throw null;
 
         public virtual ClientResult HeadIfModifiedSince(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> HeadIfModifiedSinceAsync(DateTimeOffset? ifModifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince, RequestOptions options) => throw null;
 
         public virtual ClientResult PostIfUnmodifiedSince(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PostIfUnmodifiedSinceAsync(DateTimeOffset? ifUnmodifiedSince = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

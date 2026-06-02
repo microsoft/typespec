@@ -12,7 +12,7 @@ namespace Authentication.ApiKey
     [ExperimentalAttribute("SCME0002")]
     public partial class ApiKeyClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

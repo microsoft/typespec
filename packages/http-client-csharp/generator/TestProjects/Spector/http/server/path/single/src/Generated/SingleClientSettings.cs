@@ -12,7 +12,7 @@ namespace Server.Path.Single
     [ExperimentalAttribute("SCME0002")]
     public partial class SingleClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

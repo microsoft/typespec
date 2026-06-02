@@ -15,16 +15,16 @@ namespace SpecialWords._ReservedOperationBodyParams
     {
         protected ReservedOperationBodyParams() => throw null;
 
-        internal ReservedOperationBodyParams(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ReservedOperationBodyParams(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult WithItems(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> WithItemsAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> WithItemsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult WithItems(IEnumerable<string> items, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> WithItemsAsync(IEnumerable<string> items, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithItemsAsync(IEnumerable<string> items, CancellationToken cancellationToken = default) => throw null;
     }
 }
