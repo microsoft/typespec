@@ -14,17 +14,17 @@ namespace SampleTypeSpec
         /// <param name="value"> The value to deserialize. </param>
         public static IntFixedEnum ToIntFixedEnum(this int value)
         {
-            if ((value == 1))
+            if (value == 1)
             {
-                return global::SampleTypeSpec.IntFixedEnum.One;
+                return IntFixedEnum.One;
             }
-            if ((value == 2))
+            if (value == 2)
             {
-                return global::SampleTypeSpec.IntFixedEnum.Two;
+                return IntFixedEnum.Two;
             }
-            if ((value == 4))
+            if (value == 4)
             {
-                return global::SampleTypeSpec.IntFixedEnum.Four;
+                return IntFixedEnum.Four;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
         }

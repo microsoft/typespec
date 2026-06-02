@@ -7,7 +7,7 @@ using Serialization.EncodedName.Json._Property;
 
 namespace Serialization.EncodedName.Json
 {
-    [ModelReaderWriterBuildableAttribute(typeof(JsonEncodedNameModel))]
+    [ModelReaderWriterBuildable(typeof(JsonEncodedNameModel))]
     public partial class SerializationEncodedNameJsonContext : ModelReaderWriterContext
     {
     }

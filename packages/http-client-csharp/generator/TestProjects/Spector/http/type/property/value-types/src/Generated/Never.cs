@@ -14,24 +14,24 @@ namespace _Type.Property.ValueTypes
     {
         protected Never() => throw null;
 
-        internal Never(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Never(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.ValueTypes.NeverProperty> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<NeverProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.ValueTypes.NeverProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<NeverProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(NeverProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(NeverProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(NeverProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

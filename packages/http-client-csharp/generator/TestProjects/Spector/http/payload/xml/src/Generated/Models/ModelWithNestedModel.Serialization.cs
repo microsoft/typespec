@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithNestedModel : IPersistableModel<global::Payload.Xml.ModelWithNestedModel>
+    public partial class ModelWithNestedModel : IPersistableModel<ModelWithNestedModel>
     {
         internal ModelWithNestedModel() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Payload.Xml.ModelWithNestedModel>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithNestedModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithNestedModel IPersistableModel<global::Payload.Xml.ModelWithNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithNestedModel IPersistableModel<ModelWithNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Payload.Xml.ModelWithNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithNestedModel modelWithNestedModel) => throw null;
 

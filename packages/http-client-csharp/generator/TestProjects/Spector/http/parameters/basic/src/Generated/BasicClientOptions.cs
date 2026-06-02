@@ -12,7 +12,7 @@ namespace Parameters.Basic
     {
         public BasicClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal BasicClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

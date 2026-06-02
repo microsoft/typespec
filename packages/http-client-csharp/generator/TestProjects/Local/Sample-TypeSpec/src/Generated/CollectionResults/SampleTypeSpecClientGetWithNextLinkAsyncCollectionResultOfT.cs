@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<global::SampleTypeSpec.Thing>
+    internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
@@ -29,17 +29,17 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
-            global::System.Uri nextPageUri = null;
+            Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
+                ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                if ((nextPageUri == null))
+                if (nextPageUri == null)
                 {
                     yield break;
                 }
@@ -52,10 +52,10 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            global::System.Uri nextPage = ((ListWithNextLinkResponse)page).Next;
-            if ((nextPage != null))
+            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            if (nextPage != null)
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {
@@ -66,20 +66,20 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
             foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
             {
                 yield return item;
-                await global::System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
             }
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(PipelineMessage message)
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

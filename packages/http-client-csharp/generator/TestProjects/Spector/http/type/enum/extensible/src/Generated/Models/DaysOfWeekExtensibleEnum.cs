@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type._Enum.Extensible
 {
-    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<global::_Type._Enum.Extensible.DaysOfWeekExtensibleEnum>
+    public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<DaysOfWeekExtensibleEnum>
     {
         public DaysOfWeekExtensibleEnum(string value) => throw null;
 
@@ -33,12 +33,12 @@ namespace _Type._Enum.Extensible
 
         public static implicit operator DaysOfWeekExtensibleEnum?(string value) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(DaysOfWeekExtensibleEnum other) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

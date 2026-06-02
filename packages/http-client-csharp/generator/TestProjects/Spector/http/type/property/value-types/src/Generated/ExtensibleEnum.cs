@@ -14,24 +14,24 @@ namespace _Type.Property.ValueTypes
     {
         protected ExtensibleEnum() => throw null;
 
-        internal ExtensibleEnum(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ExtensibleEnum(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.ValueTypes.ExtensibleEnumProperty> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ExtensibleEnumProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ExtensibleEnumProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ExtensibleEnumProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ExtensibleEnumProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ExtensibleEnumProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

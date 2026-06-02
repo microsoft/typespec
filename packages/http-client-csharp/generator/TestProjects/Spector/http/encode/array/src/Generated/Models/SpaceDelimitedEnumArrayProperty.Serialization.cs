@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode._Array
 {
-    public partial class SpaceDelimitedEnumArrayProperty : IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>
+    public partial class SpaceDelimitedEnumArrayProperty : IJsonModel<SpaceDelimitedEnumArrayProperty>
     {
         internal SpaceDelimitedEnumArrayProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode._Array
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<SpaceDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        SpaceDelimitedEnumArrayProperty IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        SpaceDelimitedEnumArrayProperty IPersistableModel<SpaceDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SpaceDelimitedEnumArrayProperty spaceDelimitedEnumArrayProperty) => throw null;
 
         public static explicit operator SpaceDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
-        void IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<SpaceDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        SpaceDelimitedEnumArrayProperty IJsonModel<global::Encode._Array.SpaceDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        SpaceDelimitedEnumArrayProperty IJsonModel<SpaceDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpaceDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

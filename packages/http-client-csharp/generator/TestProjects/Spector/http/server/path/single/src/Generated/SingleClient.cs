@@ -15,23 +15,23 @@ namespace Server.Path.Single
     {
         protected SingleClient() => throw null;
 
-        public SingleClient(global::System.Uri endpoint) : this(endpoint, new SingleClientOptions()) => throw null;
+        public SingleClient(Uri endpoint) : this(endpoint, new SingleClientOptions()) => throw null;
 
-        internal SingleClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, SingleClientOptions options) => throw null;
+        internal SingleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SingleClientOptions options) => throw null;
 
-        public SingleClient(global::System.Uri endpoint, SingleClientOptions options) : this(null, endpoint, options) => throw null;
+        public SingleClient(Uri endpoint, SingleClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public SingleClient(SingleClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public SingleClient(SingleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult MyOp(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> MyOpAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult MyOp(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -14,7 +14,7 @@ namespace Payload.Pageable._XmlPagination
     {
         protected XmlPagination() => throw null;
 
-        internal XmlPagination(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal XmlPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -22,16 +22,16 @@ namespace Payload.Pageable._XmlPagination
 
         public virtual AsyncCollectionResult GetWithContinuationAsync(string marker, RequestOptions options) => throw null;
 
-        public virtual CollectionResult<global::Payload.Pageable.XmlPet> GetWithContinuation(string marker = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<XmlPet> GetWithContinuation(string marker = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<global::Payload.Pageable.XmlPet> GetWithContinuationAsync(string marker = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<XmlPet> GetWithContinuationAsync(string marker = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual CollectionResult GetWithNextLink(RequestOptions options) => throw null;
 
         public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options) => throw null;
 
-        public virtual CollectionResult<global::Payload.Pageable.XmlPet> GetWithNextLink(CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<XmlPet> GetWithNextLink(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<global::Payload.Pageable.XmlPet> GetWithNextLinkAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<XmlPet> GetWithNextLinkAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -23,7 +23,7 @@ namespace SampleTypeSpec
         /// <param name="innerList"> The inner list. </param>
         public ChangeTrackingList(IList<T> innerList)
         {
-            if ((innerList != null))
+            if (innerList != null)
             {
                 _innerList = innerList;
             }
@@ -32,39 +32,39 @@ namespace SampleTypeSpec
         /// <param name="innerList"> The inner list. </param>
         public ChangeTrackingList(IReadOnlyList<T> innerList)
         {
-            if ((innerList != null))
+            if (innerList != null)
             {
                 _innerList = innerList.ToList();
             }
         }
 
         /// <summary> Gets the IsUndefined. </summary>
-        public bool IsUndefined => (_innerList == null);
+        public bool IsUndefined => _innerList == null;
 
         /// <summary> Gets the Count. </summary>
-        public int Count => this.IsUndefined ? 0 : this.EnsureList().Count;
+        public int Count => IsUndefined ? 0 : EnsureList().Count;
 
         /// <summary> Gets the IsReadOnly. </summary>
-        public bool IsReadOnly => this.IsUndefined ? false : this.EnsureList().IsReadOnly;
+        public bool IsReadOnly => IsUndefined ? false : EnsureList().IsReadOnly;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public T this[int index]
         {
             get
             {
-                if (this.IsUndefined)
+                if (IsUndefined)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
-                return this.EnsureList()[index];
+                return EnsureList()[index];
             }
             set
             {
-                if (this.IsUndefined)
+                if (IsUndefined)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
-                this.EnsureList()[index] = value;
+                EnsureList()[index] = value;
             }
         }
 
@@ -75,7 +75,7 @@ namespace SampleTypeSpec
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 IEnumerator<T> enumerateEmpty()
                 {
@@ -83,86 +83,86 @@ namespace SampleTypeSpec
                 }
                 return enumerateEmpty();
             }
-            return this.EnsureList().GetEnumerator();
+            return EnsureList().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         /// <param name="item"> The item to add. </param>
         public void Add(T item)
         {
-            this.EnsureList().Add(item);
+            EnsureList().Add(item);
         }
 
         public void Clear()
         {
-            this.EnsureList().Clear();
+            EnsureList().Clear();
         }
 
         /// <param name="item"> The item. </param>
         public bool Contains(T item)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureList().Contains(item);
+            return EnsureList().Contains(item);
         }
 
         /// <param name="array"> The array to copy to. </param>
         /// <param name="arrayIndex"> The array index. </param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return;
             }
-            this.EnsureList().CopyTo(array, arrayIndex);
+            EnsureList().CopyTo(array, arrayIndex);
         }
 
         /// <param name="item"> The item. </param>
         public bool Remove(T item)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureList().Remove(item);
+            return EnsureList().Remove(item);
         }
 
         /// <param name="item"> The item. </param>
         public int IndexOf(T item)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return -1;
             }
-            return this.EnsureList().IndexOf(item);
+            return EnsureList().IndexOf(item);
         }
 
         /// <param name="index"> The inner list. </param>
         /// <param name="item"> The item. </param>
         public void Insert(int index, T item)
         {
-            this.EnsureList().Insert(index, item);
+            EnsureList().Insert(index, item);
         }
 
         /// <param name="index"> The inner list. </param>
         public void RemoveAt(int index)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
-            this.EnsureList().RemoveAt(index);
+            EnsureList().RemoveAt(index);
         }
 
         public IList<T> EnsureList()
         {
-            return (_innerList ??= new List<T>());
+            return _innerList ??= new List<T>();
         }
     }
 }

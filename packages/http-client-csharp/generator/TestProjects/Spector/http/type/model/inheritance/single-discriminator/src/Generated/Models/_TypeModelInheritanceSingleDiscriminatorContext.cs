@@ -6,15 +6,15 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    [ModelReaderWriterBuildableAttribute(typeof(Bird))]
-    [ModelReaderWriterBuildableAttribute(typeof(Dinosaur))]
-    [ModelReaderWriterBuildableAttribute(typeof(Eagle))]
-    [ModelReaderWriterBuildableAttribute(typeof(Goose))]
-    [ModelReaderWriterBuildableAttribute(typeof(SeaGull))]
-    [ModelReaderWriterBuildableAttribute(typeof(Sparrow))]
-    [ModelReaderWriterBuildableAttribute(typeof(TRex))]
-    [ModelReaderWriterBuildableAttribute(typeof(UnknownBird))]
-    [ModelReaderWriterBuildableAttribute(typeof(UnknownDinosaur))]
+    [ModelReaderWriterBuildable(typeof(Bird))]
+    [ModelReaderWriterBuildable(typeof(Dinosaur))]
+    [ModelReaderWriterBuildable(typeof(Eagle))]
+    [ModelReaderWriterBuildable(typeof(Goose))]
+    [ModelReaderWriterBuildable(typeof(SeaGull))]
+    [ModelReaderWriterBuildable(typeof(Sparrow))]
+    [ModelReaderWriterBuildable(typeof(TRex))]
+    [ModelReaderWriterBuildable(typeof(UnknownBird))]
+    [ModelReaderWriterBuildable(typeof(UnknownDinosaur))]
     public partial class _TypeModelInheritanceSingleDiscriminatorContext : ModelReaderWriterContext
     {
     }

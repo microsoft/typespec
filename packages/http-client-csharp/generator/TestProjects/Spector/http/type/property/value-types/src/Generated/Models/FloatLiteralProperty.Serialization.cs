@@ -9,27 +9,27 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class FloatLiteralProperty : IJsonModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>
+    public partial class FloatLiteralProperty : IJsonModel<FloatLiteralProperty>
     {
         protected virtual FloatLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<FloatLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        FloatLiteralProperty IPersistableModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        FloatLiteralProperty IPersistableModel<FloatLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<FloatLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(FloatLiteralProperty floatLiteralProperty) => throw null;
 
         public static explicit operator FloatLiteralProperty(ClientResult result) => throw null;
 
-        void IJsonModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<FloatLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        FloatLiteralProperty IJsonModel<global::_Type.Property.ValueTypes.FloatLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        FloatLiteralProperty IJsonModel<FloatLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual FloatLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

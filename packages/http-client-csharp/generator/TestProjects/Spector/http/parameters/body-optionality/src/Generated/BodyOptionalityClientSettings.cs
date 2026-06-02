@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.BodyOptionality
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class BodyOptionalityClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

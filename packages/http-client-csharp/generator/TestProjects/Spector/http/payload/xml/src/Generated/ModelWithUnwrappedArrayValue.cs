@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithUnwrappedArrayValue() => throw null;
 
-        internal ModelWithUnwrappedArrayValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithUnwrappedArrayValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithUnwrappedArray> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithUnwrappedArray> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithUnwrappedArray>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelWithUnwrappedArray>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithUnwrappedArray input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithUnwrappedArray input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithUnwrappedArray input, CancellationToken cancellationToken = default) => throw null;
     }
 }

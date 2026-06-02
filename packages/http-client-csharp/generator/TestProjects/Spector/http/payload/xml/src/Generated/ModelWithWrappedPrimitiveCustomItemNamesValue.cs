@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithWrappedPrimitiveCustomItemNamesValue() => throw null;
 
-        internal ModelWithWrappedPrimitiveCustomItemNamesValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithWrappedPrimitiveCustomItemNamesValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithWrappedPrimitiveCustomItemNames> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithWrappedPrimitiveCustomItemNames>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelWithWrappedPrimitiveCustomItemNames>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithWrappedPrimitiveCustomItemNames input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithWrappedPrimitiveCustomItemNames input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithWrappedPrimitiveCustomItemNames input, CancellationToken cancellationToken = default) => throw null;
     }
 }

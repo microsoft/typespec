@@ -10,11 +10,11 @@ namespace Resiliency.ServiceDriven
 {
     public partial class ResiliencyServiceDrivenClientOptions : ClientPipelineOptions
     {
-        private const global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion LatestVersion = global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion.V1;
+        private const ServiceVersion LatestVersion = ServiceVersion.V1;
 
-        public ResiliencyServiceDrivenClientOptions(global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion version = LatestVersion) => throw null;
+        public ResiliencyServiceDrivenClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ResiliencyServiceDrivenClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion

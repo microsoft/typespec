@@ -12,7 +12,7 @@ namespace _Type._Enum.Fixed
     {
         public FixedClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal FixedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

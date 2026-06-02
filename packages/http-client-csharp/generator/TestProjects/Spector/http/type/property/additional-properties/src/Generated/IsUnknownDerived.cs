@@ -14,24 +14,24 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsUnknownDerived() => throw null;
 
-        internal IsUnknownDerived(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal IsUnknownDerived(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IsUnknownAdditionalPropertiesDerived> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IsUnknownAdditionalPropertiesDerived>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(IsUnknownAdditionalPropertiesDerived body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IsUnknownAdditionalPropertiesDerived body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(IsUnknownAdditionalPropertiesDerived body, CancellationToken cancellationToken = default) => throw null;
     }
 }

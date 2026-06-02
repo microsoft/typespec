@@ -12,7 +12,7 @@ namespace Routes
     {
         public RoutesClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal RoutesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

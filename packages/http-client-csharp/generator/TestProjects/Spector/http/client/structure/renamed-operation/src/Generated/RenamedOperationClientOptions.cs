@@ -12,7 +12,7 @@ namespace Client.Structure.RenamedOperation
     {
         public RenamedOperationClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal RenamedOperationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

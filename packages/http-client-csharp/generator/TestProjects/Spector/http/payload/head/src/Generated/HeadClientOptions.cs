@@ -12,7 +12,7 @@ namespace Payload.Head
     {
         public HeadClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal HeadClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

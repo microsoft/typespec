@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     {
         public SingleDiscriminatorClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal SingleDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

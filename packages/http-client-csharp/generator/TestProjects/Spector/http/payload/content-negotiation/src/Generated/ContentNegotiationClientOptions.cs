@@ -12,7 +12,7 @@ namespace Payload.ContentNegotiation
     {
         public ContentNegotiationClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ContentNegotiationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

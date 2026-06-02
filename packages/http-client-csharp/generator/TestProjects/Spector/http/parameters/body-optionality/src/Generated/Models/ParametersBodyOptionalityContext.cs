@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.BodyOptionality
 {
-    [ModelReaderWriterBuildableAttribute(typeof(BodyModel))]
+    [ModelReaderWriterBuildable(typeof(BodyModel))]
     public partial class ParametersBodyOptionalityContext : ModelReaderWriterContext
     {
     }

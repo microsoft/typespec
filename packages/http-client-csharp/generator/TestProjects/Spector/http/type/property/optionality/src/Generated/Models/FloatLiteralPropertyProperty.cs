@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct FloatLiteralPropertyProperty : IEquatable<global::_Type.Property.Optional.FloatLiteralPropertyProperty>
+    public readonly partial struct FloatLiteralPropertyProperty : IEquatable<FloatLiteralPropertyProperty>
     {
         public FloatLiteralPropertyProperty(float value) => throw null;
 
@@ -19,12 +19,12 @@ namespace _Type.Property.Optional
 
         public static implicit operator FloatLiteralPropertyProperty(float value) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(FloatLiteralPropertyProperty other) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

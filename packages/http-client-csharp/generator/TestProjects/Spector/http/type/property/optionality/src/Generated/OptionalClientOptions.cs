@@ -12,7 +12,7 @@ namespace _Type.Property.Optional
     {
         public OptionalClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal OptionalClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

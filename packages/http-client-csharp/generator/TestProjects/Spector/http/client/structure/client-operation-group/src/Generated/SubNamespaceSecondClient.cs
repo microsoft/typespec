@@ -16,24 +16,24 @@ namespace Client.Structure.AnotherClientOperationGroup
     {
         protected SubNamespaceSecondClient() => throw null;
 
-        public SubNamespaceSecondClient(global::System.Uri endpoint, ClientType client) : this(endpoint, client, new SubNamespaceSecondClientOptions()) => throw null;
+        public SubNamespaceSecondClient(Uri endpoint, ClientType client) : this(endpoint, client, new SubNamespaceSecondClientOptions()) => throw null;
 
-        internal SubNamespaceSecondClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) => throw null;
+        internal SubNamespaceSecondClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) => throw null;
 
-        public SubNamespaceSecondClient(global::System.Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public SubNamespaceSecondClient(Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) : this(null, endpoint, client, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public SubNamespaceSecondClient(SubNamespaceSecondClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public SubNamespaceSecondClient(SubNamespaceSecondClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Five(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> FiveAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Group5 GetGroup5Client() => throw null;
     }

@@ -12,7 +12,7 @@ namespace _Type.Property.ValueTypes
     {
         public ValueTypesClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ValueTypesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

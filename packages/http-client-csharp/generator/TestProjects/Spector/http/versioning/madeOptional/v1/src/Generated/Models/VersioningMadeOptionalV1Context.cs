@@ -7,7 +7,7 @@ using Versioning.MadeOptional;
 
 namespace Versioning.MadeOptional.V1
 {
-    [ModelReaderWriterBuildableAttribute(typeof(TestModel))]
+    [ModelReaderWriterBuildable(typeof(TestModel))]
     public partial class VersioningMadeOptionalV1Context : ModelReaderWriterContext
     {
     }

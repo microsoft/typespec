@@ -12,7 +12,7 @@ namespace _Type.Dictionary
     {
         public DictionaryClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal DictionaryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Dictionary
 {
-    [ModelReaderWriterBuildableAttribute(typeof(InnerModel))]
+    [ModelReaderWriterBuildable(typeof(InnerModel))]
     public partial class _TypeDictionaryContext : ModelReaderWriterContext
     {
     }

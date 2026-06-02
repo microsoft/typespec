@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace _Type._Array
 {
-    [ModelReaderWriterBuildableAttribute(typeof(InnerModel))]
+    [ModelReaderWriterBuildable(typeof(InnerModel))]
     public partial class _Type_ArrayContext : ModelReaderWriterContext
     {
     }

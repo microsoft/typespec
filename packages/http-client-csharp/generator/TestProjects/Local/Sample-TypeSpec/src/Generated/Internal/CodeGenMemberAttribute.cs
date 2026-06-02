@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [AttributeUsageAttribute((global::System.AttributeTargets.Property | global::System.AttributeTargets.Field))]
+    [AttributeUsage((AttributeTargets.Property | AttributeTargets.Field))]
     internal partial class CodeGenMemberAttribute : CodeGenTypeAttribute
     {
         /// <param name="originalName"> The original name of the member. </param>

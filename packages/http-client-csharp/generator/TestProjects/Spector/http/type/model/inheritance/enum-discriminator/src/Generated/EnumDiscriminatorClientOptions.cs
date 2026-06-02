@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     {
         public EnumDiscriminatorClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal EnumDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Duration._Property
 {
-    public partial class DefaultDurationProperty : IJsonModel<global::Encode.Duration._Property.DefaultDurationProperty>
+    public partial class DefaultDurationProperty : IJsonModel<DefaultDurationProperty>
     {
         internal DefaultDurationProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Duration._Property
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Encode.Duration._Property.DefaultDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<DefaultDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DefaultDurationProperty IPersistableModel<global::Encode.Duration._Property.DefaultDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DefaultDurationProperty IPersistableModel<DefaultDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Encode.Duration._Property.DefaultDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<DefaultDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DefaultDurationProperty defaultDurationProperty) => throw null;
 
         public static explicit operator DefaultDurationProperty(ClientResult result) => throw null;
 
-        void IJsonModel<global::Encode.Duration._Property.DefaultDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<DefaultDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DefaultDurationProperty IJsonModel<global::Encode.Duration._Property.DefaultDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DefaultDurationProperty IJsonModel<DefaultDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DefaultDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

@@ -16,20 +16,20 @@ namespace SampleTypeSpec
     /// <summary> Another sample dynamic model. </summary>
     public partial class AnotherDynamicModel
     {
-        [ExperimentalAttribute("SCME0001")]
+        [Experimental("SCME0001")]
         private JsonPatch _patch;
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="bar"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="bar"/> is null. </exception>
         public AnotherDynamicModel(string bar)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(bar, nameof(bar));
+            Argument.AssertNotNull(bar, nameof(bar));
 
             Bar = bar;
         }
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
         /// <param name="patch"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -41,9 +41,9 @@ namespace SampleTypeSpec
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Gets the Patch. </summary>
-        [JsonIgnoreAttribute]
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [ExperimentalAttribute("SCME0001")]
+        [JsonIgnore]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Experimental("SCME0001")]
         public ref JsonPatch Patch => ref _patch;
 
         /// <summary> Gets the Bar. </summary>

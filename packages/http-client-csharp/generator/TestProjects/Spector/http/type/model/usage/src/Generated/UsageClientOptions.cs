@@ -12,7 +12,7 @@ namespace _Type.Model.Usage
     {
         public UsageClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal UsageClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

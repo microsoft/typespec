@@ -10,11 +10,11 @@ namespace Versioning.Added
 {
     public partial class AddedClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.Added.AddedClientOptions.ServiceVersion LatestVersion = global::Versioning.Added.AddedClientOptions.ServiceVersion.V2;
+        private const ServiceVersion LatestVersion = ServiceVersion.V2;
 
-        public AddedClientOptions(global::Versioning.Added.AddedClientOptions.ServiceVersion version = LatestVersion) => throw null;
+        public AddedClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal AddedClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion

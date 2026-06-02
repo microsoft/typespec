@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithRenamedWrappedAndItemModelArray : IPersistableModel<global::Payload.Xml.ModelWithRenamedWrappedAndItemModelArray>
+    public partial class ModelWithRenamedWrappedAndItemModelArray : IPersistableModel<ModelWithRenamedWrappedAndItemModelArray>
     {
         internal ModelWithRenamedWrappedAndItemModelArray() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Payload.Xml.ModelWithRenamedWrappedAndItemModelArray>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithRenamedWrappedAndItemModelArray>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithRenamedWrappedAndItemModelArray IPersistableModel<global::Payload.Xml.ModelWithRenamedWrappedAndItemModelArray>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithRenamedWrappedAndItemModelArray IPersistableModel<ModelWithRenamedWrappedAndItemModelArray>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Payload.Xml.ModelWithRenamedWrappedAndItemModelArray>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithRenamedWrappedAndItemModelArray>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithRenamedWrappedAndItemModelArray modelWithRenamedWrappedAndItemModelArray) => throw null;
 

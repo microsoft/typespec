@@ -10,11 +10,11 @@ namespace Service.MultipleServices.ServiceA
 {
     public partial class ServiceAClientOptions : ClientPipelineOptions
     {
-        private const global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion LatestVersion = global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion.Vav2;
+        private const ServiceVersion LatestVersion = ServiceVersion.Vav2;
 
-        public ServiceAClientOptions(global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion version = LatestVersion) => throw null;
+        public ServiceAClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ServiceAClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion

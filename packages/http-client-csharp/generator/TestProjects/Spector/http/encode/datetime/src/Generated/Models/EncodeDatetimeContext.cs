@@ -6,11 +6,11 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Datetime
 {
-    [ModelReaderWriterBuildableAttribute(typeof(DefaultDatetimeProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(Rfc3339DatetimeProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(Rfc7231DatetimeProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(UnixTimestampArrayDatetimeProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(UnixTimestampDatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(DefaultDatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(Rfc3339DatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(Rfc7231DatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(UnixTimestampArrayDatetimeProperty))]
+    [ModelReaderWriterBuildable(typeof(UnixTimestampDatetimeProperty))]
     public partial class EncodeDatetimeContext : ModelReaderWriterContext
     {
     }

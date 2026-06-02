@@ -12,7 +12,7 @@ namespace Payload.Pageable
     {
         public PageableClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal PageableClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

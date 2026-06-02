@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace SpecialWords._Models
 {
-    public partial class Return : IJsonModel<global::SpecialWords._Models.Return>
+    public partial class Return : IJsonModel<Return>
     {
         internal Return() => throw null;
 
@@ -17,19 +17,19 @@ namespace SpecialWords._Models
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::SpecialWords._Models.Return>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<Return>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Return IPersistableModel<global::SpecialWords._Models.Return>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Return IPersistableModel<Return>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::SpecialWords._Models.Return>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<Return>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Return @return) => throw null;
 
-        void IJsonModel<global::SpecialWords._Models.Return>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<Return>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Return IJsonModel<global::SpecialWords._Models.Return>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Return IJsonModel<Return>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Return JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

@@ -10,11 +10,11 @@ namespace Versioning.TypeChangedFrom
 {
     public partial class TypeChangedFromClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions.ServiceVersion LatestVersion = global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions.ServiceVersion.V2;
+        private const ServiceVersion LatestVersion = ServiceVersion.V2;
 
-        public TypeChangedFromClientOptions(global::Versioning.TypeChangedFrom.TypeChangedFromClientOptions.ServiceVersion version = LatestVersion) => throw null;
+        public TypeChangedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal TypeChangedFromClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion

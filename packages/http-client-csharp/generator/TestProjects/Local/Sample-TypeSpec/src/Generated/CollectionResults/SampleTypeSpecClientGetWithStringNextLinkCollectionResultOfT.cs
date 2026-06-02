@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT : CollectionResult<global::SampleTypeSpec.Thing>
+    internal partial class SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
@@ -28,13 +28,13 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithStringNextLinkRequest(_options);
-            global::System.Uri nextPageUri = null;
+            Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = this.GetNextResponse(message);
+                ClientResult result = GetNextResponse(message);
                 yield return result;
 
                 string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
@@ -42,7 +42,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                nextPageUri = new global::System.Uri(nextPageString, global::System.UriKind.RelativeOrAbsolute);
+                nextPageUri = new Uri(nextPageString, UriKind.RelativeOrAbsolute);
                 message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }
@@ -55,7 +55,7 @@ namespace SampleTypeSpec
             string nextPage = ((ListWithStringNextLinkResponse)page).Next;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {
@@ -66,7 +66,7 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override IEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
             return ((ListWithStringNextLinkResponse)page).Things;
         }
@@ -75,7 +75,7 @@ namespace SampleTypeSpec
         /// <param name="message"> The pipeline message containing the request to send. </param>
         private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

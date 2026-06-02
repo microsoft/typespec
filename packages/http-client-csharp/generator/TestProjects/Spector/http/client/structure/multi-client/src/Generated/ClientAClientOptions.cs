@@ -12,7 +12,7 @@ namespace Client.Structure.MultiClient
     {
         public ClientAClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ClientAClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

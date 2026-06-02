@@ -12,7 +12,7 @@ namespace Authentication.ApiKey
     {
         public ApiKeyClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ApiKeyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

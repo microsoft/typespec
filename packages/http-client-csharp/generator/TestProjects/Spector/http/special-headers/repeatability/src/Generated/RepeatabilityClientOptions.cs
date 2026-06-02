@@ -12,7 +12,7 @@ namespace SpecialHeaders.Repeatability
     {
         public RepeatabilityClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal RepeatabilityClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

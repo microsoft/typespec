@@ -13,9 +13,9 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> Another sample dynamic model. </summary>
-    public partial class AnotherDynamicModel : IJsonModel<global::SampleTypeSpec.AnotherDynamicModel>
+    public partial class AnotherDynamicModel : IJsonModel<AnotherDynamicModel>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/> for deserialization. </summary>
         internal AnotherDynamicModel()
         {
         }
@@ -24,45 +24,45 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual AnotherDynamicModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(document.RootElement, data, options);
+                        return DeserializeAnotherDynamicModel(document.RootElement, data, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.AnotherDynamicModel)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.AnotherDynamicModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<AnotherDynamicModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        AnotherDynamicModel IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        AnotherDynamicModel IPersistableModel<AnotherDynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<AnotherDynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<global::SampleTypeSpec.AnotherDynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<AnotherDynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -73,7 +73,7 @@ namespace SampleTypeSpec
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
             writer.WriteStartObject();
-            this.JsonModelWriteCore(writer, options);
+            JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
@@ -81,10 +81,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "J"))
+            string format = options.Format == "W" ? ((IPersistableModel<AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.AnotherDynamicModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (!Patch.Contains("$.bar"u8))
@@ -99,19 +99,19 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        AnotherDynamicModel IJsonModel<global::SampleTypeSpec.AnotherDynamicModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        AnotherDynamicModel IJsonModel<AnotherDynamicModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual AnotherDynamicModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "J"))
+            string format = options.Format == "W" ? ((IPersistableModel<AnotherDynamicModel>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.AnotherDynamicModel)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::SampleTypeSpec.AnotherDynamicModel.DeserializeAnotherDynamicModel(document.RootElement, null, options);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeAnotherDynamicModel(document.RootElement, null, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
@@ -119,13 +119,13 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static AnotherDynamicModel DeserializeAnotherDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
             string bar = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            JsonPatch patch = new JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
+            JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
@@ -134,7 +134,7 @@ namespace SampleTypeSpec
                     bar = prop.Value.GetString();
                     continue;
                 }
-                patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
+                patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
             return new AnotherDynamicModel(bar, patch);
         }

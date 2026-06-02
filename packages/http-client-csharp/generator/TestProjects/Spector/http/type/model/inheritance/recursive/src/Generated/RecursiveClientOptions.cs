@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.Recursive
     {
         public RecursiveClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal RecursiveClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

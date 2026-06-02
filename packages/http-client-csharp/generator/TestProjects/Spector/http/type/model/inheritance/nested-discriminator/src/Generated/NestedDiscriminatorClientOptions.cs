@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     {
         public NestedDiscriminatorClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal NestedDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

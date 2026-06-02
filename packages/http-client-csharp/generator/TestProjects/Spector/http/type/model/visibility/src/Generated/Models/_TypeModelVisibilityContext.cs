@@ -6,8 +6,8 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Visibility
 {
-    [ModelReaderWriterBuildableAttribute(typeof(ReadOnlyModel))]
-    [ModelReaderWriterBuildableAttribute(typeof(VisibilityModel))]
+    [ModelReaderWriterBuildable(typeof(ReadOnlyModel))]
+    [ModelReaderWriterBuildable(typeof(VisibilityModel))]
     public partial class _TypeModelVisibilityContext : ModelReaderWriterContext
     {
     }

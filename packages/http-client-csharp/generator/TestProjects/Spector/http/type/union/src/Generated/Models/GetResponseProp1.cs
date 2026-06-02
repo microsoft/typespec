@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct GetResponseProp1 : IEquatable<global::_Type.Union.GetResponseProp1>
+    public readonly partial struct GetResponseProp1 : IEquatable<GetResponseProp1>
     {
         public GetResponseProp1(string value) => throw null;
 
@@ -23,12 +23,12 @@ namespace _Type.Union
 
         public static implicit operator GetResponseProp1?(string value) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(GetResponseProp1 other) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

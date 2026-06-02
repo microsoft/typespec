@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Visibility
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class VisibilityClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -13,11 +13,11 @@ using Microsoft.Extensions.Configuration;
 namespace SampleTypeSpec
 {
     /// <summary> Represents the settings used to configure a <see cref="SampleTypeSpecClient"/> that can be loaded from an <see cref="IConfigurationSection"/>. </summary>
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class SampleTypeSpecClientSettings : ClientSettings
     {
         /// <summary> Gets or sets the SampleTypeSpecUrl. </summary>
-        public global::System.Uri SampleTypeSpecUrl { get; set; }
+        public Uri SampleTypeSpecUrl { get; set; }
 
         /// <summary> Gets or sets the Options. </summary>
         public SampleTypeSpecClientOptions Options { get; set; }
@@ -26,14 +26,14 @@ namespace SampleTypeSpec
         /// <param name="section"> The configuration section. </param>
         protected override void BindCore(IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
+            if (Uri.TryCreate(section["SampleTypeSpecUrl"], UriKind.Absolute, out Uri sampleTypeSpecUrl))
             {
-                this.SampleTypeSpecUrl = sampleTypeSpecUrl;
+                SampleTypeSpecUrl = sampleTypeSpecUrl;
             }
             IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
             {
-                this.Options = new SampleTypeSpecClientOptions(optionsSection);
+                Options = new SampleTypeSpecClientOptions(optionsSection);
             }
         }
     }

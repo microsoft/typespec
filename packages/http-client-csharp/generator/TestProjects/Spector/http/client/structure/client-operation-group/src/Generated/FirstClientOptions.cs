@@ -12,7 +12,7 @@ namespace Client.Structure.ClientOperationGroup
     {
         public FirstClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal FirstClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -12,7 +12,7 @@ namespace Encode.Numeric
     {
         public NumericClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal NumericClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

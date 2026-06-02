@@ -15,9 +15,9 @@ using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnknownPlant : Plant, IJsonModel<global::SampleTypeSpec.Plant>
+    internal partial class UnknownPlant : Plant, IJsonModel<Plant>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.UnknownPlant"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="UnknownPlant"/> for deserialization. </summary>
         internal UnknownPlant()
         {
         }
@@ -26,69 +26,69 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Plant>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return global::SampleTypeSpec.Plant.DeserializePlant(document.RootElement, options);
+                        return DeserializePlant(document.RootElement, options);
                     }
                 case "X":
                     using (Stream dataStream = data.ToStream())
                     {
-                        return global::SampleTypeSpec.Plant.DeserializePlant(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
+                        return DeserializePlant(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Plant)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Plant)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Plant>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 case "X":
                     using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using (XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
+                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.WriteXml(writer, options, "Plant");
+                            WriteXml(writer, options, "Plant");
                         }
-                        if ((stream.Position > int.MaxValue))
+                        if (stream.Position > int.MaxValue)
                         {
-                            return global::System.BinaryData.FromStream(stream);
+                            return BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
+                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Plant)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Plant)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.Plant>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Plant>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Plant IPersistableModel<global::SampleTypeSpec.Plant>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        Plant IPersistableModel<Plant>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.Plant>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<Plant>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<global::SampleTypeSpec.Plant>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<Plant>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            this.JsonModelWriteCore(writer, options);
+            JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
@@ -96,43 +96,43 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Plant>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "J"))
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Plant)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Plant)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
         }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Plant IJsonModel<global::SampleTypeSpec.Plant>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        Plant IJsonModel<Plant>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Plant JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Plant>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "J"))
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Plant)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(Plant)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::SampleTypeSpec.Plant.DeserializePlant(document.RootElement, options);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializePlant(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static UnknownPlant DeserializeUnknownPlant(JsonElement element, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
             string species = "unknown";
             string id = default;
             int height = default;
-            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("species"u8))
@@ -150,9 +150,9 @@ namespace SampleTypeSpec
                     height = prop.Value.GetInt32();
                     continue;
                 }
-                if ((options.Format != "W"))
+                if (options.Format != "W")
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             return new UnknownPlant(species, id, height, additionalBinaryDataProperties);
@@ -163,14 +163,14 @@ namespace SampleTypeSpec
         /// <param name="nameHint"> An optional name hint. </param>
         private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteStartElement(nameHint);
             }
 
-            this.XmlModelWriteCore(writer, options);
+            XmlModelWriteCore(writer, options);
 
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteEndElement();
             }
@@ -180,10 +180,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal override void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Plant>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "X"))
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "X")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Plant)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Plant)} does not support writing '{format}' format.");
             }
 
             base.XmlModelWriteCore(writer, options);
@@ -193,7 +193,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static UnknownPlant DeserializeUnknownPlant(XElement element, ModelReaderWriterOptions options)
         {
-            if ((element == null))
+            if (element == null)
             {
                 return null;
             }
@@ -201,24 +201,24 @@ namespace SampleTypeSpec
             string species = "unknown";
             string id = default;
             int height = default;
-            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                if ((localName == "species"))
+                if (localName == "species")
                 {
-                    species = ((string)child);
+                    species = (string)child;
                     continue;
                 }
-                if ((localName == "id"))
+                if (localName == "id")
                 {
-                    id = ((string)child);
+                    id = (string)child;
                     continue;
                 }
-                if ((localName == "height"))
+                if (localName == "height")
                 {
-                    height = ((int)child);
+                    height = (int)child;
                     continue;
                 }
             }

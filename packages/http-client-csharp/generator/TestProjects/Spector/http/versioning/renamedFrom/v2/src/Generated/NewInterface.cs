@@ -14,16 +14,16 @@ namespace Versioning.RenamedFrom
     {
         protected NewInterface() => throw null;
 
-        internal NewInterface(ClientPipeline pipeline, global::System.Uri endpoint, string version) => throw null;
+        internal NewInterface(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult NewOpInNewInterface(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> NewOpInNewInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> NewOpInNewInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.RenamedFrom.NewModel> NewOpInNewInterface(NewModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<NewModel> NewOpInNewInterface(NewModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.RenamedFrom.NewModel>> NewOpInNewInterfaceAsync(NewModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<NewModel>> NewOpInNewInterfaceAsync(NewModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

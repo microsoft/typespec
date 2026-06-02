@@ -12,7 +12,7 @@ namespace Client.Structure.AnotherClientOperationGroup
     {
         public SubNamespaceSecondClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal SubNamespaceSecondClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

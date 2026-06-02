@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadModelRecord : IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>
+    public partial class DifferentSpreadModelRecord : IJsonModel<DifferentSpreadModelRecord>
     {
         internal DifferentSpreadModelRecord() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<DifferentSpreadModelRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadModelRecord IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DifferentSpreadModelRecord IPersistableModel<DifferentSpreadModelRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<DifferentSpreadModelRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DifferentSpreadModelRecord differentSpreadModelRecord) => throw null;
 
         public static explicit operator DifferentSpreadModelRecord(ClientResult result) => throw null;
 
-        void IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<DifferentSpreadModelRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadModelRecord IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadModelRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DifferentSpreadModelRecord IJsonModel<DifferentSpreadModelRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DifferentSpreadModelRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

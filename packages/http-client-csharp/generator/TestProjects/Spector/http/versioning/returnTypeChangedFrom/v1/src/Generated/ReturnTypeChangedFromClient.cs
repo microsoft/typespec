@@ -15,23 +15,23 @@ namespace Versioning.ReturnTypeChangedFrom
     {
         protected ReturnTypeChangedFromClient() => throw null;
 
-        public ReturnTypeChangedFromClient(global::System.Uri endpoint) : this(endpoint, new ReturnTypeChangedFromClientOptions()) => throw null;
+        public ReturnTypeChangedFromClient(Uri endpoint) : this(endpoint, new ReturnTypeChangedFromClientOptions()) => throw null;
 
-        internal ReturnTypeChangedFromClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ReturnTypeChangedFromClientOptions options) => throw null;
+        internal ReturnTypeChangedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ReturnTypeChangedFromClientOptions options) => throw null;
 
-        public ReturnTypeChangedFromClient(global::System.Uri endpoint, ReturnTypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
+        public ReturnTypeChangedFromClient(Uri endpoint, ReturnTypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public ReturnTypeChangedFromClient(ReturnTypeChangedFromClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public ReturnTypeChangedFromClient(ReturnTypeChangedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Test(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> TestAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult<int> Test(string body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<int>> TestAsync(string body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<int>> TestAsync(string body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -12,7 +12,7 @@ namespace Server.Versions.NotVersioned
     {
         public NotVersionedClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal NotVersionedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

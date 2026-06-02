@@ -15,24 +15,24 @@ namespace _Type._Array
     {
         protected UnknownValue() => throw null;
 
-        internal UnknownValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal UnknownValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::System.Collections.Generic.IReadOnlyList<global::System.BinaryData>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyList<BinaryData>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<global::System.BinaryData>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyList<BinaryData>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IEnumerable<global::System.BinaryData> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Put(IEnumerable<BinaryData> body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IEnumerable<global::System.BinaryData> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<BinaryData> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

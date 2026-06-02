@@ -10,11 +10,11 @@ namespace Versioning.Removed
 {
     public partial class RemovedClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.Removed.RemovedClientOptions.ServiceVersion LatestVersion = global::Versioning.Removed.RemovedClientOptions.ServiceVersion.V2preview;
+        private const ServiceVersion LatestVersion = ServiceVersion.V2preview;
 
-        public RemovedClientOptions(global::Versioning.Removed.RemovedClientOptions.ServiceVersion version = LatestVersion) => throw null;
+        public RemovedClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal RemovedClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion

@@ -10,9 +10,9 @@ using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-    [ModelReaderWriterBuildableAttribute(typeof(Filter))]
-    [ModelReaderWriterBuildableAttribute(typeof(Pet))]
-    [ModelReaderWriterBuildableAttribute(typeof(XmlPet))]
+    [ModelReaderWriterBuildable(typeof(Filter))]
+    [ModelReaderWriterBuildable(typeof(Pet))]
+    [ModelReaderWriterBuildable(typeof(XmlPet))]
     public partial class PayloadPageableContext : ModelReaderWriterContext
     {
     }

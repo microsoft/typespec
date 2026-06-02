@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithRenamedUnwrappedModelArrayValue() => throw null;
 
-        internal ModelWithRenamedUnwrappedModelArrayValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithRenamedUnwrappedModelArrayValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithRenamedUnwrappedModelArray> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithRenamedUnwrappedModelArray>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelWithRenamedUnwrappedModelArray>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithRenamedUnwrappedModelArray input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithRenamedUnwrappedModelArray input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithRenamedUnwrappedModelArray input, CancellationToken cancellationToken = default) => throw null;
     }
 }

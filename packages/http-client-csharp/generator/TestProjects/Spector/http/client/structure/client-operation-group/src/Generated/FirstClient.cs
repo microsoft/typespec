@@ -16,24 +16,24 @@ namespace Client.Structure.ClientOperationGroup
     {
         protected FirstClient() => throw null;
 
-        public FirstClient(global::System.Uri endpoint, ClientType client) : this(endpoint, client, new FirstClientOptions()) => throw null;
+        public FirstClient(Uri endpoint, ClientType client) : this(endpoint, client, new FirstClientOptions()) => throw null;
 
-        internal FirstClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ClientType client, FirstClientOptions options) => throw null;
+        internal FirstClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, FirstClientOptions options) => throw null;
 
-        public FirstClient(global::System.Uri endpoint, ClientType client, FirstClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public FirstClient(Uri endpoint, ClientType client, FirstClientOptions options) : this(null, endpoint, client, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public FirstClient(FirstClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public FirstClient(FirstClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult One(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> OneAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Group3 GetGroup3Client() => throw null;
 

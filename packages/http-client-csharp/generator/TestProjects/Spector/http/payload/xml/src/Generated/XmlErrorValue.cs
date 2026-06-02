@@ -14,16 +14,16 @@ namespace Payload.Xml
     {
         protected XmlErrorValue() => throw null;
 
-        internal XmlErrorValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal XmlErrorValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.SimpleModel> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<SimpleModel> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.SimpleModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<SimpleModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

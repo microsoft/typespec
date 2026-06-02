@@ -13,63 +13,63 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public partial class NestedDiscriminatorClient
     {
-        public NestedDiscriminatorClient() : this(new global::System.Uri("http://localhost:3000"), new NestedDiscriminatorClientOptions()) => throw null;
+        public NestedDiscriminatorClient() : this(new Uri("http://localhost:3000"), new NestedDiscriminatorClientOptions()) => throw null;
 
-        internal NestedDiscriminatorClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, NestedDiscriminatorClientOptions options) => throw null;
+        internal NestedDiscriminatorClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NestedDiscriminatorClientOptions options) => throw null;
 
-        public NestedDiscriminatorClient(global::System.Uri endpoint, NestedDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
+        public NestedDiscriminatorClient(Uri endpoint, NestedDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public NestedDiscriminatorClient(NestedDiscriminatorClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public NestedDiscriminatorClient(NestedDiscriminatorClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetModel(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetModelAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> GetModel(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Fish> GetModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Fish>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetRecursiveModel(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Fish> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutRecursiveModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetMissingDiscriminator(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetWrongDiscriminator(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.NestedDiscriminator.Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

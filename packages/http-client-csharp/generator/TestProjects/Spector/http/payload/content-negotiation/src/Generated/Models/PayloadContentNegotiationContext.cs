@@ -7,7 +7,7 @@ using Payload.ContentNegotiation._DifferentBody;
 
 namespace Payload.ContentNegotiation
 {
-    [ModelReaderWriterBuildableAttribute(typeof(PngImageAsJson))]
+    [ModelReaderWriterBuildable(typeof(PngImageAsJson))]
     public partial class PayloadContentNegotiationContext : ModelReaderWriterContext
     {
     }

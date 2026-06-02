@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct ExtendedEnum : IEquatable<global::_Type.Property.ValueTypes.ExtendedEnum>
+    public readonly partial struct ExtendedEnum : IEquatable<ExtendedEnum>
     {
         public ExtendedEnum(string value) => throw null;
 
@@ -21,12 +21,12 @@ namespace _Type.Property.ValueTypes
 
         public static implicit operator ExtendedEnum?(string value) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(ExtendedEnum other) => throw null;
 
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

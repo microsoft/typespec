@@ -12,7 +12,7 @@ namespace _Type.Property.AdditionalProperties
     {
         public AdditionalPropertiesClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal AdditionalPropertiesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

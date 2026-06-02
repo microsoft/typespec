@@ -12,7 +12,7 @@ namespace Response.StatusCodeRange
     {
         public StatusCodeRangeClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal StatusCodeRangeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

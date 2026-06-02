@@ -8,7 +8,7 @@ using Parameters.Spread._Model;
 
 namespace Parameters.Spread
 {
-    [ModelReaderWriterBuildableAttribute(typeof(BodyParameter))]
+    [ModelReaderWriterBuildable(typeof(BodyParameter))]
     public partial class ParametersSpreadContext : ModelReaderWriterContext
     {
     }

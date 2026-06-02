@@ -12,7 +12,7 @@ namespace Parameters.Query
     {
         public QueryClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal QueryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

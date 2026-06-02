@@ -147,16 +147,15 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
-            var containsSimplifierAnnotations = root.GetAnnotatedNodesAndTokens(Simplifier.Annotation).Any();
-            if (containsSimplifierAnnotations)
+            var shouldRunSimplifier =
+                root.GetAnnotatedNodesAndTokens(Simplifier.Annotation).Any() ||
+                ContainsReducibleSyntax(root);
+            if (shouldRunSimplifier)
             {
+                root = root.WithAdditionalAnnotations(Simplifier.Annotation);
+                document = document.WithSyntaxRoot(root);
                 document = await Simplifier.ReduceAsync(document);
                 root = await document.GetSyntaxRootAsync();
-            }
-
-            if (root != null)
-            {
-                document = document.WithSyntaxRoot(SimplifyGlobalAliases(root, semanticModel.Compilation));
             }
 
             // Reformat if any custom rewriters have been applied
@@ -167,99 +166,11 @@ namespace Microsoft.TypeSpec.Generator
             return document;
         }
 
-        private static SyntaxNode SimplifyGlobalAliases(SyntaxNode root, Compilation compilation)
-        {
-            var usingNamespaces = root
-                .DescendantNodes()
-                .OfType<UsingDirectiveSyntax>()
-                .Where(usingDirective => usingDirective.Alias == null && usingDirective.StaticKeyword.IsKind(SyntaxKind.None))
-                .Select(usingDirective => usingDirective.Name?.ToString())
-                .Concat(root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().Select(ns => ns.Name.ToString()))
-                .Where(ns => ns is not null)
-                .Select(ns => ns!)
-                .Distinct(StringComparer.Ordinal)
-                .OrderByDescending(static ns => ns.Length)
-                .ToArray();
-
-            if (usingNamespaces.Length == 0)
-            {
-                return root;
-            }
-
-            var namespaceNames = GetNamespaceNames(compilation.GlobalNamespace).ToHashSet(StringComparer.Ordinal);
-            var replacements = root
-                .DescendantNodes()
-                .OfType<AliasQualifiedNameSyntax>()
-                .Where(name => name.Alias.Identifier.ValueText == "global")
-                .Select(GetOutermostQualifiedName)
-                .Distinct()
-                .Select(name => (Original: name, Replacement: SimplifyName(name, usingNamespaces, namespaceNames)))
-                .Where(replacement => replacement.Replacement != null)
-                .ToDictionary(replacement => replacement.Original, replacement => replacement.Replacement!);
-
-            return replacements.Count == 0
-                ? root
-                : root.ReplaceNodes(replacements.Keys, (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
-        }
-
-        private static IEnumerable<string> GetNamespaceNames(INamespaceSymbol namespaceSymbol)
-        {
-            foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
-            {
-                yield return childNamespace.Name;
-
-                foreach (var nestedNamespace in GetNamespaceNames(childNamespace))
-                {
-                    yield return nestedNamespace;
-                }
-            }
-        }
-
-        private static NameSyntax GetOutermostQualifiedName(AliasQualifiedNameSyntax globalAlias)
-        {
-            NameSyntax node = globalAlias;
-            while (node.Parent is QualifiedNameSyntax parent && parent.Left == node)
-            {
-                node = parent;
-            }
-
-            return node;
-        }
-
-        private static NameSyntax? SimplifyName(NameSyntax name, IReadOnlyList<string> usingNamespaces, ISet<string> namespaceNames)
-        {
-            var simplifiedName = SimplifyGlobalAlias(name.ToString(), usingNamespaces, namespaceNames);
-            return simplifiedName == null ? null : SyntaxFactory.ParseName(simplifiedName).WithTriviaFrom(name);
-        }
-
-        private static string? SimplifyGlobalAlias(string fullyQualifiedName, IReadOnlyList<string> usingNamespaces, ISet<string> namespaceNames)
-        {
-            const string globalAlias = "global::";
-            if (!fullyQualifiedName.StartsWith(globalAlias, StringComparison.Ordinal))
-            {
-                return null;
-            }
-
-            var nameWithoutGlobalAlias = fullyQualifiedName[globalAlias.Length..];
-            foreach (var usingNamespace in usingNamespaces)
-            {
-                if (nameWithoutGlobalAlias.StartsWith(usingNamespace + ".", StringComparison.Ordinal))
-                {
-                    var simplifiedName = nameWithoutGlobalAlias[(usingNamespace.Length + 1)..];
-                    return IsSimpleTypeName(simplifiedName, namespaceNames) ? simplifiedName : null;
-                }
-            }
-
-            return null;
-        }
-
-        private static bool IsSimpleTypeName(string name, ISet<string> namespaceNames)
-        {
-            var genericStart = name.IndexOf('<');
-            var typeNameLength = genericStart < 0 ? name.Length : genericStart;
-            return name.AsSpan(0, typeNameLength).IndexOf('.') < 0
-                && !namespaceNames.Contains(genericStart < 0 ? name : name.Substring(0, typeNameLength));
-        }
+        private static bool ContainsReducibleSyntax(SyntaxNode root) =>
+            root.DescendantNodes().Any(static node =>
+                node is ThisExpressionSyntax ||
+                node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } ||
+                node is AliasQualifiedNameSyntax { Alias.Identifier.ValueText: "global" });
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
         public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document);

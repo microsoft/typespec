@@ -12,7 +12,7 @@ namespace Client.Structure.TwoOperationGroup
     {
         public TwoOperationGroupClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal TwoOperationGroupClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

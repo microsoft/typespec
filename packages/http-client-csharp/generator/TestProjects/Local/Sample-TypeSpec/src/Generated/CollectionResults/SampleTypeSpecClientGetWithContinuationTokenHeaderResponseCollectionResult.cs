@@ -31,16 +31,16 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = this.GetNextResponse(message);
+                ClientResult result = GetNextResponse(message);
                 yield return result;
 
-                if ((result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value)))
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
                 {
                     nextToken = value;
                 }
@@ -57,9 +57,9 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            if ((page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value)))
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {
@@ -71,7 +71,7 @@ namespace SampleTypeSpec
         /// <param name="message"> The pipeline message containing the request to send. </param>
         private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

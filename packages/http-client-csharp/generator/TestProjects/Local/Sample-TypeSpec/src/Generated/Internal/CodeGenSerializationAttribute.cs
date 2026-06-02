@@ -9,21 +9,21 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [AttributeUsageAttribute((global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
+    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute
     {
         /// <param name="propertyName"> The property name which these hooks apply to. </param>
         public CodeGenSerializationAttribute(string propertyName)
         {
-            this.PropertyName = propertyName;
+            PropertyName = propertyName;
         }
 
         /// <param name="propertyName"> The property name which these hooks apply to. </param>
         /// <param name="serializationName"> The serialization name of the property. </param>
         public CodeGenSerializationAttribute(string propertyName, string serializationName)
         {
-            this.PropertyName = propertyName;
-            this.SerializationName = serializationName;
+            PropertyName = propertyName;
+            SerializationName = serializationName;
         }
 
         /// <summary> Gets or sets the property name which these hooks should apply to. </summary>

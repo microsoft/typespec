@@ -14,24 +14,24 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsUnknownDiscriminated() => throw null;
 
-        internal IsUnknownDiscriminated(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal IsUnknownDiscriminated(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IsUnknownAdditionalPropertiesDiscriminated> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IsUnknownAdditionalPropertiesDiscriminated>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(IsUnknownAdditionalPropertiesDiscriminated body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IsUnknownAdditionalPropertiesDiscriminated body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(IsUnknownAdditionalPropertiesDiscriminated body, CancellationToken cancellationToken = default) => throw null;
     }
 }

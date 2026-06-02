@@ -12,7 +12,7 @@ namespace Documentation
     {
         public DocumentationClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal DocumentationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

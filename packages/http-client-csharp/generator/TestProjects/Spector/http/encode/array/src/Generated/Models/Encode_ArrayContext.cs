@@ -6,18 +6,18 @@ using System.ClientModel.Primitives;
 
 namespace Encode._Array
 {
-    [ModelReaderWriterBuildableAttribute(typeof(CommaDelimitedArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(CommaDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(CommaDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(NewlineDelimitedArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(NewlineDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(NewlineDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(PipeDelimitedArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(PipeDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(PipeDelimitedExtensibleEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(SpaceDelimitedArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(SpaceDelimitedEnumArrayProperty))]
-    [ModelReaderWriterBuildableAttribute(typeof(SpaceDelimitedExtensibleEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(CommaDelimitedArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(CommaDelimitedEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(CommaDelimitedExtensibleEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(NewlineDelimitedArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(NewlineDelimitedEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(NewlineDelimitedExtensibleEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(PipeDelimitedArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(PipeDelimitedEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(PipeDelimitedExtensibleEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(SpaceDelimitedArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(SpaceDelimitedEnumArrayProperty))]
+    [ModelReaderWriterBuildable(typeof(SpaceDelimitedExtensibleEnumArrayProperty))]
     public partial class Encode_ArrayContext : ModelReaderWriterContext
     {
     }

@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace SpecialHeaders.Repeatability
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class RepeatabilityClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

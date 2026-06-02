@@ -13,39 +13,39 @@ namespace _Type.Model.Usage
 {
     public partial class UsageClient
     {
-        public UsageClient() : this(new global::System.Uri("http://localhost:3000"), new UsageClientOptions()) => throw null;
+        public UsageClient() : this(new Uri("http://localhost:3000"), new UsageClientOptions()) => throw null;
 
-        internal UsageClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, UsageClientOptions options) => throw null;
+        internal UsageClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UsageClientOptions options) => throw null;
 
-        public UsageClient(global::System.Uri endpoint, UsageClientOptions options) : this(null, endpoint, options) => throw null;
+        public UsageClient(Uri endpoint, UsageClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public UsageClient(UsageClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public UsageClient(UsageClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Input(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Input(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> InputAsync(InputRecord input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> InputAsync(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Output(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> OutputAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OutputAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Usage.OutputRecord> Output(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<OutputRecord> Output(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Usage.OutputRecord>> OutputAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<OutputRecord>> OutputAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::_Type.Model.Usage.InputOutputRecord> InputAndOutput(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Usage.InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }

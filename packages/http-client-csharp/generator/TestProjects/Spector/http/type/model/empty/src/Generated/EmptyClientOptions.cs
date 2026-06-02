@@ -12,7 +12,7 @@ namespace _Type.Model.Empty
     {
         public EmptyClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal EmptyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithNestedModelValue() => throw null;
 
-        internal ModelWithNestedModelValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelWithNestedModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::Payload.Xml.ModelWithNestedModel> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelWithNestedModel> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithNestedModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelWithNestedModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithNestedModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithNestedModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithNestedModel input, CancellationToken cancellationToken = default) => throw null;
     }
 }

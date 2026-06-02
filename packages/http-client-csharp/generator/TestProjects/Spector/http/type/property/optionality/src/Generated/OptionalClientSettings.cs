@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.Optional
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class OptionalClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -15,24 +15,24 @@ namespace _Type._Array
     {
         protected ModelValue() => throw null;
 
-        internal ModelValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal ModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::System.Collections.Generic.IReadOnlyList<global::_Type._Array.InnerModel>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyList<InnerModel>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<global::_Type._Array.InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyList<InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IEnumerable<global::_Type._Array.InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Put(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IEnumerable<global::_Type._Array.InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

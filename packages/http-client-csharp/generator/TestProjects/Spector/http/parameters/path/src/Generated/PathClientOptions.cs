@@ -12,7 +12,7 @@ namespace Parameters.Path
     {
         public PathClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal PathClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

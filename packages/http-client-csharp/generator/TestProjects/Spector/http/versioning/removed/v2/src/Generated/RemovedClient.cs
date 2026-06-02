@@ -15,31 +15,31 @@ namespace Versioning.Removed
     {
         protected RemovedClient() => throw null;
 
-        public RemovedClient(global::System.Uri endpoint) : this(endpoint, new RemovedClientOptions()) => throw null;
+        public RemovedClient(Uri endpoint) : this(endpoint, new RemovedClientOptions()) => throw null;
 
-        internal RemovedClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, RemovedClientOptions options) => throw null;
+        internal RemovedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RemovedClientOptions options) => throw null;
 
-        public RemovedClient(global::System.Uri endpoint, RemovedClientOptions options) : this(null, endpoint, options) => throw null;
+        public RemovedClient(Uri endpoint, RemovedClientOptions options) : this(null, endpoint, options) => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
-        public RemovedClient(RemovedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        [Experimental("SCME0002")]
+        public RemovedClient(RemovedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult V2(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> V2Async(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V2Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.Removed.ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Removed.ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult ModelV3(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> ModelV3Async(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> ModelV3Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<global::Versioning.Removed.ModelV3> ModelV3(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV3> ModelV3(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Removed.ModelV3>> ModelV3Async(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV3>> ModelV3Async(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
     }
 }

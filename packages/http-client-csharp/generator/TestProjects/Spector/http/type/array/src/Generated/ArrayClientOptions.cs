@@ -12,7 +12,7 @@ namespace _Type._Array
     {
         public ArrayClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ArrayClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

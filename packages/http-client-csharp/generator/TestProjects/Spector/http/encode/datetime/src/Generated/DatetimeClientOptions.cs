@@ -12,7 +12,7 @@ namespace Encode.Datetime
     {
         public DatetimeClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal DatetimeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

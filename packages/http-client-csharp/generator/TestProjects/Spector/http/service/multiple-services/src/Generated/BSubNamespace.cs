@@ -14,16 +14,16 @@ namespace Service.MultipleServices.ServiceB.SubNamespace
     {
         protected BSubNamespace() => throw null;
 
-        internal BSubNamespace(ClientPipeline pipeline, global::System.Uri endpoint, string apiVersion) => throw null;
+        internal BSubNamespace(ClientPipeline pipeline, Uri endpoint, string apiVersion) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult SubOpB(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SubOpBAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SubOpBAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult SubOpB(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> SubOpBAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SubOpBAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

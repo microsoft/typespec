@@ -33,7 +33,7 @@ namespace SampleTypeSpec
         };
         private static readonly XmlReaderSettings XmlReaderSettings = new XmlReaderSettings
         {
-            DtdProcessing = global::System.Xml.DtdProcessing.Prohibit,
+            DtdProcessing = DtdProcessing.Prohibit,
             XmlResolver = null,
             MaxCharactersInDocument = 30000000,
             IgnoreProcessingInstructions = true,
@@ -44,9 +44,9 @@ namespace SampleTypeSpec
         {
             switch (element.ValueKind)
             {
-                case global::System.Text.Json.JsonValueKind.String:
+                case JsonValueKind.String:
                     return element.GetString();
-                case global::System.Text.Json.JsonValueKind.Number:
+                case JsonValueKind.Number:
                     if (element.TryGetInt32(out int intValue))
                     {
                         return intValue;
@@ -56,21 +56,21 @@ namespace SampleTypeSpec
                         return longValue;
                     }
                     return element.GetDouble();
-                case global::System.Text.Json.JsonValueKind.True:
+                case JsonValueKind.True:
                     return true;
-                case global::System.Text.Json.JsonValueKind.False:
+                case JsonValueKind.False:
                     return false;
-                case global::System.Text.Json.JsonValueKind.Undefined:
-                case global::System.Text.Json.JsonValueKind.Null:
+                case JsonValueKind.Undefined:
+                case JsonValueKind.Null:
                     return null;
-                case global::System.Text.Json.JsonValueKind.Object:
+                case JsonValueKind.Object:
                     Dictionary<string, object> dictionary = new Dictionary<string, object>();
                     foreach (var jsonProperty in element.EnumerateObject())
                     {
                         dictionary.Add(jsonProperty.Name, jsonProperty.Value.GetObject());
                     }
                     return dictionary;
-                case global::System.Text.Json.JsonValueKind.Array:
+                case JsonValueKind.Array:
                     List<object> list = new List<object>();
                     foreach (var item in element.EnumerateArray())
                     {
@@ -82,16 +82,16 @@ namespace SampleTypeSpec
             }
         }
 
-        public static Byte[] GetBytesFromBase64(this JsonElement element, string format)
+        public static byte[] GetBytesFromBase64(this JsonElement element, string format)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+            if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
 
             return format switch
             {
-                "U" => global::SampleTypeSpec.TypeFormatters.FromBase64UrlString(element.GetRequiredString()),
+                "U" => TypeFormatters.FromBase64UrlString(element.GetRequiredString()),
                 "D" => element.GetBytesFromBase64(),
                 _ => throw new ArgumentException($"Format is not supported: '{format}'", nameof(format))
             };
@@ -99,18 +99,18 @@ namespace SampleTypeSpec
 
         public static DateTimeOffset GetDateTimeOffset(this JsonElement element, string format) => format switch
         {
-            "U" when (element.ValueKind == global::System.Text.Json.JsonValueKind.Number) => global::System.DateTimeOffset.FromUnixTimeSeconds(element.GetInt64()),
-            _ => global::SampleTypeSpec.TypeFormatters.ParseDateTimeOffset(element.GetString(), format)
+            "U" when element.ValueKind == JsonValueKind.Number => DateTimeOffset.FromUnixTimeSeconds(element.GetInt64()),
+            _ => TypeFormatters.ParseDateTimeOffset(element.GetString(), format)
         };
 
-        public static TimeSpan GetTimeSpan(this JsonElement element, string format) => global::SampleTypeSpec.TypeFormatters.ParseTimeSpan(element.GetString(), format);
+        public static TimeSpan GetTimeSpan(this JsonElement element, string format) => TypeFormatters.ParseTimeSpan(element.GetString(), format);
 
         public static char GetChar(this JsonElement element)
         {
-            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.String))
+            if (element.ValueKind == JsonValueKind.String)
             {
                 string text = element.GetString();
-                if (((text == null) || (text.Length != 1)))
+                if (text == null || text.Length != 1)
                 {
                     throw new NotSupportedException($"Cannot convert \"{text}\" to a char");
                 }
@@ -122,7 +122,7 @@ namespace SampleTypeSpec
             }
         }
 
-        [ConditionalAttribute("DEBUG")]
+        [Conditional("DEBUG")]
         public static void ThrowNonNullablePropertyIsNull(this JsonProperty @property)
         {
             throw new JsonException($"A property '{@property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
@@ -131,7 +131,7 @@ namespace SampleTypeSpec
         public static string GetRequiredString(this JsonElement element)
         {
             string value = element.GetString();
-            if ((value == null))
+            if (value == null)
             {
                 throw new InvalidOperationException($"The requested operation requires an element of type 'String', but the target element has type '{element.ValueKind}'.");
             }
@@ -140,27 +140,27 @@ namespace SampleTypeSpec
 
         public static void WriteStringValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
-            writer.WriteStringValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
         public static void WriteStringValue(this Utf8JsonWriter writer, DateTime value, string format)
         {
-            writer.WriteStringValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
         public static void WriteStringValue(this Utf8JsonWriter writer, TimeSpan value, string format)
         {
-            writer.WriteStringValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
         public static void WriteStringValue(this Utf8JsonWriter writer, char value)
         {
-            writer.WriteStringValue(value.ToString(global::System.Globalization.CultureInfo.InvariantCulture));
+            writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
         }
 
-        public static void WriteBase64StringValue(this Utf8JsonWriter writer, Byte[] value, string format)
+        public static void WriteBase64StringValue(this Utf8JsonWriter writer, byte[] value, string format)
         {
-            if ((value == null))
+            if (value == null)
             {
                 writer.WriteNullValue();
                 return;
@@ -168,7 +168,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "U":
-                    writer.WriteStringValue(global::SampleTypeSpec.TypeFormatters.ToBase64UrlString(value));
+                    writer.WriteStringValue(TypeFormatters.ToBase64UrlString(value));
                     break;
                 case "D":
                     writer.WriteBase64StringValue(value);
@@ -180,14 +180,14 @@ namespace SampleTypeSpec
 
         public static void WriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
-            if ((format != "U"))
+            if (format != "U")
             {
                 throw new ArgumentOutOfRangeException(nameof(format), "Only 'U' format is supported when writing a DateTimeOffset as a Number.");
             }
             writer.WriteNumberValue(value.ToUnixTimeSeconds());
         }
 
-        public static void WriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = ((ModelReaderWriterOptions)null))
+        public static void WriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = null)
         {
             switch (value)
             {
@@ -195,9 +195,9 @@ namespace SampleTypeSpec
                     writer.WriteNullValue();
                     break;
                 case IJsonModel<T> jsonModel:
-                    jsonModel.Write(writer, (options ?? global::SampleTypeSpec.ModelSerializationExtensions.WireOptions));
+                    jsonModel.Write(writer, options ?? WireOptions);
                     break;
-                case Byte[] bytes:
+                case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
                     break;
                 case BinaryData bytes0:
@@ -243,7 +243,7 @@ namespace SampleTypeSpec
                 case DateTime dateTime:
                     writer.WriteStringValue(dateTime, "O");
                     break;
-                case IEnumerable<global::System.Collections.Generic.KeyValuePair<string, object>> enumerable:
+                case IEnumerable<KeyValuePair<string, object>> enumerable:
                     writer.WriteStartObject();
                     foreach (var pair in enumerable)
                     {
@@ -268,7 +268,7 @@ namespace SampleTypeSpec
             }
         }
 
-        public static void WriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = ((ModelReaderWriterOptions)null))
+        public static void WriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = null)
         {
             writer.WriteObjectValue<object>(value, options);
         }
@@ -278,39 +278,39 @@ namespace SampleTypeSpec
 #if NET9_0_OR_GREATER
             return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
 #else
-            return global::System.BinaryData.FromString(element.GetRawText());
+            return BinaryData.FromString(element.GetRawText());
 #endif
         }
 
         public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
         {
             ReadOnlySpan<byte> local = jsonPath;
-            if ((local.Length < 3))
+            if (local.Length < 3)
             {
-                return global::System.ReadOnlySpan<byte>.Empty;
+                return ReadOnlySpan<byte>.Empty;
             }
-            if ((local[0] != '$'))
+            if (local[0] != '$')
             {
-                return global::System.ReadOnlySpan<byte>.Empty;
+                return ReadOnlySpan<byte>.Empty;
             }
-            return (((local.Length >= 4) && (local[1] == '[')) && ((local[2] == '\'') || (local[2] == '"'))) ? local.Slice(3) : global::System.ReadOnlySpan<byte>.Empty;
+            return local.Length >= 4 && local[1] == '[' && (local[2] == '\'' || local[2] == '"') ? local.Slice(3) : ReadOnlySpan<byte>.Empty;
         }
 
         public static string GetFirstPropertyName(this ReadOnlySpan<byte> jsonPath, out int bytesConsumed)
         {
             ReadOnlySpan<byte> local = jsonPath;
-            for (bytesConsumed = 0; (bytesConsumed < local.Length); bytesConsumed++)
+            for (bytesConsumed = 0; bytesConsumed < local.Length; bytesConsumed++)
             {
                 byte current = local[bytesConsumed];
-                if ((current == '.'))
+                if (current == '.')
                 {
                     break;
                 }
                 else
                 {
-                    if (((current == '\'') || (current == '"')))
+                    if (current == '\'' || current == '"')
                     {
-                        if ((((bytesConsumed + 1) < local.Length) && (local[(bytesConsumed + 1)] == ']')))
+                        if (bytesConsumed + 1 < local.Length && local[bytesConsumed + 1] == ']')
                         {
                             break;
                         }
@@ -322,9 +322,9 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
             key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed));
 #else
-            key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
+            key = Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
 #endif
-            bytesConsumed = (bytesConsumed + (jsonPath.Length - local.Length));
+            bytesConsumed += jsonPath.Length - local.Length;
             return key;
         }
 
@@ -333,78 +333,78 @@ namespace SampleTypeSpec
             index = -1;
             bytesConsumed = 0;
 
-            if ((indexSlice.IsEmpty || (indexSlice[0] != '[')))
+            if (indexSlice.IsEmpty || indexSlice[0] != '[')
             {
                 return false;
             }
 
             indexSlice = indexSlice.Slice(1);
-            if ((indexSlice.IsEmpty || (indexSlice[0] == '-')))
+            if (indexSlice.IsEmpty || indexSlice[0] == '-')
             {
                 return false;
             }
 
-            int indexEnd = indexSlice.Slice(1).IndexOf(((byte)']'));
-            if ((indexEnd < 0))
+            int indexEnd = indexSlice.Slice(1).IndexOf((byte)']');
+            if (indexEnd < 0)
             {
                 return false;
             }
 
-            return global::System.Buffers.Text.Utf8Parser.TryParse(indexSlice.Slice(0, (indexEnd + 1)), out index, out bytesConsumed);
+            return Utf8Parser.TryParse(indexSlice.Slice(0, indexEnd + 1), out index, out bytesConsumed);
         }
 
         public static ReadOnlySpan<byte> GetRemainder(this ReadOnlySpan<byte> jsonPath, int index)
         {
-            return (index >= jsonPath.Length) ? global::System.ReadOnlySpan<byte>.Empty : (jsonPath[index] == '.') ? jsonPath.Slice(index) : jsonPath.Slice((index + 2));
+            return index >= jsonPath.Length ? ReadOnlySpan<byte>.Empty : jsonPath[index] == '.' ? jsonPath.Slice(index) : jsonPath.Slice(index + 2);
         }
 
         public static DateTimeOffset GetDateTimeOffset(this XElement element, string format) => format switch
         {
-            "U" => global::System.DateTimeOffset.FromUnixTimeSeconds(((long)element)),
-            _ => global::SampleTypeSpec.TypeFormatters.ParseDateTimeOffset(element.Value, format)
+            "U" => DateTimeOffset.FromUnixTimeSeconds((long)element),
+            _ => TypeFormatters.ParseDateTimeOffset(element.Value, format)
         };
 
-        public static TimeSpan GetTimeSpan(this XElement element, string format) => global::SampleTypeSpec.TypeFormatters.ParseTimeSpan(element.Value, format);
+        public static TimeSpan GetTimeSpan(this XElement element, string format) => TypeFormatters.ParseTimeSpan(element.Value, format);
 
-        public static Byte[] GetBytesFromBase64(this XElement element, string format) => format switch
+        public static byte[] GetBytesFromBase64(this XElement element, string format) => format switch
         {
-            "U" => global::SampleTypeSpec.TypeFormatters.FromBase64UrlString(element.Value),
-            "D" => global::System.Convert.FromBase64String(element.Value),
+            "U" => TypeFormatters.FromBase64UrlString(element.Value),
+            "D" => Convert.FromBase64String(element.Value),
             _ => throw new ArgumentException("Format is not supported: ", nameof(format))
         };
 
         public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format)
         {
-            writer.WriteValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteValue(TypeFormatters.ToString(value, format));
         }
 
         public static void WriteStringValue(this XmlWriter writer, TimeSpan value, string format)
         {
-            writer.WriteValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void WriteBase64StringValue(this XmlWriter writer, Byte[] value, string format)
+        public static void WriteBase64StringValue(this XmlWriter writer, byte[] value, string format)
         {
-            writer.WriteValue(global::SampleTypeSpec.TypeFormatters.ToString(value, format));
+            writer.WriteValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = ((ModelReaderWriterOptions)null), string nameHint = ((string)null))
+        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null, string nameHint = null)
         {
             switch (value)
             {
                 case IPersistableModel<T> persistableModel:
-                    BinaryData data = global::System.ClientModel.Primitives.ModelReaderWriter.Write(persistableModel, (options ?? global::SampleTypeSpec.ModelSerializationExtensions.WireOptions), global::SampleTypeSpec.SampleTypeSpecContext.Default);
+                    BinaryData data = ModelReaderWriter.Write(persistableModel, options ?? WireOptions, SampleTypeSpecContext.Default);
                     using (Stream stream = data.ToStream())
                     {
-                        using (XmlReader reader = global::System.Xml.XmlReader.Create(stream, XmlReaderSettings))
+                        using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
                         {
                             reader.MoveToContent();
-                            if ((nameHint != null))
+                            if (nameHint != null)
                             {
                                 writer.WriteStartElement(nameHint);
                                 writer.WriteAttributes(reader, true);
                                 reader.ReadStartElement();
-                                while ((reader.NodeType != global::System.Xml.XmlNodeType.EndElement))
+                                while (reader.NodeType != XmlNodeType.EndElement)
                                 {
                                     writer.WriteNode(reader, true);
                                 }
@@ -414,7 +414,7 @@ namespace SampleTypeSpec
                             {
                                 writer.WriteAttributes(reader, true);
                                 reader.ReadStartElement();
-                                while ((reader.NodeType != global::System.Xml.XmlNodeType.EndElement))
+                                while (reader.NodeType != XmlNodeType.EndElement)
                                 {
                                     writer.WriteNode(reader, true);
                                 }

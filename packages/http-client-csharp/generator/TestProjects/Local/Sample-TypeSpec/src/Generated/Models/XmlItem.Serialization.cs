@@ -14,9 +14,9 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> An item model for XML array testing. </summary>
-    public partial class XmlItem : IPersistableModel<global::SampleTypeSpec.XmlItem>
+    public partial class XmlItem : IPersistableModel<XmlItem>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlItem"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="XmlItem"/> for deserialization. </summary>
         internal XmlItem()
         {
         }
@@ -25,69 +25,69 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual XmlItem PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (Stream dataStream = data.ToStream())
                     {
-                        return global::SampleTypeSpec.XmlItem.DeserializeXmlItem(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
+                        return DeserializeXmlItem(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(XmlItem)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using (XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
+                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.WriteXml(writer, options, "Item");
+                            WriteXml(writer, options, "Item");
                         }
-                        if ((stream.Position > int.MaxValue))
+                        if (stream.Position > int.MaxValue)
                         {
-                            return global::System.BinaryData.FromStream(stream);
+                            return BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
+                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.XmlItem>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<XmlItem>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlItem IPersistableModel<global::SampleTypeSpec.XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        XmlItem IPersistableModel<XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string IPersistableModel<XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
         private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteStartElement(nameHint);
             }
 
-            this.XmlModelWriteCore(writer, options);
+            XmlModelWriteCore(writer, options);
 
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteEndElement();
             }
@@ -97,10 +97,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlItem>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "X"))
+            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "X")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlItem)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartAttribute("itemId");
@@ -118,7 +118,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static XmlItem DeserializeXmlItem(XElement element, ModelReaderWriterOptions options)
         {
-            if ((element == null))
+            if (element == null)
             {
                 return null;
             }
@@ -130,9 +130,9 @@ namespace SampleTypeSpec
             foreach (var attr in element.Attributes())
             {
                 string localName = attr.Name.LocalName;
-                if ((localName == "itemId"))
+                if (localName == "itemId")
                 {
-                    itemId = ((string)attr);
+                    itemId = (string)attr;
                     continue;
                 }
             }
@@ -140,14 +140,14 @@ namespace SampleTypeSpec
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                if ((localName == "itemName"))
+                if (localName == "itemName")
                 {
-                    itemName = ((string)child);
+                    itemName = (string)child;
                     continue;
                 }
-                if ((localName == "itemValue"))
+                if (localName == "itemValue")
                 {
-                    itemValue = ((int)child);
+                    itemValue = (int)child;
                     continue;
                 }
             }

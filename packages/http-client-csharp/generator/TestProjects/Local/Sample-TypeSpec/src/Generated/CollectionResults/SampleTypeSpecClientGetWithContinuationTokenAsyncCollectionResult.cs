@@ -32,13 +32,13 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
+                ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
                 nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
@@ -58,7 +58,7 @@ namespace SampleTypeSpec
             string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {
@@ -68,9 +68,9 @@ namespace SampleTypeSpec
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(PipelineMessage message)
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
-            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

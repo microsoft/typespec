@@ -14,9 +14,9 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> A nested model for XML testing. </summary>
-    public partial class XmlNestedModel : IPersistableModel<global::SampleTypeSpec.XmlNestedModel>
+    public partial class XmlNestedModel : IPersistableModel<XmlNestedModel>
     {
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlNestedModel"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="XmlNestedModel"/> for deserialization. </summary>
         internal XmlNestedModel()
         {
         }
@@ -25,69 +25,69 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual XmlNestedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (Stream dataStream = data.ToStream())
                     {
-                        return global::SampleTypeSpec.XmlNestedModel.DeserializeXmlNestedModel(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
+                        return DeserializeXmlNestedModel(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlNestedModel)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(XmlNestedModel)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using (XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
+                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.WriteXml(writer, options, "XmlNestedModel");
+                            WriteXml(writer, options, "XmlNestedModel");
                         }
-                        if ((stream.Position > int.MaxValue))
+                        if (stream.Position > int.MaxValue)
                         {
-                            return global::System.BinaryData.FromStream(stream);
+                            return BinaryData.FromStream(stream);
                         }
                         else
                         {
-                            return new BinaryData(stream.GetBuffer().AsMemory(0, ((int)stream.Position)));
+                            return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position));
                         }
                     }
                 default:
-                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlNestedModel)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(XmlNestedModel)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<XmlNestedModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlNestedModel IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        XmlNestedModel IPersistableModel<XmlNestedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<global::SampleTypeSpec.XmlNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string IPersistableModel<XmlNestedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
         private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteStartElement(nameHint);
             }
 
-            this.XmlModelWriteCore(writer, options);
+            XmlModelWriteCore(writer, options);
 
-            if ((nameHint != null))
+            if (nameHint != null)
             {
                 writer.WriteEndElement();
             }
@@ -97,10 +97,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
-            if ((format != "X"))
+            string format = options.Format == "W" ? ((IPersistableModel<XmlNestedModel>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "X")
             {
-                throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlNestedModel)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(XmlNestedModel)} does not support writing '{format}' format.");
             }
 
             writer.WriteStartAttribute("nestedId");
@@ -115,7 +115,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static XmlNestedModel DeserializeXmlNestedModel(XElement element, ModelReaderWriterOptions options)
         {
-            if ((element == null))
+            if (element == null)
             {
                 return null;
             }
@@ -126,9 +126,9 @@ namespace SampleTypeSpec
             foreach (var attr in element.Attributes())
             {
                 string localName = attr.Name.LocalName;
-                if ((localName == "nestedId"))
+                if (localName == "nestedId")
                 {
-                    nestedId = ((int)attr);
+                    nestedId = (int)attr;
                     continue;
                 }
             }
@@ -136,9 +136,9 @@ namespace SampleTypeSpec
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
-                if ((localName == "value"))
+                if (localName == "value")
                 {
-                    value = ((string)child);
+                    value = (string)child;
                     continue;
                 }
             }

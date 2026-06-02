@@ -12,7 +12,7 @@ namespace SpecialHeaders.ConditionalRequest
     {
         public ConditionalRequestClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ConditionalRequestClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

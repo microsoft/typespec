@@ -12,7 +12,7 @@ namespace _Type.Scalar
     {
         public ScalarClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal ScalarClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace Payload.Head
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class HeadClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

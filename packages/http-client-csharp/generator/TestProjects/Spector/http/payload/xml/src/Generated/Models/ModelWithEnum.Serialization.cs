@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithEnum : IPersistableModel<global::Payload.Xml.ModelWithEnum>
+    public partial class ModelWithEnum : IPersistableModel<ModelWithEnum>
     {
         internal ModelWithEnum() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<global::Payload.Xml.ModelWithEnum>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<ModelWithEnum>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithEnum IPersistableModel<global::Payload.Xml.ModelWithEnum>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithEnum IPersistableModel<ModelWithEnum>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<global::Payload.Xml.ModelWithEnum>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<ModelWithEnum>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithEnum modelWithEnum) => throw null;
 

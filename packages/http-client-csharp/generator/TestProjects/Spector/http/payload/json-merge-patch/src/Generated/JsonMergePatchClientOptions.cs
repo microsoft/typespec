@@ -12,7 +12,7 @@ namespace Payload.JsonMergePatch
     {
         public JsonMergePatchClientOptions() => throw null;
 
-        [ExperimentalAttribute("SCME0002")]
+        [Experimental("SCME0002")]
         internal JsonMergePatchClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

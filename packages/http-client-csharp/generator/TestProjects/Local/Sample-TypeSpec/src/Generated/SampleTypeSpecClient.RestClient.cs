@@ -17,9 +17,9 @@ namespace SampleTypeSpec
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
@@ -27,7 +27,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/hello", false);
             uri.AppendQuery("queryParameter", queryParameter, true);
-            if ((optionalQuery != null))
+            if (optionalQuery != null)
             {
                 uri.AppendQuery("optionalQuery", optionalQuery, true);
             }
@@ -103,7 +103,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
             uri.AppendPath(123.ToString(), true);
-            uri.AppendQuery("p3", global::SampleTypeSpec.TypeFormatters.ConvertToString(true), true);
+            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true), true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", "test");
@@ -188,7 +188,7 @@ namespace SampleTypeSpec
             uri.AppendPath("/", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
-            request.Headers.Set("Repeatability-First-Sent", global::SampleTypeSpec.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, global::SampleTypeSpec.SerializationFormat.DateTime_RFC7231));
+            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, SerializationFormat.DateTime_RFC7231));
             message.Apply(options);
             return message;
         }
@@ -273,7 +273,7 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);
-            if ((_apiVersion != null))
+            if (_apiVersion != null)
             {
                 uri.AppendQuery("apiVersion", _apiVersion, true);
             }
@@ -296,7 +296,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithNextLinkRequest(global::System.Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
@@ -305,7 +305,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(new global::System.Uri(_endpoint, nextPage));
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
@@ -326,7 +326,7 @@ namespace SampleTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(global::System.Uri nextPage, RequestOptions options)
+        internal PipelineMessage CreateNextGetWithStringNextLinkRequest(Uri nextPage, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             if (nextPage.IsAbsoluteUri)
@@ -335,7 +335,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(new global::System.Uri(_endpoint, nextPage));
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
@@ -349,7 +349,7 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/continuation", false);
-            if ((token != null))
+            if (token != null)
             {
                 uri.AppendQuery("token", token, true);
             }
@@ -365,7 +365,7 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/continuation/header", false);
-            if ((token != null))
+            if (token != null)
             {
                 uri.AppendQuery("token", token, true);
             }
@@ -394,14 +394,14 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/embeddedParameters", false);
             uri.AppendQuery("requiredQuery", requiredQuery, true);
-            if ((optionalQuery != null))
+            if (optionalQuery != null)
             {
                 uri.AppendQuery("optionalQuery", optionalQuery, true);
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("required-header", requiredHeader);
-            if ((optionalHeader != null))
+            if (optionalHeader != null)
             {
                 request.Headers.Set("optional-header", optionalHeader);
             }

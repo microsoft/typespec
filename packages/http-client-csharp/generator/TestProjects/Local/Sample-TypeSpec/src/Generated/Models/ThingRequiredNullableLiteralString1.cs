@@ -11,17 +11,17 @@ using System.ComponentModel;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingRequiredNullableLiteralString1 : IEquatable<global::SampleTypeSpec.ThingRequiredNullableLiteralString1>
+    public readonly partial struct ThingRequiredNullableLiteralString1 : IEquatable<ThingRequiredNullableLiteralString1>
     {
         private readonly string _value;
         private const string SomeValueValue = "someValue";
 
-        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ThingRequiredNullableLiteralString1"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ThingRequiredNullableLiteralString1"/>. </summary>
         /// <param name="value"> The value. </param>
-        /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public ThingRequiredNullableLiteralString1(string value)
         {
-            global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
+            Argument.AssertNotNull(value, nameof(value));
 
             _value = value;
         }
@@ -29,34 +29,34 @@ namespace SampleTypeSpec
         /// <summary> Gets the SomeValue. </summary>
         public static ThingRequiredNullableLiteralString1 SomeValue { get; } = new ThingRequiredNullableLiteralString1(SomeValueValue);
 
-        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingRequiredNullableLiteralString1"/> values are the same. </summary>
+        /// <summary> Determines if two <see cref="ThingRequiredNullableLiteralString1"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(ThingRequiredNullableLiteralString1 left, ThingRequiredNullableLiteralString1 right) => left.Equals(right);
 
-        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingRequiredNullableLiteralString1"/> values are not the same. </summary>
+        /// <summary> Determines if two <see cref="ThingRequiredNullableLiteralString1"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(ThingRequiredNullableLiteralString1 left, ThingRequiredNullableLiteralString1 right) => !left.Equals(right);
 
-        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingRequiredNullableLiteralString1"/>. </summary>
+        /// <summary> Converts a string to a <see cref="ThingRequiredNullableLiteralString1"/>. </summary>
         /// <param name="value"> The value. </param>
         public static implicit operator ThingRequiredNullableLiteralString1(string value) => new ThingRequiredNullableLiteralString1(value);
 
-        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingRequiredNullableLiteralString1"/>. </summary>
+        /// <summary> Converts a string to a <see cref="ThingRequiredNullableLiteralString1"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator ThingRequiredNullableLiteralString1?(string value) => (value == null) ? null : new ThingRequiredNullableLiteralString1(value);
+        public static implicit operator ThingRequiredNullableLiteralString1?(string value) => value == null ? null : new ThingRequiredNullableLiteralString1(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => ((obj is ThingRequiredNullableLiteralString1 other) && this.Equals(other));
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => obj is ThingRequiredNullableLiteralString1 other && Equals(other);
 
         /// <inheritdoc/>
-        public bool Equals(ThingRequiredNullableLiteralString1 other) => string.Equals(_value, other._value, global::System.StringComparison.InvariantCultureIgnoreCase);
+        public bool Equals(ThingRequiredNullableLiteralString1 other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-        public override int GetHashCode() => (_value != null) ? global::System.StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;

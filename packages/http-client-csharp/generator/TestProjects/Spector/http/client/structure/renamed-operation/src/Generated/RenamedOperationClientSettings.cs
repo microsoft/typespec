@@ -10,10 +10,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.RenamedOperation
 {
-    [ExperimentalAttribute("SCME0002")]
+    [Experimental("SCME0002")]
     public partial class RenamedOperationClientSettings : ClientSettings
     {
-        public global::System.Uri Endpoint
+        public Uri Endpoint
         {
             get => throw null;
             set => throw null;

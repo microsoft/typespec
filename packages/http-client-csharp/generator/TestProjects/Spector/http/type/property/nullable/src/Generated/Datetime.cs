@@ -14,32 +14,32 @@ namespace _Type.Property.Nullable
     {
         protected Datetime() => throw null;
 
-        internal Datetime(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
+        internal Datetime(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetNonNull(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.Nullable.DatetimeProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DatetimeProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> GetNullAsync(RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<global::_Type.Property.Nullable.DatetimeProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DatetimeProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.DatetimeProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DatetimeProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<global::System.ClientModel.ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

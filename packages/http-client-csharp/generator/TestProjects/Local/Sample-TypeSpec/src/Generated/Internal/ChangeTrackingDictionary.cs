@@ -23,7 +23,7 @@ namespace SampleTypeSpec
         /// <param name="dictionary"> The inner dictionary. </param>
         public ChangeTrackingDictionary(IDictionary<TKey, TValue> dictionary)
         {
-            if ((dictionary == null))
+            if (dictionary == null)
             {
                 return;
             }
@@ -33,7 +33,7 @@ namespace SampleTypeSpec
         /// <param name="dictionary"> The inner dictionary. </param>
         public ChangeTrackingDictionary(IReadOnlyDictionary<TKey, TValue> dictionary)
         {
-            if ((dictionary == null))
+            if (dictionary == null)
             {
                 return;
             }
@@ -45,145 +45,145 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Gets the IsUndefined. </summary>
-        public bool IsUndefined => (_innerDictionary == null);
+        public bool IsUndefined => _innerDictionary == null;
 
         /// <summary> Gets the Count. </summary>
-        public int Count => this.IsUndefined ? 0 : this.EnsureDictionary().Count;
+        public int Count => IsUndefined ? 0 : EnsureDictionary().Count;
 
         /// <summary> Gets the IsReadOnly. </summary>
-        public bool IsReadOnly => this.IsUndefined ? false : this.EnsureDictionary().IsReadOnly;
+        public bool IsReadOnly => IsUndefined ? false : EnsureDictionary().IsReadOnly;
 
         /// <summary> Gets the Keys. </summary>
-        public ICollection<TKey> Keys => this.IsUndefined ? global::System.Array.Empty<TKey>() : this.EnsureDictionary().Keys;
+        public ICollection<TKey> Keys => IsUndefined ? Array.Empty<TKey>() : EnsureDictionary().Keys;
 
         /// <summary> Gets the Values. </summary>
-        public ICollection<TValue> Values => this.IsUndefined ? global::System.Array.Empty<TValue>() : this.EnsureDictionary().Values;
+        public ICollection<TValue> Values => IsUndefined ? Array.Empty<TValue>() : EnsureDictionary().Values;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public TValue this[TKey key]
         {
             get
             {
-                if (this.IsUndefined)
+                if (IsUndefined)
                 {
                     throw new KeyNotFoundException(nameof(key));
                 }
-                return this.EnsureDictionary()[key];
+                return EnsureDictionary()[key];
             }
             set
             {
-                this.EnsureDictionary()[key] = value;
+                EnsureDictionary()[key] = value;
             }
         }
 
         /// <summary> Gets the Keys. </summary>
-        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => this.Keys;
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
         /// <summary> Gets the Values. </summary>
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => this.Values;
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
-        public IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
-                IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> enumerateEmpty()
+                IEnumerator<KeyValuePair<TKey, TValue>> enumerateEmpty()
                 {
                     yield break;
                 }
                 return enumerateEmpty();
             }
-            return this.EnsureDictionary().GetEnumerator();
+            return EnsureDictionary().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         /// <param name="item"> The item to add. </param>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            this.EnsureDictionary().Add(item);
+            EnsureDictionary().Add(item);
         }
 
         public void Clear()
         {
-            this.EnsureDictionary().Clear();
+            EnsureDictionary().Clear();
         }
 
         /// <param name="item"> The item to search for. </param>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureDictionary().Contains(item);
+            return EnsureDictionary().Contains(item);
         }
 
         /// <param name="array"> The array to copy. </param>
         /// <param name="index"> The index. </param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return;
             }
-            this.EnsureDictionary().CopyTo(array, index);
+            EnsureDictionary().CopyTo(array, index);
         }
 
         /// <param name="item"> The item to remove. </param>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureDictionary().Remove(item);
+            return EnsureDictionary().Remove(item);
         }
 
         /// <param name="key"> The key. </param>
         /// <param name="value"> The value to add. </param>
         public void Add(TKey key, TValue value)
         {
-            this.EnsureDictionary().Add(key, value);
+            EnsureDictionary().Add(key, value);
         }
 
         /// <param name="key"> The key to search for. </param>
         public bool ContainsKey(TKey key)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureDictionary().ContainsKey(key);
+            return EnsureDictionary().ContainsKey(key);
         }
 
         /// <param name="key"> The key. </param>
         public bool Remove(TKey key)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 return false;
             }
-            return this.EnsureDictionary().Remove(key);
+            return EnsureDictionary().Remove(key);
         }
 
         /// <param name="key"> The key to search for. </param>
         /// <param name="value"> The value. </param>
         public bool TryGetValue(TKey key, out TValue value)
         {
-            if (this.IsUndefined)
+            if (IsUndefined)
             {
                 value = default;
                 return false;
             }
-            return this.EnsureDictionary().TryGetValue(key, out value);
+            return EnsureDictionary().TryGetValue(key, out value);
         }
 
         public IDictionary<TKey, TValue> EnsureDictionary()
         {
-            return (_innerDictionary ??= new Dictionary<TKey, TValue>());
+            return _innerDictionary ??= new Dictionary<TKey, TValue>();
         }
     }
 }
