@@ -31,6 +31,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     "generate-packaging-files": true,
     "validate-versioning": true,
     "clear-output-folder": false,
+    "use-alloy": true,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,
@@ -195,8 +196,22 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
+
   const yamlMap = emitCodeModel(sdkContext);
   const parsedYamlMap = walkThroughNodes(yamlMap);
+
+  // When use-alloy is set, render enum files via Alloy and strip enums
+  // from the YAML so pygen skips _enums.py generation.
+  if (sdkContext.emitContext.options["use-alloy"]) {
+    const { $onEmitEnums } = await import("./alloy/index.js");
+    await $onEmitEnums(context);
+    // Remove enum types from the YAML model so pygen doesn't also generate them
+    if (Array.isArray(parsedYamlMap["types"])) {
+      parsedYamlMap["types"] = parsedYamlMap["types"].filter(
+        (t: Record<string, any>) => t["type"] !== "enum",
+      );
+    }
+  }
 
   // Python emitter requires an SDK client in the TypeSpec
   if (sdkContext.sdkPackage.clients.length === 0) {

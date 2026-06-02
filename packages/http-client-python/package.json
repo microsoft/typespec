@@ -73,7 +73,10 @@
     "@typespec/events": ">=0.82.0 <1.0.0",
     "@typespec/sse": ">=0.82.0 <1.0.0",
     "@typespec/streams": ">=0.82.0 <1.0.0",
-    "@typespec/xml": ">=0.82.0 <1.0.0"
+    "@typespec/xml": ">=0.82.0 <1.0.0",
+    "@alloy-js/core": "^0.23.0",
+    "@alloy-js/python": "^0.4.0",
+    "@typespec/emitter-framework": ">=0.17.0 <1.0.0"
   },
   "playgroundConfig": {
     "assets": [
@@ -115,6 +118,9 @@
     "@typespec/sse": "~0.82.0",
     "@typespec/streams": "~0.82.0",
     "@typespec/xml": "~0.82.0",
+    "@typespec/emitter-framework": "~0.17.0",
+    "@alloy-js/core": "^0.23.0",
+    "@alloy-js/python": "^0.4.0",
     "@typespec/http-specs": "0.1.0-alpha.37",
     "@types/js-yaml": "~4.0.5",
     "@types/node": "~25.0.2",

@@ -23,6 +23,7 @@ export interface PythonEmitterOptions {
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
+  "use-alloy"?: boolean;
   "keep-setup-py"?: boolean;
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
@@ -86,6 +87,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
+    },
+    "use-alloy": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to generate enum files using the Alloy renderer instead of the Python Jinja2 templates. This is a progressive migration flag — when enabled, enum files (_enums.py) are generated directly by TypeScript Alloy components, while all other files continue through the existing YAML+pygen pipeline.",
     },
     "validate-versioning": {
       type: "boolean",
@@ -173,6 +180,12 @@ const libDef = {
       severity: "warning",
       messages: {
         default: paramMessage`No valid continuation token in '${"direction"}' for operation '${"operationId"}'.`,
+      },
+    },
+    "symbol-name-not-supported": {
+      severity: "warning",
+      messages: {
+        default: "The type does not have a string name, which is required for symbol naming.",
       },
     },
   },
