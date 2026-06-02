@@ -18,5 +18,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
 
             Assert.AreEqual("foo", writer.ToString(false));
         }
+
+        [Test]
+        public void VariableExpressionSupportsLegacyRefAndOutConstructor()
+        {
+            var variableExpression = new VariableExpression(typeof(int), "foo", isRef: true, isOut: true);
+
+            Assert.IsTrue(variableExpression.IsRef);
+            Assert.IsTrue(variableExpression.IsOut);
+        }
     }
 }
