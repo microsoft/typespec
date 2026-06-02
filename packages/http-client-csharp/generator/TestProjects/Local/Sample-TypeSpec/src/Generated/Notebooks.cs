@@ -18,7 +18,7 @@ namespace SampleTypeSpec
     /// <summary> The Notebooks sub-client. </summary>
     public partial class Notebooks
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
-        internal Notebooks(ClientPipeline pipeline, Uri endpoint, string notebook)
+        internal Notebooks(ClientPipeline pipeline, global::System.Uri endpoint, string notebook)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
@@ -54,7 +54,7 @@ namespace SampleTypeSpec
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(Uri endpoint, string notebook, ApiKeyCredential credential) : this(endpoint, notebook, credential, new SampleTypeSpecClientOptions())
+        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential) : this(endpoint, notebook, credential, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -64,7 +64,7 @@ namespace SampleTypeSpec
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider) : this(endpoint, notebook, tokenProvider, new SampleTypeSpecClientOptions())
+        public Notebooks(global::System.Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider) : this(endpoint, notebook, tokenProvider, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -73,7 +73,7 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal Notebooks(AuthenticationPolicy authenticationPolicy, Uri endpoint, string notebook, SampleTypeSpecClientOptions options)
+        internal Notebooks(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string notebook, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNullOrEmpty(notebook, nameof(notebook));
@@ -99,7 +99,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
+        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
         {
         }
 
@@ -110,7 +110,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="tokenProvider"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, notebook, options)
+        public Notebooks(global::System.Uri endpoint, string notebook, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, notebook, options)
         {
         }
 

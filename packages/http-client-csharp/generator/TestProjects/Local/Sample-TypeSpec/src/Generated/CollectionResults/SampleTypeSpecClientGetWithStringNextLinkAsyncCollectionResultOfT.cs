@@ -32,7 +32,7 @@ namespace SampleTypeSpec
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithStringNextLinkRequest(_options);
-            Uri nextPageUri = null;
+            global::System.Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
@@ -43,7 +43,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                nextPageUri = new Uri(nextPageString, UriKind.RelativeOrAbsolute);
+                nextPageUri = new global::System.Uri(nextPageString, UriKind.RelativeOrAbsolute);
                 message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }

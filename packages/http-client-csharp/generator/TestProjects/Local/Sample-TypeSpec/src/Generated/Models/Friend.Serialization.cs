@@ -35,7 +35,7 @@ namespace SampleTypeSpec.Models.Custom
                         return Friend.DeserializeFriend(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(Models.Custom.Friend)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Models.Custom.Friend)} does not support reading '{options.Format}' format.");
             }
         }
 
@@ -48,7 +48,7 @@ namespace SampleTypeSpec.Models.Custom
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Models.Custom.Friend)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(global::SampleTypeSpec.Models.Custom.Friend)} does not support writing '{options.Format}' format.");
             }
         }
 
@@ -96,7 +96,7 @@ namespace SampleTypeSpec.Models.Custom
             string format = (options.Format == "W") ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Models.Custom.Friend)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Models.Custom.Friend)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
@@ -128,7 +128,7 @@ namespace SampleTypeSpec.Models.Custom
             string format = (options.Format == "W") ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
-                throw new FormatException($"The model {nameof(Models.Custom.Friend)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(global::SampleTypeSpec.Models.Custom.Friend)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
             return Friend.DeserializeFriend(document.RootElement, options);

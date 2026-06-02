@@ -20,7 +20,7 @@ namespace SampleTypeSpec
     /// <summary> This is a sample typespec project. </summary>
     public partial class SampleTypeSpecClient
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
@@ -47,7 +47,7 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
+        public SampleTypeSpecClient(global::System.Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -55,7 +55,7 @@ namespace SampleTypeSpec
         /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal SampleTypeSpecClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SampleTypeSpecClientOptions options)
+        internal SampleTypeSpecClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
 
@@ -78,7 +78,7 @@ namespace SampleTypeSpec
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options)
+        public SampleTypeSpecClient(global::System.Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options)
         {
         }
 
@@ -87,7 +87,7 @@ namespace SampleTypeSpec
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options)
+        public SampleTypeSpecClient(global::System.Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options)
         {
         }
 
@@ -1896,11 +1896,11 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of Metrics. </summary>
         /// <param name="metricsNamespace"></param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="metricsNamespace"/> is null. </exception>
-        public virtual Metrics GetMetricsClient(string metricsNamespace)
+        public virtual global::SampleTypeSpec.Metrics GetMetricsClient(string metricsNamespace)
         {
             Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
 
-            return new Metrics(Pipeline, _endpoint, metricsNamespace);
+            return new global::SampleTypeSpec.Metrics(Pipeline, _endpoint, metricsNamespace);
         }
 
         /// <summary> Initializes a new instance of Notebooks. </summary>

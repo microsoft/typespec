@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     /// <summary> The PlantOperations sub-client. </summary>
     public partial class PlantOperations
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
 
         /// <summary> Initializes a new instance of PlantOperations for mocking. </summary>
         protected PlantOperations()
@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of PlantOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal PlantOperations(ClientPipeline pipeline, Uri endpoint)
+        internal PlantOperations(ClientPipeline pipeline, global::System.Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;

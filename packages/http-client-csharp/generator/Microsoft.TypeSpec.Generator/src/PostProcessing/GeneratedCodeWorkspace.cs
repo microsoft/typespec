@@ -156,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator
 
             if (root != null)
             {
-                document = document.WithSyntaxRoot(SimplifyGlobalAliases(root));
+                document = document.WithSyntaxRoot(SimplifyGlobalAliases(root, semanticModel.Compilation));
             }
 
             // Reformat if any custom rewriters have been applied
@@ -167,7 +167,7 @@ namespace Microsoft.TypeSpec.Generator
             return document;
         }
 
-        private static SyntaxNode SimplifyGlobalAliases(SyntaxNode root)
+        private static SyntaxNode SimplifyGlobalAliases(SyntaxNode root, Compilation compilation)
         {
             var usingNamespaces = root
                 .DescendantNodes()
@@ -186,41 +186,33 @@ namespace Microsoft.TypeSpec.Generator
                 return root;
             }
 
-            bool wasChanged;
-            do
+            var namespaceNames = GetNamespaceNames(compilation.GlobalNamespace).ToHashSet(StringComparer.Ordinal);
+            var replacements = root
+                .DescendantNodes()
+                .OfType<AliasQualifiedNameSyntax>()
+                .Where(name => name.Alias.Identifier.ValueText == "global")
+                .Select(GetOutermostQualifiedName)
+                .Distinct()
+                .Select(name => (Original: name, Replacement: SimplifyName(name, usingNamespaces, namespaceNames)))
+                .Where(replacement => replacement.Replacement != null)
+                .ToDictionary(replacement => replacement.Original, replacement => replacement.Replacement!);
+
+            return replacements.Count == 0
+                ? root
+                : root.ReplaceNodes(replacements.Keys, (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
+        }
+
+        private static IEnumerable<string> GetNamespaceNames(INamespaceSymbol namespaceSymbol)
+        {
+            foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
             {
-                wasChanged = false;
-                var replacements = root
-                    .DescendantNodes()
-                    .OfType<AliasQualifiedNameSyntax>()
-                    .Where(name => name.Alias.Identifier.ValueText == "global")
-                    .Select(GetOutermostQualifiedName)
-                    .Distinct()
-                    .Select(name => (Original: name, Replacement: SimplifyName(name, usingNamespaces)))
-                    .Where(replacement => replacement.Replacement != null)
-                    .ToDictionary(replacement => replacement.Original, replacement => replacement.Replacement!);
+                yield return childNamespace.Name;
 
-                if (replacements.Count > 0)
+                foreach (var nestedNamespace in GetNamespaceNames(childNamespace))
                 {
-                    root = root.ReplaceNodes(replacements.Keys, (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
-                    wasChanged = true;
+                    yield return nestedNamespace;
                 }
-
-                var memberAccessReplacements = root
-                    .DescendantNodes()
-                    .OfType<MemberAccessExpressionSyntax>()
-                    .Select(memberAccess => (Original: memberAccess, Replacement: SimplifyMemberAccess(memberAccess, usingNamespaces)))
-                    .Where(replacement => replacement.Replacement != null)
-                    .ToDictionary(replacement => replacement.Original, replacement => replacement.Replacement!);
-
-                if (memberAccessReplacements.Count > 0)
-                {
-                    root = root.ReplaceNodes(memberAccessReplacements.Keys, (original, rewritten) => memberAccessReplacements[original].WithTriviaFrom(rewritten));
-                    wasChanged = true;
-                }
-            } while (wasChanged);
-
-            return root;
+            }
         }
 
         private static NameSyntax GetOutermostQualifiedName(AliasQualifiedNameSyntax globalAlias)
@@ -234,21 +226,13 @@ namespace Microsoft.TypeSpec.Generator
             return node;
         }
 
-        private static NameSyntax? SimplifyName(NameSyntax name, IReadOnlyList<string> usingNamespaces)
+        private static NameSyntax? SimplifyName(NameSyntax name, IReadOnlyList<string> usingNamespaces, ISet<string> namespaceNames)
         {
-            var simplifiedName = SimplifyGlobalAlias(name.ToString(), usingNamespaces);
+            var simplifiedName = SimplifyGlobalAlias(name.ToString(), usingNamespaces, namespaceNames);
             return simplifiedName == null ? null : SyntaxFactory.ParseName(simplifiedName).WithTriviaFrom(name);
         }
 
-        private static MemberAccessExpressionSyntax? SimplifyMemberAccess(MemberAccessExpressionSyntax memberAccess, IReadOnlyList<string> usingNamespaces)
-        {
-            var simplifiedExpression = SimplifyGlobalAlias(memberAccess.Expression.ToString(), usingNamespaces);
-            return simplifiedExpression == null
-                ? null
-                : memberAccess.WithExpression(SyntaxFactory.ParseExpression(simplifiedExpression).WithTriviaFrom(memberAccess.Expression));
-        }
-
-        private static string? SimplifyGlobalAlias(string fullyQualifiedName, IReadOnlyList<string> usingNamespaces)
+        private static string? SimplifyGlobalAlias(string fullyQualifiedName, IReadOnlyList<string> usingNamespaces, ISet<string> namespaceNames)
         {
             const string globalAlias = "global::";
             if (!fullyQualifiedName.StartsWith(globalAlias, StringComparison.Ordinal))
@@ -262,18 +246,19 @@ namespace Microsoft.TypeSpec.Generator
                 if (nameWithoutGlobalAlias.StartsWith(usingNamespace + ".", StringComparison.Ordinal))
                 {
                     var simplifiedName = nameWithoutGlobalAlias[(usingNamespace.Length + 1)..];
-                    return IsSimpleTypeName(simplifiedName) ? simplifiedName : null;
+                    return IsSimpleTypeName(simplifiedName, namespaceNames) ? simplifiedName : null;
                 }
             }
 
             return null;
         }
 
-        private static bool IsSimpleTypeName(string name)
+        private static bool IsSimpleTypeName(string name, ISet<string> namespaceNames)
         {
             var genericStart = name.IndexOf('<');
             var typeNameLength = genericStart < 0 ? name.Length : genericStart;
-            return name.AsSpan(0, typeNameLength).IndexOf('.') < 0;
+            return name.AsSpan(0, typeNameLength).IndexOf('.') < 0
+                && !namespaceNames.Contains(genericStart < 0 ? name : name.Substring(0, typeNameLength));
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);

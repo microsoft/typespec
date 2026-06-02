@@ -18,7 +18,7 @@ namespace SampleTypeSpec
     /// <summary> The Metrics sub-client. </summary>
     public partial class Metrics
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
@@ -41,7 +41,7 @@ namespace SampleTypeSpec
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="metricsNamespace"></param>
-        internal Metrics(ClientPipeline pipeline, Uri endpoint, string metricsNamespace)
+        internal Metrics(ClientPipeline pipeline, global::System.Uri endpoint, string metricsNamespace)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
@@ -54,7 +54,7 @@ namespace SampleTypeSpec
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, ApiKeyCredential credential) : this(endpoint, metricsNamespace, credential, new SampleTypeSpecClientOptions())
+        public Metrics(global::System.Uri endpoint, string metricsNamespace, ApiKeyCredential credential) : this(endpoint, metricsNamespace, credential, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -64,7 +64,7 @@ namespace SampleTypeSpec
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider) : this(endpoint, metricsNamespace, tokenProvider, new SampleTypeSpecClientOptions())
+        public Metrics(global::System.Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider) : this(endpoint, metricsNamespace, tokenProvider, new SampleTypeSpecClientOptions())
         {
         }
 
@@ -73,7 +73,7 @@ namespace SampleTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="metricsNamespace"></param>
         /// <param name="options"> The options for configuring the client. </param>
-        internal Metrics(AuthenticationPolicy authenticationPolicy, Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
+        internal Metrics(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
@@ -84,11 +84,11 @@ namespace SampleTypeSpec
             _metricsNamespace = metricsNamespace;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
             }
         }
 
@@ -99,7 +99,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, metricsNamespace, options)
+        public Metrics(global::System.Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, metricsNamespace, options)
         {
         }
 
@@ -110,7 +110,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, metricsNamespace, options)
+        public Metrics(global::System.Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, metricsNamespace, options)
         {
         }
 

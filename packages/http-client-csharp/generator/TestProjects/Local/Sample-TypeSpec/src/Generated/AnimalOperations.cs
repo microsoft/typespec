@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     /// <summary> The AnimalOperations sub-client. </summary>
     public partial class AnimalOperations
     {
-        private readonly Uri _endpoint;
+        private readonly global::System.Uri _endpoint;
 
         /// <summary> Initializes a new instance of AnimalOperations for mocking. </summary>
         protected AnimalOperations()
@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal AnimalOperations(ClientPipeline pipeline, Uri endpoint)
+        internal AnimalOperations(ClientPipeline pipeline, global::System.Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
