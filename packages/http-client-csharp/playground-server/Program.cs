@@ -201,10 +201,13 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     if (cache.TryGet(cacheKey, out var cached) && cached is not null)
     {
         request.HttpContext.Response.Headers["X-Cache"] = "HIT";
+        telemetryProperties["cacheStatus"] = "hit";
+        TrackGenerateEvent("cache_hit");
         return Results.Bytes(cached.Body, cached.ContentType);
     }
 
     request.HttpContext.Response.Headers["X-Cache"] = "MISS";
+    telemetryProperties["cacheStatus"] = "miss";
 
     // Create a temporary working directory
     var tempDir = Path.Combine(Path.GetTempPath(), "tsp-playground", Guid.NewGuid().ToString("N"));
