@@ -85,7 +85,7 @@ export default defineConfig({
         },
         {
           label: "🚀 Release Notes",
-          autogenerate: { directory: "release-notes" },
+          items: [{ autogenerate: { directory: "release-notes" } }],
         },
       ],
       favicon: "/img/favicon.svg",
