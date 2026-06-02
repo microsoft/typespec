@@ -333,7 +333,14 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         await checkForPylintIssues(outputDir, excludePattern);
 
         if (resolvedOptions["generate-api-md"]) {
-          await generateApiMd(program, venvPath, yamlPath, outputDir, root);
+          await generateApiMd(
+            program,
+            venvPath,
+            yamlPath,
+            outputDir,
+            root,
+            resolvedOptions["package-name"]!,
+          );
         }
       }
     }
@@ -346,6 +353,7 @@ async function generateApiMd(
   yamlPath: string,
   outputDir: string,
   root: string,
+  packageName: string,
 ): Promise<void> {
   const apiviewOutDir = path.join(os.tmpdir(), `tsp-apiview-${randomUUID()}`);
   try {
@@ -362,9 +370,9 @@ async function generateApiMd(
       "--skip-pylint",
     ]);
 
-    // Find the generated token JSON file
-    const tokenFiles = fs.readdirSync(apiviewOutDir).filter((f: string) => f.endsWith(".json"));
-    if (tokenFiles.length === 0) {
+    // apistubgen outputs {package_name}_python.json
+    const tokenJsonPath = path.join(apiviewOutDir, `${packageName}_python.json`);
+    if (!fs.existsSync(tokenJsonPath)) {
       reportDiagnostic(program, {
         code: "api-md-generation-failed",
         target: NoTarget,
@@ -374,7 +382,6 @@ async function generateApiMd(
     }
 
     // Convert token JSON to api.md using the Python conversion script
-    const tokenJsonPath = path.join(apiviewOutDir, tokenFiles[0]);
     const mdScript = path.join(root, "eng", "scripts", "setup", "export_apiview_markdown.py");
     execFileSync(venvPath, [mdScript, tokenJsonPath, outputDir]);
   } catch (e: any) {
