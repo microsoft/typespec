@@ -15,16 +15,16 @@ namespace Client.Structure.Service._Qux
     {
         protected QuxBar() => throw null;
 
-        internal QuxBar(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal QuxBar(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Nine(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NineAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NineAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Nine(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NineAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NineAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

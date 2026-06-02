@@ -25,9 +25,9 @@ namespace SampleTypeSpec
         {
             new Dictionary<string, object>
             {
-                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
-                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
-                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
+                { global::System.ClientModel.Primitives.GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
+                { global::System.ClientModel.Primitives.GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
+                { global::System.ClientModel.Primitives.GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
             }
         };
         private readonly string _metricsNamespace;
@@ -75,8 +75,8 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         internal Metrics(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
+            global::SampleTypeSpec.Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
 
             options ??= new SampleTypeSpecClientOptions();
 
@@ -84,11 +84,11 @@ namespace SampleTypeSpec
             _metricsNamespace = metricsNamespace;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(global::SampleTypeSpec.Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
             }
         }
 
@@ -99,7 +99,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public Metrics(global::System.Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, metricsNamespace, options)
+        public Metrics(global::System.Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, metricsNamespace, options)
         {
         }
 
@@ -117,7 +117,7 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of Metrics from a <see cref="MetricsSettings"/>. </summary>
         /// <param name="settings"> The settings for Metrics. </param>
         [ExperimentalAttribute("SCME0002")]
-        public Metrics(MetricsSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.MetricsNamespace, settings?.Options)
+        public Metrics(MetricsSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.MetricsNamespace, settings?.Options)
         {
         }
 
@@ -139,7 +139,7 @@ namespace SampleTypeSpec
         public virtual ClientResult GetWidgetMetrics(string day, RequestOptions options = null)
         {
             using PipelineMessage message = this.CreateGetWidgetMetricsRequest(day, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -154,30 +154,30 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetWidgetMetricsAsync(string day, RequestOptions options = null)
+        public virtual async Task<global::System.ClientModel.ClientResult> GetWidgetMetricsAsync(string day, RequestOptions options = null)
         {
             using PipelineMessage message = this.CreateGetWidgetMetricsRequest(day, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
         /// <param name="day"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
+        public virtual ClientResult<global::SampleTypeSpec.GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = this.GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(((GetWidgetMetricsResponse)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((GetWidgetMetricsResponse)result), result.GetRawResponse());
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
         /// <param name="day"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
+        public virtual async Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = await this.GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(((GetWidgetMetricsResponse)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((GetWidgetMetricsResponse)result), result.GetRawResponse());
         }
     }
 }

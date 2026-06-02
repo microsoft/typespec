@@ -14,24 +14,24 @@ namespace Payload.ContentNegotiation._DifferentBody
     {
         protected DifferentBody() => throw null;
 
-        internal DifferentBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal DifferentBody(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetAvatarAsPng(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::System.BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::System.BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetAvatarAsJson(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAvatarAsJsonAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAvatarAsJsonAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

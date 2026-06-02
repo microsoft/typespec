@@ -10,7 +10,7 @@ namespace Versioning.MadeOptional
 {
     public partial class MadeOptionalClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion LatestVersion = MadeOptionalClientOptions.ServiceVersion.V1;
+        private const global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion LatestVersion = global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion.V1;
 
         public MadeOptionalClientOptions(global::Versioning.MadeOptional.MadeOptionalClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

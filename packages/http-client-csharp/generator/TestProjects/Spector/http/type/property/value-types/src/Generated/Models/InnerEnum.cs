@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct InnerEnum : IEquatable<InnerEnum>
+    public readonly partial struct InnerEnum : IEquatable<global::_Type.Property.ValueTypes.InnerEnum>
     {
         public InnerEnum(string value) => throw null;
 
@@ -23,12 +23,12 @@ namespace _Type.Property.ValueTypes
 
         public static implicit operator InnerEnum?(string value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(InnerEnum other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

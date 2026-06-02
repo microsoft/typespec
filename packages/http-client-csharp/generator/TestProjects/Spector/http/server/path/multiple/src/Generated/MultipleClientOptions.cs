@@ -10,7 +10,7 @@ namespace Server.Path.Multiple
 {
     public partial class MultipleClientOptions : ClientPipelineOptions
     {
-        private const global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion LatestVersion = MultipleClientOptions.ServiceVersion.V1_0;
+        private const global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion LatestVersion = global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion.V1_0;
 
         public MultipleClientOptions(global::Server.Path.Multiple.MultipleClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

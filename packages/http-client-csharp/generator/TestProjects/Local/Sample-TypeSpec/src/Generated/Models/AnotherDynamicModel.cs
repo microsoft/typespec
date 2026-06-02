@@ -24,7 +24,7 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="bar"/> is null. </exception>
         public AnotherDynamicModel(string bar)
         {
-            Argument.AssertNotNull(bar, nameof(bar));
+            global::SampleTypeSpec.Argument.AssertNotNull(bar, nameof(bar));
 
             Bar = bar;
         }
@@ -42,7 +42,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Patch. </summary>
         [JsonIgnoreAttribute]
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         [ExperimentalAttribute("SCME0001")]
         public ref JsonPatch Patch => ref _patch;
 

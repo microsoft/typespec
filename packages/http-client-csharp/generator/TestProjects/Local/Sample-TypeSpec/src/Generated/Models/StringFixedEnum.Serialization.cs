@@ -14,26 +14,26 @@ namespace SampleTypeSpec
         /// <param name="value"> The value to serialize. </param>
         public static string ToSerialString(this StringFixedEnum value) => value switch
         {
-            StringFixedEnum.One => "1",
-            StringFixedEnum.Two => "2",
-            StringFixedEnum.Four => "4",
+            global::SampleTypeSpec.StringFixedEnum.One => "1",
+            global::SampleTypeSpec.StringFixedEnum.Two => "2",
+            global::SampleTypeSpec.StringFixedEnum.Four => "4",
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown StringFixedEnum value.")
         };
 
         /// <param name="value"> The value to deserialize. </param>
         public static StringFixedEnum ToStringFixedEnum(this string value)
         {
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "1"))
+            if (global::System.StringComparer.OrdinalIgnoreCase.Equals(value, "1"))
             {
-                return StringFixedEnum.One;
+                return global::SampleTypeSpec.StringFixedEnum.One;
             }
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "2"))
+            if (global::System.StringComparer.OrdinalIgnoreCase.Equals(value, "2"))
             {
-                return StringFixedEnum.Two;
+                return global::SampleTypeSpec.StringFixedEnum.Two;
             }
-            if (StringComparer.OrdinalIgnoreCase.Equals(value, "4"))
+            if (global::System.StringComparer.OrdinalIgnoreCase.Equals(value, "4"))
             {
-                return StringFixedEnum.Four;
+                return global::SampleTypeSpec.StringFixedEnum.Four;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown StringFixedEnum value.");
         }

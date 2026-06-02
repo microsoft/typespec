@@ -11,7 +11,7 @@ using System.ComponentModel;
 namespace SampleTypeSpec
 {
     /// <summary> Extensible enum. </summary>
-    public readonly partial struct StringExtensibleEnum : IEquatable<StringExtensibleEnum>
+    public readonly partial struct StringExtensibleEnum : IEquatable<global::SampleTypeSpec.StringExtensibleEnum>
     {
         private readonly string _value;
         private const string OneValue = "1";
@@ -23,7 +23,7 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public StringExtensibleEnum(string value)
         {
-            Argument.AssertNotNull(value, nameof(value));
+            global::SampleTypeSpec.Argument.AssertNotNull(value, nameof(value));
 
             _value = value;
         }
@@ -56,15 +56,15 @@ namespace SampleTypeSpec
         public static implicit operator StringExtensibleEnum?(string value) => (value == null) ? null : new StringExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is StringExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
-        public bool Equals(StringExtensibleEnum other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
+        public bool Equals(StringExtensibleEnum other) => string.Equals(_value, other._value, global::System.StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
-        public override int GetHashCode() => (_value != null) ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        public override int GetHashCode() => (_value != null) ? global::System.StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;

@@ -12,7 +12,7 @@ namespace Client.Structure.Service
     [ExperimentalAttribute("SCME0002")]
     public partial class ServiceClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -15,14 +15,14 @@ namespace Encode.Bytes
 {
     public partial class BytesClient
     {
-        public BytesClient() : this(new Uri("http://localhost:3000"), new BytesClientOptions()) => throw null;
+        public BytesClient() : this(new global::System.Uri("http://localhost:3000"), new BytesClientOptions()) => throw null;
 
-        internal BytesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BytesClientOptions options) => throw null;
+        internal BytesClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, BytesClientOptions options) => throw null;
 
-        public BytesClient(Uri endpoint, BytesClientOptions options) : this(null, endpoint, options) => throw null;
+        public BytesClient(global::System.Uri endpoint, BytesClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public BytesClient(BytesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public BytesClient(BytesClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

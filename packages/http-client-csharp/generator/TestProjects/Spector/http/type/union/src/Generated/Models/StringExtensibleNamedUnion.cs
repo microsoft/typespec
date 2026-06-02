@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct StringExtensibleNamedUnion : IEquatable<StringExtensibleNamedUnion>
+    public readonly partial struct StringExtensibleNamedUnion : IEquatable<global::_Type.Union.StringExtensibleNamedUnion>
     {
         public StringExtensibleNamedUnion(string value) => throw null;
 
@@ -23,12 +23,12 @@ namespace _Type.Union
 
         public static implicit operator StringExtensibleNamedUnion?(string value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(StringExtensibleNamedUnion other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

@@ -10,7 +10,7 @@ namespace Versioning.ReturnTypeChangedFrom
 {
     public partial class ReturnTypeChangedFromClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion LatestVersion = ReturnTypeChangedFromClientOptions.ServiceVersion.V2;
+        private const global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion LatestVersion = global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion.V2;
 
         public ReturnTypeChangedFromClientOptions(global::Versioning.ReturnTypeChangedFrom.ReturnTypeChangedFromClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

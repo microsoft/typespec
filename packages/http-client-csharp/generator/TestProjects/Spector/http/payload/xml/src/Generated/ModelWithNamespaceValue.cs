@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithNamespaceValue() => throw null;
 
-        internal ModelWithNamespaceValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithNamespaceValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithNamespace> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Payload.Xml.ModelWithNamespace> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ModelWithNamespace>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithNamespace>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithNamespace input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithNamespace input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithNamespace input, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -12,7 +12,7 @@ namespace Response.StatusCodeRange
     [ExperimentalAttribute("SCME0002")]
     public partial class StatusCodeRangeClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

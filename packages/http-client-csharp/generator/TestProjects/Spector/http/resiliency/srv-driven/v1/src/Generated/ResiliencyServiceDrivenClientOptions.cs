@@ -10,7 +10,7 @@ namespace Resiliency.ServiceDriven
 {
     public partial class ResiliencyServiceDrivenClientOptions : ClientPipelineOptions
     {
-        private const global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion LatestVersion = ResiliencyServiceDrivenClientOptions.ServiceVersion.V1;
+        private const global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion LatestVersion = global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion.V1;
 
         public ResiliencyServiceDrivenClientOptions(global::Resiliency.ServiceDriven.ResiliencyServiceDrivenClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

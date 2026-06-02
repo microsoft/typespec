@@ -12,7 +12,7 @@ namespace Resiliency.ServiceDriven
     [ExperimentalAttribute("SCME0002")]
     public partial class ResiliencyServiceDrivenClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

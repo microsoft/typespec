@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> float fixed enum. </summary>
-    public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<FloatExtensibleEnumWithIntValue>
+    public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<global::SampleTypeSpec.FloatExtensibleEnumWithIntValue>
     {
         private readonly float _value;
         private const float OneValue = 1F;
@@ -50,17 +50,17 @@ namespace SampleTypeSpec
         public static implicit operator FloatExtensibleEnumWithIntValue(float value) => new FloatExtensibleEnumWithIntValue(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is FloatExtensibleEnumWithIntValue other) && this.Equals(other));
 
         /// <inheritdoc/>
         public bool Equals(FloatExtensibleEnumWithIntValue other) => float.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
     }
 }

@@ -11,14 +11,14 @@ namespace Service.MultipleServices.ServiceA
 {
     public partial class ServiceAClient
     {
-        public ServiceAClient() : this(new Uri("http://localhost:3000"), new ServiceAClientOptions()) => throw null;
+        public ServiceAClient() : this(new global::System.Uri("http://localhost:3000"), new ServiceAClientOptions()) => throw null;
 
-        internal ServiceAClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ServiceAClientOptions options) => throw null;
+        internal ServiceAClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ServiceAClientOptions options) => throw null;
 
-        public ServiceAClient(Uri endpoint, ServiceAClientOptions options) : this(null, endpoint, options) => throw null;
+        public ServiceAClient(global::System.Uri endpoint, ServiceAClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public ServiceAClient(ServiceAClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public ServiceAClient(ServiceAClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

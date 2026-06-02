@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Parameters.BodyOptionality
 {
-    public partial class BodyModel : IJsonModel<BodyModel>
+    public partial class BodyModel : IJsonModel<global::Parameters.BodyOptionality.BodyModel>
     {
         internal BodyModel() => throw null;
 
@@ -17,19 +17,19 @@ namespace Parameters.BodyOptionality
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<BodyModel>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Parameters.BodyOptionality.BodyModel>.Write(ModelReaderWriterOptions options) => throw null;
 
-        BodyModel IPersistableModel<BodyModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        BodyModel IPersistableModel<global::Parameters.BodyOptionality.BodyModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<BodyModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Parameters.BodyOptionality.BodyModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(BodyModel bodyModel) => throw null;
 
-        void IJsonModel<BodyModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Parameters.BodyOptionality.BodyModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        BodyModel IJsonModel<BodyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        BodyModel IJsonModel<global::Parameters.BodyOptionality.BodyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual BodyModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

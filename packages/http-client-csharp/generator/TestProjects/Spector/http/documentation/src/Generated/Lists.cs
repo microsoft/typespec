@@ -14,32 +14,32 @@ namespace Documentation._Lists
     {
         protected Lists() => throw null;
 
-        internal Lists(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Lists(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult BulletPointsOp(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsOpAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> BulletPointsOpAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult BulletPointsOp(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsOpAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> BulletPointsOpAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult BulletPointsModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> BulletPointsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult BulletPointsModel(BulletPointsModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BulletPointsModelAsync(BulletPointsModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> BulletPointsModelAsync(BulletPointsModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Numbered(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NumberedAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NumberedAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Numbered(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NumberedAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NumberedAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

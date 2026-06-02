@@ -10,7 +10,7 @@ namespace Versioning.Removed
 {
     public partial class RemovedClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.Removed.RemovedClientOptions.ServiceVersion LatestVersion = RemovedClientOptions.ServiceVersion.V2;
+        private const global::Versioning.Removed.RemovedClientOptions.ServiceVersion LatestVersion = global::Versioning.Removed.RemovedClientOptions.ServiceVersion.V2;
 
         public RemovedClientOptions(global::Versioning.Removed.RemovedClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

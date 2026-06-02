@@ -31,7 +31,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
@@ -59,7 +59,7 @@ namespace SampleTypeSpec
         {
             if ((page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value)))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(value));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }
             else
             {
@@ -71,7 +71,7 @@ namespace SampleTypeSpec
         /// <param name="message"> The pipeline message containing the request to send. </param>
         private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

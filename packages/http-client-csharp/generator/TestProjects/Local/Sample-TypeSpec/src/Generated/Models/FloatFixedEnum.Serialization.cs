@@ -14,9 +14,9 @@ namespace SampleTypeSpec
         /// <param name="value"> The value to serialize. </param>
         public static float ToSerialSingle(this FloatFixedEnum value) => value switch
         {
-            FloatFixedEnum.OneDotOne => 1.1F,
-            FloatFixedEnum.TwoDotTwo => 2.2F,
-            FloatFixedEnum.FourDotFour => 4.4F,
+            global::SampleTypeSpec.FloatFixedEnum.OneDotOne => 1.1F,
+            global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo => 2.2F,
+            global::SampleTypeSpec.FloatFixedEnum.FourDotFour => 4.4F,
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
         };
 
@@ -25,15 +25,15 @@ namespace SampleTypeSpec
         {
             if ((value == 1.1F))
             {
-                return FloatFixedEnum.OneDotOne;
+                return global::SampleTypeSpec.FloatFixedEnum.OneDotOne;
             }
             if ((value == 2.2F))
             {
-                return FloatFixedEnum.TwoDotTwo;
+                return global::SampleTypeSpec.FloatFixedEnum.TwoDotTwo;
             }
             if ((value == 4.4F))
             {
-                return FloatFixedEnum.FourDotFour;
+                return global::SampleTypeSpec.FloatFixedEnum.FourDotFour;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
         }

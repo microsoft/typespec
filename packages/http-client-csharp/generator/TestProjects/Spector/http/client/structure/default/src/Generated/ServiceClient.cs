@@ -17,32 +17,32 @@ namespace Client.Structure.Service
     {
         protected ServiceClient() => throw null;
 
-        public ServiceClient(Uri endpoint, ClientType client) : this(endpoint, client, new ServiceClientOptions()) => throw null;
+        public ServiceClient(global::System.Uri endpoint, ClientType client) : this(endpoint, client, new ServiceClientOptions()) => throw null;
 
-        internal ServiceClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
+        internal ServiceClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
 
-        public ServiceClient(Uri endpoint, ClientType client, ServiceClientOptions options) : this(null, endpoint, client, options) => throw null;
+        public ServiceClient(global::System.Uri endpoint, ClientType client, ServiceClientOptions options) : this(null, endpoint, client, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public ServiceClient(ServiceClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
+        public ServiceClient(ServiceClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, (settings?.Client ?? default), settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult One(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OneAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Two(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> TwoAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Baz GetBazClient() => throw null;
 

@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class Decimal128Property : IJsonModel<Decimal128Property>
+    public partial class Decimal128Property : IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>
     {
         internal Decimal128Property() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Decimal128Property>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Decimal128Property IPersistableModel<Decimal128Property>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Decimal128Property IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Decimal128Property>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.ValueTypes.Decimal128Property>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Decimal128Property decimal128Property) => throw null;
 
         public static explicit operator Decimal128Property(ClientResult result) => throw null;
 
-        void IJsonModel<Decimal128Property>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Decimal128Property IJsonModel<Decimal128Property>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Decimal128Property IJsonModel<global::_Type.Property.ValueTypes.Decimal128Property>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Decimal128Property JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

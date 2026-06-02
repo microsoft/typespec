@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResultOfT : CollectionResult<global::SampleTypeSpec.Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
@@ -28,7 +28,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
             global::System.Uri nextPageUri = null;
@@ -54,7 +54,7 @@ namespace SampleTypeSpec
             global::System.Uri nextPage = ((ListWithNextLinkResponse)page).Next;
             if ((nextPage != null))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {
@@ -65,7 +65,7 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
+        protected override IEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPage(ClientResult page)
         {
             return ((ListWithNextLinkResponse)page).Things;
         }
@@ -74,7 +74,7 @@ namespace SampleTypeSpec
         /// <param name="message"> The pipeline message containing the request to send. </param>
         private ClientResult GetNextResponse(PipelineMessage message)
         {
-            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

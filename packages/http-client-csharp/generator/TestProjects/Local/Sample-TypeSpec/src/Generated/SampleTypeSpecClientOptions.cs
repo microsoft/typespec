@@ -15,7 +15,7 @@ namespace SampleTypeSpec
     /// <summary> Client options for <see cref="global::SampleTypeSpec.SampleTypeSpecClient"/>. </summary>
     public partial class SampleTypeSpecClientOptions : ClientPipelineOptions
     {
-        private const global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion LatestVersion = SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview;
+        private const global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion LatestVersion = global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientOptions. </summary>
         /// <param name="version"> The service version. </param>
@@ -23,8 +23,8 @@ namespace SampleTypeSpec
         {
             Version = version switch
             {
-                SampleTypeSpecClientOptions.ServiceVersion.V2024_07_16_Preview => "2024-07-16-preview",
-                SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
+                global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_07_16_Preview => "2024-07-16-preview",
+                global::SampleTypeSpec.SampleTypeSpecClientOptions.ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
                 _ => throw new NotSupportedException()
             };
         }

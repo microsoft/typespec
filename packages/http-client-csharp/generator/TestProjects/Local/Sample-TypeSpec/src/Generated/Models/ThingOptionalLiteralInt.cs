@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingOptionalLiteralInt : IEquatable<ThingOptionalLiteralInt>
+    public readonly partial struct ThingOptionalLiteralInt : IEquatable<global::SampleTypeSpec.ThingOptionalLiteralInt>
     {
         private readonly int _value;
         private const int _456Value = 456;
@@ -42,17 +42,17 @@ namespace SampleTypeSpec
         public static implicit operator ThingOptionalLiteralInt(int value) => new ThingOptionalLiteralInt(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is ThingOptionalLiteralInt other) && this.Equals(other));
 
         /// <inheritdoc/>
         public bool Equals(ThingOptionalLiteralInt other) => int.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
     }
 }

@@ -15,16 +15,16 @@ namespace Client.Structure.Service._Baz
     {
         protected BazFoo() => throw null;
 
-        internal BazFoo(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal BazFoo(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Seven(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> SevenAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SevenAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Seven(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SevenAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SevenAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

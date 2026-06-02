@@ -10,7 +10,7 @@ namespace Service.MultipleServices.ServiceA
 {
     public partial class ServiceAClientOptions : ClientPipelineOptions
     {
-        private const global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion LatestVersion = ServiceAClientOptions.ServiceVersion.Vav2;
+        private const global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion LatestVersion = global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion.Vav2;
 
         public ServiceAClientOptions(global::Service.MultipleServices.ServiceA.ServiceAClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

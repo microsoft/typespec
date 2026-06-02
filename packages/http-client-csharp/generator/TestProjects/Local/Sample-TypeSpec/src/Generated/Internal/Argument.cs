@@ -106,7 +106,7 @@ namespace SampleTypeSpec
         /// <param name="name"> The name. </param>
         public static string CheckNotNullOrEmpty(string value, string name)
         {
-            Argument.AssertNotNullOrEmpty(value, name);
+            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(value, name);
             return value;
         }
     }

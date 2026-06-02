@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Encode._Array
 {
-    public readonly partial struct ColorsExtensibleEnum : IEquatable<ColorsExtensibleEnum>
+    public readonly partial struct ColorsExtensibleEnum : IEquatable<global::Encode._Array.ColorsExtensibleEnum>
     {
         public ColorsExtensibleEnum(string value) => throw null;
 
@@ -25,12 +25,12 @@ namespace Encode._Array
 
         public static implicit operator ColorsExtensibleEnum?(string value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(ColorsExtensibleEnum other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

@@ -14,24 +14,24 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadRecordNonDiscriminatedUnion() => throw null;
 
-        internal SpreadRecordNonDiscriminatedUnion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpreadRecordNonDiscriminatedUnion(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<SpreadRecordForNonDiscriminatedUnion> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SpreadRecordForNonDiscriminatedUnion>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(SpreadRecordForNonDiscriminatedUnion body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(SpreadRecordForNonDiscriminatedUnion body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(SpreadRecordForNonDiscriminatedUnion body, CancellationToken cancellationToken = default) => throw null;
     }
 }

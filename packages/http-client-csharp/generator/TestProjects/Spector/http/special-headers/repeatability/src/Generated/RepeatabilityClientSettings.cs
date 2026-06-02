@@ -12,7 +12,7 @@ namespace SpecialHeaders.Repeatability
     [ExperimentalAttribute("SCME0002")]
     public partial class RepeatabilityClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

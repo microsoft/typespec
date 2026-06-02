@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <param name="section"> The configuration section. </param>
         protected override void BindCore(IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
+            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
             {
                 this.SampleTypeSpecUrl = sampleTypeSpecUrl;
             }

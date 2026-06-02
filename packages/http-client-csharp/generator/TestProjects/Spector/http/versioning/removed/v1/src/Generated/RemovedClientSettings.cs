@@ -12,7 +12,7 @@ namespace Versioning.Removed
     [ExperimentalAttribute("SCME0002")]
     public partial class RemovedClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

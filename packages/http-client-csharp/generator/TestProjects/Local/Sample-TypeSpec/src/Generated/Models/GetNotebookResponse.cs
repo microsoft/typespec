@@ -14,7 +14,7 @@ namespace SampleTypeSpec
     public partial class GetNotebookResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.GetNotebookResponse"/>. </summary>
         /// <param name="name"></param>
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <param name="name"></param>
         /// <param name="content"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal GetNotebookResponse(string name, string content, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal GetNotebookResponse(string name, string content, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             Content = content;

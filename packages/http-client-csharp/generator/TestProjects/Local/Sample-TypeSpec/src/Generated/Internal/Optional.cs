@@ -45,7 +45,7 @@ namespace SampleTypeSpec
 
         public static bool IsDefined(JsonElement value)
         {
-            return (value.ValueKind != JsonValueKind.Undefined);
+            return (value.ValueKind != global::System.Text.Json.JsonValueKind.Undefined);
         }
     }
 }

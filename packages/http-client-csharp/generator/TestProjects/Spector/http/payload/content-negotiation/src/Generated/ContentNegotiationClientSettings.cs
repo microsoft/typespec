@@ -12,7 +12,7 @@ namespace Payload.ContentNegotiation
     [ExperimentalAttribute("SCME0002")]
     public partial class ContentNegotiationClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

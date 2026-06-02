@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Payload.Xml
 {
-    public readonly partial struct Status : IEquatable<Status>
+    public readonly partial struct Status : IEquatable<global::Payload.Xml.Status>
     {
         public Status(string value) => throw null;
 
@@ -25,12 +25,12 @@ namespace Payload.Xml
 
         public static implicit operator Status?(string value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(Status other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

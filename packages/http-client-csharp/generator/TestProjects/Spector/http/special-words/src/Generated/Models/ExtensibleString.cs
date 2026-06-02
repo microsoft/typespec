@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace SpecialWords._ExtensibleStrings
 {
-    public readonly partial struct ExtensibleString : IEquatable<ExtensibleString>
+    public readonly partial struct ExtensibleString : IEquatable<global::SpecialWords._ExtensibleStrings.ExtensibleString>
     {
         public ExtensibleString(string value) => throw null;
 
@@ -85,12 +85,12 @@ namespace SpecialWords._ExtensibleStrings
 
         public static implicit operator ExtensibleString?(string value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(ExtensibleString other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

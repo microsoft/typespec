@@ -16,7 +16,7 @@ namespace SampleTypeSpec
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal UnknownAnimal(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), name, additionalBinaryDataProperties)
+        internal UnknownAnimal(string kind, string name, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base((kind ?? "unknown"), name, additionalBinaryDataProperties)
         {
         }
     }

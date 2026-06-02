@@ -15,31 +15,31 @@ namespace Server.Path.Multiple
     {
         protected MultipleClient() => throw null;
 
-        public MultipleClient(Uri endpoint) : this(endpoint, new MultipleClientOptions()) => throw null;
+        public MultipleClient(global::System.Uri endpoint) : this(endpoint, new MultipleClientOptions()) => throw null;
 
-        internal MultipleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultipleClientOptions options) => throw null;
+        internal MultipleClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, MultipleClientOptions options) => throw null;
 
-        public MultipleClient(Uri endpoint, MultipleClientOptions options) : this(null, endpoint, options) => throw null;
+        public MultipleClient(global::System.Uri endpoint, MultipleClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public MultipleClient(MultipleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public MultipleClient(MultipleClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult NoOperationParams(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult NoOperationParams(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
 
         public virtual ClientResult WithOperationPathParam(string keyword, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
     }
 }

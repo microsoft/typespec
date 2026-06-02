@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> Int based extensible enum. </summary>
-    public readonly partial struct IntExtensibleEnum : IEquatable<IntExtensibleEnum>
+    public readonly partial struct IntExtensibleEnum : IEquatable<global::SampleTypeSpec.IntExtensibleEnum>
     {
         private readonly int _value;
         private const int OneValue = 1;
@@ -50,17 +50,17 @@ namespace SampleTypeSpec
         public static implicit operator IntExtensibleEnum(int value) => new IntExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is IntExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
         public bool Equals(IntExtensibleEnum other) => int.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
     }
 }

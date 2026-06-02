@@ -14,24 +14,24 @@ namespace _Type.Union
     {
         protected StringAndArray() => throw null;
 
-        internal StringAndArray(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal StringAndArray(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<GetResponse7> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Union.GetResponse7> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<GetResponse7>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Union.GetResponse7>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Send(StringAndArrayCases prop, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(StringAndArrayCases prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SendAsync(StringAndArrayCases prop, CancellationToken cancellationToken = default) => throw null;
     }
 }

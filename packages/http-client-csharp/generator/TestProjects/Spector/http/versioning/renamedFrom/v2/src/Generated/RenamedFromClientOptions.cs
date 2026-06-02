@@ -10,7 +10,7 @@ namespace Versioning.RenamedFrom
 {
     public partial class RenamedFromClientOptions : ClientPipelineOptions
     {
-        private const global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion LatestVersion = RenamedFromClientOptions.ServiceVersion.V2;
+        private const global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion LatestVersion = global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion.V2;
 
         public RenamedFromClientOptions(global::Versioning.RenamedFrom.RenamedFromClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

@@ -13,7 +13,7 @@ namespace Client.Structure.RenamedOperation
     [ExperimentalAttribute("SCME0002")]
     public partial class RenamedOperationClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

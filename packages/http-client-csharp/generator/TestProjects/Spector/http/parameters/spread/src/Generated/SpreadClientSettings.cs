@@ -12,7 +12,7 @@ namespace Parameters.Spread
     [ExperimentalAttribute("SCME0002")]
     public partial class SpreadClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

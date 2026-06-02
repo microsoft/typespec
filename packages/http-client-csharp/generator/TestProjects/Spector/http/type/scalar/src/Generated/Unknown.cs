@@ -14,24 +14,24 @@ namespace _Type.Scalar
     {
         protected Unknown() => throw null;
 
-        internal Unknown(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Unknown(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::System.BinaryData> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::System.BinaryData>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(BinaryData body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryData body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryData body, CancellationToken cancellationToken = default) => throw null;
     }
 }

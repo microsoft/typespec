@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     {
         private protected Dinosaur(string kind, int size) => throw null;
 
-        internal Dinosaur(string kind, int size, IDictionary<string, BinaryData> additionalBinaryDataProperties) => throw null;
+        internal Dinosaur(string kind, int size, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) => throw null;
 
         internal string Kind
         {

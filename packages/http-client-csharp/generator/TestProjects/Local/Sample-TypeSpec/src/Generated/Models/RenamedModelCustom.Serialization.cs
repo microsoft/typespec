@@ -15,7 +15,7 @@ using SampleTypeSpec.Models.Custom;
 namespace SampleTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
-    public partial class RenamedModelCustom : Friend, IJsonModel<RenamedModelCustom>
+    public partial class RenamedModelCustom : Friend, IJsonModel<global::SampleTypeSpec.RenamedModelCustom>
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RenamedModelCustom"/> for deserialization. </summary>
         internal RenamedModelCustom()
@@ -26,13 +26,13 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, options);
+                        return global::SampleTypeSpec.RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(global::SampleTypeSpec.RenamedModelCustom)} does not support reading '{options.Format}' format.");
@@ -42,25 +42,25 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                    return global::System.ClientModel.Primitives.ModelReaderWriter.Write(this, options, global::SampleTypeSpec.SampleTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(global::SampleTypeSpec.RenamedModelCustom)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<RenamedModelCustom>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RenamedModelCustom IPersistableModel<RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => ((RenamedModelCustom)this.PersistableModelCreateCore(data, options));
+        RenamedModelCustom IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => ((RenamedModelCustom)this.PersistableModelCreateCore(data, options));
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<RenamedModelCustom>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="renamedModelCustom"> The <see cref="global::SampleTypeSpec.RenamedModelCustom"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(RenamedModelCustom renamedModelCustom)
@@ -69,20 +69,20 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-            return BinaryContent.Create(renamedModelCustom, ModelSerializationExtensions.WireOptions);
+            return global::System.ClientModel.BinaryContent.Create(renamedModelCustom, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.RenamedModelCustom"/> from. </param>
         public static explicit operator RenamedModelCustom(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, ModelSerializationExtensions.WireOptions);
+            using JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content, global::SampleTypeSpec.ModelSerializationExtensions.JsonDocumentOptions);
+            return global::SampleTypeSpec.RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<RenamedModelCustom>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<global::SampleTypeSpec.RenamedModelCustom>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -93,7 +93,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.RenamedModelCustom)} does not support writing '{format}' format.");
@@ -105,31 +105,31 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RenamedModelCustom IJsonModel<RenamedModelCustom>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((RenamedModelCustom)this.JsonModelCreateCore(ref reader, options));
+        RenamedModelCustom IJsonModel<global::SampleTypeSpec.RenamedModelCustom>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((RenamedModelCustom)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Friend JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.RenamedModelCustom)} does not support reading '{format}' format.");
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, options);
+            using JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return global::SampleTypeSpec.RenamedModelCustom.DeserializeRenamedModelCustom(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         internal static RenamedModelCustom DeserializeRenamedModelCustom(JsonElement element, ModelReaderWriterOptions options)
         {
-            if ((element.ValueKind == JsonValueKind.Null))
+            if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
                 return null;
             }
             string name = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
             string otherName = default;
             foreach (var prop in element.EnumerateObject())
             {
@@ -145,7 +145,7 @@ namespace SampleTypeSpec
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             return new RenamedModelCustom(name, additionalBinaryDataProperties, otherName);

@@ -12,7 +12,7 @@ namespace SpecialWords
     [ExperimentalAttribute("SCME0002")]
     public partial class SpecialWordsClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

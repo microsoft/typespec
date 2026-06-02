@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<global::SampleTypeSpec.Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
@@ -32,7 +32,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
@@ -58,7 +58,7 @@ namespace SampleTypeSpec
             string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
             }
             else
             {
@@ -69,20 +69,20 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPageAsync(ClientResult page)
         {
             foreach (Thing item in ((ListWithContinuationTokenResponse)page).Things)
             {
                 yield return item;
-                await Task.Yield();
+                await global::System.Threading.Tasks.Task.Yield();
             }
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        private async ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
-            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

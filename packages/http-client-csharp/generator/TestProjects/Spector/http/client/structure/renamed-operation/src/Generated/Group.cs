@@ -15,32 +15,32 @@ namespace Client.Structure.RenamedOperation
     {
         protected Group() => throw null;
 
-        internal Group(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Group(ClientPipeline pipeline, global::System.Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult RenamedTwo(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedTwoAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedTwoAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedTwo(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedFour(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedFourAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedFourAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedFour(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedSix(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RenamedSixAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedSixAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult RenamedSix(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

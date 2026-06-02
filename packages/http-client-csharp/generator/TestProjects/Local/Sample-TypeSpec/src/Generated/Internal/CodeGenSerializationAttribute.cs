@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [AttributeUsageAttribute((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
+    [AttributeUsageAttribute((global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute
     {
         /// <param name="propertyName"> The property name which these hooks apply to. </param>

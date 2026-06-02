@@ -10,14 +10,14 @@ namespace Payload.Xml
 {
     public partial class XmlClient
     {
-        public XmlClient() : this(new Uri("http://localhost:3000"), new XmlClientOptions()) => throw null;
+        public XmlClient() : this(new global::System.Uri("http://localhost:3000"), new XmlClientOptions()) => throw null;
 
-        internal XmlClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, XmlClientOptions options) => throw null;
+        internal XmlClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, XmlClientOptions options) => throw null;
 
-        public XmlClient(Uri endpoint, XmlClientOptions options) : this(null, endpoint, options) => throw null;
+        public XmlClient(global::System.Uri endpoint, XmlClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public XmlClient(XmlClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public XmlClient(XmlClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -12,7 +12,7 @@ namespace Parameters.Basic
     [ExperimentalAttribute("SCME0002")]
     public partial class BasicClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -14,40 +14,40 @@ namespace _Type.Property.Optional
     {
         protected UnionStringLiteral() => throw null;
 
-        internal UnionStringLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal UnionStringLiteral(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetAll(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionStringLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Optional.UnionStringLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionStringLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionStringLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Optional.UnionStringLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.UnionStringLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutAll(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAllAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutDefault(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutDefaultAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

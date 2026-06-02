@@ -50,10 +50,10 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateDogAsDog(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = this.CreateUpdateDogAsDogRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -69,12 +69,12 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> UpdateDogAsDogAsync(BinaryContent content, RequestOptions options = null)
+        public virtual async Task<global::System.ClientModel.ClientResult> UpdateDogAsDogAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            global::SampleTypeSpec.Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = this.CreateUpdateDogAsDogRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Update a dog as a dog. </summary>
@@ -82,12 +82,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="dog"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Dog> UpdateDogAsDog(Dog dog, CancellationToken cancellationToken = default)
+        public virtual ClientResult<global::SampleTypeSpec.Dog> UpdateDogAsDog(Dog dog, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(dog, nameof(dog));
+            global::SampleTypeSpec.Argument.AssertNotNull(dog, nameof(dog));
 
             ClientResult result = this.UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(((Dog)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((Dog)result), result.GetRawResponse());
         }
 
         /// <summary> Update a dog as a dog. </summary>
@@ -95,12 +95,12 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="dog"/> is null. </exception>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Dog>> UpdateDogAsDogAsync(Dog dog, CancellationToken cancellationToken = default)
+        public virtual async Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.Dog>> UpdateDogAsDogAsync(Dog dog, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(dog, nameof(dog));
+            global::SampleTypeSpec.Argument.AssertNotNull(dog, nameof(dog));
 
             ClientResult result = await this.UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(((Dog)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((Dog)result), result.GetRawResponse());
         }
     }
 }

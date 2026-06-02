@@ -14,7 +14,7 @@ using System.Xml.Linq;
 namespace SampleTypeSpec
 {
     /// <summary> The XmlModelWithNamespace. </summary>
-    public partial class XmlModelWithNamespace : IPersistableModel<XmlModelWithNamespace>
+    public partial class XmlModelWithNamespace : IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>
     {
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlModelWithNamespace"/> for deserialization. </summary>
         internal XmlModelWithNamespace()
@@ -25,13 +25,13 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual XmlModelWithNamespace PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (Stream dataStream = data.ToStream())
                     {
-                        return XmlModelWithNamespace.DeserializeXmlModelWithNamespace(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                        return global::SampleTypeSpec.XmlModelWithNamespace.DeserializeXmlModelWithNamespace(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlModelWithNamespace)} does not support reading '{options.Format}' format.");
@@ -41,19 +41,19 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "X":
                     using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
+                        using (XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::SampleTypeSpec.ModelSerializationExtensions.XmlWriterSettings))
                         {
                             this.WriteXml(writer, options, "XmlModelWithNamespace");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
-                            return BinaryData.FromStream(stream);
+                            return global::System.BinaryData.FromStream(stream);
                         }
                         else
                         {
@@ -66,14 +66,14 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<XmlModelWithNamespace>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        XmlModelWithNamespace IPersistableModel<XmlModelWithNamespace>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        XmlModelWithNamespace IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<XmlModelWithNamespace>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
+        string IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>.GetFormatFromOptions(ModelReaderWriterOptions options) => "X";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -97,7 +97,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "X"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.XmlModelWithNamespace)} does not support writing '{format}' format.");

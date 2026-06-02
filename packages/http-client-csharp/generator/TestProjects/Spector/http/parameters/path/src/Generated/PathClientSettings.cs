@@ -12,7 +12,7 @@ namespace Parameters.Path
     [ExperimentalAttribute("SCME0002")]
     public partial class PathClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

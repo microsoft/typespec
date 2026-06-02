@@ -13,20 +13,20 @@ namespace Payload.MultiPart._FormData.HttpParts.ContentType
     {
         protected FormDataHttpPartsContentType() => throw null;
 
-        internal FormDataHttpPartsContentType(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataHttpPartsContentType(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult ImageJpegContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual ClientResult RequiredContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual ClientResult OptionalContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
     }
 }

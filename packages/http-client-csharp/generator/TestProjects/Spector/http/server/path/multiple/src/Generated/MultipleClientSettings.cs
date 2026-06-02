@@ -12,7 +12,7 @@ namespace Server.Path.Multiple
     [ExperimentalAttribute("SCME0002")]
     public partial class MultipleClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

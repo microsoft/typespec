@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
 {
-    public partial class Filter : IJsonModel<Filter>
+    public partial class Filter : IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>
     {
         internal Filter() => throw null;
 
@@ -17,19 +17,19 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Filter>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Filter IPersistableModel<Filter>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Filter IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Filter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Filter filter) => throw null;
 
-        void IJsonModel<Filter>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Filter IJsonModel<Filter>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Filter IJsonModel<global::Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb.Filter>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Filter JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

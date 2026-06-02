@@ -16,15 +16,15 @@ namespace SampleTypeSpec
         {
             if ((value == 1))
             {
-                return IntFixedEnum.One;
+                return global::SampleTypeSpec.IntFixedEnum.One;
             }
             if ((value == 2))
             {
-                return IntFixedEnum.Two;
+                return global::SampleTypeSpec.IntFixedEnum.Two;
             }
             if ((value == 4))
             {
-                return IntFixedEnum.Four;
+                return global::SampleTypeSpec.IntFixedEnum.Four;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
         }

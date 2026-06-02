@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithDatetime : IPersistableModel<ModelWithDatetime>
+    public partial class ModelWithDatetime : IPersistableModel<global::Payload.Xml.ModelWithDatetime>
     {
         internal ModelWithDatetime() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithDatetime>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Payload.Xml.ModelWithDatetime>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithDatetime IPersistableModel<ModelWithDatetime>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithDatetime IPersistableModel<global::Payload.Xml.ModelWithDatetime>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithDatetime>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Payload.Xml.ModelWithDatetime>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithDatetime modelWithDatetime) => throw null;
 

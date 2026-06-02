@@ -14,32 +14,32 @@ namespace Parameters.BodyOptionality
 {
     public partial class BodyOptionalityClient
     {
-        public BodyOptionalityClient() : this(new Uri("http://localhost:3000"), new BodyOptionalityClientOptions()) => throw null;
+        public BodyOptionalityClient() : this(new global::System.Uri("http://localhost:3000"), new BodyOptionalityClientOptions()) => throw null;
 
-        internal BodyOptionalityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BodyOptionalityClientOptions options) => throw null;
+        internal BodyOptionalityClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, BodyOptionalityClientOptions options) => throw null;
 
-        public BodyOptionalityClient(Uri endpoint, BodyOptionalityClientOptions options) : this(null, endpoint, options) => throw null;
+        public BodyOptionalityClient(global::System.Uri endpoint, BodyOptionalityClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult RequiredExplicit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequiredExplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RequiredExplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult RequiredExplicit(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RequiredExplicitAsync(BodyModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RequiredExplicitAsync(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RequiredImplicit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequiredImplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RequiredImplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult RequiredImplicit(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
         public virtual OptionalExplicit GetOptionalExplicitClient() => throw null;
     }

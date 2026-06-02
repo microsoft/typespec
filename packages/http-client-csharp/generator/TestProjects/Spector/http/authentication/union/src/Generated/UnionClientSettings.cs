@@ -12,7 +12,7 @@ namespace Authentication.Union
     [ExperimentalAttribute("SCME0002")]
     public partial class UnionClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

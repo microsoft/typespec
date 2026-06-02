@@ -18,33 +18,33 @@ namespace Authentication.Http.Custom
 
         protected CustomClient() => throw null;
 
-        public CustomClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new CustomClientOptions()) => throw null;
+        public CustomClient(ApiKeyCredential credential) : this(new global::System.Uri("http://localhost:3000"), credential, new CustomClientOptions()) => throw null;
 
-        public CustomClient(ApiKeyCredential credential, CustomClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+        public CustomClient(ApiKeyCredential credential, CustomClientOptions options) : this(new global::System.Uri("http://localhost:3000"), credential, options) => throw null;
 
-        internal CustomClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CustomClientOptions options) => throw null;
+        internal CustomClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, CustomClientOptions options) => throw null;
 
-        public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader, AuthorizationApiKeyPrefix), endpoint, options) => throw null;
+        public CustomClient(global::System.Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader, AuthorizationApiKeyPrefix), endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public CustomClient(CustomClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public CustomClient(CustomClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Valid(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Invalid(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> InvalidAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Invalid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

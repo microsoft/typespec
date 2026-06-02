@@ -85,18 +85,18 @@ namespace SampleTypeSpec
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <returns> A new <see cref="global::SampleTypeSpec.RoundTripModel"/> instance for mocking. </returns>
-        public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<StringFixedEnum> requiredCollection = default, IDictionary<string, StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, BinaryData> requiredRecordUnknown = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
+        public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<global::SampleTypeSpec.StringFixedEnum> requiredCollection = default, IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<global::SampleTypeSpec.IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<global::SampleTypeSpec.FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<global::SampleTypeSpec.FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<global::SampleTypeSpec.IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, global::System.BinaryData> requiredRecordUnknown = default, IDictionary<string, global::System.BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, global::System.BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, global::System.BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
         {
-            requiredCollection ??= new ChangeTrackingList<StringFixedEnum>();
-            requiredDictionary ??= new ChangeTrackingDictionary<string, StringExtensibleEnum>();
-            intExtensibleEnumCollection ??= new ChangeTrackingList<IntExtensibleEnum>();
-            floatExtensibleEnumCollection ??= new ChangeTrackingList<FloatExtensibleEnum>();
-            floatFixedEnumCollection ??= new ChangeTrackingList<FloatFixedEnum>();
-            intFixedEnumCollection ??= new ChangeTrackingList<IntFixedEnum>();
-            requiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyRequiredRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
-            readOnlyOptionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            requiredCollection ??= new ChangeTrackingList<global::SampleTypeSpec.StringFixedEnum>();
+            requiredDictionary ??= new ChangeTrackingDictionary<string, global::SampleTypeSpec.StringExtensibleEnum>();
+            intExtensibleEnumCollection ??= new ChangeTrackingList<global::SampleTypeSpec.IntExtensibleEnum>();
+            floatExtensibleEnumCollection ??= new ChangeTrackingList<global::SampleTypeSpec.FloatExtensibleEnum>();
+            floatFixedEnumCollection ??= new ChangeTrackingList<global::SampleTypeSpec.FloatFixedEnum>();
+            intFixedEnumCollection ??= new ChangeTrackingList<global::SampleTypeSpec.IntFixedEnum>();
+            requiredRecordUnknown ??= new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            readOnlyRequiredRecordUnknown ??= new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            readOnlyOptionalRecordUnknown ??= new ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             return new RoundTripModel(
                 requiredString,
@@ -205,19 +205,19 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <returns> A new <see cref="global::SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
-        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<global::SampleTypeSpec.AnotherDynamicModel> listFoo = default, IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>> listOfDictionaryFoo = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
             optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
             requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
             primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
-            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
-            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
-            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
-            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
-            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
-            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+            listFoo ??= new ChangeTrackingList<global::SampleTypeSpec.AnotherDynamicModel>();
+            listOfListFoo ??= new ChangeTrackingList<global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.AnotherDynamicModel>>();
 
             return new DynamicModel(
                 name,
@@ -288,23 +288,23 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <returns> A new <see cref="global::SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
-        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
+        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<global::SampleTypeSpec.XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<global::SampleTypeSpec.XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, global::System.BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<global::SampleTypeSpec.XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> listOfListFoo = default, IDictionary<string, global::SampleTypeSpec.XmlItem> dictionaryFoo = default, IDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>> dictionaryListFoo = default, IEnumerable<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>> listOfDictionaryFoo = default)
         {
             unwrappedStrings ??= new ChangeTrackingList<string>();
             unwrappedCounts ??= new ChangeTrackingList<int>();
-            unwrappedItems ??= new ChangeTrackingList<XmlItem>();
+            unwrappedItems ??= new ChangeTrackingList<global::SampleTypeSpec.XmlItem>();
             wrappedColors ??= new ChangeTrackingList<string>();
-            items ??= new ChangeTrackingList<XmlItem>();
+            items ??= new ChangeTrackingList<global::SampleTypeSpec.XmlItem>();
             metadata ??= new ChangeTrackingDictionary<string, string>();
-            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, global::System.BinaryData>();
             fooItems ??= new ChangeTrackingList<string>();
-            modelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
-            unwrappedModelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
-            listOfListFoo ??= new ChangeTrackingList<IList<XmlItem>>();
-            dictionaryFoo ??= new ChangeTrackingDictionary<string, XmlItem>();
-            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, XmlItem>>();
-            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<XmlItem>>();
-            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, XmlItem>>();
+            modelsWithNamespaces ??= new ChangeTrackingList<global::SampleTypeSpec.XmlModelWithNamespace>();
+            unwrappedModelsWithNamespaces ??= new ChangeTrackingList<global::SampleTypeSpec.XmlModelWithNamespace>();
+            listOfListFoo ??= new ChangeTrackingList<global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, global::SampleTypeSpec.XmlItem>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, global::System.Collections.Generic.IList<global::SampleTypeSpec.XmlItem>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<global::System.Collections.Generic.IDictionary<string, global::SampleTypeSpec.XmlItem>>();
 
             return new XmlAdvancedModel(
                 name,

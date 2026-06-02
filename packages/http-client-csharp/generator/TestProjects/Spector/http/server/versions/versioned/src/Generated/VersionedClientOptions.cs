@@ -10,7 +10,7 @@ namespace Server.Versions.Versioned
 {
     public partial class VersionedClientOptions : ClientPipelineOptions
     {
-        private const global::Server.Versions.Versioned.VersionedClientOptions.ServiceVersion LatestVersion = VersionedClientOptions.ServiceVersion.V2022_12_01_Preview;
+        private const global::Server.Versions.Versioned.VersionedClientOptions.ServiceVersion LatestVersion = global::Server.Versions.Versioned.VersionedClientOptions.ServiceVersion.V2022_12_01_Preview;
 
         public VersionedClientOptions(global::Server.Versions.Versioned.VersionedClientOptions.ServiceVersion version = LatestVersion) => throw null;
 

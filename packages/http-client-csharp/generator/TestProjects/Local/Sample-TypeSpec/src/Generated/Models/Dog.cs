@@ -20,8 +20,8 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="name"/> or <paramref name="breed"/> is null. </exception>
         public Dog(string name, bool trained, string breed) : base("dog", name, trained)
         {
-            Argument.AssertNotNull(name, nameof(name));
-            Argument.AssertNotNull(breed, nameof(breed));
+            global::SampleTypeSpec.Argument.AssertNotNull(name, nameof(name));
+            global::SampleTypeSpec.Argument.AssertNotNull(breed, nameof(breed));
 
             Breed = breed;
         }
@@ -32,7 +32,7 @@ namespace SampleTypeSpec
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
-        internal Dog(string kind, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, bool trained, string breed) : base(kind, name, additionalBinaryDataProperties, trained)
+        internal Dog(string kind, string name, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, bool trained, string breed) : base(kind, name, additionalBinaryDataProperties, trained)
         {
             Breed = breed;
         }

@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct IntLiteralPropertyProperty : IEquatable<IntLiteralPropertyProperty>
+    public readonly partial struct IntLiteralPropertyProperty : IEquatable<global::_Type.Property.Optional.IntLiteralPropertyProperty>
     {
         public IntLiteralPropertyProperty(int value) => throw null;
 
@@ -19,12 +19,12 @@ namespace _Type.Property.Optional
 
         public static implicit operator IntLiteralPropertyProperty(int value) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 
         public bool Equals(IntLiteralPropertyProperty other) => throw null;
 
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

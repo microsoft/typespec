@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Response.StatusCodeRange
 {
-    public partial class ErrorInRange : IJsonModel<ErrorInRange>
+    public partial class ErrorInRange : IJsonModel<global::Response.StatusCodeRange.ErrorInRange>
     {
         internal ErrorInRange() => throw null;
 
@@ -16,17 +16,17 @@ namespace Response.StatusCodeRange
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ErrorInRange IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Response.StatusCodeRange.ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Response.StatusCodeRange.ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        ErrorInRange IJsonModel<ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        ErrorInRange IJsonModel<global::Response.StatusCodeRange.ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual ErrorInRange JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

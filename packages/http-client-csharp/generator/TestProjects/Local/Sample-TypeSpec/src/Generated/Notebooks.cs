@@ -25,9 +25,9 @@ namespace SampleTypeSpec
         {
             new Dictionary<string, object>
             {
-                { GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
-                { GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
-                { GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
+                { global::System.ClientModel.Primitives.GetTokenOptions.ScopesPropertyName, new string[] { "read" } },
+                { global::System.ClientModel.Primitives.GetTokenOptions.AuthorizationUrlPropertyName, "https://api.example.com/oauth2/authorize" },
+                { global::System.ClientModel.Primitives.GetTokenOptions.RefreshUrlPropertyName, "https://api.example.com/oauth2/refresh" }
             }
         };
         private readonly string _notebook;
@@ -75,8 +75,8 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         internal Notebooks(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string notebook, SampleTypeSpecClientOptions options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(notebook, nameof(notebook));
+            global::SampleTypeSpec.Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::SampleTypeSpec.Argument.AssertNotNullOrEmpty(notebook, nameof(notebook));
 
             options ??= new SampleTypeSpecClientOptions();
 
@@ -84,11 +84,11 @@ namespace SampleTypeSpec
             _notebook = notebook;
             if ((authenticationPolicy != null))
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Notebooks).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Notebooks).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
             }
             else
             {
-                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Notebooks).Assembly) }, Array.Empty<PipelinePolicy>());
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Notebooks).Assembly) }, Array.Empty<PipelinePolicy>());
             }
         }
 
@@ -99,7 +99,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="notebook"/> or <paramref name="credential"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="notebook"/> is an empty string, and was expected to be non-empty. </exception>
-        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
+        public Notebooks(global::System.Uri endpoint, string notebook, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(global::System.ClientModel.Primitives.ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, notebook, options)
         {
         }
 
@@ -117,7 +117,7 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of Notebooks from a <see cref="NotebooksSettings"/>. </summary>
         /// <param name="settings"> The settings for Notebooks. </param>
         [ExperimentalAttribute("SCME0002")]
-        public Notebooks(NotebooksSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.Notebook, settings?.Options)
+        public Notebooks(NotebooksSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.Notebook, settings?.Options)
         {
         }
 
@@ -138,7 +138,7 @@ namespace SampleTypeSpec
         public virtual ClientResult GetNotebook(RequestOptions options)
         {
             using PipelineMessage message = this.CreateGetNotebookRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -152,28 +152,28 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetNotebookAsync(RequestOptions options)
+        public virtual async Task<global::System.ClientModel.ClientResult> GetNotebookAsync(RequestOptions options)
         {
             using PipelineMessage message = this.CreateGetNotebookRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
+        public virtual ClientResult<global::SampleTypeSpec.GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
         {
             ClientResult result = this.GetNotebook(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());
         }
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<global::System.ClientModel.ClientResult<global::SampleTypeSpec.GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await this.GetNotebookAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());
+            return global::System.ClientModel.ClientResult.FromValue(((GetNotebookResponse)result), result.GetRawResponse());
         }
     }
 }

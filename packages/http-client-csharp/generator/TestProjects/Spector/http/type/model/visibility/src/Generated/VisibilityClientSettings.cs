@@ -12,7 +12,7 @@ namespace _Type.Model.Visibility
     [ExperimentalAttribute("SCME0002")]
     public partial class VisibilityClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

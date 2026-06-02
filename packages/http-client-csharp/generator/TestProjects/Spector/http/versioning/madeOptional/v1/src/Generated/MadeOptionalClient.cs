@@ -15,23 +15,23 @@ namespace Versioning.MadeOptional
     {
         protected MadeOptionalClient() => throw null;
 
-        public MadeOptionalClient(Uri endpoint) : this(endpoint, new MadeOptionalClientOptions()) => throw null;
+        public MadeOptionalClient(global::System.Uri endpoint) : this(endpoint, new MadeOptionalClientOptions()) => throw null;
 
-        internal MadeOptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MadeOptionalClientOptions options) => throw null;
+        internal MadeOptionalClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, MadeOptionalClientOptions options) => throw null;
 
-        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
+        public MadeOptionalClient(global::System.Uri endpoint, MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
-        public MadeOptionalClient(MadeOptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public MadeOptionalClient(MadeOptionalClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Test(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Versioning.MadeOptional.TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.MadeOptional.TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

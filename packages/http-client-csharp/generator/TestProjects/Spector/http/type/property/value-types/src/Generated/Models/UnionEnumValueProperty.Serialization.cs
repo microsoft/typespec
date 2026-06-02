@@ -9,27 +9,27 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class UnionEnumValueProperty : IJsonModel<UnionEnumValueProperty>
+    public partial class UnionEnumValueProperty : IJsonModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>
     {
         protected virtual UnionEnumValueProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<UnionEnumValueProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        UnionEnumValueProperty IPersistableModel<UnionEnumValueProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        UnionEnumValueProperty IPersistableModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<UnionEnumValueProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnionEnumValueProperty unionEnumValueProperty) => throw null;
 
         public static explicit operator UnionEnumValueProperty(ClientResult result) => throw null;
 
-        void IJsonModel<UnionEnumValueProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        UnionEnumValueProperty IJsonModel<UnionEnumValueProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        UnionEnumValueProperty IJsonModel<global::_Type.Property.ValueTypes.UnionEnumValueProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual UnionEnumValueProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

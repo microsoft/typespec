@@ -54,10 +54,10 @@ namespace SampleTypeSpec
         public bool IsReadOnly => this.IsUndefined ? false : this.EnsureDictionary().IsReadOnly;
 
         /// <summary> Gets the Keys. </summary>
-        public ICollection<TKey> Keys => this.IsUndefined ? Array.Empty<TKey>() : this.EnsureDictionary().Keys;
+        public ICollection<TKey> Keys => this.IsUndefined ? global::System.Array.Empty<TKey>() : this.EnsureDictionary().Keys;
 
         /// <summary> Gets the Values. </summary>
-        public ICollection<TValue> Values => this.IsUndefined ? Array.Empty<TValue>() : this.EnsureDictionary().Values;
+        public ICollection<TValue> Values => this.IsUndefined ? global::System.Array.Empty<TValue>() : this.EnsureDictionary().Values;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public TValue this[TKey key]
@@ -82,11 +82,11 @@ namespace SampleTypeSpec
         /// <summary> Gets the Values. </summary>
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => this.Values;
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        public IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             if (this.IsUndefined)
             {
-                IEnumerator<KeyValuePair<TKey, TValue>> enumerateEmpty()
+                IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>> enumerateEmpty()
                 {
                     yield break;
                 }

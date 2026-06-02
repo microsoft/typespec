@@ -19,8 +19,8 @@ namespace SampleTypeSpec
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="itemName"/> or <paramref name="itemId"/> is null. </exception>
         public XmlItem(string itemName, int itemValue, string itemId)
         {
-            Argument.AssertNotNull(itemName, nameof(itemName));
-            Argument.AssertNotNull(itemId, nameof(itemId));
+            global::SampleTypeSpec.Argument.AssertNotNull(itemName, nameof(itemName));
+            global::SampleTypeSpec.Argument.AssertNotNull(itemId, nameof(itemId));
 
             ItemName = itemName;
             ItemValue = itemValue;

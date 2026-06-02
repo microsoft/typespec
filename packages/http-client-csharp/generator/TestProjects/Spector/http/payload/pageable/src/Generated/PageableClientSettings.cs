@@ -12,7 +12,7 @@ namespace Payload.Pageable
     [ExperimentalAttribute("SCME0002")]
     public partial class PageableClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

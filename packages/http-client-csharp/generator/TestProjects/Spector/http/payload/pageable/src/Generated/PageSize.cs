@@ -14,7 +14,7 @@ namespace Payload.Pageable._PageSize
     {
         protected PageSize() => throw null;
 
-        internal PageSize(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PageSize(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -22,16 +22,16 @@ namespace Payload.Pageable._PageSize
 
         public virtual AsyncCollectionResult GetWithoutContinuationAsync(RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> GetWithoutContinuation(CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<global::Payload.Pageable.Pet> GetWithoutContinuation(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual CollectionResult GetWithPageSize(int? pageSize, RequestOptions options) => throw null;
 
         public virtual AsyncCollectionResult GetWithPageSizeAsync(int? pageSize, RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> GetWithPageSize(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<global::Payload.Pageable.Pet> GetWithPageSize(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> GetWithPageSizeAsync(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> GetWithPageSizeAsync(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

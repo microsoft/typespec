@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithEncodedNamesValue() => throw null;
 
-        internal ModelWithEncodedNamesValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithEncodedNamesValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithEncodedNames> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Payload.Xml.ModelWithEncodedNames> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ModelWithEncodedNames>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithEncodedNames>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithEncodedNames input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithEncodedNames input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithEncodedNames input, CancellationToken cancellationToken = default) => throw null;
     }
 }

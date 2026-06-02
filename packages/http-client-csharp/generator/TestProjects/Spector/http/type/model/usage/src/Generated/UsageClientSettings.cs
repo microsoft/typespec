@@ -12,7 +12,7 @@ namespace _Type.Model.Usage
     [ExperimentalAttribute("SCME0002")]
     public partial class UsageClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

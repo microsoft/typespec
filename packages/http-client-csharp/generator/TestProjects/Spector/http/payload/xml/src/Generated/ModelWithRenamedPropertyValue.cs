@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithRenamedPropertyValue() => throw null;
 
-        internal ModelWithRenamedPropertyValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithRenamedPropertyValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithRenamedProperty> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Payload.Xml.ModelWithRenamedProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ModelWithRenamedProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithRenamedProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithRenamedProperty input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithRenamedProperty input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithRenamedProperty input, CancellationToken cancellationToken = default) => throw null;
     }
 }

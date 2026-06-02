@@ -12,7 +12,7 @@ namespace Authentication.Http.Custom
     [ExperimentalAttribute("SCME0002")]
     public partial class CustomClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

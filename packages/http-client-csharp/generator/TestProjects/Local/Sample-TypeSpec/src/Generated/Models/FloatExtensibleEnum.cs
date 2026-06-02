@@ -12,7 +12,7 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> Float based extensible enum. </summary>
-    public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>
+    public readonly partial struct FloatExtensibleEnum : IEquatable<global::SampleTypeSpec.FloatExtensibleEnum>
     {
         private readonly float _value;
         private const float OneDotOneValue = 1.1F;
@@ -50,17 +50,17 @@ namespace SampleTypeSpec
         public static implicit operator FloatExtensibleEnum(float value) => new FloatExtensibleEnum(value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is FloatExtensibleEnum other) && this.Equals(other));
 
         /// <inheritdoc/>
         public bool Equals(FloatExtensibleEnum other) => float.Equals(_value, other._value);
 
         /// <inheritdoc/>
-        [EditorBrowsableAttribute(EditorBrowsableState.Never)]
+        [EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override int GetHashCode() => _value.GetHashCode();
 
         /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => _value.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
     }
 }

@@ -14,7 +14,7 @@ namespace SampleTypeSpec.Models.Custom
     public partial class Friend
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Models.Custom.Friend"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
@@ -26,7 +26,7 @@ namespace SampleTypeSpec.Models.Custom
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Models.Custom.Friend"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Friend(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Friend(string name, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;

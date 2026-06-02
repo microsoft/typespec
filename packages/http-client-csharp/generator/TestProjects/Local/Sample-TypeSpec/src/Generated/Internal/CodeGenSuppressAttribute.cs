@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.TypeSpec.Generator.Customizations
 {
-    [AttributeUsageAttribute(((AttributeTargets.Class | AttributeTargets.Enum) | AttributeTargets.Struct), AllowMultiple = true)]
+    [AttributeUsageAttribute(((global::System.AttributeTargets.Class | global::System.AttributeTargets.Enum) | global::System.AttributeTargets.Struct), AllowMultiple = true)]
     internal partial class CodeGenSuppressAttribute : Attribute
     {
         /// <param name="member"> The member to suppress. </param>

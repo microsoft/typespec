@@ -17,7 +17,7 @@ namespace SampleTypeSpec
     public abstract partial class Plant
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Plant"/>. </summary>
         /// <param name="species"> The species of plant. </param>
@@ -35,7 +35,7 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Plant(string species, string id, int height, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Plant(string species, string id, int height, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Species = species;
             Id = id;

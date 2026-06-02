@@ -12,7 +12,7 @@ namespace Server.Versions.Versioned
     [ExperimentalAttribute("SCME0002")]
     public partial class VersionedClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;
