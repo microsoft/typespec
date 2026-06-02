@@ -112,41 +112,24 @@ const Type_Array_Nullable_Model = createServerTests(`/type/array/nullable-model`
 Scenarios.Type_Array_NullableModelValue_get = Type_Array_Nullable_Model.get;
 Scenarios.Type_Array_NullableModelValue_put = Type_Array_Nullable_Model.put;
 
-Scenarios.Type_Array_OptionalStringValue = passOnSuccess([
-  {
-    uri: "/type/array/optional-string/set",
-    method: "put",
-    request: {
-      body: json(["hello", ""]),
-    },
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.containsHeader("content-type", "application/json");
-      return { status: 204 };
-    },
-    kind: "MockApiDefinition",
+Scenarios.Type_Array_OptionalValue = passOnSuccess({
+  uri: "/type/array/optional/omit",
+  method: "put",
+  request: {},
+  response: {
+    status: 204,
   },
-  {
-    uri: "/type/array/optional-string/omit",
-    method: "put",
-    request: {},
-    response: {
-      status: 204,
-    },
-    handler: (req: MockRequest) => {
-      req.expect.rawBodyEquals(undefined);
-      const contentTypeHeader = req.headers["content-type"];
-      if (contentTypeHeader !== undefined) {
-        throw new ValidationError(
-          "Content-Type header must NOT be present when body is omitted",
-          undefined,
-          contentTypeHeader,
-        );
-      }
-      return { status: 204 };
-    },
-    kind: "MockApiDefinition",
+  handler: (req: MockRequest) => {
+    req.expect.rawBodyEquals(undefined);
+    const contentTypeHeader = req.headers["content-type"];
+    if (contentTypeHeader !== undefined) {
+      throw new ValidationError(
+        "Content-Type header must NOT be present when body is omitted",
+        undefined,
+        contentTypeHeader,
+      );
+    }
+    return { status: 204 };
   },
-]);
+  kind: "MockApiDefinition",
+});

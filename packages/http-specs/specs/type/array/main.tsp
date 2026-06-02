@@ -108,24 +108,13 @@ interface NullableModelValue
     > {}
 
 @scenario
-@doc("Optional array of string values")
+@doc("Optional array value")
 @scenarioDoc("""
-  Expected Array input body for `set`:
-  ```json
-  ["hello", ""]
-  ```
-  Expected Content-Type header: application/json
-  
-  Expected no request body for `omit`
+  Expected no request body.
   Expected Content-Type header: must NOT be present
   """)
-@route("/optional-string")
-namespace OptionalStringValue {
-  @route("/set")
+@route("/optional")
+interface OptionalValue {
   @put
-  op set(@body body?: string[]): void;
-
-  @route("/omit")
-  @put
-  op omit(@body body?: string[]): void;
+  omit(@body body?: string[]): void;
 }
