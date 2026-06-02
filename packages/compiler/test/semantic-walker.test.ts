@@ -145,7 +145,7 @@ describe("compiler: semantic walker", () => {
     customListener?: SemanticNodeListener,
     options?: NavigationOptions,
   ) {
-    const { program } = await NavigatorTester.compile(typespec, {
+    const [{ program }] = await NavigatorTester.compileAndDiagnose(typespec, {
       compilerOptions: { nostdlib: true },
     });
 
