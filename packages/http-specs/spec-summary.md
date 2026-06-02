@@ -5431,6 +5431,13 @@ Expected Array input body:
 ["hello", null, "world"]
 ```
 
+### Type_Array_OptionalValue
+
+- Endpoint: `put /type/array/optional`
+
+Expected no request body.
+Expected Content-Type header: must NOT be present
+
 ### Type_Array_StringValue_get
 
 - Endpoint: `get /type/array/string`
