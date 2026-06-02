@@ -106,3 +106,26 @@ interface NullableModelValue
       NullableModel[],
       "[{'property': 'hello'}, null, {'property': 'world'}]"
     > {}
+
+@scenario
+@doc("Optional array of string values")
+@scenarioDoc("""
+  Expected Array input body for `set`:
+  ```json
+  ["hello", ""]
+  ```
+  Expected Content-Type header: application/json
+  
+  Expected no request body for `omit`
+  Expected Content-Type header: must NOT be present
+  """)
+@route("/optional-string")
+namespace OptionalStringValue {
+  @route("/set")
+  @put
+  op set(@body body?: string[]): void;
+
+  @route("/omit")
+  @put
+  op omit(@body body?: string[]): void;
+}
