@@ -30,7 +30,7 @@ export async function convertOpenAPI3Document(
         },
       }
     : {};
-  const { specification } = await dereference(document, dereferenceOptions);
+  const { specification } = await dereference(document as unknown as AnyObject, dereferenceOptions);
   if (!specification) {
     throw new Error("Failed to dereference OpenAPI document");
   }
