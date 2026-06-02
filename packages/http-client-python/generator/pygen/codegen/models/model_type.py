@@ -454,3 +454,36 @@ class DPGModelType(GeneratedModelType):
 
 class TypedDictModelType(DPGModelType):
     base = "typeddict"
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        is_operation_file = kwargs.pop("is_operation_file", False)
+        skip_quote = kwargs.get("skip_quote", False)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if serialize_namespace_type == NamespaceType.TYPES_FILE:
+            retval = self.name
+        else:
+            retval = f"types.{self.name}"
+        return retval if is_operation_file or skip_quote else f'"{retval}"'
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        client_namespace = self.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        return f"~{client_namespace}.types.{self.name}"
+
+    @property
+    def instance_check_template(self) -> str:
+        return "isinstance({}, MutableMapping)"
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = FileImport(self.code_model)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+            file_import.add_submodule_import(
+                relative_path,
+                "types",
+                ImportType.LOCAL,
+            )
+        return file_import

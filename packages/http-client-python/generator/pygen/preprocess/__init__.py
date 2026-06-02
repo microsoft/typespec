@@ -332,13 +332,15 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
             if self.options["models-mode"] == "dpg" and is_dpg_model:
                 if origin_type == "model":
-                    body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+                    td_type = {**model_type, "base": "typeddict"}
+                    body_parameter["type"]["types"].insert(1, td_type)
+                    code_model["types"].append(td_type)
                 else:
-                    # dict or list
-                    # copy the original dict / list type
-                    any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                    any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
-                    body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
+                    # dict or list — replace elementType with TypedDict reference
+                    td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+                    td_list_or_dict["elementType"] = {**model_type, "base": "typeddict"}
+                    body_parameter["type"]["types"].insert(1, td_list_or_dict)
+                    code_model["types"].append(td_list_or_dict["elementType"])
             code_model["types"].append(body_parameter["type"])
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
