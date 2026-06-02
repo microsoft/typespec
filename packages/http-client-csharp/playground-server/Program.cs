@@ -202,7 +202,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     {
         request.HttpContext.Response.Headers["X-Cache"] = "HIT";
         telemetryProperties["cacheStatus"] = "hit";
-        TrackGenerateEvent("cache_hit");
+        TrackGenerateEvent("success");
         return Results.Bytes(cached.Body, cached.ContentType);
     }
 
