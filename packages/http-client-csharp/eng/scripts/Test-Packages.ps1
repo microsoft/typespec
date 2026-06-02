@@ -37,7 +37,12 @@ try {
         Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
 
         Write-Host "Setting up workspace" -ForegroundColor Cyan
+        # Temporarily relax engine-strict so that pnpm install succeeds even when
+        # the CI runner's Node version doesn't match every transitive dependency's
+        # engines field (e.g. which@7 requiring a newer Node patch release).
+        $env:npm_config_engine_strict = "false"
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
+        Remove-Item Env:\npm_config_engine_strict -ErrorAction SilentlyContinue
 
         Write-Host "Regenerating extern signatures" -ForegroundColor Cyan
         Invoke-LoggedCommand "npm run gen-extern-signature" -GroupOutput
