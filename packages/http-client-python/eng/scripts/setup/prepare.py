@@ -32,6 +32,12 @@ def main():
     except FileNotFoundError as e:
         raise ValueError(e.filename)
 
+    # Install apiview-stub-generator for api.md generation
+    try:
+        install_packages(["apiview-stub-generator"], venv_context, cwd=_ROOT_DIR)
+    except Exception:
+        pass  # Non-critical: api.md generation will be skipped if unavailable
+
 
 if __name__ == "__main__":
     main()
