@@ -434,7 +434,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     if (
       !validateAdditionalInfoModel(
         context.program,
-        context.getArgumentTarget(0)!,
+        context.getArgumentTarget(1)!,
         resolvedMetadata,
         "TypeSpec.OpenAPI.TagMetadata",
       )
@@ -447,7 +447,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
       if (
         !validateIsUri(
           context.program,
-          context.getArgumentTarget(0)!,
+          context.getArgumentTarget(1)!,
           resolvedMetadata.externalDocs.url,
           "externalDocs.url",
         )
