@@ -355,8 +355,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const saveCode = useCallback(() => {
     if (onSave) {
+      // Read directly from the model to ensure we save the latest content,
+      // not a potentially stale React state value
+      const currentContent = typespecModel.getValue();
       onSave({
-        content: content ?? "",
+        content: currentContent,
         emitter: selectedEmitter,
         compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
@@ -365,7 +368,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       });
     }
   }, [
-    content,
+    typespecModel,
     onSave,
     selectedEmitter,
     compilerOptions,
