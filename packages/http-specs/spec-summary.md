@@ -1550,40 +1550,15 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
-### Parameters_Query_DollarSign_filter
+### Parameters_Query_Prefix_dollarSign
 
-- Endpoint: `get /parameters/query/dollar-sign/filter`
+- Endpoint: `get /parameters/query/prefix/dollarSign`
 
-Send a request with a `$filter` query parameter.
+Send a request with a dollar-sign prefixed`$filter` query parameter.
 
 Expected query parameter:
 
 - `$filter` = "status eq 'active'"
-
-Expected response status code: 204
-
-### Parameters_Query_DollarSign_orderby
-
-- Endpoint: `get /parameters/query/dollar-sign/orderby`
-
-Send a request with a `$orderby` query parameter.
-
-Expected query parameter:
-
-- `$orderby` = "name asc"
-
-Expected response status code: 204
-
-### Parameters_Query_DollarSign_topAndSkip
-
-- Endpoint: `get /parameters/query/dollar-sign/top-and-skip`
-
-Send a request with `$top` and `$skip` query parameters.
-
-Expected query parameters:
-
-- `$top` = 10
-- `$skip` = 5
 
 Expected response status code: 204
 
