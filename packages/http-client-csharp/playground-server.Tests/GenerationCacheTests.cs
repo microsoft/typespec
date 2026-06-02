@@ -21,6 +21,66 @@ public class GenerationCacheTests
     private static CachedGenerationResponse MakeResponse(string content)
         => new(Encoding.UTF8.GetBytes(content), "application/json");
 
+    // A representative (multi-KB) code model payload shaped like what the generator actually receives,
+    // used to exercise ComputeKey against realistic input rather than tiny synthetic strings.
+    private const string SampleCodeModel = """
+        {
+          "$id": "1",
+          "name": "PetStore",
+          "apiVersions": ["2024-01-01"],
+          "enums": [
+            {
+              "$id": "2",
+              "kind": "enum",
+              "name": "PetKind",
+              "valueType": { "$id": "3", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+              "values": [
+                { "$id": "4", "kind": "enumvalue", "name": "Dog", "value": "dog" },
+                { "$id": "5", "kind": "enumvalue", "name": "Cat", "value": "cat" }
+              ],
+              "isFixed": true,
+              "usage": "Input,Output"
+            }
+          ],
+          "models": [
+            {
+              "$id": "6",
+              "kind": "model",
+              "name": "Pet",
+              "crossLanguageDefinitionId": "PetStore.Pet",
+              "usage": "Input,Output",
+              "properties": [
+                { "$id": "7", "kind": "property", "name": "id", "serializedName": "id", "type": { "$id": "8", "kind": "int32", "name": "int32" }, "optional": false },
+                { "$id": "9", "kind": "property", "name": "name", "serializedName": "name", "type": { "$id": "10", "kind": "string", "name": "string" }, "optional": false },
+                { "$id": "11", "kind": "property", "name": "kind", "serializedName": "kind", "type": { "$ref": "2" }, "optional": true }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "$id": "12",
+              "kind": "client",
+              "name": "PetStoreClient",
+              "namespace": "PetStore",
+              "operations": [
+                {
+                  "$id": "13",
+                  "name": "getPet",
+                  "resourceName": "Pet",
+                  "verb": "get",
+                  "path": "/pets/{petId}",
+                  "responses": [{ "$id": "14", "statusCodes": [200], "bodyType": { "$ref": "6" } }]
+                }
+              ]
+            }
+          ]
+        }
+        """;
+
+    private const string SampleConfiguration = """
+        { "package-name": "PetStore", "namespace": "PetStore", "library-name": "PetStore" }
+        """;
+
     [Test]
     public void ComputeKey_IsDeterministic_ForSameInputs()
     {
@@ -80,6 +140,52 @@ public class GenerationCacheTests
         Assert.AreNotEqual(a, b);
         Assert.AreNotEqual(a, c);
         Assert.AreNotEqual(b, c);
+    }
+
+    [Test]
+    public void ComputeKey_WithRealisticCodeModel_IsDeterministic()
+    {
+        var k1 = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, SampleConfiguration, "1.0.0");
+        var k2 = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, SampleConfiguration, "1.0.0");
+        Assert.AreEqual(k1, k2);
+        Assert.AreEqual(64, k1.Length);
+        Assert.That(k1, Does.Match("^[0-9A-F]{64}$"));
+    }
+
+    [Test]
+    public void ComputeKey_WithRealisticCodeModel_ChangesOnSemanticEdit()
+    {
+        // Flip a single property name deep in the model; the key must change.
+        var edited = SampleCodeModel.Replace("\"name\": \"name\"", "\"name\": \"fullName\"");
+        Assert.AreNotEqual(SampleCodeModel, edited, "precondition: the edit must alter the code model");
+
+        var original = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, SampleConfiguration, "1.0.0");
+        var afterEdit = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", edited, SampleConfiguration, "1.0.0");
+        Assert.AreNotEqual(original, afterEdit);
+    }
+
+    [Test]
+    public void ComputeKey_WithRealisticCodeModel_ChangesOnConfigurationEdit()
+    {
+        var editedConfig = SampleConfiguration.Replace("\"library-name\": \"PetStore\"", "\"library-name\": \"PetStoreV2\"");
+        Assert.AreNotEqual(SampleConfiguration, editedConfig, "precondition: the edit must alter the configuration");
+
+        var original = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, SampleConfiguration, "1.0.0");
+        var afterEdit = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, editedConfig, "1.0.0");
+        Assert.AreNotEqual(original, afterEdit);
+    }
+
+    [Test]
+    public void ComputeKey_RealisticCodeModel_RoundTripsThroughCache()
+    {
+        var cache = CreateCache();
+        var key = MemoryGenerationCache.ComputeKey("ScmCodeModelGenerator", SampleCodeModel, SampleConfiguration, "1.0.0");
+
+        Assert.IsFalse(cache.TryGet(key, out _));
+        cache.Set(key, MakeResponse("generated"));
+
+        Assert.IsTrue(cache.TryGet(key, out var value));
+        Assert.AreEqual("generated", Encoding.UTF8.GetString(value!.Body));
     }
 
     [Test]
