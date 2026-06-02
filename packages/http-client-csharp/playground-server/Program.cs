@@ -50,9 +50,11 @@ Console.WriteLine(string.IsNullOrWhiteSpace(appInsightsConnectionString)
     : "Application Insights telemetry enabled.");
 
 builder.Services.AddCors();
+var cacheSizeLimitBytes = builder.Configuration.GetValue<long?>("GenerationCache:SizeLimitBytes")
+    ?? MemoryGenerationCache.DefaultSizeLimitBytes;
 builder.Services.AddMemoryCache(options =>
 {
-    options.SizeLimit = MemoryGenerationCache.DefaultSizeLimitBytes;
+    options.SizeLimit = cacheSizeLimitBytes;
 });
 builder.Services.AddSingleton<IGenerationCache, MemoryGenerationCache>();
 builder.Services.AddRateLimiter(options =>

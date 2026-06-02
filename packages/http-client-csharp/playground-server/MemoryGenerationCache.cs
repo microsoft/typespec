@@ -8,22 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 namespace PlaygroundServer;
 
 /// <summary>
-/// Cached generator response. Stored as the already-serialized JSON bytes plus
-/// content type so cache hits can return without re-serializing.
-/// </summary>
-public sealed record CachedGenerationResponse(byte[] Body, string ContentType);
-
-/// <summary>
-/// Container-local in-memory cache for /generate responses.
-/// </summary>
-public interface IGenerationCache
-{
-    bool TryGet(string key, out CachedGenerationResponse? value);
-
-    void Set(string key, CachedGenerationResponse value);
-}
-
-/// <summary>
 /// <see cref="IMemoryCache"/>-backed implementation of <see cref="IGenerationCache"/>.
 /// </summary>
 public sealed class MemoryGenerationCache : IGenerationCache
