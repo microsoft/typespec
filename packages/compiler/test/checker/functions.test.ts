@@ -6,6 +6,7 @@ import {
   IndeterminateEntity,
   Model,
   Namespace,
+  SyntaxKind,
   Type,
   Value,
 } from "../../src/core/types.js";
@@ -363,6 +364,23 @@ describe("usage", () => {
     strictEqual(v?.entityKind, "Value");
     strictEqual(v.valueKind, "StringValue");
     strictEqual(v.value, "one");
+  });
+
+  it("reports invalid-argument-count error at call site, not function declaration", async () => {
+    const fnTester = createTesterForFn("testFn", testFnImpl);
+    const [, diagnostics] = await fnTester.compileAndDiagnose(`
+      extern fn testFn(a: valueof string): valueof string;
+      const X = testFn("one", "two");
+    `);
+
+    const argCountDiag = diagnostics.find((d) => d.code === "invalid-argument-count");
+    ok(argCountDiag, "Expected invalid-argument-count diagnostic");
+    ok(argCountDiag.target !== undefined, "Expected diagnostic to have a target");
+    strictEqual(
+      (argCountDiag.target as any).kind,
+      SyntaxKind.CallExpression,
+      "Diagnostic should target the call expression, not the function declaration",
+    );
   });
 
   it("errors if too few with rest", async () => {
