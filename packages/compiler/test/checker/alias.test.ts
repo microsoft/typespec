@@ -149,6 +149,18 @@ describe("compiler: aliases", () => {
     strictEqual(expr.namespace, Foo);
   });
 
+  it("doesn't emit diagnostics for recursive aliases through model expressions", async () => {
+    const diagnostics = await Tester.diagnose(`
+      alias A = {
+        a: B;
+      };
+      alias B = {
+        a: A;
+      };
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   it("emit diagnostics if assign itself", async () => {
     const diagnostics = await Tester.diagnose(`
       alias A = A;

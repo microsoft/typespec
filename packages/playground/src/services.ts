@@ -79,7 +79,27 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
       return model ? MonacoToLsp.textDocumentForModel(model) : undefined;
     },
-    sendDiagnostics() {},
+    sendDiagnostics({ uri, diagnostics }) {
+      const model = monaco.editor.getModel(monaco.Uri.parse(uri));
+      if (!model) return;
+
+      // Apply visual tag markers (e.g., dim unused code, strikethrough deprecated) from LSP diagnostics.
+      // Regular error/warning markers are managed by the playground's own compilation.
+      // The LSP DiagnosticTag values (Unnecessary=1, Deprecated=2) match Monaco's MarkerTag values.
+      const taggedMarkers: monaco.editor.IMarkerData[] = diagnostics
+        .filter((d) => d.tags !== undefined && d.tags.length > 0)
+        .map((d) => ({
+          severity: monaco.MarkerSeverity.Hint,
+          message: d.message,
+          startLineNumber: d.range.start.line + 1,
+          startColumn: d.range.start.character + 1,
+          endLineNumber: d.range.end.line + 1,
+          endColumn: d.range.end.character + 1,
+          tags: d.tags?.map((t) => t as number as monaco.MarkerTag),
+        }));
+
+      monaco.editor.setModelMarkers(model, "lsp-tags", taggedMarkers);
+    },
     log: (log) => {
       switch (log.level) {
         case "error":
