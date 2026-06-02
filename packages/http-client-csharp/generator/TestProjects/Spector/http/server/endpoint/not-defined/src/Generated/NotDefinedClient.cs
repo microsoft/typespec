@@ -15,11 +15,11 @@ namespace Server.Endpoint.NotDefined
     {
         protected NotDefinedClient() => throw null;
 
-        public NotDefinedClient(Uri endpoint) : this(endpoint, new NotDefinedClientOptions()) => throw null;
+        public NotDefinedClient(global::System.Uri endpoint) : this(endpoint, new NotDefinedClientOptions()) => throw null;
 
-        internal NotDefinedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotDefinedClientOptions options) => throw null;
+        internal NotDefinedClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, NotDefinedClientOptions options) => throw null;
 
-        public NotDefinedClient(Uri endpoint, NotDefinedClientOptions options) : this(null, endpoint, options) => throw null;
+        public NotDefinedClient(global::System.Uri endpoint, NotDefinedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public NotDefinedClient(NotDefinedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -28,10 +28,10 @@ namespace Server.Endpoint.NotDefined
 
         public virtual ClientResult Valid(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

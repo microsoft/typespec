@@ -15,11 +15,11 @@ namespace Versioning.Added
     {
         protected AddedClient() => throw null;
 
-        public AddedClient(Uri endpoint) : this(endpoint, new AddedClientOptions()) => throw null;
+        public AddedClient(global::System.Uri endpoint) : this(endpoint, new AddedClientOptions()) => throw null;
 
-        internal AddedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, AddedClientOptions options) => throw null;
+        internal AddedClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, AddedClientOptions options) => throw null;
 
-        public AddedClient(Uri endpoint, AddedClientOptions options) : this(null, endpoint, options) => throw null;
+        public AddedClient(global::System.Uri endpoint, AddedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public AddedClient(AddedClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -28,19 +28,19 @@ namespace Versioning.Added
 
         public virtual ClientResult V1(string headerV2, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> V1Async(string headerV2, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> V1Async(string headerV2, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV1> V1(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Versioning.Added.ModelV1> V1(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::Versioning.Added.ModelV1>> V1Async(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV1>> V1Async(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult V2(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> V2Async(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> V2Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Versioning.Added.ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::Versioning.Added.ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Versioning.Added.ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual InterfaceV2 GetInterfaceV2Client() => throw null;
     }

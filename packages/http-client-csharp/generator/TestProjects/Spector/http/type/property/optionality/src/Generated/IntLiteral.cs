@@ -14,40 +14,40 @@ namespace _Type.Property.Optional
     {
         protected IntLiteral() => throw null;
 
-        internal IntLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IntLiteral(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetAll(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IntLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Optional.IntLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Optional.IntLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.IntLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IntLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Optional.IntLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Optional.IntLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Optional.IntLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutAll(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAllAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutDefault(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutDefaultAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

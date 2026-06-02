@@ -14,32 +14,32 @@ namespace SpecialWords._ModelProperties
     {
         protected ModelProperties() => throw null;
 
-        internal ModelProperties(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelProperties(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult SameAsModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SameAsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SameAsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult SameAsModel(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult DictMethods(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> DictMethodsAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> DictMethodsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult DictMethods(DictMethods body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DictMethodsAsync(DictMethods body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> DictMethodsAsync(DictMethods body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithList(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> WithListAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> WithListAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult WithList(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithListAsync(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> WithListAsync(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
     }
 }

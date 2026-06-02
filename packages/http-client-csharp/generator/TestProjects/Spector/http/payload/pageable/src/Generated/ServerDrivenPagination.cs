@@ -16,7 +16,7 @@ namespace Payload.Pageable._ServerDrivenPagination
     {
         protected ServerDrivenPagination() => throw null;
 
-        internal ServerDrivenPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ServerDrivenPagination(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -24,25 +24,25 @@ namespace Payload.Pageable._ServerDrivenPagination
 
         public virtual AsyncCollectionResult LinkAsync(RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<global::Payload.Pageable.Pet> Link(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual CollectionResult LinkString(RequestOptions options) => throw null;
 
         public virtual AsyncCollectionResult LinkStringAsync(RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> LinkString(CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<global::Payload.Pageable.Pet> LinkString(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> LinkStringAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> LinkStringAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual CollectionResult NestedLink(RequestOptions options) => throw null;
 
         public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options) => throw null;
 
-        public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<global::Payload.Pageable.Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<global::Payload.Pageable.Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ServerDrivenPaginationAlternateInitialVerb GetServerDrivenPaginationAlternateInitialVerbClient() => throw null;
 

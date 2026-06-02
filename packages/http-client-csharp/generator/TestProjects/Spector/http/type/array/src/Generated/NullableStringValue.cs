@@ -15,24 +15,24 @@ namespace _Type._Array
     {
         protected NullableStringValue() => throw null;
 
-        internal NullableStringValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal NullableStringValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IReadOnlyList<string>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::System.Collections.Generic.IReadOnlyList<string>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::System.Collections.Generic.IReadOnlyList<string>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<string>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(IEnumerable<string> body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IEnumerable<string> body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(IEnumerable<string> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

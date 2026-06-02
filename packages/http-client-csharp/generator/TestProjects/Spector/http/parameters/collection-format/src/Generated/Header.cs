@@ -15,16 +15,16 @@ namespace Parameters.CollectionFormat._Header
     {
         protected Header() => throw null;
 
-        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Header(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
 
         public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
     }
 }

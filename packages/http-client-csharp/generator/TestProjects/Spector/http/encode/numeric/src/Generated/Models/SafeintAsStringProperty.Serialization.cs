@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Numeric._Property
 {
-    public partial class SafeintAsStringProperty : IJsonModel<SafeintAsStringProperty>
+    public partial class SafeintAsStringProperty : IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>
     {
         internal SafeintAsStringProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Numeric._Property
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SafeintAsStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        SafeintAsStringProperty IPersistableModel<SafeintAsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        SafeintAsStringProperty IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SafeintAsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SafeintAsStringProperty safeintAsStringProperty) => throw null;
 
         public static explicit operator SafeintAsStringProperty(ClientResult result) => throw null;
 
-        void IJsonModel<SafeintAsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        SafeintAsStringProperty IJsonModel<SafeintAsStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        SafeintAsStringProperty IJsonModel<global::Encode.Numeric._Property.SafeintAsStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SafeintAsStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

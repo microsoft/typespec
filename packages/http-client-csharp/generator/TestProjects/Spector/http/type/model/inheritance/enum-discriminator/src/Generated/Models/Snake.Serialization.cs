@@ -10,7 +10,7 @@ using System.Text.Json;
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     [PersistableModelProxyAttribute(typeof(UnknownSnake))]
-    public abstract partial class Snake : IJsonModel<Snake>
+    public abstract partial class Snake : IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>
     {
         internal Snake() => throw null;
 
@@ -18,21 +18,21 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Snake>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Snake IPersistableModel<Snake>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Snake IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Snake>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Snake snake) => throw null;
 
         public static explicit operator Snake(ClientResult result) => throw null;
 
-        void IJsonModel<Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Snake IJsonModel<Snake>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Snake IJsonModel<global::_Type.Model.Inheritance.EnumDiscriminator.Snake>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Snake JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

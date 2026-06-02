@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<global::SampleTypeSpec.Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
@@ -29,10 +29,10 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override async IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
-            Uri nextPageUri = null;
+            global::System.Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
@@ -52,7 +52,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            global::System.Uri nextPage = ((ListWithNextLinkResponse)page).Next;
             if ((nextPage != null))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
@@ -66,7 +66,7 @@ namespace SampleTypeSpec
         /// <summary> Gets the values from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<global::SampleTypeSpec.Thing> GetValuesFromPageAsync(ClientResult page)
         {
             foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
             {
@@ -77,7 +77,7 @@ namespace SampleTypeSpec
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
-        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        private async ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
             return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }

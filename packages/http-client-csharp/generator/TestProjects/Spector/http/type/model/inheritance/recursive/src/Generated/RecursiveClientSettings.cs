@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.Recursive
     [ExperimentalAttribute("SCME0002")]
     public partial class RecursiveClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

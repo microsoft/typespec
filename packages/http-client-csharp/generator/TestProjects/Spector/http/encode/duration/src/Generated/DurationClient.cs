@@ -13,11 +13,11 @@ namespace Encode.Duration
 {
     public partial class DurationClient
     {
-        public DurationClient() : this(new Uri("http://localhost:3000"), new DurationClientOptions()) => throw null;
+        public DurationClient() : this(new global::System.Uri("http://localhost:3000"), new DurationClientOptions()) => throw null;
 
-        internal DurationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DurationClientOptions options) => throw null;
+        internal DurationClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, DurationClientOptions options) => throw null;
 
-        public DurationClient(Uri endpoint, DurationClientOptions options) : this(null, endpoint, options) => throw null;
+        public DurationClient(global::System.Uri endpoint, DurationClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public DurationClient(DurationClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

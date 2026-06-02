@@ -13,9 +13,9 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The Wrapper. </summary>
-    public partial class Wrapper : IJsonModel<Wrapper>
+    public partial class Wrapper : IJsonModel<global::SampleTypeSpec.Wrapper>
     {
-        /// <summary> Initializes a new instance of <see cref="Wrapper"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Wrapper"/> for deserialization. </summary>
         internal Wrapper()
         {
         }
@@ -24,7 +24,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual Wrapper PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -40,7 +40,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -51,18 +51,18 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Wrapper>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::SampleTypeSpec.Wrapper>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Wrapper IPersistableModel<Wrapper>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        Wrapper IPersistableModel<global::SampleTypeSpec.Wrapper>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Wrapper>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<global::SampleTypeSpec.Wrapper>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Wrapper>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<global::SampleTypeSpec.Wrapper>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -73,7 +73,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support writing '{format}' format.");
@@ -99,13 +99,13 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Wrapper IJsonModel<Wrapper>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        Wrapper IJsonModel<global::SampleTypeSpec.Wrapper>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual Wrapper JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.Wrapper)} does not support reading '{format}' format.");
@@ -125,7 +125,7 @@ namespace SampleTypeSpec
             string p1 = default;
             RoundTripModel action = default;
             string p2 = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("action"u8))

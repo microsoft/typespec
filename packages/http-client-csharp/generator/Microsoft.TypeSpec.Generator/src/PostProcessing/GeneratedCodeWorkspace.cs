@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -117,20 +116,10 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
 
-            Compilation? compilation = null;
             foreach (var doc in docs)
             {
                 var text = await doc.GetTextAsync();
-                var content = text.ToString();
-                if (content.Contains("global::", StringComparison.Ordinal))
-                {
-                    compilation ??= await doc.Project.GetCompilationAsync();
-                    if (compilation != null)
-                    {
-                        content = SimplifyGlobalAliases(CSharpSyntaxTree.ParseText(content).GetRoot(), compilation).ToFullString();
-                    }
-                }
-                yield return (doc.Name, content);
+                yield return (doc.Name, text.ToString());
             }
 
             foreach (var (file, content) in PlainFiles)
@@ -165,18 +154,16 @@ namespace Microsoft.TypeSpec.Generator
                 root = await document.GetSyntaxRootAsync();
             }
 
-            // Reformat if any custom rewriters have been applied
-            if (CodeModelGenerator.Instance.Rewriters.Count > 0)
-            {
-                document = await Formatter.FormatAsync(document);
-                root = await document.GetSyntaxRootAsync();
-            }
-
             if (root != null)
             {
                 document = document.WithSyntaxRoot(SimplifyGlobalAliases(root, semanticModel.Compilation));
             }
 
+            // Reformat if any custom rewriters have been applied
+            if (CodeModelGenerator.Instance.Rewriters.Count > 0)
+            {
+                document = await Formatter.FormatAsync(document);
+            }
             return document;
         }
 
@@ -211,61 +198,15 @@ namespace Microsoft.TypeSpec.Generator
                 .ToDictionary(replacement => replacement.Original, replacement => replacement.Replacement!);
 
             return replacements.Count == 0
-                ? SimplifyCrefGlobalAliases(root, usingNamespaces, namespaceNames)
-                : SimplifyCrefGlobalAliases(root.ReplaceNodes(replacements.Keys, (original, rewritten) => replacements[original].WithTriviaFrom(rewritten)), usingNamespaces, namespaceNames);
-        }
-
-        private static SyntaxNode SimplifyCrefGlobalAliases(SyntaxNode root, IReadOnlyList<string> usingNamespaces, ISet<string> namespaceNames)
-        {
-            const string crefPrefix = "cref=\"";
-            var text = root.ToFullString();
-            var searchIndex = 0;
-            StringBuilder? builder = null;
-            while (true)
-            {
-                var crefStart = text.IndexOf(crefPrefix, searchIndex, StringComparison.Ordinal);
-                if (crefStart < 0)
-                {
-                    break;
-                }
-
-                var valueStart = crefStart + crefPrefix.Length;
-                var valueEnd = text.IndexOf('"', valueStart);
-                if (valueEnd < 0)
-                {
-                    break;
-                }
-
-                var cref = text[valueStart..valueEnd];
-                var prefixLength = cref.IndexOf("global::", StringComparison.Ordinal);
-                if (prefixLength >= 0)
-                {
-                    var simplifiedName = SimplifyGlobalAlias(cref[prefixLength..], usingNamespaces, namespaceNames);
-                    if (simplifiedName != null)
-                    {
-                        builder ??= new StringBuilder(text);
-                        builder.Remove(valueStart, valueEnd - valueStart);
-                        builder.Insert(valueStart, cref[..prefixLength] + simplifiedName);
-                        var lengthDelta = simplifiedName.Length + prefixLength - cref.Length;
-                        valueEnd += lengthDelta;
-                        text = builder.ToString();
-                    }
-                }
-
-                searchIndex = valueEnd + 1;
-            }
-
-            return builder == null ? root : CSharpSyntaxTree.ParseText(builder.ToString()).GetRoot();
+                ? root
+                : root.ReplaceNodes(replacements.Keys, (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
         }
 
         private static IEnumerable<string> GetNamespaceNames(INamespaceSymbol namespaceSymbol)
         {
             foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
             {
-                if (childNamespace.Locations.Any(static location => location.IsInSource))
-                {
-                    yield return childNamespace.Name;
-                }
+                yield return childNamespace.Name;
 
                 foreach (var nestedNamespace in GetNamespaceNames(childNamespace))
                 {

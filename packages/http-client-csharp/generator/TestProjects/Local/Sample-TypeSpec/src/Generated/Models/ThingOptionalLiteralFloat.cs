@@ -12,12 +12,12 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
+    public readonly partial struct ThingOptionalLiteralFloat : IEquatable<global::SampleTypeSpec.ThingOptionalLiteralFloat>
     {
         private readonly float _value;
         private const float _456Value = 4.56F;
 
-        /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralFloat"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.ThingOptionalLiteralFloat"/>. </summary>
         /// <param name="value"> The value. </param>
         public ThingOptionalLiteralFloat(float value)
         {
@@ -27,17 +27,17 @@ namespace SampleTypeSpec
         /// <summary> Gets the _456. </summary>
         public static ThingOptionalLiteralFloat _456 { get; } = new ThingOptionalLiteralFloat(_456Value);
 
-        /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralFloat"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(ThingOptionalLiteralFloat left, ThingOptionalLiteralFloat right) => left.Equals(right);
 
-        /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are not the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.ThingOptionalLiteralFloat"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(ThingOptionalLiteralFloat left, ThingOptionalLiteralFloat right) => !left.Equals(right);
 
-        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralFloat"/>. </summary>
+        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.ThingOptionalLiteralFloat"/>. </summary>
         /// <param name="value"> The value. </param>
         public static implicit operator ThingOptionalLiteralFloat(float value) => new ThingOptionalLiteralFloat(value);
 

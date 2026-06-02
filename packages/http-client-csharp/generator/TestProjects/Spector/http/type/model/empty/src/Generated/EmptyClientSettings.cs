@@ -12,7 +12,7 @@ namespace _Type.Model.Empty
     [ExperimentalAttribute("SCME0002")]
     public partial class EmptyClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

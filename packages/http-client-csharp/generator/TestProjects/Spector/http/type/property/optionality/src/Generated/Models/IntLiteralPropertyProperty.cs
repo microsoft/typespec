@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
-    public readonly partial struct IntLiteralPropertyProperty : IEquatable<IntLiteralPropertyProperty>
+    public readonly partial struct IntLiteralPropertyProperty : IEquatable<global::_Type.Property.Optional.IntLiteralPropertyProperty>
     {
         public IntLiteralPropertyProperty(int value) => throw null;
 

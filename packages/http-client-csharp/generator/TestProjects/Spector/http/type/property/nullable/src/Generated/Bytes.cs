@@ -14,32 +14,32 @@ namespace _Type.Property.Nullable
     {
         protected Bytes() => throw null;
 
-        internal Bytes(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Bytes(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetNonNull(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BytesProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Nullable.BytesProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Nullable.BytesProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.BytesProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BytesProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Nullable.BytesProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Nullable.BytesProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.BytesProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

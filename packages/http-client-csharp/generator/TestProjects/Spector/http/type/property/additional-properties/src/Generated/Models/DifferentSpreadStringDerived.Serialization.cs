@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadStringDerived : DifferentSpreadStringRecord, IJsonModel<DifferentSpreadStringDerived>
+    public partial class DifferentSpreadStringDerived : DifferentSpreadStringRecord, IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>
     {
         internal DifferentSpreadStringDerived() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DifferentSpreadStringDerived>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadStringDerived IPersistableModel<DifferentSpreadStringDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DifferentSpreadStringDerived IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DifferentSpreadStringDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DifferentSpreadStringDerived differentSpreadStringDerived) => throw null;
 
         public static explicit operator DifferentSpreadStringDerived(ClientResult result) => throw null;
 
-        void IJsonModel<DifferentSpreadStringDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DifferentSpreadStringDerived IJsonModel<DifferentSpreadStringDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DifferentSpreadStringDerived IJsonModel<global::_Type.Property.AdditionalProperties.DifferentSpreadStringDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected override DifferentSpreadStringRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

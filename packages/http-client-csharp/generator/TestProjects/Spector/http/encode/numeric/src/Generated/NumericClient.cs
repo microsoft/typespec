@@ -11,11 +11,11 @@ namespace Encode.Numeric
 {
     public partial class NumericClient
     {
-        public NumericClient() : this(new Uri("http://localhost:3000"), new NumericClientOptions()) => throw null;
+        public NumericClient() : this(new global::System.Uri("http://localhost:3000"), new NumericClientOptions()) => throw null;
 
-        internal NumericClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NumericClientOptions options) => throw null;
+        internal NumericClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, NumericClientOptions options) => throw null;
 
-        public NumericClient(Uri endpoint, NumericClientOptions options) : this(null, endpoint, options) => throw null;
+        public NumericClient(global::System.Uri endpoint, NumericClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public NumericClient(NumericClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

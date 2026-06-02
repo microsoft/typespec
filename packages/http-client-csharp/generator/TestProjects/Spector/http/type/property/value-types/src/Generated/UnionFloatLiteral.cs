@@ -14,24 +14,24 @@ namespace _Type.Property.ValueTypes
     {
         protected UnionFloatLiteral() => throw null;
 
-        internal UnionFloatLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal UnionFloatLiteral(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionFloatLiteralProperty> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.ValueTypes.UnionFloatLiteralProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.ValueTypes.UnionFloatLiteralProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.ValueTypes.UnionFloatLiteralProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

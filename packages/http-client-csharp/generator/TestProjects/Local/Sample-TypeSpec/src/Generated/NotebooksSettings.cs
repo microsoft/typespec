@@ -17,7 +17,7 @@ namespace SampleTypeSpec
     public partial class NotebooksSettings : ClientSettings
     {
         /// <summary> Gets or sets the SampleTypeSpecUrl. </summary>
-        public Uri SampleTypeSpecUrl { get; set; }
+        public global::System.Uri SampleTypeSpecUrl { get; set; }
 
         /// <summary> Gets or sets the Notebook. </summary>
         public string Notebook { get; set; }
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
         /// <param name="section"> The configuration section. </param>
         protected override void BindCore(IConfigurationSection section)
         {
-            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out Uri sampleTypeSpecUrl))
+            if (global::System.Uri.TryCreate(section["SampleTypeSpecUrl"], global::System.UriKind.Absolute, out global::System.Uri sampleTypeSpecUrl))
             {
                 this.SampleTypeSpecUrl = sampleTypeSpecUrl;
             }

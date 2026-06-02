@@ -13,11 +13,11 @@ namespace _Type.Model.Empty
 {
     public partial class EmptyClient
     {
-        public EmptyClient() : this(new Uri("http://localhost:3000"), new EmptyClientOptions()) => throw null;
+        public EmptyClient() : this(new global::System.Uri("http://localhost:3000"), new EmptyClientOptions()) => throw null;
 
-        internal EmptyClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, EmptyClientOptions options) => throw null;
+        internal EmptyClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, EmptyClientOptions options) => throw null;
 
-        public EmptyClient(Uri endpoint, EmptyClientOptions options) : this(null, endpoint, options) => throw null;
+        public EmptyClient(global::System.Uri endpoint, EmptyClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public EmptyClient(EmptyClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,26 +26,26 @@ namespace _Type.Model.Empty
 
         public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutEmpty(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutEmptyAsync(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutEmptyAsync(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetEmpty(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetEmptyAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetEmptyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<EmptyOutput> GetEmpty(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Empty.EmptyOutput> GetEmpty(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Empty.EmptyOutput>> GetEmptyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyOutput>> GetEmptyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Empty.EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Empty.EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Empty.EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
     }
 }

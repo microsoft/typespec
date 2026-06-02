@@ -12,7 +12,7 @@ namespace Encode.Numeric
     [ExperimentalAttribute("SCME0002")]
     public partial class NumericClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

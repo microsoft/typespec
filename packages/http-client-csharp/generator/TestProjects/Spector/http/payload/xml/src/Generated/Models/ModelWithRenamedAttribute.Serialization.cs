@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Xml
 {
-    public partial class ModelWithRenamedAttribute : IPersistableModel<ModelWithRenamedAttribute>
+    public partial class ModelWithRenamedAttribute : IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>
     {
         internal ModelWithRenamedAttribute() => throw null;
 
@@ -16,11 +16,11 @@ namespace Payload.Xml
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ModelWithRenamedAttribute>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ModelWithRenamedAttribute IPersistableModel<ModelWithRenamedAttribute>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ModelWithRenamedAttribute IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ModelWithRenamedAttribute>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Payload.Xml.ModelWithRenamedAttribute>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelWithRenamedAttribute modelWithRenamedAttribute) => throw null;
 

@@ -15,24 +15,24 @@ namespace Parameters.BodyOptionality._OptionalExplicit
     {
         protected OptionalExplicit() => throw null;
 
-        internal OptionalExplicit(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal OptionalExplicit(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Set(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SetAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Set(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Omit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Omit(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

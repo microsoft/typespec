@@ -15,11 +15,11 @@ namespace Routes
 {
     public partial class RoutesClient
     {
-        public RoutesClient() : this(new Uri("http://localhost:3000"), new RoutesClientOptions()) => throw null;
+        public RoutesClient() : this(new global::System.Uri("http://localhost:3000"), new RoutesClientOptions()) => throw null;
 
-        internal RoutesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RoutesClientOptions options) => throw null;
+        internal RoutesClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, RoutesClientOptions options) => throw null;
 
-        public RoutesClient(Uri endpoint, RoutesClientOptions options) : this(null, endpoint, options) => throw null;
+        public RoutesClient(global::System.Uri endpoint, RoutesClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public RoutesClient(RoutesClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -28,11 +28,11 @@ namespace Routes
 
         public virtual ClientResult Fixed(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FixedAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FixedAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Fixed(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual PathParameters GetPathParametersClient() => throw null;
 

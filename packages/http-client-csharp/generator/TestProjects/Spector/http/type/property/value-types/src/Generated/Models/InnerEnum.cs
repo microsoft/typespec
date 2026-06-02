@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct InnerEnum : IEquatable<InnerEnum>
+    public readonly partial struct InnerEnum : IEquatable<global::_Type.Property.ValueTypes.InnerEnum>
     {
         public InnerEnum(string value) => throw null;
 

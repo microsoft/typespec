@@ -10,11 +10,11 @@ namespace Parameters.Query
 {
     public partial class QueryClient
     {
-        public QueryClient() : this(new Uri("http://localhost:3000"), new QueryClientOptions()) => throw null;
+        public QueryClient() : this(new global::System.Uri("http://localhost:3000"), new QueryClientOptions()) => throw null;
 
-        internal QueryClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, QueryClientOptions options) => throw null;
+        internal QueryClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, QueryClientOptions options) => throw null;
 
-        public QueryClient(Uri endpoint, QueryClientOptions options) : this(null, endpoint, options) => throw null;
+        public QueryClient(global::System.Uri endpoint, QueryClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public QueryClient(QueryClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

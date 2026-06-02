@@ -12,7 +12,7 @@ namespace _Type.Property.AdditionalProperties
     [ExperimentalAttribute("SCME0002")]
     public partial class AdditionalPropertiesClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

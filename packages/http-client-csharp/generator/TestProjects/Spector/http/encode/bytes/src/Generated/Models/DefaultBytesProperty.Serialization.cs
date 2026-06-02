@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Bytes
 {
-    public partial class DefaultBytesProperty : IJsonModel<DefaultBytesProperty>
+    public partial class DefaultBytesProperty : IJsonModel<global::Encode.Bytes.DefaultBytesProperty>
     {
         internal DefaultBytesProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Bytes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DefaultBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DefaultBytesProperty IPersistableModel<DefaultBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DefaultBytesProperty IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DefaultBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Encode.Bytes.DefaultBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DefaultBytesProperty defaultBytesProperty) => throw null;
 
         public static explicit operator DefaultBytesProperty(ClientResult result) => throw null;
 
-        void IJsonModel<DefaultBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Encode.Bytes.DefaultBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DefaultBytesProperty IJsonModel<DefaultBytesProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DefaultBytesProperty IJsonModel<global::Encode.Bytes.DefaultBytesProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DefaultBytesProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

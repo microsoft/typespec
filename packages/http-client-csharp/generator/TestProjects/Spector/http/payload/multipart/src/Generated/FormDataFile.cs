@@ -13,20 +13,20 @@ namespace Payload.MultiPart._FormData.File
     {
         protected FormDataFile() => throw null;
 
-        internal FormDataFile(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FormDataFile(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult UploadFileSpecificContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UploadFileSpecificContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> UploadFileSpecificContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual ClientResult UploadFileRequiredFilename(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UploadFileRequiredFilenameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> UploadFileRequiredFilenameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual ClientResult UploadFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> UploadFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> UploadFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
     }
 }

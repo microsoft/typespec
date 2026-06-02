@@ -13,11 +13,11 @@ namespace Response.StatusCodeRange
 {
     public partial class StatusCodeRangeClient
     {
-        public StatusCodeRangeClient() : this(new Uri("http://localhost:3000"), new StatusCodeRangeClientOptions()) => throw null;
+        public StatusCodeRangeClient() : this(new global::System.Uri("http://localhost:3000"), new StatusCodeRangeClientOptions()) => throw null;
 
-        internal StatusCodeRangeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
+        internal StatusCodeRangeClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
 
-        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options) : this(null, endpoint, options) => throw null;
+        public StatusCodeRangeClient(global::System.Uri endpoint, StatusCodeRangeClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public StatusCodeRangeClient(StatusCodeRangeClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,18 +26,18 @@ namespace Response.StatusCodeRange
 
         public virtual ClientResult ErrorResponseStatusCodeInRange(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
 
         public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
     }
 }

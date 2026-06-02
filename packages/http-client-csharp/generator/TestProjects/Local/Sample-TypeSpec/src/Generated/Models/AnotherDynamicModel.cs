@@ -19,9 +19,9 @@ namespace SampleTypeSpec
         [ExperimentalAttribute("SCME0001")]
         private JsonPatch _patch;
 
-        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="bar"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="bar"/> is null. </exception>
         public AnotherDynamicModel(string bar)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(bar, nameof(bar));
@@ -29,7 +29,7 @@ namespace SampleTypeSpec
             Bar = bar;
         }
 
-        /// <summary> Initializes a new instance of <see cref="AnotherDynamicModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.AnotherDynamicModel"/>. </summary>
         /// <param name="bar"></param>
         /// <param name="patch"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.

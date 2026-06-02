@@ -16,9 +16,9 @@ namespace SampleTypeSpec
     public partial class RoundTripModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RoundTripModel"/>. </summary>
         /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
         /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
         /// <param name="requiredCollection"> Required collection of enums. </param>
@@ -28,8 +28,8 @@ namespace SampleTypeSpec
         /// <param name="requiredRecordUnknown"> required record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
-        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, BinaryData requiredUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes)
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
+        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<global::SampleTypeSpec.StringFixedEnum> requiredCollection, IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> requiredDictionary, Thing requiredModel, BinaryData requiredUnknown, IDictionary<string, global::System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(requiredString, nameof(requiredString));
             global::SampleTypeSpec.Argument.AssertNotNull(requiredCollection, nameof(requiredCollection));
@@ -45,20 +45,20 @@ namespace SampleTypeSpec
             RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnumCollection = new ChangeTrackingList<IntExtensibleEnum>();
-            FloatExtensibleEnumCollection = new ChangeTrackingList<FloatExtensibleEnum>();
-            FloatFixedEnumCollection = new ChangeTrackingList<FloatFixedEnum>();
-            IntFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
+            IntExtensibleEnumCollection = new ChangeTrackingList<global::SampleTypeSpec.IntExtensibleEnum>();
+            FloatExtensibleEnumCollection = new ChangeTrackingList<global::SampleTypeSpec.FloatExtensibleEnum>();
+            FloatFixedEnumCollection = new ChangeTrackingList<global::SampleTypeSpec.FloatFixedEnum>();
+            IntFixedEnumCollection = new ChangeTrackingList<global::SampleTypeSpec.IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
-            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
-            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, global::System.BinaryData>();
+            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, global::System.BinaryData>();
             ModelWithRequiredNullable = modelWithRequiredNullable;
             RequiredBytes = requiredBytes;
         }
 
-        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RoundTripModel"/>. </summary>
         /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
         /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
         /// <param name="requiredCollection"> Required collection of enums. </param>
@@ -84,7 +84,7 @@ namespace SampleTypeSpec
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal RoundTripModel(string requiredString, int requiredInt, IList<StringFixedEnum> requiredCollection, IDictionary<string, StringExtensibleEnum> requiredDictionary, Thing requiredModel, IntExtensibleEnum? intExtensibleEnum, IList<IntExtensibleEnum> intExtensibleEnumCollection, FloatExtensibleEnum? floatExtensibleEnum, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue, IList<FloatExtensibleEnum> floatExtensibleEnumCollection, FloatFixedEnum? floatFixedEnum, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue, IList<FloatFixedEnum> floatFixedEnumCollection, IntFixedEnum? intFixedEnum, IList<IntFixedEnum> intFixedEnumCollection, StringFixedEnum? stringFixedEnum, BinaryData requiredUnknown, BinaryData optionalUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, IDictionary<string, BinaryData> optionalRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal RoundTripModel(string requiredString, int requiredInt, IList<global::SampleTypeSpec.StringFixedEnum> requiredCollection, IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> requiredDictionary, Thing requiredModel, IntExtensibleEnum? intExtensibleEnum, IList<global::SampleTypeSpec.IntExtensibleEnum> intExtensibleEnumCollection, FloatExtensibleEnum? floatExtensibleEnum, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue, IList<global::SampleTypeSpec.FloatExtensibleEnum> floatExtensibleEnumCollection, FloatFixedEnum? floatFixedEnum, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue, IList<global::SampleTypeSpec.FloatFixedEnum> floatFixedEnumCollection, IntFixedEnum? intFixedEnum, IList<global::SampleTypeSpec.IntFixedEnum> intFixedEnumCollection, StringFixedEnum? stringFixedEnum, BinaryData requiredUnknown, BinaryData optionalUnknown, IDictionary<string, global::System.BinaryData> requiredRecordUnknown, IDictionary<string, global::System.BinaryData> optionalRecordUnknown, IReadOnlyDictionary<string, global::System.BinaryData> readOnlyRequiredRecordUnknown, IReadOnlyDictionary<string, global::System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             RequiredString = requiredString;
             RequiredInt = requiredInt;
@@ -120,10 +120,10 @@ namespace SampleTypeSpec
         public int RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
-        public IList<StringFixedEnum> RequiredCollection { get; }
+        public IList<global::SampleTypeSpec.StringFixedEnum> RequiredCollection { get; }
 
         /// <summary> Required dictionary of enums. </summary>
-        public IDictionary<string, StringExtensibleEnum> RequiredDictionary { get; }
+        public IDictionary<string, global::SampleTypeSpec.StringExtensibleEnum> RequiredDictionary { get; }
 
         /// <summary> Required model. </summary>
         public Thing RequiredModel { get; set; }
@@ -132,7 +132,7 @@ namespace SampleTypeSpec
         public IntExtensibleEnum? IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; }
+        public IList<global::SampleTypeSpec.IntExtensibleEnum> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
         public FloatExtensibleEnum? FloatExtensibleEnum { get; set; }
@@ -141,7 +141,7 @@ namespace SampleTypeSpec
         public FloatExtensibleEnumWithIntValue? FloatExtensibleEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
+        public IList<global::SampleTypeSpec.FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public FloatFixedEnum? FloatFixedEnum { get; set; }
@@ -150,13 +150,13 @@ namespace SampleTypeSpec
         public FloatFixedEnumWithIntValue? FloatFixedEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; }
+        public IList<global::SampleTypeSpec.FloatFixedEnum> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
         public IntFixedEnum? IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<IntFixedEnum> IntFixedEnumCollection { get; }
+        public IList<global::SampleTypeSpec.IntFixedEnum> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
         public StringFixedEnum? StringFixedEnum { get; set; }
@@ -243,7 +243,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; }
+        public IDictionary<string, global::System.BinaryData> RequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional record of unknown
@@ -271,7 +271,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; }
+        public IDictionary<string, global::System.BinaryData> OptionalRecordUnknown { get; }
 
         /// <summary>
         /// required readonly record of unknown
@@ -299,7 +299,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
+        public IReadOnlyDictionary<string, global::System.BinaryData> ReadOnlyRequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional readonly record of unknown
@@ -327,7 +327,7 @@ namespace SampleTypeSpec
         /// </list>
         /// </para>
         /// </summary>
-        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
+        public IReadOnlyDictionary<string, global::System.BinaryData> ReadOnlyOptionalRecordUnknown { get; }
 
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }

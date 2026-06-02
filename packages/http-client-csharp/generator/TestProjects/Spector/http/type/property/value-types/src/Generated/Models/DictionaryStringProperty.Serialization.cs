@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class DictionaryStringProperty : IJsonModel<DictionaryStringProperty>
+    public partial class DictionaryStringProperty : IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>
     {
         internal DictionaryStringProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DictionaryStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DictionaryStringProperty IPersistableModel<DictionaryStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DictionaryStringProperty IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DictionaryStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DictionaryStringProperty dictionaryStringProperty) => throw null;
 
         public static explicit operator DictionaryStringProperty(ClientResult result) => throw null;
 
-        void IJsonModel<DictionaryStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DictionaryStringProperty IJsonModel<DictionaryStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DictionaryStringProperty IJsonModel<global::_Type.Property.ValueTypes.DictionaryStringProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DictionaryStringProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

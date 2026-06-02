@@ -12,7 +12,7 @@ namespace Encode._Array
     [ExperimentalAttribute("SCME0002")]
     public partial class ArrayClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

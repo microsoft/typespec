@@ -27,7 +27,7 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
             yield return this.GetNextResponse(message);

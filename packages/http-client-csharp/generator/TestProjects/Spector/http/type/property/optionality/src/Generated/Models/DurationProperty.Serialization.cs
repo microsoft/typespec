@@ -9,27 +9,27 @@ using System.Text.Json;
 
 namespace _Type.Property.Optional
 {
-    public partial class DurationProperty : IJsonModel<DurationProperty>
+    public partial class DurationProperty : IJsonModel<global::_Type.Property.Optional.DurationProperty>
     {
         protected virtual DurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<DurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.Optional.DurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        DurationProperty IPersistableModel<DurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        DurationProperty IPersistableModel<global::_Type.Property.Optional.DurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<DurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.Optional.DurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DurationProperty durationProperty) => throw null;
 
         public static explicit operator DurationProperty(ClientResult result) => throw null;
 
-        void IJsonModel<DurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.Optional.DurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        DurationProperty IJsonModel<DurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        DurationProperty IJsonModel<global::_Type.Property.Optional.DurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

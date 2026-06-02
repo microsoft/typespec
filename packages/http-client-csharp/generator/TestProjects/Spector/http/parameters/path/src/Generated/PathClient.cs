@@ -13,11 +13,11 @@ namespace Parameters.Path
 {
     public partial class PathClient
     {
-        public PathClient() : this(new Uri("http://localhost:3000"), new PathClientOptions()) => throw null;
+        public PathClient() : this(new global::System.Uri("http://localhost:3000"), new PathClientOptions()) => throw null;
 
-        internal PathClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, PathClientOptions options) => throw null;
+        internal PathClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, PathClientOptions options) => throw null;
 
-        public PathClient(Uri endpoint, PathClientOptions options) : this(null, endpoint, options) => throw null;
+        public PathClient(global::System.Uri endpoint, PathClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public PathClient(PathClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,18 +26,18 @@ namespace Parameters.Path
 
         public virtual ClientResult Normal(string name, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> NormalAsync(string name, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NormalAsync(string name, RequestOptions options) => throw null;
 
         public virtual ClientResult Normal(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Optional(string name, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
 
         public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

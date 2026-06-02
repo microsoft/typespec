@@ -13,9 +13,9 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> Pet is a discriminated animal. </summary>
-    public partial class Pet : Animal, IJsonModel<Pet>
+    public partial class Pet : Animal, IJsonModel<global::SampleTypeSpec.Pet>
     {
-        /// <summary> Initializes a new instance of <see cref="Pet"/> for deserialization. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.Pet"/> for deserialization. </summary>
         internal Pet()
         {
         }
@@ -24,7 +24,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Animal PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -40,7 +40,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -51,16 +51,16 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Pet>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::SampleTypeSpec.Pet>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IPersistableModel<Pet>.Create(BinaryData data, ModelReaderWriterOptions options) => ((Pet)this.PersistableModelCreateCore(data, options));
+        Pet IPersistableModel<global::SampleTypeSpec.Pet>.Create(BinaryData data, ModelReaderWriterOptions options) => ((Pet)this.PersistableModelCreateCore(data, options));
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<global::SampleTypeSpec.Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="pet"> The <see cref="Pet"/> to serialize into <see cref="BinaryContent"/>. </param>
+        /// <param name="pet"> The <see cref="global::SampleTypeSpec.Pet"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Pet pet)
         {
             if ((pet == null))
@@ -70,7 +70,7 @@ namespace SampleTypeSpec
             return global::System.ClientModel.BinaryContent.Create(pet, global::SampleTypeSpec.ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Pet"/> from. </param>
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.Pet"/> from. </param>
         public static explicit operator Pet(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
@@ -80,7 +80,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Pet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<global::SampleTypeSpec.Pet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -91,7 +91,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support writing '{format}' format.");
@@ -103,13 +103,13 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        Pet IJsonModel<Pet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((Pet)this.JsonModelCreateCore(ref reader, options));
+        Pet IJsonModel<global::SampleTypeSpec.Pet>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => ((Pet)this.JsonModelCreateCore(ref reader, options));
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override Animal JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<Pet>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.Pet>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.Pet)} does not support reading '{format}' format.");

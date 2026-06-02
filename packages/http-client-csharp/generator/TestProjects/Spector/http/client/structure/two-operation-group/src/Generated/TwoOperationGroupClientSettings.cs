@@ -13,7 +13,7 @@ namespace Client.Structure.TwoOperationGroup
     [ExperimentalAttribute("SCME0002")]
     public partial class TwoOperationGroupClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

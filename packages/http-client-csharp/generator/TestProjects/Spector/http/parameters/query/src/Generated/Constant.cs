@@ -14,16 +14,16 @@ namespace Parameters.Query
     {
         protected Constant() => throw null;
 
-        internal Constant(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Constant(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Post(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PostAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PostAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult Post(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PostAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PostAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

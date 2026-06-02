@@ -14,13 +14,13 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The ReturnsAnonymousModelResponse. </summary>
-    public partial class ReturnsAnonymousModelResponse : IJsonModel<ReturnsAnonymousModelResponse>
+    public partial class ReturnsAnonymousModelResponse : IJsonModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>
     {
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ReturnsAnonymousModelResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -36,7 +36,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
@@ -47,16 +47,16 @@ namespace SampleTypeSpec
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ReturnsAnonymousModelResponse>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>.Write(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ReturnsAnonymousModelResponse IPersistableModel<ReturnsAnonymousModelResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        ReturnsAnonymousModelResponse IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ReturnsAnonymousModelResponse"/> from. </param>
+        /// <param name="result"> The <see cref="global::System.ClientModel.ClientResult"/> to deserialize the <see cref="global::SampleTypeSpec.ReturnsAnonymousModelResponse"/> from. </param>
         public static explicit operator ReturnsAnonymousModelResponse(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
@@ -66,7 +66,7 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ReturnsAnonymousModelResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             this.JsonModelWriteCore(writer, options);
@@ -77,7 +77,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.ReturnsAnonymousModelResponse)} does not support writing '{format}' format.");
@@ -101,13 +101,13 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ReturnsAnonymousModelResponse IJsonModel<ReturnsAnonymousModelResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        ReturnsAnonymousModelResponse IJsonModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual ReturnsAnonymousModelResponse JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = (options.Format == "W") ? ((IPersistableModel<ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = (options.Format == "W") ? ((IPersistableModel<global::SampleTypeSpec.ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
             if ((format != "J"))
             {
                 throw new FormatException($"The model {nameof(global::SampleTypeSpec.ReturnsAnonymousModelResponse)} does not support reading '{format}' format.");
@@ -124,7 +124,7 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if ((options.Format != "W"))

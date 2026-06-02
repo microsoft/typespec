@@ -12,7 +12,7 @@ namespace Documentation
     [ExperimentalAttribute("SCME0002")]
     public partial class DocumentationClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Property.ValueTypes
 {
-    public readonly partial struct ExtendedEnum : IEquatable<ExtendedEnum>
+    public readonly partial struct ExtendedEnum : IEquatable<global::_Type.Property.ValueTypes.ExtendedEnum>
     {
         public ExtendedEnum(string value) => throw null;
 

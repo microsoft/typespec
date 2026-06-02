@@ -12,7 +12,7 @@ namespace Payload.Xml
     [ExperimentalAttribute("SCME0002")]
     public partial class XmlClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

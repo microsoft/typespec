@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Bytes
 {
-    public partial class Base64urlBytesProperty : IJsonModel<Base64urlBytesProperty>
+    public partial class Base64urlBytesProperty : IJsonModel<global::Encode.Bytes.Base64urlBytesProperty>
     {
         internal Base64urlBytesProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Bytes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<Base64urlBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Encode.Bytes.Base64urlBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        Base64urlBytesProperty IPersistableModel<Base64urlBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        Base64urlBytesProperty IPersistableModel<global::Encode.Bytes.Base64urlBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<Base64urlBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Encode.Bytes.Base64urlBytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Base64urlBytesProperty base64urlBytesProperty) => throw null;
 
         public static explicit operator Base64urlBytesProperty(ClientResult result) => throw null;
 
-        void IJsonModel<Base64urlBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Encode.Bytes.Base64urlBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        Base64urlBytesProperty IJsonModel<Base64urlBytesProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        Base64urlBytesProperty IJsonModel<global::Encode.Bytes.Base64urlBytesProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Base64urlBytesProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

@@ -14,24 +14,24 @@ namespace Payload.Xml
     {
         protected ModelWithRenamedArraysValue() => throw null;
 
-        internal ModelWithRenamedArraysValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithRenamedArraysValue(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithRenamedArrays> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::Payload.Xml.ModelWithRenamedArrays> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::Payload.Xml.ModelWithRenamedArrays>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::Payload.Xml.ModelWithRenamedArrays>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(ModelWithRenamedArrays input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithRenamedArrays input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutAsync(ModelWithRenamedArrays input, CancellationToken cancellationToken = default) => throw null;
     }
 }

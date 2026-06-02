@@ -26,7 +26,7 @@ namespace SampleTypeSpec
 
         private StringBuilder PathAndQuery => (_pathAndQuery ??= new StringBuilder());
 
-        public void Reset(Uri uri)
+        public void Reset(global::System.Uri uri)
         {
             _uriBuilder = new UriBuilder(uri);
             PathAndQuery.Clear();
@@ -167,7 +167,7 @@ namespace SampleTypeSpec
             }
         }
 
-        public Uri ToUri()
+        public global::System.Uri ToUri()
         {
             UriBuilder.Path = PathAndQuery.ToString(0, _pathLength);
             if ((PathAndQuery.Length > _pathLength))

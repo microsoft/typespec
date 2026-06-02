@@ -13,11 +13,11 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class SingleDiscriminatorClient
     {
-        public SingleDiscriminatorClient() : this(new Uri("http://localhost:3000"), new SingleDiscriminatorClientOptions()) => throw null;
+        public SingleDiscriminatorClient() : this(new global::System.Uri("http://localhost:3000"), new SingleDiscriminatorClientOptions()) => throw null;
 
-        internal SingleDiscriminatorClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SingleDiscriminatorClientOptions options) => throw null;
+        internal SingleDiscriminatorClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, SingleDiscriminatorClientOptions options) => throw null;
 
-        public SingleDiscriminatorClient(Uri endpoint, SingleDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
+        public SingleDiscriminatorClient(global::System.Uri endpoint, SingleDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public SingleDiscriminatorClient(SingleDiscriminatorClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,58 +26,58 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 
         public virtual ClientResult GetModel(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetModel(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> GetModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutModel(Bird input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetRecursiveModel(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutRecursiveModel(Bird input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutRecursiveModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetMissingDiscriminator(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetWrongDiscriminator(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Bird>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetLegacyModel(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetLegacyModelAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetLegacyModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Dinosaur> GetLegacyModel(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur> GetLegacyModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>> GetLegacyModelAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Model.Inheritance.SingleDiscriminator.Dinosaur>> GetLegacyModelAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

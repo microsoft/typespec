@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace SpecialWords._ExtensibleStrings
 {
-    public readonly partial struct ExtensibleString : IEquatable<ExtensibleString>
+    public readonly partial struct ExtensibleString : IEquatable<global::SpecialWords._ExtensibleStrings.ExtensibleString>
     {
         public ExtensibleString(string value) => throw null;
 

@@ -11,6 +11,6 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     {
         public Golden(int weight) : base(global::_Type.Model.Inheritance.EnumDiscriminator.DogKind.Golden, weight) => throw null;
 
-        internal Golden(DogKind kind, int weight, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, weight, additionalBinaryDataProperties) => throw null;
+        internal Golden(DogKind kind, int weight, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(kind, weight, additionalBinaryDataProperties) => throw null;
     }
 }

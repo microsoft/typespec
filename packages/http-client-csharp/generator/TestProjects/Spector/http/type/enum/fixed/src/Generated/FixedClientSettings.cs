@@ -12,7 +12,7 @@ namespace _Type._Enum.Fixed
     [ExperimentalAttribute("SCME0002")]
     public partial class FixedClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

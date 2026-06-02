@@ -12,14 +12,14 @@ using System.Globalization;
 namespace SampleTypeSpec
 {
     /// <summary> float fixed enum. </summary>
-    public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<FloatExtensibleEnumWithIntValue>
+    public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<global::SampleTypeSpec.FloatExtensibleEnumWithIntValue>
     {
         private readonly float _value;
         private const float OneValue = 1F;
         private const float TwoValue = 2F;
         private const float FourValue = 4F;
 
-        /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnumWithIntValue"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.FloatExtensibleEnumWithIntValue"/>. </summary>
         /// <param name="value"> The value. </param>
         public FloatExtensibleEnumWithIntValue(float value)
         {
@@ -35,17 +35,17 @@ namespace SampleTypeSpec
         /// <summary> Gets the Four. </summary>
         public static FloatExtensibleEnumWithIntValue Four { get; } = new FloatExtensibleEnumWithIntValue(FourValue);
 
-        /// <summary> Determines if two <see cref="FloatExtensibleEnumWithIntValue"/> values are the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.FloatExtensibleEnumWithIntValue"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator ==(FloatExtensibleEnumWithIntValue left, FloatExtensibleEnumWithIntValue right) => left.Equals(right);
 
-        /// <summary> Determines if two <see cref="FloatExtensibleEnumWithIntValue"/> values are not the same. </summary>
+        /// <summary> Determines if two <see cref="global::SampleTypeSpec.FloatExtensibleEnumWithIntValue"/> values are not the same. </summary>
         /// <param name="left"> The left value to compare. </param>
         /// <param name="right"> The right value to compare. </param>
         public static bool operator !=(FloatExtensibleEnumWithIntValue left, FloatExtensibleEnumWithIntValue right) => !left.Equals(right);
 
-        /// <summary> Converts a string to a <see cref="FloatExtensibleEnumWithIntValue"/>. </summary>
+        /// <summary> Converts a string to a <see cref="global::SampleTypeSpec.FloatExtensibleEnumWithIntValue"/>. </summary>
         /// <param name="value"> The value. </param>
         public static implicit operator FloatExtensibleEnumWithIntValue(float value) => new FloatExtensibleEnumWithIntValue(value);
 

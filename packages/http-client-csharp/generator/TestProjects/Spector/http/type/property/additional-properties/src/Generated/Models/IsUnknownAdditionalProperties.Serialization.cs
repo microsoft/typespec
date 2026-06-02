@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class IsUnknownAdditionalProperties : IJsonModel<IsUnknownAdditionalProperties>
+    public partial class IsUnknownAdditionalProperties : IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>
     {
         internal IsUnknownAdditionalProperties() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<IsUnknownAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
-        IsUnknownAdditionalProperties IPersistableModel<IsUnknownAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        IsUnknownAdditionalProperties IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<IsUnknownAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(IsUnknownAdditionalProperties isUnknownAdditionalProperties) => throw null;
 
         public static explicit operator IsUnknownAdditionalProperties(ClientResult result) => throw null;
 
-        void IJsonModel<IsUnknownAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        IsUnknownAdditionalProperties IJsonModel<IsUnknownAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        IsUnknownAdditionalProperties IJsonModel<global::_Type.Property.AdditionalProperties.IsUnknownAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual IsUnknownAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

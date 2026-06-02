@@ -10,11 +10,11 @@ namespace _Type.Union
 {
     public partial class UnionClient
     {
-        public UnionClient() : this(new Uri("http://localhost:3000"), new UnionClientOptions()) => throw null;
+        public UnionClient() : this(new global::System.Uri("http://localhost:3000"), new UnionClientOptions()) => throw null;
 
-        internal UnionClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UnionClientOptions options) => throw null;
+        internal UnionClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, UnionClientOptions options) => throw null;
 
-        public UnionClient(Uri endpoint, UnionClientOptions options) : this(null, endpoint, options) => throw null;
+        public UnionClient(global::System.Uri endpoint, UnionClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public UnionClient(UnionClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

@@ -15,24 +15,24 @@ namespace _Type.Scalar
     {
         protected Decimal128Verify() => throw null;
 
-        internal Decimal128Verify(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Decimal128Verify(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult PrepareVerify(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PrepareVerifyAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PrepareVerifyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IReadOnlyList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::System.Collections.Generic.IReadOnlyList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::System.Collections.Generic.IReadOnlyList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::System.Collections.Generic.IReadOnlyList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Verify(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> VerifyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Verify(decimal body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> VerifyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
     }
 }

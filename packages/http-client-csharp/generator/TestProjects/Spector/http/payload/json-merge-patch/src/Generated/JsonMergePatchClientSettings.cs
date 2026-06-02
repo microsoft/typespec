@@ -12,7 +12,7 @@ namespace Payload.JsonMergePatch
     [ExperimentalAttribute("SCME0002")]
     public partial class JsonMergePatchClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

@@ -14,24 +14,24 @@ namespace _Type.Union
     {
         protected FloatsOnly() => throw null;
 
-        internal FloatsOnly(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal FloatsOnly(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Get(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<GetResponse4> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Union.GetResponse4> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Union.GetResponse4>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Union.GetResponse4>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Send(GetResponseProp3 prop, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(GetResponseProp3 prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SendAsync(GetResponseProp3 prop, CancellationToken cancellationToken = default) => throw null;
     }
 }

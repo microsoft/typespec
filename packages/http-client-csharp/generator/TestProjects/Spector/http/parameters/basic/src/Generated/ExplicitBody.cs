@@ -14,16 +14,16 @@ namespace Parameters.Basic._ExplicitBody
     {
         protected ExplicitBody() => throw null;
 
-        internal ExplicitBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExplicitBody(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Simple(User body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(User body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> SimpleAsync(User body, CancellationToken cancellationToken = default) => throw null;
     }
 }

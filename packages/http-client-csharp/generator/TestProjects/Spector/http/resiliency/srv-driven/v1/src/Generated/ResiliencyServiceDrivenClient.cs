@@ -15,11 +15,11 @@ namespace Resiliency.ServiceDriven
     {
         protected ResiliencyServiceDrivenClient() => throw null;
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
+        public ResiliencyServiceDrivenClient(global::System.Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
 
-        internal ResiliencyServiceDrivenClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
+        internal ResiliencyServiceDrivenClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
+        public ResiliencyServiceDrivenClient(global::System.Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
@@ -28,26 +28,26 @@ namespace Resiliency.ServiceDriven
 
         public virtual ClientResult FromNone(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FromNoneAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromNoneAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult FromNone(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromNoneAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromNoneAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneRequired(string parameter, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromOneRequiredAsync(string parameter, RequestOptions options) => throw null;
 
         public virtual ClientResult FromOneRequired(string parameter, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromOneRequiredAsync(string parameter, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneOptional(string parameter, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
 
         public virtual ClientResult FromOneOptional(string parameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> FromOneOptionalAsync(string parameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

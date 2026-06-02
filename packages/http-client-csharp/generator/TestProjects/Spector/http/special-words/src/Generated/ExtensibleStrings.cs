@@ -14,16 +14,16 @@ namespace SpecialWords._ExtensibleStrings
     {
         protected ExtensibleStrings() => throw null;
 
-        internal ExtensibleStrings(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtensibleStrings(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult PutExtensibleStringValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutExtensibleStringValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PutExtensibleStringValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ExtensibleString> PutExtensibleStringValue(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::SpecialWords._ExtensibleStrings.ExtensibleString> PutExtensibleStringValue(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::SpecialWords._ExtensibleStrings.ExtensibleString>> PutExtensibleStringValueAsync(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::SpecialWords._ExtensibleStrings.ExtensibleString>> PutExtensibleStringValueAsync(ExtensibleString body, CancellationToken cancellationToken = default) => throw null;
     }
 }

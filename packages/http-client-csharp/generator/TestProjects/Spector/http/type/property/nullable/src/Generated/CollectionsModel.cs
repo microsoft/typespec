@@ -14,32 +14,32 @@ namespace _Type.Property.Nullable
     {
         protected CollectionsModel() => throw null;
 
-        internal CollectionsModel(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal CollectionsModel(ClientPipeline pipeline, global::System.Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult GetNonNull(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<CollectionsModelProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetNull(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<CollectionsModelProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult<global::_Type.Property.Nullable.CollectionsModelProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PatchNonNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PatchNonNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PatchNull(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> PatchNullAsync(BinaryContent content, RequestOptions options = null) => throw null;
     }
 }

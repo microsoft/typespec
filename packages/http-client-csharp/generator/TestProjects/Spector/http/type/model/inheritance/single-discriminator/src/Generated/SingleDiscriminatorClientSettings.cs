@@ -12,7 +12,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     [ExperimentalAttribute("SCME0002")]
     public partial class SingleDiscriminatorClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

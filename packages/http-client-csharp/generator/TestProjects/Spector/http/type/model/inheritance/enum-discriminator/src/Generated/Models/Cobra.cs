@@ -11,6 +11,6 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     {
         public Cobra(int length) : base(global::_Type.Model.Inheritance.EnumDiscriminator.SnakeKind.Cobra, length) => throw null;
 
-        internal Cobra(SnakeKind kind, int length, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, length, additionalBinaryDataProperties) => throw null;
+        internal Cobra(SnakeKind kind, int length, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties) : base(kind, length, additionalBinaryDataProperties) => throw null;
     }
 }

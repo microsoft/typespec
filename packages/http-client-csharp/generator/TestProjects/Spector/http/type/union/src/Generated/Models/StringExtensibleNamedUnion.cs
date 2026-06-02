@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace _Type.Union
 {
-    public readonly partial struct StringExtensibleNamedUnion : IEquatable<StringExtensibleNamedUnion>
+    public readonly partial struct StringExtensibleNamedUnion : IEquatable<global::_Type.Union.StringExtensibleNamedUnion>
     {
         public StringExtensibleNamedUnion(string value) => throw null;
 

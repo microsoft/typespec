@@ -10,11 +10,11 @@ namespace _Type.Property.Nullable
 {
     public partial class NullableClient
     {
-        public NullableClient() : this(new Uri("http://localhost:3000"), new NullableClientOptions()) => throw null;
+        public NullableClient() : this(new global::System.Uri("http://localhost:3000"), new NullableClientOptions()) => throw null;
 
-        internal NullableClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NullableClientOptions options) => throw null;
+        internal NullableClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, NullableClientOptions options) => throw null;
 
-        public NullableClient(Uri endpoint, NullableClientOptions options) : this(null, endpoint, options) => throw null;
+        public NullableClient(global::System.Uri endpoint, NullableClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public NullableClient(NullableClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;

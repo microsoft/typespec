@@ -12,7 +12,7 @@ namespace Versioning.ReturnTypeChangedFrom
     [ExperimentalAttribute("SCME0002")]
     public partial class ReturnTypeChangedFromClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

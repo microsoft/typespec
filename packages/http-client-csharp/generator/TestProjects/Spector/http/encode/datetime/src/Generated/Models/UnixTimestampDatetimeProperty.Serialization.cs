@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Encode.Datetime
 {
-    public partial class UnixTimestampDatetimeProperty : IJsonModel<UnixTimestampDatetimeProperty>
+    public partial class UnixTimestampDatetimeProperty : IJsonModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>
     {
         internal UnixTimestampDatetimeProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace Encode.Datetime
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<UnixTimestampDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        UnixTimestampDatetimeProperty IPersistableModel<UnixTimestampDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        UnixTimestampDatetimeProperty IPersistableModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<UnixTimestampDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnixTimestampDatetimeProperty unixTimestampDatetimeProperty) => throw null;
 
         public static explicit operator UnixTimestampDatetimeProperty(ClientResult result) => throw null;
 
-        void IJsonModel<UnixTimestampDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        UnixTimestampDatetimeProperty IJsonModel<UnixTimestampDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        UnixTimestampDatetimeProperty IJsonModel<global::Encode.Datetime.UnixTimestampDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual UnixTimestampDatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

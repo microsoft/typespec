@@ -12,7 +12,7 @@ namespace _Type.Property.ValueTypes
     [ExperimentalAttribute("SCME0002")]
     public partial class ValueTypesClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

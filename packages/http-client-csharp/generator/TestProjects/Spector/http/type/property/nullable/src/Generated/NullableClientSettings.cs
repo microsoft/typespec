@@ -12,7 +12,7 @@ namespace _Type.Property.Nullable
     [ExperimentalAttribute("SCME0002")]
     public partial class NullableClientSettings : ClientSettings
     {
-        public Uri Endpoint
+        public global::System.Uri Endpoint
         {
             get => throw null;
             set => throw null;

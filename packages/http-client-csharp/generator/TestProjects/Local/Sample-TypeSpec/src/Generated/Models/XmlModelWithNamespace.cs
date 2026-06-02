@@ -12,9 +12,9 @@ namespace SampleTypeSpec
     /// <summary> The XmlModelWithNamespace. </summary>
     public partial class XmlModelWithNamespace
     {
-        /// <summary> Initializes a new instance of <see cref="XmlModelWithNamespace"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.XmlModelWithNamespace"/>. </summary>
         /// <param name="foo"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentNullException"> <paramref name="foo"/> is null. </exception>
         public XmlModelWithNamespace(string foo)
         {
             global::SampleTypeSpec.Argument.AssertNotNull(foo, nameof(foo));

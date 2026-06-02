@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class ExtensibleEnumProperty : IJsonModel<ExtensibleEnumProperty>
+    public partial class ExtensibleEnumProperty : IJsonModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>
     {
         internal ExtensibleEnumProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<ExtensibleEnumProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        ExtensibleEnumProperty IPersistableModel<ExtensibleEnumProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        ExtensibleEnumProperty IPersistableModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<ExtensibleEnumProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ExtensibleEnumProperty extensibleEnumProperty) => throw null;
 
         public static explicit operator ExtensibleEnumProperty(ClientResult result) => throw null;
 
-        void IJsonModel<ExtensibleEnumProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        ExtensibleEnumProperty IJsonModel<ExtensibleEnumProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        ExtensibleEnumProperty IJsonModel<global::_Type.Property.ValueTypes.ExtensibleEnumProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual ExtensibleEnumProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

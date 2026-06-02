@@ -13,11 +13,11 @@ namespace SpecialHeaders.Repeatability
 {
     public partial class RepeatabilityClient
     {
-        public RepeatabilityClient() : this(new Uri("http://localhost:3000"), new RepeatabilityClientOptions()) => throw null;
+        public RepeatabilityClient() : this(new global::System.Uri("http://localhost:3000"), new RepeatabilityClientOptions()) => throw null;
 
-        internal RepeatabilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RepeatabilityClientOptions options) => throw null;
+        internal RepeatabilityClient(AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, RepeatabilityClientOptions options) => throw null;
 
-        public RepeatabilityClient(Uri endpoint, RepeatabilityClientOptions options) : this(null, endpoint, options) => throw null;
+        public RepeatabilityClient(global::System.Uri endpoint, RepeatabilityClientOptions options) : this(null, endpoint, options) => throw null;
 
         [ExperimentalAttribute("SCME0002")]
         public RepeatabilityClient(RepeatabilityClientSettings settings) : this(global::System.ClientModel.Primitives.AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
@@ -26,10 +26,10 @@ namespace SpecialHeaders.Repeatability
 
         public virtual ClientResult ImmediateSuccess(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ImmediateSuccessAsync(RequestOptions options) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ImmediateSuccessAsync(RequestOptions options) => throw null;
 
         public virtual ClientResult ImmediateSuccess(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<global::System.ClientModel.ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

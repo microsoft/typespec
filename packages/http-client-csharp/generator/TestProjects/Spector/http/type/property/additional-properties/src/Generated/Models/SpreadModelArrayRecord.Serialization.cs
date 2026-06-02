@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class SpreadModelArrayRecord : IJsonModel<SpreadModelArrayRecord>
+    public partial class SpreadModelArrayRecord : IJsonModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>
     {
         internal SpreadModelArrayRecord() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<SpreadModelArrayRecord>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
-        SpreadModelArrayRecord IPersistableModel<SpreadModelArrayRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        SpreadModelArrayRecord IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<SpreadModelArrayRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SpreadModelArrayRecord spreadModelArrayRecord) => throw null;
 
         public static explicit operator SpreadModelArrayRecord(ClientResult result) => throw null;
 
-        void IJsonModel<SpreadModelArrayRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        SpreadModelArrayRecord IJsonModel<SpreadModelArrayRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        SpreadModelArrayRecord IJsonModel<global::_Type.Property.AdditionalProperties.SpreadModelArrayRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpreadModelArrayRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

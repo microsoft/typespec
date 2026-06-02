@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Payload.ContentNegotiation._DifferentBody
 {
-    public partial class PngImageAsJson : IJsonModel<PngImageAsJson>
+    public partial class PngImageAsJson : IJsonModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>
     {
         internal PngImageAsJson() => throw null;
 
@@ -17,19 +17,19 @@ namespace Payload.ContentNegotiation._DifferentBody
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<PngImageAsJson>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>.Write(ModelReaderWriterOptions options) => throw null;
 
-        PngImageAsJson IPersistableModel<PngImageAsJson>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        PngImageAsJson IPersistableModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<PngImageAsJson>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static explicit operator PngImageAsJson(ClientResult result) => throw null;
 
-        void IJsonModel<PngImageAsJson>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        PngImageAsJson IJsonModel<PngImageAsJson>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        PngImageAsJson IJsonModel<global::Payload.ContentNegotiation._DifferentBody.PngImageAsJson>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual PngImageAsJson JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

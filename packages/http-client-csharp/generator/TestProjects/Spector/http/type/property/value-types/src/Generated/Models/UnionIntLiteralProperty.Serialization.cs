@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.ValueTypes
 {
-    public partial class UnionIntLiteralProperty : IJsonModel<UnionIntLiteralProperty>
+    public partial class UnionIntLiteralProperty : IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>
     {
         internal UnionIntLiteralProperty() => throw null;
 
@@ -17,21 +17,21 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        BinaryData IPersistableModel<UnionIntLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        BinaryData IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        UnionIntLiteralProperty IPersistableModel<UnionIntLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        UnionIntLiteralProperty IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        string IPersistableModel<UnionIntLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        string IPersistableModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnionIntLiteralProperty unionIntLiteralProperty) => throw null;
 
         public static explicit operator UnionIntLiteralProperty(ClientResult result) => throw null;
 
-        void IJsonModel<UnionIntLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        void IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        UnionIntLiteralProperty IJsonModel<UnionIntLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        UnionIntLiteralProperty IJsonModel<global::_Type.Property.ValueTypes.UnionIntLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual UnionIntLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }

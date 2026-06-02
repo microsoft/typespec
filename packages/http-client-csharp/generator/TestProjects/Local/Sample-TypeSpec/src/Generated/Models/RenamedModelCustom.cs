@@ -14,7 +14,7 @@ namespace SampleTypeSpec
     /// <summary> this is a model with a client name. </summary>
     public partial class RenamedModelCustom : Friend
     {
-        /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RenamedModelCustom"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="otherName"> name of the ModelWithClientName. </param>
         internal RenamedModelCustom(string name, string otherName) : base(name)
@@ -22,11 +22,11 @@ namespace SampleTypeSpec
             OtherName = otherName;
         }
 
-        /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="global::SampleTypeSpec.RenamedModelCustom"/>. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="otherName"> name of the ModelWithClientName. </param>
-        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
+        internal RenamedModelCustom(string name, IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
         {
             OtherName = otherName;
         }
