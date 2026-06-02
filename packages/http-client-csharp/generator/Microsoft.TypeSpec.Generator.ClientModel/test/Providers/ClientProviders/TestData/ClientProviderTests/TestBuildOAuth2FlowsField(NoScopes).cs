@@ -1,4 +1,4 @@
-new global::System.Collections.Generic.Dictionary<string, object>[]
+new global::System.Collections.Generic.Dictionary<string, object>[] 
 {
     new global::System.Collections.Generic.Dictionary<string, object>
     {
