@@ -41,13 +41,8 @@ test.describe("playground UI tests", () => {
     const typespecEditor = page.locator(".monaco-editor").first();
     await typespecEditor.click();
     await typespecEditor.pressSequentially("op sharedCode(): string;");
-    await Promise.all([
-      // It is important to call waitForNavigation before click to set up waiting.
-      page.waitForURL(
-        // cspell:disable-next-line
-        new RegExp(`${host}/\\?.*c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7.*`),
-      ),
-      page.keyboard.press(`${ctrlOrCmd}+KeyS`),
-    ]);
+    await page.keyboard.press(`${ctrlOrCmd}+KeyS`);
+    // cspell:disable-next-line
+    await expect.poll(() => page.url()).toMatch(new RegExp(`${host}/\\?.*c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7.*`));
   });
 });
