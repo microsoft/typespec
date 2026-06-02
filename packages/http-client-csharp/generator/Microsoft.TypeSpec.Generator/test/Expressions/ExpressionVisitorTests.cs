@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             Assert.IsNotNull(updatedExpression);
             Assert.IsInstanceOf<ArgumentExpression>(updatedExpression);
             var updatedArgument = (ArgumentExpression)updatedExpression!;
-            Assert.AreEqual(variableName == "change" ? "replacedVariable" : "replacedVariable", ((VariableExpression)updatedArgument.Expression).Declaration.RequestedName);
+            Assert.AreEqual("replacedVariable", ((VariableExpression)updatedArgument.Expression).Declaration.RequestedName);
             Assert.IsTrue(updatedArgument.IsRef);
         }
 
