@@ -27,6 +27,11 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       type: "string",
       nullable: true,
     },
+    features: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
     "environment-variables": {
       type: "object",
       nullable: true,

@@ -312,10 +312,10 @@ async function main() {
     )
     .command(
       "info [emitter]",
-      "Show information about the current TypeSpec compiler, or about a specific emitter.",
+      "Show information about the current TypeSpec compiler, compiler features, or a specific emitter.",
       (cmd) => {
         return cmd.positional("emitter", {
-          description: "The emitter package name to show options for.",
+          description: "The emitter package name to show options for, or 'features'.",
           type: "string",
         });
       },
