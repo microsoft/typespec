@@ -122,7 +122,7 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "boolean",
       nullable: true,
       description:
-        "Whether to generate an api.md file containing the public API surface. Defaults to `false`. Requires `apiview-stub-generator` to be installed.",
+        "Whether to generate an api.md file containing the public API surface. Defaults to `true`. Requires `apiview-stub-generator` to be installed.",
     },
   },
   required: [],

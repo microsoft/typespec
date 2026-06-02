@@ -30,6 +30,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
+    "generate-api-md": true,
     "validate-versioning": true,
     "clear-output-folder": false,
   };
@@ -355,6 +356,14 @@ async function generateApiMd(
   root: string,
   packageName: string,
 ): Promise<void> {
+  // Check if apiview-stub-generator is installed before attempting
+  try {
+    execFileSync(venvPath, ["-c", "import apistub"], { stdio: "pipe" });
+  } catch {
+    // apiview-stub-generator not installed — silently skip
+    return;
+  }
+
   const apiviewOutDir = path.join(os.tmpdir(), `tsp-apiview-${randomUUID()}`);
   try {
     fs.mkdirSync(apiviewOutDir, { recursive: true });
