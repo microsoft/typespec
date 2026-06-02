@@ -16,6 +16,7 @@ import {
   ignoreDiagnostics,
   reportDeprecated,
 } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -530,6 +531,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const spreadResolutionAncestors = new Map<Sym, Set<Sym>>();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -2150,13 +2152,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "experimental-feature",
-        messageId: "functionDeclarations",
-        target: node,
-      }),
-    );
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "functionDeclarations",
+          target: node,
+        }),
+      );
+    }
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -6572,6 +6576,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
+
+    // Ancestors are models that already depend on this model via spread.
+    const modelAncestors = spreadResolutionAncestors.get(modelSymId);
+    if (targetSym && modelAncestors?.has(targetSym)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "spread-model",
+            messageId: "selfSpread",
+            target: target,
+          }),
+        );
+      }
+      return undefined;
+    }
+
+    if (targetSym) {
+      let targetAncestors = spreadResolutionAncestors.get(targetSym);
+      if (!targetAncestors) {
+        targetAncestors = new Set<Sym>();
+        spreadResolutionAncestors.set(targetSym, targetAncestors);
+      }
+      targetAncestors.add(modelSymId);
+      for (const ancestor of modelAncestors ?? []) {
+        targetAncestors.add(ancestor);
+      }
+    }
+
     const type = getTypeForNode(target, ctx);
     return type;
   }
@@ -7400,7 +7432,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return inProgressType;
         }
       }
-
+      if (node.value.kind === SyntaxKind.ModelExpression) {
+        return getTypeForNode(node.value, ctx);
+      }
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

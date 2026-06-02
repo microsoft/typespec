@@ -201,23 +201,42 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setIsOutputStale(false);
   }, [selectedEmitter]);
 
-  // Sync Monaco model with state content
+  // Track whether content changes originated from the model (user typing)
+  // to avoid the sync effect resetting the model during typing
+  const isModelDrivenChangeRef = useRef(false);
+
+  // Sync Monaco model with state content (only for external/programmatic changes)
   useEffect(() => {
+    if (isModelDrivenChangeRef.current) {
+      isModelDrivenChangeRef.current = false;
+      return;
+    }
     if (typespecModel.getValue() !== (content ?? "")) {
       typespecModel.setValue(content ?? "");
     }
   }, [content, typespecModel]);
 
+  // Use refs to avoid re-subscribing to onDidChangeContent on every keystroke
+  const contentRef = useRef(content);
+  const onContentChangeRef = useRef(onContentChange);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
+
   // Update state when Monaco model changes
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
+      if (newContent !== contentRef.current) {
+        isModelDrivenChangeRef.current = true;
+        onContentChangeRef.current(newContent);
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
@@ -336,8 +355,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const saveCode = useCallback(() => {
     if (onSave) {
+      // Read directly from the model to ensure we save the latest content,
+      // not a potentially stale React state value
+      const currentContent = typespecModel.getValue();
       onSave({
-        content: content ?? "",
+        content: currentContent,
         emitter: selectedEmitter,
         compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
@@ -346,7 +368,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       });
     }
   }, [
-    content,
+    typespecModel,
     onSave,
     selectedEmitter,
     compilerOptions,
