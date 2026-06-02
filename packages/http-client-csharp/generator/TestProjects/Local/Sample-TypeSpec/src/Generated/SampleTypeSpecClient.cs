@@ -334,7 +334,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(info, nameof(info));
 
-            ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
+            ClientResult result = NoContentType(info.P2, info.P1, BinaryContent.Create(info.Action), cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -347,7 +347,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(info, nameof(info));
 
-            ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            ClientResult result = await NoContentTypeAsync(info.P2, info.P1, BinaryContent.Create(info.Action), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
