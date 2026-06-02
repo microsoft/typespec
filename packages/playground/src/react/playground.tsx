@@ -19,7 +19,13 @@ import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
 import { EditorPanel } from "./editor-panel/editor-panel.js";
 import { useMonacoModel, type OnMountData } from "./editor.js";
-import { useCompilation, useDebouncedCompile, useEditorActions, useMonacoSync, type PlaygroundSaveData } from "./hooks/index.js";
+import {
+  useCompilation,
+  useDebouncedCompile,
+  useEditorActions,
+  useMonacoSync,
+  type PlaygroundSaveData,
+} from "./hooks/index.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";

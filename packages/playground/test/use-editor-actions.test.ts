@@ -77,9 +77,7 @@ describe("useEditorActions", () => {
 
       result.current.saveCode();
 
-      expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ sampleName: undefined }),
-      );
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ sampleName: undefined }));
     });
 
     it("does nothing when onSave is not provided", () => {
