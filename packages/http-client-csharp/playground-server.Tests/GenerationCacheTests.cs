@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using NUnit.Framework;
@@ -21,65 +22,16 @@ public class GenerationCacheTests
     private static CachedGenerationResponse MakeResponse(string content)
         => new(Encoding.UTF8.GetBytes(content), "application/json");
 
+    // Reads a file from TestData/<this fixture>/, mirroring the generator test projects' TestData convention.
+    // Files are copied next to the test assembly via the csproj CopyToOutputDirectory item.
+    private static string ReadTestData(string fileName)
+        => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", nameof(GenerationCacheTests), fileName));
+
     // A representative (multi-KB) code model payload shaped like what the generator actually receives,
     // used to exercise ComputeKey against realistic input rather than tiny synthetic strings.
-    private const string SampleCodeModel = """
-        {
-          "$id": "1",
-          "name": "PetStore",
-          "apiVersions": ["2024-01-01"],
-          "enums": [
-            {
-              "$id": "2",
-              "kind": "enum",
-              "name": "PetKind",
-              "valueType": { "$id": "3", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
-              "values": [
-                { "$id": "4", "kind": "enumvalue", "name": "Dog", "value": "dog" },
-                { "$id": "5", "kind": "enumvalue", "name": "Cat", "value": "cat" }
-              ],
-              "isFixed": true,
-              "usage": "Input,Output"
-            }
-          ],
-          "models": [
-            {
-              "$id": "6",
-              "kind": "model",
-              "name": "Pet",
-              "crossLanguageDefinitionId": "PetStore.Pet",
-              "usage": "Input,Output",
-              "properties": [
-                { "$id": "7", "kind": "property", "name": "id", "serializedName": "id", "type": { "$id": "8", "kind": "int32", "name": "int32" }, "optional": false },
-                { "$id": "9", "kind": "property", "name": "name", "serializedName": "name", "type": { "$id": "10", "kind": "string", "name": "string" }, "optional": false },
-                { "$id": "11", "kind": "property", "name": "kind", "serializedName": "kind", "type": { "$ref": "2" }, "optional": true }
-              ]
-            }
-          ],
-          "clients": [
-            {
-              "$id": "12",
-              "kind": "client",
-              "name": "PetStoreClient",
-              "namespace": "PetStore",
-              "operations": [
-                {
-                  "$id": "13",
-                  "name": "getPet",
-                  "resourceName": "Pet",
-                  "verb": "get",
-                  "path": "/pets/{petId}",
-                  "responses": [{ "$id": "14", "statusCodes": [200], "bodyType": { "$ref": "6" } }]
-                }
-              ]
-            }
-          ]
-        }
-        """;
+    private static string SampleCodeModel => ReadTestData("sample-codemodel.json");
 
-    private const string SampleConfiguration = """
-        { "package-name": "PetStore", "namespace": "PetStore", "library-name": "PetStore" }
-        """;
+    private static string SampleConfiguration => ReadTestData("sample-configuration.json");
 
     [Test]
     public void ComputeKey_IsDeterministic_ForSameInputs()

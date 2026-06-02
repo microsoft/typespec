@@ -19,4 +19,10 @@
     <ProjectReference Include="..\playground-server\playground-server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="TestData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
