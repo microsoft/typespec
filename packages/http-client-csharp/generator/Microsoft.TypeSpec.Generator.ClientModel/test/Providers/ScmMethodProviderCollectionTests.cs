@@ -1924,7 +1924,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = InputFactory.Operation(
                 "GetFoo",
                 httpMethod: "GET",
-                responses: [InputFactory.OperationResponse([200], bodytype: arrayType, contentTypes: ["application/xml"])]);
+                responses: [InputFactory.OperationResponse(
+                    [200],
+                    bodytype: arrayType,
+                    contentTypes: ["application/xml"],
+                    serializationOptions: InputFactory.Serialization.Options(
+                        xml: InputFactory.Serialization.Xml("SignedIdentifier")))]);
 
             var serviceMethod = InputFactory.BasicServiceMethod(
                 "GetFoo",

@@ -12,11 +12,13 @@ alias UnionOfManyType =
   | "nine"
   | "ten";
 
-alias UnionOfObject = {
-  foo: string;
-} | {
-  bar: string;
-};
+alias UnionOfObject =
+  | {
+      foo: string;
+    }
+  | {
+      bar: string;
+    };
 
 alias UnionOfManyObject =
   | {
@@ -35,9 +37,11 @@ alias UnionOfManyObject =
       five: string;
     };
 
-alias UnionOfMix = Foo | {
-  bar: string;
-};
+alias UnionOfMix =
+  | Foo
+  | {
+      bar: string;
+    };
 
 alias UnionOfManyMix =
   | Foo

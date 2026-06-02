@@ -1,5 +1,36 @@
 # Change Log - @typespec/playground
 
+## 0.15.0
+
+### Breaking Changes
+
+- [#10468](https://github.com/microsoft/typespec/pull/10468) Remove the `newChangeDiff` emitter option. Diff highlighting of changed files and lines is now always enabled in the output viewer.
+
+### Features
+
+- [#10349](https://github.com/microsoft/typespec/pull/10349) Add compilation spinner, diff highlighting, and output preservation
+
+### Bug Fixes
+
+- [#10442](https://github.com/microsoft/typespec/pull/10442) Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompilations triggered while a compile is already running.
+
+
+## 0.14.0
+
+### Features
+
+- [#10024](https://github.com/microsoft/typespec/pull/10024) Add file tree view for output
+- [#10018](https://github.com/microsoft/typespec/pull/10018) Make UI more mobile friendly. 
+    - Add a new switch to toggle between TypeSpec and output panels
+    - Command bar hides less important tools behind `...`
+    - [API] Update custom toolbar to take a menu item instead of generic react node.
+- [#10256](https://github.com/microsoft/typespec/pull/10256) Add search and category grouping to samples
+
+### Bug Fixes
+
+- [#10212](https://github.com/microsoft/typespec/pull/10212) Don't show file tree view in output when there is only a single file
+
+
 ## 0.13.0
 
 ### Features

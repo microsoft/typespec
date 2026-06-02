@@ -28,9 +28,22 @@ namespace Microsoft.TypeSpec.Generator
             CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
             CodeModelGenerator.Instance.Stopwatch.Start();
 
-            GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+
+            // Resolve PackageReference items from the .csproj so custom code referencing
+            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+
+            // Pre-walk the input library and resolve any external types that point at NuGet packages.
+            // This populates ExternalTypeReferenceResolver's cache and registers each resolved assembly
+            // as an additional metadata reference *before* the generated/custom code workspaces are
+            // constructed, so their cached Roslyn projects pick the references up.
+            await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+            // Initialize the workspace project AFTER all metadata references have been added so the
+            // eagerly-cached project sees them.
+            GeneratedCodeWorkspace.Initialize();
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
@@ -112,7 +125,10 @@ namespace Microsoft.TypeSpec.Generator
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
-            // Write project scaffolding files
+            // Write additional output files (e.g. configuration schemas, .targets files)
+            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+
+            // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
@@ -137,11 +153,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void FilterCustomizedMembers(TypeProvider typeProvider)
         {
+            // Update applies customization filtering internally, so passing the current cached members
+            // is sufficient to apply the filter (e.g., after EnsureBuilt populated unfiltered caches).
             typeProvider.Update(
-                typeProvider.FilterCustomizedMethods(typeProvider.Methods),
-                typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
-                typeProvider.FilterCustomizedProperties(typeProvider.Properties),
-                typeProvider.FilterCustomizedFields(typeProvider.Fields));
+                typeProvider.Methods,
+                typeProvider.Constructors,
+                typeProvider.Properties,
+                typeProvider.Fields);
         }
 
         /// <summary>

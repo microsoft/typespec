@@ -12,7 +12,7 @@ description: >
 # Emitter Prep for PR
 
 Prepares language emitter changes for pull request by running build/format/lint,
-creating a changeset with an appropriate message, and pushing to the remote branch.
+checking for a changeset, and pushing to the remote branch.
 
 **This skill is for language emitter packages only:**
 
@@ -24,116 +24,71 @@ Do NOT use this skill for core TypeSpec packages (compiler, http, openapi3, etc.
 
 ## Workflow
 
-### Step 1: Identify changed language emitter packages
+### Step 1: Determine the emitter package
 
-Determine which language emitter packages have changes:
+Figure out which emitter package the user is working on from context (cwd, recent
+changes, or ask). The package will be under `packages/<package-name>/`.
 
-```bash
-cd ~/Desktop/github/typespec
-
-# Compare against upstream/main (microsoft/typespec) if available, otherwise main
-BASE_BRANCH=$(git rev-parse --verify upstream/main 2> /dev/null && echo "upstream/main" || echo "main")
-
-# Filter for language emitter packages only
-git diff "$BASE_BRANCH" --name-only | grep "^packages/http-client-" | cut -d'/' -f2 | sort -u
-```
-
-This filters for `http-client-python`, `http-client-csharp`, `http-client-java`, etc.
-
-### Step 2: Validate each changed emitter package
-
-For each changed emitter package (e.g., `http-client-python`, `http-client-csharp`, `http-client-java`):
+### Step 2: Build, format, and lint the emitter package
 
 ```bash
 cd ~/Desktop/github/typespec/packages/PACKAGE_NAME
 
 # Build
 npm run build
-if [ $? -ne 0 ]; then
-  echo "Build failed for PACKAGE_NAME"
-  exit 1
-fi
 
-# Format
+# Format (includes both TypeScript and Python formatting)
 npm run format
-if [ $? -ne 0 ]; then
-  echo "Format failed for PACKAGE_NAME"
-  exit 1
-fi
 
-# Lint (if available)
-npm run lint 2> /dev/null || echo "No lint script for PACKAGE_NAME"
+# Lint (emitter-only is fine for quick validation)
+npm run lint -- --emitter
 ```
 
-If any step fails, report the error and stop. Do not proceed to changeset.
+If any step fails, report the error and stop. Do not proceed.
 
-### Step 3: Run format and spell check at repo root
-
-After validating individual packages, run format and spell check at the repo root:
+### Step 3: Run format at repo root
 
 ```bash
 cd ~/Desktop/github/typespec
-
-# Format all files
 pnpm format
-
-# Spell check
-pnpm cspell
 ```
 
-If spell check fails, either fix the typos or add words to the cspell dictionary.
+**Important:** `pnpm format` may touch files outside the emitter package (e.g.,
+`.devcontainer/`, other packages). When staging changes in Step 6, **only stage
+files within the emitter package directory** (`packages/PACKAGE_NAME/`) and
+`.chronus/changes/` and `.github/skills/`. Discard any formatting changes to
+unrelated files with `git checkout -- <file>`.
 
-### Step 4: Analyze changes for changeset message
+### Step 4: Check for existing changeset
 
-Examine the changes to determine an appropriate changeset message:
+Check if a changeset already exists for the current branch:
 
 ```bash
 cd ~/Desktop/github/typespec
-
-# Determine base branch
-BASE_BRANCH=$(git rev-parse --verify upstream/main 2> /dev/null && echo "upstream/main" || echo "main")
-
-# Get commit messages on this branch
-git log "$BASE_BRANCH"..HEAD --oneline
-
-# Get changed files
-git diff "$BASE_BRANCH" --name-only
-
-# Get the actual code changes (for understanding intent)
-git diff "$BASE_BRANCH" --stat
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+ls .chronus/changes/ | grep -i "$BRANCH" || echo "NO_CHANGESET"
 ```
 
-### Step 5: Determine changeset parameters
+- If a changeset **exists**: Skip to Step 6 (no need to create one).
+- If **NO_CHANGESET**: Proceed to Step 5 to create one.
 
-Based on the changes, determine:
+### Step 5: Create changeset (only if none exists)
 
-1. **changeKind** - one of:
-   - `internal` - Internal changes not user-facing (tests, docs, refactoring)
-   - `fix` - Bug fixes (patch version bump)
-   - `feature` - New features (minor version bump)
-   - `deprecation` - Deprecating existing features (minor version bump)
-   - `breaking` - Breaking changes (major version bump)
-   - `dependencies` - Dependency bumps (patch version bump)
+Ask the user what kind of change this is, or infer from context:
 
-2. **packages** - affected packages, e.g.:
-   - `@typespec/http-client-python`
-   - `@typespec/http-client-csharp`
-   - `@typespec/http-client-java`
+1. **changeKind** - one of: `internal`, `fix`, `feature`, `deprecation`, `breaking`, `dependencies`
+2. **message** - concise user-focused description
 
-3. **message** - concise description of the change
-
-### Step 6: Create changeset file
-
-Create a changeset file in `.chronus/changes/`:
+Then create the file:
 
 ```bash
 cd ~/Desktop/github/typespec
-
-# Generate filename with timestamp
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
 TIMESTAMP=$(date +"%Y-%m-%d-%H-%M-%S")
-FILENAME=".chronus/changes/BRANCH_NAME-${TIMESTAMP}.md"
+FILENAME=".chronus/changes/${BRANCH}-${TIMESTAMP}.md"
+```
 
-cat > "$FILENAME" << 'EOF'
+```markdown
 ---
 changeKind: <KIND>
 packages:
@@ -141,159 +96,49 @@ packages:
 ---
 
 <MESSAGE>
-EOF
 ```
 
-### Step 7: Show changes and prompt user
-
-Display all changes to the user:
+### Step 6: Stage, commit, and push
 
 ```bash
 cd ~/Desktop/github/typespec
-git status
-git diff --stat
-```
-
-Then use AskUserQuestion to confirm:
-
-- Show the changeset that will be added
-- Show the files that will be committed
-- Show which remote will be used: "Will push to `origin`"
-- Ask: "Do these changes look good to push to origin?"
-
-Options:
-
-- "Yes, push to origin" - proceed with commit and push to origin
-- "Push to different remote" - ask which remote to use instead
-- "Edit changeset" - let user modify the changeset message/kind
-- "Cancel" - abort without pushing
-
-If user selects "Push to different remote", ask which remote name to use and push to that instead of origin.
-
-### Step 8: Commit and push (if approved)
-
-If user approves, commit the changes:
-
-```bash
-cd ~/Desktop/github/typespec
-
-# Stage all changes
 git add -A
-
-# Commit with descriptive message
-git commit -m "$(
-  cat << 'EOF'
-<COMMIT_MESSAGE>
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-EOF
-)"
+git status
 ```
 
-Then push to the user's fork. **Default to `origin`**, but if the user specified a different remote, use that instead:
+Show the user what will be committed and ask for confirmation. Then:
 
 ```bash
-# Get current branch name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git commit -m "<COMMIT_MESSAGE>
 
-# Push to origin by default (or user-specified remote)
-git push -u origin "$BRANCH"
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+
+# Always push to origin (user's fork), never upstream
+git push origin "$BRANCH"
 ```
 
-### Asking about remote
+## Changeset Guidelines
 
-When prompting the user in Step 7, include the remote that will be used:
+### changeKind reference
 
-- Show: "Will push to `origin` (your fork)"
-- If the user says to use a different remote (e.g., "push to `my_fork`"), use that instead
+- **internal**: Tests, CI/CD, refactoring, docs, skills — not user-facing
+- **fix**: Bug fixes users would notice
+- **feature**: New user-facing capabilities
+- **deprecation**: Marking something as deprecated
+- **breaking**: Removing or changing behavior incompatibly
+- **dependencies**: Dependency version bumps
 
-**Important:** Never push directly to the `microsoft/typespec` remote (usually named `upstream`).
+### Message examples
 
-## Changeset Message Guidelines
+- `internal`: "Improve CI pipeline performance and test infrastructure"
+- `fix`: "Fix incorrect deserialization of nullable enum properties"
+- `feature`: "Add support for XML serialization in request bodies"
 
-Write changeset messages that are:
-
-1. **User-focused** - Describe the impact on users, not implementation details
-2. **Concise** - One sentence, starting with a verb (Add, Fix, Update, Remove)
-3. **Specific** - Mention the feature/fix clearly
-
-### Examples by changeKind:
-
-**internal:**
-
-- "Refactor namespace resolution logic for clarity"
-- "Add mock API tests for paging scenarios"
-- "Update development tooling and skills"
-
-**fix:**
-
-- "Fix incorrect deserialization of nullable enum properties"
-- "Fix client initialization when using custom endpoints"
-
-**feature:**
-
-- "Add support for XML serialization in request bodies"
-- "Add `@clientOption` decorator for customizing client behavior"
-
-**deprecation:**
-
-- "Deprecate `legacyMode` option in favor of `compatibilityMode`"
-
-**breaking:**
-
-- "Remove deprecated `v1` client generation mode"
-- "Change default serialization format from XML to JSON"
-
-## Language Emitter Package Names
+### Package names
 
 | Folder               | Package Name                   |
 | -------------------- | ------------------------------ |
 | `http-client-python` | `@typespec/http-client-python` |
 | `http-client-csharp` | `@typespec/http-client-csharp` |
 | `http-client-java`   | `@typespec/http-client-java`   |
-
-## Notes
-
-### When to use each changeKind
-
-- **internal**: Tests, documentation, refactoring, CI/CD changes, skill updates
-- **fix**: Bug fixes that users would notice
-- **feature**: New capabilities users can use
-- **deprecation**: Marking something as deprecated (still works, but discouraged)
-- **breaking**: Removing or changing behavior in incompatible ways
-
-### Multiple packages
-
-If changes affect multiple packages **with the same change kind**, list all of them in a single changeset:
-
-```yaml
-packages:
-  - "@typespec/http-client-python"
-  - "@typespec/http-client-csharp"
-```
-
-**If packages have different change kinds, create separate changeset files for each.** For example, if the PR adds a feature to `@typespec/http-client-python` and fixes a bug in `@typespec/http-client-csharp`, create two files:
-
-```yaml
-# File 1: feature for python
-changeKind: feature
-packages:
-  - "@typespec/http-client-python"
-```
-
-```yaml
-# File 2: fix for csharp
-changeKind: fix
-packages:
-  - "@typespec/http-client-csharp"
-```
-
-### Skipping changeset
-
-Some changes don't need a changeset:
-
-- Changes only to `.github/skills/` (CI will allow this)
-- Changes only to test files (if marked in `changedFiles` config)
-- Changes only to markdown files (if marked in `changedFiles` config)
-
-Check `.chronus/config.yaml` for `changedFiles` patterns that are excluded.

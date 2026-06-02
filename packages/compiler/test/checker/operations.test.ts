@@ -6,6 +6,14 @@ import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: operations", () => {
+  function getRootSourceProperty(property: any) {
+    let current = property;
+    while (current?.sourceProperty) {
+      current = current.sourceProperty;
+    }
+    return current;
+  }
+
   it("can return void", async () => {
     const { foo } = await Tester.compile(t.code`
       op ${t.op("foo")}(): void;
@@ -72,6 +80,33 @@ describe("compiler: operations", () => {
     strictEqual(getDoc(program, c.parameters.properties.get("one")!), "base doc");
   });
 
+  it("preserves canonical parameter type and source identity through nested template access wrappers", async () => {
+    const { direct, target } = await Tester.compile(t.code`
+      model Box<T> {
+        value: T;
+      }
+      op source<T>(wrappedSelection: Box<T>, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      model ModelWrapper<M extends Reflection.Model> {
+        value: M;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+      op ${t.op("target")}(...WrappedAgain.value::type): void;
+      op ${t.op("direct")} is source<string>;
+    `);
+
+    const targetSelection = target.parameters.properties.get("wrappedSelection");
+    const directSelection = direct.parameters.properties.get("wrappedSelection");
+    ok(targetSelection);
+    ok(directSelection);
+
+    strictEqual(targetSelection.type, directSelection.type);
+    strictEqual(getRootSourceProperty(targetSelection), getRootSourceProperty(directSelection));
+  });
+
   it("can be templated and referenced to define other operations", async () => {
     const { newFoo } = await Tester.compile(t.code`
       op Foo<TName, TPayload>(name: TName, payload: TPayload): boolean;
@@ -120,6 +155,30 @@ describe("compiler: operations", () => {
     strictEqual(props[0].type.kind, "Scalar");
     strictEqual(props[1].name, "payload");
     strictEqual(props[1].type.kind, "Scalar");
+  });
+
+  it("resolves template member metaproperty parameter types when operation is instantiated", async () => {
+    const { myGet } = await Tester.compile(t.code`
+      model ResourceBase {
+        id: string;
+      }
+
+      @format("uuid")
+      scalar uuid extends string;
+
+      model MyResource extends ResourceBase {
+        id: uuid;
+      }
+
+      op get<R extends ResourceBase>(id: R.id::type): R;
+
+      @test op ${t.op("myGet")} is get<MyResource>;
+    `);
+
+    const idParam = myGet.parameters.properties.get("id");
+    ok(idParam);
+    ok(idParam.type.kind === "Scalar");
+    strictEqual(idParam.type.name, "uuid");
   });
 
   it("can reference an operation defined inside an interface", async () => {

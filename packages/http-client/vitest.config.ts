@@ -9,10 +9,6 @@ export default mergeConfig(
       include: ["test/**/*.test.ts"],
       passWithNoTests: true,
     },
-    esbuild: {
-      jsx: "preserve",
-      sourcemap: "both",
-    },
     plugins: [alloyPlugin()],
   }),
 );

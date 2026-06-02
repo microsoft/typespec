@@ -394,6 +394,7 @@ export type {
   LinterRuleDiagnosticFormat,
   LinterRuleDiagnosticReport,
   LinterRuleDiagnosticReportWithoutTarget,
+  LinterRuleEnableValue,
   LinterRuleSet,
   LiteralType,
   LocationContext,

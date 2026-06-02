@@ -59,6 +59,7 @@ export function mutationNodeFor<T extends Type>(
     case "String":
     case "Number":
     case "Boolean":
+    case "StringTemplate":
       return new LiteralMutationNode(
         engine,
         sourceType as StringLiteral | NumericLiteral | BooleanLiteral,

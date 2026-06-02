@@ -1,5 +1,5 @@
 # Catch all
-*                                            @bterlson @markcowl @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
+*                                            @bterlson @markcowl @timotheeguerin @witemple-msft @iscai-msft @catalinaperalta
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
@@ -9,15 +9,15 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @m-nash @iscai-msft
-/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
+/eng/emitters/                               @JoshLove-msft @iscai-msft @srnagar @timotheeguerin @l0lawrence
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao @l0lawrence
 
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jsquire @ShivangiReja @joseharriaga
+/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jsquire @ShivangiReja @joseharriaga
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jsquire @ShivangiReja @joseharriaga
 
 ######################
 # Java
@@ -29,19 +29,17 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence
 
 ######################
 # JavaScript
 ######################
-/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @witemple-msft @chrisradek @AlitzelMendez
+/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @witemple-msft
 
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
-/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
-/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
-
-
+/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
+/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta

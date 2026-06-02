@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override void Write(CodeWriter writer)
         {
-            writer.Append($"{ParameterName}: ");
+            writer.Append($"{ParameterName:I}: ");
             ParameterValue.Write(writer);
         }
     }

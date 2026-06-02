@@ -567,7 +567,7 @@ function printAugmentDecoratorArgs(
     group([
       indent(
         join(", ", [
-          path.call(print, "targetType"),
+          [softline, path.call(print, "targetType")],
           ...path.map((arg) => [softline, print(arg)], "arguments"),
         ]),
       ),
@@ -971,12 +971,19 @@ export function printModelExpression(
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    const properties =
-      node.properties.length === 0
-        ? ""
-        : indent(
-            joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
-          );
+    const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+    if (node.properties.length === 0) {
+      if (nodeHasComments) {
+        return group([
+          indent(printDanglingComments(path, options, { sameIndent: true })),
+          softline,
+        ]);
+      }
+      return group(["", softline]);
+    }
+    const properties = indent(
+      joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
+    );
     return group([properties, softline]);
   }
 }
@@ -1398,31 +1405,14 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const node = path.node;
-  const shouldHug = shouldHugType(node);
-
   const types = path.map((typePath) => {
-    let printedType: string | Doc = print(typePath);
-    if (!shouldHug) {
-      printedType = align(2, printedType);
-    }
+    const printedType: Doc = align(2, print(typePath));
     return printedType;
   }, "options");
-
-  if (shouldHug) {
-    return join(" | ", types);
-  }
 
   const shouldAddStartLine = true;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
   return group(indent(code));
-}
-
-function shouldHugType(node: Node) {
-  if (node.kind === SyntaxKind.UnionExpression || node.kind === SyntaxKind.IntersectionExpression) {
-    return node.options.length < 4;
-  }
-  return false;
 }
 
 export function printTypeReference(

@@ -334,5 +334,135 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);
         }
+
+        // Validates that a generated protocol method can be customized via a partial method declaration in custom code.
+        [Test]
+        public async Task CanCustomizeMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the protocol method that should now be partial.
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Custom signature changes should be applied (parameter renamed to "content").
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // All parameters in the partial implementation must be required (no default values).
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+
+            // The original generated (non-partial) HelloAgain protocol method should not also be present.
+            var nonPartialDuplicates = clientProvider.Methods.Where(m =>
+                m.Signature.Name == "HelloAgain"
+                && !m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent")).ToList();
+            Assert.AreEqual(0, nonPartialDuplicates.Count);
+        }
+
+        [Test]
+        public async Task CanCustomizeMethodModifierOnly()
+        {
+            // Verifies that a partial method declaration that changes only the access modifier
+            // (without renaming any parameters) still produces a partial implementation with
+            // the customer's modifier and the generator's parameter names.
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Modifier comes from the partial declaration -> should be internal.
+            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsFalse(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            // Parameter names are unchanged (generator-chosen).
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("p1", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // Defaults stripped on the implementation.
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+        }
+
+        [Test]
+        public async Task CanCustomizeConvenienceMethodSignature()
+        {
+            // Verifies the matching/cloning logic in BuildConvenienceMethod: a partial method
+            // declaration on the convenience overload renames parameters and the generator
+            // emits a partial implementation that references the customer-chosen names.
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ];
+            List<InputBodyParameter> operationParameters =
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: operationParameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the convenience overload (the one whose first parameter is IEnumerable<string>,
+            // not BinaryContent).
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.IsList));
+            Assert.IsNotNull(convenienceMethod, "HelloAgain convenience method should be generated as partial");
+            Assert.IsTrue(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Parameters take their names from the partial declaration.
+            Assert.AreEqual(2, convenienceMethod.Signature.Parameters.Count);
+            Assert.AreEqual("body", convenienceMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("ct", convenienceMethod.Signature.Parameters[1].Name);
+
+            // The cloned parameters preserve generator-side metadata: the body parameter
+            // still reports its original Location so the body construction works.
+            Assert.AreEqual("CancellationToken", convenienceMethod.Signature.Parameters[1].Type.Name);
+
+            // No duplicate non-partial convenience method.
+            var nonPartialDuplicates = clientProvider.Methods.Where(m =>
+                m.Signature.Name == "HelloAgain"
+                && !m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.IsList)).ToList();
+            Assert.AreEqual(0, nonPartialDuplicates.Count);
+        }
     }
 }

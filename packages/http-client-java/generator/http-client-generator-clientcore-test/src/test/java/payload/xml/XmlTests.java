@@ -221,7 +221,6 @@ public final class XmlTests {
         Assertions.assertEquals("foo", model.getAuthor().getName());
     }
 
-    @Disabled("items array mismatch")
     @Test
     public void testModelWithWrappedPrimitiveCustomItemNames() {
         ModelWithWrappedPrimitiveCustomItemNamesValueClient client

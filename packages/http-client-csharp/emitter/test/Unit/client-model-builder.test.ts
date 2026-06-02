@@ -290,8 +290,8 @@ describe("parseApiVersions", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
-        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv2)
         namespace Service.MultiService {}
       `,
       runner,
@@ -406,6 +406,7 @@ describe("parseApiVersions", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
 
         namespace Service.MultiService {}

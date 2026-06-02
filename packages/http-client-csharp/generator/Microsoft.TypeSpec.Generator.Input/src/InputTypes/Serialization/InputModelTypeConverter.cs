@@ -73,6 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
             InputExternalTypeMetadata? external = null;
+            bool isExactName = false;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -94,6 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadComplexType("external", options, ref external)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -134,6 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
             }
             model.ModelAsStruct = modelAsStruct;
+            model.IsExactName = isExactName;
             if (decorators != null)
             {
                 model.Decorators = decorators;

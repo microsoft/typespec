@@ -1,5 +1,13 @@
 # Changelog - @typespec/xml
 
+## 0.82.0
+
+No changes, version bump only.
+
+## 0.81.0
+
+No changes, version bump only.
+
 ## 0.80.0
 
 ### Bump dependencies

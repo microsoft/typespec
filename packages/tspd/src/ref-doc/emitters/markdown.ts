@@ -438,13 +438,14 @@ export class MarkdownRenderer {
       ["Name", "Description"],
       ...rules.map((rule) => {
         const name = inlinecode(rule.name);
-        const nameCell = rule.rule.url ? link(name, this.linterRuleLink(rule.rule.url)) : name;
+        const ruleLink = this.linterRuleLink(rule);
+        const nameCell = ruleLink ? link(name, ruleLink) : name;
         return [nameCell, rule.rule.description];
       }),
     ]);
   }
 
-  linterRuleLink(url: string) {
-    return url;
+  linterRuleLink(rule: LinterRuleRefDoc): string | undefined {
+    return rule.rule.url;
   }
 }

@@ -1,4 +1,4 @@
-import { NoTarget } from "@typespec/compiler";
+import { getNamespaceFullName, NoTarget } from "@typespec/compiler";
 
 import {
   getHttpOperationParameter,
@@ -19,6 +19,7 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -28,6 +29,7 @@ import {
   camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getDelimiterAndExplode,
   getImplementation,
   isAbstract,
@@ -39,6 +41,32 @@ export enum ReferredByOperationTypes {
   Default = 0,
   PagingOnly = 1,
   NonPagingOnly = 2,
+}
+
+function isEtagType(type: SdkType): boolean {
+  if (type.kind === "nullable") return isEtagType(type.type);
+  const raw = type.__raw;
+  if (!raw || raw.kind !== "Scalar") return false;
+  return (
+    raw.name === "eTag" &&
+    raw.namespace !== undefined &&
+    getNamespaceFullName(raw.namespace) === "Azure.Core"
+  );
+}
+
+function getEtagRole(parameter: SdkHeaderParameter): string | undefined {
+  const name = parameter.name.toLowerCase();
+  const wire = parameter.serializedName.toLowerCase();
+  // Standard If-Match / If-None-Match headers work with any type
+  if (wire === "if-match") return "ifMatch";
+  if (wire === "if-none-match") return "ifNoneMatch";
+  // Non-standard headers require Azure.Core.eTag type
+  if (!isEtagType(parameter.type)) return undefined;
+  if (name.includes("nonematch") || name.includes("none_match")) return "ifNoneMatch";
+  if (name.includes("match")) return "ifMatch";
+  if (wire.endsWith("-if-none-match")) return "ifNoneMatch";
+  if (wire.endsWith("-if-match")) return "ifMatch";
+  return undefined;
 }
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -432,6 +460,7 @@ function emitFlattenedParameter(
     checkClientInput: false,
     clientDefaultValue: null,
     clientName: property.clientName,
+    isExactName: property.isExactName,
     delimiter: null,
     description: property.description,
     implementation: "Method",
@@ -496,6 +525,7 @@ function emitHttpHeaderParameter(
     delimiter,
     explode,
     clientDefaultValue,
+    etagRole: getEtagRole(parameter),
   };
 }
 
@@ -594,7 +624,7 @@ function emitHttpBodyParameter(
     ...emitParamBase(context, bodyParam, undefined, serviceApiVersions),
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
-    clientName: bodyParam.isGeneratedName ? "body" : camelToSnakeCase(bodyParam.name),
+    clientName: bodyParam.isGeneratedName ? "body" : getClientName(bodyParam),
     wireName: bodyParam.isGeneratedName ? "body" : bodyParam.name,
     implementation: getImplementation(context, bodyParam),
     clientDefaultValue: bodyParam.clientDefaultValue,

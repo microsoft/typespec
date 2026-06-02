@@ -335,6 +335,11 @@ export async function createTypeSpecProject(
         },
       );
     },
+    undefined,
+    (e) => {
+      logger.error(`Unexpected error when creating TypeSpec project.`, [e]);
+      return ResultCode.Fail;
+    },
   );
 }
 

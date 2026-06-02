@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isErrorModel,
   isType,
   Model,
   Namespace,
@@ -13,7 +14,7 @@ import {
   Type,
   Value,
 } from "@typespec/compiler";
-import { useStateMap } from "@typespec/compiler/utils";
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
 import {
   DefaultResponseDecorator,
@@ -23,10 +24,11 @@ import {
   OperationIdDecorator,
   TagMetadata,
   TagMetadataDecorator,
+  TagMetadataWithName as TagMetadataWithNameInput,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
-import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { createDiagnostic, createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
 
 export const [
   /**
@@ -161,6 +163,39 @@ export const $defaultResponse: DefaultResponseDecorator = (
 ) => {
   (http as any).setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
+
+  return {
+    onTargetFinish: () => {
+      const diagnostics: ReturnType<typeof createDiagnostic>[] = [];
+
+      // Warn if the model already has a @statusCode property
+      for (const prop of entity.properties.values()) {
+        if (http.isStatusCode(context.program, prop)) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "default-response-with-status-code",
+              messageId: "statusCode",
+              target: entity,
+            }),
+          );
+          break;
+        }
+      }
+
+      // Warn if the model is marked with @error
+      if (isErrorModel(context.program, entity)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "default-response-with-status-code",
+            messageId: "error",
+            target: entity,
+          }),
+        );
+      }
+
+      return diagnostics;
+    },
+  };
 };
 
 /**
@@ -269,22 +304,34 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 }
 
 /** Get TagsMetadata set with `@tagMetadata` decorator */
-const [getTagsMetadata, setTagsMetadata] = useStateMap<Type, { [name: string]: TagMetadata }>(
+const [getTagsMetadata, setTagsMetadata] = useStateMap<Type, TagMetadataWithName[]>(
   OpenAPIKeys.tagsMetadata,
 );
 
 /**
+ * State set tracking namespaces that have used the array form of @tagMetadata.
+ * Used to detect mixing of array and inline forms.
+ */
+const [isTagsMetadataArrayFormUsed, setTagsMetadataArrayFormUsed] = useStateSet<Type>(
+  createStateSymbol("tagsMetadataArrayForm"),
+);
+
+/**
  * Decorator to add metadata to a tag associated with a namespace.
+ * Supports two forms:
+ * - Inline form: `@tagMetadata("tag-name", #{...})` - adds a single tag by name
+ * - Array form: `@tagMetadata(#[#{name: "tag1", ...}, ...])` - sets an ordered list of tags
+ *
  * @param context - The decorator context.
  * @param entity - The namespace entity to associate the tag with.
- * @param name - The name of the tag.
- * @param tagMetadata - Optional metadata for the tag.
+ * @param name - The name of the tag (inline form) or an array of tag metadata objects (array form).
+ * @param tagMetadata - Optional metadata for the tag. Only used in inline form.
  */
 export const tagMetadataDecorator: TagMetadataDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  name: string,
-  tagMetadata: TagMetadata,
+  name: string | readonly TagMetadataWithNameInput[],
+  tagMetadata?: TagMetadata,
 ) => {
   // Check if the namespace is a service namespace
   if (
@@ -304,48 +351,115 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     return;
   }
 
-  // Retrieve existing tags metadata or initialize an empty object
-  const tags = getTagsMetadata(context.program, entity) ?? {};
+  if (typeof name !== "string") {
+    // Array form: @tagMetadata(#[#{name: "tag1", ...}, ...])
+    // Check that no tagMetadata argument was provided (third argument not allowed with array form)
+    if (tagMetadata !== undefined) {
+      reportDiagnostic(context.program, {
+        code: "tag-metadata-array-with-metadata-arg",
+        target: context.getArgumentTarget(1)!,
+      });
+      return;
+    }
 
-  // Check for duplicate tag names
-  if (tags[name]) {
-    reportDiagnostic(context.program, {
-      code: "duplicate-tag",
-      format: { tagName: name },
-      target: context.getArgumentTarget(0)!,
-    });
-    return;
-  }
-
-  // Validate the additionalInfo model
-  if (
-    !validateAdditionalInfoModel(
-      context.program,
-      context.getArgumentTarget(0)!,
-      tagMetadata,
-      "TypeSpec.OpenAPI.TagMetadata",
-    )
-  ) {
-    return;
-  }
-
-  // Validate the externalDocs.url property
-  if (tagMetadata.externalDocs?.url) {
+    // Check if either inline form or array form was already used (cannot mix or call twice)
+    const existingTags = getTagsMetadata(context.program, entity);
     if (
-      !validateIsUri(
+      (existingTags && existingTags.length > 0) ||
+      isTagsMetadataArrayFormUsed(context.program, entity)
+    ) {
+      reportDiagnostic(context.program, {
+        code: "mixed-tag-metadata-form",
+        target: context.getArgumentTarget(0)!,
+      });
+      return;
+    }
+
+    // Validate and store all tags from the array
+    for (const tagItem of name) {
+      if (
+        !validateAdditionalInfoModel(
+          context.program,
+          context.getArgumentTarget(0)!,
+          tagItem,
+          "TypeSpec.OpenAPI.TagMetadataWithName",
+        )
+      ) {
+        return;
+      }
+
+      if (tagItem.externalDocs?.url) {
+        if (
+          !validateIsUri(
+            context.program,
+            context.getArgumentTarget(0)!,
+            tagItem.externalDocs.url,
+            "externalDocs.url",
+          )
+        ) {
+          return;
+        }
+      }
+    }
+
+    setTagsMetadataArrayFormUsed(context.program, entity);
+    setTagsMetadata(context.program, entity, [...name]);
+  } else {
+    // Inline form: @tagMetadata("tag-name", #{...})
+    // Check if array form was already used
+    if (isTagsMetadataArrayFormUsed(context.program, entity)) {
+      reportDiagnostic(context.program, {
+        code: "mixed-tag-metadata-form",
+        target: context.getArgumentTarget(0)!,
+      });
+      return;
+    }
+
+    // Retrieve existing tags metadata or initialize an empty array
+    const tags = getTagsMetadata(context.program, entity) ?? [];
+
+    // Check for duplicate tag names
+    if (tags.some((t) => t.name === name)) {
+      reportDiagnostic(context.program, {
+        code: "duplicate-tag",
+        format: { tagName: name },
+        target: context.getArgumentTarget(0)!,
+      });
+      return;
+    }
+
+    const resolvedMetadata: TagMetadata = tagMetadata ?? {};
+
+    // Validate the additionalInfo model
+    if (
+      !validateAdditionalInfoModel(
         context.program,
-        context.getArgumentTarget(0)!,
-        tagMetadata.externalDocs.url,
-        "externalDocs.url",
+        context.getArgumentTarget(1)!,
+        resolvedMetadata,
+        "TypeSpec.OpenAPI.TagMetadata",
       )
     ) {
       return;
     }
-  }
 
-  // Update the tags metadata with the new tag
-  tags[name] = tagMetadata;
-  setTagsMetadata(context.program, entity, tags);
+    // Validate the externalDocs.url property
+    if (resolvedMetadata.externalDocs?.url) {
+      if (
+        !validateIsUri(
+          context.program,
+          context.getArgumentTarget(1)!,
+          resolvedMetadata.externalDocs.url,
+          "externalDocs.url",
+        )
+      ) {
+        return;
+      }
+    }
+
+    // Update the tags metadata with the new tag
+    tags.push({ name, ...resolvedMetadata });
+    setTagsMetadata(context.program, entity, tags);
+  }
 };
 
 export { getTagsMetadata };

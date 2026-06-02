@@ -39,4 +39,6 @@ export interface FileOutputViewer {
 export interface FileOutputViewerProps {
   readonly filename: string;
   readonly content: string;
+  /** Line numbers to highlight as changed (1-based). */
+  readonly changedLineNumbers?: number[];
 }

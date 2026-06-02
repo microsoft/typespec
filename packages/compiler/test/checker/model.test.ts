@@ -42,7 +42,7 @@ describe("compiler: models", () => {
       model A { x: int32; x: int32; }
       `);
     strictEqual(diagnostics.length, 1);
-    match(diagnostics[0].message, /Model already has a property/);
+    match(diagnostics[0].message, /Model A already has a property/);
   });
 
   it("emit single error when there is an invalid ref in a templated type", async () => {
@@ -710,7 +710,7 @@ describe("compiler: models", () => {
         model B is A { x: int32 };
         `);
       strictEqual(diagnostics.length, 1);
-      match(diagnostics[0].message, /Model already has a property/);
+      match(diagnostics[0].message, /Model B already has a property/);
     });
 
     it("emit error when is non model or array", async () => {
@@ -730,6 +730,29 @@ describe("compiler: models", () => {
       expectDiagnostics(diagnostics, {
         code: "is-model",
         message: "Model `is` cannot specify a model expression.",
+      });
+    });
+    it("emit only is-model error for model expression and later reference", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A is { x: int32 };
+        model B is A;
+        `);
+      strictEqual(diagnostics.length, 1);
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` cannot specify a model expression.",
+      });
+    });
+
+    it("emit only is-model error for non-model expression and later reference", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A is "hello";
+        model B is A;
+        `);
+      strictEqual(diagnostics.length, 1);
+      expectDiagnostics(diagnostics, {
+        code: "is-model",
+        message: "Model `is` must specify another model.",
       });
     });
 
@@ -1032,6 +1055,14 @@ describe("compiler: models", () => {
         code: "circular-prop",
         message: "Property 'a' recursively references itself.",
       });
+    });
+
+    it("allow cross-model member access without circular error", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A { a: B; }
+        model B { a: A.a; }
+      `);
+      expectDiagnosticEmpty(diagnostics);
     });
   });
 });

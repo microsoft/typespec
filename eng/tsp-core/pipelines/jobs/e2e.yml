@@ -23,10 +23,11 @@ jobs:
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
       - ${{ if parameters.azLogin }}:
-          - task: AzureCLI@1
+          - task: AzureCLI@2
             displayName: E2E Tests
             inputs:
               azureSubscription: "Azure SDK Engineering System"
+              scriptType: bash
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
       - ${{ else }}:

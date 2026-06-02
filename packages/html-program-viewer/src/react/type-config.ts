@@ -148,6 +148,11 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     constraint: "value",
     default: "value",
   },
+  TemplateParameterAccess: {
+    constraint: "value",
+    base: "skip",
+    path: "skip",
+  },
 
   // Don't want to expose those for now
   FunctionType: null,

@@ -20,14 +20,21 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputParameterScope scope,
             IReadOnlyList<string> contentTypes,
-            string defaultContentType)
+            string defaultContentType,
+            InputSerializationOptions? serializationOptions = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
             ContentTypes = contentTypes;
             DefaultContentType = defaultContentType;
+            SerializationOptions = serializationOptions;
         }
 
         public IReadOnlyList<string> ContentTypes { get; internal set; }
         public string DefaultContentType { get; internal set; }
+
+        /// <summary>
+        /// Options describing how the body is serialized on the wire.
+        /// </summary>
+        public InputSerializationOptions? SerializationOptions { get; internal set; }
     }
 }

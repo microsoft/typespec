@@ -71,13 +71,17 @@ function fromSdkClient(
 
   const isMultiService = isMultiServiceClient(client);
   const clientName =
-    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+    !client.parent &&
+    isMultiService &&
+    !client.isExactName &&
+    !client.name.toLowerCase().endsWith("client")
       ? `${client.name}Client`
       : client.name;
 
   inputClient = {
     kind: "client",
     name: clientName,
+    isExactName: client.isExactName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
@@ -204,6 +208,7 @@ function fromSdkClient(
         methodParameterSegments: diagnostics.pipe(
           getMethodParameterSegments(sdkContext, parameter),
         ),
+        isExactName: parameter.isExactName,
       });
     }
     return diagnostics.wrap(parameters);

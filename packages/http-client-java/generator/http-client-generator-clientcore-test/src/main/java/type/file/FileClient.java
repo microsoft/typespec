@@ -37,7 +37,6 @@ public final class FileClient {
     /**
      * The uploadFileSpecificContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -48,17 +47,16 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileSpecificContentType",
-            requestContext, updatedContext -> this.serviceClient.uploadFileSpecificContentTypeWithResponse(contentType,
-                file, contentLength, updatedContext));
+            requestContext, updatedContext -> this.serviceClient.uploadFileSpecificContentTypeWithResponse(file,
+                contentLength, updatedContext));
     }
 
     /**
      * The uploadFileSpecificContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -67,8 +65,8 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileSpecificContentType(String contentType, BinaryData file, long contentLength) {
-        uploadFileSpecificContentTypeWithResponse(contentType, file, contentLength, RequestContext.none());
+    public void uploadFileSpecificContentType(BinaryData file, long contentLength) {
+        uploadFileSpecificContentTypeWithResponse(file, contentLength, RequestContext.none());
     }
 
     /**
@@ -179,8 +177,9 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileMultipleContentTypesWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileMultipleContentTypesWithResponse(
+        UploadFileMultipleContentTypesContentType contentType, BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileMultipleContentTypes",
             requestContext, updatedContext -> this.serviceClient.uploadFileMultipleContentTypesWithResponse(contentType,
                 file, contentLength, updatedContext));
@@ -198,14 +197,14 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileMultipleContentTypes(String contentType, BinaryData file, long contentLength) {
+    public void uploadFileMultipleContentTypes(UploadFileMultipleContentTypesContentType contentType, BinaryData file,
+        long contentLength) {
         uploadFileMultipleContentTypesWithResponse(contentType, file, contentLength, RequestContext.none());
     }
 
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -214,32 +213,28 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestContext requestContext) {
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.downloadFileMultipleContentTypes",
             requestContext,
-            updatedContext -> this.serviceClient.downloadFileMultipleContentTypesWithResponse(accept, updatedContext));
+            updatedContext -> this.serviceClient.downloadFileMultipleContentTypesWithResponse(updatedContext));
     }
 
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData downloadFileMultipleContentTypes(String accept) {
-        return downloadFileMultipleContentTypesWithResponse(accept, RequestContext.none()).getValue();
+    public BinaryData downloadFileMultipleContentTypes() {
+        return downloadFileMultipleContentTypesWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -250,17 +245,16 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileDefaultContentType",
-            requestContext, updatedContext -> this.serviceClient.uploadFileDefaultContentTypeWithResponse(contentType,
-                file, contentLength, updatedContext));
+            requestContext, updatedContext -> this.serviceClient.uploadFileDefaultContentTypeWithResponse(file,
+                contentLength, updatedContext));
     }
 
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -269,8 +263,8 @@ public final class FileClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileDefaultContentType(String contentType, BinaryData file, long contentLength) {
-        uploadFileDefaultContentTypeWithResponse(contentType, file, contentLength, RequestContext.none());
+    public void uploadFileDefaultContentType(BinaryData file, long contentLength) {
+        uploadFileDefaultContentTypeWithResponse(file, contentLength, RequestContext.none());
     }
 
     /**

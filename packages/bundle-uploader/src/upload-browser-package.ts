@@ -75,6 +75,80 @@ export class TypeSpecBundledPackageUploader {
     });
   }
 
+  async uploadBinaryAsset(
+    blobPath: string,
+    content: Buffer,
+    contentType: string,
+  ): Promise<{ status: "uploaded" | "already-exists"; url: string }> {
+    const normalizedPath = normalizePath(blobPath);
+    const blob = this.#container.getBlockBlobClient(normalizedPath);
+    const url = `${this.#container.url}/${normalizedPath}`;
+    try {
+      await blob.uploadData(content, {
+        blobHTTPHeaders: {
+          blobContentType: contentType,
+        },
+        conditions: {
+          ifNoneMatch: "*",
+        },
+      });
+      return { status: "uploaded", url };
+    } catch (e: any) {
+      if (e.code === "BlobAlreadyExists") {
+        return { status: "already-exists", url };
+      }
+      throw e;
+    }
+  }
+
+  async getLatestIndex(name: string): Promise<PackageIndex | undefined> {
+    const blob = this.#container.getBlockBlobClient(`indexes/${name}/latest.json`);
+    if (await blob.exists()) {
+      const response = await blob.download();
+      const body = await response.blobBody;
+      const existingContent = await body?.text();
+      if (existingContent) {
+        return JSON.parse(existingContent);
+      }
+    }
+    return undefined;
+  }
+
+  async updateLatestIndex(name: string, index: PackageIndex) {
+    const blob = this.#container.getBlockBlobClient(`indexes/${name}/latest.json`);
+    const content = JSON.stringify(index);
+    await blob.upload(content, content.length, {
+      blobHTTPHeaders: {
+        blobContentType: "application/json; charset=utf-8",
+      },
+    });
+  }
+
+  /** Read the latest.json for a package from `{pkgName}/latest.json`. */
+  async getPackageLatest(pkgName: string): Promise<PackageIndex | undefined> {
+    const blob = this.#container.getBlockBlobClient(normalizePath(join(pkgName, "latest.json")));
+    if (await blob.exists()) {
+      const response = await blob.download();
+      const body = await response.blobBody;
+      const existingContent = await body?.text();
+      if (existingContent) {
+        return JSON.parse(existingContent);
+      }
+    }
+    return undefined;
+  }
+
+  /** Write the latest.json for a package at `{pkgName}/latest.json`. */
+  async updatePackageLatest(pkgName: string, index: PackageIndex) {
+    const blob = this.#container.getBlockBlobClient(normalizePath(join(pkgName, "latest.json")));
+    const content = JSON.stringify(index);
+    await blob.upload(content, content.length, {
+      blobHTTPHeaders: {
+        blobContentType: "application/json; charset=utf-8",
+      },
+    });
+  }
+
   async #uploadManifest(manifest: BundleManifest) {
     try {
       const blob = this.#container.getBlockBlobClient(

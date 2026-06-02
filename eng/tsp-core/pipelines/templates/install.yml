@@ -2,7 +2,7 @@
 parameters:
   - name: nodeVersion
     type: string
-    default: 24.x
+    default: 24.16.0
 
   - name: useDotNet
     type: string
@@ -13,11 +13,11 @@ parameters:
     default: $(Pipeline.Workspace)/.pnpm-store
 
 steps:
-  - task: NodeTool@0
+  - task: UseNode@1
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
     inputs:
-      versionSpec: ${{ parameters.nodeVersion }}
+      version: ${{ parameters.nodeVersion }}
   - ${{ if parameters.useDotNet }}:
       - task: UseDotNet@2
         displayName: Install .NET

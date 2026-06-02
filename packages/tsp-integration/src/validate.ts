@@ -1,8 +1,7 @@
 import { execa } from "execa";
-import { readdir } from "fs/promises";
-import { globby } from "globby";
+import { glob, readdir } from "fs/promises";
 import { cpus } from "os";
-import { dirname, join, relative } from "pathe";
+import { dirname, join, relative, resolve } from "pathe";
 import pc from "picocolors";
 import type { Entrypoint, IntegrationTestSuite } from "./config/types.js";
 import { registerConsoleShortcuts } from "./keyboard-api.js";
@@ -22,10 +21,10 @@ export async function validateSpecs(
   suite: IntegrationTestSuite,
   options: ValidateSpecsOptions = {},
 ): Promise<void> {
-  const tspConfigDirs = await findTspProjects(dir, suite.pattern ?? "**/tspconfig.yaml");
+  const tspConfigDirs = await findTspProjects(dir, suite);
 
   if (tspConfigDirs.length === 0) {
-    log("No tspconfig.yaml files found in specification directory");
+    log("No TypeSpec projects found in specification directory");
     return;
   }
 
@@ -192,12 +191,17 @@ async function runValidation(
   return { successCount, failureCount, skippedCount, failedProjects };
 }
 
-async function findTspProjects(wd: string, pattern: string): Promise<string[]> {
-  const result = await globby(pattern, {
-    cwd: wd,
-    absolute: true,
-  });
-  return result.map((x) => dirname(x));
+async function findTspProjects(wd: string, suite: IntegrationTestSuite): Promise<string[]> {
+  const result: string[] = [];
+  const pattern = suite.pattern ?? "**/tspconfig.yaml";
+  for await (const file of glob(pattern, { cwd: wd, exclude: suite.exclude })) {
+    const projectDir = dirname(resolve(wd, file));
+    const entrypoints = await findTspEntrypoints(projectDir, suite);
+    if (entrypoints.length > 0) {
+      result.push(projectDir);
+    }
+  }
+  return result;
 }
 
 /** Find which entrypoints are available */

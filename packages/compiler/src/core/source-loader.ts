@@ -5,6 +5,7 @@ import {
   ResolveModuleError,
 } from "../module-resolver/index.js";
 import { PackageJson } from "../types/package-json.js";
+import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
@@ -12,7 +13,7 @@ import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
-import { getDirectoryPath } from "./path-utils.js";
+import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
@@ -191,13 +192,45 @@ export async function createSourceLoader(
   }
 
   async function loadScriptImports(file: TypeSpecScriptNode) {
-    // collect imports
     const basedir = getDirectoryPath(file.file.path);
-    await loadImports(
-      file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
-      basedir,
-      getSourceFileLocationContext(file.file),
-    );
+    const importStatements = file.statements.filter(isImportStatement);
+    const duplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
+    const imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }> = [];
+
+    for (const stmt of importStatements) {
+      const importPath = stmt.path.value;
+
+      // Check for self-import: resolve relative paths and compare with file's own path
+      if (importPath.startsWith(".")) {
+        const resolved = resolvePath(basedir, importPath);
+        if (resolved === file.file.path) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "self-import",
+              target: stmt,
+            }),
+          );
+          continue;
+        }
+      }
+
+      duplicateTracker.track(importPath, stmt);
+      imports.push({ path: importPath, target: stmt });
+    }
+
+    for (const [importPath, duplicates] of duplicateTracker.entries()) {
+      for (const duplicate of duplicates.slice(1)) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "duplicate-import",
+            target: duplicate,
+            format: { importPath },
+          }),
+        );
+      }
+    }
+
+    await loadImports(imports, basedir, getSourceFileLocationContext(file.file));
   }
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {

@@ -29,6 +29,17 @@ parameters:
     type: boolean
     default: true
 
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec Next (update dependencies to @next versions)
+    type: boolean
+    default: false
+
+  # Primary Node.js version used by the artifact-emitting Build_linux job. Must match
+  # the PrimaryNodeVersion default in eng/emitters/pipelines/templates/stages/emitter-stages.yml.
+  - name: PrimaryNodeVersion
+    type: string
+    default: "24.x"
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -37,11 +48,12 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: false
+          UseTypeSpecNext: ${{ or(parameters.UseTypeSpecNext, eq(variables['Build.Reason'], 'Schedule')) }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          PrimaryNodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Packages:
             - name: typespec-http-client-csharp
               file: typespec-http-client-csharp-*.tgz
@@ -64,6 +76,10 @@ extends:
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          UploadPlaygroundBundle: true
+          PlaygroundBundleBuildScript: "build:emitter"
+          PlaygroundServerDockerfile: "playground-server/Dockerfile"
+          PlaygroundServerAppName: "csharp-playground-server"
           AdditionalInitializeSteps:
             - task: UseDotNet@2
               inputs:
@@ -91,9 +107,9 @@ extends:
         dependsOn:
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
-          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}.outputs['ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -101,6 +117,12 @@ extends:
         jobs:
           - job: CreatePR
             timeoutInMinutes: 90
+            variables:
+              # Redirect temp and cache directories to Agent.TempDirectory (a separate, larger partition)
+              # to avoid running out of disk space on the root partition during generation
+              TMPDIR: $(Agent.TempDirectory)
+              NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
+              npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
               - checkout: self
               - pwsh: |
@@ -109,9 +131,17 @@ extends:
                   $commitSha = '$(Build.SourceVersion)'
                   $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
 
+                  # Compute the URL to this pipeline run for inclusion in the generated PR
+                  $collectionUri = '$(System.CollectionUri)'.TrimEnd('/')
+                  $teamProject = '$(System.TeamProject)'
+                  $buildId = '$(Build.BuildId)'
+                  $pipelineRunUrl = "$collectionUri/$teamProject/_build/results?buildId=$buildId&view=results"
+
                   Write-Host "Commit SHA: $commitSha"
                   Write-Host "TypeSpec Commit URL: $typeSpecCommitUrl"
+                  Write-Host "Pipeline Run URL: $pipelineRunUrl"
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                  Write-Host "##vso[task.setvariable variable=PipelineRunUrl]$pipelineRunUrl"
                 displayName: Set variables for PR creation
 
               - task: UseNode@1
@@ -136,15 +166,14 @@ extends:
                   Write-Host "##[section].npmrc file created successfully. Contents:"
                   Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
                 displayName: "Create .npmrc"
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
 
               - task: npmAuthenticate@0
                 displayName: Authenticate npm for Azure Artifacts
-                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
                 inputs:
                   workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
 
               - download: current
+                artifact: build_artifacts_csharp
                 displayName: Download pipeline artifacts
 
               - pwsh: |
@@ -164,6 +193,13 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - pwsh: |
+                  Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                  Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                displayName: Configure npm for TypeSpec Next
+                condition: ${{ parameters.UseTypeSpecNext }}
 
               - task: UseDotNet@2
                 inputs:
@@ -188,20 +224,29 @@ extends:
                 displayName: "Log npm configuration"
                 condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
-              - task: PowerShell@2
+              - template: /eng/common/pipelines/templates/steps/login-to-github.yml
+                parameters:
+                  TokenOwners:
+                    - Azure
+
+              - task: AzureCLI@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                    -AuthToken '$(azuresdk-github-pat)'
+                    -AuthToken '$(GH_TOKEN)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

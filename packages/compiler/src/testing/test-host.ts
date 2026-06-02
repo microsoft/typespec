@@ -1,5 +1,5 @@
 import assert from "assert";
-import { globby } from "globby";
+import { glob } from "fs/promises";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { CompilerOptions } from "../core/options.js";
@@ -82,9 +82,12 @@ async function createTestHostInternal(): Promise<TestHost> {
 }
 
 export async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
-  return globby(pattern, {
+  const results: string[] = [];
+  for await (const file of glob(pattern, {
     cwd: directory,
-    onlyFiles: true,
-    ignore: ["**/*.{test,spec}.{ts,tsx,js,jsx}"],
-  });
+    exclude: ["**/*.{test,spec}.{ts,tsx,js,jsx}"],
+  })) {
+    results.push(file);
+  }
+  return results;
 }

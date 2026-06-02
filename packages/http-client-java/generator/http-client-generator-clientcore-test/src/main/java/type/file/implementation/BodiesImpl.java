@@ -16,6 +16,7 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
+import type.file.UploadFileMultipleContentTypesContentType;
 
 /**
  * An instance of this class provides access to all the operations defined in Bodies.
@@ -104,8 +105,9 @@ public final class BodiesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> uploadFileMultipleContentTypes(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData file,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
+            @HeaderParam("Content-Type") UploadFileMultipleContentTypesContentType contentType,
+            @BodyParam("application/json") BinaryData file, @HeaderParam("Content-Length") long contentLength,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -136,7 +138,6 @@ public final class BodiesImpl {
     /**
      * The uploadFileSpecificContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -146,10 +147,11 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileSpecificContentType",
             requestContext, updatedContext -> {
+                final String contentType = "image/png";
                 return service.uploadFileSpecificContentType(this.client.getEndpoint(), contentType, file,
                     contentLength, updatedContext);
             });
@@ -226,8 +228,9 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileMultipleContentTypesWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileMultipleContentTypesWithResponse(
+        UploadFileMultipleContentTypesContentType contentType, BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileMultipleContentTypes",
             requestContext, updatedContext -> {
                 return service.uploadFileMultipleContentTypes(this.client.getEndpoint(), contentType, file,
@@ -238,7 +241,6 @@ public final class BodiesImpl {
     /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -246,10 +248,10 @@ public final class BodiesImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestContext requestContext) {
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.downloadFileMultipleContentTypes",
             requestContext, updatedContext -> {
+                final String accept = "image/png, image/jpeg";
                 return service.downloadFileMultipleContentTypes(this.client.getEndpoint(), accept, updatedContext);
             });
     }
@@ -257,7 +259,6 @@ public final class BodiesImpl {
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -267,10 +268,11 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
-        long contentLength, RequestContext requestContext) {
+    public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, long contentLength,
+        RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Type.File.Body.uploadFileDefaultContentType",
             requestContext, updatedContext -> {
+                final String contentType = "*/*";
                 return service.uploadFileDefaultContentType(this.client.getEndpoint(), contentType, file, contentLength,
                     updatedContext);
             });

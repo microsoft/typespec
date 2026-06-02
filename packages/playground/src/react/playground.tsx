@@ -3,7 +3,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
 import debounce from "debounce";
-import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, MarkerTag, Uri, editor } from "monaco-editor";
 import {
   useCallback,
   useEffect,
@@ -13,7 +13,6 @@ import {
   type FunctionComponent,
   type ReactNode,
 } from "react";
-import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
@@ -34,6 +33,11 @@ import { ViewToggle, type ViewMode } from "./view-toggle.js";
 
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
+
+export interface PlaygroundEmitterOptions {
+  /** Compile debounce delay in milliseconds. Default is 200. */
+  debounce?: number;
+}
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -70,6 +74,11 @@ export interface PlaygroundProps {
 
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
+
+  /**
+   * Per-emitter playground options. Key is the emitter name.
+   */
+  emitterOptions?: Record<string, PlaygroundEmitterOptions>;
 
   onSave?: (value: PlaygroundSaveData) => void;
 
@@ -154,6 +163,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
+  const lastSuccessfulOutputRef = useRef<string[]>([]);
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [isOutputStale, setIsOutputStale] = useState(false);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -183,40 +195,119 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onContentChange,
   } = state;
 
-  // Sync Monaco model with state content
+  // Clear preserved output when switching emitters
   useEffect(() => {
+    lastSuccessfulOutputRef.current = [];
+    setIsOutputStale(false);
+  }, [selectedEmitter]);
+
+  // Track whether content changes originated from the model (user typing)
+  // to avoid the sync effect resetting the model during typing
+  const isModelDrivenChangeRef = useRef(false);
+
+  // Sync Monaco model with state content (only for external/programmatic changes)
+  useEffect(() => {
+    if (isModelDrivenChangeRef.current) {
+      isModelDrivenChangeRef.current = false;
+      return;
+    }
     if (typespecModel.getValue() !== (content ?? "")) {
       typespecModel.setValue(content ?? "");
     }
   }, [content, typespecModel]);
 
+  // Use refs to avoid re-subscribing to onDidChangeContent on every keystroke
+  const contentRef = useRef(content);
+  const onContentChangeRef = useRef(onContentChange);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
+
   // Update state when Monaco model changes
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
+      if (newContent !== contentRef.current) {
+        isModelDrivenChangeRef.current = true;
+        onContentChangeRef.current(newContent);
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
+  const compileIdRef = useRef(0);
+  const isCompilingRef = useRef(false);
+  const pendingRecompileRef = useRef(false);
+  const doCompileRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
   const doCompile = useCallback(async () => {
+    // If a compile is already in progress, mark that a recompile is needed and
+    // bail out. The in-flight compile will re-trigger on completion. This avoids
+    // stacking up synchronous compiles that block the UI thread during typing.
+    if (isCompilingRef.current) {
+      pendingRecompileRef.current = true;
+      return;
+    }
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
+    const compileId = ++compileIdRef.current;
 
-    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
-    setCompilationState(state);
+    isCompilingRef.current = true;
+    setIsCompiling(true);
+    let state: CompilationState;
+    try {
+      state = await compile(host, currentContent, selectedEmitter, compilerOptions);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Compilation failed", error);
+      isCompilingRef.current = false;
+      setIsCompiling(false);
+      if (pendingRecompileRef.current) {
+        pendingRecompileRef.current = false;
+        void doCompileRef.current();
+      }
+      return;
+    }
+    isCompilingRef.current = false;
+    setIsCompiling(false);
+
+    // Discard stale results from an older compilation
+    if (compileId !== compileIdRef.current) return;
+
+    // When compilation has errors and produced no output files, preserve the
+    // previous successful output so the user doesn't lose their selected file
+    // while typing (transient syntax errors).
+    if (
+      "program" in state &&
+      state.program.hasError() &&
+      state.outputFiles.length === 0 &&
+      lastSuccessfulOutputRef.current.length > 0
+    ) {
+      setIsOutputStale(true);
+      setCompilationState({
+        ...state,
+        outputFiles: lastSuccessfulOutputRef.current,
+      });
+    } else {
+      setIsOutputStale(false);
+      if ("program" in state && state.outputFiles.length > 0) {
+        lastSuccessfulOutputRef.current = state.outputFiles;
+      }
+      setCompilationState(state);
+    }
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
-        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
+        tags: diag.code === "deprecated" ? [MarkerTag.Deprecated] : undefined,
       }));
 
       // Update code action provider with current diagnostics (for codefix support).
@@ -231,16 +322,32 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
+
+    // If typing happened while this compile was running, trigger a trailing
+    // compile so the output stays in sync with the latest content.
+    if (pendingRecompileRef.current) {
+      pendingRecompileRef.current = false;
+      void doCompileRef.current();
+    }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
 
   useEffect(() => {
-    const debouncer = debounce(() => doCompile(), 200);
+    doCompileRef.current = doCompile;
+  }, [doCompile]);
+
+  const currentEmitterOptions = selectedEmitter
+    ? props.emitterOptions?.[selectedEmitter]
+    : undefined;
+
+  useEffect(() => {
+    const delay = currentEmitterOptions?.debounce ?? 200;
+    const debouncer = debounce(() => doCompile(), delay);
     const disposable = typespecModel.onDidChangeContent(debouncer);
     return () => {
       debouncer.clear();
       disposable.dispose();
     };
-  }, [typespecModel, doCompile]);
+  }, [typespecModel, doCompile, currentEmitterOptions?.debounce]);
 
   useEffect(() => {
     void doCompile();
@@ -248,8 +355,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const saveCode = useCallback(() => {
     if (onSave) {
+      // Read directly from the model to ensure we save the latest content,
+      // not a potentially stale React state value
+      const currentContent = typespecModel.getValue();
       onSave({
-        content: content ?? "",
+        content: currentContent,
         emitter: selectedEmitter,
         compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
@@ -258,7 +368,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       });
     }
   }, [
-    content,
+    typespecModel,
     onSave,
     selectedEmitter,
     compilerOptions,
@@ -370,6 +480,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const outputPanel = (
     <OutputView
       compilationState={compilationState}
+      isCompiling={isCompiling}
+      isOutputStale={isOutputStale}
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}

@@ -122,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Name,
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"),
-                        initializationValue: GetFieldInitializer(fieldSymbol))
+                        initializationValue: GetFieldInitializer(fieldSymbol),
+                        attributes: fieldSymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -146,7 +147,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
-                    this)
+                    this,
+                    attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
@@ -261,6 +263,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     kindOptions: SymbolDisplayKindOptions.None);
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
+
+                bool isPartialDeclaration = IsPartialMethodDeclaration(methodSymbol);
+                if (isPartialDeclaration)
+                {
+                    modifiers |= MethodSignatureModifiers.Partial;
+                }
+
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
 
                 // For conversion operators, use the target type name as the method name to match generated code
@@ -288,6 +297,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. methods];
+        }
+
+        private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
+        {
+            foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is MethodDeclarationSyntax methodSyntax)
+                {
+                    bool hasPartialModifier = methodSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
+                    bool hasNoBody = methodSyntax.Body == null && methodSyntax.ExpressionBody == null;
+                    if (hasPartialModifier && hasNoBody)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;

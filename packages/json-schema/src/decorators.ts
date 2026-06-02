@@ -207,7 +207,7 @@ export const [
   /** Check if the given array is annotated with `@uniqueItems` decorator */
   getUniqueItems,
   setUniqueItems,
-] = useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
+] = useStateMap<Type, boolean>(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
 /** {@inheritdoc UniqueItemsDecorator} */
 export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
   setUniqueItems(context.program, target, true);

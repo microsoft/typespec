@@ -45,6 +45,7 @@ import {
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
   CreateSdkContextOptions,
+  DecoratedType,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -73,6 +74,7 @@ import {
   createSdkContext,
   getAllModels,
   getClientNameOverride,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   isSdkBuiltInKind,
@@ -169,6 +171,7 @@ import {
   InconsistentVersions,
   getFilteredApiVersions,
   getServiceApiVersions,
+  isStableApiVersionString,
 } from "./versioning-utils.js";
 const { isEqual } = pkg;
 
@@ -244,6 +247,7 @@ export class CodeModelBuilder {
   );
 
   // current apiVersion name to generate code
+  // it would be undefined, if mixed api-versions
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
@@ -319,6 +323,9 @@ export class CodeModelBuilder {
         this.sdkContext.sdkPackage.metadata.apiVersions,
       );
     }
+    // cross-language metadata
+    this.codeModel.crossLanguagePackageId = this.sdkContext.sdkPackage.crossLanguagePackageId;
+    this.codeModel.crossLanguageVersion = this.sdkContext.sdkPackage.crossLanguageVersion;
 
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {
@@ -393,6 +400,10 @@ export class CodeModelBuilder {
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
+        if (arg.isExactName) {
+          parameter.language.java = parameter.language.java ?? new Language();
+          parameter.language.java.name = arg.name;
+        }
       }
       hostParameters.push(this.codeModel.addGlobalParameter(parameter));
     });
@@ -701,7 +712,7 @@ export class CodeModelBuilder {
         this.program,
         this.apiVersion,
         versions,
-        this.options["service-version-exclude-preview"],
+        !(this.options["service-version-exclude-preview"] === false),
       )) {
         const apiVersion = new ApiVersion();
         apiVersion.version = version.value;
@@ -741,6 +752,7 @@ export class CodeModelBuilder {
     });
 
     const clientContext = new ClientContext(
+      this.program,
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
@@ -748,6 +760,11 @@ export class CodeModelBuilder {
       versions === InconsistentVersions.MixedVersions
         ? InconsistentVersions.MixedVersions
         : codeModelClient.apiVersions,
+      this.codeModel.apiVersionMap === undefined
+        ? false
+        : Object.values(this.codeModel.apiVersionMap).every((version) =>
+            isStableApiVersionString(version),
+          ) && !(this.options["service-version-exclude-preview"] === false),
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
@@ -941,7 +958,7 @@ export class CodeModelBuilder {
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
     let diagnostic = undefined;
-    if (generateConvenienceApi) {
+    if (generateConvenienceApi && this.isAzureV1()) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
@@ -983,7 +1000,7 @@ export class CodeModelBuilder {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
     }
     if (diagnostic) {
-      codeModelOperation.language.java = new Language();
+      codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
       codeModelOperation.language.java.comment = diagnostic.message;
     }
 
@@ -1449,7 +1466,10 @@ export class CodeModelBuilder {
         const addedOn = getAddedOnVersions(this.program, param.__raw);
         if (addedOn) {
           extensions = extensions ?? {};
-          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(addedOn);
+          extensions["x-ms-versioning-added"] = clientContext.getAddedVersions(
+            param.__raw,
+            addedOn,
+          );
         }
       }
 
@@ -1527,7 +1547,7 @@ export class CodeModelBuilder {
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: !param.optional,
+        required: this.isPropertyRequired(param),
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
@@ -1542,6 +1562,10 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      if (param.isExactName) {
+        parameter.language.java = parameter.language.java ?? new Language();
+        parameter.language.java.name = param.name;
+      }
       op.addParameter(parameter);
 
       if (parameterOnClient) {
@@ -1698,7 +1722,7 @@ export class CodeModelBuilder {
             {
               summary: sdkMethodParameter.summary,
               implementation: ImplementationLocation.Method,
-              required: !sdkMethodParameter.optional,
+              required: this.isPropertyRequired(sdkMethodParameter),
               nullable: false,
             },
           );
@@ -2046,7 +2070,7 @@ export class CodeModelBuilder {
     const parameter = new Parameter(parameterName, sdkBody.doc ?? "", schema, {
       summary: sdkBody.summary,
       implementation: ImplementationLocation.Method,
-      required: !sdkBody.optional,
+      required: this.isPropertyRequired(sdkBody),
       protocol: {
         http: new HttpParameter(ParameterLocation.Body),
       },
@@ -2205,26 +2229,28 @@ export class CodeModelBuilder {
         !existBodyProperty.readOnly &&
         !(existBodyProperty.schema instanceof ConstantSchema)
       ) {
-        request.parameters.push(
-          new VirtualParameter(
-            existBodyProperty.language.default.name,
-            existBodyProperty.language.default.description,
-            existBodyProperty.schema,
-            {
-              originalParameter: originalParameter,
-              targetProperty: existBodyProperty,
-              language: {
-                default: {
-                  serializedName: existBodyProperty.serializedName,
-                },
+        const virtualParameter = new VirtualParameter(
+          existBodyProperty.language.default.name,
+          existBodyProperty.language.default.description,
+          existBodyProperty.schema,
+          {
+            originalParameter: originalParameter,
+            targetProperty: existBodyProperty,
+            language: {
+              default: {
+                serializedName: existBodyProperty.serializedName,
               },
-              summary: existBodyProperty.summary,
-              implementation: ImplementationLocation.Method,
-              required: existBodyProperty.required,
-              nullable: existBodyProperty.nullable,
             },
-          ),
+            summary: existBodyProperty.summary,
+            implementation: ImplementationLocation.Method,
+            required: existBodyProperty.required,
+            nullable: existBodyProperty.nullable,
+          },
         );
+        if (existBodyProperty.language?.java?.name) {
+          virtualParameter.language.java = existBodyProperty.language.java;
+        }
+        request.parameters.push(virtualParameter);
       }
     }
   }
@@ -2258,16 +2284,19 @@ export class CodeModelBuilder {
           break;
         }
 
-        headers.push(
-          new HttpHeader(header.serializedName, schema, {
-            language: {
-              default: {
-                name: header.name,
-                description: header.summary ?? header.doc,
-              },
+        const httpHeader = new HttpHeader(header.serializedName, schema, {
+          language: {
+            default: {
+              name: header.name,
+              description: header.summary ?? header.doc,
             },
-          }),
-        );
+          },
+        });
+        if (header.isExactName) {
+          httpHeader.language.java = httpHeader.language.java ?? new Language();
+          httpHeader.language.java.name = header.name;
+        }
+        headers.push(httpHeader);
       }
     }
 
@@ -2700,6 +2729,10 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName) {
+      schema.language.java = schema.language.java ?? new Language();
+      schema.language.java.name = type.name;
+    }
     if (type.external) {
       // java name
       schema.language.java = schema.language.java ?? new Language();
@@ -2816,6 +2849,10 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName) {
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
+      objectSchema.language.java.name = type.name;
+    }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
 
     if (type.external) {
@@ -2975,12 +3012,16 @@ export class CodeModelBuilder {
 
     const codeModelProperty = new Property(modelProperty.name, modelProperty.doc ?? "", schema, {
       summary: modelProperty.summary,
-      required: !modelProperty.optional,
+      required: this.isPropertyRequired(modelProperty),
       nullable: nullable,
       readOnly: this.isReadOnly(modelProperty),
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.isExactName) {
+      codeModelProperty.language.java = codeModelProperty.language.java ?? new Language();
+      codeModelProperty.language.java.name = modelProperty.name;
+    }
     if (modelProperty.encode) {
       if (schema instanceof ArraySchema) {
         // ArrayEncoding
@@ -3038,6 +3079,10 @@ export class CodeModelBuilder {
           },
         },
       });
+      if (type.isExactName) {
+        objectSchema.language.java = objectSchema.language.java ?? new Language();
+        objectSchema.language.java.name = type.name;
+      }
 
       const variantSchema = this.processSchema(it, variantName);
       objectSchema.addProperty(
@@ -3638,5 +3683,16 @@ export class CodeModelBuilder {
 
   private isArm(): boolean {
     return Boolean(this.codeModel.arm);
+  }
+
+  private isPropertyRequired(property: { optional: boolean } & DecoratedType): boolean {
+    const clientRequired = getClientOptions(property, "clientRequired") as boolean;
+    if (clientRequired === false) {
+      reportDiagnostic(this.program, {
+        code: "client-required-false",
+        target: (property as any).__raw ?? NoTarget,
+      });
+    }
+    return clientRequired ?? !property.optional;
   }
 }

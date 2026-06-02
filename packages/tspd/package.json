@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.74.1",
+  "version": "0.74.2",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating TypeSpec docs",
   "homepage": "https://typespec.io",
@@ -36,7 +36,7 @@
     }
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -79,7 +79,6 @@
     "@typespec/prettier-plugin-typespec": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "c8": "catalog:",
     "rimraf": "catalog:",
     "source-map-support": "catalog:",
     "typescript": "catalog:",

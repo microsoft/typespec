@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -255,7 +267,6 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
-      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
     },
   },
   "using-invalid-ref": {
@@ -341,6 +352,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
@@ -577,6 +589,15 @@ const diagnostics = {
       default: "Extern declaration must have an implementation in JS file.",
     },
   },
+  "missing-extern-declaration": {
+    severity: "error",
+    description:
+      "Report when a function is registered in $functions in a JS file but has no corresponding `extern fn` declaration in TypeSpec.",
+    url: "https://typespec.io/docs/standard-library/diags/missing-extern-declaration",
+    messages: {
+      default: paramMessage`Function implementation "${"name"}" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
+    },
+  },
   "overload-same-parent": {
     severity: "error",
     messages: {
@@ -640,6 +661,31 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`No configuration file found at config path "${"path"}".`,
+    },
+  },
+  "config-project-kind-filename": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config with \`kind: project\` must be named "tspconfig.yaml". Found in "${"filename"}".`,
+    },
+  },
+  "config-project-only-option": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown compiler feature "${"feature"}".`,
+    },
+  },
+  "config-project-not-as-cli-config": {
+    severity: "error",
+    messages: {
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
     },
   },
   /**
@@ -786,6 +832,12 @@ const diagnostics = {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
     },
   },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
 
   /**
    * Formatter
@@ -865,7 +917,7 @@ const diagnostics = {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
       noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
       discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
-      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
+      duplicateDefaultVariant: paramMessage`Discriminated union ${"unionName"} only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },
