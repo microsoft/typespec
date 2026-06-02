@@ -2,6 +2,7 @@ import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { SyntaxKind, TypeSpecScriptNode, parse } from "../../src/ast/index.js";
 import type { PositionDetail } from "../../src/index.js";
+import { formatFatalError, writeServerFatalError } from "../../src/server/fatal-error.js";
 import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { dumpAST } from "../ast-test-utils.js";
@@ -83,6 +84,27 @@ describe("compiler: server: misc", () => {
         strictEqual(node.kind, SyntaxKind.NamespaceStatement as const);
         strictEqual(node.id.sv, "Foo");
       });
+    });
+  });
+
+  describe("fatal error logging", () => {
+    it("writes pending server logs and fatal stack to the provided writer", () => {
+      const messages: string[] = [];
+      const error = new Error("boom");
+
+      writeServerFatalError(
+        (message) => messages.push(message),
+        [{ level: "info", message: "pending message", detail: { value: 123 } }],
+        error,
+      );
+
+      const output = messages.join("");
+      ok(output.includes("[info] pending message:\n{ value: 123 }\n"));
+      ok(output.includes("Error: boom"));
+    });
+
+    it("formats non-error fatal values", () => {
+      strictEqual(formatFatalError({ reason: "boom" }), "{ reason: 'boom' }");
     });
   });
 });

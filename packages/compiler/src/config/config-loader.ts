@@ -1,5 +1,12 @@
+import { isCompilerFeatureName } from "../core/features.js";
 import { createDiagnostic } from "../core/messages.js";
-import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../core/path-utils.js";
+import {
+  getBaseFileName,
+  getDirectoryPath,
+  isPathAbsolute,
+  joinPaths,
+  resolvePath,
+} from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
 import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
@@ -178,6 +185,52 @@ async function loadConfigFile(
     data = deepClone(defaultConfig) as TypeSpecRawConfig;
   }
 
+  // Validate project-specific constraints
+  if (data.kind === "project" && getBaseFileName(filename) !== TypeSpecConfigFilename) {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-kind-filename",
+        format: { filename: getBaseFileName(filename) },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.entrypoint !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "entrypoint" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  if (data.features !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "features" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  const features = Array.isArray(data.features) ? data.features : undefined;
+  if (data.kind === "project" && features !== undefined) {
+    for (const feature of features) {
+      if (!isCompilerFeatureName(feature)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "config-unknown-feature",
+            format: { feature },
+            target: getLocationInYamlScript(yamlScript, ["features", feature]),
+          }),
+        );
+      }
+    }
+  }
+
   const emit = data.emit;
   const options = data.options;
 
@@ -187,6 +240,9 @@ async function loadConfigFile(
     filename,
     diagnostics,
     extends: data.extends,
+    kind: data.kind,
+    entrypoint: data.entrypoint,
+    features,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",

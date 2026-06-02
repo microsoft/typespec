@@ -153,24 +153,29 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   );
 }
 
-const placeholderConfig = `
-# extends: ../tspconfig.yaml                    # Extend another config file
-# emit:                                         # Emitter name
+const commentedOptions = `\
+# entrypoint: main.tsp                           # Main TypeSpec file (default: main.tsp)
+# extends: ../tspconfig.yaml                     # Extend another config file
+# emit:                                          # Emitter name
 #   - "<emitter-name"
-# options:                                      # Emitter options
+# options:                                       # Emitter options
 #   <emitter-name>:
 #    "<option-name>": "<option-value>"
-# environment-variables:                        # Environment variables which can be used to interpolate emitter options
+# environment-variables:                         # Environment variables which can be used to interpolate emitter options
 #   <variable-name>:
 #     default: "<variable-default>"
-# parameters:                                   # Parameters which can be used to interpolate emitter options
+# parameters:                                    # Parameters which can be used to interpolate emitter options
 #   <param-name>:
 #     default: "<param-default>"
-# trace:                                        # Trace areas to enable tracing
+# trace:                                         # Trace areas to enable tracing
 #  - "<trace-name>"
-# warn-as-error: true                           # Treat warnings as errors
-# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
-`.trim();
+# warn-as-error: true                            # Treat warnings as errors
+# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters`;
+
+const placeholderConfig = `\
+kind: project                                    # Marks this as a TypeSpec project
+${commentedOptions}`;
+
 async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
@@ -189,7 +194,9 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
+  const content = rawConfig
+    ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions
+    : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 

@@ -106,12 +106,19 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const encoding = isModelReferencedAsMultipartRequestBody
       ? context.getMultipartSchemaEncoding(refName)
       : undefined;
+    const decorators = [...getDecoratorsForSchema(effectiveSchema, context)];
+    if (
+      context.isErrorResponseSchema(refName) &&
+      !decorators.some((decorator) => decorator.name === "error")
+    ) {
+      decorators.push({ name: "error", args: [] });
+    }
     types.push({
       kind: "model",
       name,
       scope,
       directives: [...getDirectivesForSchema(effectiveSchema)],
-      decorators: [...getDecoratorsForSchema(effectiveSchema, context)],
+      decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
         ...("$ref" in effectiveSchema
