@@ -379,9 +379,9 @@ describe("usage", () => {
 
     expectNotCalled();
 
-    // In this case, we did not call the function, so we expect the constraint.
+    // In this case, we did not call the function due to argument errors, so we expect errorType.
     strictEqual(t.kind, "Intrinsic");
-    strictEqual(t.name, "unknown");
+    strictEqual(t.name, "ErrorType");
   });
 
   it("errors if argument type mismatch (value)", async () => {
@@ -780,9 +780,9 @@ describe("specific type constraints", () => {
     ]);
 
     strictEqual(receivedType, undefined);
-    // Since we didn't call the function, we get back the constraint type, which is Reflection.Model.
-    strictEqual(t.kind, "Model");
-    strictEqual(t.name, "Model");
+    // Since we didn't call the function due to argument errors, we get back errorType.
+    strictEqual(t.kind, "Intrinsic");
+    strictEqual(t.name, "ErrorType");
   });
 });
 

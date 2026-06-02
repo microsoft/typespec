@@ -325,6 +325,38 @@ describe("compiler: checker: decorators", () => {
       expectDecoratorNotCalled();
     });
 
+    it("does not call decorator when augment decorator fn argument has an invalid reference", async () => {
+      const FnTester = Tester.files({
+        "test.js": mockFile.js({
+          $flags: {},
+          $testDec: (...args: any[]) => (calledArgs = args),
+          $functions: {
+            "": {
+              myFn: (_ctx: any, target: any) => target,
+            },
+          },
+        }),
+      })
+        .import("./test.js")
+        .using("TypeSpec.Reflection");
+
+      const diagnostics = await FnTester.diagnose(`
+        #suppress "experimental-feature" "testing"
+        extern fn myFn(target: Reflection.Operation): Reflection.Operation;
+        extern dec testDec(target: unknown, override: Reflection.Operation);
+
+        op test(): void;
+
+        @@testDec(test, myFn(invalidref));
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: /Unknown identifier invalidref/,
+      });
+      expectDecoratorNotCalled();
+    });
+
     // Regresssion test for https://github.com/microsoft/typespec/issues/3211
     it("augmenting a template model property before a decorator declaration resolve the declaration correctly", async () => {
       await UsageTester.compile(`

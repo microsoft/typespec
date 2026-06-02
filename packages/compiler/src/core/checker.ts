@@ -5822,6 +5822,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const fnCtx = createFunctionContext(program, node);
 
     if (!canCall) {
+      // If arguments were not satisfied and we are not in a template declaration,
+      // return errorType so that the invalid result propagates as an error and
+      // prevents downstream usage (e.g., decorator application with wrong argument types).
+      if (!satisfied && !ctx.hasFlags(CheckFlags.InTemplateDeclaration)) {
+        return errorType;
+      }
       return getDefaultFunctionResult(target.returnType);
     }
 
@@ -5995,7 +6001,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           constraint: param.type,
         });
 
-        if (!checkedArg) {
+        if (!checkedArg || (isType(checkedArg) && isErrorType(checkedArg))) {
           satisfied = false;
           continue;
         }
