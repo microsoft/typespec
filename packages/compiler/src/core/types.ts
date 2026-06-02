@@ -2184,6 +2184,13 @@ export interface CodeFix {
   readonly id: string;
   readonly label: string;
   readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
+  /**
+   * Optional async resolver that expands this codefix into multiple labeled codefixes.
+   * Called when the user triggers the code action menu (Ctrl+.).
+   * Each returned item becomes a separate entry in the quickfix menu with its own label.
+   * If not provided, the single `label` and `fix` are used as-is.
+   */
+  readonly resolveCodefixes?: () => Promise<CodeFix[]>;
 }
 
 export interface FilePos {
