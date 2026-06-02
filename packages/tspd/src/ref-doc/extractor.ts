@@ -100,11 +100,13 @@ export async function extractLibraryRefDocs(
     getNamedTypeRefDoc: (type) => undefined,
   };
   const tspMain = getExport(pkgJson, ".", "typespec");
+  let mainSourceFiles: Set<string> | undefined;
   if (tspMain) {
     const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
+    mainSourceFiles = new Set(program.sourceFiles.keys());
     const tspEmitter = diagnostics.pipe(extractRefDocs(program));
     Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
@@ -128,7 +130,7 @@ export async function extractLibraryRefDocs(
   }
 
   // Extract sub-exports
-  const subExports = await extractSubExports(libraryPath, pkgJson, diagnostics);
+  const subExports = await extractSubExports(libraryPath, pkgJson, diagnostics, mainSourceFiles);
   if (subExports.size > 0) {
     refDoc.subExports = subExports;
   }
@@ -145,6 +147,7 @@ async function extractSubExports(
   libraryPath: string,
   pkgJson: PackageJson,
   diagnostics: { pipe: <T>(result: [T, readonly Diagnostic[]]) => T; add: (d: Diagnostic) => void },
+  mainSourceFiles?: Set<string>,
 ): Promise<Map<string, SubExportRefDoc>> {
   const subExports = new Map<string, SubExportRefDoc>();
   const exports = (pkgJson as any).exports;
@@ -165,7 +168,13 @@ async function extractSubExports(
       const program = await compile(NodeHost, main, {
         parseOptions: { comments: true, docs: true },
       });
-      const subRefDoc = diagnostics.pipe(extractRefDocs(program));
+      const subRefDoc = diagnostics.pipe(
+        extractRefDocs(program, {
+          sourceFilter: mainSourceFiles
+            ? (sourcePath) => !mainSourceFiles.has(sourcePath)
+            : undefined,
+        }),
+      );
       // Only include if it actually has content
       if (subRefDoc.namespaces.length > 0) {
         subExports.set(exportPath, {
@@ -189,6 +198,11 @@ export interface ExtractRefDocOptions {
     include?: string[];
     exclude?: string[];
   };
+  /**
+   * Filter to restrict which types are included based on their source file path.
+   * When provided, only types declared in files for which this returns true will be included.
+   */
+  sourceFilter?: (sourcePath: string) => boolean;
 }
 
 function resolveNamespaces(
@@ -211,6 +225,12 @@ function resolveNamespaces(
       }
       if (namespace.name === "Private") {
         return;
+      }
+      if (options.sourceFilter && namespace.node) {
+        const loc = getSourceLocation(namespace.node);
+        if (!loc.isSynthetic && !options.sourceFilter(loc.file.path)) {
+          return;
+        }
       }
       namespaceTypes.push(namespace);
     },
@@ -253,11 +273,20 @@ export function extractRefDocs(
       typeMapping.set(type, refDoc);
       (array as any).push(refDoc);
     }
+
+    function isIncludedBySourceFilter(type: Type): boolean {
+      if (!options.sourceFilter) return true;
+      const loc = getSourceLocation(type);
+      if (loc.isSynthetic) return true;
+      return options.sourceFilter(loc.file.path);
+    }
+
     navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {
           if (hasInternalModifier(dec)) return;
+          if (!isIncludedBySourceFilter(dec)) return;
           collectType(dec, extractDecoratorRefDoc(program, dec), namespaceDoc.decorators);
         },
         operation(operation) {
@@ -265,6 +294,7 @@ export function extractRefDocs(
           if (!isDeclaredType(operation)) {
             return;
           }
+          if (!isIncludedBySourceFilter(operation)) return;
 
           if (operation.interface === undefined) {
             collectType(
@@ -279,6 +309,7 @@ export function extractRefDocs(
           if (!isDeclaredType(iface)) {
             return;
           }
+          if (!isIncludedBySourceFilter(iface)) return;
           collectType(iface, extractInterfaceRefDocs(program, iface), namespaceDoc.interfaces);
         },
         model(model) {
@@ -289,6 +320,7 @@ export function extractRefDocs(
           if (model.name === "") {
             return;
           }
+          if (!isIncludedBySourceFilter(model)) return;
           collectType(model, extractModelRefDocs(program, model), namespaceDoc.models);
         },
         enum(e) {
@@ -296,6 +328,7 @@ export function extractRefDocs(
           if (!isDeclaredType(e)) {
             return;
           }
+          if (!isIncludedBySourceFilter(e)) return;
           collectType(e, extractEnumRefDoc(program, e), namespaceDoc.enums);
         },
         union(union) {
@@ -304,11 +337,13 @@ export function extractRefDocs(
             return;
           }
           if (union.name !== undefined) {
+            if (!isIncludedBySourceFilter(union)) return;
             collectType(union, extractUnionRefDocs(program, union as any), namespaceDoc.unions);
           }
         },
         scalar(scalar) {
           if (hasInternalModifier(scalar)) return;
+          if (!isIncludedBySourceFilter(scalar)) return;
           collectType(scalar, extractScalarRefDocs(program, scalar), namespaceDoc.scalars);
         },
       },
@@ -316,8 +351,20 @@ export function extractRefDocs(
     );
   }
 
-  sort(namespaces);
-  for (const namespace of namespaces) {
+  // Remove namespaces that have no content after filtering
+  const filteredNamespaces = namespaces.filter(
+    (ns) =>
+      ns.decorators.length > 0 ||
+      ns.operations.length > 0 ||
+      ns.interfaces.length > 0 ||
+      ns.models.length > 0 ||
+      ns.enums.length > 0 ||
+      ns.unions.length > 0 ||
+      ns.scalars.length > 0,
+  );
+
+  sort(filteredNamespaces);
+  for (const namespace of filteredNamespaces) {
     sort(namespace.decorators);
     sort(namespace.enums);
     sort(namespace.interfaces);
@@ -332,7 +379,7 @@ export function extractRefDocs(
   }
 
   return diagnostics.wrap({
-    namespaces,
+    namespaces: filteredNamespaces,
     getNamedTypeRefDoc: (type) => typeMapping.get(type),
   });
 }
