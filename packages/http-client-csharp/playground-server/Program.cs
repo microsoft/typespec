@@ -150,22 +150,23 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     var stopwatch = Stopwatch.StartNew();
     var telemetryProperties = new Dictionary<string, string>();
 
-    void TrackGenerateEvent(string outcome)
+    void TrackGenerateEvent(GenerateOutcome outcome)
     {
         if (telemetryClient is null) return;
         stopwatch.Stop();
-        telemetryProperties["outcome"] = outcome;
+        var outcomeValue = outcome.ToTelemetryValue();
+        telemetryProperties["outcome"] = outcomeValue;
         telemetryProperties["durationMs"] = stopwatch.Elapsed.TotalMilliseconds.ToString("F0", System.Globalization.CultureInfo.InvariantCulture);
         var evt = new EventTelemetry("PlaygroundGenerate");
         foreach (var kvp in telemetryProperties) evt.Properties[kvp.Key] = kvp.Value;
         telemetryClient.TrackEvent(evt);
-        telemetryClient.GetMetric("PlaygroundGenerateDurationMs", "outcome").TrackValue(stopwatch.Elapsed.TotalMilliseconds, outcome);
+        telemetryClient.GetMetric("PlaygroundGenerateDurationMs", "outcome").TrackValue(stopwatch.Elapsed.TotalMilliseconds, outcomeValue);
     }
 
     // Validate content type
     if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
     {
-        TrackGenerateEvent("invalid_content_type");
+        TrackGenerateEvent(GenerateOutcome.InvalidContentType);
         return Results.BadRequest(new { error = "Content-Type must be application/json" });
     }
 
@@ -177,13 +178,13 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     }
     catch (JsonException)
     {
-        TrackGenerateEvent("invalid_json");
+        TrackGenerateEvent(GenerateOutcome.InvalidJson);
         return Results.BadRequest(new { error = "Invalid JSON in request body" });
     }
 
     if (body?.CodeModel is null || body?.Configuration is null)
     {
-        TrackGenerateEvent("missing_fields");
+        TrackGenerateEvent(GenerateOutcome.MissingFields);
         return Results.BadRequest(new { error = "Missing 'codeModel' or 'configuration' fields" });
     }
 
@@ -193,7 +194,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
 
     if (!File.Exists(generatorPath))
     {
-        TrackGenerateEvent("generator_missing");
+        TrackGenerateEvent(GenerateOutcome.GeneratorMissing);
         return Results.StatusCode(503);
     }
 
@@ -202,7 +203,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     {
         request.HttpContext.Response.Headers["X-Cache"] = "HIT";
         telemetryProperties["cacheStatus"] = "hit";
-        TrackGenerateEvent("success");
+        TrackGenerateEvent(GenerateOutcome.Success);
         return Results.Bytes(cached.Body, cached.ContentType);
     }
 
@@ -265,7 +266,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
         catch (OperationCanceledException)
         {
             process.Kill(entireProcessTree: true);
-            TrackGenerateEvent("timeout");
+            TrackGenerateEvent(GenerateOutcome.Timeout);
             return Results.Json(
                 new GenerateErrorResponse("Generator timed out", $"Process did not complete within {GeneratorTimeoutSeconds} seconds"),
                 GenerateJsonContext.Default.GenerateErrorResponse,
@@ -284,7 +285,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
                 $"Generator failed (exit {exitCode}): {stderrTail}",
                 SeverityLevel.Error,
                 telemetryProperties);
-            TrackGenerateEvent("generator_failed");
+            TrackGenerateEvent(GenerateOutcome.GeneratorFailed);
             return Results.Json(
                 new GenerateErrorResponse($"Generator failed with exit code {exitCode}", stderrTail),
                 GenerateJsonContext.Default.GenerateErrorResponse,
@@ -309,7 +310,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
         }
 
         telemetryProperties["generatedFileCount"] = files.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        TrackGenerateEvent("success");
+        TrackGenerateEvent(GenerateOutcome.Success);
         var responseBytes = JsonSerializer.SerializeToUtf8Bytes(
             new GenerateResponse(files),
             GenerateJsonContext.Default.GenerateResponse);
@@ -324,7 +325,7 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
             foreach (var kvp in telemetryProperties) exTelemetry.Properties[kvp.Key] = kvp.Value;
             telemetryClient.TrackException(exTelemetry);
         }
-        TrackGenerateEvent("exception");
+        TrackGenerateEvent(GenerateOutcome.Exception);
         throw;
     }
     finally
