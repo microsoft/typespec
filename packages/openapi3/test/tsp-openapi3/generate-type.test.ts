@@ -329,7 +329,7 @@ describe("tsp-openapi: generate-type", () => {
     if (!specification) {
       throw new Error("Failed to dereference OpenAPI document");
     }
-    context = createContext(specification as OpenAPI3Document);
+    context = createContext(specification as unknown as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {
