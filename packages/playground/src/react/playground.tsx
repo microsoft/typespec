@@ -201,8 +201,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setIsOutputStale(false);
   }, [selectedEmitter]);
 
-  // Sync Monaco model with state content
+  // Track whether content changes originated from the model (user typing)
+  // to avoid the sync effect resetting the model during typing
+  const isModelDrivenChangeRef = useRef(false);
+
+  // Sync Monaco model with state content (only for external/programmatic changes)
   useEffect(() => {
+    if (isModelDrivenChangeRef.current) {
+      isModelDrivenChangeRef.current = false;
+      return;
+    }
     if (typespecModel.getValue() !== (content ?? "")) {
       typespecModel.setValue(content ?? "");
     }
@@ -223,6 +231,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
       if (newContent !== contentRef.current) {
+        isModelDrivenChangeRef.current = true;
         onContentChangeRef.current(newContent);
       }
     });
