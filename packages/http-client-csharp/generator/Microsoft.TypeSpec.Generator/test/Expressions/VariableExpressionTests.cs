@@ -22,10 +22,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
         [Test]
         public void VariableExpressionSupportsLegacyRefAndOutConstructor()
         {
+#pragma warning disable CS0618 // Obsolete
             var variableExpression = new VariableExpression(typeof(int), "foo", isRef: true, isOut: true);
 
             Assert.IsTrue(variableExpression.IsRef);
             Assert.IsTrue(variableExpression.IsOut);
+#pragma warning restore CS0618
         }
     }
 }
