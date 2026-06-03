@@ -8,7 +8,7 @@ where:
 configuration:
   resourceManagementConfiguration:
     scheduledSearches:
-      - description: Ping user when the PR has not been updated in 30 days
+      - description: Ping user when the PR has not been updated in 14 days
         frequencies:
           - daily:
               time: 13:0
@@ -18,16 +18,16 @@ configuration:
           - isNotLabeledWith:
               label: stale
           - noActivitySince:
-              days: 30
+              days: 14
         actions:
           - addLabel:
               label: stale
           - addReply:
               reply: >-
                 Hi @${issueAuthor}.
-                Your PR has had no update for 30 days and it is marked as a stale PR. If it is not updated within 30 days, the PR will automatically be closed.  If you want to refresh the PR, please remove the `stale` label.
+                Your PR has had no update for 14 days and it is marked as a stale PR. If it is not updated within 30 additional days, the PR will automatically be closed.  If you want to refresh the PR, please remove the `stale` label.
 
-      - description: Close prs that have not been updated in 60 days
+      - description: Close prs that have not been updated in 44 days
         frequencies:
           - daily:
               time: 13:0
@@ -43,7 +43,7 @@ configuration:
           - addReply:
               reply: >-
                 Hi @${issueAuthor}.
-                The PR will be closed since the PR has no update for 60 days. If this is still relevant please reopen.
+                The PR will be closed since the PR has no update for 44 days. If this is still relevant please reopen.
 
 onFailure:
 onSuccess:
