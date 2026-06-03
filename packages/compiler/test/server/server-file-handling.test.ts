@@ -125,4 +125,20 @@ describe("compiler: server: main file", () => {
     await host.server.checkChange({ document });
     deepStrictEqual(host.getDiagnostics("./test.tsp"), [], "No diagnostics expected");
   });
+
+  it("does not crash when project tspconfig has blank features", async () => {
+    const host = await createTestServerHost();
+
+    const document = host.addOrUpdateDocument(
+      "./tspconfig.yaml",
+      `
+      kind: project
+      features:
+      `,
+    );
+    host.addTypeSpecFile("./main.tsp", "model Test {}");
+
+    const result = await host.server.compile(document, undefined, { mode: "full" });
+    deepStrictEqual(result?.program.diagnostics, [], "No diagnostics expected");
+  });
 });

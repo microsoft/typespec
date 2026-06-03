@@ -51,6 +51,17 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
       });
     });
 
+    it("propagates @JsonSchema.uniqueItems to a query parameter schema", async () => {
+      const param = await getQueryParam(
+        `op test(@query @JsonSchema.uniqueItems myParam: string[]): void;`,
+      );
+      expect(param.schema).toStrictEqual({
+        type: "array",
+        uniqueItems: true,
+        items: { type: "string" },
+      });
+    });
+
     describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
       it("with option", async () => {
         const param = await getQueryParam(

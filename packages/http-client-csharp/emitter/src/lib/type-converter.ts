@@ -215,6 +215,7 @@ function fromSdkModelType(
     decorators: decorators,
     external: fromSdkExternalTypeInfo(modelType),
     serializationOptions: modelType.serializationOptions,
+    isExactName: modelType.isExactName,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -291,6 +292,7 @@ function fromSdkModelProperty(
     // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
     encode: sdkProperty.encode,
+    isExactName: sdkProperty.isExactName,
   } as InputModelProperty;
 
   if (property) {
@@ -342,6 +344,7 @@ function createEnumType(
     usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
     decorators: sdkType.decorators,
     external: fromSdkExternalTypeInfo(sdkType),
+    isExactName: sdkType.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
@@ -431,6 +434,7 @@ function fromUnionType(
     namespace: union.namespace,
     decorators: union.decorators,
     external: fromSdkExternalTypeInfo(union),
+    isExactName: union.isExactName,
   });
 }
 
@@ -448,6 +452,7 @@ function fromSdkConstantType(
     valueType: diagnostics.pipe(fromSdkType(sdkContext, constantType.valueType)),
     value: constantType.value,
     decorators: constantType.decorators,
+    isExactName: constantType.isExactName,
   };
 
   sdkContext.__typeCache.updateConstantCache(constantType, literalType);
@@ -488,6 +493,7 @@ function createEnumValueType(
     summary: sdkType.summary,
     doc: sdkType.doc,
     decorators: sdkType.decorators,
+    isExactName: sdkType.isExactName,
   });
 }
 

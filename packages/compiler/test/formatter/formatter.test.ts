@@ -1720,6 +1720,32 @@ alias Foo = A | (B & C);
     });
   });
 
+  describe("union of intersections", () => {
+    it("breaks long union of intersections onto multiple lines", async () => {
+      await assertFormat({
+        code: `
+op create(@body body: CreateUserRequest): (CreatedResponse & Body<User>) | (BadRequestResponse & Body<ValidationError>);
+`,
+        expected: `
+op create(@body body: CreateUserRequest):
+  | (CreatedResponse & Body<User>)
+  | (BadRequestResponse & Body<ValidationError>);
+`,
+      });
+    });
+
+    it("keeps short union of intersections inline", async () => {
+      await assertFormat({
+        code: `
+alias Foo = (A   &   B)  |  (C   &   D);
+`,
+        expected: `
+alias Foo = (A & B) | (C & D);
+`,
+      });
+    });
+  });
+
   describe("enum", () => {
     it("format simple enum", async () => {
       await assertFormat({
@@ -2483,10 +2509,24 @@ namespace Foo {
 @@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
       `,
         expected: `
-@@doc(Foo,
+@@doc(
+  Foo,
   "This is getting very very very long 1",
   "This is getting very very very long 2",
   "This is getting very very very long 3"
+);
+      `,
+      });
+    });
+
+    it("break arguments per lines when decorator name is very long", async () => {
+      await assertFormat({
+        code: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(subscribe1);
+      `,
+        expected: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(
+  subscribe1
 );
       `,
       });

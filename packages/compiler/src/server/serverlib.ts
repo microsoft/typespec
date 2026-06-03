@@ -16,7 +16,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FileChangeType,
   FoldingRange,
   FoldingRangeParams,
@@ -104,7 +103,6 @@ import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { Commands } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -177,12 +175,67 @@ export function createServer(
     log,
     clientConfigsProvider,
   });
-  const currentDiagnosticIndex = new Map<number, Diagnostic>();
+  let currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
   let pendingMessages: ServerLog[] = [];
+
+  /**
+   * Wraps an LSP handler to preserve the server-side error details when it crashes.
+   *
+   * By default, the JSON-RPC layer (vscode-languageserver) catches handler errors and
+   * creates a new ResponseError using only `error.message`, discarding the original stack
+   * trace. On the client side, the telemetry framework then captures this as an unhandled
+   * error, but the `unhandled_error_stack` only shows the client-side message handling code:
+   *
+   * ```
+   * Error: Request textDocument/hover failed with message: Cannot read properties of undefined (reading 'kind')
+   *     at handleResponse (extension.cjs:2104:40)         // <-- client-side LSP message handler
+   *     at handleMessage (extension.cjs:1914:11)
+   *     at processMessageQueue (extension.cjs:1929:13)
+   *     at Immediate.<anonymous> (extension.cjs:1905:11)
+   * ```
+   *
+   * The actual server-side crash location (e.g., in the checker or parser) is completely lost.
+   *
+   * This wrapper catches the error first and re-throws a new Error whose message includes
+   * the full original error details (stack trace for Error instances, String() for others).
+   * The JSON-RPC layer then forwards this enriched message to the client, so the
+   * telemetry `unhandled_error_message` will contain the server-side crash location:
+   *
+   * ```
+   * [getHover] TypeError: Cannot read properties of undefined (reading 'kind')
+   *     at Checker.getTypeForNode (checker.ts:1234:15)    // <-- actual crash location
+   *     at getHover (serverlib.ts:826:52)
+   *     ...
+   * ```
+   */
+  function wrapUnhandledError<T extends (...args: any[]) => any>(fn: T): T {
+    const name = fn.name || "anonymous";
+    return (async (...args: any[]) => {
+      try {
+        return await fn(...args);
+      } catch (e) {
+        if (e instanceof Error) {
+          const detail = e.stack ? `${e.message}\n${e.stack}` : e.message;
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        } else if (typeof e === "string") {
+          throw new Error(`[${name}] ${e}`, { cause: e });
+        } else if (typeof e === "object" && e !== null) {
+          let detail: string;
+          try {
+            detail = JSON.stringify(e);
+          } catch {
+            throw e;
+          }
+          throw new Error(`[${name}] ${detail}`, { cause: e });
+        }
+        throw e;
+      }
+    }) as T;
+  }
 
   return {
     get pendingMessages() {
@@ -191,37 +244,37 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile,
-    initialize,
-    initialized,
-    workspaceFoldersChanged,
-    watchedFilesChanged,
-    formatDocument,
-    gotoDefinition,
-    documentClosed,
-    documentOpened,
-    complete,
-    findReferences,
-    findDocumentHighlight,
-    prepareRename,
-    rename,
-    renameFiles,
-    getSemanticTokens: getSemanticTokensForDocument,
-    buildSemanticTokens,
-    checkChange,
-    getFoldingRanges,
-    getHover,
-    getSignatureHelp,
-    getDocumentSymbols,
-    getCodeActions,
-    executeCommand,
+    compile: wrapUnhandledError(compile),
+    initialize: wrapUnhandledError(initialize),
+    initialized: wrapUnhandledError(initialized),
+    workspaceFoldersChanged: wrapUnhandledError(workspaceFoldersChanged),
+    watchedFilesChanged: wrapUnhandledError(watchedFilesChanged),
+    formatDocument: wrapUnhandledError(formatDocument),
+    gotoDefinition: wrapUnhandledError(gotoDefinition),
+    documentClosed: wrapUnhandledError(documentClosed),
+    documentOpened: wrapUnhandledError(documentOpened),
+    complete: wrapUnhandledError(complete),
+    findReferences: wrapUnhandledError(findReferences),
+    findDocumentHighlight: wrapUnhandledError(findDocumentHighlight),
+    prepareRename: wrapUnhandledError(prepareRename),
+    rename: wrapUnhandledError(rename),
+    renameFiles: wrapUnhandledError(renameFiles),
+    getSemanticTokens: wrapUnhandledError(getSemanticTokensForDocument),
+    buildSemanticTokens: wrapUnhandledError(buildSemanticTokens),
+    checkChange: wrapUnhandledError(checkChange),
+    getFoldingRanges: wrapUnhandledError(getFoldingRanges),
+    getHover: wrapUnhandledError(getHover),
+    getSignatureHelp: wrapUnhandledError(getSignatureHelp),
+    getDocumentSymbols: wrapUnhandledError(getDocumentSymbols),
+    getCodeActions: wrapUnhandledError(getCodeActions),
+    resolveCodeAction: wrapUnhandledError(resolveCodeAction),
     log,
-    reportDiagnostics,
+    reportDiagnostics: wrapUnhandledError(reportDiagnostics),
 
-    getInitProjectContext,
-    validateInitProjectTemplate,
-    initProject,
-    internalCompile,
+    getInitProjectContext: wrapUnhandledError(getInitProjectContext),
+    validateInitProjectTemplate: wrapUnhandledError(validateInitProjectTemplate),
+    initProject: wrapUnhandledError(initProject),
+    internalCompile: wrapUnhandledError(internalCompile),
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -283,9 +336,7 @@ export function createServer(
       },
       codeActionProvider: {
         codeActionKinds: ["quickfix"],
-      },
-      executeCommandProvider: {
-        commands: [Commands.APPLY_CODE_FIX],
+        resolveProvider: true,
       },
     };
 
@@ -716,7 +767,7 @@ export function createServer(
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
-    currentDiagnosticIndex.clear();
+    const newDiagnosticIndex = new Map<number, Diagnostic>();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -789,9 +840,13 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        currentDiagnosticIndex.set(diagnostic.data.id, each);
+        newDiagnosticIndex.set(diagnostic.data.id, each);
       }
     }
+
+    // Atomically swap the diagnostic index so that in-flight code action resolves
+    // referencing old diagnostic IDs can still find their entries until new diagnostics are sent.
+    currentDiagnosticIndex = newDiagnosticIndex;
 
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
@@ -822,7 +877,7 @@ export function createServer(
       // Avoid showing full definition in other cases which can be long and not useful
       let includeExpandedDefinition = false;
       const sn = getSymNode(sym[0]);
-      if (sn.kind !== SyntaxKind.AliasStatement) {
+      if (sn && sn.kind !== SyntaxKind.AliasStatement) {
         const type = sym[0].type ?? program.checker.getTypeOrValueForNode(sn);
         if (type && "kind" in type) {
           const modelHasExtendOrIs: boolean =
@@ -1249,7 +1304,13 @@ export function createServer(
           if (!s || s.length <= 0) {
             return;
           }
-          if (s[0] === sym[0] || (sym[0].type && s[0].type === sym[0].type)) {
+          if (
+            s.some((candidate) =>
+              sym.some(
+                (target) => candidate === target || (target.type && candidate.type === target.type),
+              ),
+            )
+          ) {
             references.push(node);
           }
         }
@@ -1303,16 +1364,10 @@ export function createServer(
 
       for (const fix of tspDiag.codefixes ?? []) {
         const codeAction: CodeAction = {
-          ...CodeAction.create(
-            fix.label,
-            {
-              title: fix.label,
-              command: Commands.APPLY_CODE_FIX,
-              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
-            },
-            CodeActionKind.QuickFix,
-          ),
+          title: fix.label,
+          kind: CodeActionKind.QuickFix,
           diagnostics: [vsDiag],
+          data: { diagId: vsDiag.data?.id, fixId: fix.id },
         };
         actions.push(codeAction);
       }
@@ -1321,19 +1376,17 @@ export function createServer(
     return actions;
   }
 
-  async function executeCommand(params: ExecuteCommandParams) {
-    if (params.command === Commands.APPLY_CODE_FIX) {
-      const [, diagId, fixId] = params.arguments ?? [];
-      if (diagId && fixId) {
-        const diag = currentDiagnosticIndex.get(diagId);
-        const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
-        if (codeFix) {
-          const edits = await resolveCodeFix(codeFix);
-          const vsEdits = convertCodeFixEdits(edits);
-          await host.applyEdit({ documentChanges: vsEdits });
-        }
+  async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
+    const { diagId, fixId } = codeAction.data ?? {};
+    if (diagId !== undefined && fixId) {
+      const diag = currentDiagnosticIndex.get(diagId);
+      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
+      if (codeFix) {
+        const edits = await resolveCodeFix(codeFix);
+        codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
       }
     }
+    return codeAction;
   }
 
   function convertCodeFixEdits(edits: CodeFixEdit[]) {

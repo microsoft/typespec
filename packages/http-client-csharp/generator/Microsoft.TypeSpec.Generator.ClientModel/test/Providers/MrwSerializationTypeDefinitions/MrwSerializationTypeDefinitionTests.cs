@@ -599,6 +599,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void IsExactNamePropertySerializationUsesExactName()
+        {
+            // When a property has IsExactName, both the C# property identifier and the wire name
+            // should appear verbatim in the generated JsonModelWriteCore body — i.e. the wire name
+            // is written via WritePropertyName and the C# property reference uses the exact name.
+            var property = InputFactory.Property(
+                "access_token",
+                InputPrimitiveType.String,
+                wireName: "access_token",
+                isRequired: true,
+                isExactName: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# property name preserves the exact-case name.
+            Assert.AreEqual("access_token", model.Properties[0].Name);
+
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var serializationBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("serialize"), serializationBody);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("deserialize"), deserializationBody);
+        }
+
+        [Test]
+        public void IsExactNameModelSerializationUsesExactName()
+        {
+            // When a model has IsExactName, the model name is preserved verbatim and
+            // generated Deserialize method signature uses the exact name.
+            var property = InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true, wireName: "Name");
+            var inputModel = InputFactory.Model("snake_case_model", properties: [property], isExactName: true);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# model name preserves the exact-case name.
+            Assert.AreEqual("snake_case_model", model.Name);
+
+            // The deserialization method name is built from the model name verbatim.
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            // cspell:ignore Deserializesnake
+            Assert.AreEqual("Deserializesnake_case_model", deserializationMethod.Signature.Name);
+
+            // Full deserialization body uses the exact model name verbatim throughout.
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), deserializationBody);
+        }
+
+        [Test]
         public void GetUtf8BytesIsUsedForMrwFallback()
         {
             var property = InputFactory.Property(
@@ -848,9 +897,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
@@ -866,10 +917,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return expr.ToDisplayString();
         }
 
-        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalSeconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalSeconds)));\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
-        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalMilliseconds));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalMilliseconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalMilliseconds)));\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
@@ -919,7 +972,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             public bool PropertiesAccessed => _propertiesAccessed;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 _propertiesAccessed = true;
                 return base.BuildProperties();

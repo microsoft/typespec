@@ -95,6 +95,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
+        self.cross_language_version = self.yaml_data.get("crossLanguageVersion")
         self.for_test: bool = False
         # key is typespec namespace, value is models/clients/opeartion_groups/enums cache in the namespace
         self._client_namespace_types: dict[str, ClientNamespaceType] = {}

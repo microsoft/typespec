@@ -42,15 +42,15 @@ __all__ = [
     "JinjaSerializer",
 ]
 
-_PACKAGE_FILES = [
+_DEFAULT_PACKAGE_FILES = (
     "CHANGELOG.md.jinja2",
     "dev_requirements.txt.jinja2",
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-]
+)
 
-_REGENERATE_FILES = {"MANIFEST.in"}
+_DEFAULT_REGENERATE_FILES = frozenset({"MANIFEST.in"})
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
 
@@ -75,15 +75,17 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         super().__init__(output_folder=output_folder, **kwargs)
         self.code_model = code_model
+        self._package_files: list[str] = list(_DEFAULT_PACKAGE_FILES)
+        self._regenerate_files: set[str] = set(_DEFAULT_REGENERATE_FILES)
         self._regenerate_setup_py()
 
     def _regenerate_setup_py(self):
         if self.code_model.options["keep-setup-py"] or self.code_model.options["basic-setup-py"]:
-            _PACKAGE_FILES.append("setup.py.jinja2")
-            _REGENERATE_FILES.add("setup.py")
+            self._package_files.append("setup.py.jinja2")
+            self._regenerate_files.add("setup.py")
         else:
-            _PACKAGE_FILES.append("pyproject.toml.jinja2")
-            _REGENERATE_FILES.add("pyproject.toml")
+            self._package_files.append("pyproject.toml.jinja2")
+            self._regenerate_files.add("pyproject.toml")
 
     @property
     def has_aio_folder(self) -> bool:
@@ -183,8 +185,10 @@ class JinjaSerializer(ReaderAndWriter):
                 # When generation-subdir is configured, generated code goes into a subdirectory
                 # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
                 # so that the package is discoverable by find_packages() / pip install.
-                if self.code_model.options.get("generation-subdir"):
-                    root_dir = self.code_model.get_root_dir()
+                root_dir = self.code_model.get_root_dir()
+                if self.code_model.options.get("generation-subdir") and not self.read_file(
+                    root_dir / Path("__init__.py")
+                ):
                     self.write_file(
                         root_dir / Path("__init__.py"),
                         general_serializer.serialize_pkgutil_init_file(),
@@ -251,7 +255,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = list(_PACKAGE_FILES)  # Copy to avoid modifying global
+            package_files = list(self._package_files)
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():
@@ -270,7 +274,7 @@ class JinjaSerializer(ReaderAndWriter):
                 continue
             file = template_name.replace(".jinja2", "")
             output_file = root_of_sdk / file
-            if not self.read_file(output_file) or file in _REGENERATE_FILES:
+            if not self.read_file(output_file) or file in self._regenerate_files:
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
@@ -498,18 +502,17 @@ class JinjaSerializer(ReaderAndWriter):
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _version.py
+        # Always write at root namespace since pyproject.toml references it there
         self._serialize_and_write_version_file(general_serializer)
-        # if there's a subdir, we need to write another version file in the subdir
         if self.code_model.options.get("generation-subdir"):
             self._serialize_and_write_version_file(general_serializer, namespace)
 
         # write the empty py.typed file
+        # Always write at root namespace since MANIFEST.in references it there
         pytyped_value = "# Marker file for PEP 561."
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
-        # Use generation_dir so that relative imports from operations/clients
-        # within a generation-subdir resolve correctly.
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
                 generation_dir / Path("_validation.py"),

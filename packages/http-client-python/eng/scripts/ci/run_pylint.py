@@ -43,10 +43,19 @@ def _single_dir_pylint(mod):
         "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
         "--output-format=parseable",
         "--recursive=y",
-        "--py-version=3.9",
+        "--py-version=3.10",
     ]
     if is_azure:
         pylint_args.append("--load-plugins=pylint_guidelines_checker")
+    # Per-package suppressions for generated code where pylint's ignore-paths
+    # is not honored (pylint 4.x + recursive + plugin). Keep the scope as
+    # narrow as possible: only this package, only the offending check.
+    per_package_disables = {
+        "azure-client-generator-core-exact-name": ["client-incorrect-naming-convention"],
+    }
+    extra_disables = per_package_disables.get(mod.name)
+    if extra_disables:
+        pylint_args.append("--disable={}".format(",".join(extra_disables)))
     pylint_args.append(str(inner_class.absolute()))
     try:
         check_call(pylint_args)

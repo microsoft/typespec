@@ -35,10 +35,14 @@ except ImportError:
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
-from typing_extensions import Self
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
@@ -1397,7 +1401,7 @@ class Deserializer:
         # Otherwise, result are unexpected
         self.additional_properties_detection = True
 
-    def __call__(self, target_obj, response_data, content_type=None):
+    def __call__(self, target_obj, response_data, content_type=None):  # pylint: disable=too-many-return-statements
         """Call the deserializer to process a REST response.
 
         :param str target_obj: Target data type to deserialize to.
@@ -1407,6 +1411,27 @@ class Deserializer:
         :return: Deserialized object.
         :rtype: object
         """
+        # Fast path for header deserialization: response_data is a plain str or None
+        # and target_obj is a simple scalar type. This avoids the expensive
+        # _unpack_content → _deserialize → _classify_target → deserialize_data chain.
+        if response_data is None:
+            return None
+        if target_obj == "str" and isinstance(response_data, str):
+            return response_data
+        if isinstance(response_data, str):
+            if target_obj == "int":
+                return int(response_data)
+            if target_obj == "bool":
+                if response_data in ("true", "1", "True"):
+                    return True
+                if response_data in ("false", "0", "False"):
+                    return False
+                return bool(response_data)
+            if target_obj == "rfc-1123":
+                return Deserializer.deserialize_rfc(response_data)
+            if target_obj == "bytearray":
+                return Deserializer.deserialize_bytearray(response_data)
+
         data = self._unpack_content(response_data, content_type)
         return self._deserialize(target_obj, data)
 

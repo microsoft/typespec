@@ -175,29 +175,35 @@ namespace Pets {
   };
 
   @get
-  op getPet(@path petId: int32): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-  };
+  op getPet(@path petId: int32):
+    | {
+        @statusCode statusCode: 200;
+        @body pet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+      };
 
   @post
-  op createPet(@body pet: Pet): {
-    @statusCode statusCode: 201;
-    @body newPet: Pet;
-  } | {
-    @statusCode statusCode: 202;
-    @body acceptedPet: Pet;
-  };
+  op createPet(@body pet: Pet):
+    | {
+        @statusCode statusCode: 201;
+        @body newPet: Pet;
+      }
+    | {
+        @statusCode statusCode: 202;
+        @body acceptedPet: Pet;
+      };
 
   @put
-  op updatePet(@path petId: int32, @body pet: Pet): {
-    @statusCode statusCode: 200;
-    @body updatedPet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-  };
+  op updatePet(@path petId: int32, @body pet: Pet):
+    | {
+        @statusCode statusCode: 200;
+        @body updatedPet: Pet;
+      }
+    | {
+        @statusCode statusCode: 404;
+      };
 
   @delete
   op deletePet(@path petId: int32): {

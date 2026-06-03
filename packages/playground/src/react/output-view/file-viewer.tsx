@@ -14,17 +14,17 @@ const FileViewerComponent = ({
   program,
   outputFiles,
   fileViewers,
-  highlightChanges,
 }: OutputViewerProps & {
   fileViewers: Record<string, FileOutputViewer>;
-  highlightChanges: boolean;
 }) => {
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const { changedFiles, changedLines } = useFileChanges(program, outputFiles, highlightChanges);
+  const { changedFiles, changedLines } = useFileChanges(program, outputFiles);
 
   const showFileTree = useMemo(
-    () => outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3,
+    () =>
+      outputFiles.length > 1 &&
+      (outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3),
     [outputFiles],
   );
 
@@ -71,7 +71,7 @@ const FileViewerComponent = ({
               files={outputFiles}
               selected={filename}
               onSelect={handleFileSelection}
-              changedFiles={highlightChanges ? changedFiles : undefined}
+              changedFiles={changedFiles}
             />
           </Pane>
           <Pane>
@@ -82,7 +82,7 @@ const FileViewerComponent = ({
                   filename={filename}
                   content={content}
                   viewers={fileViewers}
-                  changedLineNumbers={highlightChanges ? changedLines.get(filename) : undefined}
+                  changedLineNumbers={changedLines.get(filename)}
                 />
               </div>
             </div>
@@ -100,36 +100,21 @@ const FileViewerComponent = ({
           filename={filename}
           content={content}
           viewers={fileViewers}
-          changedLineNumbers={highlightChanges ? changedLines.get(filename) : undefined}
+          changedLineNumbers={changedLines.get(filename)}
         />
       </div>
     </div>
   );
 };
 
-export interface FileViewerOptions {
-  /** When true, highlights changed files in the tree and changed lines in the editor after recompilation. */
-  highlightChanges?: boolean;
-}
-
-export function createFileViewer(
-  fileViewers: FileOutputViewer[],
-  options?: FileViewerOptions,
-): ProgramViewer {
+export function createFileViewer(fileViewers: FileOutputViewer[]): ProgramViewer {
   const viewerMap = Object.fromEntries(fileViewers.map((x) => [x.key, x]));
-  const highlightChanges = options?.highlightChanges ?? false;
   return {
     key: "file-output",
     label: "Output explorer",
     icon: <FolderListRegular />,
     render: (props) => {
-      return (
-        <FileViewerComponent
-          {...props}
-          fileViewers={viewerMap}
-          highlightChanges={highlightChanges}
-        />
-      );
+      return <FileViewerComponent {...props} fileViewers={viewerMap} />;
     },
   };
 }

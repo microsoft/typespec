@@ -948,6 +948,96 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void MultipleRootClients_WithoutClientDecorator_EachGeneratesItsOwnClientOptions()
+        {
+            // Simulates a library with two @service-decorated namespaces and no @client
+            // decorator, where TCGC produces a separate single-service root client per
+            // service. Each root client should generate its own ClientOptions class that
+            // exposes its own service-specific ApiVersion enum (not the first one in the
+            // library).
+            List<string> serviceAVersions = ["2024-01-01"];
+            List<string> serviceBVersions = ["2024-06-01"];
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceAVersions",
+                serviceAVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Service.MultipleServices.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceBVersions",
+                serviceBVersions.Select(a => (a, a)),
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Service.MultipleServices.ServiceB");
+
+            InputParameter serviceAApiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                serviceAEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+            InputParameter serviceBApiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                serviceBEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [serviceAApiVersionParameter],
+                ns: "Service.MultipleServices.ServiceA");
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [serviceBApiVersionParameter],
+                ns: "Service.MultipleServices.ServiceB");
+
+            var serviceAClient = InputFactory.Client(
+                "ServiceAClient",
+                clientNamespace: "Service.MultipleServices.ServiceA",
+                methods: [InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation)],
+                parameters: [serviceAApiVersionParameter]);
+            var serviceBClient = InputFactory.Client(
+                "ServiceBClient",
+                clientNamespace: "Service.MultipleServices.ServiceB",
+                methods: [InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)],
+                parameters: [serviceBApiVersionParameter]);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [serviceAClient, serviceBClient],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var serviceAClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(serviceAClient);
+            var serviceBClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(serviceBClient);
+            Assert.IsNotNull(serviceAClientProvider);
+            Assert.IsNotNull(serviceBClientProvider);
+
+            var serviceAClientOptions = serviceAClientProvider!.ClientOptions;
+            var serviceBClientOptions = serviceBClientProvider!.ClientOptions;
+
+            Assert.IsNotNull(serviceAClientOptions);
+            Assert.IsNotNull(serviceBClientOptions);
+
+            // Each root client should get its own distinct ClientOptions type.
+            Assert.AreNotSame(serviceAClientOptions, serviceBClientOptions);
+            Assert.AreEqual("ServiceAClientOptions", serviceAClientOptions!.Type.Name);
+            Assert.AreEqual("ServiceBClientOptions", serviceBClientOptions!.Type.Name);
+
+            // Each options class should expose its own service-specific ApiVersion enum
+            // as a nested type (verified by the original namespace of the enum).
+            Assert.AreEqual(1, serviceAClientOptions.NestedTypes.Count,
+                "ServiceAClientOptions should have one nested api version enum");
+            Assert.AreEqual(1, serviceBClientOptions.NestedTypes.Count,
+                "ServiceBClientOptions should have one nested api version enum");
+            Assert.AreEqual("Service.MultipleServices.ServiceA",
+                ((Microsoft.TypeSpec.Generator.Providers.EnumProvider)serviceAClientOptions.NestedTypes[0]).InputNamespace,
+                "ServiceAClientOptions should nest ServiceA's api version enum");
+            Assert.AreEqual("Service.MultipleServices.ServiceB",
+                ((Microsoft.TypeSpec.Generator.Providers.EnumProvider)serviceBClientOptions.NestedTypes[0]).InputNamespace,
+                "ServiceBClientOptions should nest ServiceB's api version enum");
+        }
+
+        [Test]
         public void TestConfigurationSectionConstructorBody_WithBoolProperty()
         {
             var boolParam = InputFactory.MethodParameter(

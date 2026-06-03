@@ -17,6 +17,7 @@ $azureAllowSpecs = @(
   Join-Path 'http' 'client' 'structure' 'renamed-operation'
   Join-Path 'http' 'client' 'structure' 'two-operation-group'
   Join-Path 'http' 'resiliency' 'srv-driven'
+  Join-Path 'http' 'service' 'multiple-services'
 )
 
 function Capitalize-FirstLetter {
