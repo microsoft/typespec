@@ -158,6 +158,8 @@ CLOUD_SETTING = {
         "isTypingOnly": True,
     },
 }
+STANDARD_IF_MATCH_WIRE_NAME = "if-match"
+STANDARD_IF_NONE_MATCH_WIRE_NAME = "if-none-match"
 
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
@@ -167,6 +169,103 @@ def get_wire_name_lower(parameter: dict[str, Any]) -> str:
 def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
     """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter."""
     return parameter.get("etagRole")
+
+
+def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -> Optional[dict[str, Any]]:
+    """Choose which etag-typed header should be promoted to the etag/match_condition slot.
+
+    When more than one etag-typed header is present in an operation, prefer the
+    standard If-Match/If-None-Match header (matched on wireName). Otherwise
+    fall back to the first candidate. Returns None if there are no candidates.
+    """
+    if not candidates:
+        return None
+    for c in candidates:
+        if get_wire_name_lower(c) == standard_wire_name:
+            return c
+    return candidates[0]
+
+
+def _resolve_etag_pair(
+    if_match_candidates: list[dict[str, Any]],
+    if_none_match_candidates: list[dict[str, Any]],
+) -> tuple[Optional[dict[str, Any]], Optional[dict[str, Any]]]:
+    """Select and reconcile the etag header pair for an operation.
+
+    When multiple etag-typed headers are present, prefer the standard
+    If-Match / If-None-Match pair.  Synthesize a missing partner when only
+    one side is present, and strip etagRole from non-selected candidates.
+
+    Returns (property_if_match, property_if_none_match) — both None when
+    there are no etag candidates.
+    """
+    property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
+    property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)
+
+    # Ensure the promoted pair come from the same family.  When one slot is
+    # standard and the other custom (cross-family), replace the custom slot
+    # with a synthetic standard partner.  Also synthesize the missing partner
+    # when only one side is present.
+    if property_if_match and property_if_none_match:
+        match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
+        none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
+        if match_is_std and not none_match_is_std:
+            property_if_none_match = property_if_match.copy()
+            property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+            property_if_none_match["etagRole"] = "ifNoneMatch"
+        elif none_match_is_std and not match_is_std:
+            property_if_match = property_if_none_match.copy()
+            property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+            property_if_match["etagRole"] = "ifMatch"
+    elif not property_if_match and property_if_none_match:
+        property_if_match = property_if_none_match.copy()
+        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+        property_if_match["etagRole"] = "ifMatch"
+    elif property_if_match and not property_if_none_match:
+        property_if_none_match = property_if_match.copy()
+        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+        property_if_none_match["etagRole"] = "ifNoneMatch"
+
+    for c in if_match_candidates:
+        if c is not property_if_match:
+            c.pop("etagRole", None)
+    for c in if_none_match_candidates:
+        if c is not property_if_none_match:
+            c.pop("etagRole", None)
+
+    return property_if_match, property_if_none_match
+
+
+def _process_operation_etag_headers(
+    operation: dict[str, Any],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    """Collect etag candidates from *operation*, resolve the promoted pair,
+    and update *operation* / *client* accordingly."""
+    if_match_candidates: list[dict[str, Any]] = []
+    if_none_match_candidates: list[dict[str, Any]] = []
+    for p in operation["parameters"]:
+        wire_name_lower = get_wire_name_lower(p)
+        if p["location"] == "header" and wire_name_lower == "client-request-id":
+            client["requestIdHeaderName"] = wire_name_lower
+        if version_tolerant and p["location"] == "header":
+            role = _get_etag_role(p)
+            if role == "ifMatch":
+                if_match_candidates.append(p)
+            elif role == "ifNoneMatch":
+                if_none_match_candidates.append(p)
+
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
+
+    if property_if_match and property_if_none_match:
+        etag_params = {id(property_if_match), id(property_if_none_match)}
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+            property_if_match,
+            property_if_none_match,
+        ]
+        operation["hasEtag"] = True
+        client["hasEtag"] = True
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -313,40 +412,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data["builderPadName"] = to_snake_case(prop_name)
         for og in yaml_data.get("operationGroups", []):
             for o in og["operations"]:
-                property_if_match = None
-                property_if_none_match = None
-                for p in o["parameters"]:
-                    wire_name_lower = get_wire_name_lower(p)
-                    if p["location"] == "header" and wire_name_lower == "client-request-id":
-                        yaml_data["requestIdHeaderName"] = wire_name_lower
-                    if self.version_tolerant and p["location"] == "header":
-                        role = _get_etag_role(p)
-                        if role == "ifMatch" and not property_if_match:
-                            property_if_match = p
-                        elif role == "ifNoneMatch" and not property_if_none_match:
-                            property_if_none_match = p
-                # pylint: disable=line-too-long
-                # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
-                # only has one, so we need to add "if-none-match" or "if-match" if it's missing
-                if not property_if_match and property_if_none_match:
-                    property_if_match = property_if_none_match.copy()
-                    property_if_match["wireName"] = "if-match"
-                    property_if_match["etagRole"] = "ifMatch"
-                if not property_if_none_match and property_if_match:
-                    property_if_none_match = property_if_match.copy()
-                    property_if_none_match["wireName"] = "if-none-match"
-                    property_if_none_match["etagRole"] = "ifNoneMatch"
-
-                if property_if_match and property_if_none_match:
-                    # arrange if-match and if-none-match to the end of parameters
-                    etag_params = {id(property_if_match), id(property_if_none_match)}
-                    o["parameters"] = [item for item in o["parameters"] if id(item) not in etag_params] + [
-                        property_if_match,
-                        property_if_none_match,
-                    ]
-
-                    o["hasEtag"] = True
-                    yaml_data["hasEtag"] = True
+                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:

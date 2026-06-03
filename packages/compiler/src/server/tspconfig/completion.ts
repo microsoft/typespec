@@ -8,6 +8,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { Document, isMap, isPair, Node } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import { compilerFeatureNames, compilerFeatures } from "../../core/features.js";
 import {
   getDirectoryPath,
   getNormalizedAbsolutePath,
@@ -76,6 +77,7 @@ export async function provideTspconfigCompletionItems(
     const CONFIG_PATH_LENGTH_FOR_LINTER_LIST = 2;
     const CONFIG_PATH_LENGTH_FOR_EXTENDS = 1;
     const CONFIG_PATH_LENGTH_FOR_IMPORTS = 2;
+    const CONFIG_PATH_LENGTH_FOR_FEATURES = 2;
 
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
@@ -187,6 +189,21 @@ export async function provideTspconfigCompletionItems(
         });
       }
       return items;
+    } else if (
+      nodePath.length === CONFIG_PATH_LENGTH_FOR_FEATURES &&
+      nodePath[0] === "features" &&
+      targetType === "arr-item"
+    ) {
+      return compilerFeatureNames
+        .filter((name) => !siblings.includes(name))
+        .map((name) =>
+          createCompletionItemWithQuote(
+            name,
+            compilerFeatures[name].description,
+            tspConfigPosition,
+            target,
+          ),
+        );
     } else if (nodePath.length === CONFIG_PATH_LENGTH_FOR_EXTENDS && nodePath[0] === "extends") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);
