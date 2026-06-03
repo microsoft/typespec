@@ -1,7 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
 import jsyaml from "js-yaml";
-import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -12,6 +11,7 @@ import {
 } from "./constants.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
+import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 
 function getBrowserPygenWheelUrl(): string {

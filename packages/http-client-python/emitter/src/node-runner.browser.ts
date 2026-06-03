@@ -3,9 +3,9 @@
 // `runNodeEmit`, so this stub is defense-in-depth — if it does get called,
 // surface a clear diagnostic rather than a cryptic missing-module error.
 
+import type { EmitContext } from "@typespec/compiler";
 import { NoTarget } from "@typespec/compiler";
 import type { PyodideInterface } from "pyodide";
-import type { EmitContext } from "@typespec/compiler";
 import { PythonEmitterOptions, reportDiagnostic } from "./lib.js";
 
 export interface RunNodeEmitArgs {

@@ -86,12 +86,7 @@ export async function runNodeEmit({
     // mount yaml file to pyodide
     pyodide.FS.mkdirTree("/yaml");
     pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
-    await runPyodideGeneration(
-      pyodide,
-      "/output",
-      `/yaml/${path.basename(yamlPath)}`,
-      commandArgs,
-    );
+    await runPyodideGeneration(pyodide, "/output", `/yaml/${path.basename(yamlPath)}`, commandArgs);
     return;
   }
 

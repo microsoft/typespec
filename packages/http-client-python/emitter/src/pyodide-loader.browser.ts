@@ -14,7 +14,6 @@ interface LoadPyodideOptions {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var loadPyodide: ((options: LoadPyodideOptions) => Promise<PyodideInterface>) | undefined;
 }
 
