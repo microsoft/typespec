@@ -4,7 +4,7 @@ import "@typespec/spector";
 using Http;
 using Spector;
 
-@doc("Test for encode decorator on boolean.")
+/** Test for encode decorator on boolean. */
 @scenarioService("/encode/boolean")
 namespace Encode.Boolean;
 
