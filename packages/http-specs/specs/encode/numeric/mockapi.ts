@@ -31,6 +31,6 @@ Scenarios.Encode_Numeric_Property_uint8AsString = createTests(
   "255",
 );
 Scenarios.Encode_Numeric_Property_boolAsString = createTests(
-  "/encode/numeric/property/boolean",
+  "/encode/numeric/property/bool-as-string",
   "true",
 );

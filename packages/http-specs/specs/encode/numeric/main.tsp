@@ -40,7 +40,7 @@ namespace Property {
     value: uint8;
   }
 
-  @route("/boolean")
+  @route("/bool-as-string")
   @scenario
   @scenarioDoc("""
     Test operation with request and response model containing a property of boolean type with string encode.
