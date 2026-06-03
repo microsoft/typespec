@@ -14,6 +14,7 @@ using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -148,7 +149,24 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
-            document = await Simplifier.ReduceAsync(document);
+            document = await ReduceQualifiedNamesAsync(document);
+            root = await document.GetSyntaxRootAsync();
+            if (root == null)
+            {
+                return document;
+            }
+
+            var simplifierSpans = GetSimplifierSpans(root);
+            if (simplifierSpans.Count > 0)
+            {
+                root = root.WithAdditionalAnnotations(Simplifier.Annotation);
+                document = document.WithSyntaxRoot(root);
+                document = await Simplifier.ReduceAsync(document, simplifierSpans);
+            }
+            else if (ContainsSimplifierAnnotations(root))
+            {
+                document = await Simplifier.ReduceAsync(document);
+            }
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
@@ -157,6 +175,128 @@ namespace Microsoft.TypeSpec.Generator
             }
             return document;
         }
+
+        private static async Task<Document> ReduceQualifiedNamesAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+            if (root == null || semanticModel == null)
+            {
+                return document;
+            }
+
+            var safeNodes = new HashSet<NameSyntax>();
+            foreach (var name in root.DescendantNodes().OfType<NameSyntax>())
+            {
+                if (name is not QualifiedNameSyntax and not AliasQualifiedNameSyntax ||
+                    name.Parent is QualifiedNameSyntax ||
+                    IsInUnsupportedQualifiedNameContext(name))
+                {
+                    continue;
+                }
+
+                var originalSymbol = semanticModel.GetSymbolInfo(name).Symbol;
+                if (originalSymbol == null)
+                {
+                    continue;
+                }
+
+                var replacement = GetRightmostName(name).WithTriviaFrom(name);
+                if (SpeculativelyBindsToSameSymbol(semanticModel, name, replacement, originalSymbol))
+                {
+                    safeNodes.Add(name);
+                }
+            }
+
+            if (safeNodes.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root.ReplaceNodes(
+                safeNodes,
+                static (_, rewritten) => GetRightmostName(rewritten).WithTriviaFrom(rewritten));
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static bool SpeculativelyBindsToSameSymbol(
+            SemanticModel semanticModel,
+            NameSyntax originalName,
+            SimpleNameSyntax replacement,
+            ISymbol originalSymbol)
+        {
+            var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                originalName.SpanStart,
+                replacement,
+                SpeculativeBindingOption.BindAsTypeOrNamespace).Symbol;
+            if (speculativeSymbol != null &&
+                SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
+            {
+                return true;
+            }
+
+            if (originalName.Parent is MemberAccessExpressionSyntax memberAccess &&
+                memberAccess.Expression == originalName)
+            {
+                speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                    originalName.SpanStart,
+                    replacement,
+                    SpeculativeBindingOption.BindAsExpression).Symbol;
+                return speculativeSymbol != null &&
+                    SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol);
+            }
+
+            return false;
+        }
+
+        private static SimpleNameSyntax GetRightmostName(NameSyntax name) => name switch
+        {
+            QualifiedNameSyntax qualifiedName => qualifiedName.Right,
+            AliasQualifiedNameSyntax aliasQualifiedName => aliasQualifiedName.Name,
+            SimpleNameSyntax simpleName => simpleName,
+            _ => throw new InvalidOperationException($"Unexpected name syntax: {name.Kind()}")
+        };
+
+        private static bool IsInUnsupportedQualifiedNameContext(NameSyntax name) =>
+            name.Ancestors().Any(static ancestor =>
+                ancestor is UsingDirectiveSyntax ||
+                ancestor is CrefSyntax);
+
+        private static bool ContainsSimplifierAnnotations(SyntaxNode root) =>
+            root.HasAnnotation(Simplifier.Annotation) ||
+            root.DescendantNodesAndTokens(descendIntoTrivia: true).Any(static nodeOrToken =>
+                nodeOrToken.HasAnnotation(Simplifier.Annotation));
+
+        private static IReadOnlyList<TextSpan> GetSimplifierSpans(SyntaxNode root)
+        {
+            List<TextSpan> spans = new();
+            foreach (var member in root.DescendantNodes().OfType<MemberDeclarationSyntax>())
+            {
+                if (ContainsReducibleSyntax(member))
+                {
+                    spans.Add(member.FullSpan);
+                }
+            }
+
+            spans.AddRange(root
+                .DescendantNodesAndTokens(descendIntoTrivia: true)
+                .Where(static nodeOrToken => nodeOrToken.HasAnnotation(Simplifier.Annotation))
+                .Select(static nodeOrToken => nodeOrToken.FullSpan));
+
+            return spans;
+        }
+
+        private static bool ContainsReducibleSyntax(SyntaxNode root) =>
+            root.DescendantNodes(
+                descendIntoChildren: node => node == root || node is not MemberDeclarationSyntax,
+                descendIntoTrivia: true).Any(static node =>
+                node is ThisExpressionSyntax ||
+                node is ParenthesizedExpressionSyntax ||
+                node is CrefSyntax ||
+                node is QualifiedNameSyntax ||
+                node is MemberAccessExpressionSyntax ||
+                node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } ||
+                node is AliasQualifiedNameSyntax { Alias.Identifier.ValueText: "global" });
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
         public static bool IsCustomDocument(Document document) => !IsGeneratedDocument(document);
