@@ -541,6 +541,12 @@ const diagnostics = {
       default: paramMessage`A constructor already exists with name ${"name"}`,
     },
   },
+  "scalar-init-valueof": {
+    severity: "error",
+    messages: {
+      default: `Scalar initializer parameters implicitly accept values. Remove 'valueof' from the parameter type.`,
+    },
+  },
   "spread-enum": {
     severity: "error",
     messages: {
