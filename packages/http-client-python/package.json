@@ -76,7 +76,7 @@
     "@typespec/xml": ">=0.82.0 <1.0.0",
     "@alloy-js/core": "^0.22.0",
     "@alloy-js/python": "^0.3.0",
-    "@typespec/emitter-framework": ">=0.17.0 <1.0.0"
+    "@typespec/emitter-framework": "file:../emitter-framework"
   },
   "playgroundConfig": {
     "assets": [
@@ -118,7 +118,7 @@
     "@typespec/sse": "~0.82.0",
     "@typespec/streams": "~0.82.0",
     "@typespec/xml": "~0.82.0",
-    "@typespec/emitter-framework": "~0.17.0",
+    "@typespec/emitter-framework": "file:../emitter-framework",
     "@alloy-js/core": "^0.22.0",
     "@alloy-js/python": "^0.3.0",
     "@typespec/http-specs": "0.1.0-alpha.37",
