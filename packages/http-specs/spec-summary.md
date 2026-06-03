@@ -1310,6 +1310,27 @@ Expected query parameter `input=120`
 Test iso8601 encode for a duration parameter.
 Expected query parameter `input=P40D`
 
+### Encode_Numeric_Property_boolAsString
+
+- Endpoint: `post /encode/numeric/property/bool`
+
+Test operation with request and response model contains property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "true"
+}
+```
+
 ### Encode_Numeric_Property_safeintAsString
 
 - Endpoint: `post /encode/numeric/property/safeint`
