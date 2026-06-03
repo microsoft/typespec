@@ -716,9 +716,13 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     run(`git fetch --depth 1 origin ${branch}`);
     run(`git checkout FETCH_HEAD`);
 
+    // we don't copy whole generated folder, just the specific subfolders needed for tests
+    // to verify correct preservation/deletion of files and folders during regeneration,
+    // to avoid accidentally including any manually edited code that might be in the repo
+    // and cause confusion when it doesn't get updated during regeneration
     const legacyCodePathNeededForTests = [
-      "azure/authentication/api-key",
-      "unbranded/authentication/api-key",
+      "azure/authentication-api-key",
+      "unbranded/authentication-api-key",
       "azure/authentication-union",
       "azure/generation-subdir",
       "azure/generation-subdir2",
