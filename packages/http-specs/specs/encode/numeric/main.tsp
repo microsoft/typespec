@@ -40,10 +40,10 @@ namespace Property {
     value: uint8;
   }
 
-  @route("/bool")
+  @route("/boolean")
   @scenario
   @scenarioDoc("""
-    Test operation with request and response model contains property of boolean type with string encode.
+    Test operation with request and response model containing a property of boolean type with string encode.
     Expected request body:
     ```json
     {

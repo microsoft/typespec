@@ -1312,9 +1312,9 @@ Expected query parameter `input=P40D`
 
 ### Encode_Numeric_Property_boolAsString
 
-- Endpoint: `post /encode/numeric/property/bool`
+- Endpoint: `post /encode/numeric/property/boolean`
 
-Test operation with request and response model contains property of boolean type with string encode.
+Test operation with request and response model containing a property of boolean type with string encode.
 Expected request body:
 
 ```json
