@@ -205,8 +205,12 @@ public class GenerationCacheTests
         {
             cache.Set("k" + i, new CachedGenerationResponse(payload, "application/json"));
         }
+
         backing.Compact(0.0);
 
-        Assert.LessOrEqual(backing.Count * 256, 1024);
+        // With a 1024-byte size limit and 8 entries of 256 bytes each, the cache must
+        // evict enough entries to stay within the configured budget.
+        Assert.That(backing.Count, Is.LessThan(8));
+        Assert.That(backing.Count * 256, Is.LessThanOrEqualTo(1024));
     }
 }
