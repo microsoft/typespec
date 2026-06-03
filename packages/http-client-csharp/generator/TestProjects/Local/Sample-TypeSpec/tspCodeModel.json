@@ -6882,12 +6882,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -7873,12 +7868,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -8269,12 +8259,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -8723,12 +8708,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -9125,12 +9105,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -9458,12 +9433,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -10008,12 +9978,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -10569,12 +10534,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -11336,12 +11296,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -12449,12 +12404,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -12895,12 +12845,7 @@
                       "isErrorResponse": false,
                       "contentTypes": [
                         "application/json"
-                      ],
-                      "serializationOptions": {
-                        "json": {
-                          "name": ""
-                        }
-                      }
+                      ]
                     },
                     "statusCode": 200,
                     "bodyValue": {
@@ -13717,8 +13662,7 @@
                         204
                       ],
                       "headers": [],
-                      "isErrorResponse": false,
-                      "serializationOptions": {}
+                      "isErrorResponse": false
                     },
                     "statusCode": 204
                   }
@@ -14409,12 +14353,7 @@
                           "isErrorResponse": false,
                           "contentTypes": [
                             "application/json"
-                          ],
-                          "serializationOptions": {
-                            "json": {
-                              "name": ""
-                            }
-                          }
+                          ]
                         },
                         "statusCode": 200,
                         "bodyValue": {
@@ -14701,12 +14640,7 @@
                           "isErrorResponse": false,
                           "contentTypes": [
                             "application/json"
-                          ],
-                          "serializationOptions": {
-                            "json": {
-                              "name": ""
-                            }
-                          }
+                          ]
                         },
                         "statusCode": 200,
                         "bodyValue": {
@@ -16249,12 +16183,7 @@
                           "isErrorResponse": false,
                           "contentTypes": [
                             "application/json"
-                          ],
-                          "serializationOptions": {
-                            "json": {
-                              "name": ""
-                            }
-                          }
+                          ]
                         },
                         "statusCode": 200,
                         "bodyValue": {
@@ -16508,12 +16437,7 @@
                           "isErrorResponse": false,
                           "contentTypes": [
                             "application/json"
-                          ],
-                          "serializationOptions": {
-                            "json": {
-                              "name": ""
-                            }
-                          }
+                          ]
                         },
                         "statusCode": 200,
                         "bodyValue": {
