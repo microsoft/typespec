@@ -7382,6 +7382,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.declaredType as ScalarConstructor;
     }
 
+    for (const param of node.parameters) {
+      if (param.type && param.type.kind === SyntaxKind.ValueOfExpression) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "scalar-init-valueof",
+            target: param.type,
+          }),
+        );
+      }
+    }
+
     const member: ScalarConstructor = createType({
       kind: "ScalarConstructor",
       scalar: parentScalar,

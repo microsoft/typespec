@@ -157,4 +157,19 @@ describe("compiler: scalars", () => {
       });
     });
   });
+
+  describe("scalar initializer valueof constraint", () => {
+    it("emit error when scalar init parameter uses valueof", async () => {
+      const diagnostics = await Tester.diagnose(`
+        scalar S {
+          init i(s: valueof string);
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "scalar-init-valueof",
+        message:
+          "Scalar initializer parameters implicitly accept values. Remove 'valueof' from the parameter type.",
+      });
+    });
+  });
 });
