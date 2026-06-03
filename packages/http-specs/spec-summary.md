@@ -1550,9 +1550,9 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
-### Parameters_Query_Prefix_dollarSign
+### Parameters_Query_SpecialChar_dollarSign
 
-- Endpoint: `get /parameters/query/prefix/dollarSign`
+- Endpoint: `get /parameters/query/special-char/dollarSign`
 
 Send a request with a dollar-sign prefixed`$filter` query parameter.
 
