@@ -1,5 +1,5 @@
-import * as py from "@alloy-js/python";
 import type { PythonElements } from "@alloy-js/python";
+import * as py from "@alloy-js/python";
 import * as ef from "@typespec/emitter-framework";
 import { reportDiagnostic } from "../../lib.js";
 

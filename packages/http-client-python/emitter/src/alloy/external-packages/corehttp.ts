@@ -11,11 +11,7 @@ export const coreHttpModule = createModule({
     runtime: ["PipelineClient", "AsyncPipelineClient"],
     rest: ["HttpRequest", "HttpResponse", "AsyncHttpResponse"],
     exceptions: ["HttpResponseError"],
-    credentials: [
-      "TokenCredential",
-      "AsyncTokenCredential",
-      "AzureKeyCredential",
-    ],
+    credentials: ["TokenCredential", "AsyncTokenCredential", "AzureKeyCredential"],
     polling: [
       "LROPoller",
       "AsyncLROPoller",
@@ -36,11 +32,7 @@ export const coreHttpModule = createModule({
 export const azureCoreModule = createModule({
   name: "azure.core",
   descriptor: {
-    ".": [
-      "PipelineClient",
-      "AsyncPipelineClient",
-      "CaseInsensitiveEnumMeta",
-    ],
+    ".": ["PipelineClient", "AsyncPipelineClient", "CaseInsensitiveEnumMeta"],
     rest: ["HttpRequest", "HttpResponse", "AsyncHttpResponse"],
     exceptions: ["HttpResponseError"],
     credentials: ["TokenCredential", "AzureKeyCredential"],
