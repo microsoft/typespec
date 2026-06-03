@@ -212,7 +212,8 @@ export function createServer(
    *     ...
    * ```
    */
-  function wrapUnhandledError<T extends (...args: any[]) => any>(name: string, fn: T): T {
+  function wrapUnhandledError<T extends (...args: any[]) => any>(fn: T): T {
+    const name = fn.name || "anonymous";
     return (async (...args: any[]) => {
       try {
         return await fn(...args);
@@ -243,40 +244,37 @@ export function createServer(
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile: wrapUnhandledError("compile", compile),
-    initialize: wrapUnhandledError("initialize", initialize),
-    initialized: wrapUnhandledError("initialized", initialized),
-    workspaceFoldersChanged: wrapUnhandledError("workspaceFoldersChanged", workspaceFoldersChanged),
-    watchedFilesChanged: wrapUnhandledError("watchedFilesChanged", watchedFilesChanged),
-    formatDocument: wrapUnhandledError("formatDocument", formatDocument),
-    gotoDefinition: wrapUnhandledError("gotoDefinition", gotoDefinition),
-    documentClosed: wrapUnhandledError("documentClosed", documentClosed),
-    documentOpened: wrapUnhandledError("documentOpened", documentOpened),
-    complete: wrapUnhandledError("complete", complete),
-    findReferences: wrapUnhandledError("findReferences", findReferences),
-    findDocumentHighlight: wrapUnhandledError("findDocumentHighlight", findDocumentHighlight),
-    prepareRename: wrapUnhandledError("prepareRename", prepareRename),
-    rename: wrapUnhandledError("rename", rename),
-    renameFiles: wrapUnhandledError("renameFiles", renameFiles),
-    getSemanticTokens: wrapUnhandledError("getSemanticTokens", getSemanticTokensForDocument),
-    buildSemanticTokens: wrapUnhandledError("buildSemanticTokens", buildSemanticTokens),
-    checkChange: wrapUnhandledError("checkChange", checkChange),
-    getFoldingRanges: wrapUnhandledError("getFoldingRanges", getFoldingRanges),
-    getHover: wrapUnhandledError("getHover", getHover),
-    getSignatureHelp: wrapUnhandledError("getSignatureHelp", getSignatureHelp),
-    getDocumentSymbols: wrapUnhandledError("getDocumentSymbols", getDocumentSymbols),
-    getCodeActions: wrapUnhandledError("getCodeActions", getCodeActions),
-    resolveCodeAction: wrapUnhandledError("resolveCodeAction", resolveCodeAction),
+    compile: wrapUnhandledError(compile),
+    initialize: wrapUnhandledError(initialize),
+    initialized: wrapUnhandledError(initialized),
+    workspaceFoldersChanged: wrapUnhandledError(workspaceFoldersChanged),
+    watchedFilesChanged: wrapUnhandledError(watchedFilesChanged),
+    formatDocument: wrapUnhandledError(formatDocument),
+    gotoDefinition: wrapUnhandledError(gotoDefinition),
+    documentClosed: wrapUnhandledError(documentClosed),
+    documentOpened: wrapUnhandledError(documentOpened),
+    complete: wrapUnhandledError(complete),
+    findReferences: wrapUnhandledError(findReferences),
+    findDocumentHighlight: wrapUnhandledError(findDocumentHighlight),
+    prepareRename: wrapUnhandledError(prepareRename),
+    rename: wrapUnhandledError(rename),
+    renameFiles: wrapUnhandledError(renameFiles),
+    getSemanticTokens: wrapUnhandledError(getSemanticTokensForDocument),
+    buildSemanticTokens: wrapUnhandledError(buildSemanticTokens),
+    checkChange: wrapUnhandledError(checkChange),
+    getFoldingRanges: wrapUnhandledError(getFoldingRanges),
+    getHover: wrapUnhandledError(getHover),
+    getSignatureHelp: wrapUnhandledError(getSignatureHelp),
+    getDocumentSymbols: wrapUnhandledError(getDocumentSymbols),
+    getCodeActions: wrapUnhandledError(getCodeActions),
+    resolveCodeAction: wrapUnhandledError(resolveCodeAction),
     log,
-    reportDiagnostics: wrapUnhandledError("reportDiagnostics", reportDiagnostics),
+    reportDiagnostics: wrapUnhandledError(reportDiagnostics),
 
-    getInitProjectContext: wrapUnhandledError("getInitProjectContext", getInitProjectContext),
-    validateInitProjectTemplate: wrapUnhandledError(
-      "validateInitProjectTemplate",
-      validateInitProjectTemplate,
-    ),
-    initProject: wrapUnhandledError("initProject", initProject),
-    internalCompile: wrapUnhandledError("internalCompile", internalCompile),
+    getInitProjectContext: wrapUnhandledError(getInitProjectContext),
+    validateInitProjectTemplate: wrapUnhandledError(validateInitProjectTemplate),
+    initProject: wrapUnhandledError(initProject),
+    internalCompile: wrapUnhandledError(internalCompile),
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
