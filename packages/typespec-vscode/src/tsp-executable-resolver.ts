@@ -8,6 +8,7 @@ import { SettingName } from "./types.js";
 import {
   checkInstalledExecutable,
   checkInstalledNode,
+  checkInstalledTspCli,
   isFile,
   loadModule,
   useShellInExec,
@@ -159,10 +160,32 @@ export async function resolveTypeSpecServer(
     });
     return { command: "node", args: [serverPath, ...args], options };
   } else {
-    // otherwise the local compiler should be installed by standalone tsp cli
-    logger.debug("Start tsp server using standalone tsp cli");
+    const tspCliPath = await checkInstalledTspCli();
+    if (tspCliPath.length > 0) {
+      logger.debug("Start tsp server using standalone tsp cli");
+      telemetryClient.logOperationDetailTelemetry(activityId, {
+        compilerStartType: "standalone-tsp-cli",
+      });
+      return { command: "tsp", args: ["--server", serverPath, ...args], options };
+    }
+    // Neither node nor tsp is on PATH. Show an actionable error but still try tsp
+    // as a last resort — it may work in some environments where `which` fails but
+    // the shell can still resolve the command.
+    logger.error(
+      [
+        `TypeSpec compiler was found at '${serverPath}', but it cannot be started because neither 'node' nor 'tsp' is available in PATH.`,
+        "This commonly happens when Node.js is installed via a version manager (nvm, fnm, volta) whose PATH is not inherited by VS Code.",
+        "To fix this, try one of the following:",
+        " - Launch VS Code from a terminal where 'node' is available (e.g. run 'code .' after activating nvm).",
+        " - Set the 'typespec.tsp-server.path' setting to the full path of your tsp-server.js file.",
+        " - Install Node.js system-wide so it's available to all processes.",
+      ].join("\n"),
+      [],
+      { showPopup: true, showOutput: true },
+    );
     telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerStartType: "standalone-tsp-cli",
+      compilerStartType: "standalone-tsp-cli-fallback",
+      error: "Neither node nor tsp is available in PATH. Compiler found but cannot be started.",
     });
     return { command: "tsp", args: ["--server", serverPath, ...args], options };
   }
