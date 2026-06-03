@@ -21,9 +21,9 @@ interface Constant {
   ): void;
 }
 
-@doc("Prefixed query parameter verification")
-@route("/prefix")
-interface Prefix {
+@doc("Special char query parameter verification")
+@route("/special-char")
+interface SpecialChar {
   @scenario
   @scenarioDoc("""
     Send a request with a dollar-sign prefixed`$filter` query parameter.
