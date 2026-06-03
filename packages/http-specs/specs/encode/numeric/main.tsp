@@ -40,31 +40,6 @@ namespace Property {
     value: uint8;
   }
 
-  @route("/bool-as-string")
-  @scenario
-  @scenarioDoc("""
-    Test operation with request and response model containing a property of boolean type with string encode.
-    Expected request body:
-    ```json
-    {
-      "value": "true"
-    }
-    ```
-    Expected response body:
-    ```json
-    {
-      "value": "true"
-    }
-    ```
-    """)
-  @post
-  op boolAsString(@body value: BoolAsStringProperty): BoolAsStringProperty;
-
-  model BoolAsStringProperty {
-    @encode(string)
-    value: boolean;
-  }
-
   interface SendIntAsString<IntType extends integer, StringValue extends string, Payload> {
     @scenario
     @scenarioDoc(
