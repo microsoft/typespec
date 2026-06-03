@@ -716,15 +716,27 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     run(`git fetch --depth 1 origin ${branch}`);
     run(`git checkout FETCH_HEAD`);
 
+    const legacyCodePathNeededForTests = [
+      "azure/authentication/api-key",
+      "unbranded/authentication/api-key",
+      "azure/authentication-union",
+      "azure/generation-subdir",
+      "azure/generation-subdir2",
+      "unbranded/generation-subdir",
+      "unbranded/generation-subdir2",
+    ];
+
     const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
-    for (const flavor of ["azure", "unbranded"]) {
-      const src = join(sourceRoot, flavor);
-      const dest = join(testsGeneratedDir, flavor);
+    for (const subPath of legacyCodePathNeededForTests) {
+      const segments = subPath.split("/");
+      const src = join(sourceRoot, ...segments);
+      const dest = join(testsGeneratedDir, ...segments);
       if (!existsSync(src)) {
         console.warn(pc.yellow(`Baseline folder not found: ${src}`));
         continue;
       }
-      console.log(pc.dim(`Copying ${flavor}/ -> ${dest}`));
+      console.log(pc.dim(`Copying ${subPath} -> ${dest}`));
+      await mkdir(dirname(dest), { recursive: true });
       await cp(src, dest, { recursive: true });
     }
 
