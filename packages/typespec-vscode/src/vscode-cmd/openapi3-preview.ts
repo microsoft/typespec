@@ -7,7 +7,7 @@ import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../telemetry/telemetry-event.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
-import { ResultCode } from "../types.js";
+import { Result, ResultCode } from "../types.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
 import { createTempDir, throttle } from "../utils.js";
 
@@ -134,15 +134,13 @@ async function loadOpenApi3PreviewPanel(
     });
     panel.reveal();
   } else {
-    const getOpenApi3OutputFilePath = async (
-      selectOutput: boolean,
-    ): Promise<string | undefined> => {
+    const getOpenApi3OutputFilePath = async (selectOutput: boolean): Promise<Result<string>> => {
       return await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: "Loading OpenAPI3 files...",
         },
-        async (): Promise<string | undefined> => {
+        async (): Promise<Result<string>> => {
           const srcFolder = getDirectoryPath(mainTspFile);
           const outputFolder = await getOutputFolder(mainTspFile, tmpRoot);
           if (!outputFolder) {
@@ -153,7 +151,7 @@ async function loadOpenApi3PreviewPanel(
             telemetryClient.logOperationDetailTelemetry(tel.activityId, {
               error: "Failed to create temporary folder for OpenAPI3 files",
             });
-            return undefined;
+            return { code: ResultCode.Fail };
           }
           await clearOutputFolder(outputFolder);
 
@@ -163,27 +161,32 @@ async function loadOpenApi3PreviewPanel(
               "Failed to generate OpenAPI3 files.",
               result?.stderr ? [result.stderr] : [],
             );
-            return;
-          } else {
-            return await selectAndGetOpenApi3FilePath(
-              mainTspFile,
-              outputFolder,
-              selectOutput,
-              context,
-            );
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: `Failed to compile OpenAPI3: exitCode=${result?.exitCode ?? "N/A"}, stderr=${result?.stderr ?? "N/A"}`,
+            });
+            return { code: ResultCode.Fail };
           }
+          const filePath = await selectAndGetOpenApi3FilePath(
+            mainTspFile,
+            outputFolder,
+            selectOutput,
+            context,
+          );
+          if (filePath === undefined) {
+            return { code: ResultCode.Cancelled };
+          }
+          return { code: ResultCode.Success, value: filePath };
         },
       );
     };
 
-    const filePath = await getOpenApi3OutputFilePath(true);
-    if (filePath === undefined) {
-      telemetryClient.logOperationDetailTelemetry(tel.activityId, {
-        error: "Failed to get generated OpenAPI3 file",
-      });
-      tel.lastStep = "Get OpenAPI3 output";
-      return ResultCode.Cancelled;
+    const outputResult = await getOpenApi3OutputFilePath(true);
+    if (outputResult.code !== ResultCode.Success) {
+      tel.lastStep =
+        outputResult.code === ResultCode.Fail ? "Compile OpenAPI3 failed" : "Get OpenAPI3 output";
+      return outputResult.code;
     }
+    const filePath = outputResult.value;
 
     const panel = vscode.window.createWebviewPanel(
       "webview",
@@ -199,11 +202,11 @@ async function loadOpenApi3PreviewPanel(
 
     const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
     const throttledChangeHandler = throttle(async () => {
-      const outputFilePath = await getOpenApi3OutputFilePath(false);
-      if (outputFilePath) {
+      const refreshResult = await getOpenApi3OutputFilePath(false);
+      if (refreshResult.code === ResultCode.Success) {
         void panel.webview.postMessage({
           command: "load",
-          param: panel.webview.asWebviewUri(vscode.Uri.file(outputFilePath)).toString(),
+          param: panel.webview.asWebviewUri(vscode.Uri.file(refreshResult.value)).toString(),
         });
       }
     }, 1000);
@@ -233,6 +236,7 @@ async function loadOpenApi3PreviewPanel(
 
     loadHtml(context.extensionUri, panel);
   }
+  tel.lastStep = "Preview panel opened";
   return ResultCode.Success;
 }
 
