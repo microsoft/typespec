@@ -223,7 +223,7 @@ model Pet {
 
 ##### encode boolean type to string
 
-`@encode(string)` on boolean uses only case-insensitive `true` or `false` values.
+`@encode(string)` on boolean uses case-insensitive `true` / `false` values.
 
 ```tsp
 model FeatureFlags {

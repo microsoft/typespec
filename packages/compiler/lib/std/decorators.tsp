@@ -593,7 +593,7 @@ enum ArrayEncoding {
  *
  * @example encode boolean type to string
  *
- * `@encode(string)` on boolean uses only `true` or `false`. Parsing is case-insensitive for those two values only.
+ * `@encode(string)` on boolean uses case-insensitive `true` / `false` values.
  *
  * ```tsp
  * model FeatureFlags {
