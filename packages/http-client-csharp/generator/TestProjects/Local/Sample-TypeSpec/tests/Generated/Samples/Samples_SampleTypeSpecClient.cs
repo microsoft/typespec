@@ -22,13 +22,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call SayHi and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_SayHi_ShortVersion()
+        public void Example_SampleTypeSpec_SayHi_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = client.SayHi("<headParameter>", "<queryParameter>", null, null);
+            ClientResult response = client.SayHi("head", "top", "opt", null);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("name").ToString());
@@ -47,13 +47,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call SayHiAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_SayHi_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_SayHi_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = await client.SayHiAsync("<headParameter>", "<queryParameter>", null, null).ConfigureAwait(false);
+            ClientResult response = await client.SayHiAsync("head", "top", "opt", null).ConfigureAwait(false);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("name").ToString());
@@ -72,114 +72,26 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call SayHi. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_SayHi_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_SayHi_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult<Thing> response = client.SayHi("<headParameter>", "<queryParameter>");
+            ClientResult<Thing> response = client.SayHi("head", "top");
 
         }
 
         /// <summary> This sample shows how to call SayHiAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_SayHi_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_SayHi_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult<Thing> response = await client.SayHiAsync("<headParameter>", "<queryParameter>").ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call SayHi with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_SayHi_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.SayHi("<headParameter>", "<queryParameter>", "<optionalQuery>", null);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call SayHiAsync with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_SayHi_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.SayHiAsync("<headParameter>", "<queryParameter>", "<optionalQuery>", null).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call SayHi with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_SayHi_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = client.SayHi("<headParameter>", "<queryParameter>", "<optionalQuery>");
-
-        }
-
-        /// <summary> This sample shows how to call SayHiAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_SayHi_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = await client.SayHiAsync("<headParameter>", "<queryParameter>", "<optionalQuery>").ConfigureAwait(false);
+            ClientResult<Thing> response = await client.SayHiAsync("head", "top").ConfigureAwait(false);
 
         }
 
@@ -702,7 +614,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call NoContentType and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_NoContentType_ShortVersion()
+        public void Example_SampleTypeSpec_NoContentType_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -710,41 +622,38 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                requiredString = "<requiredString>",
-                requiredInt = 0,
-                requiredCollection = new object[] { "1" },
+                requiredString = "sample-string",
+                requiredInt = 42,
+                requiredCollection = new object[] { "1", "2" },
                 requiredDictionary = new
                 {
-                    key = "1"
+                    key1 = "1"
                 },
                 requiredModel = new
                 {
-                    name = "<name>",
-                    requiredUnion = "<requiredUnion>",
+                    name = "sample-name",
+                    requiredUnion = "union-value",
                     requiredLiteralString = "accept",
-                    requiredNullableString = "<requiredNullableString>",
-                    requiredLiteralInt = 123,
-                    requiredLiteralFloat = 1.23F,
-                    requiredLiteralBool = false,
+                    requiredNullableString = "nullable-value",
                     requiredNullableLiteralString = "someValue",
-                    requiredBadDescription = "<requiredBadDescription>",
-                    requiredNullableList = new object[] { 0 },
-                    propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                    requiredLiteralBool = false,
+                    requiredBadDescription = "description",
+                    requiredNullableList = new object[] { 1, 2, 3 }
                 },
-                requiredUnknown = "<requiredUnknown>",
+                requiredUnknown = "unknown-value",
                 requiredRecordUnknown = new
                 {
-                    key = "<requiredRecordUnknown>"
+                    key1 = "value1"
                 },
                 modelWithRequiredNullable = new
                 {
-                    requiredNullablePrimitive = 0,
+                    requiredNullablePrimitive = 42,
                     requiredExtensibleEnum = "1",
                     requiredFixedEnum = "1"
                 },
-                requiredBytes = "<requiredBytes>"
+                requiredBytes = "dGVzdA=="
             }));
-            ClientResult response = client.NoContentType("<p2>", "<p1>", content);
+            ClientResult response = client.NoContentType("path-value", "header-value", content);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("requiredString").ToString());
@@ -774,7 +683,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call NoContentTypeAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_NoContentType_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_NoContentType_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -782,41 +691,38 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                requiredString = "<requiredString>",
-                requiredInt = 0,
-                requiredCollection = new object[] { "1" },
+                requiredString = "sample-string",
+                requiredInt = 42,
+                requiredCollection = new object[] { "1", "2" },
                 requiredDictionary = new
                 {
-                    key = "1"
+                    key1 = "1"
                 },
                 requiredModel = new
                 {
-                    name = "<name>",
-                    requiredUnion = "<requiredUnion>",
+                    name = "sample-name",
+                    requiredUnion = "union-value",
                     requiredLiteralString = "accept",
-                    requiredNullableString = "<requiredNullableString>",
-                    requiredLiteralInt = 123,
-                    requiredLiteralFloat = 1.23F,
-                    requiredLiteralBool = false,
+                    requiredNullableString = "nullable-value",
                     requiredNullableLiteralString = "someValue",
-                    requiredBadDescription = "<requiredBadDescription>",
-                    requiredNullableList = new object[] { 0 },
-                    propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                    requiredLiteralBool = false,
+                    requiredBadDescription = "description",
+                    requiredNullableList = new object[] { 1, 2, 3 }
                 },
-                requiredUnknown = "<requiredUnknown>",
+                requiredUnknown = "unknown-value",
                 requiredRecordUnknown = new
                 {
-                    key = "<requiredRecordUnknown>"
+                    key1 = "value1"
                 },
                 modelWithRequiredNullable = new
                 {
-                    requiredNullablePrimitive = 0,
+                    requiredNullablePrimitive = 42,
                     requiredExtensibleEnum = "1",
                     requiredFixedEnum = "1"
                 },
-                requiredBytes = "<requiredBytes>"
+                requiredBytes = "dGVzdA=="
             }));
-            ClientResult response = await client.NoContentTypeAsync("<p2>", "<p1>", content).ConfigureAwait(false);
+            ClientResult response = await client.NoContentTypeAsync("path-value", "header-value", content).ConfigureAwait(false);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("requiredString").ToString());
@@ -846,7 +752,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call NoContentType. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_NoContentType_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_NoContentType_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -860,263 +766,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call NoContentTypeAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_NoContentType_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            Wrapper info = null;
-            ClientResult<RoundTripModel> response = await client.NoContentTypeAsync(info).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call NoContentType with all parameters and request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_NoContentType_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                requiredString = "<requiredString>",
-                requiredInt = 0,
-                requiredCollection = new object[] { "1" },
-                requiredDictionary = new
-                {
-                    key = "1"
-                },
-                requiredModel = new
-                {
-                    name = "<name>",
-                    requiredUnion = "<requiredUnion>",
-                    requiredLiteralString = "accept",
-                    requiredNullableString = "<requiredNullableString>",
-                    optionalNullableString = "<optionalNullableString>",
-                    requiredLiteralInt = 123,
-                    requiredLiteralFloat = 1.23F,
-                    requiredLiteralBool = false,
-                    optionalLiteralString = "reject",
-                    requiredNullableLiteralString = "someValue",
-                    optionalLiteralInt = 456,
-                    optionalLiteralFloat = 4.56F,
-                    optionalLiteralBool = true,
-                    requiredBadDescription = "<requiredBadDescription>",
-                    optionalNullableList = new object[] { 0 },
-                    requiredNullableList = new object[] { 0 },
-                    propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-                },
-                intExtensibleEnum = 1,
-                intExtensibleEnumCollection = new object[] { 1 },
-                floatExtensibleEnum = 1.1F,
-                floatExtensibleEnumWithIntValue = 1F,
-                floatExtensibleEnumCollection = new object[] { 1.1F },
-                floatFixedEnum = 1.1F,
-                floatFixedEnumWithIntValue = 1,
-                floatFixedEnumCollection = new object[] { 1.1F },
-                intFixedEnum = 1,
-                intFixedEnumCollection = new object[] { 1 },
-                stringFixedEnum = "1",
-                requiredUnknown = "<requiredUnknown>",
-                optionalUnknown = "<optionalUnknown>",
-                requiredRecordUnknown = new
-                {
-                    key = "<requiredRecordUnknown>"
-                },
-                optionalRecordUnknown = new
-                {
-                    key = "<optionalRecordUnknown>"
-                },
-                modelWithRequiredNullable = new
-                {
-                    requiredNullablePrimitive = 0,
-                    requiredExtensibleEnum = "1",
-                    requiredFixedEnum = "1"
-                },
-                requiredBytes = "<requiredBytes>"
-            }));
-            ClientResult response = client.NoContentType("<p2>", "<p1>", content);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("requiredString").ToString());
-            Console.WriteLine(result.GetProperty("requiredInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("requiredDictionary").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("propertyWithSpecialDocs").ToString());
-            Console.WriteLine(result.GetProperty("intExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("intExtensibleEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnumWithIntValue").ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnumWithIntValue").ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("intFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("intFixedEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("stringFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
-            Console.WriteLine(result.GetProperty("optionalUnknown").ToString());
-            Console.WriteLine(result.GetProperty("requiredRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("optionalRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("readOnlyRequiredRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("readOnlyOptionalRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredNullablePrimitive").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("requiredBytes").ToString());
-        }
-
-        /// <summary> This sample shows how to call NoContentTypeAsync with all parameters and request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_NoContentType_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                requiredString = "<requiredString>",
-                requiredInt = 0,
-                requiredCollection = new object[] { "1" },
-                requiredDictionary = new
-                {
-                    key = "1"
-                },
-                requiredModel = new
-                {
-                    name = "<name>",
-                    requiredUnion = "<requiredUnion>",
-                    requiredLiteralString = "accept",
-                    requiredNullableString = "<requiredNullableString>",
-                    optionalNullableString = "<optionalNullableString>",
-                    requiredLiteralInt = 123,
-                    requiredLiteralFloat = 1.23F,
-                    requiredLiteralBool = false,
-                    optionalLiteralString = "reject",
-                    requiredNullableLiteralString = "someValue",
-                    optionalLiteralInt = 456,
-                    optionalLiteralFloat = 4.56F,
-                    optionalLiteralBool = true,
-                    requiredBadDescription = "<requiredBadDescription>",
-                    optionalNullableList = new object[] { 0 },
-                    requiredNullableList = new object[] { 0 },
-                    propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-                },
-                intExtensibleEnum = 1,
-                intExtensibleEnumCollection = new object[] { 1 },
-                floatExtensibleEnum = 1.1F,
-                floatExtensibleEnumWithIntValue = 1F,
-                floatExtensibleEnumCollection = new object[] { 1.1F },
-                floatFixedEnum = 1.1F,
-                floatFixedEnumWithIntValue = 1,
-                floatFixedEnumCollection = new object[] { 1.1F },
-                intFixedEnum = 1,
-                intFixedEnumCollection = new object[] { 1 },
-                stringFixedEnum = "1",
-                requiredUnknown = "<requiredUnknown>",
-                optionalUnknown = "<optionalUnknown>",
-                requiredRecordUnknown = new
-                {
-                    key = "<requiredRecordUnknown>"
-                },
-                optionalRecordUnknown = new
-                {
-                    key = "<optionalRecordUnknown>"
-                },
-                modelWithRequiredNullable = new
-                {
-                    requiredNullablePrimitive = 0,
-                    requiredExtensibleEnum = "1",
-                    requiredFixedEnum = "1"
-                },
-                requiredBytes = "<requiredBytes>"
-            }));
-            ClientResult response = await client.NoContentTypeAsync("<p2>", "<p1>", content).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("requiredString").ToString());
-            Console.WriteLine(result.GetProperty("requiredInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("requiredDictionary").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredModel").GetProperty("propertyWithSpecialDocs").ToString());
-            Console.WriteLine(result.GetProperty("intExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("intExtensibleEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnumWithIntValue").ToString());
-            Console.WriteLine(result.GetProperty("floatExtensibleEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnumWithIntValue").ToString());
-            Console.WriteLine(result.GetProperty("floatFixedEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("intFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("intFixedEnumCollection")[0].ToString());
-            Console.WriteLine(result.GetProperty("stringFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
-            Console.WriteLine(result.GetProperty("optionalUnknown").ToString());
-            Console.WriteLine(result.GetProperty("requiredRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("optionalRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("readOnlyRequiredRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("readOnlyOptionalRecordUnknown").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredNullablePrimitive").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredExtensibleEnum").ToString());
-            Console.WriteLine(result.GetProperty("modelWithRequiredNullable").GetProperty("requiredFixedEnum").ToString());
-            Console.WriteLine(result.GetProperty("requiredBytes").ToString());
-        }
-
-        /// <summary> This sample shows how to call NoContentType with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_NoContentType_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            Wrapper info = null;
-            ClientResult<RoundTripModel> response = client.NoContentType(info);
-
-        }
-
-        /// <summary> This sample shows how to call NoContentTypeAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_NoContentType_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_NoContentType_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1130,7 +780,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloDemo2 and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloDemo2_ShortVersion()
+        public void Example_SampleTypeSpec_HelloDemo2_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1155,7 +805,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloDemo2Async and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloDemo2_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_HelloDemo2_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1180,7 +830,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloDemo2. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloDemo2_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_HelloDemo2_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1193,95 +843,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloDemo2Async. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloDemo2_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = await client.HelloDemo2Async().ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call HelloDemo2 with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloDemo2_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.HelloDemo2(null);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call HelloDemo2Async with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloDemo2_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.HelloDemo2Async(null).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call HelloDemo2 with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloDemo2_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = client.HelloDemo2();
-
-        }
-
-        /// <summary> This sample shows how to call HelloDemo2Async with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloDemo2_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_HelloDemo2_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1294,7 +856,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call CreateLiteral and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_CreateLiteral_ShortVersion()
+        public void Example_SampleTypeSpec_CreateLiteral_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1302,17 +864,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "literal",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = client.CreateLiteral(content);
 
@@ -1333,7 +893,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call CreateLiteralAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_CreateLiteral_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_CreateLiteral_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1341,17 +901,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "literal",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = await client.CreateLiteralAsync(content).ConfigureAwait(false);
 
@@ -1372,20 +930,20 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call CreateLiteral. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_CreateLiteral_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_CreateLiteral_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
             Thing body = new Thing(
-                "<name>",
-                BinaryData.FromObjectAsJson("<requiredUnion>"),
-                "<requiredNullableString>",
+                "literal",
+                BinaryData.FromObjectAsJson("test"),
+                "required-nullable",
                 ThingRequiredNullableLiteralString1.SomeValue,
-                "<requiredBadDescription>",
-                new int[] { 0 },
-                "<propertyWithSpecialDocs>");
+                "bad",
+                new int[] { 1, 2, 3 },
+                "special");
             ClientResult<Thing> response = client.CreateLiteral(body);
 
         }
@@ -1393,164 +951,20 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call CreateLiteralAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_CreateLiteral_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_CreateLiteral_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
             Thing body = new Thing(
-                "<name>",
-                BinaryData.FromObjectAsJson("<requiredUnion>"),
-                "<requiredNullableString>",
+                "literal",
+                BinaryData.FromObjectAsJson("test"),
+                "required-nullable",
                 ThingRequiredNullableLiteralString1.SomeValue,
-                "<requiredBadDescription>",
-                new int[] { 0 },
-                "<propertyWithSpecialDocs>");
-            ClientResult<Thing> response = await client.CreateLiteralAsync(body).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call CreateLiteral with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_CreateLiteral_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = client.CreateLiteral(content);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call CreateLiteralAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_CreateLiteral_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = await client.CreateLiteralAsync(content).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call CreateLiteral with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_CreateLiteral_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            Thing body = new Thing(
-                "<name>",
-                BinaryData.FromObjectAsJson("<requiredUnion>"),
-                "<requiredNullableString>",
-                ThingRequiredNullableLiteralString1.SomeValue,
-                "<requiredBadDescription>",
-                new int[] { 0 },
-                "<propertyWithSpecialDocs>");
-            ClientResult<Thing> response = client.CreateLiteral(body);
-
-        }
-
-        /// <summary> This sample shows how to call CreateLiteralAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_CreateLiteral_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            Thing body = new Thing(
-                "<name>",
-                BinaryData.FromObjectAsJson("<requiredUnion>"),
-                "<requiredNullableString>",
-                ThingRequiredNullableLiteralString1.SomeValue,
-                "<requiredBadDescription>",
-                new int[] { 0 },
-                "<propertyWithSpecialDocs>");
+                "bad",
+                new int[] { 1, 2, 3 },
+                "special");
             ClientResult<Thing> response = await client.CreateLiteralAsync(body).ConfigureAwait(false);
 
         }
@@ -1558,7 +972,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloLiteral and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloLiteral_ShortVersion()
+        public void Example_SampleTypeSpec_HelloLiteral_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1583,7 +997,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloLiteralAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloLiteral_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_HelloLiteral_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1608,7 +1022,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloLiteral. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloLiteral_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_HelloLiteral_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1621,95 +1035,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HelloLiteralAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloLiteral_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = await client.HelloLiteralAsync().ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call HelloLiteral with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloLiteral_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.HelloLiteral(null);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call HelloLiteralAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloLiteral_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.HelloLiteralAsync(null).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call HelloLiteral with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HelloLiteral_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = client.HelloLiteral();
-
-        }
-
-        /// <summary> This sample shows how to call HelloLiteralAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HelloLiteral_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_HelloLiteral_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -1722,13 +1048,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call TopAction and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_TopAction_ShortVersion()
+        public void Example_SampleTypeSpec_TopAction_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = client.TopAction(DateTimeOffset.Parse("<action>"), null);
+            ClientResult response = client.TopAction(DateTimeOffset.Parse("2024-05-06T12:00:00Z"), null);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("name").ToString());
@@ -1747,13 +1073,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call TopActionAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_TopAction_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_TopAction_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = await client.TopActionAsync(DateTimeOffset.Parse("<action>"), null).ConfigureAwait(false);
+            ClientResult response = await client.TopActionAsync(DateTimeOffset.Parse("2024-05-06T12:00:00Z"), null).ConfigureAwait(false);
 
             JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
             Console.WriteLine(result.GetProperty("name").ToString());
@@ -1772,114 +1098,26 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call TopAction. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_TopAction_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_TopAction_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult<Thing> response = client.TopAction(DateTimeOffset.Parse("<action>"));
+            ClientResult<Thing> response = client.TopAction(DateTimeOffset.Parse("2024-05-06T12:00:00Z"));
 
         }
 
         /// <summary> This sample shows how to call TopActionAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_TopAction_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_TopAction_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult<Thing> response = await client.TopActionAsync(DateTimeOffset.Parse("<action>")).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call TopAction with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_TopAction_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.TopAction(DateTimeOffset.Parse("<action>"), null);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call TopActionAsync with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_TopAction_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.TopActionAsync(DateTimeOffset.Parse("<action>"), null).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call TopAction with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_TopAction_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = client.TopAction(DateTimeOffset.Parse("<action>"));
-
-        }
-
-        /// <summary> This sample shows how to call TopActionAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_TopAction_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = await client.TopActionAsync(DateTimeOffset.Parse("<action>")).ConfigureAwait(false);
+            ClientResult<Thing> response = await client.TopActionAsync(DateTimeOffset.Parse("2024-05-06T12:00:00Z")).ConfigureAwait(false);
 
         }
 
@@ -1998,7 +1236,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call PatchAction and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_PatchAction_ShortVersion()
+        public void Example_SampleTypeSpec_PatchAction_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2006,17 +1244,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "patch",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = client.PatchAction(content);
 
@@ -2037,7 +1273,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call PatchActionAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_PatchAction_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_PatchAction_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2045,17 +1281,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "patch",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = await client.PatchActionAsync(content).ConfigureAwait(false);
 
@@ -2069,108 +1303,6 @@ namespace SampleTypeSpec
             Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
             Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
             Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call PatchAction with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_PatchAction_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = client.PatchAction(content);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call PatchActionAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_PatchAction_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = await client.PatchActionAsync(content).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
             Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
             Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
         }
@@ -2178,7 +1310,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call AnonymousBody and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_AnonymousBody_ShortVersion()
+        public void Example_SampleTypeSpec_AnonymousBody_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2186,17 +1318,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "anonymous",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = client.AnonymousBody(content);
 
@@ -2217,7 +1347,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call AnonymousBodyAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_AnonymousBody_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_AnonymousBody_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2225,17 +1355,15 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
+                name = "anonymous",
+                requiredUnion = "test",
                 requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
+                requiredNullableString = "required-nullable",
                 requiredNullableLiteralString = "someValue",
-                requiredBadDescription = "<requiredBadDescription>",
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
+                requiredLiteralBool = false,
+                requiredBadDescription = "bad",
+                requiredNullableList = new object[] { 1, 2, 3 },
+                propertyWithSpecialDocs = "special"
             }));
             ClientResult response = await client.AnonymousBodyAsync(content).ConfigureAwait(false);
 
@@ -2256,7 +1384,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call AnonymousBody. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_AnonymousBody_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_AnonymousBody_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2269,135 +1397,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call AnonymousBodyAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_AnonymousBody_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = await client.AnonymousBodyAsync(null, null, null, null, null, null, null).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call AnonymousBody with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_AnonymousBody_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = client.AnonymousBody(content);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call AnonymousBodyAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_AnonymousBody_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredUnion = "<requiredUnion>",
-                requiredLiteralString = "accept",
-                requiredNullableString = "<requiredNullableString>",
-                optionalNullableString = "<optionalNullableString>",
-                requiredLiteralInt = 123,
-                requiredLiteralFloat = 1.23F,
-                requiredLiteralBool = false,
-                optionalLiteralString = "reject",
-                requiredNullableLiteralString = "someValue",
-                optionalLiteralInt = 456,
-                optionalLiteralFloat = 4.56F,
-                optionalLiteralBool = true,
-                requiredBadDescription = "<requiredBadDescription>",
-                optionalNullableList = new object[] { 0 },
-                requiredNullableList = new object[] { 0 },
-                propertyWithSpecialDocs = "<propertyWithSpecialDocs>"
-            }));
-            ClientResult response = await client.AnonymousBodyAsync(content).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-            Console.WriteLine(result.GetProperty("requiredUnion").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableString").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableLiteralString").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
-            Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
-            Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
-            Console.WriteLine(result.GetProperty("optionalNullableList").ToString());
-            Console.WriteLine(result.GetProperty("requiredNullableList").ToString());
-            Console.WriteLine(result.GetProperty("propertyWithSpecialDocs").ToString());
-        }
-
-        /// <summary> This sample shows how to call AnonymousBody with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_AnonymousBody_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Thing> response = client.AnonymousBody(null, null, null, null, null, null, null);
-
-        }
-
-        /// <summary> This sample shows how to call AnonymousBodyAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_AnonymousBody_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_AnonymousBody_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2410,7 +1410,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call FriendlyModel and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_FriendlyModel_ShortVersion()
+        public void Example_SampleTypeSpec_FriendlyModel_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2418,7 +1418,7 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>"
+                name = "friend"
             }));
             ClientResult response = client.FriendlyModel(content);
 
@@ -2429,7 +1429,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call FriendlyModelAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_FriendlyModel_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_FriendlyModel_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2437,7 +1437,7 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>"
+                name = "friend"
             }));
             ClientResult response = await client.FriendlyModelAsync(content).ConfigureAwait(false);
 
@@ -2448,7 +1448,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call FriendlyModel. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_FriendlyModel_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_FriendlyModel_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -2461,71 +1461,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call FriendlyModelAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_FriendlyModel_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Friend> response = await client.FriendlyModelAsync((string)null).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call FriendlyModel with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_FriendlyModel_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>"
-            }));
-            ClientResult response = client.FriendlyModel(content);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-        }
-
-        /// <summary> This sample shows how to call FriendlyModelAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_FriendlyModel_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>"
-            }));
-            ClientResult response = await client.FriendlyModelAsync(content).ConfigureAwait(false);
-
-            JsonElement result = JsonDocument.Parse(response.GetRawResponse().ContentStream).RootElement;
-            Console.WriteLine(result.GetProperty("name").ToString());
-        }
-
-        /// <summary> This sample shows how to call FriendlyModel with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_FriendlyModel_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult<Friend> response = client.FriendlyModel((string)null);
-
-        }
-
-        /// <summary> This sample shows how to call FriendlyModelAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_FriendlyModel_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_FriendlyModel_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3358,104 +2294,52 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call HeadAsBoolean. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HeadAsBoolean_ShortVersion()
+        public void Example_SampleTypeSpec_HeadAsBoolean_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = client.HeadAsBoolean("<id>", null);
+            ClientResult response = client.HeadAsBoolean("test-id", null);
 
         }
 
         /// <summary> This sample shows how to call HeadAsBooleanAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HeadAsBoolean_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_HeadAsBoolean_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = await client.HeadAsBooleanAsync("<id>", null).ConfigureAwait(false);
+            ClientResult response = await client.HeadAsBooleanAsync("test-id", null).ConfigureAwait(false);
 
         }
 
         /// <summary> This sample shows how to call HeadAsBoolean. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HeadAsBoolean_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_HeadAsBoolean_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = client.HeadAsBoolean("<id>");
+            ClientResult response = client.HeadAsBoolean("test-id");
 
         }
 
         /// <summary> This sample shows how to call HeadAsBooleanAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HeadAsBoolean_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_HeadAsBoolean_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ClientResult response = await client.HeadAsBooleanAsync("<id>").ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call HeadAsBoolean with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HeadAsBoolean_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.HeadAsBoolean("<id>", null);
-
-        }
-
-        /// <summary> This sample shows how to call HeadAsBooleanAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HeadAsBoolean_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.HeadAsBooleanAsync("<id>", null).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call HeadAsBoolean with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_HeadAsBoolean_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = client.HeadAsBoolean("<id>");
-
-        }
-
-        /// <summary> This sample shows how to call HeadAsBooleanAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_HeadAsBoolean_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ClientResult response = await client.HeadAsBooleanAsync("<id>").ConfigureAwait(false);
+            ClientResult response = await client.HeadAsBooleanAsync("test-id").ConfigureAwait(false);
 
         }
 
@@ -3566,7 +2450,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithNextLink and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithNextLink_ShortVersion()
+        public void Example_SampleTypeSpec_GetWithNextLink_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3581,7 +2465,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithNextLinkAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithNextLink_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_GetWithNextLink_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3596,7 +2480,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithNextLink. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithNextLink_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_GetWithNextLink_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3611,67 +2495,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithNextLinkAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithNextLink_ShortVersion_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            await foreach (IList<Thing> item in client.GetWithNextLinkAsync())
-            {
-                Console.WriteLine(item.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithNextLink with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithNextLink_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            foreach (ClientResult page in client.GetWithNextLink(null).GetRawPages())
-            {
-                Console.WriteLine(page.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithNextLinkAsync with all request content and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithNextLink_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            await foreach (ClientResult page in client.GetWithNextLinkAsync(null).GetRawPagesAsync())
-            {
-                Console.WriteLine(page.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithNextLink with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithNextLink_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            foreach (IList<Thing> item in client.GetWithNextLink())
-            {
-                Console.WriteLine(item.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithNextLinkAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithNextLink_AllParameters_Convenience_Async()
+        public async Task Example_SampleTypeSpec_GetWithNextLink_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3806,13 +2630,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithContinuationToken and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithContinuationToken_ShortVersion()
+        public void Example_SampleTypeSpec_GetWithContinuationToken_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            foreach (ClientResult page in client.GetWithContinuationToken(null, null).GetRawPages())
+            foreach (ClientResult page in client.GetWithContinuationToken("initial-token", null).GetRawPages())
             {
                 Console.WriteLine(page.ToString());
             }
@@ -3821,13 +2645,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithContinuationTokenAsync and parse the result. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithContinuationToken_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_GetWithContinuationToken_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            await foreach (ClientResult page in client.GetWithContinuationTokenAsync(null, null).GetRawPagesAsync())
+            await foreach (ClientResult page in client.GetWithContinuationTokenAsync("initial-token", null).GetRawPagesAsync())
             {
                 Console.WriteLine(page.ToString());
             }
@@ -3836,7 +2660,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithContinuationToken. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithContinuationToken_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_GetWithContinuationToken_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -3851,73 +2675,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call GetWithContinuationTokenAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithContinuationToken_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_GetWithContinuationToken_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
             await foreach (IList<Thing> item in client.GetWithContinuationTokenAsync())
-            {
-                Console.WriteLine(item.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithContinuationToken with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithContinuationToken_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            foreach (ClientResult page in client.GetWithContinuationToken("<token>", null).GetRawPages())
-            {
-                Console.WriteLine(page.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithContinuationTokenAsync with all parameters and parse the result. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithContinuationToken_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            await foreach (ClientResult page in client.GetWithContinuationTokenAsync("<token>", null).GetRawPagesAsync())
-            {
-                Console.WriteLine(page.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithContinuationToken with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_GetWithContinuationToken_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            foreach (IList<Thing> item in client.GetWithContinuationToken("<token>"))
-            {
-                Console.WriteLine(item.ToString());
-            }
-        }
-
-        /// <summary> This sample shows how to call GetWithContinuationTokenAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_GetWithContinuationToken_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            await foreach (IList<Thing> item in client.GetWithContinuationTokenAsync("<token>"))
             {
                 Console.WriteLine(item.ToString());
             }
@@ -4166,7 +2930,7 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call EmbeddedParameters. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_EmbeddedParameters_ShortVersion()
+        public void Example_SampleTypeSpec_EmbeddedParameters_CustomExample()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -4174,18 +2938,16 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredHeader = "<requiredHeader>",
-                requiredQuery = "<requiredQuery>"
+                name = "embedded"
             }));
-            ClientResult response = client.EmbeddedParameters("<requiredHeader>", "<requiredQuery>", content);
+            ClientResult response = client.EmbeddedParameters("header-value", "query-value", content);
 
         }
 
         /// <summary> This sample shows how to call EmbeddedParametersAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_EmbeddedParameters_ShortVersion_Async()
+        public async Task Example_SampleTypeSpec_EmbeddedParameters_CustomExample_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
@@ -4193,24 +2955,22 @@ namespace SampleTypeSpec
 
             using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
             {
-                name = "<name>",
-                requiredHeader = "<requiredHeader>",
-                requiredQuery = "<requiredQuery>"
+                name = "embedded"
             }));
-            ClientResult response = await client.EmbeddedParametersAsync("<requiredHeader>", "<requiredQuery>", content).ConfigureAwait(false);
+            ClientResult response = await client.EmbeddedParametersAsync("header-value", "query-value", content).ConfigureAwait(false);
 
         }
 
         /// <summary> This sample shows how to call EmbeddedParameters. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_EmbeddedParameters_ShortVersion_Convenience()
+        public void Example_SampleTypeSpec_EmbeddedParameters_CustomExample_Convenience()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("<name>", "<requiredHeader>", "<requiredQuery>");
+            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("embedded", null, null);
             ClientResult response = client.EmbeddedParameters(body);
 
         }
@@ -4218,83 +2978,13 @@ namespace SampleTypeSpec
         /// <summary> This sample shows how to call EmbeddedParametersAsync. </summary>
         [global::NUnit.Framework.TestAttribute]
         [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_EmbeddedParameters_ShortVersion_Convenience_Async()
+        public async Task Example_SampleTypeSpec_EmbeddedParameters_CustomExample_Convenience_Async()
         {
             Uri endpoint = new Uri("<endpoint>");
             ApiKeyCredential credential = new ApiKeyCredential("<key>");
             SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
 
-            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("<name>", "<requiredHeader>", "<requiredQuery>");
-            ClientResult response = await client.EmbeddedParametersAsync(body).ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call EmbeddedParameters with all parameters and request content. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_EmbeddedParameters_AllParameters()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredHeader = "<requiredHeader>",
-                optionalHeader = "<optionalHeader>",
-                requiredQuery = "<requiredQuery>",
-                optionalQuery = "<optionalQuery>"
-            }));
-            ClientResult response = client.EmbeddedParameters("<requiredHeader>", "<requiredQuery>", content, "<optionalHeader>", "<optionalQuery>");
-
-        }
-
-        /// <summary> This sample shows how to call EmbeddedParametersAsync with all parameters and request content. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_EmbeddedParameters_AllParameters_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(new
-            {
-                name = "<name>",
-                requiredHeader = "<requiredHeader>",
-                optionalHeader = "<optionalHeader>",
-                requiredQuery = "<requiredQuery>",
-                optionalQuery = "<optionalQuery>"
-            }));
-            ClientResult response = await client.EmbeddedParametersAsync("<requiredHeader>", "<requiredQuery>", content, "<optionalHeader>", "<optionalQuery>").ConfigureAwait(false);
-
-        }
-
-        /// <summary> This sample shows how to call EmbeddedParameters with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public void Example_SampleTypeSpec_EmbeddedParameters_AllParameters_Convenience()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("<name>", "<requiredHeader>", "<requiredQuery>");
-            ClientResult response = client.EmbeddedParameters(body);
-
-        }
-
-        /// <summary> This sample shows how to call EmbeddedParametersAsync with all parameters. </summary>
-        [global::NUnit.Framework.TestAttribute]
-        [global::NUnit.Framework.IgnoreAttribute("Only validating compilation of examples")]
-        public async Task Example_SampleTypeSpec_EmbeddedParameters_AllParameters_Convenience_Async()
-        {
-            Uri endpoint = new Uri("<endpoint>");
-            ApiKeyCredential credential = new ApiKeyCredential("<key>");
-            SampleTypeSpecClient client = new SampleTypeSpecClient(endpoint, credential);
-
-            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("<name>", "<requiredHeader>", "<requiredQuery>");
+            ModelWithEmbeddedNonBodyParameters body = new ModelWithEmbeddedNonBodyParameters("embedded", null, null);
             ClientResult response = await client.EmbeddedParametersAsync(body).ConfigureAwait(false);
 
         }

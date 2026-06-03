@@ -1,0 +1,29 @@
+{
+  "operationId": "ListWithContinuationToken",
+  "title": "CustomExample",
+  "parameters": {
+    "token": "initial-token"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "things": [
+          {
+            "name": "thing1",
+            "requiredUnion": "test",
+            "requiredLiteralString": "accept",
+            "requiredNullableString": "required-nullable",
+            "requiredNullableLiteralString": "someValue",
+            "requiredLiteralInt": 123,
+            "requiredLiteralFloat": 1.23,
+            "requiredLiteralBool": false,
+            "requiredBadDescription": "bad",
+            "requiredNullableList": [1, 2, 3],
+            "propertyWithSpecialDocs": "special"
+          }
+        ],
+        "nextToken": "next-token"
+      }
+    }
+  }
+}

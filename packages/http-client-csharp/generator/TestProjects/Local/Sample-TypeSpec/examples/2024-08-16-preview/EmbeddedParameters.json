@@ -1,0 +1,14 @@
+{
+  "operationId": "EmbeddedParameters",
+  "title": "CustomExample",
+  "parameters": {
+    "required-header": "header-value",
+    "requiredQuery": "query-value",
+    "body": {
+      "name": "embedded"
+    }
+  },
+  "responses": {
+    "204": {}
+  }
+}

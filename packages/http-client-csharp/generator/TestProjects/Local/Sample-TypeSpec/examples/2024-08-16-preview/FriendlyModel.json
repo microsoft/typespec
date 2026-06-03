@@ -1,0 +1,16 @@
+{
+  "operationId": "friendlyModel",
+  "title": "CustomExample",
+  "parameters": {
+    "friend": {
+      "name": "friend"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "friend"
+      }
+    }
+  }
+}

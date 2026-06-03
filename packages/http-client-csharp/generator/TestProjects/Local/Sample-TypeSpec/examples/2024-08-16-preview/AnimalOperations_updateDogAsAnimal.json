@@ -1,0 +1,22 @@
+{
+  "operationId": "AnimalOperations_updateDogAsAnimal",
+  "title": "CustomExample",
+  "parameters": {
+    "animal": {
+      "kind": "dog",
+      "name": "Rex",
+      "trained": true,
+      "breed": "Golden Retriever"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "kind": "dog",
+        "name": "Rex",
+        "trained": true,
+        "breed": "Golden Retriever"
+      }
+    }
+  }
+}
