@@ -12,6 +12,7 @@ using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
@@ -150,23 +151,7 @@ namespace Microsoft.TypeSpec.Generator
             document = document.WithSyntaxRoot(root);
 
             document = await ReduceQualifiedNamesAsync(document);
-            root = await document.GetSyntaxRootAsync();
-            if (root == null)
-            {
-                return document;
-            }
-
-            var simplifierSpans = GetSimplifierSpans(root);
-            if (simplifierSpans.Count > 0)
-            {
-                root = root.WithAdditionalAnnotations(Simplifier.Annotation);
-                document = document.WithSyntaxRoot(root);
-                document = await Simplifier.ReduceAsync(document, simplifierSpans);
-            }
-            else if (ContainsSimplifierAnnotations(root))
-            {
-                document = await Simplifier.ReduceAsync(document);
-            }
+            document = await ReduceParenthesizedAssignmentsAsync(document);
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
@@ -243,6 +228,31 @@ namespace Microsoft.TypeSpec.Generator
                     MemberAccessExpressionSyntax memberAccess => safeMemberAccessReplacements[memberAccess].WithTriviaFrom(rewritten),
                     _ => rewritten
                 });
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static async Task<Document> ReduceParenthesizedAssignmentsAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            if (root == null)
+            {
+                return document;
+            }
+
+            var assignments = root.DescendantNodes()
+                .OfType<ParenthesizedExpressionSyntax>()
+                .Where(static node =>
+                    node.Expression is AssignmentExpressionSyntax &&
+                    node.Parent is ExpressionStatementSyntax)
+                .ToList();
+            if (assignments.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root.ReplaceNodes(
+                assignments,
+                static (_, rewritten) => rewritten.Expression.WithTriviaFrom(rewritten));
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
