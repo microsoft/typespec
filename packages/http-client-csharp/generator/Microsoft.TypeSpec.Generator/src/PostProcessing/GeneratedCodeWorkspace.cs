@@ -152,6 +152,7 @@ namespace Microsoft.TypeSpec.Generator
 
             document = await ReduceQualifiedNamesAsync(document);
             document = await ReduceParenthesizedAssignmentsAsync(document);
+            document = await ReduceDocumentationGlobalAliasesAsync(document);
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
@@ -170,6 +171,45 @@ namespace Microsoft.TypeSpec.Generator
                 return document;
             }
 
+            var globalAliases = new Dictionary<AliasQualifiedNameSyntax, NameSyntax>();
+            foreach (var aliasName in root.DescendantNodes().OfType<AliasQualifiedNameSyntax>())
+            {
+                if (aliasName.Alias.Identifier.ValueText != "global" ||
+                    aliasName.Ancestors().Any(static ancestor =>
+                        ancestor is AttributeSyntax ||
+                        ancestor is MemberAccessExpressionSyntax) ||
+                    IsInUnsupportedQualifiedNameContext(aliasName))
+                {
+                    continue;
+                }
+
+                var originalSymbol = GetSymbol(semanticModel, aliasName);
+                if (originalSymbol == null)
+                {
+                    continue;
+                }
+
+                var replacement = aliasName.Name.WithTriviaFrom(aliasName);
+                if (SpeculativelyBindsToSameSymbol(semanticModel, aliasName, replacement, originalSymbol))
+                {
+                    globalAliases.Add(aliasName, replacement);
+                }
+            }
+
+            if (globalAliases.Count > 0)
+            {
+                root = root.ReplaceNodes(
+                    globalAliases.Keys,
+                    (original, rewritten) => globalAliases[original].WithTriviaFrom(rewritten));
+                document = document.WithSyntaxRoot(root);
+                semanticModel = await document.GetSemanticModelAsync();
+                root = await document.GetSyntaxRootAsync();
+                if (root == null || semanticModel == null)
+                {
+                    return document;
+                }
+            }
+
             var safeNameReplacements = new Dictionary<NameSyntax, NameSyntax>();
             foreach (var name in root.DescendantNodes().OfType<NameSyntax>())
             {
@@ -180,14 +220,13 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var originalSymbol = semanticModel.GetSymbolInfo(name).Symbol;
+                var originalSymbol = GetSymbol(semanticModel, name);
                 if (originalSymbol == null)
                 {
                     continue;
                 }
 
-                var replacement = GetRightmostName(name).WithTriviaFrom(name);
-                if (SpeculativelyBindsToSameSymbol(semanticModel, name, replacement, originalSymbol))
+                if (TryGetNameReplacement(semanticModel, name, originalSymbol, out var replacement))
                 {
                     safeNameReplacements.Add(name, replacement);
                 }
@@ -231,6 +270,10 @@ namespace Microsoft.TypeSpec.Generator
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
+        private static ISymbol? GetSymbol(SemanticModel semanticModel, NameSyntax name) =>
+            semanticModel.GetSymbolInfo(name).Symbol ??
+            semanticModel.GetTypeInfo(name).Type;
+
         private static async Task<Document> ReduceParenthesizedAssignmentsAsync(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
@@ -256,10 +299,65 @@ namespace Microsoft.TypeSpec.Generator
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
+        private static async Task<Document> ReduceDocumentationGlobalAliasesAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            if (root == null)
+            {
+                return document;
+            }
+
+            var documentationTrivia = root.DescendantTrivia(descendIntoTrivia: true)
+                .Where(static trivia =>
+                    trivia.HasStructure &&
+                    trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
+                    trivia.ToFullString().Contains("global::", StringComparison.Ordinal))
+                .ToList();
+            if (documentationTrivia.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root.ReplaceTrivia(
+                documentationTrivia,
+                static (_, rewritten) =>
+                {
+                    var reduced = rewritten.ToFullString().Replace("global::", string.Empty, StringComparison.Ordinal);
+                    var parsedTrivia = SyntaxFactory.ParseLeadingTrivia(reduced);
+                    return parsedTrivia.Count == 1 ? parsedTrivia[0] : rewritten;
+                });
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static bool TryGetNameReplacement(
+            SemanticModel semanticModel,
+            NameSyntax originalName,
+            ISymbol originalSymbol,
+            out NameSyntax replacement)
+        {
+            replacement = originalName;
+            if (!TryGetNameParts(originalName, out var parts))
+            {
+                return false;
+            }
+
+            for (int i = parts.Count - 1; i >= 0; i--)
+            {
+                var candidate = BuildName(parts, i).WithTriviaFrom(originalName);
+                if (SpeculativelyBindsToSameSymbol(semanticModel, originalName, candidate, originalSymbol))
+                {
+                    replacement = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static bool SpeculativelyBindsToSameSymbol(
             SemanticModel semanticModel,
             NameSyntax originalName,
-            SimpleNameSyntax replacement,
+            NameSyntax replacement,
             ISymbol originalSymbol)
         {
             var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
@@ -284,6 +382,53 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return false;
+        }
+
+        private static bool TryGetNameParts(NameSyntax name, out IReadOnlyList<SimpleNameSyntax> parts)
+        {
+            var builder = new List<SimpleNameSyntax>();
+            if (AddNameParts(name, builder))
+            {
+                parts = builder;
+                return true;
+            }
+
+            parts = [];
+            return false;
+        }
+
+        private static bool AddNameParts(NameSyntax name, List<SimpleNameSyntax> parts)
+        {
+            switch (name)
+            {
+                case SimpleNameSyntax simpleName:
+                    parts.Add(simpleName);
+                    return true;
+                case QualifiedNameSyntax qualifiedName:
+                    if (!AddNameParts(qualifiedName.Left, parts))
+                    {
+                        return false;
+                    }
+
+                    parts.Add(qualifiedName.Right);
+                    return true;
+                case AliasQualifiedNameSyntax { Alias.Identifier.ValueText: "global" } aliasQualifiedName:
+                    parts.Add(aliasQualifiedName.Name);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private static NameSyntax BuildName(IReadOnlyList<SimpleNameSyntax> parts, int startIndex)
+        {
+            NameSyntax name = parts[startIndex];
+            for (int i = startIndex + 1; i < parts.Count; i++)
+            {
+                name = SyntaxFactory.QualifiedName(name, parts[i]);
+            }
+
+            return name;
         }
 
         private static SimpleNameSyntax GetRightmostName(NameSyntax name) => name switch
