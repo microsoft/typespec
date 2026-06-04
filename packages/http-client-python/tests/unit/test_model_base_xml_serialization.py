@@ -706,6 +706,75 @@ class TestXmlDeserialization:
         assert result.blobs.blob_items is None
         assert result.next_marker == ""
 
+    def test_customized_subclass_does_not_break_generated_xml_deserialization(self):
+        """Regression test: a downstream customized subclass that re-annotates a Model
+        field must not corrupt the parent (generated) class's XML deserialization.
+
+        When a customization (such as
+        ``azure.storage.fileshare._models.Metrics`` in azure-sdk-for-python)
+        subclasses a generated model and re-annotates a nested Model field
+        to a strict custom class, instantiating the customized subclass
+        populates the *shared* ``_RestField._type`` (via ``Model.__new__``)
+        from the custom annotation.  Previously, ``_build_xml_field_plan``
+        would then precompute that custom Model class as the deserializer
+        for the *generated* class too, and ``_init_from_xml`` would invoke
+        ``CustomChild(<ET.Element>)`` directly — which raises if the custom
+        ``__init__`` enforces a strict signature.
+        """
+        xml = """<?xml version="1.0" encoding="utf-8"?>
+            <Metrics>
+                <Enabled>true</Enabled>
+                <RetentionPolicy>
+                    <Enabled>true</Enabled>
+                    <Days>5</Days>
+                </RetentionPolicy>
+            </Metrics>"""
+
+        class RetentionPolicy(Model):
+            enabled: bool = rest_field(name="Enabled", xml={"name": "Enabled"})
+            days: Optional[int] = rest_field(name="Days", xml={"name": "Days"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "RetentionPolicy"}
+
+        class Metrics(Model):
+            enabled: bool = rest_field(name="Enabled", xml={"name": "Enabled"})
+            retention_policy: Optional[RetentionPolicy] = rest_field(
+                name="RetentionPolicy", xml={"name": "RetentionPolicy"}
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Metrics"}
+
+        class CustomRetentionPolicy(RetentionPolicy):
+            def __init__(self, enabled: bool = False, days: Optional[int] = None) -> None:
+                if enabled and days is None:
+                    raise ValueError("If policy is enabled, 'days' must be specified.")
+                super().__init__(enabled=enabled, days=days)
+
+        class CustomMetrics(Metrics):
+            # Re-annotating with the custom subclass is what triggers the
+            # shared _RestField._type to be resolved against CustomRetentionPolicy.
+            retention_policy: CustomRetentionPolicy = CustomRetentionPolicy()  # noqa: F811
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+        # Instantiate the customized subclass FIRST so that the shared
+        # ``_RestField`` for ``retention_policy`` on the parent Metrics gets
+        # its ``_type`` populated from the custom annotation.
+        CustomMetrics()
+
+        # Deserializing into the parent (generated-style) Metrics class
+        # must NOT invoke ``CustomRetentionPolicy(<ET.Element>)``.
+        result = _deserialize_xml(Metrics, xml)
+        assert result.enabled is True
+        assert result.retention_policy is not None
+
     def test_enumeration_results_blobs_unwrapped(self):
         """Test what happens when the blobs field itself is declared with unwrapped=True."""
         # When a non-list model field uses unwrapped=True, the matching XML elements are collected
