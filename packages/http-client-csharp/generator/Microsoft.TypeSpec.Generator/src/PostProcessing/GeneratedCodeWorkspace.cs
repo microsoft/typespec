@@ -176,8 +176,8 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (aliasName.Alias.Identifier.ValueText != "global" ||
                     aliasName.Ancestors().Any(static ancestor =>
-                        ancestor is AttributeSyntax ||
-                        ancestor is MemberAccessExpressionSyntax) ||
+                        ancestor is AttributeSyntax) ||
+                    IsInMemberAccessExpressionChain(aliasName) ||
                     IsInUnsupportedQualifiedNameContext(aliasName))
                 {
                     continue;
@@ -586,6 +586,10 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsInUnsupportedQualifiedNameContext(ExpressionSyntax expression) =>
             expression.Ancestors().Any(static ancestor =>
                 ancestor is CrefSyntax);
+
+        private static bool IsInMemberAccessExpressionChain(NameSyntax name) =>
+            name.Ancestors().Any(static ancestor => ancestor is MemberAccessExpressionSyntax) &&
+            !name.Ancestors().Any(static ancestor => ancestor is TypeSyntax);
 
         private static bool ContainsSimplifierAnnotations(SyntaxNode root) =>
             root.HasAnnotation(Simplifier.Annotation) ||

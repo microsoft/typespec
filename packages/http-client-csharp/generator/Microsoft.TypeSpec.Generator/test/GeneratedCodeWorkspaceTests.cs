@@ -305,6 +305,12 @@ namespace TestNamespace
     {
         public global::System.Collections.Generic.IList<global::Customization.Widget> Widgets { get; }
         public global::Customization.Widget Create(AliasWidget widget) => widget;
+        public string GetFormat() => ((IPersistableModel<global::Customization.Widget>)this).GetFormatFromOptions(null);
+    }
+
+    public interface IPersistableModel<T>
+    {
+        string GetFormatFromOptions(object options);
     }
 }
 
@@ -316,6 +322,7 @@ namespace Customization
 
             Assert.That(generatedText, Does.Contain("IList<Customization.Widget> Widgets"));
             Assert.That(generatedText, Does.Contain("Customization.Widget Create(AliasWidget widget)"));
+            Assert.That(generatedText, Does.Contain("((IPersistableModel<Customization.Widget>)this).GetFormatFromOptions(null)"));
             Assert.That(generatedText, Does.Not.Contain("global::System.Collections.Generic.IList"));
             Assert.That(generatedText, Does.Not.Contain("global::Customization.Widget"));
         }
