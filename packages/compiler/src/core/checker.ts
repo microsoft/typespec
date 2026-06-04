@@ -5815,7 +5815,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: CallExpressionNode,
     target: FunctionValue<unknown[]>,
   ): Type | Value | null {
-    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target, node);
 
     const canCall =
       satisfied &&
@@ -5917,6 +5917,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     args: Expression[],
     target: FunctionValue,
+    callNode: CallExpressionNode,
   ): [boolean, any[]] {
     let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
@@ -5930,7 +5931,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           code: "invalid-argument-count",
           messageId: "atLeast",
           format: { actual: args.length.toString(), expected: minArgs.toString() },
-          target: target.node!,
+          target: callNode,
         }),
       );
       return [false, []];
@@ -5939,7 +5940,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "invalid-argument-count",
           format: { actual: args.length.toString(), expected: maxArgs.toString() },
-          target: target.node!,
+          target: callNode,
         }),
       );
       // This error doesn't actually prevent us from checking the arguments and evaluating the function.
