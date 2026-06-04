@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.CodeAnalysis;
@@ -14,6 +15,14 @@ namespace Microsoft.TypeSpec.Generator.Perf
 {
     public class PostProcessingBenchmark
     {
+        private const string GeneratedDirectoryEnvironmentVariable = "POSTPROCESSING_BENCHMARK_GENERATED_DIR";
+        private static readonly Regex NamespaceDeclarationRegex = new(
+            @"\bnamespace\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)",
+            RegexOptions.Compiled);
+
+        [Params(1, 5)]
+        public int CorpusMultiplier { get; set; }
+
         private (string Name, string Content)[] _generatedFiles = [];
 
         [GlobalSetup]
@@ -21,16 +30,18 @@ namespace Microsoft.TypeSpec.Generator.Perf
         {
             InitializeGenerator();
 
-            var generatedDirectory = FindSampleTypeSpecGeneratedDirectory();
-            _generatedFiles = Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories)
+            var generatedDirectory = FindGeneratedDirectory();
+            var sourceFiles = Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories)
                 .OrderBy(static path => path, StringComparer.Ordinal)
-                .Select(path => (Name: Path.GetRelativePath(generatedDirectory, path), Content: File.ReadAllText(path)))
                 .ToArray();
 
-            if (_generatedFiles.Length == 0)
+            if (sourceFiles.Length == 0)
             {
                 throw new InvalidOperationException($"No generated C# files found under '{generatedDirectory}'.");
             }
+
+            var declaredNamespaces = GetDeclaredNamespaces(sourceFiles);
+            _generatedFiles = BuildCorpus(generatedDirectory, sourceFiles, declaredNamespaces);
         }
 
         [Benchmark]
@@ -53,8 +64,78 @@ namespace Microsoft.TypeSpec.Generator.Perf
             return totalLength;
         }
 
-        private static string FindSampleTypeSpecGeneratedDirectory()
+        private (string Name, string Content)[] BuildCorpus(string generatedDirectory, string[] sourceFiles, IReadOnlyList<string> declaredNamespaces)
         {
+            var generatedFiles = new List<(string Name, string Content)>(sourceFiles.Length * CorpusMultiplier);
+            for (var i = 0; i < CorpusMultiplier; i++)
+            {
+                var namespaceSuffix = CorpusMultiplier == 1 ? string.Empty : $".BenchmarkCopy{i}";
+                var folderPrefix = CorpusMultiplier == 1 ? string.Empty : $"BenchmarkCopy{i}";
+                foreach (var path in sourceFiles)
+                {
+                    var relativePath = Path.GetRelativePath(generatedDirectory, path);
+                    var content = File.ReadAllText(path);
+                    if (CorpusMultiplier > 1)
+                    {
+                        content = MakeNamespacesUnique(content, declaredNamespaces, namespaceSuffix);
+                    }
+
+                    generatedFiles.Add((Path.Combine(folderPrefix, relativePath), content));
+                }
+            }
+
+            return generatedFiles.ToArray();
+        }
+
+        private static IReadOnlyList<string> GetDeclaredNamespaces(string[] sourceFiles)
+        {
+            var declaredNamespaces = sourceFiles
+                .SelectMany(static path => NamespaceDeclarationRegex.Matches(File.ReadAllText(path)))
+                .Select(static match => match.Groups[1].Value)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            return declaredNamespaces
+                .Where(ns => !declaredNamespaces.Any(candidate =>
+                    !string.Equals(ns, candidate, StringComparison.Ordinal) &&
+                    ns.StartsWith(candidate + ".", StringComparison.Ordinal)))
+                .OrderByDescending(static ns => ns.Length)
+                .ToArray();
+        }
+
+        private static string MakeNamespacesUnique(string content, IReadOnlyList<string> declaredNamespaces, string namespaceSuffix)
+        {
+            foreach (var declaredNamespace in declaredNamespaces)
+            {
+                var escapedNamespace = Regex.Escape(declaredNamespace);
+                content = content.Replace($"global::{declaredNamespace}.", $"global::{declaredNamespace}{namespaceSuffix}.", StringComparison.Ordinal);
+                content = Regex.Replace(
+                    content,
+                    $@"(?<![A-Za-z0-9_:]){escapedNamespace}(?=\.)",
+                    $"{declaredNamespace}{namespaceSuffix}");
+                content = Regex.Replace(
+                    content,
+                    $@"\b(namespace|using)\s+{escapedNamespace}(?=\s|;)",
+                    $"$1 {declaredNamespace}{namespaceSuffix}");
+            }
+
+            return content;
+        }
+
+        private static string FindGeneratedDirectory()
+        {
+            var configuredPath = Environment.GetEnvironmentVariable(GeneratedDirectoryEnvironmentVariable);
+            if (!string.IsNullOrWhiteSpace(configuredPath))
+            {
+                var fullPath = Path.GetFullPath(configuredPath);
+                if (!Directory.Exists(fullPath))
+                {
+                    throw new DirectoryNotFoundException($"The directory configured by {GeneratedDirectoryEnvironmentVariable} does not exist: '{fullPath}'.");
+                }
+
+                return fullPath;
+            }
+
             const string relativePath = "packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated";
 
             var directory = new DirectoryInfo(AppContext.BaseDirectory);
