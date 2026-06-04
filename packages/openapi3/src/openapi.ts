@@ -33,6 +33,7 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
+  NoTarget,
   Program,
   resolvePath,
   Service,
@@ -86,6 +87,7 @@ import { getExampleOrExamples, OperationExamples, resolveOperationExamples } fro
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import {
   createDiagnostic,
+  EnumStyle,
   FileType,
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
@@ -219,6 +221,11 @@ export function resolveOptions(
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
+  const enumStyle: EnumStyle = resolvedOptions["enum-style"] ?? "default";
+  if (enumStyle === "annotated" && openapiVersions.includes("3.0.0")) {
+    reportDiagnostic(context.program, { code: "enum-style-not-supported", target: NoTarget });
+  }
+
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
   return {
     fileTypes,
@@ -231,6 +238,7 @@ export function resolveOptions(
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
     operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
+    enumStyle,
   };
 }
 
@@ -272,6 +280,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   sealObjectSchemas: boolean;
   parameterExamplesStrategy?: "data" | "serialized";
   operationIdStrategy: { kind: OperationIdStrategy; separator: string };
+  enumStyle: EnumStyle;
 }
 
 function createOAPIEmitter(
