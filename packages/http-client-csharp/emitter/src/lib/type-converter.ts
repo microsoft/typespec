@@ -299,15 +299,15 @@ function fromSdkModelProperty(
   } as InputModelProperty;
 
   if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
-    // Mark the part type as a file type.
-    if (property.type.kind === "model") {
-      property.type.isFileType = true;
-    } else if (property.type.kind === "bytes") {
+    // Mark the part type as a file type. We must NOT mutate the type in place: `fromSdkType`
+    // caches and shares a single instance per SDK type (see `__typeCache.types`), so a `model`
+    // or `bytes` type used both as a multipart file part and elsewhere as a non-file model/body
+    // would have `isFileType` leaked onto the shared instance. Clone before setting the flag so
+    // only this property's type carries it.
+    if (property.type.kind === "model" || property.type.kind === "bytes") {
       property.type = { ...property.type, isFileType: true };
     } else if (property.type.kind === "array") {
-      if (property.type.valueType.kind === "model") {
-        property.type.valueType.isFileType = true;
-      } else if (property.type.valueType.kind === "bytes") {
+      if (property.type.valueType.kind === "model" || property.type.valueType.kind === "bytes") {
         property.type = {
           ...property.type,
           valueType: { ...property.type.valueType, isFileType: true },

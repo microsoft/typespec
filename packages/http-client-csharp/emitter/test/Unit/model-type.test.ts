@@ -1408,6 +1408,59 @@ describe("Test isFileType propagation", () => {
     strictEqual((rawBytesProperty.type as { isFileType?: boolean }).isFileType, undefined);
   });
 
+  it("does not mutate cached model types when marking a multipart model file part", async () => {
+    // Same invariant as the bytes case, but for model types: `fromSdkType` caches model
+    // instances too, so a model used both as a multipart file part and elsewhere as a
+    // non-file body must not have `isFileType` leaked onto the shared cached instance.
+    const program = await typeSpecCompile(
+      `
+        model MyFile extends File {}
+
+        model MultipartRequest {
+          fileData: HttpPart<MyFile>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+
+        // The same MyFile model is also used as a non-file body elsewhere.
+        @post
+        @route("/raw")
+        op uploadRaw(@bodyRoot data: MyFile): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The multipart file part carries the file flag on its (cloned) type.
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "model");
+    strictEqual((fileProperty.type as InputModelType).isFileType, true);
+
+    // Invariant: the `MyFile` model stored in the shared type cache must NOT be flipped to a
+    // file type by the multipart usage. (The HTTP `File` base model is legitimately a file
+    // type, so we only assert on `MyFile`.)
+    for (const cachedType of sdkContext.__typeCache.types.values()) {
+      if (cachedType.kind === "model" && cachedType.name === "MyFile") {
+        strictEqual(
+          (cachedType as InputModelType).isFileType,
+          undefined,
+          "A cached model type was mutated with isFileType; file-ness must only be set on clones.",
+        );
+      }
+    }
+  });
+
   it("sets isFileType on a multipart bytes part", async () => {
     const program = await typeSpecCompile(
       `
