@@ -1,5 +1,15 @@
 {
   "mcpServers": {
+    "typespec": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-server-typespec@latest"]
+    },
+    "typespec-docs": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./packages/mcp-server-typespec-docs/dist/server.js"]
+    },
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp",
