@@ -398,7 +398,9 @@ class DPGModelType(GeneratedModelType):
             if serialize_namespace_type == NamespaceType.TYPES_FILE:
                 retval = self.name
             else:
-                retval = f"types.{self.name}"
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                types_alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+                retval = f"{types_alias}.{self.name}"
             return retval if is_operation_file or skip_quote else f'"{retval}"'
         return super().type_annotation(**kwargs)
 
@@ -427,12 +429,14 @@ class DPGModelType(GeneratedModelType):
             serialize_namespace_type = kwargs.get("serialize_namespace_type")
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+            alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
             same_namespace = relative_path == "."
             if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
                 file_import.add_submodule_import(
                     relative_path,
                     "types",
                     ImportType.LOCAL,
+                    alias=alias,
                 )
             elif serialize_namespace_type == NamespaceType.TYPES_FILE and same_namespace:
                 pass  # model is defined in this types.py — no import needed
@@ -443,6 +447,7 @@ class DPGModelType(GeneratedModelType):
                     relative_path,
                     "types",
                     ImportType.LOCAL,
+                    alias=alias,
                     typing_section=TypingSection.TYPING,
                 )
             return file_import
@@ -462,7 +467,9 @@ class TypedDictModelType(DPGModelType):
         if serialize_namespace_type == NamespaceType.TYPES_FILE:
             retval = self.name
         else:
-            retval = f"types.{self.name}"
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            types_alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
+            retval = f"{types_alias}.{self.name}"
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -480,10 +487,12 @@ class TypedDictModelType(DPGModelType):
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
         if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import(
                 relative_path,
                 "types",
                 ImportType.LOCAL,
+                alias=alias,
             )
         return file_import

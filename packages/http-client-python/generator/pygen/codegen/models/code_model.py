@@ -162,6 +162,16 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
         return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
 
+    def get_unique_types_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        if not self.has_subnamespace:
+            return "_types"
+        relative_path = self.get_relative_import_path(
+            serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
+        )
+        dot_num = max(relative_path.count(".") - 1, 0)
+        parts = ["_types"] + [p for p in relative_path.split(".") if p]
+        return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
+
     @property
     def client_namespace_types(self) -> dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
