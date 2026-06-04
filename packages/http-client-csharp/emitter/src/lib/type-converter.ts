@@ -299,13 +299,20 @@ function fromSdkModelProperty(
   } as InputModelProperty;
 
   if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
-    if (property.type.kind === "model" || property.type.kind === "bytes") {
+    // Mark the part type as a file type.
+    if (property.type.kind === "model") {
       property.type.isFileType = true;
-    } else if (
-      property.type.kind === "array" &&
-      (property.type.valueType.kind === "model" || property.type.valueType.kind === "bytes")
-    ) {
-      property.type.valueType.isFileType = true;
+    } else if (property.type.kind === "bytes") {
+      property.type = { ...property.type, isFileType: true };
+    } else if (property.type.kind === "array") {
+      if (property.type.valueType.kind === "model") {
+        property.type.valueType.isFileType = true;
+      } else if (property.type.valueType.kind === "bytes") {
+        property.type = {
+          ...property.type,
+          valueType: { ...property.type.valueType, isFileType: true },
+        };
+      }
     }
   }
 

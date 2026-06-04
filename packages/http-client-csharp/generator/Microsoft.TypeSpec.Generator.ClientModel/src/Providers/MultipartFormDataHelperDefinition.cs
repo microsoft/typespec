@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 innerUsing,
                 MethodBodyStatement.EmptyLine,
-                BuildReturnBinaryData(streamVar.As<MemoryStream>(), mediaTypeParameter)
+                Return(BinaryDataSnippets.FromBytes(streamVar.As<MemoryStream>().GetWrittenMemory(), mediaTypeParameter))
             ]);
 
             return new MethodProvider(signature, new MethodBodyStatement[] { outerUsing }, this);
@@ -103,18 +103,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 innerUsing,
                 MethodBodyStatement.EmptyLine,
-                BuildReturnBinaryData(streamVar.As<MemoryStream>(), mediaTypeParameter)
+                Return(BinaryDataSnippets.FromBytes(streamVar.As<MemoryStream>().GetWrittenMemory(), mediaTypeParameter))
             ]);
 
             return new MethodProvider(signature, new MethodBodyStatement[] { outerUsing }, this);
-        }
-
-        private static IfElseStatement BuildReturnBinaryData(ScopedApi<MemoryStream> stream, ParameterProvider mediaTypeParameter)
-        {
-            return new IfElseStatement(
-                stream.Position().GreaterThan(IntSnippets.MaxValue),
-                Return(BinaryDataSnippets.FromStream(stream, false).WithMediaType(mediaTypeParameter)),
-                Return(BinaryDataSnippets.FromBytes(stream.GetWrittenMemory(), mediaTypeParameter)));
         }
     }
 }

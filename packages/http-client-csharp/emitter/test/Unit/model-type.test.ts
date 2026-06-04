@@ -1349,6 +1349,65 @@ describe("Test isFileType propagation", () => {
     strictEqual((fileProperty.type as InputModelType).isFileType, true);
   });
 
+  it("does not mutate cached bytes types when marking a multipart bytes file part", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          fileData: HttpPart<bytes>;
+        }
+
+        model JsonModel {
+          rawBytes: bytes;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+
+        @post
+        @route("/json")
+        op sendJson(@body body: JsonModel): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The multipart file part carries the file flag on its (cloned) type.
+    const requestModel = root.models.find((m) => m.name === "MultipartRequest");
+    ok(requestModel);
+    const fileProperty = requestModel.properties.find((p) => p.name === "fileData");
+    ok(fileProperty);
+    strictEqual(fileProperty.type.kind, "bytes");
+    strictEqual((fileProperty.type as { isFileType?: boolean }).isFileType, true);
+
+    // Invariant: no `bytes` type stored in the shared type cache should carry the file flag.
+    // The flag lives only on the per-property clone, so mutating a cached instance (the bug)
+    // would surface here.
+    for (const cachedType of sdkContext.__typeCache.types.values()) {
+      if (cachedType.kind === "bytes") {
+        strictEqual(
+          (cachedType as { isFileType?: boolean }).isFileType,
+          undefined,
+          "A cached bytes type was mutated with isFileType; file-ness must only be set on clones.",
+        );
+      }
+    }
+
+    // And the unrelated JSON bytes property must remain a plain (non-file) bytes type.
+    const jsonModel = root.models.find((m) => m.name === "JsonModel");
+    ok(jsonModel);
+    const rawBytesProperty = jsonModel.properties.find((p) => p.name === "rawBytes");
+    ok(rawBytesProperty);
+    strictEqual(rawBytesProperty.type.kind, "bytes");
+    strictEqual((rawBytesProperty.type as { isFileType?: boolean }).isFileType, undefined);
+  });
+
   it("sets isFileType on a multipart bytes part", async () => {
     const program = await typeSpecCompile(
       `

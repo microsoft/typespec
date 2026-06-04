@@ -31,14 +31,7 @@ namespace SampleTypeSpec
                     writer.WriteEndArray();
                 }
 
-                if (stream.Position > int.MaxValue)
-                {
-                    return BinaryData.FromStream(stream).WithMediaType(mediaType);
-                }
-                else
-                {
-                    return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position), mediaType);
-                }
+                return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position), mediaType);
             }
         }
 
@@ -60,14 +53,7 @@ namespace SampleTypeSpec
                     writer.WriteEndObject();
                 }
 
-                if (stream.Position > int.MaxValue)
-                {
-                    return BinaryData.FromStream(stream).WithMediaType(mediaType);
-                }
-                else
-                {
-                    return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position), mediaType);
-                }
+                return new BinaryData(stream.GetBuffer().AsMemory(0, (int)stream.Position), mediaType);
             }
         }
     }
