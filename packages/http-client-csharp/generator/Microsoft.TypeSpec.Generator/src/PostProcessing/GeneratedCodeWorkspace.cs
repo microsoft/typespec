@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -150,9 +151,19 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
-            document = await ReduceQualifiedNamesAsync(document);
+            for (int i = 0; i < 8; i++)
+            {
+                var reducedDocument = await ReduceQualifiedNamesAsync(document);
+                if (ReferenceEquals(reducedDocument, document))
+                {
+                    break;
+                }
+
+                document = reducedDocument;
+            }
+
             document = await ReduceParenthesizedAssignmentsAsync(document);
-            document = await ReduceDocumentationGlobalAliasesAsync(document);
+            document = await ReduceDocumentationQualifiedNamesAsync(document);
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
@@ -299,7 +310,7 @@ namespace Microsoft.TypeSpec.Generator
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
-        private static async Task<Document> ReduceDocumentationGlobalAliasesAsync(Document document)
+        private static async Task<Document> ReduceDocumentationQualifiedNamesAsync(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
             if (root == null)
@@ -311,7 +322,8 @@ namespace Microsoft.TypeSpec.Generator
                 .Where(static trivia =>
                     trivia.HasStructure &&
                     trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
-                    trivia.ToFullString().Contains("global::", StringComparison.Ordinal))
+                    (trivia.ToFullString().Contains("global::", StringComparison.Ordinal) ||
+                     trivia.ToFullString().Contains("cref=\"", StringComparison.Ordinal)))
                 .ToList();
             if (documentationTrivia.Count == 0)
             {
@@ -320,13 +332,48 @@ namespace Microsoft.TypeSpec.Generator
 
             var rewrittenRoot = root.ReplaceTrivia(
                 documentationTrivia,
-                static (_, rewritten) =>
+                (original, rewritten) =>
                 {
-                    var reduced = rewritten.ToFullString().Replace("global::", string.Empty, StringComparison.Ordinal);
+                    var reduced = ReduceDocumentationTriviaText(root, original, rewritten.ToFullString());
                     var parsedTrivia = SyntaxFactory.ParseLeadingTrivia(reduced);
                     return parsedTrivia.Count == 1 ? parsedTrivia[0] : rewritten;
                 });
             return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static string ReduceDocumentationTriviaText(SyntaxNode root, SyntaxTrivia trivia, string text)
+        {
+            var reduced = text.Replace("global::", string.Empty, StringComparison.Ordinal);
+            var namespacePrefix = trivia.Token.Parent?
+                .AncestorsAndSelf()
+                .OfType<BaseNamespaceDeclarationSyntax>()
+                .FirstOrDefault()?
+                .Name
+                .ToString();
+
+            var namespacePrefixes = root.DescendantNodes()
+                .OfType<UsingDirectiveSyntax>()
+                .Where(static directive => directive is { Alias: null, StaticKeyword.RawKind: 0, Name: not null })
+                .Select(static directive => directive.Name!.ToString())
+                .Append(namespacePrefix)
+                .Where(static prefix => !string.IsNullOrEmpty(prefix))
+                .Distinct(StringComparer.Ordinal)
+                .OrderByDescending(static prefix => prefix!.Length);
+
+            var prefixes = namespacePrefixes.Select(static prefix => prefix! + ".").ToArray();
+            return Regex.Replace(
+                reduced,
+                @"(?<attribute>(?:cref|name)="")(?<value>[^""]*)(?<quote>"")",
+                match =>
+                {
+                    var value = match.Groups["value"].Value;
+                    foreach (var prefix in prefixes)
+                    {
+                        value = value.Replace(prefix, string.Empty, StringComparison.Ordinal);
+                    }
+
+                    return match.Groups["attribute"].Value + value + match.Groups["quote"].Value;
+                });
         }
 
         private static bool TryGetNameReplacement(
@@ -368,6 +415,19 @@ namespace Microsoft.TypeSpec.Generator
                 SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
             {
                 return true;
+            }
+
+            if (originalSymbol is ITypeSymbol originalType)
+            {
+                var speculativeType = semanticModel.GetSpeculativeTypeInfo(
+                    originalName.SpanStart,
+                    replacement,
+                    SpeculativeBindingOption.BindAsTypeOrNamespace).Type;
+                if (speculativeType != null &&
+                    SymbolEqualityComparer.Default.Equals(originalType, speculativeType))
+                {
+                    return true;
+                }
             }
 
             if (originalName.Parent is MemberAccessExpressionSyntax memberAccess &&
@@ -496,8 +556,7 @@ namespace Microsoft.TypeSpec.Generator
             var originalSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
             if (originalSymbol == null ||
                 !TryGetMemberAccessParts(memberAccess, out var parts) ||
-                parts.Count < 2 ||
-                parts[0].Identifier.ValueText != "System")
+                parts.Count < 2)
             {
                 return false;
             }
