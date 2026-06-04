@@ -23,6 +23,8 @@ export const CANONICALIZATION_CLASSES = {
   String: LiteralHttpCanonicalization,
   Number: LiteralHttpCanonicalization,
   Boolean: LiteralHttpCanonicalization,
+  StringTemplate: LiteralHttpCanonicalization,
+  Tuple: LiteralHttpCanonicalization,
 } as const;
 
 export type HttpCanonicalizationMutations = InstancesFor<typeof CANONICALIZATION_CLASSES>;

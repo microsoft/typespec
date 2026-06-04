@@ -11,13 +11,14 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// </summary>
     public sealed class InputOperationResponse
     {
-        public InputOperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, IReadOnlyList<InputOperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes)
+        public InputOperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, IReadOnlyList<InputOperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes, InputSerializationOptions? serializationOptions = null)
         {
             StatusCodes = statusCodes;
             BodyType = bodyType;
             Headers = headers;
             IsErrorResponse = isErrorResponse;
             ContentTypes = contentTypes;
+            SerializationOptions = serializationOptions;
         }
 
         public InputOperationResponse() : this(Array.Empty<int>(), null,  Array.Empty<InputOperationResponseHeader>(), false, Array.Empty<string>()) { }
@@ -27,5 +28,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputOperationResponseHeader> Headers { get; }
         public bool IsErrorResponse { get; }
         public IReadOnlyList<string> ContentTypes { get; }
+
+        /// <summary>
+        /// Options describing how the response body is deserialized from the wire.
+        /// </summary>
+        public InputSerializationOptions? SerializationOptions { get; }
     }
 }

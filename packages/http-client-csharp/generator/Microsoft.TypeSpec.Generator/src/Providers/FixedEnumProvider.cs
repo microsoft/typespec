@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -45,6 +46,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
+        // The set of types permitted as a C# enum's underlying type (CS1008):
+        // https://learn.microsoft.com/dotnet/csharp/misc/cs1008
+        private static readonly HashSet<Type> _allowedEnumUnderlyingTypes =
+        [
+            typeof(byte),
+            typeof(sbyte),
+            typeof(short),
+            typeof(ushort),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+        ];
+        protected override CSharpType? BuildBaseType()
+        {
+            var underlying = EnumUnderlyingType;
+            if (!underlying.IsFrameworkType || !_allowedEnumUnderlyingTypes.Contains(underlying.FrameworkType))
+            {
+                return null;
+            }
+            return underlying;
+        }
+
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
@@ -57,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = inputValue.Name.ToIdentifierName();
+                var name = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
@@ -125,7 +148,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
+            // Report a summary-level change only if the relative order of shared members
+            // was actually altered to match the last contract.
+            if (!EnumMemberOrderMatches(currentValues, allMembers))
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Reordered members of enum '{Name}' to match last contract.",
+                    BackCompatibilityChangeCategory.EnumMemberReordering);
+            }
+
             return allMembers;
+        }
+
+        private static bool EnumMemberOrderMatches(
+            IReadOnlyList<EnumTypeMember> left,
+            IReadOnlyList<EnumTypeMember> right)
+        {
+            if (left.Count != right.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < left.Count; i++)
+            {
+                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         protected internal override FieldProvider[] BuildFields()

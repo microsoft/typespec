@@ -227,17 +227,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= ApplyCustomizationFilter(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= ApplyCustomizationFilter(BuildConstructors());
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= ApplyCustomizationFilter(BuildFields());
+
+        // Applies customization filtering when enabled, otherwise returns the input as-is.
+        // Centralizes the FilterCustomizedMembers gate so the property getters and
+        // ProcessTypeForBackCompatibility share identical filtering semantics.
+        private IReadOnlyList<PropertyProvider> ApplyCustomizationFilter(IEnumerable<PropertyProvider> properties)
+            => FilterCustomizedMembers
+                ? FilterCustomizedProperties(properties)
+                : (properties as IReadOnlyList<PropertyProvider>) ?? [.. properties];
+
+        private IReadOnlyList<MethodProvider> ApplyCustomizationFilter(IEnumerable<MethodProvider> methods)
+            => FilterCustomizedMembers
+                ? FilterCustomizedMethods(methods)
+                : (methods as IReadOnlyList<MethodProvider>) ?? [.. methods];
+
+        private IReadOnlyList<ConstructorProvider> ApplyCustomizationFilter(IEnumerable<ConstructorProvider> constructors)
+            => FilterCustomizedMembers
+                ? FilterCustomizedConstructors(constructors)
+                : (constructors as IReadOnlyList<ConstructorProvider>) ?? [.. constructors];
+
+        private IReadOnlyList<FieldProvider> ApplyCustomizationFilter(IEnumerable<FieldProvider> fields)
+            => FilterCustomizedMembers
+                ? FilterCustomizedFields(fields)
+                : (fields as IReadOnlyList<FieldProvider>) ?? [.. fields];
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
@@ -331,8 +354,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
+            var customMethods = CustomCodeView?.Methods;
+            // Only build the partial-declarations list when there are custom methods to inspect.
+            // The vast majority of TypeProviders have no custom code; skip the allocation in that case.
+            List<MethodProvider>? partialDeclarations = null;
+            if (customMethods != null && customMethods.Count > 0)
+            {
+                foreach (var customMethod in customMethods)
+                {
+                    if (customMethod.IsPartialMethod)
+                    {
+                        (partialDeclarations ??= new List<MethodProvider>()).Add(customMethod);
+                    }
+                }
+            }
+
             foreach (var method in specMethods)
             {
+                // If a generated method is already marked as partial (e.g., by
+                // ScmMethodProviderCollection's early detection), keep it as-is.
+                if (method.IsPartialMethod)
+                {
+                    methods.Add(method);
+                    continue;
+                }
+
+                MethodProvider? matchingPartial = null;
+                if (partialDeclarations != null)
+                {
+                    foreach (var partial in partialDeclarations)
+                    {
+                        if (MethodSignatureBase.SignatureComparer.Equals(partial.Signature, method.Signature))
+                        {
+                            matchingPartial = partial;
+                            break;
+                        }
+                    }
+                }
+
+                if (matchingPartial != null)
+                {
+                    methods.Add(CreatePartialMethodFromCustomSignature(matchingPartial.Signature, method));
+                    continue;
+                }
+
                 if (ShouldGenerate(method))
                 {
                     methods.Add(method);
@@ -340,6 +405,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. methods];
+        }
+
+        private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
+        {
+            // Partial method implementations require all parameters to be required (no default values).
+            var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                customSignature.Parameters,
+                customSignature.Parameters,
+                removeDefaults: true);
+
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
+
+            MethodProvider partialMethod = generatedMethod.BodyExpression != null
+                ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)
+                : new MethodProvider(partialSignature, generatedMethod.BodyStatements ?? MethodBodyStatement.Empty, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions);
+
+            return partialMethod;
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -401,6 +483,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
+
+        /// <summary>
+        /// Resets only the cached methods so they are rebuilt on next access.
+        /// Use this instead of <see cref="Reset"/> when you need to force a method
+        /// rebuild without discarding visitor-applied state on properties, fields,
+        /// constructors, or canonical/last-contract views.
+        /// </summary>
+        public void ResetMethods()
+        {
+            _methods = null;
+        }
 
         /// <summary>
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
@@ -470,19 +563,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (methods != null)
             {
-                _methods = (methods as IReadOnlyList<MethodProvider>) ?? methods.ToList();
+                _methods = ApplyCustomizationFilter(methods);
             }
             if (properties != null)
             {
-                _properties = (properties as IReadOnlyList<PropertyProvider>) ?? properties.ToList();
+                _properties = ApplyCustomizationFilter(properties);
             }
             if (fields != null)
             {
-                _fields = (fields as IReadOnlyList<FieldProvider>) ?? fields.ToList();
+                _fields = ApplyCustomizationFilter(fields);
             }
             if (constructors != null)
             {
-                _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+                _constructors = ApplyCustomizationFilter(constructors);
             }
             if (implements != null)
             {
@@ -580,6 +673,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
 
+            IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
             if (this is EnumProvider)
             {
@@ -589,8 +683,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var newEnumValues = BuildEnumValuesForBackCompatibility(EnumValues);
                     if (newEnumValues != null)
                     {
-                        _enumValues = newEnumValues;
-                        newFields = newEnumValues.Select(v => v.Field);
+                        // Filter the back-compat fields up front so we can keep _enumValues in sync
+                        // with the surviving fields (Update will apply the same filter when assigning
+                        // _fields, but it doesn't know about the EnumValues correspondence).
+                        var filteredFields = ApplyCustomizationFilter(newEnumValues.Select(v => v.Field));
+
+                        if (filteredFields.Count != newEnumValues.Count)
+                        {
+                            var allowedFields = new HashSet<FieldProvider>(filteredFields);
+                            updatedEnumValues = [.. newEnumValues.Where(v => allowedFields.Contains(v.Field))];
+                        }
+                        else
+                        {
+                            updatedEnumValues = newEnumValues;
+                        }
+
+                        newFields = filteredFields;
                     }
                 }
             }
@@ -600,6 +708,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (newFields != null || newMethods != null || newConstructors != null)
             {
+                if (updatedEnumValues != null)
+                {
+                    _enumValues = updatedEnumValues;
+                }
                 Update(fields: newFields, methods: newMethods, constructors: newConstructors);
             }
         }
@@ -660,6 +772,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
+                // Partial method declarations are handled in FilterCustomizedMethods and
+                // should not suppress the generated method.
+                if (customMethod.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;

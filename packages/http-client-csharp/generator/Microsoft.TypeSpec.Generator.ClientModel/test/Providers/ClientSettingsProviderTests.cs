@@ -1087,5 +1087,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsFalse(bodyString.Contains("GetSection(\"Settings\")"),
                 "BindCore should not bind a self-referential Settings section");
         }
+
+        [Test]
+        public async Task TestProperties_ExcludesDerivedCredentialParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            var settings = clientProvider.ClientSettings;
+            Assert.IsNotNull(settings);
+
+            // The custom constructor has a MyCustomCredential parameter (derives from AuthenticationTokenProvider).
+            // It should be excluded from settings properties because it is a credential type.
+            var credentialProp = settings!.Properties
+                .FirstOrDefault(p => p.Name == "Credential" || p.Name == "MyCredential");
+            Assert.IsNull(credentialProp,
+                "Settings should NOT include a property for a parameter whose type derives from TokenCredentialType");
+
+            // Verify that a normal parameter from the same constructor IS included
+            var tenantIdProp = settings.Properties
+                .FirstOrDefault(p => p.Name == "TenantId");
+            Assert.IsNotNull(tenantIdProp,
+                "Settings should include the non-credential parameter 'TenantId' from the custom constructor");
+        }
+
+        [Test]
+        public async Task TestBindCoreMethod_ExcludesDerivedCredentialParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+
+            var bindCoreMethod = settings!.Methods
+                .FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("MyCredential"),
+                "BindCore should NOT bind a credential-derived parameter");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "BindCore should bind the non-credential parameter 'TenantId'");
+        }
     }
 }

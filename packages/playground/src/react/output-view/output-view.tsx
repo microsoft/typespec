@@ -26,10 +26,6 @@ export interface OutputViewProps {
   viewers?: ProgramViewer[];
   fileViewers?: FileOutputViewer[];
   /**
-   * When true, highlights changed files and lines after recompilation.
-   */
-  highlightChanges?: boolean;
-  /**
    * The currently selected viewer key.
    */
   selectedViewer?: string;
@@ -53,15 +49,14 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   isOutputStale,
   viewers,
   fileViewers,
-  highlightChanges,
   selectedViewer,
   onViewerChange,
   viewerState,
   onViewerStateChange,
 }) => {
   const resolvedViewers = useMemo(
-    () => resolveViewers(viewers, fileViewers, highlightChanges),
-    [fileViewers, viewers, highlightChanges],
+    () => resolveViewers(viewers, fileViewers),
+    [fileViewers, viewers],
   );
 
   if (compilationState === undefined) {
@@ -104,9 +99,8 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
 function resolveViewers(
   viewers: ProgramViewer[] | undefined,
   fileViewers: FileOutputViewer[] | undefined,
-  highlightChanges?: boolean,
 ): ResolvedViewers {
-  const fileViewer = createFileViewer(fileViewers ?? [], { highlightChanges });
+  const fileViewer = createFileViewer(fileViewers ?? []);
   const output: ResolvedViewers = {
     programViewers: {
       [fileViewer.key]: fileViewer,

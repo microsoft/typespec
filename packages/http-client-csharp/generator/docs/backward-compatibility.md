@@ -6,6 +6,10 @@
 - [How It Works](#how-it-works)
 - [Supported Scenarios](#supported-scenarios)
   - [Model Factory Methods](#model-factory-methods)
+    - [New Model Property Added](#scenario-new-model-property-added)
+    - [Parameter Ordering Changed](#scenario-parameter-ordering-changed)
+    - [Property Renamed](#scenario-property-renamed)
+    - [New Property Added Together with a Rename](#scenario-new-property-added-together-with-a-rename)
   - [Model Properties](#model-properties)
   - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
   - [API Version Enum](#api-version-enum)
@@ -14,8 +18,11 @@
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
+    - [Method Parameter Name Preserved from Last Contract](#scenario-method-parameter-name-preserved-from-last-contract)
   - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
+  - [Client Methods](#client-methods)
+    - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
 
 ## Overview
 
@@ -110,13 +117,112 @@ public static PublicModel1 PublicModel1(
 
 **Result:** The generator keeps the previous parameter ordering to maintain compatibility.
 
+#### Scenario: Property Renamed
+
+**Description:** When a model property is renamed (via `@@clientName`, a spec rename, a generator naming-rule change, etc.), the generated factory parameter would normally change its name to follow the new property name. Renaming a parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator preserves the previous parameter name on the current factory method whenever the only difference between the previous and current method is one or more parameter names (same method name, same parameter types in the same order, same parameter count).
+
+**Example:**
+
+Previous version exposed `stringProp` and `modelProp`:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+Current TypeSpec renames the underlying properties to `CertificateStringProp` and `CertificateModelProp`, which would normally produce:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string certificateStringProp = default,
+    Thing certificateModelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+**Generated Compatibility Result:**
+
+The generator detects that previous and current methods differ only in parameter names and preserves the previous names on the current method:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+{
+    // body uses the preserved names when constructing the model
+    return new PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);
+}
+```
+
+**Key Points:**
+
+- Only one method is generated — no additional `[EditorBrowsable(EditorBrowsableState.Never)]` overload is needed
+- Existing source code using named arguments (e.g. `PublicModel1(stringProp: "x")`) continues to compile
+- The matching is by method name plus parameter types in the same order; the parameter count must also match. If a parameter is added or removed in addition to a rename, the standard "new property added" overload is generated instead (see scenario below)
+- The XML doc `<param>` entries on the method are updated to reference the preserved names
+
+#### Scenario: New Property Added Together with a Rename
+
+**Description:** When a new property is added to a model AND a previously-published property has been renamed at the same time, the parameter counts of the previous and current factory methods differ, so the rename-only fast path above does not apply. The generator falls back to the standard "new property added" flow and emits an `[EditorBrowsable(EditorBrowsableState.Never)]` backcompat overload using the previously-published parameter names.
+
+> [!NOTE]
+> The body of the backcompat overload constructs the model directly. Renamed parameters whose names no longer match a current property are passed as `default` to the constructor, since the body can no longer thread them through the renamed properties. This keeps existing source compiling, but callers who depended on the old parameter being forwarded should migrate to the current method.
+
+**Example:**
+
+Previous version exposed three properties, with the first two under different names:
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string oldStringProp = default,
+    Thing oldModelProp = default,
+    IEnumerable<string> listProp = default)
+```
+
+Current TypeSpec renames the first two properties (now `stringProp` / `modelProp`) and adds a new property (`dictProp`):
+
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+**Generated Compatibility Method:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public static PublicModel1 PublicModel1(
+    string oldStringProp,
+    Thing oldModelProp,
+    IEnumerable<string> listProp)
+{
+    listProp ??= new ChangeTrackingList<string>();
+
+    return new PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);
+}
+```
+
+**Key Points:**
+
+- The previous (renamed) signature is preserved so existing source code continues to compile
+- Parameters whose names matched a current property (`listProp`) are threaded through; renamed parameters are passed as `default`
+- The new property is also passed as `default`
+- A separate visible method exposes the current signature with the new property and the renamed parameters
+
 ### Model Properties
 
-The generator attempts to maintain backward compatibility for model property types, particularly for collection types.
+The generator preserves the previous property type whenever it differs from the type produced by the current spec. This applies to all public model properties (scalars, enums, models, and collections), so any property type change is non-source-breaking by default. Users who want the new spec's type to take effect can override this behavior with custom code.
 
 #### Scenario: Collection Property Type Changed
 
-**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
+**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator preserves the previous property type to avoid breaking changes.
 
 **Example:**
 
@@ -138,11 +244,31 @@ public IList<string> Items { get; set; }
 public IReadOnlyList<string> Items { get; }
 ```
 
-**Implementation Details:**
+#### Scenario: Scalar/Model Property Type Changed
 
-- The generator compares property types against the `LastContractView`
-- For read-write lists and dictionaries, if the previous type was different, the previous type is retained
-- A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
+**Description:** When the type of a scalar, enum, or model property differs between the last contract and the current spec — whether the change is in nullability, the underlying type, or anything else — the generator preserves the last contract's type.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public int? Count { get; set; }
+```
+
+Current TypeSpec would generate:
+
+```csharp
+public int Count { get; set; }
+```
+
+**Result:** The generator detects the type mismatch and preserves the previous nullable type:
+
+```csharp
+public int? Count { get; set; }
+```
+
+A diagnostic message is logged for every overridden property: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
 ### AdditionalProperties Type Preservation
 
@@ -593,6 +719,50 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, Cancellat
 - Existing client code with `top` continues to compile without changes
 - New code benefits from the standardized `maxCount` naming convention
 
+#### Scenario: Method Parameter Name Preserved from Last Contract
+
+**Description:** When a service method parameter is renamed by the spec or by the generator (e.g., a `@@clientName`, a TypeSpec property rename, or a generator naming-rule change), the new name would normally appear on the generated convenience and protocol methods. Renaming a parameter is source-breaking for callers using named arguments and is not flagged by ApiCompat / binary-compat tooling. To avoid this, the generator looks up the parameter's original (spec) name in `LastContractView` and, when a previously-published parameter with that name exists on the matching method (matched by method name, allowing for the sync/async pair), restores the previously-published parameter name on the current method.
+
+This generalizes the paging-specific `top → maxCount` and page-size casing scenarios above so that any renamed parameter on any operation falls back to the prior published name.
+
+**Example:**
+
+Previous version exposed `oldParam` on `GetSomething`:
+
+```csharp
+public virtual ClientResult GetSomething(string oldParam, RequestOptions options = null)
+{
+    // ...
+}
+```
+
+Current TypeSpec renames the parameter to `newParam` (e.g., via `@@clientName` or a property rename), which would normally produce:
+
+```csharp
+public virtual ClientResult GetSomething(string newParam, RequestOptions options = null)
+{
+    // ...
+}
+```
+
+**Generated Compatibility Result:**
+
+The generator detects `oldParam` on the matching method in `LastContractView` and restores that name on the current method:
+
+```csharp
+public virtual ClientResult GetSomething(string oldParam, RequestOptions options = null)
+{
+    // body and HTTP request still use the spec's serialized name; only the public parameter name is preserved
+}
+```
+
+**Key Points:**
+
+- Lookup is scoped to the matching service method (allowing for the sync/async pair) so a parameter name shared across multiple methods cannot false-match another method's parameter
+- The HTTP query/path/header/body serialized name continues to use the spec's wire name — only the C# parameter identifier is restored
+- Existing source code using named arguments (e.g., `client.GetSomething(oldParam: "x")`) continues to compile
+- If no matching parameter is found in `LastContractView`, the generator uses the current (renamed) name
+
 ### Content-Type Parameter Ordering
 
 The generator places the `contentType` parameter after the body (`content`) parameter in method signatures. However, backward compatibility is maintained when the last contract had a different ordering.
@@ -636,3 +806,65 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Client Methods
+
+#### Scenario: New Optional Non-Body Parameter Added to a Service Method
+
+**Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
+
+**Rules:**
+
+- The previous method's parameters must appear, in the same relative order and matching by name and type, within the current method's parameters.
+- Every "extra" parameter on the current method must be optional (i.e. have a default value).
+- No "extra" parameter on the current method may be a body parameter; if any extra parameter is a body parameter, no back-compat overload is added.
+- The back-compat overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]` and has all default values stripped from its parameters to avoid ambiguous call sites.
+
+**Example:**
+
+Previous version of the client:
+
+```csharp
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options = null);
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options = null);
+```
+
+Current TypeSpec adds an optional query parameter `p2`:
+
+```typespec
+op getData(@query p1: int32, @body body: SampleModel, @query p2?: boolean): string;
+```
+
+**Generated Client:**
+
+The generated client includes the current methods (with the new optional `p2` parameter) and the hidden back-compat overloads that match the previous contract's signature. Required parameters come first, followed by optional parameters, with `RequestOptions` last — matching the [Azure SDK parameter ordering guidelines](https://azure.github.io/azure-sdk/dotnet_implementation.html#parameter-presence-and-ordering).
+
+```csharp
+// Current sync method generated from the updated TypeSpec.
+public virtual ClientResult GetData(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Current async method generated from the updated TypeSpec.
+public virtual async Task<ClientResult> GetDataAsync(int p1, BinaryContent body, bool? p2 = default, RequestOptions options = null)
+{
+    // ... implementation ...
+}
+
+// Back-compat sync overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual ClientResult GetData(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetData(p1: p1, body: body, p2: default, options: options);
+}
+
+// Back-compat async overload matching the previous contract's signature.
+[EditorBrowsable(EditorBrowsableState.Never)]
+public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, RequestOptions options)
+{
+    return this.GetDataAsync(p1: p1, body: body, p2: default, options: options);
+}
+```
+
+The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.

@@ -3,7 +3,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
 import debounce from "debounce";
-import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
+import { KeyCode, KeyMod, MarkerSeverity, MarkerTag, Uri, editor } from "monaco-editor";
 import {
   useCallback,
   useEffect,
@@ -13,7 +13,6 @@ import {
   type FunctionComponent,
   type ReactNode,
 } from "react";
-import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
@@ -38,8 +37,6 @@ export type { PlaygroundState };
 export interface PlaygroundEmitterOptions {
   /** Compile debounce delay in milliseconds. Default is 200. */
   debounce?: number;
-  /** When true, highlights changed files and lines after recompilation. */
-  newChangeDiff?: boolean;
 }
 
 export interface PlaygroundProps {
@@ -204,35 +201,65 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setIsOutputStale(false);
   }, [selectedEmitter]);
 
-  // Sync Monaco model with state content
+  // Track whether content changes originated from the model (user typing)
+  // to avoid the sync effect resetting the model during typing
+  const isModelDrivenChangeRef = useRef(false);
+
+  // Sync Monaco model with state content (only for external/programmatic changes)
   useEffect(() => {
+    if (isModelDrivenChangeRef.current) {
+      isModelDrivenChangeRef.current = false;
+      return;
+    }
     if (typespecModel.getValue() !== (content ?? "")) {
       typespecModel.setValue(content ?? "");
     }
   }, [content, typespecModel]);
 
+  // Use refs to avoid re-subscribing to onDidChangeContent on every keystroke
+  const contentRef = useRef(content);
+  const onContentChangeRef = useRef(onContentChange);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
+
   // Update state when Monaco model changes
   useEffect(() => {
     const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
+      if (newContent !== contentRef.current) {
+        isModelDrivenChangeRef.current = true;
+        onContentChangeRef.current(newContent);
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
   const compileIdRef = useRef(0);
+  const isCompilingRef = useRef(false);
+  const pendingRecompileRef = useRef(false);
+  const doCompileRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   const doCompile = useCallback(async () => {
+    // If a compile is already in progress, mark that a recompile is needed and
+    // bail out. The in-flight compile will re-trigger on completion. This avoids
+    // stacking up synchronous compiles that block the UI thread during typing.
+    if (isCompilingRef.current) {
+      pendingRecompileRef.current = true;
+      return;
+    }
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
     const compileId = ++compileIdRef.current;
 
+    isCompilingRef.current = true;
     setIsCompiling(true);
     let state: CompilationState;
     try {
@@ -240,10 +267,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Compilation failed", error);
-      return;
-    } finally {
+      isCompilingRef.current = false;
       setIsCompiling(false);
+      if (pendingRecompileRef.current) {
+        pendingRecompileRef.current = false;
+        void doCompileRef.current();
+      }
+      return;
     }
+    isCompilingRef.current = false;
+    setIsCompiling(false);
 
     // Discard stale results from an older compilation
     if (compileId !== compileIdRef.current) return;
@@ -274,7 +307,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
-        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
+        tags: diag.code === "deprecated" ? [MarkerTag.Deprecated] : undefined,
       }));
 
       // Update code action provider with current diagnostics (for codefix support).
@@ -289,7 +322,18 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
+
+    // If typing happened while this compile was running, trigger a trailing
+    // compile so the output stays in sync with the latest content.
+    if (pendingRecompileRef.current) {
+      pendingRecompileRef.current = false;
+      void doCompileRef.current();
+    }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
+
+  useEffect(() => {
+    doCompileRef.current = doCompile;
+  }, [doCompile]);
 
   const currentEmitterOptions = selectedEmitter
     ? props.emitterOptions?.[selectedEmitter]
@@ -311,8 +355,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const saveCode = useCallback(() => {
     if (onSave) {
+      // Read directly from the model to ensure we save the latest content,
+      // not a potentially stale React state value
+      const currentContent = typespecModel.getValue();
       onSave({
-        content: content ?? "",
+        content: currentContent,
         emitter: selectedEmitter,
         compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
@@ -321,7 +368,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       });
     }
   }, [
-    content,
+    typespecModel,
     onSave,
     selectedEmitter,
     compilerOptions,
@@ -438,7 +485,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
-      highlightChanges={currentEmitterOptions?.newChangeDiff}
       selectedViewer={selectedViewer}
       onViewerChange={onSelectedViewerChange}
       viewerState={viewerState}

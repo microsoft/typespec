@@ -1,5 +1,5 @@
 # Base test dependencies
-pytest==8.3.2
+pytest==9.0.3
 pytest-xdist>=3.5.0
 pytest-asyncio>=0.14.0
 aiohttp

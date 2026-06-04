@@ -39,6 +39,7 @@
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
+    "@alloy-js/rollup-plugin": "catalog:",
     "@types/node": "catalog:",
     "concurrently": "catalog:",
     "prettier": "catalog:"
