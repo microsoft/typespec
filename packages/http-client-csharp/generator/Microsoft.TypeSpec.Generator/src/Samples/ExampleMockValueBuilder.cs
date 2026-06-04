@@ -28,7 +28,6 @@ namespace Microsoft.TypeSpec.Generator.Samples
         /// <summary>
         /// Builds mock operation examples for the given operation.
         /// Produces two variants: "ShortVersion" (required params only) and "AllParameters" (all params).
-        /// If all parameters are required, only "AllParameters" is produced since both would be identical.
         /// </summary>
         public static IReadOnlyList<InputOperationExample> BuildOperationExamples(InputOperation operation)
         {

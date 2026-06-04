@@ -31,13 +31,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Samples
         [Test]
         public void TokenCredential_ProducesDefaultAzureCredential()
         {
-            var sample = CreateSampleWithClientParameterType("credential", new CSharpType(typeof(TokenCredential)));
+            var sample = CreateSampleWithClientParameterType("credential", new CSharpType(typeof(AuthenticationTokenProvider)));
             var mapping = sample.ParameterValueMapping;
 
             Assert.IsTrue(mapping.ContainsKey("credential"));
 
             // The expression should be a FormattableStringExpression containing "new DefaultAzureCredential()"
-            // (not "new TokenCredential()" which would fail because TokenCredential is abstract)
+            // (not "AuthenticationTokenProvider()" which would fail because it is abstract)
             var expr = ExampleValueExpressionBuilder.GetExpression(mapping["credential"]);
             Assert.IsInstanceOf<FormattableStringExpression>(expr);
 
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Samples
         [Test]
         public void ApiKeyCredential_ProducesNewWithKeyPlaceholder()
         {
-            var sample = CreateSampleWithClientParameterType("credential", new CSharpType(typeof(AzureKeyCredential)));
+            var sample = CreateSampleWithClientParameterType("credential", new CSharpType(typeof(ApiKeyCredential)));
             var mapping = sample.ParameterValueMapping;
 
             Assert.IsTrue(mapping.ContainsKey("credential"));
@@ -350,8 +350,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Samples
         }
 
         // Stub types for credential/LRO tests (matched by type name in TryProcessKnownParameter)
-        private sealed class TokenCredential { }
-        private sealed class AzureKeyCredential { }
+        private sealed class AuthenticationTokenProvider { }
+        private sealed class ApiKeyCredential { }
         private sealed class WaitUntil
         {
             public static WaitUntil Completed { get; } = new WaitUntil();

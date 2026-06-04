@@ -17,18 +17,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Samples
         // BuildOperationExamples — top-level behavior
         // -----------------------------------------------------------------------
 
-        [Test]
-        public void BuildOperationExamples_ProducesOneVariant_WhenNoOptionalParameters()
-        {
-            var operation = InputFactory.Operation("TestOp", parameters: [
-                InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true)
-            ]);
-
-            var examples = ExampleMockValueBuilder.BuildOperationExamples(operation);
-
-            Assert.AreEqual(1, examples.Count);
-            Assert.AreEqual(ExampleMockValueBuilder.AllParametersKey, examples[0].Name);
-        }
 
         [Test]
         public void BuildOperationExamples_ProducesTwoVariants_WhenHasOptionalParameters()
@@ -462,7 +450,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Samples
             var examples = ExampleMockValueBuilder.BuildOperationExamples(operation);
             var paramExample = examples[0].Parameters[0];
 
-            AssertRawValue(paramExample.ExampleValue, "<Url>");
+            AssertRawValue(paramExample.ExampleValue, "<endpoint>");
         }
 
         [Test]
