@@ -152,25 +152,27 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return result
         return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
 
-    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+    def _get_unique_import_alias(self, serialize_namespace: str, imported_namespace: str, module_name: str) -> str:
         if not self.has_subnamespace:
-            return "_models"
+            return f"_{module_name}"
         relative_path = self.get_relative_import_path(
             serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
         )
         dot_num = max(relative_path.count(".") - 1, 0)
-        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
+        path_parts = [p for p in relative_path.split(".") if p]
+        # For "models", keep existing format: _<path_parts><dot_num> (e.g. _models1, _firstnamespace_models2)
+        # For other modules like "types", prefix with module name: _types_<path_parts><dot_num>
+        if module_name == "models":
+            parts = [""] + (path_parts or [module_name])
+        else:
+            parts = [f"_{module_name}"] + (path_parts or [])
         return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
 
+    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "models")
+
     def get_unique_types_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
-        if not self.has_subnamespace:
-            return "_types"
-        relative_path = self.get_relative_import_path(
-            serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
-        )
-        dot_num = max(relative_path.count(".") - 1, 0)
-        parts = ["_types"] + [p for p in relative_path.split(".") if p]
-        return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "types")
 
     @property
     def client_namespace_types(self) -> dict[str, ClientNamespaceType]:

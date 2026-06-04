@@ -171,9 +171,7 @@ def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
     return parameter.get("etagRole")
 
 
-def _pick_etag_slot(
-    candidates: list[dict[str, Any]], standard_wire_name: str
-) -> Optional[dict[str, Any]]:
+def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -> Optional[dict[str, Any]]:
     """Choose which etag-typed header should be promoted to the etag/match_condition slot.
 
     When more than one etag-typed header is present in an operation, prefer the
@@ -258,15 +256,14 @@ def _process_operation_etag_headers(
             elif role == "ifNoneMatch":
                 if_none_match_candidates.append(p)
 
-    property_if_match, property_if_none_match = _resolve_etag_pair(
-        if_match_candidates, if_none_match_candidates
-    )
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
 
     if property_if_match and property_if_none_match:
         etag_params = {id(property_if_match), id(property_if_none_match)}
-        operation["parameters"] = [
-            item for item in operation["parameters"] if id(item) not in etag_params
-        ] + [property_if_match, property_if_none_match]
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+            property_if_match,
+            property_if_none_match,
+        ]
         operation["hasEtag"] = True
         client["hasEtag"] = True
 
