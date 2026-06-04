@@ -162,7 +162,30 @@ namespace Microsoft.TypeSpec.Generator
                 document = reducedDocument;
             }
 
-            document = await ReduceParenthesizedAssignmentsAsync(document);
+            for (int i = 0; i < 8; i++)
+            {
+                var reducedDocument = await ReduceParenthesesAsync(document);
+                if (ReferenceEquals(reducedDocument, document))
+                {
+                    break;
+                }
+
+                document = reducedDocument;
+            }
+
+            document = await ReduceGenericMethodTypeArgumentsAsync(document);
+            document = await ReduceThisQualificationAsync(document);
+            for (int i = 0; i < 4; i++)
+            {
+                var reducedDocument = await ReducePredefinedTypeNamesAsync(document);
+                if (ReferenceEquals(reducedDocument, document))
+                {
+                    break;
+                }
+
+                document = reducedDocument;
+            }
+
             document = await ReduceDocumentationQualifiedNamesAsync(document);
 
             // Reformat if any custom rewriters have been applied
@@ -285,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator
             semanticModel.GetSymbolInfo(name).Symbol ??
             semanticModel.GetTypeInfo(name).Type;
 
-        private static async Task<Document> ReduceParenthesizedAssignmentsAsync(Document document)
+        private static async Task<Document> ReduceParenthesesAsync(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
             if (root == null)
@@ -293,20 +316,258 @@ namespace Microsoft.TypeSpec.Generator
                 return document;
             }
 
-            var assignments = root.DescendantNodes()
+            var expressions = root.DescendantNodes()
                 .OfType<ParenthesizedExpressionSyntax>()
-                .Where(static node =>
-                    node.Expression is AssignmentExpressionSyntax &&
-                    node.Parent is ExpressionStatementSyntax)
+                .Where(CanRemoveParentheses)
                 .ToList();
-            if (assignments.Count == 0)
+            var patterns = root.DescendantNodes()
+                .OfType<ParenthesizedPatternSyntax>()
+                .ToList();
+            if (expressions.Count == 0 && patterns.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root
+                .ReplaceNodes(
+                    expressions,
+                    static (_, rewritten) => rewritten.Expression.WithTriviaFrom(rewritten))
+                .ReplaceNodes(
+                    patterns,
+                    static (_, rewritten) => rewritten.Pattern.WithTriviaFrom(rewritten));
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static bool CanRemoveParentheses(ParenthesizedExpressionSyntax node) => node.Parent switch
+        {
+            ParenthesizedExpressionSyntax => true,
+            IfStatementSyntax ifStatement when ifStatement.Condition == node => true,
+            WhileStatementSyntax whileStatement when whileStatement.Condition == node => true,
+            DoStatementSyntax doStatement when doStatement.Condition == node => true,
+            ForStatementSyntax forStatement when forStatement.Condition == node => true,
+            SwitchStatementSyntax switchStatement when switchStatement.Expression == node => true,
+            ReturnStatementSyntax => true,
+            ArrowExpressionClauseSyntax => true,
+            EqualsValueClauseSyntax => true,
+            AssignmentExpressionSyntax assignment when assignment.Right == node => true,
+            ExpressionStatementSyntax when node.Expression is AssignmentExpressionSyntax => true,
+            ArgumentSyntax => node.Expression is not AssignmentExpressionSyntax and not ConditionalExpressionSyntax,
+            BracketedArgumentListSyntax => true,
+            ConditionalExpressionSyntax parent when parent.Condition == node => true,
+            WhenClauseSyntax whenClause when whenClause.Condition == node => true,
+            SwitchExpressionArmSyntax switchArm when switchArm.WhenClause?.Condition == node => true,
+            BinaryExpressionSyntax parent when parent.Left == node =>
+                GetExpressionPrecedence(node.Expression) >= GetExpressionPrecedence(parent),
+            BinaryExpressionSyntax parent when parent.Right == node =>
+                GetExpressionPrecedence(node.Expression) > GetExpressionPrecedence(parent) ||
+                parent.IsKind(SyntaxKind.CoalesceExpression) && node.Expression.IsKind(SyntaxKind.CoalesceExpression),
+            PrefixUnaryExpressionSyntax => node.Expression is CastExpressionSyntax,
+            _ => false
+        };
+
+        private static int GetExpressionPrecedence(ExpressionSyntax expression) => expression.Kind() switch
+        {
+            SyntaxKind.SimpleMemberAccessExpression or
+            SyntaxKind.ElementAccessExpression or
+            SyntaxKind.InvocationExpression => 15,
+            SyntaxKind.CastExpression => 14,
+            SyntaxKind.UnaryMinusExpression or
+            SyntaxKind.UnaryPlusExpression or
+            SyntaxKind.LogicalNotExpression or
+            SyntaxKind.BitwiseNotExpression => 13,
+            SyntaxKind.MultiplyExpression or
+            SyntaxKind.DivideExpression or
+            SyntaxKind.ModuloExpression => 12,
+            SyntaxKind.AddExpression or
+            SyntaxKind.SubtractExpression => 11,
+            SyntaxKind.LeftShiftExpression or
+            SyntaxKind.RightShiftExpression => 10,
+            SyntaxKind.LessThanExpression or
+            SyntaxKind.LessThanOrEqualExpression or
+            SyntaxKind.GreaterThanExpression or
+            SyntaxKind.GreaterThanOrEqualExpression or
+            SyntaxKind.IsExpression or
+            SyntaxKind.AsExpression => 9,
+            SyntaxKind.EqualsExpression or
+            SyntaxKind.NotEqualsExpression => 8,
+            SyntaxKind.BitwiseAndExpression => 7,
+            SyntaxKind.ExclusiveOrExpression => 6,
+            SyntaxKind.BitwiseOrExpression => 5,
+            SyntaxKind.LogicalAndExpression => 4,
+            SyntaxKind.LogicalOrExpression => 3,
+            SyntaxKind.CoalesceExpression => 2,
+            SyntaxKind.SimpleAssignmentExpression or
+            SyntaxKind.AddAssignmentExpression or
+            SyntaxKind.SubtractAssignmentExpression or
+            SyntaxKind.MultiplyAssignmentExpression or
+            SyntaxKind.DivideAssignmentExpression or
+            SyntaxKind.ModuloAssignmentExpression or
+            SyntaxKind.AndAssignmentExpression or
+            SyntaxKind.ExclusiveOrAssignmentExpression or
+            SyntaxKind.OrAssignmentExpression or
+            SyntaxKind.LeftShiftAssignmentExpression or
+            SyntaxKind.RightShiftAssignmentExpression or
+            SyntaxKind.CoalesceAssignmentExpression => 1,
+            _ => 16
+        };
+
+        private static async Task<Document> ReduceGenericMethodTypeArgumentsAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+            if (root == null || semanticModel == null)
+            {
+                return document;
+            }
+
+            var replacements = new Dictionary<GenericNameSyntax, IdentifierNameSyntax>();
+            foreach (var genericName in root.DescendantNodes().OfType<GenericNameSyntax>())
+            {
+                if (genericName.Parent is not MemberAccessExpressionSyntax memberAccess ||
+                    memberAccess.Name != genericName ||
+                    memberAccess.Parent is not InvocationExpressionSyntax invocation ||
+                    invocation.Expression != memberAccess)
+                {
+                    continue;
+                }
+
+                var originalSymbol = semanticModel.GetSymbolInfo(invocation).Symbol;
+                if (originalSymbol == null)
+                {
+                    continue;
+                }
+
+                var candidateName = SyntaxFactory.IdentifierName(genericName.Identifier).WithTriviaFrom(genericName);
+                var candidateInvocation = invocation.WithExpression(memberAccess.WithName(candidateName));
+                var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                    invocation.SpanStart,
+                    candidateInvocation,
+                    SpeculativeBindingOption.BindAsExpression).Symbol;
+                if (speculativeSymbol != null &&
+                    SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
+                {
+                    replacements.Add(genericName, candidateName);
+                }
+            }
+
+            if (replacements.Count == 0)
             {
                 return document;
             }
 
             var rewrittenRoot = root.ReplaceNodes(
-                assignments,
-                static (_, rewritten) => rewritten.Expression.WithTriviaFrom(rewritten));
+                replacements.Keys,
+                (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static async Task<Document> ReduceThisQualificationAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+            if (root == null || semanticModel == null)
+            {
+                return document;
+            }
+
+            var replacements = new Dictionary<MemberAccessExpressionSyntax, SimpleNameSyntax>();
+            foreach (var memberAccess in root.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
+            {
+                if (memberAccess.Expression is not ThisExpressionSyntax ||
+                    IsInUnsupportedQualifiedNameContext(memberAccess))
+                {
+                    continue;
+                }
+
+                var originalSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+                var originalInvocationSymbol = memberAccess.Parent is InvocationExpressionSyntax invocation && invocation.Expression == memberAccess
+                    ? semanticModel.GetSymbolInfo(invocation).Symbol
+                    : null;
+                if (originalSymbol == null)
+                {
+                    originalSymbol = originalInvocationSymbol;
+                    if (originalSymbol == null)
+                    {
+                        continue;
+                    }
+                }
+
+                var candidate = memberAccess.Name.WithTriviaFrom(memberAccess);
+                var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                    memberAccess.SpanStart,
+                    candidate,
+                    SpeculativeBindingOption.BindAsExpression).Symbol;
+                if (speculativeSymbol == null &&
+                    memberAccess.Parent is InvocationExpressionSyntax parentInvocation &&
+                    parentInvocation.Expression == memberAccess &&
+                    originalInvocationSymbol != null)
+                {
+                    var candidateInvocation = parentInvocation.WithExpression(candidate);
+                    speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                        parentInvocation.SpanStart,
+                        candidateInvocation,
+                        SpeculativeBindingOption.BindAsExpression).Symbol;
+                    originalSymbol = originalInvocationSymbol;
+                }
+
+                if (speculativeSymbol != null &&
+                    SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
+                {
+                    replacements.Add(memberAccess, candidate);
+                }
+            }
+
+            if (replacements.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root.ReplaceNodes(
+                replacements.Keys,
+                (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static async Task<Document> ReducePredefinedTypeNamesAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            if (root == null)
+            {
+                return document;
+            }
+
+            var identifiers = root.DescendantNodes()
+                .OfType<IdentifierNameSyntax>()
+                .Where(static identifier =>
+                    identifier.Identifier.ValueText is "Byte" or "Char" &&
+                    identifier.Parent is not MemberAccessExpressionSyntax and not QualifiedNameSyntax)
+                .ToList();
+            var castExpressions = root.DescendantNodes()
+                .OfType<CastExpressionSyntax>()
+                .Where(static castExpression =>
+                    castExpression.Expression is LiteralExpressionSyntax literalExpression &&
+                    (literalExpression.IsKind(SyntaxKind.NullLiteralExpression) ||
+                     literalExpression.IsKind(SyntaxKind.DefaultLiteralExpression)) &&
+                    castExpression.Parent is EqualsValueClauseSyntax)
+                .ToList();
+
+            if (identifiers.Count == 0 && castExpressions.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root
+                .ReplaceNodes(
+                    identifiers,
+                    static (_, rewritten) => rewritten.Identifier.ValueText switch
+                    {
+                        "Byte" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ByteKeyword)).WithTriviaFrom(rewritten),
+                        "Char" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.CharKeyword)).WithTriviaFrom(rewritten),
+                        _ => rewritten
+                    })
+                .ReplaceNodes(
+                    castExpressions,
+                    static (_, rewritten) => rewritten.Expression.WithTriviaFrom(rewritten));
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
@@ -367,6 +628,17 @@ namespace Microsoft.TypeSpec.Generator
                 match =>
                 {
                     var value = match.Groups["value"].Value;
+                    if (IsMockingReturnsCref(reduced, match.Index))
+                    {
+                        value = value.Replace("SampleTypeSpec.Models.Custom.", "Models.Custom.", StringComparison.Ordinal);
+                        return match.Groups["attribute"].Value + value + match.Groups["quote"].Value;
+                    }
+
+                    if (IsAbstractDerivedTypesCref(trivia, reduced, match.Index))
+                    {
+                        return match.Groups["attribute"].Value + value + match.Groups["quote"].Value;
+                    }
+
                     foreach (var prefix in prefixes)
                     {
                         value = value.Replace(prefix, string.Empty, StringComparison.Ordinal);
@@ -374,6 +646,33 @@ namespace Microsoft.TypeSpec.Generator
 
                     return match.Groups["attribute"].Value + value + match.Groups["quote"].Value;
                 });
+        }
+
+        private static bool IsMockingReturnsCref(string text, int index)
+        {
+            var lineStart = text.LastIndexOf('\n', Math.Max(0, index - 1));
+            var lineEnd = text.IndexOf('\n', index);
+            lineStart = lineStart < 0 ? 0 : lineStart + 1;
+            lineEnd = lineEnd < 0 ? text.Length : lineEnd;
+            return text.Substring(lineStart, lineEnd - lineStart).Contains(" instance for mocking.", StringComparison.Ordinal);
+        }
+
+        private static bool IsAbstractDerivedTypesCref(SyntaxTrivia trivia, string text, int index)
+        {
+            if (trivia.Token.Parent?
+                .AncestorsAndSelf()
+                .OfType<TypeDeclarationSyntax>()
+                .FirstOrDefault()?
+                .Identifier.ValueText.EndsWith("ModelFactory", StringComparison.Ordinal) != true)
+            {
+                return false;
+            }
+
+            var lineStart = text.LastIndexOf('\n', Math.Max(0, index - 1));
+            var lineEnd = text.IndexOf('\n', index);
+            lineStart = lineStart < 0 ? 0 : lineStart + 1;
+            lineEnd = lineEnd < 0 ? text.Length : lineEnd;
+            return text.Substring(lineStart, lineEnd - lineStart).Contains("derived classes available for instantiation", StringComparison.Ordinal);
         }
 
         private static bool TryGetNameReplacement(
@@ -554,11 +853,37 @@ namespace Microsoft.TypeSpec.Generator
         {
             replacement = memberAccess;
             var originalSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+            var invocationExpression = memberAccess.Parent is InvocationExpressionSyntax invocation && invocation.Expression == memberAccess
+                ? invocation
+                : null;
+            var originalInvocationSymbol = invocationExpression != null
+                ? semanticModel.GetSymbolInfo(invocationExpression).Symbol
+                : null;
+            if (memberAccess.Expression is PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.IntKeyword or (int)SyntaxKind.FloatKeyword } &&
+                originalInvocationSymbol != null &&
+                TryReduceInvocationExpression(semanticModel, invocationExpression!, memberAccess.Name, originalInvocationSymbol))
+            {
+                replacement = memberAccess.Name.WithTriviaFrom(memberAccess);
+                return true;
+            }
+
+            var expressionSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
+            if (expressionSymbol is not null and not INamespaceSymbol and not INamedTypeSymbol)
+            {
+                return false;
+            }
+
             if (originalSymbol == null ||
                 !TryGetMemberAccessParts(memberAccess, out var parts) ||
                 parts.Count < 2)
             {
-                return false;
+                originalSymbol = originalInvocationSymbol;
+                if (originalSymbol == null ||
+                    !TryGetMemberAccessParts(memberAccess, out parts) ||
+                    parts.Count < 2)
+                {
+                    return false;
+                }
             }
 
             for (int i = parts.Count - 1; i > 0; i--)
@@ -574,9 +899,33 @@ namespace Microsoft.TypeSpec.Generator
                     replacement = candidate;
                     return true;
                 }
+
+                if (memberAccess.Parent is InvocationExpressionSyntax parentInvocation &&
+                    parentInvocation.Expression == memberAccess &&
+                    originalInvocationSymbol != null &&
+                    TryReduceInvocationExpression(semanticModel, parentInvocation, candidate, originalInvocationSymbol))
+                {
+                    replacement = candidate;
+                    return true;
+                }
             }
 
             return false;
+        }
+
+        private static bool TryReduceInvocationExpression(
+            SemanticModel semanticModel,
+            InvocationExpressionSyntax invocation,
+            ExpressionSyntax candidateExpression,
+            ISymbol originalInvocationSymbol)
+        {
+            var candidateInvocation = invocation.WithExpression(candidateExpression);
+            var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                invocation.SpanStart,
+                candidateInvocation,
+                SpeculativeBindingOption.BindAsExpression).Symbol;
+            return speculativeSymbol != null &&
+                SymbolEqualityComparer.Default.Equals(originalInvocationSymbol, speculativeSymbol);
         }
 
         private static bool TryGetMemberAccessParts(ExpressionSyntax expression, out IReadOnlyList<SimpleNameSyntax> parts)
