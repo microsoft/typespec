@@ -24,22 +24,20 @@ export function hasDataDecorator(program: Program, decoratorFqn: string, target:
 }
 
 /**
- * Get the stored value for a data decorator applied to a target.
- * For no-arg data decorators, returns `true` if applied, `undefined` otherwise.
- * For single-arg data decorators, returns the value directly.
- * For multi-arg data decorators, returns a record of `{ paramName: value }`.
+ * Get the stored value for an auto decorator applied to a target.
+ * Always returns a record of `{ paramName: value }` (empty record `{}` for no-arg decorators).
  * @param program - The current program.
  * @param decoratorFqn - The fully-qualified name of the decorator (e.g., "MyLib.myDec").
  * @param target - The type to get the value for.
- * @returns The stored value, or `undefined` if the decorator was not applied.
+ * @returns The stored record, or `undefined` if the decorator was not applied.
  */
 export function getDataDecoratorValue(
   program: Program,
   decoratorFqn: string,
   target: Type,
-): unknown | undefined {
+): Record<string, unknown> | undefined {
   const key = getDataDecoratorStateKey(decoratorFqn);
-  return program.stateMap(key).get(target);
+  return program.stateMap(key).get(target) as Record<string, unknown> | undefined;
 }
 
 /**

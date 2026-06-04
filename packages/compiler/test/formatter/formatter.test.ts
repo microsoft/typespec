@@ -3030,24 +3030,24 @@ internal extern dec foo(target: Type, arg1: StringLiteral);
       });
     });
 
-    it("format data dec", async () => {
+    it("format auto dec", async () => {
       await assertFormat({
         code: `
-data    dec   foo(target: Type,    arg1: StringLiteral);
+auto    dec   foo(target: Type,    arg1: StringLiteral);
 `,
         expected: `
-data dec foo(target: Type, arg1: StringLiteral);
+auto dec foo(target: Type, arg1: StringLiteral);
 `,
       });
     });
 
-    it("format internal data dec", async () => {
+    it("format internal auto dec", async () => {
       await assertFormat({
         code: `
-internal   data    dec   foo(target: Type,    arg1: StringLiteral);
+internal   auto    dec   foo(target: Type,    arg1: StringLiteral);
 `,
         expected: `
-internal data dec foo(target: Type, arg1: StringLiteral);
+internal auto dec foo(target: Type, arg1: StringLiteral);
 `,
       });
     });

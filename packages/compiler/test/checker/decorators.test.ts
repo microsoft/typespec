@@ -111,25 +111,30 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
-    it("errors if decorator is missing extern or data modifier", async () => {
+    it("errors if decorator is missing extern or auto modifier", async () => {
       const diagnostics = await DecTester.diagnose(`
         dec testDec(target: unknown);
       `);
       expectDiagnostics(diagnostics, {
         code: "invalid-modifier",
         message:
-          "Declaration of type 'dec' is missing one of the required modifiers: 'extern' or 'data'.",
+          "Declaration of type 'dec' is missing one of the required modifiers: 'extern' or 'auto'.",
       });
     });
 
-    it("errors if both extern and data modifiers are used", async () => {
+    it("errors if both extern and auto modifiers are used", async () => {
       const diagnostics = await DecTester.diagnose(`
-        data extern dec testDec(target: unknown);
+        auto extern dec testDec(target: unknown);
       `);
-      expectDiagnostics(diagnostics, {
-        code: "invalid-modifier",
-        message: "Modifiers 'extern' and 'data' cannot be used together.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-modifier",
+          message: "Modifiers 'extern' and 'auto' cannot be used together.",
+        },
+        {
+          code: "experimental-feature",
+        },
+      ]);
     });
 
     it("errors if rest parameter type is not an array expression", async () => {
@@ -153,21 +158,23 @@ describe("compiler: checker: decorators", () => {
     });
   });
 
-  describe("data decorators", () => {
-    it("data decorator does not require an implementation", async () => {
+  describe("auto decorators", () => {
+    it("auto decorator does not require an implementation", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(`
-        data dec myFlag(target: Model);
+        #suppress "experimental-feature"
+        auto dec myFlag(target: Model);
       `);
 
       const dec = program.getGlobalNamespaceType().decoratorDeclarations.get("myFlag");
       ok(dec);
-      strictEqual(dec.declarationKind, "data");
+      strictEqual(dec.declarationKind, "auto");
       ok(dec.implementation, "should have auto-generated implementation");
     });
 
-    it("data decorator with no args stores in stateMap", async () => {
+    it("auto decorator with no args stores empty record in stateMap", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(`
-        data dec myFlag(target: Model);
+        #suppress "experimental-feature"
+        auto dec myFlag(target: Model);
 
         @myFlag
         model Foo {}
@@ -176,12 +183,13 @@ describe("compiler: checker: decorators", () => {
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       ok(Foo, "Foo should exist");
       const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      strictEqual(getDataDecoratorValue(program, "myFlag", Foo), true);
+      deepStrictEqual(getDataDecoratorValue(program, "myFlag", Foo), {});
     });
 
-    it("data decorator with single arg stores value in stateMap", async () => {
+    it("auto decorator with single arg stores as key-value record in stateMap", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(`
-        data dec myLabel(target: Model, label: valueof string);
+        #suppress "experimental-feature"
+        auto dec myLabel(target: Model, label: valueof string);
 
         @myLabel("hello")
         model Foo {}
@@ -189,12 +197,13 @@ describe("compiler: checker: decorators", () => {
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      strictEqual(getDataDecoratorValue(program, "myLabel", Foo), "hello");
+      deepStrictEqual(getDataDecoratorValue(program, "myLabel", Foo), { label: "hello" });
     });
 
-    it("data decorator with multiple args stores named record in stateMap", async () => {
+    it("auto decorator with multiple args stores named record in stateMap", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(`
-        data dec myMeta(target: Model, name: valueof string, version: valueof int32);
+        #suppress "experimental-feature"
+        auto dec myMeta(target: Model, name: valueof string, version: valueof int32);
 
         @myMeta("test", 42)
         model Foo {}
@@ -206,10 +215,11 @@ describe("compiler: checker: decorators", () => {
       deepStrictEqual(value, { name: "test", version: 42 });
     });
 
-    it("data decorator in namespace uses FQN for state key", async () => {
+    it("auto decorator in namespace uses FQN for state key", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(`
         namespace MyLib {
-          data dec myLabel(target: Model, label: valueof string);
+          #suppress "experimental-feature"
+          auto dec myLabel(target: Model, label: valueof string);
         }
 
         @MyLib.myLabel("world")
@@ -218,15 +228,25 @@ describe("compiler: checker: decorators", () => {
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      strictEqual(getDataDecoratorValue(program, "MyLib.myLabel", Foo), "world");
+      deepStrictEqual(getDataDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
     });
 
-    it("internal data dec is valid", async () => {
+    it("internal auto dec is valid", async () => {
       const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(`
         #suppress "experimental-feature"
-        internal data dec myDec(target: unknown);
+        internal auto dec myDec(target: unknown);
       `);
       strictEqual(diagnostics.length, 0);
+    });
+
+    it("emits experimental warning without feature flag", async () => {
+      const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(`
+        auto dec myFlag(target: Model);
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "experimental-feature",
+        message: /Auto decorator declarations are an experimental feature/,
+      });
     });
   });
 

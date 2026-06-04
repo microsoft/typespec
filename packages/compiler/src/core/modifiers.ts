@@ -46,8 +46,8 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.DecoratorDeclarationStatement]: {
     allowed: ModifierFlags.All,
-    required: ModifierFlags.Extern | ModifierFlags.Data,
-    mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Data]],
+    required: ModifierFlags.Extern | ModifierFlags.Auto,
+    mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
   [SyntaxKind.FunctionDeclarationStatement]: {
     allowed: ModifierFlags.All,
@@ -167,8 +167,8 @@ function modifierToFlag(modifier: Modifier): ModifierFlags {
       return ModifierFlags.Extern;
     case SyntaxKind.InternalKeyword:
       return ModifierFlags.Internal;
-    case SyntaxKind.DataKeyword:
-      return ModifierFlags.Data;
+    case SyntaxKind.AutoKeyword:
+      return ModifierFlags.Auto;
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -180,8 +180,8 @@ function getTextForModifier(modifier: Modifier): string {
       return "extern";
     case SyntaxKind.InternalKeyword:
       return "internal";
-    case SyntaxKind.DataKeyword:
-      return "data";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -195,8 +195,8 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   if (flags & ModifierFlags.Internal) {
     names.push("internal");
   }
-  if (flags & ModifierFlags.Data) {
-    names.push("data");
+  if (flags & ModifierFlags.Auto) {
+    names.push("auto");
   }
   return names;
 }

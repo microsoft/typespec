@@ -8,34 +8,33 @@ TypeSpec decorators are implemented as JavaScript functions. The process of crea
 1. [Declare the decorator signature in TypeSpec](#declare-the-decorator-signature) (optional but recommended)
 2. [Implement the decorator in JavaScript](#javascript-decorator-implementation)
 
-Alternatively, for decorators that simply store metadata, you can use [data decorators](#data-decorators) which require no JavaScript implementation at all.
+Alternatively, for decorators that simply store metadata, you can use [auto decorators](#auto-decorators) which require no JavaScript implementation at all.
 
-## Data decorators
+## Auto decorators
 
-Data decorators are a simplified way to declare decorators that only store metadata. They are declared with the `data` modifier and require no JavaScript implementation — the compiler auto-generates the storage logic.
+Auto decorators are a simplified way to declare decorators that only store metadata. They are declared with the `auto` modifier and require no JavaScript implementation — the compiler auto-generates the storage logic.
 
 ```typespec
 // A boolean flag (no parameters beyond the target)
-data dec tracked(target: unknown);
+auto dec tracked(target: unknown);
 
 // A single value
-data dec label(target: Model, value: valueof string);
+auto dec label(target: Model, value: valueof string);
 
 // Multiple values (stored as a named record)
-data dec serviceInfo(target: Model, name: valueof string, version: valueof int32);
+auto dec serviceInfo(target: Model, name: valueof string, version: valueof int32);
 ```
 
 ### How data is stored
 
-Data decorator arguments are stored automatically in the program's state map, keyed by the decorator's fully-qualified name:
+Auto decorator arguments are always stored as a record with parameter names as keys in the program's state map, keyed by the decorator's fully-qualified name:
 
-- **No parameters** (flag): stores `true`
-- **Single parameter**: stores the value directly
-- **Multiple parameters**: stores a record with parameter names as keys, e.g. `{ name: "hello", version: 1 }`
+- **No parameters** (flag): stores `{}` (empty record)
+- **One or more parameters**: stores `{ paramName: value, ... }`, e.g. `{ name: "hello", version: 1 }`
 
-### Reading data decorator values
+### Reading auto decorator values
 
-The compiler provides a generic API to read data decorator values without any generated code:
+The compiler provides a generic API to read auto decorator values without any generated code:
 
 ```ts
 import { hasDataDecorator, getDataDecoratorValue } from "@typespec/compiler";
@@ -45,8 +44,8 @@ if (hasDataDecorator(program, "MyLib.tracked", type)) {
   // ...
 }
 
-// Get the stored value
-const label = getDataDecoratorValue(program, "MyLib.label", type) as string;
+// Get the stored record
+const label = getDataDecoratorValue(program, "MyLib.label", type) as { value: string };
 
 // Get a multi-arg record
 const info = getDataDecoratorValue(program, "MyLib.serviceInfo", type) as {
@@ -57,26 +56,26 @@ const info = getDataDecoratorValue(program, "MyLib.serviceInfo", type) as {
 
 ### Generated typed accessors
 
-When using `tspd gen-extern-signature`, typed accessor functions are generated for data decorators:
+When using `tspd gen-extern-signature`, typed accessor functions are generated for auto decorators:
 
 ```ts
-// Generated for: data dec tracked(target: Model);
+// Generated for: auto dec tracked(target: Model);
 export function isTracked(program: Program, target: Model): boolean;
 
-// Generated for: data dec label(target: Model, value: valueof string);
+// Generated for: auto dec label(target: Model, value: valueof string);
 export function getLabel(program: Program, target: Model): string | undefined;
 ```
 
 ### Combining with `internal`
 
-Data decorators can be combined with the `internal` modifier:
+Auto decorators can be combined with the `internal` modifier:
 
 ```typespec
-internal data dec myInternalFlag(target: Model);
+internal auto dec myInternalFlag(target: Model);
 ```
 
 :::note
-`data` and `extern` are mutually exclusive — a decorator is either auto-implemented (data) or externally implemented (extern).
+`auto` and `extern` are mutually exclusive — a decorator is either auto-implemented (auto) or externally implemented (extern).
 :::
 
 ## Declare the decorator signature

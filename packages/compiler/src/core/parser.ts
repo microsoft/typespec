@@ -29,7 +29,7 @@ import {
   CallExpressionNode,
   Comment,
   ConstStatementNode,
-  DataKeywordNode,
+  AutoKeywordNode,
   Declaration,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
@@ -462,7 +462,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ConstKeyword:
         case Token.ExternKeyword:
         case Token.InternalKeyword:
-        case Token.DataKeyword:
+        case Token.AutoKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
           item = parseDeclaration(pos, decorators, docs, directives);
@@ -534,7 +534,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ConstKeyword:
         case Token.ExternKeyword:
         case Token.InternalKeyword:
-        case Token.DataKeyword:
+        case Token.AutoKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
           item = parseDeclaration(pos, decorators, docs, directives);
@@ -1773,11 +1773,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseDataKeyword(): DataKeywordNode {
+  function parseAutoKeyword(): AutoKeywordNode {
     const pos = tokenPos();
-    parseExpected(Token.DataKeyword);
+    parseExpected(Token.AutoKeyword);
     return {
-      kind: SyntaxKind.DataKeyword,
+      kind: SyntaxKind.AutoKeyword,
       ...finishNode(pos),
     };
   }
@@ -2102,8 +2102,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         return parseExternKeyword();
       case Token.InternalKeyword:
         return parseInternalKeyword();
-      case Token.DataKeyword:
-        return parseDataKeyword();
+      case Token.AutoKeyword:
+        return parseAutoKeyword();
       default:
         return undefined;
     }
@@ -3181,7 +3181,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:
     case SyntaxKind.InternalKeyword:
-    case SyntaxKind.DataKeyword:
+    case SyntaxKind.AutoKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:

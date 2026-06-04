@@ -2120,10 +2120,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    const isData = (node.modifierFlags & ModifierFlags.Data) !== 0;
+    const isAuto = (node.modifierFlags & ModifierFlags.Auto) !== 0;
+    if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "autoDecorators",
+          target: node,
+        }),
+      );
+    }
     let implementation = symbol.value;
-    if (isData) {
-      implementation = createDataDecoratorImplementation(symbol, node);
+    if (isAuto) {
+      implementation = createAutoDecoratorImplementation(symbol, node);
     } else if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
@@ -2135,7 +2144,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       target: checkFunctionParameter(ctx, node.target, true),
       parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
-      declarationKind: isData ? "data" : "extern",
+      declarationKind: isAuto ? "auto" : "extern",
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -2145,7 +2154,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return decoratorType;
   }
 
-  function createDataDecoratorImplementation(
+  function createAutoDecoratorImplementation(
     symbol: Sym,
     node: DecoratorDeclarationStatementNode,
   ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
@@ -2153,26 +2162,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const stateKey = getDataDecoratorStateKey(fqn);
     const paramNames = node.parameters.map((p) => p.id.sv);
 
-    if (paramNames.length === 0) {
-      // No args beyond target — store `true` as a boolean flag in stateMap
-      return (context: DecoratorContext, target: Type) => {
-        context.program.stateMap(stateKey).set(target, true);
-      };
-    } else if (paramNames.length === 1) {
-      // Single arg — store value directly
-      return (context: DecoratorContext, target: Type, value: unknown) => {
-        context.program.stateMap(stateKey).set(target, value);
-      };
-    } else {
-      // Multiple args — store as named record
-      return (context: DecoratorContext, target: Type, ...args: unknown[]) => {
-        const data: Record<string, unknown> = {};
-        for (let i = 0; i < paramNames.length; i++) {
-          data[paramNames[i]] = args[i];
-        }
-        context.program.stateMap(stateKey).set(target, data);
-      };
-    }
+    // Always store as key-value record { paramName: value }
+    return (context: DecoratorContext, target: Type, ...args: unknown[]) => {
+      const data: Record<string, unknown> = {};
+      for (let i = 0; i < paramNames.length; i++) {
+        data[paramNames[i]] = args[i];
+      }
+      context.program.stateMap(stateKey).set(target, data);
+    };
   }
 
   function checkFunctionDeclaration(
