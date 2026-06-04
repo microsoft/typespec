@@ -468,7 +468,7 @@ namespace TestNamespace
 
         public Dictionary<string, string> Map => (_map ??= new Dictionary<string, string>());
 
-        public void Invoke(object writer, WidgetHolder widget, object value, object result, Byte[] bytes, Char[] chars, Options options = (Options)null, string nameHint = (String)null)
+        public void Invoke(object writer, WidgetHolder widget, object value, object result, Byte[] bytes, Char[] chars, Options options = (Options)null, string nameHint = (String)null, global::System.String title = (global::System.String)null)
         {
             if (((value is ICollection<string> collection) && (collection.Count == 0)))
             {
@@ -533,6 +533,7 @@ namespace TestNamespace
             Assert.That(generatedText, Does.Contain("char[] chars"));
             Assert.That(generatedText, Does.Contain("Options options = null"));
             Assert.That(generatedText, Does.Contain("string nameHint = null"));
+            Assert.That(generatedText, Does.Contain("string title = null"));
             Assert.That(generatedText, Does.Contain("case string s when s.Length > 0:"));
             Assert.That(generatedText, Does.Contain("_map = _map ?? GetMap() ?? new Dictionary<string, string>();"));
             Assert.That(generatedText, Does.Contain("_length = _length + 1;"));

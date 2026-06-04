@@ -162,30 +162,8 @@ namespace Microsoft.TypeSpec.Generator
                 document = reducedDocument;
             }
 
-            for (int i = 0; i < 8; i++)
-            {
-                var reducedDocument = await ReduceParenthesesAsync(document);
-                if (ReferenceEquals(reducedDocument, document))
-                {
-                    break;
-                }
-
-                document = reducedDocument;
-            }
-
-            document = await ReduceGenericMethodTypeArgumentsAsync(document);
-            document = await ReduceThisQualificationAsync(document);
-            for (int i = 0; i < 4; i++)
-            {
-                var reducedDocument = await ReducePredefinedTypeNamesAsync(document);
-                if (ReferenceEquals(reducedDocument, document))
-                {
-                    break;
-                }
-
-                document = reducedDocument;
-            }
-
+            document = await ReduceSemanticOnlyAsync(document);
+            document = await ReduceSyntaxOnlyAsync(document);
             document = await ReduceDocumentationQualifiedNamesAsync(document);
 
             // Reformat if any custom rewriters have been applied
@@ -203,45 +181,6 @@ namespace Microsoft.TypeSpec.Generator
             if (root == null || semanticModel == null)
             {
                 return document;
-            }
-
-            var globalAliases = new Dictionary<AliasQualifiedNameSyntax, NameSyntax>();
-            foreach (var aliasName in root.DescendantNodes().OfType<AliasQualifiedNameSyntax>())
-            {
-                if (aliasName.Alias.Identifier.ValueText != "global" ||
-                    aliasName.Ancestors().Any(static ancestor =>
-                        ancestor is AttributeSyntax) ||
-                    IsInMemberAccessExpressionChain(aliasName) ||
-                    IsInUnsupportedQualifiedNameContext(aliasName))
-                {
-                    continue;
-                }
-
-                var originalSymbol = GetSymbol(semanticModel, aliasName);
-                if (originalSymbol == null)
-                {
-                    continue;
-                }
-
-                var replacement = aliasName.Name.WithTriviaFrom(aliasName);
-                if (SpeculativelyBindsToSameSymbol(semanticModel, aliasName, replacement, originalSymbol))
-                {
-                    globalAliases.Add(aliasName, replacement);
-                }
-            }
-
-            if (globalAliases.Count > 0)
-            {
-                root = root.ReplaceNodes(
-                    globalAliases.Keys,
-                    (original, rewritten) => globalAliases[original].WithTriviaFrom(rewritten));
-                document = document.WithSyntaxRoot(root);
-                semanticModel = await document.GetSemanticModelAsync();
-                root = await document.GetSyntaxRootAsync();
-                if (root == null || semanticModel == null)
-                {
-                    return document;
-                }
             }
 
             var safeNameReplacements = new Dictionary<NameSyntax, NameSyntax>();
@@ -294,7 +233,8 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var rewrittenRoot = root.ReplaceNodes(
-                safeNameReplacements.Keys.Concat<SyntaxNode>(safeMemberAccessReplacements.Keys),
+                safeNameReplacements.Keys
+                    .Concat<SyntaxNode>(safeMemberAccessReplacements.Keys),
                 (original, rewritten) => original switch
                 {
                     NameSyntax name => safeNameReplacements[name].WithTriviaFrom(rewritten),
@@ -302,6 +242,153 @@ namespace Microsoft.TypeSpec.Generator
                     _ => rewritten
                 });
             return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static async Task<Document> ReduceSemanticOnlyAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+            if (root == null || semanticModel == null)
+            {
+                return document;
+            }
+
+            var memberAccessReplacements = new Dictionary<MemberAccessExpressionSyntax, ExpressionSyntax>();
+            foreach (var memberAccess in root.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
+            {
+                if (!IsInUnsupportedQualifiedNameContext(memberAccess) &&
+                    TryGetThisQualificationReplacement(semanticModel, memberAccess, out var replacement))
+                {
+                    memberAccessReplacements.Add(memberAccess, replacement);
+                }
+            }
+
+            var genericNameReplacements = new Dictionary<GenericNameSyntax, IdentifierNameSyntax>();
+            foreach (var genericName in root.DescendantNodes().OfType<GenericNameSyntax>())
+            {
+                if (TryGetGenericMethodTypeArgumentsReplacement(semanticModel, genericName, out var replacement))
+                {
+                    genericNameReplacements.Add(genericName, replacement);
+                }
+            }
+
+            if (memberAccessReplacements.Count == 0 && genericNameReplacements.Count == 0)
+            {
+                return document;
+            }
+
+            var rewrittenRoot = root.ReplaceNodes(
+                memberAccessReplacements.Keys.Concat<SyntaxNode>(genericNameReplacements.Keys),
+                (original, rewritten) => original switch
+                {
+                    GenericNameSyntax genericName => genericNameReplacements[genericName].WithTriviaFrom(rewritten),
+                    MemberAccessExpressionSyntax memberAccess => memberAccessReplacements[memberAccess].WithTriviaFrom(rewritten),
+                    _ => rewritten
+                });
+            return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static async Task<Document> ReduceSyntaxOnlyAsync(Document document)
+        {
+            var root = await document.GetSyntaxRootAsync();
+            if (root == null)
+            {
+                return document;
+            }
+
+            var rewriter = new SyntaxOnlyReducer();
+            var rewrittenRoot = rewriter.Visit(root);
+            return rewriter.Changed && rewrittenRoot != null
+                ? document.WithSyntaxRoot(rewrittenRoot)
+                : document;
+        }
+
+        private sealed class SyntaxOnlyReducer : CSharpSyntaxRewriter
+        {
+            public bool Changed { get; private set; }
+
+            public override SyntaxNode? VisitParenthesizedExpression(ParenthesizedExpressionSyntax node)
+            {
+                var rewritten = (ParenthesizedExpressionSyntax)base.VisitParenthesizedExpression(node)!;
+                if (CanRemoveParentheses(node))
+                {
+                    Changed = true;
+                    return rewritten.Expression.WithTriviaFrom(rewritten);
+                }
+
+                return rewritten;
+            }
+
+            public override SyntaxNode? VisitParenthesizedPattern(ParenthesizedPatternSyntax node)
+            {
+                var rewritten = (ParenthesizedPatternSyntax)base.VisitParenthesizedPattern(node)!;
+                Changed = true;
+                return rewritten.Pattern.WithTriviaFrom(rewritten);
+            }
+
+            public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
+            {
+                var rewritten = (IdentifierNameSyntax)base.VisitIdentifierName(node)!;
+                if (rewritten.Identifier.ValueText is not ("Byte" or "Char" or "String") ||
+                    node.Parent is MemberAccessExpressionSyntax or QualifiedNameSyntax)
+                {
+                    return rewritten;
+                }
+
+                Changed = true;
+                return GetPredefinedType(rewritten.Identifier.ValueText).WithTriviaFrom(rewritten);
+            }
+
+            public override SyntaxNode? VisitQualifiedName(QualifiedNameSyntax node)
+            {
+                var rewritten = (QualifiedNameSyntax)base.VisitQualifiedName(node)!;
+                if (rewritten.Left is not IdentifierNameSyntax { Identifier.ValueText: "System" } ||
+                    rewritten.Right.Identifier.ValueText is not ("Byte" or "Char" or "String") ||
+                    node.Parent is MemberAccessExpressionSyntax or QualifiedNameSyntax)
+                {
+                    return rewritten;
+                }
+
+                Changed = true;
+                return GetPredefinedType(rewritten.Right.Identifier.ValueText).WithTriviaFrom(rewritten);
+            }
+
+            public override SyntaxNode? VisitCastExpression(CastExpressionSyntax node)
+            {
+                var rewritten = (CastExpressionSyntax)base.VisitCastExpression(node)!;
+                if (rewritten.Expression is LiteralExpressionSyntax literalExpression &&
+                    (literalExpression.IsKind(SyntaxKind.NullLiteralExpression) ||
+                     literalExpression.IsKind(SyntaxKind.DefaultLiteralExpression)) &&
+                    (rewritten.Parent is EqualsValueClauseSyntax || node.Parent is EqualsValueClauseSyntax))
+                {
+                    Changed = true;
+                    return rewritten.Expression.WithTriviaFrom(rewritten);
+                }
+
+                return rewritten;
+            }
+
+            public override SyntaxNode? VisitEqualsValueClause(EqualsValueClauseSyntax node)
+            {
+                var rewritten = (EqualsValueClauseSyntax)base.VisitEqualsValueClause(node)!;
+                if (rewritten.Value is CastExpressionSyntax { Expression: LiteralExpressionSyntax literalExpression } castExpression &&
+                    (literalExpression.IsKind(SyntaxKind.NullLiteralExpression) ||
+                     literalExpression.IsKind(SyntaxKind.DefaultLiteralExpression)))
+                {
+                    Changed = true;
+                    return rewritten.WithValue(castExpression.Expression.WithTriviaFrom(castExpression));
+                }
+
+                return rewritten;
+            }
+
+            private static PredefinedTypeSyntax GetPredefinedType(string typeName) => typeName switch
+            {
+                "Byte" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ByteKeyword)),
+                "Char" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.CharKeyword)),
+                "String" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
+                _ => throw new InvalidOperationException($"Unexpected predefined type name: {typeName}")
+            };
         }
 
         private static ISymbol? GetSymbol(SemanticModel semanticModel, NameSyntax name) =>
@@ -461,6 +548,35 @@ namespace Microsoft.TypeSpec.Generator
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
+        private static bool TryGetGenericMethodTypeArgumentsReplacement(
+            SemanticModel semanticModel,
+            GenericNameSyntax genericName,
+            out IdentifierNameSyntax replacement)
+        {
+            replacement = SyntaxFactory.IdentifierName(genericName.Identifier).WithTriviaFrom(genericName);
+            if (genericName.Parent is not MemberAccessExpressionSyntax memberAccess ||
+                memberAccess.Name != genericName ||
+                memberAccess.Parent is not InvocationExpressionSyntax invocation ||
+                invocation.Expression != memberAccess)
+            {
+                return false;
+            }
+
+            var originalSymbol = semanticModel.GetSymbolInfo(invocation).Symbol;
+            if (originalSymbol == null)
+            {
+                return false;
+            }
+
+            var candidateInvocation = invocation.WithExpression(memberAccess.WithName(replacement));
+            var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                invocation.SpanStart,
+                candidateInvocation,
+                SpeculativeBindingOption.BindAsExpression).Symbol;
+            return speculativeSymbol != null &&
+                SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol);
+        }
+
         private static async Task<Document> ReduceThisQualificationAsync(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
@@ -526,6 +642,58 @@ namespace Microsoft.TypeSpec.Generator
                 replacements.Keys,
                 (original, rewritten) => replacements[original].WithTriviaFrom(rewritten));
             return document.WithSyntaxRoot(rewrittenRoot);
+        }
+
+        private static bool TryGetThisQualificationReplacement(
+            SemanticModel semanticModel,
+            MemberAccessExpressionSyntax memberAccess,
+            out ExpressionSyntax replacement)
+        {
+            replacement = memberAccess;
+            if (memberAccess.Expression is not ThisExpressionSyntax)
+            {
+                return false;
+            }
+
+            var originalSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+            var originalInvocationSymbol = memberAccess.Parent is InvocationExpressionSyntax invocation && invocation.Expression == memberAccess
+                ? semanticModel.GetSymbolInfo(invocation).Symbol
+                : null;
+            if (originalSymbol == null)
+            {
+                originalSymbol = originalInvocationSymbol;
+                if (originalSymbol == null)
+                {
+                    return false;
+                }
+            }
+
+            var candidate = memberAccess.Name.WithTriviaFrom(memberAccess);
+            var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                memberAccess.SpanStart,
+                candidate,
+                SpeculativeBindingOption.BindAsExpression).Symbol;
+            if (speculativeSymbol == null &&
+                memberAccess.Parent is InvocationExpressionSyntax parentInvocation &&
+                parentInvocation.Expression == memberAccess &&
+                originalInvocationSymbol != null)
+            {
+                var candidateInvocation = parentInvocation.WithExpression(candidate);
+                speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
+                    parentInvocation.SpanStart,
+                    candidateInvocation,
+                    SpeculativeBindingOption.BindAsExpression).Symbol;
+                originalSymbol = originalInvocationSymbol;
+            }
+
+            if (speculativeSymbol == null ||
+                !SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
+            {
+                return false;
+            }
+
+            replacement = candidate;
+            return true;
         }
 
         private static async Task<Document> ReducePredefinedTypeNamesAsync(Document document)
@@ -994,10 +1162,6 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsInUnsupportedQualifiedNameContext(ExpressionSyntax expression) =>
             expression.Ancestors().Any(static ancestor =>
                 ancestor is CrefSyntax);
-
-        private static bool IsInMemberAccessExpressionChain(NameSyntax name) =>
-            name.Ancestors().Any(static ancestor => ancestor is MemberAccessExpressionSyntax) &&
-            !name.Ancestors().Any(static ancestor => ancestor is TypeSyntax);
 
         private static bool ContainsSimplifierAnnotations(SyntaxNode root) =>
             root.HasAnnotation(Simplifier.Annotation) ||
