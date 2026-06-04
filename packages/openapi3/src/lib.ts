@@ -3,6 +3,7 @@ import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/c
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
+export type EnumMode = "enum" | "annotated";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
@@ -82,6 +83,17 @@ export interface OpenAPI3EmitterOptions {
    * @default false
    */
   "seal-object-schemas"?: boolean;
+
+  /**
+   * How to render `enum` types in the emitted schema. Only applies to OpenAPI 3.1+
+   * (ignored for OpenAPI 3.0). Options are:
+   *  - `enum`: Render as `{ type, enum: [...] }`. Per-member `@doc`/`@summary` are dropped.
+   *  - `annotated`: Render as `{ oneOf: [{ type, const, title?, description? }, ...] }`
+   *    following the OpenAPI 3.1 [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations)
+   *    pattern. Preserves per-member annotations but some tooling may not recognize it as an enum.
+   * @default "enum"
+   */
+  "enum-mode"?: EnumMode;
 
   /**
    * Determines how to emit examples on parameters.
@@ -238,6 +250,20 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "If true, then for models emitted as object schemas we default `additionalProperties` to false for",
         "OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.",
         "Default: `false`",
+      ].join("\n"),
+    },
+    "enum-mode": {
+      type: "string",
+      enum: ["enum", "annotated"],
+      nullable: true,
+      default: "enum",
+      description: [
+        "How to render `enum` types in the emitted schema. Only applies to OpenAPI 3.1+ (ignored for OpenAPI 3.0).",
+        " - `enum`: Render as `{ type, enum: [...] }`. Per-member `@doc`/`@summary` are dropped.",
+        " - `annotated`: Render as `{ oneOf: [{ type, const, title?, description? }, ...] }` per the OpenAPI 3.1 annotated enumerations pattern.",
+        "   Preserves per-member annotations but some tooling may not recognize it as an enum.",
+        "",
+        "Default: `enum`",
       ].join("\n"),
     },
     "experimental-parameter-examples": {

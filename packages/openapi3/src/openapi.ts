@@ -86,6 +86,7 @@ import { getExampleOrExamples, OperationExamples, resolveOperationExamples } fro
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import {
   createDiagnostic,
+  EnumMode,
   FileType,
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
@@ -229,6 +230,7 @@ export function resolveOptions(
     outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
     openapiVersions,
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
+    enumMode: resolvedOptions["enum-mode"] ?? "enum",
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
     operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
   };
@@ -270,6 +272,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   includeXTypeSpecName: "inline-only" | "never";
   safeintStrategy: "double-int" | "int64";
   sealObjectSchemas: boolean;
+  enumMode: EnumMode;
   parameterExamplesStrategy?: "data" | "serialized";
   operationIdStrategy: { kind: OperationIdStrategy; separator: string };
 }

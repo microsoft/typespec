@@ -12,9 +12,11 @@ import {
   compilerAssert,
   Enum,
   getDiscriminatedUnion,
+  getDoc,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
+  getSummary,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
@@ -181,6 +183,27 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     if (en.members.size === 0) {
       reportDiagnostic(program, { code: "empty-enum", target: en });
       return {};
+    }
+
+    if (this._options.enumMode === "annotated") {
+      const oneOf: OpenAPISchema3_1[] = [];
+      for (const member of en.members.values()) {
+        const value = member.value ?? member.name;
+        const subschema: OpenAPISchema3_1 = {
+          type: typeof value === "number" ? "number" : "string",
+          const: value,
+        };
+        const title = getSummary(program, member);
+        if (title) {
+          subschema.title = title;
+        }
+        const description = getDoc(program, member);
+        if (description) {
+          subschema.description = description;
+        }
+        oneOf.push(subschema);
+      }
+      return this.applyConstraints(en, { oneOf });
     }
 
     const enumTypes = new Set<JsonType>();
