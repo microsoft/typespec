@@ -15,3 +15,9 @@ def client():
 
 def test_content_type_header_in_response(client: HeadClient):
     assert client.content_type_header_in_response() is True
+
+
+def test_content_type_header_in_response_with_cls(client: HeadClient):
+    headers = client.content_type_header_in_response(cls=lambda x, y, z: z)
+    assert headers["Content-Type"] == "text/plain; charset=utf-8"
+    assert headers["x-ms-meta"] == "hello"

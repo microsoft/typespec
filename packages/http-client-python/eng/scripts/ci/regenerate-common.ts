@@ -197,9 +197,6 @@ export const AZURE_EMITTER_OPTIONS: Record<
   "payload/content-negotiation": {
     namespace: "payload.contentnegotiation",
   },
-  "payload/head": {
-    namespace: "payload.head",
-  },
   "payload/multipart": {
     namespace: "payload.multipart",
   },
