@@ -184,11 +184,12 @@ namespace Microsoft.TypeSpec.Generator
                 return document;
             }
 
-            var safeNameReplacements = new Dictionary<NameSyntax, NameSyntax>();
+            var safeNodes = new HashSet<NameSyntax>();
             foreach (var name in root.DescendantNodes().OfType<NameSyntax>())
             {
                 if (name is not QualifiedNameSyntax and not AliasQualifiedNameSyntax ||
                     name.Parent is QualifiedNameSyntax ||
+                    IsPartOfMemberAccessChain(name) ||
                     IsInUnsupportedQualifiedNameContext(name))
                 {
                     continue;
@@ -203,45 +204,18 @@ namespace Microsoft.TypeSpec.Generator
                 var replacement = GetRightmostName(name).WithTriviaFrom(name);
                 if (SpeculativelyBindsToSameSymbol(semanticModel, name, replacement, originalSymbol))
                 {
-                    safeNameReplacements.Add(name, replacement);
+                    safeNodes.Add(name);
                 }
             }
 
-            foreach (var attribute in root.DescendantNodes().OfType<AttributeSyntax>())
-            {
-                if (TryGetAttributeNameReplacement(semanticModel, attribute, out var replacement))
-                {
-                    safeNameReplacements[attribute.Name] = replacement;
-                }
-            }
-
-            var safeMemberAccessReplacements = new Dictionary<MemberAccessExpressionSyntax, ExpressionSyntax>();
-            foreach (var memberAccess in root.DescendantNodes().OfType<MemberAccessExpressionSyntax>())
-            {
-                if (IsInUnsupportedQualifiedNameContext(memberAccess))
-                {
-                    continue;
-                }
-
-                if (TryGetMemberAccessReplacement(semanticModel, memberAccess, out var replacement))
-                {
-                    safeMemberAccessReplacements.Add(memberAccess, replacement);
-                }
-            }
-
-            if (safeNameReplacements.Count == 0 && safeMemberAccessReplacements.Count == 0)
+            if (safeNodes.Count == 0)
             {
                 return document;
             }
 
             var rewrittenRoot = root.ReplaceNodes(
-                safeNameReplacements.Keys.Concat<SyntaxNode>(safeMemberAccessReplacements.Keys),
-                (original, rewritten) => original switch
-                {
-                    NameSyntax name => safeNameReplacements[name].WithTriviaFrom(rewritten),
-                    MemberAccessExpressionSyntax memberAccess => safeMemberAccessReplacements[memberAccess].WithTriviaFrom(rewritten),
-                    _ => rewritten
-                });
+                safeNodes,
+                static (_, rewritten) => GetRightmostName(rewritten).WithTriviaFrom(rewritten));
             return document.WithSyntaxRoot(rewrittenRoot);
         }
 
@@ -283,152 +257,13 @@ namespace Microsoft.TypeSpec.Generator
             _ => throw new InvalidOperationException($"Unexpected name syntax: {name.Kind()}")
         };
 
-        private static bool TryGetAttributeNameReplacement(
-            SemanticModel semanticModel,
-            AttributeSyntax attribute,
-            out NameSyntax replacement)
-        {
-            replacement = attribute.Name;
-            if (attribute.Name is not QualifiedNameSyntax and not AliasQualifiedNameSyntax)
-            {
-                return false;
-            }
-
-            var originalSymbol = semanticModel.GetSymbolInfo(attribute).Symbol;
-            if (originalSymbol is not IMethodSymbol { ContainingType: { } originalAttributeType })
-            {
-                return false;
-            }
-
-            var rightmostName = GetRightmostName(attribute.Name);
-            var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
-                attribute.Name.SpanStart,
-                rightmostName,
-                SpeculativeBindingOption.BindAsTypeOrNamespace).Symbol;
-            if (!SymbolEqualityComparer.Default.Equals(originalAttributeType, speculativeSymbol))
-            {
-                return false;
-            }
-
-            replacement = TrimAttributeSuffix(rightmostName).WithTriviaFrom(attribute.Name);
-            return true;
-        }
-
-        private static SimpleNameSyntax TrimAttributeSuffix(SimpleNameSyntax name)
-        {
-            const string AttributeSuffix = "Attribute";
-            var identifier = name.Identifier;
-            var text = identifier.ValueText;
-            if (!text.EndsWith(AttributeSuffix, StringComparison.Ordinal) || text.Length == AttributeSuffix.Length)
-            {
-                return name;
-            }
-
-            return SyntaxFactory.IdentifierName(
-                SyntaxFactory.Identifier(
-                    identifier.LeadingTrivia,
-                    text.Substring(0, text.Length - AttributeSuffix.Length),
-                    identifier.TrailingTrivia));
-        }
-
-        private static bool TryGetMemberAccessReplacement(
-            SemanticModel semanticModel,
-            MemberAccessExpressionSyntax memberAccess,
-            out ExpressionSyntax replacement)
-        {
-            replacement = memberAccess;
-            var originalSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
-            if (originalSymbol == null ||
-                !TryGetMemberAccessParts(memberAccess, out var parts) ||
-                parts.Count < 2 ||
-                parts[0].Identifier.ValueText != "System")
-            {
-                return false;
-            }
-
-            for (int i = parts.Count - 1; i > 0; i--)
-            {
-                var candidate = BuildMemberAccess(parts, i).WithTriviaFrom(memberAccess);
-                var speculativeSymbol = semanticModel.GetSpeculativeSymbolInfo(
-                    memberAccess.SpanStart,
-                    candidate,
-                    SpeculativeBindingOption.BindAsExpression).Symbol;
-                if (speculativeSymbol != null &&
-                    SymbolEqualityComparer.Default.Equals(originalSymbol, speculativeSymbol))
-                {
-                    replacement = candidate;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool TryGetMemberAccessParts(ExpressionSyntax expression, out IReadOnlyList<SimpleNameSyntax> parts)
-        {
-            var builder = new List<SimpleNameSyntax>();
-            if (AddMemberAccessParts(expression, builder))
-            {
-                parts = builder;
-                return true;
-            }
-
-            parts = [];
-            return false;
-        }
-
-        private static bool AddMemberAccessParts(SyntaxNode expression, List<SimpleNameSyntax> parts)
-        {
-            switch (expression)
-            {
-                case SimpleNameSyntax name:
-                    parts.Add(name);
-                    return true;
-                case MemberAccessExpressionSyntax memberAccess:
-                    if (!AddMemberAccessParts(memberAccess.Expression, parts))
-                    {
-                        return false;
-                    }
-
-                    parts.Add(memberAccess.Name);
-                    return true;
-                case QualifiedNameSyntax qualifiedName:
-                    if (!AddMemberAccessParts(qualifiedName.Left, parts))
-                    {
-                        return false;
-                    }
-
-                    parts.Add(qualifiedName.Right);
-                    return true;
-                case AliasQualifiedNameSyntax { Alias.Identifier.ValueText: "global" } aliasQualifiedName:
-                    parts.Add(aliasQualifiedName.Name);
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private static ExpressionSyntax BuildMemberAccess(IReadOnlyList<SimpleNameSyntax> parts, int startIndex)
-        {
-            ExpressionSyntax expression = parts[startIndex];
-            for (int i = startIndex + 1; i < parts.Count; i++)
-            {
-                expression = SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    expression,
-                    parts[i]);
-            }
-
-            return expression;
-        }
+        private static bool IsPartOfMemberAccessChain(NameSyntax name) =>
+            name.Parent is MemberAccessExpressionSyntax ||
+            name.Ancestors().OfType<MemberAccessExpressionSyntax>().Any();
 
         private static bool IsInUnsupportedQualifiedNameContext(NameSyntax name) =>
             name.Ancestors().Any(static ancestor =>
                 ancestor is UsingDirectiveSyntax ||
-                ancestor is CrefSyntax);
-
-        private static bool IsInUnsupportedQualifiedNameContext(ExpressionSyntax expression) =>
-            expression.Ancestors().Any(static ancestor =>
                 ancestor is CrefSyntax);
 
         private static bool ContainsSimplifierAnnotations(SyntaxNode root) =>
