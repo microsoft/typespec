@@ -55,7 +55,7 @@ public class MyLibraryVisitor : LibraryVisitor
 
 ### Plugin project file
 
-Build your plugin as a class library that references the generator package. When run from a TypeSpec project, the generator assemblies are restored into the emitter's `dist/generator` directory, so you can reference them directly. A minimal `.csproj` looks like this:
+Build your plugin as a class library that references the generator's published NuGet package. Referencing `Microsoft.TypeSpec.Generator.ClientModel` transitively brings in `Microsoft.TypeSpec.Generator`, which contains the `GeneratorPlugin` base class. Use the package version that matches the version of `@typespec/http-client-csharp` you are generating with. A minimal `.csproj` looks like this:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -66,12 +66,7 @@ Build your plugin as a class library that references the generator package. When
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.TypeSpec.Generator">
-      <HintPath>path/to/@typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.TypeSpec.Generator.ClientModel">
-      <HintPath>path/to/@typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.ClientModel.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Microsoft.TypeSpec.Generator.ClientModel" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
