@@ -45,7 +45,6 @@ public final class FileClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -56,9 +55,8 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(String contentType, BinaryData file,
-        RequestOptions requestOptions) {
-        return this.serviceClient.uploadFileSpecificContentTypeWithResponse(contentType, file, requestOptions);
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData file, RequestOptions requestOptions) {
+        return this.serviceClient.uploadFileSpecificContentTypeWithResponse(file, requestOptions);
     }
 
     /**
@@ -141,7 +139,8 @@ public final class FileClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
+     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg. Allowed values:
+     * "image/png", "image/jpeg".
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -154,6 +153,8 @@ public final class FileClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadFileMultipleContentTypesWithResponse(String contentType, BinaryData file,
         RequestOptions requestOptions) {
+        // Operation 'uploadFileMultipleContentTypes' can be invoked with multiple content-type. It is difficult to form
+        // a correct method signature for convenience API, and hence the convenience API is not generated.
         return this.serviceClient.uploadFileMultipleContentTypesWithResponse(contentType, file, requestOptions);
     }
 
@@ -167,7 +168,6 @@ public final class FileClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -177,9 +177,8 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(String accept,
-        RequestOptions requestOptions) {
-        return this.serviceClient.downloadFileMultipleContentTypesWithResponse(accept, requestOptions);
+    public Response<BinaryData> downloadFileMultipleContentTypesWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.downloadFileMultipleContentTypesWithResponse(requestOptions);
     }
 
     /**
@@ -192,7 +191,6 @@ public final class FileClient {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -203,9 +201,8 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
-        RequestOptions requestOptions) {
-        return this.serviceClient.uploadFileDefaultContentTypeWithResponse(contentType, file, requestOptions);
+    public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, RequestOptions requestOptions) {
+        return this.serviceClient.uploadFileDefaultContentTypeWithResponse(file, requestOptions);
     }
 
     /**
@@ -234,7 +231,6 @@ public final class FileClient {
     /**
      * The uploadFileSpecificContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -245,10 +241,10 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileSpecificContentType(String contentType, BinaryData file) {
+    public void uploadFileSpecificContentType(BinaryData file) {
         // Generated convenience method for uploadFileSpecificContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        uploadFileSpecificContentTypeWithResponse(contentType, file, requestOptions).getValue();
+        uploadFileSpecificContentTypeWithResponse(file, requestOptions).getValue();
     }
 
     /**
@@ -307,30 +303,8 @@ public final class FileClient {
     }
 
     /**
-     * The uploadFileMultipleContentTypes operation.
-     * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
-     * @param file The file parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileMultipleContentTypes(String contentType, BinaryData file) {
-        // Generated convenience method for uploadFileMultipleContentTypesWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        uploadFileMultipleContentTypesWithResponse(contentType, file, requestOptions).getValue();
-    }
-
-    /**
      * The downloadFileMultipleContentTypes operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -340,16 +314,15 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData downloadFileMultipleContentTypes(String accept) {
+    public BinaryData downloadFileMultipleContentTypes() {
         // Generated convenience method for downloadFileMultipleContentTypesWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return downloadFileMultipleContentTypesWithResponse(accept, requestOptions).getValue();
+        return downloadFileMultipleContentTypesWithResponse(requestOptions).getValue();
     }
 
     /**
      * The uploadFileDefaultContentType operation.
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -360,10 +333,10 @@ public final class FileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void uploadFileDefaultContentType(String contentType, BinaryData file) {
+    public void uploadFileDefaultContentType(BinaryData file) {
         // Generated convenience method for uploadFileDefaultContentTypeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        uploadFileDefaultContentTypeWithResponse(contentType, file, requestOptions).getValue();
+        uploadFileDefaultContentTypeWithResponse(file, requestOptions).getValue();
     }
 
     /**

@@ -30,7 +30,7 @@ namespace SampleTypeSpec
         public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
-            yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            yield return GetNextResponse(message);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
@@ -47,6 +47,13 @@ namespace SampleTypeSpec
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
             return ((PageThing)page).Items;
+        }
+
+        /// <summary> Sends the request in the pipeline message and returns the response. </summary>
+        /// <param name="message"> The pipeline message containing the request to send. </param>
+        private ClientResult GetNextResponse(PipelineMessage message)
+        {
+            return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

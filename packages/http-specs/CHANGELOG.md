@@ -1,5 +1,20 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.37
+
+### Features
+
+- [#10194](https://github.com/microsoft/typespec/pull/10194) Add HEAD payload e2e test scenario with Content-Type and x-ms-meta response headers
+- [#10529](https://github.com/microsoft/typespec/pull/10529) Add test scenario for operation body parameters with reserved names (e.g., `items`) to verify wire name is not mangled.
+
+
+## 0.1.0-alpha.36
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+
 ## 0.1.0-alpha.35
 
 ### Features

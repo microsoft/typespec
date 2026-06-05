@@ -14,6 +14,9 @@ const builtInTemplates: Record<string, InitTemplate> = {
     description: "Create a project representing a generic REST API service.",
     compilerVersion: minCompilerVersion,
     libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi", "@typespec/openapi3"],
+    config: {
+      kind: "project",
+    },
     emitters: {
       "@typespec/openapi3": {
         selected: true,

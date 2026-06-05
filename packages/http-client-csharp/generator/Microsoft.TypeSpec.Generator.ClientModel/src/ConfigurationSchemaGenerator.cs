@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             var clientsWithSettings = output.TypeProviders
                 .OfType<ClientProvider>()
-                .Where(c => c.ClientSettings != null)
+                .Where(c => c.ClientSettings != null && c.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 .ToList();
 
             if (clientsWithSettings.Count == 0)
@@ -117,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             // Add custom constructor parameters from custom code (e.g., hand-written constructors
             // added via partial classes) that are not already covered by generated parameters.
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration.
             var customConstructors = client.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -126,6 +127,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        settings.HasSettingsParameter(ctor))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
@@ -260,6 +267,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     return GetJsonSchemaForEnum(effectiveType, localDefinitions);
                 }
 
+                if (effectiveType.IsStruct)
+                {
+                    // Non-enum struct — look up custom code constructor to determine the underlying type
+                    return GetJsonSchemaForNonEnumStruct(effectiveType, localDefinitions);
+                }
+
                 return GetJsonSchemaForModel(effectiveType, localDefinitions);
             }
 
@@ -353,6 +366,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             // Fallback: just string
             return new JsonObject { ["type"] = "string" };
+        }
+
+        private static JsonObject GetJsonSchemaForNonEnumStruct(CSharpType structType, Dictionary<string, JsonObject>? localDefinitions)
+        {
+            // Look up the struct's constructor to determine the underlying value type
+            var underlyingType = ClientSettingsProvider.TryGetStructUnderlyingType(structType);
+
+            if (underlyingType != null)
+            {
+                var ft = underlyingType.FrameworkType;
+                if (ft == typeof(string))
+                {
+                    return new JsonObject { ["type"] = "string" };
+                }
+                if (ft == typeof(int) || ft == typeof(long))
+                {
+                    return new JsonObject { ["type"] = "integer" };
+                }
+                if (ft == typeof(float) || ft == typeof(double))
+                {
+                    return new JsonObject { ["type"] = "number" };
+                }
+            }
+
+            // Fallback: treat as object to be consistent with AppendComplexObjectBinding
+            return new JsonObject { ["type"] = "object" };
         }
 
         private static JsonObject GetJsonSchemaForModel(CSharpType modelType, Dictionary<string, JsonObject>? localDefinitions)

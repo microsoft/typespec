@@ -1,5 +1,53 @@
 # Change Log - @typespec/http
 
+## 1.12.0
+
+### Deprecations
+
+- [#9884](https://github.com/microsoft/typespec/pull/9884) Deprecate use of `@patch(#{implicitOptionality: true})`.
+  
+  Migrate using one of the following patterns depending on intended semantics:
+  
+  1. Preserve previous behavior with an explicit patch model (optional properties)
+  
+  ```diff lang=typespec
+    model Pet {
+      name: string;
+      age: int32;
+    }
+  
+  + model PetPatch {
+  +    name?: string;
+  +    age?: int32;
+  + }
+  
+    
+  - @patch(#{implicitOptionality: true}) op updatePet(@body patch: Pet): void;
+  + @patch op updatePet(@body patch: PetPatch): void;
+  ```
+  
+  2. Use merge-patch semantics explicitly with `MergePatchUpdate<T>`
+  
+  ```typespec
+  model Pet {
+    name: string;
+    age: int32;
+  }
+  
+  @patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Use `MergePatchCreateOrUpdate<T>` when the operation supports create-or-update behavior.
+
+### Features
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) [API] Operation returning a union of types without status code or content type will be treated as a single response
+
+
+## 1.11.0
+
+No changes, version bump only.
+
 ## 1.10.0
 
 ### Bump dependencies

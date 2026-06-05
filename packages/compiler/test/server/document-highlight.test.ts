@@ -172,6 +172,46 @@ describe("compiler: server: documentHighlight", () => {
     ]);
   });
 
+  it("includes template access references in highlighting", async () => {
+    const ranges = await findDocumentHighlight(`
+    model X {
+      a: string;
+    }
+    model Y<M extends X> {
+      p1: M.a┆::type;
+      p2: M.a::type;
+    }`);
+
+    deepStrictEqual(ranges, [
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 5,
+          },
+          start: {
+            character: 12,
+            line: 5,
+          },
+        },
+      },
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 6,
+          },
+          start: {
+            character: 12,
+            line: 6,
+          },
+        },
+      },
+    ]);
+  });
+
   async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {
     const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();

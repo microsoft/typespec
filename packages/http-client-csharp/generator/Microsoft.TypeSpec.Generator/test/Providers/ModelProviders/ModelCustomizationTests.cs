@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -111,6 +112,78 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(wireInfo);
 
             Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactName()
+        {
+            // A spec property marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that property via [CodeGenMember], the custom code
+            // rename should still win — the generated property is filtered out and the
+            // custom property's name is used.
+            var props = new[]
+            {
+                InputFactory.Property("access_token", InputPrimitiveType.String, wireName: "access_token", isExactName: true),
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view with its custom name
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CustomCodeView.Properties[0].Name);
+
+            // serialized name from the spec must be preserved on the custom property
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("access_token", wireInfo!.SerializedName);
+
+            // the generated property should be filtered out
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // canonical view should expose only the custom rename
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CanonicalView.Properties[0].Name);
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnModel()
+        {
+            // A spec model marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that model via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("snake_case_model", properties: props, isExactName: true);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            AssertCommon(modelTypeProvider, "NewNamespace.Models", "CustomizedModel");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnEnum()
+        {
+            // A spec enum marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that enum via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputEnum = InputFactory.StringEnum("snake_case_enum", [("value", "value")], isExactName: true);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
         }
 
         [Test]
@@ -1696,6 +1769,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
             Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
                 "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
+        }
+
+        [Test]
+        public async Task CanReadPropertyAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var customCodeView = modelTypeProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+
+            var customProperty = customCodeView.Properties[0];
+            Assert.AreEqual("Prop1", customProperty.Name);
+
+            // Verify that attributes from custom code are populated, including a custom non-system attribute
+            Assert.AreEqual(3, customProperty.Attributes.Count);
+
+            // Validate [Obsolete("This property is now deprecated.", DiagnosticId = "OBS001")] - type, arguments, and positional arguments
+            var obsoleteAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, obsoleteAttr.Arguments.Count);
+            Assert.AreEqual(1, obsoleteAttr.PositionalArguments.Count);
+            Assert.AreEqual("DiagnosticId", obsoleteAttr.PositionalArguments[0].Key);
+
+            // Validate [EditorBrowsable(EditorBrowsableState.Never)] - type and arguments
+            var editorBrowsableAttr = customProperty.Attributes.Single(a => new CSharpType(typeof(System.ComponentModel.EditorBrowsableAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, editorBrowsableAttr.Arguments.Count);
+
+            // Validate [Custom("custom message")] - custom non-system attribute does not throw
+            var customAttr = customProperty.Attributes.Single(a => a.Type.Name == "CustomAttribute");
+            Assert.AreEqual(1, customAttr.Arguments.Count);
+
+            // Verify that field attributes from custom code are populated
+            var customField = customCodeView.Fields.Single(f => f.Name == "_customField");
+            Assert.AreEqual(1, customField.Attributes.Count);
+            var fieldObsoleteAttr = customField.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
+            Assert.AreEqual(1, fieldObsoleteAttr.Arguments.Count);
         }
 
         private class TestNameVisitor : NameVisitor

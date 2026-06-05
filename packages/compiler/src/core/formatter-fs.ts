@@ -1,5 +1,5 @@
-import { readFile, writeFile } from "fs/promises";
-import { globby } from "globby";
+import { glob, readFile, stat, writeFile } from "fs/promises";
+import { join } from "path";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
@@ -177,10 +177,49 @@ export async function checkFileFormat(filename: string): Promise<CheckFormatResu
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
-  const patterns = [
-    ...include.map(normalizePath),
-    "!**/node_modules",
-    ...ignore.map((x) => `!${normalizePath(x)}`),
-  ];
-  return globby(patterns);
+  const expandedInclude = await expandDirectoryPatterns(include);
+  const results: string[] = [];
+  for await (const entry of glob(expandedInclude, {
+    withFileTypes: true,
+    exclude: ["**/node_modules", ...ignore],
+  })) {
+    if (entry.isFile()) {
+      results.push(join(entry.parentPath, entry.name));
+    }
+  }
+  return results;
+}
+
+/**
+ * Expand bare directory paths to glob patterns.
+ * A directory "src" becomes both "src" and "src/**\/*" so it matches the
+ * directory entry itself (for exclude short-circuiting) and its contents.
+ * Glob patterns ending in "/**" also get the bare directory form added.
+ */
+async function expandDirectoryPatterns(patterns: string[]): Promise<string[]> {
+  const expanded: string[] = [];
+  for (const pattern of patterns) {
+    if (/[*?{[]/.test(pattern)) {
+      expanded.push(normalizePath(pattern));
+      // Also match the directory itself so exclude can short-circuit traversal
+      const normalized = normalizePath(pattern);
+      if (normalized.endsWith("/**/*")) {
+        expanded.push(normalized.slice(0, -4));
+      } else if (normalized.endsWith("/**")) {
+        expanded.push(normalized.slice(0, -3));
+      }
+    } else {
+      try {
+        if ((await stat(pattern)).isDirectory()) {
+          expanded.push(normalizePath(pattern));
+          expanded.push(normalizePath(`${pattern}/**/*`));
+          continue;
+        }
+      } catch {
+        // not a valid path — treat as glob pattern
+      }
+      expanded.push(normalizePath(pattern));
+    }
+  }
+  return expanded;
 }

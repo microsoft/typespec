@@ -32,6 +32,10 @@ export interface TypeSpecTagMetadata {
   name: string;
   description?: string;
   externalDocs?: TypeSpecExternalDocs;
+  /** Only supported in OpenAPI 3.2. */
+  parent?: string;
+  summary?: string;
+  kind?: string;
 }
 
 export interface TypeSpecExternalDocs {

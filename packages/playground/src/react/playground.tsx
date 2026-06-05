@@ -1,9 +1,7 @@
-import type { CompilerOptions, Diagnostic } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import type { Diagnostic } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
 import "@typespec/react-components/style.css";
-import debounce from "debounce";
-import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
+import { editor } from "monaco-editor";
 import {
   useCallback,
   useEffect,
@@ -13,27 +11,37 @@ import {
   type FunctionComponent,
   type ReactNode,
 } from "react";
-import { CompletionItemTag } from "vscode-languageserver";
-import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
-import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
+import { getMonacoRange } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
 import { EditorPanel } from "./editor-panel/editor-panel.js";
 import { useMonacoModel, type OnMountData } from "./editor.js";
+import {
+  useCompilation,
+  useDebouncedCompile,
+  useEditorActions,
+  useMonacoSync,
+  type PlaygroundSaveData,
+} from "./hooks/index.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
 import type { CommandBarItem } from "./responsive-command-bar/index.js";
-import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
+import type { FileOutputViewer, ProgramViewer } from "./types.js";
 import { useIsMobile } from "./use-mobile.js";
 import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
 import { ViewToggle, type ViewMode } from "./view-toggle.js";
 
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
+
+export interface PlaygroundEmitterOptions {
+  /** Compile debounce delay in milliseconds. Default is 200. */
+  debounce?: number;
+}
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -71,6 +79,11 @@ export interface PlaygroundProps {
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
+  /**
+   * Per-emitter playground options. Key is the emitter name.
+   */
+  emitterOptions?: Record<string, PlaygroundEmitterOptions>;
+
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
@@ -85,13 +98,8 @@ export interface PlaygroundEditorsOptions {
   theme?: string;
 }
 
-export interface PlaygroundSaveData extends PlaygroundState {
-  /** Current content of the playground.   */
-  content: string;
-
-  /** Emitter name. */
-  emitter: string;
-}
+// Re-export PlaygroundSaveData from hooks for backward compatibility
+export type { PlaygroundSaveData };
 
 /**
  * Playground component for TypeSpec with consolidated state management.
@@ -148,12 +156,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   useEffect(() => {
     printDebugInfo();
-
     debugGlobals().host = host;
   }, [host]);
 
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
-  const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -167,7 +173,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     defaultContent: props.defaultContent,
   });
 
-  // Extract values from the state hook
   const {
     selectedEmitter,
     compilerOptions,
@@ -183,109 +188,44 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onContentChange,
   } = state;
 
-  // Sync Monaco model with state content
-  useEffect(() => {
-    if (typespecModel.getValue() !== (content ?? "")) {
-      typespecModel.setValue(content ?? "");
-    }
-  }, [content, typespecModel]);
+  // Bidirectional Monaco ↔ state sync
+  useMonacoSync({ typespecModel, content, onContentChange });
 
-  // Update state when Monaco model changes
-  useEffect(() => {
-    const disposable = typespecModel.onDidChangeContent(() => {
-      const newContent = typespecModel.getValue();
-      if (newContent !== content) {
-        onContentChange(newContent);
-      }
-    });
-    return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  // Compilation
+  const { compilationState, isCompiling, isOutputStale, doCompile } = useCompilation({
+    host,
+    selectedEmitter,
+    compilerOptions,
+    typespecModel,
+  });
 
+  // Debounced recompile on content changes
+  const currentEmitterOptions = selectedEmitter
+    ? props.emitterOptions?.[selectedEmitter]
+    : undefined;
+  useDebouncedCompile({
+    typespecModel,
+    doCompile,
+    debounceDelay: currentEmitterOptions?.debounce,
+  });
+
+  // Editor actions (save, format, file-bug, keybindings)
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
-  const doCompile = useCallback(async () => {
-    const currentContent = typespecModel.getValue();
-    const typespecCompiler = host.compiler;
-
-    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
-    setCompilationState(state);
-    if ("program" in state) {
-      const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMonacoRange(typespecCompiler, diag.target),
-        message: diag.message,
-        severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
-        tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
-      }));
-
-      // Update code action provider with current diagnostics (for codefix support).
-      updateDiagnosticsForCodeFixes(typespecCompiler, state.program.diagnostics);
-
-      // Set the program on the window.
-      debugGlobals().program = state.program;
-      debugGlobals().$$ = $(state.program);
-
-      editor.setModelMarkers(typespecModel, "owner", markers ?? []);
-    } else {
-      updateDiagnosticsForCodeFixes(typespecCompiler, []);
-      editor.setModelMarkers(typespecModel, "owner", []);
-    }
-  }, [host, selectedEmitter, compilerOptions, typespecModel]);
-
-  useEffect(() => {
-    const debouncer = debounce(() => doCompile(), 200);
-    const disposable = typespecModel.onDidChangeContent(debouncer);
-    return () => {
-      debouncer.clear();
-      disposable.dispose();
-    };
-  }, [typespecModel, doCompile]);
-
-  useEffect(() => {
-    void doCompile();
-  }, [doCompile]);
-
-  const saveCode = useCallback(() => {
-    if (onSave) {
-      onSave({
-        content: content ?? "",
-        emitter: selectedEmitter,
-        compilerOptions,
-        sampleName: isSampleUntouched ? selectedSampleName : undefined,
-        selectedViewer,
-        viewerState,
-      });
-    }
-  }, [
-    content,
-    onSave,
+  const { saveCode, formatCode, fileBug, editorActions } = useEditorActions({
+    typespecModel,
+    editorRef,
     selectedEmitter,
     compilerOptions,
     selectedSampleName,
     isSampleUntouched,
     selectedViewer,
     viewerState,
-  ]);
-
-  const formatCode = useCallback(() => {
-    void editorRef.current?.getAction("editor.action.formatDocument")?.run();
-  }, []);
-
-  const fileBug = useCallback(async () => {
-    if (props.onFileBug) {
-      saveCode();
-      props.onFileBug();
-    }
-  }, [props, saveCode]);
-
-  const typespecEditorActions = useMemo(
-    (): editor.IActionDescriptor[] => [
-      // ctrl/cmd+S => save
-      { id: "save", label: "Save", keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS], run: saveCode },
-    ],
-    [saveCode],
-  );
+    onSave,
+    onFileBug: props.onFileBug,
+  });
 
   const onTypeSpecEditorMount = useCallback(({ editor }: OnMountData) => {
     editorRef.current = editor;
@@ -356,7 +296,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     <EditorPanel
       host={host}
       model={typespecModel}
-      actions={typespecEditorActions}
+      actions={editorActions}
       editorOptions={props.editorOptions}
       onMount={onTypeSpecEditorMount}
       selectedEmitter={selectedEmitter}
@@ -370,6 +310,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const outputPanel = (
     <OutputView
       compilationState={compilationState}
+      isCompiling={isCompiling}
+      isOutputStale={isOutputStale}
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
@@ -419,66 +361,3 @@ const verticalPaneSizesConst = {
   collapsed: [undefined, 30],
   expanded: [undefined, 200],
 };
-const outputDir = resolveVirtualPath("tsp-output");
-
-async function compile(
-  host: BrowserHost,
-  content: string,
-  selectedEmitter: string,
-  options: CompilerOptions,
-): Promise<CompilationState> {
-  await host.writeFile("main.tsp", content);
-  await emptyOutputDir(host);
-  try {
-    const typespecCompiler = host.compiler;
-    const program = await typespecCompiler.compile(host, resolveVirtualPath("main.tsp"), {
-      ...options,
-      options: {
-        ...options.options,
-        [selectedEmitter]: {
-          ...options.options?.[selectedEmitter],
-          "emitter-output-dir": outputDir,
-        },
-      },
-      outputDir,
-      emit: selectedEmitter ? [selectedEmitter] : [],
-    });
-    const outputFiles = await findOutputFiles(host);
-    return { program, outputFiles };
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Internal compiler error", error);
-    return { internalCompilerError: error };
-  }
-}
-async function findOutputFiles(host: BrowserHost): Promise<string[]> {
-  const files: string[] = [];
-
-  async function addFiles(dir: string) {
-    const items = await host.readDir(outputDir + dir);
-    for (const item of items) {
-      const itemPath = `${dir}/${item}`;
-      if ((await host.stat(outputDir + itemPath)).isDirectory()) {
-        await addFiles(itemPath);
-      } else {
-        files.push(dir === "" ? item : `${dir}/${item}`);
-      }
-    }
-  }
-  await addFiles("");
-  return files;
-}
-
-async function emptyOutputDir(host: BrowserHost) {
-  // empty output directory
-  const dirs = await host.readDir("./tsp-output");
-  for (const file of dirs) {
-    const path = "./tsp-output/" + file;
-    const uri = Uri.parse(host.pathToFileURL(path));
-    const model = editor.getModel(uri);
-    if (model) {
-      model.dispose();
-    }
-    await host.rm(path, { recursive: true });
-  }
-}

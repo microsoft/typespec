@@ -130,9 +130,15 @@ public class TypeSpecFluentPlugin extends FluentGen {
         handleFluentLite(codeModel, client, javaPackage, codeModel.getApiVersionMap());
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
-            TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-                codeModel.getApiVersionMap(), collectCrossLanguageDefinitions(client),
-                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+            TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(FluentUtils.getArtifactId())
+                .flavor(emitterOptions.getFlavor())
+                .apiVersions(codeModel.getApiVersionMap())
+                .crossLanguagePackageId(codeModel.getCrossLanguagePackageId())
+                .crossLanguageVersion(codeModel.getCrossLanguageVersion())
+                .crossLanguageDefinitions(collectCrossLanguageDefinitions(client))
+                .generatedFiles(
+                    FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)))
+                .build();
             javaPackage.addTypeSpecMetadata(metadata, getFluentJavaSettings().getMetadataSuffix().orElse(null));
         }
 

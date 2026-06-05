@@ -1,5 +1,13 @@
 # Change Log - @typespec/openapi
 
+## 1.12.0
+
+No changes, version bump only.
+
+## 1.11.0
+
+No changes, version bump only.
+
 ## 1.10.0
 
 ### Features

@@ -391,6 +391,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithDatetime() => Test(async (host) =>
+        {
+            var model = new ModelWithDatetime(
+                DateTimeOffset.Parse("2022-08-26T18:38:00Z"),
+                DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT"));
+            var response = await new XmlClient(host, null).GetModelWithDatetimeValueClient()
+                .PutAsync(model);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetXmlErrorValue() => Test((host) =>
         {
             var exception = Assert.ThrowsAsync<ClientResultException>(

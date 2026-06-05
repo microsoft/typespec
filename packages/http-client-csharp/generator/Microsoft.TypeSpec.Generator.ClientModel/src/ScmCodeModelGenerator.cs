@@ -54,13 +54,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override async Task WriteAdditionalFiles(string outputPath)
         {
+            // Skip generation if a custom ConfigurationSchema.json exists outside the Generated folder
+            var customSchemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
+            if (File.Exists(customSchemaPath))
+            {
+                Emitter.Info($"Custom ConfigurationSchema.json detected at {Path.GetFullPath(customSchemaPath)}, skipping generation.");
+                return;
+            }
+
             var schemaContent = ConfigurationSchemaGenerator.Generate(
                 OutputLibrary,
                 ConfigurationSchema.SectionName,
                 ConfigurationSchema.OptionsRef);
             if (schemaContent != null)
             {
-                var schemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
+                var schemaPath = Path.Combine(outputPath, "src", "Generated", "schema", "ConfigurationSchema.json");
                 var schemaDir = Path.GetDirectoryName(schemaPath);
                 if (schemaDir != null)
                 {

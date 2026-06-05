@@ -28,6 +28,14 @@ export async function patchPackageJson(dir: string, packages: Packages) {
   packageJson.peerDependencies = packageJson.peerDependencies ?? {};
   packageJson.overrides = packageJson.overrides ?? {};
 
+  // Collect the set of package names already referenced in the project
+  const referencedPackages = new Set<string>([
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.devDependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+    ...Object.keys(packageJson.overrides ?? {}),
+  ]);
+
   // Update dependencies to point to tgz files
   for (const pkg of Object.values(packages)) {
     const packageName = pkg.name;
@@ -41,8 +49,11 @@ export async function patchPackageJson(dir: string, packages: Packages) {
       }
     }
 
-    // Also set in overrides to ensure all nested dependencies use our version
-    packageJson.overrides[packageName] = filePath;
+    // Only override packages already referenced by the project to avoid
+    // npm arborist issues with unused file: overrides
+    if (referencedPackages.has(packageName)) {
+      packageJson.overrides[packageName] = filePath;
+    }
   }
 
   // Write updated package.json

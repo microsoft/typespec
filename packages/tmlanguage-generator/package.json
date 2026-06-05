@@ -17,9 +17,15 @@
     "textmate",
     "tmlanguage"
   ],
+  "type": "module",
   "main": "dist/tmlanguage-generator.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tmlanguage-generator.js"
+    }
+  },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -33,12 +39,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "onigasm": "catalog:",
+    "vscode-oniguruma": "catalog:",
     "plist": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/plist": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   }

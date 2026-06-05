@@ -132,20 +132,18 @@ HEADERS_HIDE_IN_METHOD = (
     "client-request-id",
     "return-client-request-id",
 )
-HEADERS_CONVERT_IN_METHOD = {
-    "if-match": {
-        "clientName": "etag",
-        "wireName": "etag",
-        "description": "check if resource is changed. Set None to skip checking etag.",
-    },
-    "if-none-match": {
-        "clientName": "match_condition",
-        "wireName": "match-condition",
-        "description": "The match condition to use upon the etag.",
-        "type": {
-            "type": "sdkcore",
-            "name": "MatchConditions",
-        },
+ETAG_MATCH_DATA = {
+    "clientName": "etag",
+    "etagRole": "ifMatch",
+    "description": "check if resource is changed. Set None to skip checking etag.",
+}
+ETAG_NONE_MATCH_DATA = {
+    "clientName": "match_condition",
+    "etagRole": "ifNoneMatch",
+    "description": "The match condition to use upon the etag.",
+    "type": {
+        "type": "sdkcore",
+        "name": "MatchConditions",
     },
 }
 CLOUD_SETTING = {
@@ -160,10 +158,114 @@ CLOUD_SETTING = {
         "isTypingOnly": True,
     },
 }
+STANDARD_IF_MATCH_WIRE_NAME = "if-match"
+STANDARD_IF_NONE_MATCH_WIRE_NAME = "if-none-match"
 
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
     return (parameter.get("wireName") or "").lower()
+
+
+def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
+    """Return 'ifMatch', 'ifNoneMatch', or None for this header parameter."""
+    return parameter.get("etagRole")
+
+
+def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -> Optional[dict[str, Any]]:
+    """Choose which etag-typed header should be promoted to the etag/match_condition slot.
+
+    When more than one etag-typed header is present in an operation, prefer the
+    standard If-Match/If-None-Match header (matched on wireName). Otherwise
+    fall back to the first candidate. Returns None if there are no candidates.
+    """
+    if not candidates:
+        return None
+    for c in candidates:
+        if get_wire_name_lower(c) == standard_wire_name:
+            return c
+    return candidates[0]
+
+
+def _resolve_etag_pair(
+    if_match_candidates: list[dict[str, Any]],
+    if_none_match_candidates: list[dict[str, Any]],
+) -> tuple[Optional[dict[str, Any]], Optional[dict[str, Any]]]:
+    """Select and reconcile the etag header pair for an operation.
+
+    When multiple etag-typed headers are present, prefer the standard
+    If-Match / If-None-Match pair.  Synthesize a missing partner when only
+    one side is present, and strip etagRole from non-selected candidates.
+
+    Returns (property_if_match, property_if_none_match) — both None when
+    there are no etag candidates.
+    """
+    property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
+    property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)
+
+    # Ensure the promoted pair come from the same family.  When one slot is
+    # standard and the other custom (cross-family), replace the custom slot
+    # with a synthetic standard partner.  Also synthesize the missing partner
+    # when only one side is present.
+    if property_if_match and property_if_none_match:
+        match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
+        none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
+        if match_is_std and not none_match_is_std:
+            property_if_none_match = property_if_match.copy()
+            property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+            property_if_none_match["etagRole"] = "ifNoneMatch"
+        elif none_match_is_std and not match_is_std:
+            property_if_match = property_if_none_match.copy()
+            property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+            property_if_match["etagRole"] = "ifMatch"
+    elif not property_if_match and property_if_none_match:
+        property_if_match = property_if_none_match.copy()
+        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+        property_if_match["etagRole"] = "ifMatch"
+    elif property_if_match and not property_if_none_match:
+        property_if_none_match = property_if_match.copy()
+        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+        property_if_none_match["etagRole"] = "ifNoneMatch"
+
+    for c in if_match_candidates:
+        if c is not property_if_match:
+            c.pop("etagRole", None)
+    for c in if_none_match_candidates:
+        if c is not property_if_none_match:
+            c.pop("etagRole", None)
+
+    return property_if_match, property_if_none_match
+
+
+def _process_operation_etag_headers(
+    operation: dict[str, Any],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    """Collect etag candidates from *operation*, resolve the promoted pair,
+    and update *operation* / *client* accordingly."""
+    if_match_candidates: list[dict[str, Any]] = []
+    if_none_match_candidates: list[dict[str, Any]] = []
+    for p in operation["parameters"]:
+        wire_name_lower = get_wire_name_lower(p)
+        if p["location"] == "header" and wire_name_lower == "client-request-id":
+            client["requestIdHeaderName"] = wire_name_lower
+        if version_tolerant and p["location"] == "header":
+            role = _get_etag_role(p)
+            if role == "ifMatch":
+                if_match_candidates.append(p)
+            elif role == "ifNoneMatch":
+                if_none_match_candidates.append(p)
+
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
+
+    if property_if_match and property_if_none_match:
+        etag_params = {id(property_if_match), id(property_if_none_match)}
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+            property_if_match,
+            property_if_none_match,
+        ]
+        operation["hasEtag"] = True
+        client["hasEtag"] = True
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -261,9 +363,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for type in yaml_data:
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
-                property["clientName"] = self.pad_reserved_words(
-                    property["clientName"].lower(), PadType.PROPERTY, property
-                )
+                if not property.get("isExactName", False):
+                    property["clientName"] = self.pad_reserved_words(
+                        property["clientName"].lower(), PadType.PROPERTY, property
+                    )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
@@ -281,9 +384,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         value["name"] = upper_name
 
         # add type for reference
-        for v in HEADERS_CONVERT_IN_METHOD.values():
-            if isinstance(v, dict) and "type" in v:
-                yaml_data.append(v["type"])
+        if "type" in ETAG_NONE_MATCH_DATA:
+            yaml_data.append(ETAG_NONE_MATCH_DATA["type"])
         yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
     def update_client(self, yaml_data: dict[str, Any]) -> None:
@@ -310,37 +412,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data["builderPadName"] = to_snake_case(prop_name)
         for og in yaml_data.get("operationGroups", []):
             for o in og["operations"]:
-                property_if_match = None
-                property_if_none_match = None
-                for p in o["parameters"]:
-                    wire_name_lower = get_wire_name_lower(p)
-                    if p["location"] == "header" and wire_name_lower == "client-request-id":
-                        yaml_data["requestIdHeaderName"] = wire_name_lower
-                    if self.version_tolerant and p["location"] == "header":
-                        if wire_name_lower == "if-match":
-                            property_if_match = p
-                        elif wire_name_lower == "if-none-match":
-                            property_if_none_match = p
-                # pylint: disable=line-too-long
-                # some service(e.g. https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cosmos-db/data-plane/Microsoft.Tables/preview/2019-02-02/table.json)
-                # only has one, so we need to add "if-none-match" or "if-match" if it's missing
-                if not property_if_match and property_if_none_match:
-                    property_if_match = property_if_none_match.copy()
-                    property_if_match["wireName"] = "if-match"
-                if not property_if_none_match and property_if_match:
-                    property_if_none_match = property_if_match.copy()
-                    property_if_none_match["wireName"] = "if-none-match"
-
-                if property_if_match and property_if_none_match:
-                    # arrange if-match and if-none-match to the end of parameters
-                    o["parameters"] = [
-                        item
-                        for item in o["parameters"]
-                        if get_wire_name_lower(item) not in ("if-match", "if-none-match")
-                    ] + [property_if_match, property_if_none_match]
-
-                    o["hasEtag"] = True
-                    yaml_data["hasEtag"] = True
+                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:
@@ -357,16 +429,25 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
-        if not (yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")):
+        if not yaml_data.get("isExactName", False) and not (
+            yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")
+        ):
             yaml_data["clientName"] = self.pad_reserved_words(
                 yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
             )
         if yaml_data.get("propertyToParameterName"):
-            # need to create a new one with padded keys and values
+            # need to create a new one with padded values (but NOT keys, since keys are wire names)
+            # build a lookup of exact-name properties from the body type's properties
+            exact_name_props = set()
+            for prop in yaml_data.get("type", {}).get("properties", []):
+                if prop.get("isExactName", False):
+                    exact_name_props.add(prop.get("wireName", ""))
             yaml_data["propertyToParameterName"] = {
-                self.pad_reserved_words(prop, PadType.PROPERTY, yaml_data): self.pad_reserved_words(
-                    param_name, PadType.PARAMETER, yaml_data
-                ).lower()
+                prop: (
+                    param_name
+                    if prop in exact_name_props
+                    else self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
+                )
                 for prop, param_name in yaml_data["propertyToParameterName"].items()
             }
         wire_name_lower = (yaml_data.get("wireName") or "").lower()
@@ -374,8 +455,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
             wire_name_lower in HEADERS_HIDE_IN_METHOD or yaml_data.get("clientDefaultValue") == "multipart/form-data"
         ):
             yaml_data["hideInMethod"] = True
-        if self.version_tolerant and yaml_data["location"] == "header" and wire_name_lower in HEADERS_CONVERT_IN_METHOD:
-            headers_convert(yaml_data, HEADERS_CONVERT_IN_METHOD[wire_name_lower])
+        if self.version_tolerant and yaml_data["location"] == "header":
+            role = _get_etag_role(yaml_data)
+            if role == "ifMatch":
+                headers_convert(yaml_data, ETAG_MATCH_DATA)
+            elif role == "ifNoneMatch":
+                headers_convert(yaml_data, ETAG_NONE_MATCH_DATA)
         if wire_name_lower in ["$host", "content-type", "accept"] and yaml_data["type"]["type"] == "constant":
             yaml_data["clientDefaultValue"] = yaml_data["type"]["value"]
 

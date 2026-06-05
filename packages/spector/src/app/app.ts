@@ -1,5 +1,6 @@
 import {
   expandDyns,
+  isMatcher,
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
@@ -145,10 +146,10 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
 
     // Validate headers if present in the request
     if (apiDefinition.request?.headers) {
-      const headers = expandDyns(apiDefinition.request.headers, config);
+      const headers = expandDyns(apiDefinition.request.headers, config, { resolveMatchers: false });
       Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
-          if (Array.isArray(value)) {
+          if (isMatcher(value) || Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);
           } else {
             req.expect.containsHeader(key.toLowerCase(), String(value));
@@ -158,9 +159,9 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
     }
 
     if (apiDefinition.request?.query) {
-      const query = expandDyns(apiDefinition.request.query, config);
+      const query = expandDyns(apiDefinition.request.query, config, { resolveMatchers: false });
       Object.entries(query).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
+        if (isMatcher(value) || Array.isArray(value)) {
           req.expect.deepEqual(req.query[key], value);
         } else {
           req.expect.containsQueryParam(key, String(value));

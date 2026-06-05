@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
             Assert.AreEqual(
-                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 printedAttribute);
 
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
@@ -193,7 +193,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "return PublicModel1(stringProp, modelProp, listProp, dictProp: default);\n",
+                "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
+                result);
+        }
+
+        // This test validates that when a new property is added AND the previous contract had a different
+        // parameter ordering, the backward-compat overload uses named arguments to correctly call the current method.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithDifferentParamOrder()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count() + 1, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // validate the signature of the backward compatibility method preserves the previous parameter order
+            var parameters = backwardCompatibilityMethod!.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("modelProp", parameters[0].Name);
+            Assert.AreEqual("stringProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+
+            // validate the previous method body uses named arguments to ensure correct mapping
+            // even though the parameter order differs between the previous and current methods
+            var body = backwardCompatibilityMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return PublicModel1(stringProp: stringProp, modelProp: modelProp, listProp: listProp, dictProp: default);\n",
                 result);
         }
 
@@ -307,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(1, attributes.Count);
             var printedAttribute = attributes[0].ToDisplayString();
             Assert.AreEqual(
-                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
                 printedAttribute);
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
@@ -393,6 +440,169 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_OnlyParamNameChanged()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // No additional overload should be added — the rename is absorbed into the current method.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
+
+            var publicModel1Methods = methods.Where(m => m.Signature.Name == "PublicModel1").ToList();
+            Assert.AreEqual(1, publicModel1Methods.Count);
+
+            var publicModel1Method = publicModel1Methods[0];
+            // Previous parameter names should be preserved on the current method.
+            var parameters = publicModel1Method.Signature.Parameters;
+            Assert.AreEqual(4, parameters.Count);
+            Assert.AreEqual("oldStringProp", parameters[0].Name);
+            Assert.AreEqual("oldModelProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            Assert.AreEqual("dictProp", parameters[3].Name);
+
+            // No EditorBrowsable hidden overload — there's a single visible method.
+            Assert.AreEqual(0, publicModel1Method.Signature.Attributes.Count);
+
+            // The body should reference the renamed parameters when constructing the model.
+            var body = publicModel1Method.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
+                "return new global::Sample.Models.PublicModel1(oldStringProp, oldModelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
+                result);
+
+            // The XML doc <param> entries should also use the preserved names.
+            var docParams = publicModel1Method.XmlDocs!.Parameters;
+            Assert.AreEqual(parameters.Count, docParams.Count);
+            Assert.AreEqual("oldStringProp", docParams[0].Parameter.Name);
+            Assert.AreEqual("oldModelProp", docParams[1].Parameter.Name);
+        }
+
+        // Validates that when ALL parameters in a factory method are renamed in the previous
+        // contract, every preserved name is propagated to the current method. This complements
+        // BackCompatibility_OnlyParamNameChanged which exercises a partial rename.
+        [Test]
+        public async Task BackCompatibility_MultipleParamNamesChanged()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // No additional overload should be added — the renames are absorbed into the current method.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
+
+            var publicModel1Methods = methods.Where(m => m.Signature.Name == "PublicModel1").ToList();
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            var publicModel1Method = publicModel1Methods[0];
+
+            var parameters = publicModel1Method.Signature.Parameters;
+            Assert.AreEqual(4, parameters.Count);
+            Assert.AreEqual("previousStringProp", parameters[0].Name);
+            Assert.AreEqual("previousModelProp", parameters[1].Name);
+            Assert.AreEqual("previousListProp", parameters[2].Name);
+            Assert.AreEqual("previousDictProp", parameters[3].Name);
+
+            // No EditorBrowsable hidden overload — there's a single visible method.
+            Assert.AreEqual(0, publicModel1Method.Signature.Attributes.Count);
+
+            // The body should reference the renamed parameters when constructing the model.
+            var body = publicModel1Method.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "previousListProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "previousDictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
+                "return new global::Sample.Models.PublicModel1(previousStringProp, previousModelProp, previousListProp.ToList(), previousDictProp, additionalBinaryDataProperties: null);\n",
+                result);
+
+            // The XML doc <param> entries should also use the preserved names.
+            var docParams = publicModel1Method.XmlDocs!.Parameters;
+            Assert.AreEqual(parameters.Count, docParams.Count);
+            Assert.AreEqual("previousStringProp", docParams[0].Parameter.Name);
+            Assert.AreEqual("previousModelProp", docParams[1].Parameter.Name);
+            Assert.AreEqual("previousListProp", docParams[2].Parameter.Name);
+            Assert.AreEqual("previousDictProp", docParams[3].Parameter.Name);
+        }
+
+        // Validates that when a new property is added AND the previous contract used different
+        // names for some of the surviving parameters, the rename-only fast path does NOT apply
+        // (parameter counts differ). Instead the standard "new property added" backcompat overload
+        // is generated using the previously-published parameter names.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithRenamedParam()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count() + 1, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // The current method keeps the new property-derived names (no rename absorbed) since
+            // the parameter count differs between the current and previous methods.
+            var currentParameters = currentOverloadMethod!.Signature.Parameters;
+            Assert.AreEqual(4, currentParameters.Count);
+            Assert.AreEqual("stringProp", currentParameters[0].Name);
+            Assert.AreEqual("modelProp", currentParameters[1].Name);
+            Assert.AreEqual("listProp", currentParameters[2].Name);
+            Assert.AreEqual("dictProp", currentParameters[3].Name);
+
+            // The backcompat overload preserves the previously-published parameter names.
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]",
+                attributes[0].ToDisplayString());
+
+            var parameters = backwardCompatibilityMethod.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("oldStringProp", parameters[0].Name);
+            Assert.AreEqual("oldModelProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+
+            // The backcompat overload's body instantiates the model directly because the previous
+            // parameter names (oldStringProp, oldModelProp) do not match any current property name.
+            // For unmatched parameters the generator falls back to passing `default` to the
+            // constructor; matched names (listProp) are threaded through.
+            var body = backwardCompatibilityMethod.BodyStatements;
+            Assert.IsNotNull(body);
+            var bodyString = body!.ToDisplayString();
+            StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
+            StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
+        [Test]
         public void ModelWithNestedDiscriminators()
         {
             var discriminatorProperty =
@@ -441,6 +651,114 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 childMethod!.BodyStatements!.ToDisplayString());
         }
 
+        // This test validates that when a model has a property whose name is a C# keyword (e.g. "Object"),
+        // the backward-compat overload correctly escapes the named argument identifier with '@'.
+        [Test]
+        public async Task BackCompatibility_NewPropertyAddedWithKeywordPropertyName()
+        {
+            InputModelProperty[] keywordProperties =
+            [
+                InputFactory.Property("StringProp", InputPrimitiveType.String),
+                InputFactory.Property("Object", InputPrimitiveType.String),
+                InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
+                InputFactory.Property("DictProp", InputFactory.Dictionary(InputPrimitiveType.String, InputPrimitiveType.String)),
+            ];
+            var keywordModelList = new[]
+            {
+                InputFactory.Model("PublicModel1", properties: keywordProperties),
+            };
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: keywordModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // There should be an additional method for backward compatibility
+            Assert.AreEqual(2, methods.Count);
+
+            var currentOverloadMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsNotNull(backwardCompatibilityMethod);
+
+            // validate the signature of the backward compatibility method
+            var parameters = backwardCompatibilityMethod!.Signature.Parameters;
+            Assert.AreEqual(3, parameters.Count);
+            Assert.AreEqual("stringProp", parameters[0].Name);
+            Assert.AreEqual("object", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+
+            // validate the previous method body uses @object for the named argument
+            var body = backwardCompatibilityMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return PublicModel1(stringProp: stringProp, @object: @object, listProp: listProp, dictProp: default);\n",
+                result);
+        }
+
+        // Regression test for a model factory parameter SWAP bug: when the previous contract
+        // contained the same-typed parameters in a different order from the current contract,
+        // a naive positional rename would swap which parameter feeds which constructor field
+        // via name-based lookup in GetCtorArgs, producing semantically wrong (and
+        // source-breaking) generated code. Verify no rename occurs in this collision case.
+        [Test]
+        public async Task BackCompatibility_SwapTypeParamsDoesNotCorrupt()
+        {
+            var swapModelList = new[]
+            {
+                InputFactory.Model(
+                    "SwapModel",
+                    properties:
+                    [
+                        InputFactory.Property("EventId", InputPrimitiveType.String),
+                        InputFactory.Property("ItemId", InputPrimitiveType.String),
+                    ]),
+            };
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: swapModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var swapMethods = modelFactory.Methods.Where(m => m.Signature.Name == "SwapModel").ToList();
+            Assert.AreEqual(1, swapMethods.Count);
+
+            var method = swapMethods[0];
+            var parameters = method.Signature.Parameters;
+            // The current method should keep its parameters in the order/names derived from the
+            // current spec: eventId, itemId. A positional rename to the previous contract names
+            // (which were swapped: itemId, eventId) would corrupt the body, so we explicitly
+            // skip the rename when it would create a name collision with another parameter.
+            Assert.AreEqual(2, parameters.Count);
+            Assert.AreEqual("eventId", parameters[0].Name);
+            Assert.AreEqual("itemId", parameters[1].Name);
+
+            // No EditorBrowsable hidden overload — there's a single visible method.
+            Assert.AreEqual(0, method.Signature.Attributes.Count);
+
+            // The body must reference the parameters in their original positions so that
+            // eventId continues to feed the eventId constructor field and itemId continues
+            // to feed the itemId constructor field.
+            var body = method.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "return new global::Sample.Models.SwapModel(eventId, itemId, additionalBinaryDataProperties: null);\n",
+                result);
+        }
+
         [Test]
         public void RequiredConstantPropertiesAreNotExposedAsParameters()
         {
@@ -464,6 +782,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("prop2", factoryMethod.Signature.Parameters[0].Name);
 
             Assert.AreEqual("return new global::Sample.Models.MockInputModel(\"constant\", prop2, additionalBinaryDataProperties: null);\n", factoryMethod.BodyStatements!.ToDisplayString());
+        }
+
+        // Verifies that a back-compat factory method is NOT re-added when the user has suppressed
+        // it via [CodeGenSuppress]. Without the filtering pass in ProcessTypeForBackCompatibility,
+        // the back-compat code would re-introduce the suppressed overload.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodSuppressed()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var publicModel1Methods = modelFactory.Methods
+                .Where(m => m.Signature.Name == "PublicModel1")
+                .ToList();
+
+            // Only the current 4-param overload should exist; the 3-param back-compat overload
+            // was suppressed via [CodeGenSuppress] in the custom code view.
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
+        }
+
+        // Verifies that a back-compat factory method is NOT re-added when the user already provided
+        // a custom method with the same signature. Without filtering, the back-compat code could
+        // duplicate the user's custom method.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodAlreadyCustom()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var publicModel1Methods = modelFactory.Methods
+                .Where(m => m.Signature.Name == "PublicModel1")
+                .ToList();
+
+            // Only the current 4-param overload should exist in the generated methods; the
+            // 3-param back-compat overload is provided by the user's custom code, so it should
+            // not also be generated.
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
         }
 
         private static InputModelType[] GetTestModels()

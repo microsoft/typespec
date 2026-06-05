@@ -4,7 +4,7 @@ This section goes over the setup of the repo for development.
 
 ## Repo setup
 
-- Install [Node.js](https://nodejs.org/) 20 LTS
+- Install [Node.js](https://nodejs.org/) 24 LTS
 - Install [pnpm](https://pnpm.io/)
 
 ```bash
@@ -466,11 +466,12 @@ Process labels
 
 Misc labels
 
-| Name               | Color   | Description                                        |
-| ------------------ | ------- | -------------------------------------------------- |
-| `good first issue` | #7057ff | Good for newcomers                                 |
-| `mq`               | #0969da | Good candidate for MQ                              |
-| `int:azure-specs`  | #0e8a16 | Run integration tests against azure-rest-api-specs |
+| Name                | Color   | Description                                        |
+| ------------------- | ------- | -------------------------------------------------- |
+| `agentic-workflows` | #000000 | Issues/PR created by github agentic workflows      |
+| `good first issue`  | #7057ff | Good for newcomers                                 |
+| `mq`                | #0969da | Good candidate for MQ                              |
+| `int:azure-specs`   | #0e8a16 | Run integration tests against azure-rest-api-specs |
 
 <!-- LABEL GENERATED REF END -->
 

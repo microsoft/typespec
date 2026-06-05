@@ -5,19 +5,13 @@
 # --------------------------------------------------------------------------
 from enum import Enum
 from collections import OrderedDict
-from typing import Any, Optional, TYPE_CHECKING, cast
-import sys
+from typing import Any, Literal, Optional, TYPE_CHECKING, cast
 from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
 from .imports import FileImport, ImportType, TypingSection
 from ...utils import NAME_LENGTH_LIMIT
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal  # type: ignore
 
 if TYPE_CHECKING:
     from .code_model import CodeModel

@@ -28,7 +28,7 @@ VERSION_MAP = {
     "corehttp": "1.0.0b6",
 }
 
-MIN_PYTHON_VERSION = "3.9"
+MIN_PYTHON_VERSION = "3.10"
 MAX_PYTHON_VERSION = "3.14"
 
 
@@ -155,7 +155,10 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
+            "ADDITIONAL_DEPENDENCIES": [
+                dep if dep.startswith('"') else f'"{dep}"'
+                for dep in (f"{item[0]}>={item[1]}" for item in additional_version_map.items())
+            ],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs
@@ -239,6 +242,7 @@ class GeneralSerializer(BaseSerializer):
                 ImportType.LOCAL,
             )
             file_import.add_import("json", ImportType.STDLIB)
+            file_import.add_import("os", ImportType.STDLIB)
 
         return template.render(
             code_model=self.code_model,
@@ -326,6 +330,7 @@ class GeneralSerializer(BaseSerializer):
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,
                 "CrossLanguageDefinitionId": cross_langauge_def_dict,
+                "CrossLanguageVersion": self.code_model.cross_language_version,
             },
             indent=4,
         )

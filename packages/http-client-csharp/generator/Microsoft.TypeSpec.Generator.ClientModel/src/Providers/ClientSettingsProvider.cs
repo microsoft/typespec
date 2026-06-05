@@ -107,7 +107,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Include custom constructor parameters from custom code (e.g., hand-written constructors
             // added via partial classes) that are not already covered by generated parameters.
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration binding.
             var customConstructors = _clientProvider.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -116,6 +117,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
@@ -165,8 +172,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
             }
 
-            // Bind custom constructor parameters from custom code
-            // Skip credential types, endpoint types (Uri), and options types as they are handled separately.
+            // Bind custom constructor parameters from custom code.
+            // Only consider public constructors — internal/private constructors contain infrastructure
+            // parameters (pipeline, key credentials, etc.) that are not suitable for configuration binding.
             var customConstructors = _clientProvider.CustomCodeView?.Constructors;
             if (customConstructors != null)
             {
@@ -183,6 +191,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 knownProps.Add("Options");
                 foreach (var ctor in customConstructors)
                 {
+                    if (!ctor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                        HasSettingsParameter(ctor))
+                    {
+                        continue;
+                    }
+
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
@@ -237,6 +251,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     else
                     {
                         AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                }
+                else if (type.IsStruct && TryGetStructUnderlyingType(type) is { } underlyingType)
+                {
+                    // Non-enum struct with a discoverable constructor parameter type.
+                    // Use the constructor's parameter type to pick the correct binding.
+                    if (underlyingType.FrameworkType == typeof(string))
+                    {
+                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                    else if (underlyingType.FrameworkType == typeof(int) || underlyingType.FrameworkType == typeof(long))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+                    }
+                    else if (underlyingType.FrameworkType == typeof(float) || underlyingType.FrameworkType == typeof(double))
+                    {
+                        AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+                    }
+                    else
+                    {
+                        AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
                     }
                 }
                 else
@@ -452,6 +487,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
+        /// Finds the single-value constructor parameter type for a non-framework struct type
+        /// by looking up the type's constructors in custom code. Returns null if no suitable
+        /// constructor is found.
+        /// </summary>
+        internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
+        {
+            var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                .FindForTypeInCustomization(type.Namespace, type.Name);
+
+            if (typeProvider == null)
+            {
+                return null;
+            }
+
+            foreach (var ctor in typeProvider.Constructors)
+            {
+                var parameters = ctor.Signature.Parameters;
+                if (parameters.Count == 1 && parameters[0].Type.IsFrameworkType)
+                {
+                    return parameters[0].Type;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Checks if a type is a standard client parameter type that should not be included as a
         /// custom settings property (credential types, endpoint types, or options types).
         /// </summary>
@@ -470,10 +532,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenCredentialType != null)
             {
-                if (effectiveType.Equals(tokenCredentialType) ||
-                    effectiveType.Name == tokenCredentialType.Name)
+                var currentType = effectiveType;
+                while (currentType != null)
                 {
-                    return true;
+                    if (currentType.Equals(tokenCredentialType) ||
+                    currentType.Name == tokenCredentialType.Name)
+                    {
+                        return true;
+                    }
+                    currentType = currentType.BaseType;
                 }
             }
 
@@ -485,6 +552,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns true if the constructor has a parameter whose type matches this client's
+        /// settings type.
+        /// </summary>
+        internal bool HasSettingsParameter(ConstructorProvider ctor)
+        {
+            return ctor.Signature.Parameters.Any(p => p.Type.Name == Type.Name);
         }
     }
 }

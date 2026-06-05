@@ -22,8 +22,11 @@ Steps:
 
 Steps:
 
-1. Bump the minor or patch version of `@typespec/http-client-java` in the three `package.json` files.
-2. Save the files and run `npm install` in the root so that `package-lock.json` is updated.
+1. Checkout "main" branch, pull the latest changes.
+2. Create a new branch. The name must follow the pattern "publish/http-client-java-<version>". Remind user that this branch must be pushed to remote upstream.
+3. Invoke `pnpm prepare-publish --only @typespec/http-client-java` in repository root. Commit the changes.
+4. Invoke `npm install` in the root to update `package-lock.json`. Commit the changes.
+5. Update the two `package.json` files in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test` to match the new version in the root `package.json`. Commit the changes.
 
 The publish workflow (to NPM) will be automatically triggered after the PR is merged: https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294
 
@@ -33,6 +36,7 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 
 - The execution of `mvn` and `npm` command should be done in the test directory `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
 - Only commit Java files written by you. Do not commit any generated files.
+- If no scenario URL provided, search the related files in either https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs or https://github.com/Azure/typespec-azure/tree/main/packages/azure-http-specs/specs
 
 0. Run `pwsh Setup.ps1` in `generator/http-client-generator-test` to set up the environment if not done before.
 1. The source files for the generated client under test are located in `generator/http-client-generator-test/src/main/java/<package>`.

@@ -107,6 +107,10 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
+export function getClientName(named: { name: string; isExactName: boolean }): string {
+  return named.isExactName ? named.name : camelToSnakeCase(named.name);
+}
+
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
@@ -146,6 +150,7 @@ type ParamBase = {
   description: string;
   addedOn: string | undefined;
   clientName: string;
+  isExactName: boolean;
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
@@ -213,14 +218,14 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
     if (parameter.clientDefaultValue) {
-      type = getSimpleTypeResult({
+      type = getSimpleTypeResult(context, {
         type: "constant",
         value: parameter.clientDefaultValue,
         valueType: type,
       });
     }
   }
-  let clientName = camelToSnakeCase(parameter.name);
+  let clientName = getClientName(parameter);
   if (
     parameter.kind !== "method" &&
     parameter.kind !== "credential" &&
@@ -228,13 +233,14 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     parameter.onClient &&
     parameter.correspondingMethodParams[0]
   ) {
-    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+    clientName = getClientName(parameter.correspondingMethodParams[0]);
   }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
+    isExactName: parameter.isExactName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken:
@@ -317,7 +323,7 @@ function parseToken(token: Token): string {
     case "codespan":
       parsed += `\`\`${token.text}\`\``;
       break;
-    case "code":
+    case "code": {
       let codeBlockStyle = token.codeBlockStyle;
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
@@ -328,6 +334,7 @@ function parseToken(token: Token): string {
       }
       parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
+    }
     case "link":
       if (token.href !== undefined) {
         parsed += `\`${token.text} <${token.href}>\`_`;

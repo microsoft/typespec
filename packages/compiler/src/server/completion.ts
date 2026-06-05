@@ -421,20 +421,20 @@ async function addIdentifierCompletion(
     let kind: CompletionItemKind;
     let deprecated = false;
     const symNode = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(symNode);
+    const type = sym.type ?? (symNode ? program.checker.getTypeForNode(symNode) : undefined);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
     } else if (
       sym.flags & SymbolFlags.Namespace &&
-      symNode.kind !== SyntaxKind.NamespaceStatement
+      symNode?.kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
     } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
       deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
-      kind = getCompletionItemKind(program, type);
-      deprecated = getDeprecationDetails(program, type) !== undefined;
+      kind = type ? getCompletionItemKind(program, type) : CompletionItemKind.Variable;
+      deprecated = type ? getDeprecationDetails(program, type) !== undefined : false;
     }
     const documentation = await getSymbolDetails(program, sym);
 
@@ -460,16 +460,20 @@ async function addIdentifierCompletion(
       continue;
     }
 
-    if (sym.name.startsWith("$")) {
-      const targetNode = getSourceLocation(node);
-      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-      item.textEdit = TextEdit.replace(
-        // Specifying replacement in the current location can avoid the problem of $ duplication
-        Range.create(lineAndChar, lineAndChar),
-        printIdentifier(key) + (suffix ?? ""),
-      );
+    const insertionText = printIdentifier(key) + (suffix ?? "");
+    if (node.pos === node.end) {
+      // Synthetic/missing identifier node — just use insertText
+      item.insertText = insertionText;
     } else {
-      item.insertText = printIdentifier(key) + (suffix ?? "");
+      const targetNode = getSourceLocation(node);
+      const start = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      const end = targetNode.file.getLineAndCharacterOfPosition(node.end);
+      if (sym.name.startsWith("$")) {
+        // Insert before the identifier to avoid $ duplication
+        item.textEdit = TextEdit.replace(Range.create(start, start), insertionText);
+      } else {
+        item.textEdit = TextEdit.replace(Range.create(start, end), insertionText);
+      }
     }
 
     if (deprecated) {
