@@ -66,7 +66,7 @@ Build your plugin as a class library that references the generator's published N
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeSpec.Generator.ClientModel" Version="1.0.0" />
+    <PackageReference Include="Microsoft.TypeSpec.Generator.ClientModel" Version="X.Y.Z" />
   </ItemGroup>
 
 </Project>
