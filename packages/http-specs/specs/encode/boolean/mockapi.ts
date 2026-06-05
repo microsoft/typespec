@@ -1,21 +1,6 @@
-import { createMatcher, err, json, ok, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, match, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
-
-function createCaseInsensitiveBooleanMatcher(value: boolean) {
-  const normalized = String(value);
-  return createMatcher<string>({
-    check: (actual) => {
-      if (typeof actual !== "string") {
-        return err(`Expected string "${normalized}" but got ${typeof actual}`);
-      }
-      return actual.toLowerCase() === normalized
-        ? ok()
-        : err(`Expected case-insensitive "${normalized}" but got "${actual}"`);
-    },
-    serialize: () => normalized,
-  });
-}
 
 function createBodyServerTests(uri: string, responseValue: string, requestValue: boolean) {
   return passOnSuccess({
@@ -23,7 +8,7 @@ function createBodyServerTests(uri: string, responseValue: string, requestValue:
     method: "post",
     request: {
       body: json({
-        value: createCaseInsensitiveBooleanMatcher(requestValue),
+        value: match.boolean.caseInsensitiveString(requestValue),
       }),
     },
     response: {
