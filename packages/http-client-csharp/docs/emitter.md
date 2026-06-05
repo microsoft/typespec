@@ -112,7 +112,7 @@ Allows emitter authors to specify the path to a custom emitter package, allowing
 
 **Type:** `array`
 
-Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends GeneratorPlugin.
+Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends `GeneratorPlugin`. See [Generator plugins](./plugins.md) for a walkthrough on authoring and using plugins.
 
 ### `license`
 
