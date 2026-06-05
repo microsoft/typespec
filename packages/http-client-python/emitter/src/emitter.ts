@@ -9,6 +9,7 @@ import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
+import { replaceEnumFiles, renderEnumFiles } from "./codegen/enums/index.js";
 import {
   blackExcludeDirs,
   BLOB_STORAGE_BASE_URL,
@@ -129,6 +130,27 @@ async def main():
 
 await main()`;
 
+// preprocess + codegen only (no black), so a Node-side overwrite step can run
+// before black formats the output.
+const pyodidePreprocessCodegenCode = `
+async def main():
+  import warnings
+  with warnings.catch_warnings():
+    from pygen import preprocess, codegen
+  preprocess.PreProcessPlugin(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
+  codegen.CodeGenerator(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
+
+await main()`;
+
+const pyodideBlackCode = `
+async def main():
+  import warnings
+  with warnings.catch_warnings():
+    from pygen import black
+  black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
+
+await main()`;
+
 async function runPyodideGeneration(
   pyodide: PyodideInterface,
   outputFolder: string,
@@ -142,6 +164,25 @@ async function runPyodideGeneration(
   });
 
   await pyodide.runPythonAsync(pyodideGenerationCode, { globals });
+}
+
+async function runPyodidePreprocessCodegen(
+  pyodide: PyodideInterface,
+  outputFolder: string,
+  yamlFile: string,
+  commandArgs: Record<string, string>,
+) {
+  const globals = pyodide.toPy({ outputFolder, yamlFile, commandArgs });
+  await pyodide.runPythonAsync(pyodidePreprocessCodegenCode, { globals });
+}
+
+async function runPyodideBlack(
+  pyodide: PyodideInterface,
+  outputFolder: string,
+  commandArgs: Record<string, string>,
+) {
+  const globals = pyodide.toPy({ outputFolder, commandArgs });
+  await pyodide.runPythonAsync(pyodideBlackCode, { globals });
 }
 
 async function copyPyodideOutputToHost(
@@ -267,7 +308,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         // Copy YAML to output dir with command args embedded
         // Use unique filename to avoid conflicts when multiple specs share output dir
         const configId = path.basename(yamlPath, ".yaml");
-        const batchConfig = { yamlPath, commandArgs, outputDir };
+        // Render enum files from TS now (sdkContext is available here); the batch
+        // Python process writes them after codegen and before black.
+        const enumFiles = renderEnumFiles(sdkContext, outputDir);
+        const batchConfig = { yamlPath, commandArgs, outputDir, enumFiles };
         fs.writeFileSync(
           path.join(outputDir, `.tsp-codegen-${configId}.json`),
           JSON.stringify(batchConfig, null, 2),
@@ -298,12 +342,16 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         // mount yaml file to pyodide
         pyodide.FS.mkdirTree("/yaml");
         pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
-        await runPyodideGeneration(
+        // Run preprocess + codegen, overwrite enum files from TS on the mounted
+        // host output dir, then run black so it formats the rendered output.
+        await runPyodidePreprocessCodegen(
           pyodide,
           "/output",
           `/yaml/${path.basename(yamlPath)}`,
           commandArgs,
         );
+        replaceEnumFiles(sdkContext, outputDir);
+        await runPyodideBlack(pyodide, "/output", commandArgs);
       } else {
         // here we run with native python
         let venvPath = path.join(root, "venv");
@@ -324,6 +372,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
           .join(" ");
         const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
         execSync(command);
+
+        // Overwrite pygen's `_enums.py` files with the TypeScript-rendered
+        // versions before black runs so black normalizes the output.
+        replaceEnumFiles(sdkContext, outputDir);
 
         const excludePattern = blackExcludeDirs.join("|");
         execSync(

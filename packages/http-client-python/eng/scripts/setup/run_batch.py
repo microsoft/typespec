@@ -10,6 +10,7 @@ This avoids the overhead of spawning a new Python process for each spec.
 
 import argparse
 import json
+import re
 import sys
 import os
 from pathlib import Path
@@ -19,6 +20,33 @@ from multiprocessing import freeze_support
 # Add the generator to the path
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(_ROOT_DIR / "generator"))
+
+
+_CLASS_NAME_RE = re.compile(r"^class (\w+)\(", re.MULTILINE)
+
+
+def _apply_enum_files(enum_files: list) -> None:
+    """Overwrite pygen's `_enums.py` files with the TypeScript-rendered versions.
+
+    Mirrors the guards in the in-process `replaceEnumFiles`: only overwrite when
+    the target file already exists and the set of rendered classes exactly matches
+    the set pygen wrote (guards against under-collection from TCGC).
+    """
+    for enum_file in enum_files:
+        path = Path(enum_file["path"])
+        if not path.exists():
+            continue
+        existing = path.read_text(encoding="utf-8")
+        existing_names = set(_CLASS_NAME_RE.findall(existing))
+        rendered_names = set(enum_file.get("classNames", []))
+        if rendered_names != existing_names:
+            print(
+                f"[enum-render] skipping {path}: class set mismatch "
+                f"(rendered={sorted(rendered_names)} existing={sorted(existing_names)})",
+                file=sys.stderr,
+            )
+            continue
+        path.write_text(enum_file["content"], encoding="utf-8")
 
 
 def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
@@ -57,6 +85,11 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
         codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
+
+        # Overwrite pygen's enum files with the TypeScript-rendered versions
+        # (computed by the emitter and embedded in the config). black, run later,
+        # normalizes the rendered output.
+        _apply_enum_files(config.get("enumFiles", []))
 
         # Clean up the config file
         config_path.unlink()

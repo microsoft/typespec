@@ -1,0 +1,18 @@
+# coding=utf-8
+{{#if licenseHeader}}
+{{{licenseHeader}}}
+{{/if}}
+
+from enum import Enum
+from {{coreImport}} import CaseInsensitiveEnumMeta
+
+{{#each enums}}
+
+{{{signature}}}
+    {{{docstring}}}
+
+{{#each values}}
+    {{{assignment}}}
+    {{{docstring}}}
+{{/each}}
+{{/each}}
