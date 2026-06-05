@@ -10,6 +10,7 @@ const rootOptions = [
   "extends",
   "kind",
   "entrypoint",
+  "features",
   "environment-variables",
   "parameters",
   "output-dir",
@@ -126,6 +127,38 @@ describe("Test completion items for options and emitters", () => {
     },
   ])("#%# Test no emitter options: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, false, expected);
+  });
+});
+
+describe("Test completion items for features", () => {
+  it.each([
+    {
+      config: `features:\n  - ┆`,
+      expected: ['"function-declarations"'],
+    },
+    {
+      config: `features:\n  - "┆"`,
+      expected: ["function-declarations"],
+    },
+    {
+      config: `features:\n  - "function┆"`,
+      expected: ["function-declarations"],
+    },
+    {
+      config: `features:\n  - function-declarations\n  - ┆`,
+      expected: [],
+    },
+  ])("#%# Test features: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected);
+  });
+
+  it("includes feature descriptions", async () => {
+    await checkCompletionItems(
+      `features:\n  - ┆`,
+      true,
+      ["Allows use of function declarations without experimental warnings in project code."],
+      true,
+    );
   });
 });
 
@@ -441,6 +474,7 @@ describe("Test completion items for extends", () => {
         "emit",
         "entrypoint",
         "environment-variables",
+        "features",
         "imports",
         "kind",
         "linter",

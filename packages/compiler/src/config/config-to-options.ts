@@ -84,6 +84,7 @@ export async function resolveCompilerOptions(
     const projectConfig = await findProjectConfig(host, entrypointDir);
     if (projectConfig?.kind === "project") {
       config.entrypoint ??= projectConfig.entrypoint;
+      config.features ??= projectConfig.features;
     }
   }
 

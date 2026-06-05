@@ -267,7 +267,6 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
-      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
     },
   },
   "using-invalid-ref": {
@@ -672,6 +671,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown compiler feature "${"feature"}".`,
     },
   },
   "config-project-not-as-cli-config": {

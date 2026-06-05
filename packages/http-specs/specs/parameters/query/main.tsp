@@ -20,3 +20,23 @@ interface Constant {
     queryParam: "constantValue",
   ): void;
 }
+
+@doc("Special char query parameter verification")
+@route("/special-char")
+interface SpecialChar {
+  @scenario
+  @scenarioDoc("""
+    Send a request with a dollar-sign prefixed`$filter` query parameter.
+    
+    Expected query parameter:
+    - `$filter` = "status eq 'active'"
+    
+    Expected response status code: 204
+    """)
+  @route("/dollarSign")
+  @get
+  dollarSign(
+    @query("$filter")
+    filter: string,
+  ): void;
+}
