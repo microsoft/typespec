@@ -748,7 +748,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var propAccess = new MemberExpression(new NullConditionalExpression(settingsParam), propName);
                 // Value types (enums, primitives) need ?? default since null-conditional returns T?
                 ValueExpression arg = param.Type.IsValueType
-                    ? propAccess.NullCoalesce(new KeywordExpression("default", null))
+                    ? propAccess.NullCoalesce(Default)
                     : propAccess;
                 args.Add(arg);
             }

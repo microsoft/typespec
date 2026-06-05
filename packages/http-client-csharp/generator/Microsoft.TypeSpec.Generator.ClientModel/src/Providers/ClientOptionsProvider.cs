@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // ServiceVersion.Version => "version"
                     switchCases.Add(new SwitchCaseExpression(
                         Static(serviceVersionEnum.Type).Property(serviceVersionMember.Name),
-                        new LiteralExpression(serviceVersionMember.Value)));
+                        Literal(serviceVersionMember.Value)));
                 }
 
                 switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));

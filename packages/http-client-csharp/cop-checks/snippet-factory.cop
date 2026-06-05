@@ -12,10 +12,20 @@
 #     new LiteralExpression(...)          -> Literal(...)
 #     new TypeOfExpression(...)           -> TypeOf(...)
 #     new TypeReferenceExpression(...)    -> Static(...)
-#     new InvokeMethodExpression(...)     -> .Invoke(...) / Static<T>().Invoke(...) / Nameof(...)
 #     new NewInstanceExpression(...)      -> New.Instance(...)
-#     new KeywordExpression("null"...)    -> Null / This / Default
+#     new InvokeMethodExpression(recv,..) -> recv.Invoke(...) / Static(t).Invoke(...)
+#     new KeywordExpression("null"|"this"|"default", ...) -> Null / This / Default
 #     new BinaryOperatorExpression("||"|"&&"|"or", ...) -> .Or(...) / .And(...) / .OrPattern(...)
+#
+# Precision notes:
+#   * KeywordExpression is only flagged for the `null` / `this` / `default`
+#     keywords, since those are the only ones with Snippet equivalents
+#     (Null / This / Default). Keywords like `yield` / `break` have no
+#     equivalent and are not reported.
+#   * InvokeMethodExpression is only flagged when it has a non-null instance
+#     receiver (something to hang `.Invoke(...)` off of). An unqualified call
+#     `new InvokeMethodExpression(null, ...)` has no Snippet equivalent and is
+#     not reported.
 #
 # The Snippet factory layer (Snippets/) and the expression type definitions
 # (Expressions/) legitimately use these constructors and are excluded, as are
@@ -26,7 +36,9 @@
 import code
 
 predicate constructsViaCtor(Line) =>
-    Line.Text:matches('\bnew\s+(LiteralExpression|TypeOfExpression|TypeReferenceExpression|InvokeMethodExpression|NewInstanceExpression|KeywordExpression)\s*\(')
+    Line.Text:matches('\bnew\s+(LiteralExpression|TypeOfExpression|TypeReferenceExpression|NewInstanceExpression)\s*\(')
+    || Line.Text:matches('\bnew\s+KeywordExpression\s*\(\s*"(null|this|default)"')
+    || Line.Text:matches('\bnew\s+InvokeMethodExpression\s*\(\s*(?!null\b)[A-Za-z_]')
     || Line.Text:matches('\bnew\s+BinaryOperatorExpression\s*\(\s*"(\|\||&&|or)"')
 
 predicate isComment(Line) => Line.Text:matches('^\s*(//|\*|///)')
