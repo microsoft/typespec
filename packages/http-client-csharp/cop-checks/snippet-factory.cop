@@ -1,0 +1,46 @@
+# Rule: prefer Snippet factory helpers over constructing expressions directly.
+#
+# Expression types should be created through the `Snippet` factory, not via
+# their constructors, so call sites read intentionally and stay consistent
+# (see https://github.com/microsoft/typespec/issues/3724). For example:
+#
+#     Static<File>().Invoke(...)          // good
+#     new InvokeMethodExpression(...)     // bad
+#
+# Only expression types that have a clear Snippet equivalent are flagged:
+#
+#     new LiteralExpression(...)          -> Literal(...)
+#     new TypeOfExpression(...)           -> TypeOf(...)
+#     new TypeReferenceExpression(...)    -> Static(...)
+#     new InvokeMethodExpression(...)     -> .Invoke(...) / Static<T>().Invoke(...) / Nameof(...)
+#     new NewInstanceExpression(...)      -> New.Instance(...)
+#     new KeywordExpression("null"...)    -> Null / This / Default
+#     new BinaryOperatorExpression("||"|"&&"|"or", ...) -> .Or(...) / .And(...) / .OrPattern(...)
+#
+# The Snippet factory layer (Snippets/) and the expression type definitions
+# (Expressions/) legitimately use these constructors and are excluded, as are
+# tests and TestData.
+#
+# Predicates only; the runnable command/test live in main.cop.
+
+import code
+
+predicate constructsViaCtor(Line) =>
+    Line.Text:matches('\bnew\s+(LiteralExpression|TypeOfExpression|TypeReferenceExpression|InvokeMethodExpression|NewInstanceExpression|KeywordExpression)\s*\(')
+    || Line.Text:matches('\bnew\s+BinaryOperatorExpression\s*\(\s*"(\|\||&&|or)"')
+
+predicate isComment(Line) => Line.Text:matches('^\s*(//|\*|///)')
+
+# The Snippet factory layer and the expression type definitions are allowed to
+# construct expressions directly.
+predicate inFactoryOrDefs(Line) =>
+    Line.File.Path:contains('/Snippets/') || Line.File.Path:contains('/Expressions/')
+
+predicate isTestCode(Line) =>
+    Line.File.Path:contains('/test/') || Line.File.Path:contains('TestData')
+
+predicate usesCtorOverSnippet(Line) =>
+    Line:constructsViaCtor
+    && !Line:isComment
+    && !Line:inFactoryOrDefs
+    && !Line:isTestCode
