@@ -6,14 +6,10 @@ export const stringMatcher = {
     return createMatcher({
       check(actual: unknown) {
         if (typeof actual !== "string") {
-          return err(
-            `match.string.caseInsensitive: expected a string but got ${typeof actual}`,
-          );
+          return err(`expected a string but got ${typeof actual}`);
         }
         if (actual.toLowerCase() !== normalized) {
-          return err(
-            `match.string.caseInsensitive: expected case-insensitive "${value}" but got "${actual}"`,
-          );
+          return err(`expected case-insensitive "${value}" but got "${actual}"`);
         }
         return ok();
       },
