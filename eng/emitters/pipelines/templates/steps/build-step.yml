@@ -64,6 +64,7 @@ steps:
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
+      checkLatest: true
 
   - task: UsePythonVersion@0
     displayName: "Use Python ${{ parameters.PythonVersion }}"
