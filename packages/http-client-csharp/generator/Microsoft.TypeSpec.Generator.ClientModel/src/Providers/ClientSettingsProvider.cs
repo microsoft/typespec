@@ -236,15 +236,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private string GetSettingPropertyName(string generatedName)
         {
-            var customProperties = CustomCodeView?.Properties;
-            if (customProperties != null)
+            foreach (var property in CanonicalView.Properties)
             {
-                foreach (var customProperty in customProperties)
+                if (property.OriginalName == generatedName)
                 {
-                    if (customProperty.OriginalName == generatedName)
-                    {
-                        return customProperty.Name;
-                    }
+                    return property.Name;
                 }
             }
 
