@@ -79,10 +79,12 @@ Build your plugin as a class library that references the generator package. When
 
 ## Using the `plugins` option
 
-Once you have a plugin, point the emitter at it using the `plugins` option in `tspconfig.yaml`. Each entry is a path, relative to the emitter output directory, to either:
+Once you have a plugin, point the emitter at it using the `plugins` option in `tspconfig.yaml`. Each entry is a path that may be **absolute** or **relative to the resolved `emitter-output-dir`**. A path can point to either:
 
-- a **directory** containing a pre-built plugin assembly (`*.dll`), or
-- a **directory** (or project) containing a `.csproj` — the generator builds it (`dotnet build -c Release`) before loading the resulting assembly.
+- a **file** — a pre-built plugin assembly (`*.dll`), or
+- a **directory** containing pre-built plugin assemblies (`*.dll`) or a `.csproj` — when a `.csproj` is present the generator builds it (`dotnet build -c Release`) before loading the resulting assembly.
+
+For example, to load plugins that live in a `codegen` folder under the output directory:
 
 ```yaml
 emit:
@@ -90,14 +92,15 @@ emit:
 options:
   "@typespec/http-client-csharp":
     plugins:
-      - "../plugins/MyPlugin"
+      - "codegen/MyPlugin.dll" # file relative to emitter-output-dir
+      - "codegen" # directory containing plugin assemblies
+      - "/abs/path/to/MyPlugin.dll" # absolute path used as-is
 ```
 
 Notes:
 
-- Paths are resolved relative to the emitter output directory.
+- Absolute paths are used as-is; relative paths are anchored to the resolved `emitter-output-dir`.
 - When a directory contains a `.csproj`, it is built automatically; otherwise the directory is scanned for pre-built `*.dll` files.
-- A plugin path that does not point to an existing directory causes the generator to fail.
 - Plugins loaded via the `plugins` option are applied in addition to any plugins discovered through `node_modules`.
 
 After the assemblies are loaded, every discovered `GeneratorPlugin` has its `Apply` method invoked on the selected generator before generation runs, so all of your registered visitors, rewriters, and references take effect.

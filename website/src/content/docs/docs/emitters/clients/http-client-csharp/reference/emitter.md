@@ -112,7 +112,16 @@ Allows emitter authors to specify the path to a custom emitter package, allowing
 
 **Type:** `array`
 
-Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends GeneratorPlugin.
+Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. Each plugin must contain a class that extends `GeneratorPlugin`. Paths may be absolute or relative to the resolved `emitter-output-dir`. For example, to load plugins that live in a `codegen` folder under the output directory:
+
+```yaml
+options:
+  "@typespec/http-client-csharp":
+    plugins:
+      - "codegen/MyPlugin.dll" # file relative to emitter-output-dir
+      - "codegen" # directory containing plugin assemblies
+      - "/abs/path/to/MyPlugin.dll" # absolute path used as-is
+```
 
 ### `license`
 

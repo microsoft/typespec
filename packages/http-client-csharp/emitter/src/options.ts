@@ -120,7 +120,17 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Paths to generator plugin assemblies (DLLs) or directories containing plugin assemblies. " +
-        "Each plugin must contain a class that extends GeneratorPlugin.",
+        "Each plugin must contain a class that extends `GeneratorPlugin`. " +
+        "Paths may be absolute or relative to the resolved `emitter-output-dir`. " +
+        "For example, to load plugins that live in a `codegen` folder under the output directory:\n\n" +
+        "```yaml\n" +
+        "options:\n" +
+        '  "@typespec/http-client-csharp":\n' +
+        "    plugins:\n" +
+        '      - "codegen/MyPlugin.dll" # file relative to emitter-output-dir\n' +
+        '      - "codegen" # directory containing plugin assemblies\n' +
+        '      - "/abs/path/to/MyPlugin.dll" # absolute path used as-is\n' +
+        "```",
     },
     license: {
       type: "object",
