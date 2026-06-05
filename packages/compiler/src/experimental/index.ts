@@ -1,5 +1,15 @@
 export { createSourceLoader as unsafe_createSourceLoader } from "../core/source-loader.js";
 export {
+  applyScopes,
+  createEmitterScope,
+  decoratorMatchesScope,
+  emitter,
+  getDecoratorsByScope,
+  language,
+  target,
+} from "../core/when-scope.js";
+export type { EmitterScope } from "../core/when-scope.js";
+export {
   MutableType as unsafe_MutableType,
   Mutator as unsafe_Mutator,
   MutatorFilterFn as unsafe_MutatorFilterFn,

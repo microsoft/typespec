@@ -144,9 +144,17 @@ const defaultOptions = {
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
-  const options = resolveOptions(context);
+  // POC: Apply scopes to get a program view with openapi3-specific scoped decorators executed
+  const { applyScopes, emitter: emitterScope } = await import(
+    /* @ts-ignore - POC import until compiler is rebuilt */
+    "@typespec/compiler/experimental"
+  );
+  const scopedProgram = applyScopes(context.program, [emitterScope("@typespec/openapi3")]);
+  const scopedContext = { ...context, program: scopedProgram };
+
+  const options = resolveOptions(scopedContext);
   for (const specVersion of options.openapiVersions) {
-    const emitter = createOAPIEmitter(context, options, specVersion);
+    const emitter = createOAPIEmitter(scopedContext, options, specVersion);
     const { perf } = await emitter.emitOpenAPI();
     for (const [key, duration] of Object.entries(perf)) {
       context.perf.report(key, duration);
