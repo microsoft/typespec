@@ -388,6 +388,7 @@ stages:
                     displayName: Use Node 22.x for playground bundle
                     inputs:
                       versionSpec: "22.x"
+                      checkLatest: true
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
