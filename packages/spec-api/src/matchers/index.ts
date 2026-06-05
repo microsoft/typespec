@@ -1,6 +1,6 @@
-import { booleanMatcher } from "./boolean.js";
 import { dateTimeMatcher } from "./datetime.js";
 import { baseUrlMatcher } from "./local-url.js";
+import { stringMatcher } from "./string.js";
 
 export {
   createMatcher,
@@ -19,15 +19,8 @@ export { dateTimeMatcher } from "./datetime.js";
  * Namespace for built-in matchers.
  */
 export const match = {
-  /**
-   * Matchers for comparing boolean values encoded as strings.
-   *
-   * @example
-   * ```ts
-   * match.boolean.caseInsensitiveString(true)
-   * ```
-   */
-  boolean: booleanMatcher,
+  /** Matchers for comparing string values. */
+  string: stringMatcher,
 
   /**
    * Matchers for comparing datetime values semantically.

@@ -8,7 +8,7 @@ function createBodyServerTests(uri: string, responseValue: string, requestValue:
     method: "post",
     request: {
       body: json({
-        value: match.boolean.caseInsensitiveString(requestValue),
+        value: match.string.caseInsensitive(String(requestValue)),
       }),
     },
     response: {
