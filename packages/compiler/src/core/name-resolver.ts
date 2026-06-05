@@ -835,22 +835,24 @@ export function createResolver(program: Program): NameResolver {
         targetTable.set("parameters", sym);
       }
     } else {
-      const { finalSymbol: sig } = resolveTypeReference(node.signature.baseOperation);
-      if (sig) {
-        const sigTable = getAugmentedSymbolTable(sig.metatypeMembers!);
-        const sigParameterSym = sigTable.get("parameters")!;
-        if (sigParameterSym !== undefined) {
-          const parametersSym = createSymbol(
-            sigParameterSym.node,
-            "parameters",
-            SymbolFlags.Model & SymbolFlags.MemberContainer,
-          );
-          getAugmentedSymbolTable(parametersSym.members!).include(
-            getAugmentedSymbolTable(sigParameterSym.members!),
-            parametersSym,
-          );
-          targetTable.set("parameters", parametersSym);
-          targetTable.set("returnType", sigTable.get("returnType")!);
+      if (node.signature.baseOperation.kind === SyntaxKind.TypeReference) {
+        const { finalSymbol: sig } = resolveTypeReference(node.signature.baseOperation);
+        if (sig) {
+          const sigTable = getAugmentedSymbolTable(sig.metatypeMembers!);
+          const sigParameterSym = sigTable.get("parameters")!;
+          if (sigParameterSym !== undefined) {
+            const parametersSym = createSymbol(
+              sigParameterSym.node,
+              "parameters",
+              SymbolFlags.Model & SymbolFlags.MemberContainer,
+            );
+            getAugmentedSymbolTable(parametersSym.members!).include(
+              getAugmentedSymbolTable(sigParameterSym.members!),
+              parametersSym,
+            );
+            targetTable.set("parameters", parametersSym);
+            targetTable.set("returnType", sigTable.get("returnType")!);
+          }
         }
       }
     }
@@ -1383,6 +1385,10 @@ export function createResolver(program: Program): NameResolver {
     operationPrototype.set("returnType", (baseSym) => {
       let node = baseSym.declarations[0] as OperationStatementNode;
       while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+        if (node.signature.baseOperation.kind !== SyntaxKind.TypeReference) {
+          // Function call expressions cannot be statically resolved
+          return failedResult(ResolutionResultFlags.ResolutionFailed);
+        }
         const baseResult = resolveTypeReference(node.signature.baseOperation);
         if (baseResult.resolutionResult & ResolutionResultFlags.Resolved) {
           node = baseResult.resolvedSymbol!.declarations[0] as OperationStatementNode;
