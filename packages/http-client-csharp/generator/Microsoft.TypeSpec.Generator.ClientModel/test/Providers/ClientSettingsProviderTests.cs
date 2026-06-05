@@ -1140,5 +1140,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(bodyString.Contains("TenantId"),
                 "BindCore should bind the non-credential parameter 'TenantId'");
         }
+
+        [Test]
+        public async Task TestBindCoreMethod_HonorsCustomPropertyRename()
+        {
+            // Custom code renames the generated 'Endpoint' settings property to 'ServiceUri'
+            // via [CodeGenMember("Endpoint")]. BindCore should assign to the renamed property
+            // while still reading from the original configuration key.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+            Assert.IsNotNull(settingsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            // The generated 'Endpoint' property should be replaced by the custom 'ServiceUri' property.
+            Assert.IsNull(settingsProvider.Properties.FirstOrDefault(p => p.Name == "Endpoint"),
+                "Generated 'Endpoint' property should be replaced by the custom code rename");
+
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            // Assignment target should be the renamed property.
+            Assert.IsTrue(bodyString.Contains("ServiceUri = "),
+                "BindCore should assign to the renamed 'ServiceUri' property");
+            Assert.IsFalse(bodyString.Contains("this.Endpoint = ") || bodyString.Contains("Endpoint = endpoint"),
+                "BindCore should not assign to the original 'Endpoint' property after the custom rename");
+            // Configuration key should remain the original generated name.
+            Assert.IsTrue(bodyString.Contains("section[\"Endpoint\"]"),
+                "BindCore should still read from the original 'Endpoint' configuration key");
+        }
     }
 }
