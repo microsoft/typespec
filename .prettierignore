@@ -50,6 +50,9 @@ packages/compiler/templates/__snapshots__/
 #.tsp init template
 eng/feeds/
 
+# Python emitter Handlebars templates contain Python syntax that Prettier corrupts.
+packages/http-client-python/emitter/src/codegen/enums/templates/*.hbs
+
 # Skip formatting tsp files
 
 *.noformat.tsp

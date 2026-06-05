@@ -9,7 +9,7 @@ import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import { replaceEnumFiles, renderEnumFiles } from "./codegen/enums/index.js";
+import { renderEnumFiles, replaceEnumFiles } from "./codegen/enums/index.js";
 import {
   blackExcludeDirs,
   BLOB_STORAGE_BASE_URL,

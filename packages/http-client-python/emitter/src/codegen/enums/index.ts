@@ -4,9 +4,9 @@
 // license information.
 // --------------------------------------------------------------------------
 
-export { collectEnumGroups, UnsupportedEnumError } from "./render.js";
-export type { EnumGroup, EnumValueView, EnumView } from "./render.js";
 export { renderEnumFile } from "./handlebars.js";
 export type { RenderEnumFileOptions } from "./handlebars.js";
-export { replaceEnumFiles, renderEnumFiles } from "./replace.js";
+export { UnsupportedEnumError, collectEnumGroups } from "./render.js";
+export type { EnumGroup, EnumValueView, EnumView } from "./render.js";
+export { renderEnumFiles, replaceEnumFiles } from "./replace.js";
 export type { RenderedEnumFile } from "./replace.js";
