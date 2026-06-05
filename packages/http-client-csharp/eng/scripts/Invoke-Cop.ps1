@@ -80,8 +80,34 @@ try {
     Push-Location $runDir
     try {
         Write-Host "Running cop checks against $generator" -ForegroundColor Cyan
-        & $copPath main.cop -t $generator
-        $exit = $LASTEXITCODE
+
+        # cop auto-restores its provider packages (code, csharp, ...) from the
+        # GitHub feed on first run. That download can fail transiently on CI
+        # agents (rate limiting / network blips), surfacing as "not found in any
+        # configured feed" / "Provider '...' is not loaded" and a non-zero exit.
+        # Retry the run with backoff when we detect such a restore failure, but
+        # report genuine rule violations immediately (those don't print a
+        # restore/provider error).
+        $maxAttempts = 5
+        $restorePattern = 'not found in any configured feed|could not be resolved|is not loaded'
+        for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            $output = & $copPath main.cop -t $generator 2>&1 | Out-String
+            Write-Host $output
+            $exit = $LASTEXITCODE
+
+            if ($exit -eq 0 -or $output -notmatch $restorePattern) {
+                break
+            }
+
+            if ($attempt -lt $maxAttempts) {
+                $delay = [Math]::Min(30, [Math]::Pow(2, $attempt))
+                Write-Host "Package restore failed (transient). Retrying in $delay s..." -ForegroundColor Yellow
+                Start-Sleep -Seconds $delay
+            }
+            else {
+                throw "Failed to restore cop provider packages after $maxAttempts attempts."
+            }
+        }
     }
     finally {
         Pop-Location
