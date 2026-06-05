@@ -1170,11 +1170,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var writer = new TypeProviderWriter(settingsProvider);
             var file = writer.Write();
 
-            // Even though BindCore (the only other reference to IConfigurationSection) is removed,
-            // the type description still references IConfigurationSection, so the
+            // Validate the full generated output. Even though BindCore (the only other
+            // reference to IConfigurationSection) is removed via custom code, the type
+            // description still references IConfigurationSection, so the
             // Microsoft.Extensions.Configuration using must still be emitted.
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
             StringAssert.Contains("using Microsoft.Extensions.Configuration;", file.Content);
-            StringAssert.Contains("IConfigurationSection", file.Content);
         }
     }
 }
