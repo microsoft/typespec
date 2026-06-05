@@ -37,8 +37,7 @@ async function createCodeFixRuleTester(
                 {
                   id: fixId,
                   label: "Test fix",
-                  fix: (fixContext) =>
-                    createFix({ model, fixContext, program: context.program }),
+                  fix: (fixContext) => createFix({ model, fixContext, program: context.program }),
                 },
               ],
             });
@@ -103,4 +102,3 @@ it("toEqual with Record asserts code fix that modifies both the original and a n
       "client.tsp": `@@override(Foo, "ClientFoo");\n`,
     });
 });
-
