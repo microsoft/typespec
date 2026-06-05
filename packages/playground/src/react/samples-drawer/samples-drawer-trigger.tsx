@@ -6,18 +6,21 @@ import {
   OverlayDrawer,
   SearchBox,
   Text,
+  ToggleButton,
   ToolbarButton,
   Tooltip,
 } from "@fluentui/react-components";
 import { Dismiss24Regular, DocumentBulletList24Regular } from "@fluentui/react-icons";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
-import type { PlaygroundSample } from "../../types.js";
+import type { PlaygroundSample, PlaygroundTspLibrary } from "../../types.js";
+import { getEmitterDisplayName, isSampleCompatibleWithEmitter } from "../emitter-utils.js";
 import { SampleCard } from "./sample-card.js";
 import style from "./samples-drawer.module.css";
 
 export interface SamplesDrawerProps {
   samples: Record<string, PlaygroundSample>;
-  onSelectedSampleNameChange: (sampleName: string) => void;
+  emitters: Record<string, PlaygroundTspLibrary>;
+  onSelectedSampleNameChange: (sampleName: string, emitter?: string) => void;
 }
 
 export interface SamplesDrawerOverlayProps extends SamplesDrawerProps {
@@ -33,11 +36,19 @@ interface SampleCategory {
 function groupAndFilterSamples(
   samples: Record<string, PlaygroundSample>,
   searchQuery: string,
+  emitterFilter: string | null,
+  emitters: Record<string, PlaygroundTspLibrary>,
 ): SampleCategory[] {
   const query = searchQuery.toLowerCase().trim();
   const categoryMap = new Map<string, [string, PlaygroundSample][]>();
 
   for (const [name, sample] of Object.entries(samples)) {
+    if (emitterFilter) {
+      const emitterLib = emitters[emitterFilter];
+      const tags = emitterLib?.emitterTags ?? [];
+      if (!isSampleCompatibleWithEmitter(sample, emitterFilter, tags)) continue;
+    }
+
     if (query) {
       const matchesName = name.toLowerCase().includes(query);
       const matchesDescription = sample.description?.toLowerCase().includes(query);
@@ -62,23 +73,34 @@ function groupAndFilterSamples(
 /** The overlay drawer showing the sample gallery. Controlled via open/onOpenChange. */
 export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> = ({
   samples,
+  emitters,
   onSelectedSampleNameChange,
   open,
   onOpenChange,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [emitterFilter, setEmitterFilter] = useState<string | null>(null);
 
   const handleSampleSelect = useCallback(
-    (sampleName: string) => {
-      onSelectedSampleNameChange(sampleName);
+    (sampleName: string, emitter?: string) => {
+      onSelectedSampleNameChange(sampleName, emitter);
       onOpenChange(false);
     },
     [onSelectedSampleNameChange, onOpenChange],
   );
 
+  const emitterList = useMemo(
+    () =>
+      Object.values(emitters)
+        .filter((e) => e.isEmitter)
+        .map((e) => e.name)
+        .sort(),
+    [emitters],
+  );
+
   const categories = useMemo(
-    () => groupAndFilterSamples(samples, searchQuery),
-    [samples, searchQuery],
+    () => groupAndFilterSamples(samples, searchQuery, emitterFilter, emitters),
+    [samples, searchQuery, emitterFilter, emitters],
   );
   const hasCategories = useMemo(() => Object.values(samples).some((s) => s.category), [samples]);
   const totalFiltered = useMemo(
@@ -91,7 +113,10 @@ export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> 
       open={open}
       onOpenChange={(_, data) => {
         onOpenChange(data.open);
-        if (!data.open) setSearchQuery("");
+        if (!data.open) {
+          setSearchQuery("");
+          setEmitterFilter(null);
+        }
       }}
       position="end"
       size="large"
@@ -120,6 +145,32 @@ export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> 
           />
         </div>
 
+        {emitterList.length > 1 && (
+          <div className={style["emitter-filter"]}>
+            <ToggleButton
+              size="small"
+              appearance={emitterFilter === null ? "primary" : "subtle"}
+              checked={emitterFilter === null}
+              onClick={() => setEmitterFilter(null)}
+              className={style["emitter-filter-chip"]}
+            >
+              All
+            </ToggleButton>
+            {emitterList.map((emitter) => (
+              <ToggleButton
+                key={emitter}
+                size="small"
+                appearance={emitterFilter === emitter ? "primary" : "subtle"}
+                checked={emitterFilter === emitter}
+                onClick={() => setEmitterFilter(emitterFilter === emitter ? null : emitter)}
+                className={style["emitter-filter-chip"]}
+              >
+                {getEmitterDisplayName(emitter)}
+              </ToggleButton>
+            ))}
+          </div>
+        )}
+
         {totalFiltered === 0 ? (
           <div className={style["samples-empty"]}>
             <Text>No samples match your search.</Text>
@@ -136,6 +187,7 @@ export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> 
                     key={name}
                     name={name}
                     sample={sample}
+                    emitters={emitters}
                     onSelect={handleSampleSelect}
                   />
                 ))}
@@ -146,7 +198,7 @@ export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> 
           <div className={style["samples-grid"]}>
             {categories.flatMap((c) =>
               c.entries.map(([name, sample]) => (
-                <SampleCard key={name} name={name} sample={sample} onSelect={handleSampleSelect} />
+                <SampleCard key={name} name={name} sample={sample} emitters={emitters} onSelect={handleSampleSelect} />
               )),
             )}
           </div>
@@ -159,6 +211,7 @@ export const SamplesDrawerOverlay: FunctionComponent<SamplesDrawerOverlayProps> 
 /** Toolbar button trigger + overlay drawer for samples. */
 export const SamplesDrawerTrigger: FunctionComponent<SamplesDrawerProps> = ({
   samples,
+  emitters,
   onSelectedSampleNameChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -177,6 +230,7 @@ export const SamplesDrawerTrigger: FunctionComponent<SamplesDrawerProps> = ({
 
       <SamplesDrawerOverlay
         samples={samples}
+        emitters={emitters}
         onSelectedSampleNameChange={onSelectedSampleNameChange}
         open={isOpen}
         onOpenChange={setIsOpen}

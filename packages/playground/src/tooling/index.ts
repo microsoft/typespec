@@ -20,6 +20,7 @@ export async function buildSamples_experimental(
       filename: config.filename,
       content,
       preferredEmitter: config.preferredEmitter,
+      compatibleEmitters: config.compatibleEmitters,
       description: config.description,
       compilerOptions: config.compilerOptions,
     };
