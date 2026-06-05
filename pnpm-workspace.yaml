@@ -11,12 +11,13 @@ catalog:
   "@alloy-js/core": ^0.23.0
   "@alloy-js/csharp": ^0.23.0
   "@alloy-js/markdown": ^0.23.0
+  "@alloy-js/msbuild": ^0.23.0
   "@alloy-js/python": ^0.4.0
   "@alloy-js/rollup-plugin": ^0.1.1
   "@alloy-js/typescript": ^0.23.0
   "@astrojs/check": ^0.9.8
   "@astrojs/react": ^5.0.3
-  "@astrojs/starlight": ^0.38.3
+  "@astrojs/starlight": ^0.39.2
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
   "@babel/code-frame": ^7.29.0
@@ -27,7 +28,7 @@ catalog:
   "@docsearch/css": ^4.6.2
   "@docsearch/js": ^4.6.2
   "@eslint/js": ^10.0.1
-  "@expressive-code/core": ^0.41.7
+  "@expressive-code/core": ^0.42.0
   "@fluentui/react-components": ^9.73.7
   "@fluentui/react-icons": ^2.0.323
   "@fluentui/react-list": ^9.6.13
@@ -39,11 +40,11 @@ catalog:
   "@octokit/core": ^7.0.6
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
-  "@playwright/test": ^1.59.1
+  "@playwright/test": ^1.60.0
   "@pnpm/workspace.find-packages": ^1000.0.65
   "@scalar/json-magic": ^0.12.5
-  "@scalar/openapi-parser": ^0.25.8
-  "@scalar/openapi-types": ^0.7.0
+  "@scalar/openapi-parser": ^0.28.5
+  "@scalar/openapi-types": ^0.9.0
   "@storybook/cli": ^10.3.5
   "@storybook/react-vite": ^10.3.5
   "@testing-library/dom": ^10.4.1
@@ -58,8 +59,7 @@ catalog:
   "@types/multer": ^2.1.0
   "@types/mustache": ^4.2.6
   "@types/node": ^25.5.2
-  "@types/plist": ^3.0.5
-  "@types/react": ^19.2.14
+  "@types/react": ^19.2.16
   "@types/react-dom": ^19.2.3
   "@types/remark-heading-id": ^1.0.0
   "@types/semver": ^7.7.1
@@ -72,7 +72,7 @@ catalog:
   "@typescript-eslint/rule-tester": ^8.58.1
   "@typescript-eslint/types": ^8.58.1
   "@typescript-eslint/utils": ^8.58.1
-  "@typespec/ts-http-runtime": 0.3.4
+  "@typespec/ts-http-runtime": 0.3.5
   "@vitejs/plugin-react": ^6.0.1
   "@vitest/coverage-v8": ^4.1.3
   "@vitest/eslint-plugin": ^1.6.16
@@ -89,13 +89,13 @@ catalog:
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
   astro: ^6.1.10
-  astro-expressive-code: ^0.41.7
+  astro-expressive-code: ^0.42.0
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^11.0.0
   change-case: ^5.4.4
   chokidar: ^5.0.0
   clsx: ^2.1.1
-  concurrently: ^9.2.1
+  concurrently: ^10.0.0
   cross-env: ^10.1.0
   cross-spawn: ^7.0.6
   cspell: ^10.0.0
@@ -107,7 +107,7 @@ catalog:
   esbuild: ^0.28.0
   esbuild-plugins-node-modules-polyfill: ^1.8.1
   eslint: ^10.2.0
-  eslint-plugin-react-hooks: 7.0.1
+  eslint-plugin-react-hooks: 7.1.1
   eslint-plugin-unicorn: ^64.0.0
   execa: ^9.6.1
   express: ^5.2.1
@@ -126,16 +126,16 @@ catalog:
   p-limit: ^7.3.0
   pathe: ^2.0.3
   picocolors: ^1.1.1
-  playwright: ^1.59.1
-  plist: ^3.1.0
+  playwright: ^1.60.0
+  plist: ^5.0.0
   postject: 1.0.0-alpha.6
   prettier: ^3.8.1
   prettier-plugin-astro: ^0.14.1
   prettier-plugin-organize-imports: ^4.3.0
   prettier-plugin-sh: ^0.18.1
   prism-react-renderer: ^2.4.1
-  react: ^19.2.5
-  react-dom: ^19.2.5
+  react: ^19.2.7
+  react-dom: ^19.2.7
   react-error-boundary: ^6.1.1
   react-hotkeys-hook: ^5.2.4
   react-markdown: ^10.1.0
@@ -159,14 +159,15 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
+  turbo: 2.9.14
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
   typescript-eslint: ^8.58.1
   uri-template: ^2.0.0
   vite: ^8.0.8
-  vite-plugin-checker: ^0.12.0
-  vite-plugin-dts: 4.5.4
+  vite-plugin-checker: ^0.14.1
+  vite-plugin-dts: 5.0.1
   vitest: ^4.1.3
   vscode-languageclient: ^9.0.1
   vscode-languageserver: ^9.0.1
@@ -174,7 +175,7 @@ catalog:
   vscode-oniguruma: ^2.0.1
   vscode-textmate: ^9.3.2
   web-tree-sitter: ^0.26.8
-  which: ^6.0.1
+  which: ^7.0.0
   yaml: ^2.8.3
   yargs: ^18.0.0
 
@@ -188,4 +189,3 @@ overrides:
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"
-  "@alloy-js/core": 0.23.1

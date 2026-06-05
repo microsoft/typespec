@@ -677,7 +677,7 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
 
 /**
  * Resets the `tests/generated/{azure,unbranded}` baseline by sparse-checking-out
- * `eng/tools/emitter/gen` from the Azure/azure-sdk-for-python repo, then
+ * `eng/tools/azure-sdk-tools/emitter/generated` from the Azure/azure-sdk-for-python repo, then
  * deleting a couple of fully-generated package folders so regeneration has to
  * recreate them from scratch (smoke test of full-emit path).
  *
@@ -686,8 +686,8 @@ export async function preprocess(flavor: string, generatedFolder: string): Promi
  */
 export async function prepareBaselineOfGeneratedCode(generatedFolder: string): Promise<void> {
   const repoUrl = "https://github.com/Azure/azure-sdk-for-python.git";
-  const branch = "main";
-  const sourceSubdir = "eng/tools/emitter/gen";
+  const branch = "typespec-python-generated-tests";
+  const sourceSubdir = "eng/tools/azure-sdk-tools/emitter/generated";
   const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
@@ -708,6 +708,7 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
       execSync(cmd, { cwd: tempDir, stdio: ["ignore", "ignore", "inherit"] });
 
     run(`git init`);
+    run(`git config core.longpaths true`);
     run(`git remote add origin ${repoUrl}`);
     run(`git config core.sparseCheckout true`);
     run(`git sparse-checkout init --cone`);
@@ -715,15 +716,31 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     run(`git fetch --depth 1 origin ${branch}`);
     run(`git checkout FETCH_HEAD`);
 
+    // we don't copy whole generated folder, just the specific subfolders needed for tests
+    // to verify correct preservation/deletion of files and folders during regeneration,
+    // to avoid accidentally including any manually edited code that might be in the repo
+    // and cause confusion when it doesn't get updated during regeneration
+    const legacyCodePathNeededForTests = [
+      "azure/authentication-api-key",
+      "unbranded/authentication-api-key",
+      "azure/authentication-union",
+      "azure/generation-subdir",
+      "azure/generation-subdir2",
+      "unbranded/generation-subdir",
+      "unbranded/generation-subdir2",
+    ];
+
     const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
-    for (const flavor of ["azure", "unbranded"]) {
-      const src = join(sourceRoot, flavor);
-      const dest = join(testsGeneratedDir, flavor);
+    for (const subPath of legacyCodePathNeededForTests) {
+      const segments = subPath.split("/");
+      const src = join(sourceRoot, ...segments);
+      const dest = join(testsGeneratedDir, ...segments);
       if (!existsSync(src)) {
         console.warn(pc.yellow(`Baseline folder not found: ${src}`));
         continue;
       }
-      console.log(pc.dim(`Copying ${flavor}/ -> ${dest}`));
+      console.log(pc.dim(`Copying ${subPath} -> ${dest}`));
+      await mkdir(dirname(dest), { recursive: true });
       await cp(src, dest, { recursive: true });
     }
 

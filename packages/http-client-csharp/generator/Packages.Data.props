@@ -16,6 +16,7 @@
     <PackageReference Update="System.ComponentModel.Composition" Version="8.0.0" />
     <PackageReference Update="System.ClientModel" Version="1.10.0" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
+    <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
     <PackageReference Update="System.Memory.Data" Version="10.0.3" />
   </ItemGroup>
 </Project>

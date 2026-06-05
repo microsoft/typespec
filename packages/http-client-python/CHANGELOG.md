@@ -1,5 +1,30 @@
 # Change Log - @typespec/http-client-python
 
+## 0.30.1
+
+### Bug Fixes
+
+- [#10843](https://github.com/microsoft/typespec/pull/10843) Synthesize filename in multipart Content-Disposition for bare file inputs. When callers pass bare bytes/str/IO instead of a (filename, content) tuple for multipart file fields, the `prepare_multipart_form_data` helper now wraps them with a synthesized filename so servers that require `filename=` in the Content-Disposition header no longer reject the upload.
+- [#10816](https://github.com/microsoft/typespec/pull/10816) Fix `etag`/`match_condition` clientName collision when an operation has more than one `Azure.Core.eTag`-typed header (e.g. Storage's `copyFromUrl`, which has both `If-Match`/`If-None-Match` and `x-ms-source-if-match`/`x-ms-source-if-none-match`). The standard `If-Match`/`If-None-Match` pair is now preferred for the `etag`/`match_condition` slot, and any additional etag-typed headers retain their natural client name (e.g. `source_if_match`).
+
+## 0.30.0
+
+### Features
+
+- [#10750](https://github.com/microsoft/typespec/pull/10750) add support for `exact` client names
+
+### Bug Fixes
+
+- [#10804](https://github.com/microsoft/typespec/pull/10804) Lower `black` version to `24.4.0` to be consistent with what's in main
+
+
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
 ## 0.29.1
 
 ### Bump dependencies

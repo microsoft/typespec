@@ -254,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
+        protected override string BuildName() => _inputModel.IsExactName ? _inputModel.Name : _inputModel.Name.ToIdentifierName();
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {

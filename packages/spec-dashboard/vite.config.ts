@@ -31,9 +31,7 @@ export default defineConfig({
   },
   plugins: [
     react({}),
-    dts({
-      logLevel: "silent", // checker reports the errors
-    }),
+    dts({}),
     checker({
       // e.g. use TypeScript check
       typescript: true,

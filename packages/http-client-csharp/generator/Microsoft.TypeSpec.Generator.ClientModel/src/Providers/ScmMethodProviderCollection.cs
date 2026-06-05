@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                    protocolMethod.Signature.Modifiers,
+                    GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
                     GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
                     null,
                     signatureParameters);
@@ -213,6 +213,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
+        }
+
+        private MethodSignatureModifiers GetConvenienceMethodModifiers(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<ParameterProvider> signatureParameters)
+        {
+            var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
+            if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Private) &&
+                signatureParameters.Any(p => !p.Type.IsPublic))
+            {
+                modifiers &= ~MethodSignatureModifiers.Public;
+                modifiers |= MethodSignatureModifiers.Internal;
+            }
+
+            return modifiers;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
@@ -1380,9 +1397,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             rootName = null;
             childName = null;
 
-            // Check if the response uses XML content type
+            // Check if the response is serialized as XML using the propagated serialization options
             var response = ServiceMethod.Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response == null || !response.ContentTypes.Any(c => c.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            if (response?.SerializationOptions?.Xml is null)
             {
                 return false;
             }
