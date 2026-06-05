@@ -98,7 +98,6 @@ export type MediaTypeHintDecorator = (
  *   @encode(string) id: int64;
  * }
  * ```
- *
  * @example encode boolean type to string
  *
  * `@encode(string)` on boolean uses case-insensitive `true` / `false` values.
