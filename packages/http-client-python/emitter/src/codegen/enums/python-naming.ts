@@ -68,11 +68,14 @@ const ENUM_CLASS_PAD = "Enum";
 
 /**
  * Mirrors `pad_special_chars` in pygen/preprocess/helpers.py:
- * `re.sub(r"[^A-z0-9_]", "_", name)`. The `A-z` range is intentionally identical
- * to pygen's (it spans ASCII 65-122, leaving `[ \ ] ^ _ \`` untouched).
+ * `re.sub(r"[^A-z0-9_]", "_", name)`. pygen's `A-z` range intentionally spans
+ * ASCII 65-122, which also keeps the six punctuation chars between `Z` and `a`
+ * (`[ \ ] ^ _ \``). We list that character set explicitly here (instead of the
+ * `A-z` range CodeQL flags as overly permissive) so the matched set stays
+ * byte-identical to pygen while making the intent clear.
  */
 export function padSpecialChars(name: string): string {
-  return name.replace(/[^A-z0-9_]/g, "_");
+  return name.replace(/[^A-Za-z0-9[\\\]^_`]/g, "_");
 }
 
 /**
