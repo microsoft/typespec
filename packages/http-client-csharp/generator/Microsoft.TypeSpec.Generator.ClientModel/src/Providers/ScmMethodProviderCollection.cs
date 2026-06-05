@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                    protocolMethod.Signature.Modifiers,
+                    GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
                     GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
                     null,
                     signatureParameters);
@@ -213,6 +213,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
+        }
+
+        private MethodSignatureModifiers GetConvenienceMethodModifiers(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<ParameterProvider> signatureParameters)
+        {
+            var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
+            if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Private) &&
+                signatureParameters.Any(p => !p.Type.IsPublic))
+            {
+                modifiers &= ~MethodSignatureModifiers.Public;
+                modifiers |= MethodSignatureModifiers.Internal;
+            }
+
+            return modifiers;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
