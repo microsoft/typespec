@@ -185,7 +185,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       return {};
     }
 
-    if (this._options.enumStyle === "annotated") {
+    if (this._options.enumStrategy === "annotated") {
       return this.#annotatedEnumSchema(en);
     }
 

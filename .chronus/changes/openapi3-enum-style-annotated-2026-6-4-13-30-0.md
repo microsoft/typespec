@@ -4,12 +4,12 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Add opt-in `enum-style` emitter option to emit TypeSpec enums as [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) (a `oneOf` of `const` subschemas with per-member `title`/`description`). Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+Add opt-in `enum-strategy` emitter option to emit TypeSpec enums as [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) (a `oneOf` of `const` subschemas with per-member `title`/`description`). Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
 
 ```yaml
 options:
   "@typespec/openapi3":
-    enum-style: annotated
+    enum-strategy: annotated
 ```
 
 For example, the following TypeSpec:

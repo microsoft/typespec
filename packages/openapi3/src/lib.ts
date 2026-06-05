@@ -3,7 +3,7 @@ import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/c
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
-export type EnumStyle = "default" | "annotated";
+export type EnumStrategy = "default" | "annotated";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
@@ -122,7 +122,7 @@ export interface OpenAPI3EmitterOptions {
    *
    * @default "default"
    */
-  "enum-style"?: EnumStyle;
+  "enum-strategy"?: EnumStrategy;
 }
 
 export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
@@ -283,7 +283,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         },
       ],
     } as any,
-    "enum-style": {
+    "enum-strategy": {
       type: "string",
       enum: ["default", "annotated"],
       nullable: true,
@@ -456,11 +456,11 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Default value is not supported in OpenAPI 3.0 ${"message"}`,
       },
     },
-    "enum-style-not-supported": {
+    "enum-strategy-not-supported": {
       severity: "warning",
       messages: {
         default:
-          "`enum-style: annotated` is only supported for OpenAPI 3.1.0 and above. The default enum style will be used for OpenAPI 3.0.0.",
+          "`enum-strategy: annotated` is only supported for OpenAPI 3.1.0 and above. The default enum strategy will be used for OpenAPI 3.0.0.",
       },
     },
   },

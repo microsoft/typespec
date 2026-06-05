@@ -140,7 +140,7 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 
 **Type:** `undefined`
 
-### `enum-style`
+### `enum-strategy`
 
 **Type:** `"default" | "annotated"`
 

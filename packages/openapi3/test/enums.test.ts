@@ -51,7 +51,7 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
 });
 
 worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
-  it("emits annotated enums with `enum-style: annotated`", async () => {
+  it("emits annotated enums with `enum-strategy: annotated`", async () => {
     const res = await oapiForModel(
       "PetType",
       `
@@ -66,7 +66,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
         Cat: "cat",
       }
       `,
-      { "enum-style": "annotated" },
+      { "enum-strategy": "annotated" },
     );
 
     deepStrictEqual(res.schemas.PetType, {
@@ -97,7 +97,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
         High: 10,
       }
       `,
-      { "enum-style": "annotated" },
+      { "enum-strategy": "annotated" },
     );
 
     deepStrictEqual(res.schemas.Priority, {
@@ -117,7 +117,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
         asNumber: 42,
       }
       `,
-      { "enum-style": "annotated" },
+      { "enum-strategy": "annotated" },
     );
 
     deepStrictEqual(res.schemas.Mixed, {
@@ -136,7 +136,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
         Blue: "blue",
       }
       `,
-      { "enum-style": "annotated" },
+      { "enum-strategy": "annotated" },
     );
 
     deepStrictEqual(res.schemas.Color, {
@@ -148,7 +148,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
     });
   });
 
-  it("emits default enum form when `enum-style` is unset", async () => {
+  it("emits default enum form when `enum-strategy` is unset", async () => {
     const res = await oapiForModel(
       "PetType",
       `
@@ -170,7 +170,7 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
 });
 
 worksFor(["3.0.0"], ({ emitOpenApiWithDiagnostics }) => {
-  it("falls back to the default enum form when `enum-style: annotated` is set", async () => {
+  it("falls back to the default enum form when `enum-strategy: annotated` is set", async () => {
     const [doc, diagnostics] = await emitOpenApiWithDiagnostics(
       `
       @service
@@ -185,11 +185,11 @@ worksFor(["3.0.0"], ({ emitOpenApiWithDiagnostics }) => {
       }
       op read(): PetType;
       `,
-      { "enum-style": "annotated" },
+      { "enum-strategy": "annotated" },
     );
 
     expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/enum-style-not-supported",
+      code: "@typespec/openapi3/enum-strategy-not-supported",
       severity: "warning",
     });
 
@@ -201,38 +201,38 @@ worksFor(["3.0.0"], ({ emitOpenApiWithDiagnostics }) => {
   });
 });
 
-it("warns when `enum-style: annotated` is used with OpenAPI 3.0.0", async () => {
+it("warns when `enum-strategy: annotated` is used with OpenAPI 3.0.0", async () => {
   const diagnostics = await diagnoseOpenApiFor(`enum PetType { Dog: "dog" }`, {
-    "enum-style": "annotated",
+    "enum-strategy": "annotated",
     "openapi-versions": ["3.0.0"],
   });
 
   expectDiagnostics(diagnostics, {
-    code: "@typespec/openapi3/enum-style-not-supported",
+    code: "@typespec/openapi3/enum-strategy-not-supported",
     severity: "warning",
   });
 });
 
-it("warns once when `enum-style: annotated` is used with mixed openapi-versions including 3.0.0", async () => {
+it("warns once when `enum-strategy: annotated` is used with mixed openapi-versions including 3.0.0", async () => {
   const diagnostics = await diagnoseOpenApiFor(`enum PetType { Dog: "dog" }`, {
-    "enum-style": "annotated",
+    "enum-strategy": "annotated",
     "openapi-versions": ["3.0.0", "3.1.0"],
   });
 
   expectDiagnostics(diagnostics, {
-    code: "@typespec/openapi3/enum-style-not-supported",
+    code: "@typespec/openapi3/enum-strategy-not-supported",
     severity: "warning",
   });
 });
 
-it("does not warn when `enum-style: annotated` is used with only 3.1.0/3.2.0", async () => {
+it("does not warn when `enum-strategy: annotated` is used with only 3.1.0/3.2.0", async () => {
   const diagnostics = await diagnoseOpenApiFor(`enum PetType { Dog: "dog" }`, {
-    "enum-style": "annotated",
+    "enum-strategy": "annotated",
     "openapi-versions": ["3.1.0", "3.2.0"],
   });
 
   strictEqual(
-    diagnostics.filter((d) => d.code === "@typespec/openapi3/enum-style-not-supported").length,
+    diagnostics.filter((d) => d.code === "@typespec/openapi3/enum-strategy-not-supported").length,
     0,
   );
 });
