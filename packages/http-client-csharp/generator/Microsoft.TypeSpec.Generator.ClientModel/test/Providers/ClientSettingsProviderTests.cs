@@ -1174,15 +1174,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
             Assert.IsNotNull(bindCoreMethod);
 
-            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
-            // Assignment target should be the renamed property.
-            Assert.IsTrue(bodyString.Contains("ServiceUri = "),
-                "BindCore should assign to the renamed 'ServiceUri' property");
-            Assert.IsFalse(bodyString.Contains("this.Endpoint = ") || bodyString.Contains("Endpoint = endpoint"),
-                "BindCore should not assign to the original 'Endpoint' property after the custom rename");
-            // Configuration key should remain the original generated name.
-            Assert.IsTrue(bodyString.Contains("section[\"Endpoint\"]"),
-                "BindCore should still read from the original 'Endpoint' configuration key");
+            // Validate full generated output: BindCore should assign to the renamed 'ServiceUri'
+            // property while still reading from the original 'Endpoint' configuration key.
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
