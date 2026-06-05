@@ -10,7 +10,7 @@ describe("typespec-python: enum naming transforms", () => {
   it("padSpecialChars replaces disallowed characters with underscores", () => {
     strictEqual(padSpecialChars("foo.bar"), "foo_bar");
     strictEqual(padSpecialChars("a+b/c"), "a_b_c");
-    // The `A-z` range quirk leaves these ASCII chars untouched.
+    // Underscores are preserved (valid Python identifier character).
     strictEqual(padSpecialChars("a_b"), "a_b");
   });
 

@@ -67,15 +67,17 @@ const ENUM_CLASS_RESERVED = new Set<string>(["enum", ...ALWAYS_RESERVED]);
 const ENUM_CLASS_PAD = "Enum";
 
 /**
- * Mirrors `pad_special_chars` in pygen/preprocess/helpers.py:
- * `re.sub(r"[^A-z0-9_]", "_", name)`. pygen's `A-z` range intentionally spans
- * ASCII 65-122, which also keeps the six punctuation chars between `Z` and `a`
- * (`[ \ ] ^ _ \``). We list that character set explicitly here (instead of the
- * `A-z` range CodeQL flags as overly permissive) so the matched set stays
- * byte-identical to pygen while making the intent clear.
+ * Replaces characters that are not valid in a Python identifier with `_`,
+ * keeping ASCII letters, digits, and underscore.
+ *
+ * pygen's equivalent (`pad_special_chars`) uses `re.sub(r"[^A-z0-9_]", ...)`,
+ * whose `A-z` range also happens to preserve the punctuation between `Z` and
+ * `a` (`[ \ ] ^ _ \``). TypeSpec identifiers (e.g. `myEnum`) only contain
+ * letters, digits, and underscore, so those characters never occur here and
+ * the output matches pygen for every real input.
  */
 export function padSpecialChars(name: string): string {
-  return name.replace(/[^A-Za-z0-9[\\\]^_`]/g, "_");
+  return name.replace(/[^A-Za-z0-9_]/g, "_");
 }
 
 /**
