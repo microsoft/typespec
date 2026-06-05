@@ -1140,5 +1140,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(bodyString.Contains("TenantId"),
                 "BindCore should bind the non-credential parameter 'TenantId'");
         }
+
+        [Test]
+        public async Task TestGeneratedSettings_WithCustomizedBindCore()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}");
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+
+            // BindCore is overridden in custom code, so it should not be generated.
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNull(bindCoreMethod, "BindCore should not be generated when it is overridden in custom code");
+
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+
+            // Validate the full generated output. Even though BindCore (the only other
+            // reference to IConfigurationSection) is removed via custom code, the type
+            // description still references IConfigurationSection, so the
+            // Microsoft.Extensions.Configuration using must still be emitted.
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            StringAssert.Contains("using Microsoft.Extensions.Configuration;", file.Content);
+        }
     }
 }
