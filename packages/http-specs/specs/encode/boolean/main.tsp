@@ -53,7 +53,9 @@ namespace Property {
         }
         ```
         """,
-      { value: StringValue }
+      {
+        value: StringValue,
+      }
     )
     @post
     sendBoolAsString(@body value: BoolAsStringProperty): BoolAsStringProperty;

@@ -22,12 +22,21 @@ describe("match.string.caseInsensitive()", () => {
     });
 
     it("should reject a different string value", () => {
-      expectFail(match.string.caseInsensitive("true").check("false"), 'expected case-insensitive "true"');
+      expectFail(
+        match.string.caseInsensitive("true").check("false"),
+        'expected case-insensitive "true"',
+      );
     });
 
     it("should reject non-string values", () => {
-      expectFail(match.string.caseInsensitive("true").check(true), "expected a string but got boolean");
-      expectFail(match.string.caseInsensitive("false").check(null), "expected a string but got object");
+      expectFail(
+        match.string.caseInsensitive("true").check(true),
+        "expected a string but got boolean",
+      );
+      expectFail(
+        match.string.caseInsensitive("false").check(null),
+        "expected a string but got object",
+      );
     });
   });
 
