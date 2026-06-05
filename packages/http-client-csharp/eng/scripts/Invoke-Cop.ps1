@@ -6,22 +6,30 @@ Runs the Agent Cop (https://github.com/KrzysztofCwalina/cop) static-analysis
 rules under cop-checks/ against the C# generator sources.
 
 .DESCRIPTION
-Downloads a pinned cop release for the current platform (cached per-version in
-the temp directory) and runs the checks defined in cop-checks/main.cop against
-the generator. Exits with cop's exit code, so any rule violation fails the build
-(cop returns 1 when violations are found, 0 when clean).
+Downloads a cop release for the current platform and runs the checks defined in
+cop-checks/main.cop against the generator. Exits with cop's exit code, so any
+rule violation fails the build (cop returns 1 when violations are found, 0 when
+clean).
 
 The checks are executed from a throwaway working directory that contains only
 the rule files. This keeps cop targeted at the generator (via -t) and avoids
 scanning node_modules or the rest of the repository.
 
 .PARAMETER Version
-The cop release tag to use. Pinned for reproducible CI runs.
+The cop release tag to use, or "latest" (default) to track the newest release.
+
+NOTE: cop auto-restores its provider packages (code, csharp) from the GitHub
+feed, and the feed always serves the *latest* provider build. Those providers
+are version-locked to the cop runtime assembly, so the binary must match the
+provider version the feed currently serves -- otherwise the provider fails to
+load ("Could not load file or assembly 'cop, Version=...'"). Because the feed
+moves with upstream, we default to "latest" so the binary stays in lockstep with
+the providers. Pass an explicit tag only to reproduce a historical run.
 #>
 
 [CmdletBinding()]
 param(
-    [string] $Version = "v2026.06.05j"
+    [string] $Version = "latest"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -54,14 +62,24 @@ else {
 }
 
 $asset = "cop-$os-$arch.zip"
-$url = "https://github.com/KrzysztofCwalina/cop/releases/download/$Version/$asset"
+if ($Version -eq 'latest') {
+    # The /releases/latest/download/ redirect always resolves to the newest
+    # release asset without an API call (so no unauthenticated rate-limit risk).
+    $url = "https://github.com/KrzysztofCwalina/cop/releases/latest/download/$asset"
+}
+else {
+    $url = "https://github.com/KrzysztofCwalina/cop/releases/download/$Version/$asset"
+}
 
-# Cache the downloaded tool per version + platform.
+# Cache the downloaded tool per version + platform. When tracking "latest" the
+# tag is not fixed, so always re-download to stay in lockstep with the feed's
+# provider packages.
 $toolDir = Join-Path ([System.IO.Path]::GetTempPath()) "cop-$Version-$os-$arch"
 $copPath = Join-Path $toolDir $exe
 
-if (-not (Test-Path $copPath)) {
+if ($Version -eq 'latest' -or -not (Test-Path $copPath)) {
     Write-Host "Downloading Agent Cop $Version ($asset)..." -ForegroundColor Cyan
+    Remove-Item -Recurse -Force $toolDir -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Force $toolDir | Out-Null
     $zipPath = Join-Path $toolDir $asset
     Invoke-WebRequest -Uri $url -OutFile $zipPath
@@ -84,18 +102,19 @@ try {
         # cop auto-restores its provider packages (code, csharp, ...) from the
         # GitHub feed on first run. That download can fail transiently on CI
         # agents (rate limiting / network blips), surfacing as "not found in any
-        # configured feed" / "Provider '...' is not loaded" and a non-zero exit.
-        # Retry the run with backoff when we detect such a restore failure, but
-        # report genuine rule violations immediately (those don't print a
-        # restore/provider error).
+        # configured feed" and a non-zero exit. Retry the run with backoff only
+        # for that transient case. A provider *load* failure ("is not loaded" /
+        # "Could not load file or assembly") is a version mismatch between the
+        # cop binary and the feed's provider build -- not transient -- which the
+        # default "latest" $Version avoids; so fail fast instead of retrying.
         $maxAttempts = 5
-        $restorePattern = 'not found in any configured feed|could not be resolved|is not loaded'
+        $transientPattern = 'not found in any configured feed'
         for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
             $output = & $copPath main.cop -t $generator 2>&1 | Out-String
             Write-Host $output
             $exit = $LASTEXITCODE
 
-            if ($exit -eq 0 -or $output -notmatch $restorePattern) {
+            if ($exit -eq 0 -or $output -notmatch $transientPattern) {
                 break
             }
 
