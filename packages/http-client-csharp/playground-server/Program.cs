@@ -123,6 +123,10 @@ catch (Exception ex)
 }
 Console.WriteLine($"Generator version: {generatorVersion}");
 
+// Root route exists so Azure App Service platform probes (Always On warm-up
+// and availability pings hit "/") get a 200 instead of logging noisy 404s.
+app.MapGet("/", () => Results.Ok(new { status = "ok", service = "csharp-playground-server" }));
+
 app.MapGet("/health", () =>
 {
     string dotnetVersion;
@@ -193,6 +197,11 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     var generatorName = body.GeneratorName ?? "ScmCodeModelGenerator";
     telemetryProperties["generatorName"] = generatorName;
     telemetryProperties["codeModelSizeBytes"] = body.CodeModel.Length.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    // Hash the received code model so non-deterministic failures can be triaged: identical
+    // specs must yield an identical hash. A "same" spec that produces a different hash/size
+    // across requests indicates the code model is being mangled in transport before it reaches us.
+    telemetryProperties["codeModelSha256"] = Convert.ToHexString(
+        System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(body.CodeModel)));
 
     if (!File.Exists(generatorPath))
     {
@@ -220,8 +229,23 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     try
     {
         // Write the input files the generator expects
-        await File.WriteAllTextAsync(Path.Combine(tempDir, "tspCodeModel.json"), body.CodeModel);
+        var codeModelPath = Path.Combine(tempDir, "tspCodeModel.json");
+        await File.WriteAllTextAsync(codeModelPath, body.CodeModel);
         await File.WriteAllTextAsync(Path.Combine(tempDir, "Configuration.json"), body.Configuration);
+
+        // Integrity check: confirm the code model on disk matches what we received. A mismatch
+        // localizes "mangling" to the server's write/encoding path rather than transport or the
+        // generator, and explains intermittent root-level deserialization failures.
+        var writtenCodeModel = await File.ReadAllTextAsync(codeModelPath);
+        if (!string.Equals(writtenCodeModel, body.CodeModel, StringComparison.Ordinal))
+        {
+            telemetryProperties["codeModelWriteMismatch"] =
+                $"receivedChars={body.CodeModel.Length},writtenChars={writtenCodeModel.Length}";
+            telemetryClient?.TrackTrace(
+                "Code model written to disk does not match the received payload.",
+                SeverityLevel.Error,
+                telemetryProperties);
+        }
 
         // Run the .NET generator as a subprocess
         Console.WriteLine($"Starting generator: dotnet --roll-forward Major {generatorPath} {tempDir} -g {generatorName} --new-project");
