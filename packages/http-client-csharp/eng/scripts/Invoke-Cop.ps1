@@ -89,6 +89,61 @@ if ($Version -eq 'latest' -or -not (Test-Path $copPath)) {
     }
 }
 
+# Seed cop's provider package cache from the cop repo instead of relying on its
+# auto-restore feed. cop resolves feed packages via the GitHub REST API
+# (api.github.com), which is rate-limited to 60 requests/hour for unauthenticated
+# callers. On shared CI agents that budget is routinely exhausted, so the restore
+# fails with "Package 'code'/'csharp' not found in any configured feed" and the
+# csharp provider never loads. Fork PRs have no secrets, so we cannot supply a
+# GITHUB_TOKEN to raise the limit.
+#
+# Instead we vendor the two packages our checks import (code, csharp) directly
+# from the cop repo at the tag matching the downloaded binary, using a sparse,
+# blob-filtered git clone (git protocol, not the REST API; fetches only those
+# two directories). cop is version-locked between its runtime and providers, so
+# the package version must match the binary -- we read it from `cop -v`.
+$pkgCache = Join-Path $HOME ".cop/packages"
+$copVersion = (& $copPath -v) -split '\+' | Select-Object -First 1
+$copTag = "v$copVersion"
+# Map: cache package name -> path within the cop repo.
+$vendoredPackages = @{
+    'code'   = 'packages/code'
+    'csharp' = 'packages/dotnet/csharp'
+}
+$cloneDir = Join-Path ([System.IO.Path]::GetTempPath()) "cop-pkgsrc-$([System.Guid]::NewGuid().ToString('N'))"
+try {
+    Write-Host "Seeding cop provider packages from cop repo @ $copTag..." -ForegroundColor Cyan
+    git clone --quiet --no-checkout --depth 1 --branch $copTag --filter=blob:none `
+        https://github.com/KrzysztofCwalina/cop.git $cloneDir
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to clone cop repo at tag $copTag for provider packages."
+    }
+    Push-Location $cloneDir
+    try {
+        git sparse-checkout set --no-cone @($vendoredPackages.Values) | Out-Null
+        git checkout --quiet $copTag
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to check out provider package sources at $copTag."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+    New-Item -ItemType Directory -Force $pkgCache | Out-Null
+    foreach ($name in $vendoredPackages.Keys) {
+        $src = Join-Path $cloneDir $vendoredPackages[$name]
+        $dest = Join-Path $pkgCache $name
+        if (-not (Test-Path $src)) {
+            throw "Expected package '$name' at '$($vendoredPackages[$name])' in the cop repo, but it was not found."
+        }
+        Remove-Item -Recurse -Force $dest -ErrorAction SilentlyContinue
+        Copy-Item -Recurse -Force $src $dest
+    }
+}
+finally {
+    Remove-Item -Recurse -Force $cloneDir -ErrorAction SilentlyContinue
+}
+
 # Run cop from a clean directory that contains only the rule files so it
 # analyzes the generator and nothing else.
 $runDir = Join-Path ([System.IO.Path]::GetTempPath()) "cop-run-$([System.Guid]::NewGuid().ToString('N'))"
