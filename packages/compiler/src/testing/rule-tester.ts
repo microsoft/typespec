@@ -4,6 +4,7 @@ import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createLinterRuleContext } from "../core/linter.js";
 import { navigateProgram } from "../core/semantic-walker.js";
 import {
+  CodeFix,
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
@@ -35,7 +36,36 @@ export interface LinterRuleTestExpect<T extends Record<string, Entity> = any> {
 }
 
 export interface ApplyCodeFixExpect {
-  toEqual(code: string): Promise<void>;
+  /**
+   * Assert the content of the file(s) after the code fix is applied.
+   * @param code Expected content. Pass a `string` for single-file assertions (main.tsp),
+   * or a `Record<string, string>` to assert on specific files (partial match — only the
+   * specified files are checked).
+   *
+   * @example Single file
+   *
+   * ```ts
+   * await ruleTester
+   *   .expect(`model Foo { name: string; }`)
+   *   .applyCodeFix("rename-model")
+   *   .toEqual(`model Bar { name: string; }`);
+   * ```
+   *
+   * @example Multiple files (e.g. code fix writes augment decorators to a separate file)
+   *
+   * ```ts
+   * await ruleTester
+   *   .expect({
+   *     "main.tsp": `import "./client.tsp";\nmodel Foo { name: string; }`,
+   *     "client.tsp": ``,
+   *   })
+   *   .applyCodeFix("add-client-override")
+   *   .toEqual({
+   *     "client.tsp": `@@override(Foo.name, "clientName");\n`,
+   *   });
+   * ```
+   */
+  toEqual(code: string | Record<string, string>): Promise<void>;
 }
 
 export function createLinterRuleTester(
@@ -85,10 +115,19 @@ export function createLinterRuleTester(
     function applyCodeFix(fixId: string) {
       return { toEqual };
 
-      async function toEqual(expectedCode: string) {
+      async function toEqual(expectedCode: string | Record<string, string>) {
         const [_, diagnostics] = await compileAndDiagnose(code);
         const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
         ok(codefix, `Codefix with id "${fixId}" not found.`);
+
+        if (typeof expectedCode === "string") {
+          await assertSingleFileCodeFix(codefix, expectedCode);
+        } else {
+          await assertMultiFileCodeFix(codefix, expectedCode);
+        }
+      }
+
+      async function assertSingleFileCodeFix(codefix: CodeFix, expectedCode: string) {
         let content: string | undefined;
         const host: CompilerHost = {
           ...runner.program.host,
@@ -103,6 +142,41 @@ export function createLinterRuleTester(
         const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
         const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code as any);
         strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
+      }
+
+      async function assertMultiFileCodeFix(
+        codefix: CodeFix,
+        expectedFiles: Record<string, string>,
+      ) {
+        const writtenFiles = new Map<string, string>();
+        const host: CompilerHost = {
+          ...runner.program.host,
+          writeFile: (name, newContent) => {
+            writtenFiles.set(name, newContent);
+            return Promise.resolve();
+          },
+        };
+        await applyCodeFixReal(host, codefix);
+
+        ok(writtenFiles.size > 0, "No content was written to the host.");
+        const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
+        for (const [filename, expected] of Object.entries(expectedFiles)) {
+          const virtualPath = resolveVirtualPath(filename);
+          const written = writtenFiles.get(virtualPath);
+          ok(
+            written !== undefined,
+            `Expected file "${filename}" to be written by the code fix but it was not. Written files: ${[...writtenFiles.keys()].join(", ")}`,
+          );
+          const inputCode =
+            typeof code === "string" ? code : (code as Record<string, any>)[filename];
+          const originalContent = fs.get(virtualPath);
+          const offset =
+            typeof inputCode === "string" && originalContent
+              ? originalContent.indexOf(inputCode)
+              : undefined;
+          const actual = offset !== undefined && offset >= 0 ? written.slice(offset) : written;
+          strictEqual(trimBlankLines(actual), trimBlankLines(expected));
+        }
       }
     }
   }
