@@ -23,6 +23,45 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
+
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyBodyServerTests(uri: string, allowed: number[]) {
+  return passOnSuccess({
+    uri,
+    method: "post",
+    request: {
+      body: json({ value: allowed[0] }),
+    },
+    response: {
+      status: 200,
+      body: json({ value: allowed[0] }),
+    },
+    handler: (req: MockRequest) => {
+      const value = req.body?.value;
+      if (typeof value !== "number" || !Number.isInteger(value)) {
+        throw new ValidationError(
+          `Expected body property "value" to be serialized as an integer but got ${value}`,
+          "an integer",
+          value,
+        );
+      }
+      if (!allowed.includes(value)) {
+        throw new ValidationError(
+          `Expected body property "value" to be one of ${allowed.join(", ")} but got ${value}`,
+          allowed.join(" | "),
+          value,
+        );
+      }
+      return {
+        status: 200,
+        body: json({ value }),
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   "/encode/duration/property/default",
   {
@@ -165,6 +204,45 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
         throw new ValidationError(
           `Expected query param input=${value} but got ${actual}`,
           String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyQueryServerTests(uri: string, allowed: number[]) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: {
+        input: allowed[0],
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
           actual,
         );
       }
@@ -321,6 +399,45 @@ function createHeaderFloatServerTests(uri: string, value: number) {
   });
 }
 
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyHeaderServerTests(uri: string, allowed: number[]) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      headers: {
+        duration: String(allowed[0]),
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.headers["duration"];
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected header duration to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected header duration to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
 Scenarios.Encode_Duration_Header_default = createHeaderServerTests(
   "/encode/duration/header/default",
   {
@@ -407,4 +524,31 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
 Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
   210000,
+);
+
+// Lossy encode scenarios: the source duration carries more precision than the target integer
+// encoding, so floor/round/ceil are all acceptable results (e.g. 36.25s -> 36 or 37).
+Scenarios.Encode_Duration_Lossy_queryInt32Seconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/query/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_queryInt32Milliseconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/query/int32-milliseconds",
+  [36250, 36251],
+);
+Scenarios.Encode_Duration_Lossy_propertyInt32Seconds = createLossyBodyServerTests(
+  "/encode/duration/lossy/property/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_propertyInt32Milliseconds = createLossyBodyServerTests(
+  "/encode/duration/lossy/property/int32-milliseconds",
+  [36250, 36251],
+);
+Scenarios.Encode_Duration_Lossy_headerInt32Seconds = createLossyHeaderServerTests(
+  "/encode/duration/lossy/header/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_headerInt32Milliseconds = createLossyHeaderServerTests(
+  "/encode/duration/lossy/header/int32-milliseconds",
+  [36250, 36251],
 );
