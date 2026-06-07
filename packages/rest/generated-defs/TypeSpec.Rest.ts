@@ -9,6 +9,17 @@ import type {
 } from "@typespec/compiler";
 
 /**
+ * Copy the resource key parameters on the model
+ *
+ * @param filter Filter to exclude certain properties.
+ */
+export type CopyResourceKeyParametersDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  filter?: string,
+) => DecoratorValidatorCallbacks | void;
+
+/**
  * This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.
  *
  * @example
@@ -25,75 +36,6 @@ export type AutoRouteDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Defines the preceding path segment for a
- *
- * @path parameter in auto-generated routes.
- * @param name Segment that will be inserted into the operation route before the path parameter's name field.
- * @example
- *
- *
- * @autoRoute
- * interface Pets {
- * get(
- * @segment ("pets")
- * @path id: string): void; //-> route: /pets/{id}
- * }
- */
-export type SegmentDecorator = (
-  context: DecoratorContext,
-  target: Model | ModelProperty | Operation,
-  name: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
- *
- * @param type Target model
- */
-export type SegmentOfDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  type: Model,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Defines the separator string that is inserted before the action name in auto-generated routes for actions.
- *
- * When applied to a namespace, the separator applies to all action operations in that namespace and its sub-namespaces.
- * When applied to an interface, the separator applies to all action operations in that interface and overrides any namespace-level separator.
- * When applied to an operation, the separator applies only to that operation and overrides any interface or namespace-level separator.
- *
- * @param seperator Seperator seperating the action segment from the rest of the url
- */
-export type ActionSeparatorDecorator = (
-  context: DecoratorContext,
-  target: Operation | Interface | Namespace,
-  seperator: "/" | ":" | "/:",
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Mark this model as a resource type with a name.
- *
- * @param collectionName type's collection name
- */
-export type ResourceDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  collectionName: string,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Mark model as a child of the given parent resource.
- *
- * @param parent Parent model.
- */
-export type ParentResourceDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  parent: Model,
-) => DecoratorValidatorCallbacks | void;
-
-/**
  * Specify that this is a Read operation for a given resource.
  *
  * @param resourceType Resource marked with
@@ -102,20 +44,6 @@ export type ParentResourceDecorator = (
  *
  */
 export type ReadsResourceDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  resourceType: Model,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify that this is a Create operation for a given resource.
- *
- * @param resourceType Resource marked with
- * @resource
- *
- *
- */
-export type CreatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
@@ -144,6 +72,20 @@ export type CreatesOrReplacesResourceDecorator = (
  *
  */
 export type CreatesOrUpdatesResourceDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  resourceType: Model,
+) => DecoratorValidatorCallbacks | void;
+
+/**
+ * Specify that this is a Create operation for a given resource.
+ *
+ * @param resourceType Resource marked with
+ * @resource
+ *
+ *
+ */
+export type CreatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
@@ -192,6 +134,75 @@ export type ListsResourceDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
+ * Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
+ *
+ * @param type Target model
+ */
+export type SegmentOfDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  type: Model,
+) => DecoratorValidatorCallbacks | void;
+
+/**
+ * Defines the preceding path segment for a
+ *
+ * @path parameter in auto-generated routes.
+ * @param name Segment that will be inserted into the operation route before the path parameter's name field.
+ * @example
+ *
+ *
+ * @autoRoute
+ * interface Pets {
+ * get(
+ * @segment ("pets")
+ * @path id: string): void; //-> route: /pets/{id}
+ * }
+ */
+export type SegmentDecorator = (
+  context: DecoratorContext,
+  target: Model | ModelProperty | Operation,
+  name: string,
+) => DecoratorValidatorCallbacks | void;
+
+/**
+ * Defines the separator string that is inserted before the action name in auto-generated routes for actions.
+ *
+ * When applied to a namespace, the separator applies to all action operations in that namespace and its sub-namespaces.
+ * When applied to an interface, the separator applies to all action operations in that interface and overrides any namespace-level separator.
+ * When applied to an operation, the separator applies only to that operation and overrides any interface or namespace-level separator.
+ *
+ * @param seperator Seperator seperating the action segment from the rest of the url
+ */
+export type ActionSeparatorDecorator = (
+  context: DecoratorContext,
+  target: Operation | Interface | Namespace,
+  seperator: "/" | ":" | "/:",
+) => DecoratorValidatorCallbacks | void;
+
+/**
+ * Mark this model as a resource type with a name.
+ *
+ * @param collectionName type's collection name
+ */
+export type ResourceDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  collectionName: string,
+) => DecoratorValidatorCallbacks | void;
+
+/**
+ * Mark model as a child of the given parent resource.
+ *
+ * @param parent Parent model.
+ */
+export type ParentResourceDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  parent: Model,
+) => DecoratorValidatorCallbacks | void;
+
+/**
  * Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
  *
  * @param name Name of the action. If not specified, the name of the operation will be used.
@@ -218,32 +229,21 @@ export type CollectionActionDecorator = (
   name?: string,
 ) => DecoratorValidatorCallbacks | void;
 
-/**
- * Copy the resource key parameters on the model
- *
- * @param filter Filter to exclude certain properties.
- */
-export type CopyResourceKeyParametersDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  filter?: string,
-) => DecoratorValidatorCallbacks | void;
-
 export type TypeSpecRestDecorators = {
+  copyResourceKeyParameters: CopyResourceKeyParametersDecorator;
   autoRoute: AutoRouteDecorator;
-  segment: SegmentDecorator;
-  segmentOf: SegmentOfDecorator;
-  actionSeparator: ActionSeparatorDecorator;
-  resource: ResourceDecorator;
-  parentResource: ParentResourceDecorator;
   readsResource: ReadsResourceDecorator;
-  createsResource: CreatesResourceDecorator;
   createsOrReplacesResource: CreatesOrReplacesResourceDecorator;
   createsOrUpdatesResource: CreatesOrUpdatesResourceDecorator;
+  createsResource: CreatesResourceDecorator;
   updatesResource: UpdatesResourceDecorator;
   deletesResource: DeletesResourceDecorator;
   listsResource: ListsResourceDecorator;
+  segmentOf: SegmentOfDecorator;
+  segment: SegmentDecorator;
+  actionSeparator: ActionSeparatorDecorator;
+  resource: ResourceDecorator;
+  parentResource: ParentResourceDecorator;
   action: ActionDecorator;
   collectionAction: CollectionActionDecorator;
-  copyResourceKeyParameters: CopyResourceKeyParametersDecorator;
 };

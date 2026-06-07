@@ -40,6 +40,7 @@ const HiddenProps = [
   "decorators",
   "isFinished",
   "creating",
+  "populating",
 ] as const;
 
 const HiddenPropsConfig = Object.fromEntries(HiddenProps.map((prop) => [prop, "skip"])) as Record<

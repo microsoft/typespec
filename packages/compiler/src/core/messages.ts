@@ -1083,6 +1083,12 @@ const diagnostics = {
       default: paramMessage`Property '${"propName"}' recursively references itself.`,
     },
   },
+  "circular-dependency-cycle": {
+    severity: "error",
+    messages: {
+      default: paramMessage`'${"typeName"}' is part of a circular dependency cycle: ${"cycle"}.`,
+    },
+  },
   "conflict-marker": {
     severity: "error",
     messages: {
