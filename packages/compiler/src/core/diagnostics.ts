@@ -51,12 +51,12 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
  * - For template instance targets: returns the node of the template declaration
  * - For symbols: returns the first declaration node (or symbol source for using symbols)
  * - For AST nodes: returns the node itself
- * - For types: returns the node associated with the type
+ * - For entities: returns the most relevant node associated with the entity
  *
  * @param target The diagnostic target to extract a node from. Can be a template instance,
  *               symbol, AST node, or type.
- * @returns The AST node associated with the target, or undefined if the target is a type
- *          or symbol that doesn't have an associated node.
+ * @returns The AST node associated with the target, or undefined if the target
+ *          doesn't have an associated node.
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
@@ -71,6 +71,15 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
     }
 
     return target.declarations[0];
+  } else if ("entityKind" in target) {
+    switch (target.entityKind) {
+      case "Value":
+        return target.node ?? target.type.node;
+      case "MixedParameterConstraint":
+        return target.node ?? target.type?.node ?? target.valueType?.node;
+      case "Indeterminate":
+        return target.type.node;
+    }
   } else if ("kind" in target && typeof target.kind === "number") {
     // node
     return target as Node;
