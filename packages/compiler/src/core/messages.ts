@@ -267,8 +267,13 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
-      autoDecorators:
-        "Auto decorator declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "auto-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "using-invalid-ref": {

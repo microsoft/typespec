@@ -2124,8 +2124,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
       reportCheckerDiagnostic(
         createDiagnostic({
-          code: "experimental-feature",
-          messageId: "autoDecorators",
+          code: "auto-decorator-disabled",
           target: node,
         }),
       );

@@ -14,13 +14,20 @@ const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
 
 async function generateDecoratorSignatures(code: string) {
   const [{ program }] = await Tester.compileAndDiagnose(code, {
-    compilerOptions: { parseOptions: { comments: true, docs: true } },
+    compilerOptions: {
+      parseOptions: { comments: true, docs: true },
+      configFile: {
+        projectRoot: ".",
+        kind: "project",
+        features: ["auto-decorators"],
+        diagnostics: [],
+        outputDir: "tsp-output",
+      },
+    } as any,
   });
 
   expectDiagnosticEmpty(
-    program.diagnostics.filter(
-      (x) => x.code !== "missing-implementation" && x.code !== "experimental-feature",
-    ),
+    program.diagnostics.filter((x) => x.code !== "missing-implementation"),
   );
 
   const result = await generateExternDecorators(program, "test-lib", {
