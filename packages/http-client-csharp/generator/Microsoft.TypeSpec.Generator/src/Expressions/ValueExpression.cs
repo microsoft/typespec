@@ -24,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal virtual void Write(CodeWriter writer) { }
 
+        internal virtual void WriteAsStatement(CodeWriter writer) => Write(writer);
+
         internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
             return this;

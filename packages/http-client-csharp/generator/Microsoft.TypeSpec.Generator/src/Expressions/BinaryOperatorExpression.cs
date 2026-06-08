@@ -8,12 +8,32 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("(");
+            WriteCore(writer);
+            writer.AppendRaw(")");
+        }
+
+        internal override void WriteAsStatement(CodeWriter writer)
+        {
+            if (IsCompoundAssignmentOperator(Operator))
+            {
+                WriteCore(writer);
+            }
+            else
+            {
+                base.WriteAsStatement(writer);
+            }
+        }
+
+        private void WriteCore(CodeWriter writer)
+        {
             Left.Write(writer);
             writer.AppendRawIf(" ", !Left.IsEmptyExpression());
             writer.AppendRaw(Operator);
             writer.AppendRawIf(" ", !Right.IsEmptyExpression());
             Right.Write(writer);
-            writer.AppendRaw(")");
         }
+
+        private static bool IsCompoundAssignmentOperator(string @operator)
+            => @operator.EndsWith("=") && @operator is not "==" and not "!=" and not "<=" and not ">=";
     }
 }

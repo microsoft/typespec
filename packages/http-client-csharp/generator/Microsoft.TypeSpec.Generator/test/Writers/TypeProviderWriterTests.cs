@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
-        public void CodeWriter_UsesCommonNamespacePrefixForConflictingSimpleNames()
+        public void CodeWriter_UsesFullNameForConflictingSimpleNamesWithCommonNamespacePrefix()
         {
             var firstType = new CSharpType("Foo", "Azure.ResourceManager.Network", false, false, null, [], true, false);
             var secondType = new CSharpType("Foo", "Azure.ResourceManager.Compute", false, false, null, [], true, false);
@@ -176,9 +176,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 writer.WriteLine($"{secondType} second;");
             });
 
-            StringAssert.Contains("using Azure.ResourceManager;\n", result);
-            StringAssert.Contains("Network.Foo first;\n", result);
-            StringAssert.Contains("Compute.Foo second;\n", result);
+            StringAssert.DoesNotContain("using Azure.ResourceManager;\n", result);
+            StringAssert.Contains("Azure.ResourceManager.Network.Foo first;\n", result);
+            StringAssert.Contains("Azure.ResourceManager.Compute.Foo second;\n", result);
             StringAssert.DoesNotContain("global::", result);
         }
 

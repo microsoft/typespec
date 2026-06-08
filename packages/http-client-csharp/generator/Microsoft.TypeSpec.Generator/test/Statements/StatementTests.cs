@@ -187,6 +187,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void CompoundAssignmentExpressionStatementIsNotParenthesized()
+        {
+            var x = new VariableExpression(typeof(int), "x");
+            var statement = x.AddAndAssign(Literal(1));
+
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+
+            Assert.AreEqual("x += 1;\n", writer.ToString(false));
+        }
+
+        [Test]
         public void SwitchStatementWithSingleCase()
         {
             var matchExpression = ValueExpression.Empty;

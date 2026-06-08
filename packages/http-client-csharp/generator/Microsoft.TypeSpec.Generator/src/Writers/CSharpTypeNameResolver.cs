@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
@@ -115,46 +114,13 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var prefixTrie = new NamespacePrefixTrie();
-                var namespaceCount = 0;
                 foreach (var type in group.References)
                 {
-                    if (prefixTrie.Add(type.Namespace))
-                    {
-                        namespaceCount++;
-                    }
-                }
-
-                namespaceCount += _knownTypes.AddNamespacesForDifferentTypes(group.SimpleName, currentNamespace, group.ReferencedFullNames, prefixTrie);
-
-                var commonPrefix = prefixTrie.GetLongestCommonPrefix(namespaceCount);
-                foreach (var type in group.References)
-                {
-                    var name = BuildQualifiedName(type, commonPrefix);
-                    var namespaceToImport = string.IsNullOrEmpty(commonPrefix) ||
-                        string.Equals(commonPrefix, currentNamespace, StringComparison.Ordinal)
-                            ? null
-                            : commonPrefix;
-                    resolutions[GetFullName(type)] = new TypeResolution(name, namespaceToImport);
+                    resolutions[GetFullName(type)] = new TypeResolution(GetFullName(type), null);
                 }
             }
 
             return resolutions;
-        }
-
-        private static string BuildQualifiedName(CSharpType type, string commonPrefix)
-        {
-            if (string.IsNullOrEmpty(commonPrefix))
-            {
-                return $"{type.Namespace}.{GetDisplayName(type)}";
-            }
-
-            if (string.Equals(type.Namespace, commonPrefix, StringComparison.Ordinal))
-            {
-                return GetDisplayName(type);
-            }
-
-            return $"{type.Namespace.AsSpan(commonPrefix.Length + 1).ToString()}.{GetDisplayName(type)}";
         }
 
         private static bool CanAnalyze(CSharpType type)
@@ -256,113 +222,7 @@ namespace Microsoft.TypeSpec.Generator
                 return false;
             }
 
-            public int AddNamespacesForDifferentTypes(
-                string simpleName,
-                string? namespaceName,
-                IReadOnlySet<string> referencedFullNames,
-                NamespacePrefixTrie trie)
-            {
-                if (namespaceName is null || !_typesBySimpleName.TryGetValue(simpleName, out var knownTypes))
-                {
-                    return 0;
-                }
-
-                var added = 0;
-                foreach (var knownType in knownTypes)
-                {
-                    if (string.Equals(knownType.Namespace, namespaceName, StringComparison.Ordinal) &&
-                        !referencedFullNames.Contains(knownType.FullName) &&
-                        trie.Add(knownType.Namespace))
-                    {
-                        added++;
-                    }
-                }
-
-                return added;
-            }
-
             private readonly record struct KnownType(string Namespace, string FullName);
-        }
-
-        private sealed class NamespacePrefixTrie
-        {
-            private readonly Node _root = new();
-            private readonly HashSet<string> _namespaces = new(StringComparer.Ordinal);
-
-            public bool Add(string namespaceName)
-            {
-                if (!_namespaces.Add(namespaceName))
-                {
-                    return false;
-                }
-
-                var node = _root;
-                node.Count++;
-                var start = 0;
-                while (start < namespaceName.Length)
-                {
-                    var separator = namespaceName.IndexOf('.', start);
-                    var length = separator < 0 ? namespaceName.Length - start : separator - start;
-                    var segment = namespaceName.Substring(start, length);
-                    node = node.GetOrAdd(segment);
-                    node.Count++;
-                    if (separator < 0)
-                    {
-                        break;
-                    }
-                    start = separator + 1;
-                }
-
-                return true;
-            }
-
-            public string GetLongestCommonPrefix(int expectedCount)
-            {
-                if (expectedCount <= 0)
-                {
-                    return string.Empty;
-                }
-
-                var builder = new StringBuilder();
-                var node = _root;
-                while (node.Children is { Count: 1 })
-                {
-                    using var enumerator = node.Children.GetEnumerator();
-                    enumerator.MoveNext();
-                    var child = enumerator.Current.Value;
-                    if (child.Count != expectedCount)
-                    {
-                        break;
-                    }
-
-                    if (builder.Length > 0)
-                    {
-                        builder.Append('.');
-                    }
-                    builder.Append(enumerator.Current.Key);
-                    node = child;
-                }
-
-                return builder.ToString();
-            }
-
-            private sealed class Node
-            {
-                public int Count { get; set; }
-                public Dictionary<string, Node>? Children { get; private set; }
-
-                public Node GetOrAdd(string segment)
-                {
-                    Children ??= new Dictionary<string, Node>(StringComparer.Ordinal);
-                    if (!Children.TryGetValue(segment, out var child))
-                    {
-                        child = new Node();
-                        Children.Add(segment, child);
-                    }
-
-                    return child;
-                }
-            }
         }
     }
 }

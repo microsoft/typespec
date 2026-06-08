@@ -27,6 +27,11 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             Original.Write(writer);
         }
 
+        internal override void WriteAsStatement(CodeWriter writer)
+        {
+            Original.WriteAsStatement(writer);
+        }
+
         protected internal override bool IsEmptyExpression() => Original.IsEmptyExpression();
         public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
 
