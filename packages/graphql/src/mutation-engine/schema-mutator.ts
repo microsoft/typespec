@@ -47,6 +47,7 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
     scalar: (node: Scalar) => {
+      if (typeUsage.isUnreachable(node)) return;
       const mutation = engine.mutateScalar(node);
       mutatedTypes.push(mutation.mutatedType);
     },
