@@ -3,7 +3,6 @@ import {
   walkPropertiesInherited,
   type MemberType,
   type Model,
-  type Scalar,
 } from "@typespec/compiler";
 import {
   SimpleModelMutation,
@@ -38,13 +37,6 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
    */
   get typeContext(): GraphQLTypeContext | undefined {
     return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
-  }
-
-  get resolvedType(): Model | Scalar {
-    if (this.mutationNode.isReplaced && this.mutationNode.replacementNode) {
-      return this.mutationNode.replacementNode.mutatedType as unknown as Scalar;
-    }
-    return this.mutationNode.mutatedType;
   }
 
   mutate() {

@@ -1,3 +1,4 @@
+import { isArrayModelType, type Model } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
@@ -62,8 +63,10 @@ describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
     const engine = createTestEngine(tester.program);
     const mutation = engine.mutateModel(Metadata, GraphQLTypeContext.Output);
 
-    expect(mutation.resolvedType.kind).toBe("Scalar");
-    expect(mutation.resolvedType.name).toBe("Metadata");
+    expect(mutation.mutationNode.isReplaced).toBe(true);
+    const resolved = mutation.mutationNode.replacementNode!.mutatedType;
+    expect(resolved).toHaveProperty("kind", "Scalar");
+    expect(resolved).toHaveProperty("name", "Metadata");
   });
 
   it("replaces Record model with scalar even through T | null unwrap", async () => {
@@ -79,8 +82,8 @@ describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
 
     const dataProp = mutation.mutatedType.properties.get("data")!;
     // After T|null unwrap + Record mutation, should be a Scalar
-    expect(dataProp.type.kind).toBe("Scalar");
-    expect((dataProp.type as { name: string }).name).toBe("Metadata");
+    expect(dataProp.type).toHaveProperty("kind", "Scalar");
+    expect(dataProp.type).toHaveProperty("name", "Metadata");
   });
 
   it("does not replace Record model that has named properties", async () => {
@@ -91,8 +94,9 @@ describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
     const engine = createTestEngine(tester.program);
     const mutation = engine.mutateModel(Config, GraphQLTypeContext.Output);
 
-    expect(mutation.resolvedType.kind).toBe("Model");
-    expect(mutation.resolvedType.name).toBe("Config");
+    expect(mutation.mutationNode.isReplaced).toBe(false);
+    expect(mutation.mutatedType.kind).toBe("Model");
+    expect(mutation.mutatedType.name).toBe("Config");
   });
 });
 
@@ -111,11 +115,11 @@ describe("GraphQL Mutation Engine - Inner Nullable Array Fix", () => {
     const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
 
     const tagsProp = mutation.mutatedType.properties.get("tags")!;
-    const arrayType = tagsProp.type;
-    expect(arrayType.kind).toBe("Model");
+    expect(tagsProp.type.kind).toBe("Model");
     // The array's indexer value should be the unwrapped scalar, not a T | null union
-    const elementType = (arrayType as any).indexer.value;
-    expect(elementType.kind).toBe("Scalar");
+    const arrayModel = tagsProp.type as Model;
+    expect(isArrayModelType(arrayModel)).toBe(true);
+    expect(arrayModel.indexer!.value.kind).toBe("Scalar");
   });
 });
 

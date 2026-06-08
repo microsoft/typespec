@@ -179,9 +179,10 @@ describe("GraphQL Mutation Engine - Unions", () => {
 
     // After null-strip + flattening, variants should have mutated names
     const mutatedUnion = mutation.mutatedType as Union;
-    const variantTypes = [...mutatedUnion.variants.values()].map((v) => v.type);
-    const names = variantTypes.map((t) => (t as any).name).sort();
-    expect(names).toEqual(["AdAccount", "Board"]);
+    const variantNames = [...mutatedUnion.variants.values()]
+      .map((v) => ("name" in v.type ? v.type.name : v.type.kind))
+      .sort();
+    expect(variantNames).toEqual(["AdAccount", "Board"]);
   });
 
   it("T | null replacement gets its mutation pipeline applied", async () => {
