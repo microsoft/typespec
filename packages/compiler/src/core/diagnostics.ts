@@ -97,6 +97,9 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
 }
 
 function getValueNode(value: Value): Node | undefined {
+  // Only compound values and function values carry their own syntax node.
+  // Primitive values (string/number/boolean/null/enum/scalar literal values)
+  // are represented by their resolved value/type and don't retain a direct node.
   switch (value.valueKind) {
     case "ObjectValue":
     case "ArrayValue":

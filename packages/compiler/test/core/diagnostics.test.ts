@@ -38,13 +38,13 @@ describe("compiler: diagnostics", () => {
   });
 
   describe("getNodeForTarget", () => {
-    const mockValueNodeKind = SyntaxKind.ModelStatement;
-    const mockTypeNodeKind = SyntaxKind.ScalarStatement;
-    const mockStringTypeNodeKind = SyntaxKind.NamespaceStatement;
+    const mockSyntaxKindA = SyntaxKind.ModelStatement;
+    const mockSyntaxKindB = SyntaxKind.ScalarStatement;
+    const mockSyntaxKindC = SyntaxKind.NamespaceStatement;
 
     it("returns function value node when available", () => {
-      const valueNode = { kind: mockValueNodeKind } as any;
-      const typeNode = { kind: mockTypeNodeKind } as any;
+      const valueNode = { kind: mockSyntaxKindA } as any;
+      const typeNode = { kind: mockSyntaxKindB } as any;
 
       const target = {
         entityKind: "Value",
@@ -57,11 +57,57 @@ describe("compiler: diagnostics", () => {
     });
 
     it("falls back to value type node when value has no node", () => {
-      const typeNode = { kind: mockStringTypeNodeKind } as any;
+      const typeNode = { kind: mockSyntaxKindC } as any;
 
       const target = {
         entityKind: "Value",
         valueKind: "StringValue",
+        type: { kind: "String", node: typeNode },
+      } as any;
+
+      strictEqual(getNodeForTarget(target), typeNode);
+    });
+
+    it("returns object value node when available", () => {
+      const valueNode = { kind: mockSyntaxKindB } as any;
+
+      const target = {
+        entityKind: "Value",
+        valueKind: "ObjectValue",
+        node: valueNode,
+        type: { kind: "Model", node: undefined },
+      } as any;
+
+      strictEqual(getNodeForTarget(target), valueNode);
+    });
+
+    it("resolves mixed parameter constraint target in priority order", () => {
+      const explicitNode = { kind: mockSyntaxKindA } as any;
+      const typeNode = { kind: mockSyntaxKindB } as any;
+
+      strictEqual(
+        getNodeForTarget({
+          entityKind: "MixedParameterConstraint",
+          node: explicitNode,
+          type: { kind: "Model", node: typeNode },
+        } as any),
+        explicitNode,
+      );
+
+      strictEqual(
+        getNodeForTarget({
+          entityKind: "MixedParameterConstraint",
+          type: { kind: "Model", node: typeNode },
+        } as any),
+        typeNode,
+      );
+    });
+
+    it("resolves indeterminate target to underlying type node", () => {
+      const typeNode = { kind: mockSyntaxKindC } as any;
+
+      const target = {
+        entityKind: "Indeterminate",
         type: { kind: "String", node: typeNode },
       } as any;
 
