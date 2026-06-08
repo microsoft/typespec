@@ -1,13 +1,6 @@
-import { isArrayModelType, type ModelProperty, type Program, type Type } from "@typespec/compiler";
+import { isArrayModelType, type ModelProperty, type Program } from "@typespec/compiler";
+import { resolveGraphQLTypeName } from "../lib/graphql-type-name.js";
 import { hasNullableElements, isNullable } from "../lib/nullable.js";
-
-const SCALAR_TO_GRAPHQL: Record<string, string> = {
-  string: "String",
-  boolean: "Boolean",
-  int32: "Int",
-  float32: "Float",
-  float64: "Float",
-};
 
 /**
  * Print a mutated type as its GraphQL type string representation.
@@ -28,27 +21,12 @@ export function printMutatedType(program: Program, prop: ModelProperty): string 
 
   if (type.kind === "Model" && isArrayModelType(type)) {
     const elementType = type.indexer.value;
-    const elementName = resolveTypeName(elementType);
+    const elementName = resolveGraphQLTypeName(elementType);
     const inner = elementsNullable ? elementName : `${elementName}!`;
     const list = `[${inner}]`;
     return propNullable ? list : `${list}!`;
   }
 
-  const name = resolveTypeName(type);
+  const name = resolveGraphQLTypeName(type);
   return propNullable ? name : `${name}!`;
-}
-
-function resolveTypeName(type: Type): string {
-  switch (type.kind) {
-    case "Scalar":
-      return SCALAR_TO_GRAPHQL[type.name] ?? type.name;
-    case "Model":
-      return type.name;
-    case "Enum":
-      return type.name;
-    case "Union":
-      return type.name ?? "Union";
-    default:
-      return type.kind;
-  }
 }
