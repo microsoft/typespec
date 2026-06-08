@@ -48,6 +48,77 @@ describe("GraphQL Mutation Engine - Models", () => {
   });
 });
 
+describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
+  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  beforeEach(async () => {
+    tester = await Tester.createInstance();
+  });
+
+  it("replaces named Record model with a scalar", async () => {
+    const { Metadata } = await tester.compile(
+      t.code`model ${t.model("Metadata")} is Record<string>;`,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateModel(Metadata, GraphQLTypeContext.Output);
+
+    expect(mutation.resolvedType.kind).toBe("Scalar");
+    expect(mutation.resolvedType.name).toBe("Metadata");
+  });
+
+  it("replaces Record model with scalar even through T | null unwrap", async () => {
+    const { Foo } = await tester.compile(
+      t.code`
+        model ${t.model("Metadata")} is Record<string>;
+        model ${t.model("Foo")} { data: Metadata | null; }
+      `,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
+
+    const dataProp = mutation.mutatedType.properties.get("data")!;
+    // After T|null unwrap + Record mutation, should be a Scalar
+    expect(dataProp.type.kind).toBe("Scalar");
+    expect((dataProp.type as { name: string }).name).toBe("Metadata");
+  });
+
+  it("does not replace Record model that has named properties", async () => {
+    const { Config } = await tester.compile(
+      t.code`model ${t.model("Config")} { debug: boolean; ...Record<string>; }`,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateModel(Config, GraphQLTypeContext.Output);
+
+    expect(mutation.resolvedType.kind).toBe("Model");
+    expect(mutation.resolvedType.name).toBe("Config");
+  });
+});
+
+describe("GraphQL Mutation Engine - Inner Nullable Array Fix", () => {
+  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  beforeEach(async () => {
+    tester = await Tester.createInstance();
+  });
+
+  it("unwraps inner nullable union in array element for (T | null)[] | null", async () => {
+    const { Foo } = await tester.compile(
+      t.code`model ${t.model("Foo")} { tags: (string | null)[] | null; }`,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
+
+    const tagsProp = mutation.mutatedType.properties.get("tags")!;
+    const arrayType = tagsProp.type;
+    expect(arrayType.kind).toBe("Model");
+    // The array's indexer value should be the unwrapped scalar, not a T | null union
+    const elementType = (arrayType as any).indexer.value;
+    expect(elementType.kind).toBe("Scalar");
+  });
+});
+
 describe("GraphQL Mutation Engine - Model Properties", () => {
   let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
   beforeEach(async () => {

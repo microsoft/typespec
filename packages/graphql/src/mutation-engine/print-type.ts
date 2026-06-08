@@ -1,6 +1,5 @@
 import { isArrayModelType, type ModelProperty, type Program, type Type } from "@typespec/compiler";
 import { hasNullableElements, isNullable } from "../lib/nullable.js";
-import { unwrapNullableUnion } from "../lib/type-utils.js";
 
 const SCALAR_TO_GRAPHQL: Record<string, string> = {
   string: "String",
@@ -28,12 +27,7 @@ export function printMutatedType(program: Program, prop: ModelProperty): string 
   const type = prop.type;
 
   if (type.kind === "Model" && isArrayModelType(type)) {
-    // Workaround: the mutation engine marks hasNullableElements on the property but
-    // doesn't replace the inner T | null union with T (to avoid poisoning shared type
-    // singletons). PR B will fix this by cloning array element types during mutation.
-    const rawElement = type.indexer.value;
-    const elementType =
-      rawElement.kind === "Union" ? (unwrapNullableUnion(rawElement) ?? rawElement) : rawElement;
+    const elementType = type.indexer.value;
     const elementName = resolveTypeName(elementType);
     const inner = elementsNullable ? elementName : `${elementName}!`;
     const list = `[${inner}]`;

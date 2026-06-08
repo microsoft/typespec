@@ -1,4 +1,10 @@
-import { isTemplateInstance, type MemberType, type Model } from "@typespec/compiler";
+import {
+  isTemplateInstance,
+  walkPropertiesInherited,
+  type MemberType,
+  type Model,
+  type Scalar,
+} from "@typespec/compiler";
 import {
   SimpleModelMutation,
   type MutationInfo,
@@ -9,6 +15,7 @@ import {
 import { isInterface } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
+import { isRecordType } from "../../lib/type-utils.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /**
@@ -33,9 +40,37 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
   }
 
+  get resolvedType(): Model | Scalar {
+    if (this.mutationNode.isReplaced && this.mutationNode.replacementNode) {
+      return this.mutationNode.replacementNode.mutatedType as unknown as Scalar;
+    }
+    return this.mutationNode.mutatedType;
+  }
+
   mutate() {
-    const program = this.engine.$.program;
+    const tk = this.engine.$;
+    const program = tk.program;
     const isInputContext = this.typeContext === GraphQLTypeContext.Input;
+
+    if (isRecordType(this.sourceType) && walkPropertiesInherited(this.sourceType).next().done) {
+      const rawName = isTemplateInstance(this.sourceType)
+        ? composeTemplateName(this.sourceType)
+        : this.sourceType.name;
+      const scalarName = applyTypeNamePipeline(rawName, {
+        isInput: isInputContext,
+        isInterface: false,
+      });
+      const scalar = program.checker.createType({
+        kind: "Scalar",
+        name: scalarName,
+        decorators: [],
+        derivedScalars: [],
+        constructors: new Map(),
+      });
+      this.mutationNode.replace(scalar);
+      return;
+    }
+
     const isInterfaceModel = isInterface(program, this.sourceType);
     const rawName = isTemplateInstance(this.sourceType)
       ? composeTemplateName(this.sourceType)
