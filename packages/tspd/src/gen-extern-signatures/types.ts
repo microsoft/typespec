@@ -16,8 +16,8 @@ export interface DecoratorSignature {
 
   decorator: Decorator;
 
-  /** Whether this is a data decorator (declared with `data dec`). */
-  isData: boolean;
+  /** Whether this is an auto decorator (declared with `auto dec`). */
+  isAuto: boolean;
 }
 
 export interface FunctionSignature {

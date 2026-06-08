@@ -1,5 +1,5 @@
 import { Realm } from "../experimental/realm.js";
-import { getDataDecoratorStateKey } from "../lib/data-decorator.js";
+import { getAutoDecoratorStateKey } from "../lib/auto-decorator.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
@@ -2159,14 +2159,45 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: DecoratorDeclarationStatementNode,
   ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
     const fqn = getFullyQualifiedSymbolName(symbol);
-    const stateKey = getDataDecoratorStateKey(fqn);
+    const stateKey = getAutoDecoratorStateKey(fqn);
     const paramNames = node.parameters.map((p) => p.id.sv);
+    const lastParamIsRest =
+      node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
 
-    // Always store as key-value record { paramName: value }
     return (context: DecoratorContext, target: Type, ...args: unknown[]) => {
+      // Check for duplicate application on the same declaration node
+      if ("decorators" in target) {
+        const sameDecorators = (target as any).decorators.filter(
+          (x: any) =>
+            x.definition?.name === `@${node.id.sv}` &&
+            x.node?.kind === SyntaxKind.DecoratorExpression &&
+            x.node?.parent === (target as any).node,
+        );
+        if (sameDecorators.length > 1) {
+          context.program.reportDiagnostic(
+            createDiagnostic({
+              code: "duplicate-decorator",
+              format: { decoratorName: `@${node.id.sv}` },
+              target: context.decoratorTarget,
+            }),
+          );
+          return;
+        }
+      }
+
+      // Store as key-value record { paramName: value }
       const data: Record<string, unknown> = {};
-      for (let i = 0; i < paramNames.length; i++) {
-        data[paramNames[i]] = args[i];
+      if (lastParamIsRest) {
+        // Non-rest params first
+        for (let i = 0; i < paramNames.length - 1; i++) {
+          data[paramNames[i]] = args[i];
+        }
+        // Rest param collects remaining args as an array
+        data[paramNames[paramNames.length - 1]] = args.slice(paramNames.length - 1);
+      } else {
+        for (let i = 0; i < paramNames.length; i++) {
+          data[paramNames[i]] = args[i];
+        }
       }
       context.program.stateMap(stateKey).set(target, data);
     };

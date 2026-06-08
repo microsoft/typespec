@@ -182,8 +182,8 @@ describe("compiler: checker: decorators", () => {
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       ok(Foo, "Foo should exist");
-      const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      deepStrictEqual(getDataDecoratorValue(program, "myFlag", Foo), {});
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myFlag", Foo), {});
     });
 
     it("auto decorator with single arg stores as key-value record in stateMap", async () => {
@@ -196,8 +196,8 @@ describe("compiler: checker: decorators", () => {
       `);
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      deepStrictEqual(getDataDecoratorValue(program, "myLabel", Foo), { label: "hello" });
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "hello" });
     });
 
     it("auto decorator with multiple args stores named record in stateMap", async () => {
@@ -210,8 +210,8 @@ describe("compiler: checker: decorators", () => {
       `);
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      const value = getDataDecoratorValue(program, "myMeta", Foo) as any;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const value = getAutoDecoratorValue(program, "myMeta", Foo) as any;
       deepStrictEqual(value, { name: "test", version: 42 });
     });
 
@@ -227,8 +227,8 @@ describe("compiler: checker: decorators", () => {
       `);
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getDataDecoratorValue } = await import("../../src/lib/data-decorator.js");
-      deepStrictEqual(getDataDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
     });
 
     it("internal auto dec is valid", async () => {
@@ -247,6 +247,105 @@ describe("compiler: checker: decorators", () => {
         code: "experimental-feature",
         message: /Auto decorator declarations are an experimental feature/,
       });
+    });
+
+    it("auto decorator with rest params stores as array in record", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`
+        #suppress "experimental-feature"
+        auto dec tags(target: Model, ...tags: valueof string[]);
+
+        @tags("a", "b", "c")
+        model Foo {}
+      `);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "tags", Foo), { tags: ["a", "b", "c"] });
+    });
+
+    it("auto decorator with mixed params and rest stores correctly", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`
+        #suppress "experimental-feature"
+        auto dec route(target: Model, path: valueof string, ...tags: valueof string[]);
+
+        @route("/foo", "tag1", "tag2")
+        model Foo {}
+      `);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "route", Foo), {
+        path: "/foo",
+        tags: ["tag1", "tag2"],
+      });
+    });
+
+    it("emits duplicate-decorator warning when applied twice on same node", async () => {
+      const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(`
+        #suppress "experimental-feature"
+        auto dec myFlag(target: Model);
+
+        @myFlag
+        @myFlag
+        model Foo {}
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: /Decorator @myFlag cannot be used twice on the same declaration/,
+        },
+        {
+          code: "duplicate-decorator",
+          message: /Decorator @myFlag cannot be used twice on the same declaration/,
+        },
+      ]);
+    });
+
+    it("augment decorator overwrites auto decorator value (last-write-wins)", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`
+        #suppress "experimental-feature"
+        auto dec myLabel(target: Model, label: valueof string);
+
+        @myLabel("first")
+        model Foo {}
+
+        @@myLabel(Foo, "second");
+      `);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "second" });
+    });
+
+    it("auto decorator with optional param stores undefined for missing arg", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`
+        #suppress "experimental-feature"
+        auto dec myDec(target: Model, required: valueof string, optional?: valueof int32);
+
+        @myDec("hello")
+        model Foo {}
+      `);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myDec", Foo), {
+        required: "hello",
+        optional: undefined,
+      });
+    });
+
+    it("getAutoDecoratorTargets returns all targets", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`
+        #suppress "experimental-feature"
+        auto dec tracked(target: Model);
+
+        @tracked model Foo {}
+        @tracked model Bar {}
+      `);
+
+      const { getAutoDecoratorTargets } = await import("../../src/lib/auto-decorator.js");
+      const targets = getAutoDecoratorTargets(program, "tracked");
+      strictEqual(targets.size, 2);
     });
   });
 

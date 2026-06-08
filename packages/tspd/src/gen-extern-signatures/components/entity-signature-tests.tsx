@@ -20,7 +20,7 @@ export function EntitySignatureTests({
   dollarFunctionsTypeRefKey,
 }: Readonly<EntitySignatureTests>) {
   const hasExternDecorators = entities.some(
-    (e): e is DecoratorSignature => e.kind === "Decorator" && !e.isData,
+    (e): e is DecoratorSignature => e.kind === "Decorator" && !e.isAuto,
   );
   const hasFunctions = entities.some((e) => e.kind === "Function");
 

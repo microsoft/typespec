@@ -428,7 +428,7 @@ function importLine(imports: string[]) {
   return `import type { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
 }
 
-function dataImportLine(typeImports: string[], valueImports: string[]) {
+function autoImportLine(typeImports: string[], valueImports: string[]) {
   const all = [...valueImports, ...typeImports.map((t) => `type ${t}`)];
   all.sort((a, b) => {
     const nameA = a.replace("type ", "");
@@ -443,10 +443,10 @@ describe("auto decorator accessors", () => {
     await expectSignatures({
       code: `auto dec myFlag(target: Model);`,
       expected: `
-${dataImportLine(["Model", "Program"], ["hasDataDecorator"])}
+${autoImportLine(["Model", "Program"], ["hasAutoDecorator"])}
 
 export function isMyFlag(program: Program, target: Model): boolean {
-  return hasDataDecorator(program, "myFlag", target);
+  return hasAutoDecorator(program, "myFlag", target);
 }
   `,
     });
@@ -456,10 +456,10 @@ export function isMyFlag(program: Program, target: Model): boolean {
     await expectSignatures({
       code: `auto dec myLabel(target: Model, label: valueof string);`,
       expected: `
-${dataImportLine(["Model", "Program"], ["getDataDecoratorValue"])}
+${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
 
 export function getMyLabel(program: Program, target: Model): string | undefined {
-  return getDataDecoratorValue(program, "myLabel", target) as any;
+  return getAutoDecoratorValue(program, "myLabel", target) as any;
 }
   `,
     });
@@ -469,10 +469,10 @@ export function getMyLabel(program: Program, target: Model): string | undefined 
     await expectSignatures({
       code: `auto dec myMeta(target: Model, name: valueof string, version: valueof int32);`,
       expected: `
-${dataImportLine(["Model", "Program"], ["getDataDecoratorValue"])}
+${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
 
 export function getMyMeta(program: Program, target: Model): { name: string; version: number } | undefined {
-  return getDataDecoratorValue(program, "myMeta", target) as any;
+  return getAutoDecoratorValue(program, "myMeta", target) as any;
 }
   `,
     });
@@ -494,7 +494,7 @@ export function getMyMeta(program: Program, target: Model): { name: string; vers
     expect(result).toContain("externDec: ExternDecDecorator");
     // Verify auto decorator parts
     expect(result).toContain("isDataFlag");
-    expect(result).toContain("hasDataDecorator");
+    expect(result).toContain("hasAutoDecorator");
     // Verify no $decorators type for auto decorators
     expect(result).not.toContain("dataFlag: ");
   });

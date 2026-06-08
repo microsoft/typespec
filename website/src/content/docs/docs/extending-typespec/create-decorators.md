@@ -37,18 +37,18 @@ Auto decorator arguments are always stored as a record with parameter names as k
 The compiler provides a generic API to read auto decorator values without any generated code:
 
 ```ts
-import { hasDataDecorator, getDataDecoratorValue } from "@typespec/compiler";
+import { hasAutoDecorator, getAutoDecoratorValue } from "@typespec/compiler";
 
 // Check if a flag decorator was applied
-if (hasDataDecorator(program, "MyLib.tracked", type)) {
+if (hasAutoDecorator(program, "MyLib.tracked", type)) {
   // ...
 }
 
 // Get the stored record
-const label = getDataDecoratorValue(program, "MyLib.label", type) as { value: string };
+const label = getAutoDecoratorValue(program, "MyLib.label", type) as { value: string };
 
 // Get a multi-arg record
-const info = getDataDecoratorValue(program, "MyLib.serviceInfo", type) as {
+const info = getAutoDecoratorValue(program, "MyLib.serviceInfo", type) as {
   name: string;
   version: number;
 };

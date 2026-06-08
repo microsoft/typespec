@@ -2115,7 +2115,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): DecoratorDeclarationStatementNode {
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.DecKeyword);
-    const id = parseIdentifier({ allowReservedIdentifier: true });
+    const id = parseIdentifier();
     const allParamListDetail = parseFunctionParameters();
     let [target, ...parameters] = allParamListDetail.items;
     if (target === undefined) {

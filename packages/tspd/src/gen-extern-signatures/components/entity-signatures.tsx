@@ -12,7 +12,7 @@ import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
-import { DataDecoratorAccessors } from "./data-decorator-accessors.js";
+import { AutoDecoratorAccessors } from "./auto-decorator-accessors.js";
 import { DecoratorSignatureType, ValueOfModelTsInterfaceBody } from "./decorator-signature-type.js";
 import { DollarDecoratorsType } from "./dollar-decorators-type.js";
 import { DollarFunctionsType } from "./dollar-functions-type.jsx";
@@ -34,8 +34,8 @@ export function EntitySignatures({
   dollarFunctionsRefKey: dollarFunctionsRefkey,
 }: EntitySignaturesProps) {
   const decorators = entities.filter((e): e is DecoratorSignature => e.kind === "Decorator");
-  const externDecorators = decorators.filter((d) => !d.isData);
-  const dataDecorators = decorators.filter((d) => d.isData);
+  const externDecorators = decorators.filter((d) => !d.isAuto);
+  const autoDecorators = decorators.filter((d) => d.isAuto);
 
   const functions = entities.filter((e): e is FunctionSignature => e.kind === "Function");
 
@@ -72,10 +72,10 @@ export function EntitySignatures({
           />
         </Show>
       </ts.TypeRefContext>
-      <Show when={dataDecorators.length > 0}>
+      <Show when={autoDecorators.length > 0}>
         <hbr />
         <hbr />
-        <DataDecoratorAccessors decorators={dataDecorators} namespaceName={namespaceName} />
+        <AutoDecoratorAccessors decorators={autoDecorators} namespaceName={namespaceName} />
       </Show>
     </>
   );
