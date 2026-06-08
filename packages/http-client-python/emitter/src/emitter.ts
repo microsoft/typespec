@@ -1,6 +1,7 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
+import { randomUUID } from "crypto";
 import fs from "fs";
 import jsyaml from "js-yaml";
 import os from "os";
@@ -29,6 +30,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
+    "generate-api-md": true,
     "validate-versioning": true,
     "clear-output-folder": false,
   };
@@ -330,8 +332,75 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
           `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
         );
         await checkForPylintIssues(outputDir, excludePattern);
+
+        if (resolvedOptions["generate-api-md"]) {
+          await generateApiMd(
+            program,
+            venvPath,
+            yamlPath,
+            outputDir,
+            root,
+            resolvedOptions["package-name"]!,
+          );
+        }
       }
     }
+  }
+}
+
+async function generateApiMd(
+  program: any,
+  venvPath: string,
+  yamlPath: string,
+  outputDir: string,
+  root: string,
+  packageName: string,
+): Promise<void> {
+  // Check if apiview-stub-generator is installed before attempting
+  try {
+    execFileSync(venvPath, ["-c", "import apistub"], { stdio: "pipe" });
+  } catch {
+    // apiview-stub-generator not installed — silently skip
+    return;
+  }
+
+  const apiviewOutDir = path.join(os.tmpdir(), `tsp-apiview-${randomUUID()}`);
+  try {
+    fs.mkdirSync(apiviewOutDir, { recursive: true });
+
+    // Run apistubgen with --code-model-path to generate token JSON
+    execFileSync(venvPath, [
+      "-m",
+      "apistub",
+      "--code-model-path",
+      yamlPath,
+      "--out-path",
+      apiviewOutDir,
+      "--skip-pylint",
+    ]);
+
+    // apistubgen outputs {package_name}_python.json
+    const tokenJsonPath = path.join(apiviewOutDir, `${packageName}_python.json`);
+    if (!fs.existsSync(tokenJsonPath)) {
+      reportDiagnostic(program, {
+        code: "api-md-generation-failed",
+        target: NoTarget,
+        format: { details: "apistubgen did not produce a token JSON file" },
+      });
+      return;
+    }
+
+    // Convert token JSON to api.md using the Python conversion script
+    const mdScript = path.join(root, "eng", "scripts", "setup", "export_apiview_markdown.py");
+    execFileSync(venvPath, [mdScript, tokenJsonPath, outputDir]);
+  } catch (e: any) {
+    reportDiagnostic(program, {
+      code: "api-md-generation-failed",
+      target: NoTarget,
+      format: { details: e.message || String(e) },
+    });
+  } finally {
+    fs.rmSync(apiviewOutDir, { recursive: true, force: true });
   }
 }
 

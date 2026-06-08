@@ -26,6 +26,7 @@ export interface PythonEmitterOptions {
   "keep-setup-py"?: boolean;
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
+  "generate-api-md"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -117,6 +118,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Emit YAML code model only, without running Python generator. For batch processing.",
     },
+    "generate-api-md": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to generate an api.md file containing the public API surface. Defaults to `true`. Requires `apiview-stub-generator` to be installed.",
+    },
   },
   required: [],
 };
@@ -173,6 +180,12 @@ const libDef = {
       severity: "warning",
       messages: {
         default: paramMessage`No valid continuation token in '${"direction"}' for operation '${"operationId"}'.`,
+      },
+    },
+    "api-md-generation-failed": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Failed to generate api.md: ${"details"}. SDK generation was not affected.`,
       },
     },
   },
