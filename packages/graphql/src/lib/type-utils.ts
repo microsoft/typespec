@@ -128,7 +128,6 @@ export function sanitizeNameForGraphQL(name: string, prefix: string = ""): strin
   return name;
 }
 
-
 /** Convert a name to CONSTANT_CASE for GraphQL enum members. */
 export function toEnumMemberName(enumName: string, name: string) {
   return constantCase(sanitizeNameForGraphQL(name, enumName), {
@@ -322,11 +321,13 @@ function getTemplateStringInternal(
 export function isTrueModel(model: Model): boolean {
   return !(
     // Array of scalars/enums — represented as a list type, not an object type
-    isScalarOrEnumArray(model) ||
-    // Array of unions — represented as a list type, not an object type
-    isUnionArray(model) ||
-    isNeverType(model) ||
-    // Pure record with no properties — emitted as a custom scalar, not an object type
-    (isRecordType(model) && [...walkPropertiesInherited(model)].length === 0)
+    (
+      isScalarOrEnumArray(model) ||
+      // Array of unions — represented as a list type, not an object type
+      isUnionArray(model) ||
+      isNeverType(model) ||
+      // Pure record with no properties — emitted as a custom scalar, not an object type
+      (isRecordType(model) && [...walkPropertiesInherited(model)].length === 0)
+    )
   );
 }

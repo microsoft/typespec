@@ -143,7 +143,6 @@ const SCALAR_MAPPINGS = {
       specificationUrl: "https://url.spec.whatwg.org/",
     },
   },
-
 } as const;
 
 type MappedScalarName = keyof typeof SCALAR_MAPPINGS;
@@ -167,7 +166,11 @@ export function isStdScalar(tk: Typekit, scalar: Scalar): boolean {
  * @see https://spec.graphql.org/September2025/#sec-Scalars.Built-in-Scalars
  */
 const TSP_SCALARS_TO_GQL_BUILTINS: IntrinsicScalarName[] = [
-  "string", "boolean", "int32", "float32", "float64",
+  "string",
+  "boolean",
+  "int32",
+  "float32",
+  "float64",
 ];
 
 /**

@@ -139,7 +139,8 @@ export const libDef = {
     "unrecognized-union": {
       severity: "error",
       messages: {
-        default: "Unrecognized union construction. Union must be named, a return type, a model property, or an alias.",
+        default:
+          "Unrecognized union construction. Union must be named, a return type, a model property, or an alias.",
       },
     },
     "duplicate-union-variant": {
@@ -151,7 +152,8 @@ export const libDef = {
     "empty-union": {
       severity: "error",
       messages: {
-        default: "Union has no non-null variants. A GraphQL union must contain at least one member type.",
+        default:
+          "Union has no non-null variants. A GraphQL union must contain at least one member type.",
       },
     },
     "graphql-builtin-scalar-collision": {

@@ -11,9 +11,7 @@ import { GraphQLKeys, NAMESPACE } from "../lib.js";
 // This will set the namespace for decorators implemented in this file
 export const namespace = NAMESPACE;
 
-const [getSpecifiedByUrl, setSpecifiedByUrl] = useStateMap<Scalar, string>(
-  GraphQLKeys.specifiedBy,
-);
+const [getSpecifiedByUrl, setSpecifiedByUrl] = useStateMap<Scalar, string>(GraphQLKeys.specifiedBy);
 
 export { getSpecifiedByUrl, setSpecifiedByUrl };
 

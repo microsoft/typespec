@@ -1,5 +1,4 @@
 export { GraphQLMutationEngine, createGraphQLMutationEngine } from "./engine.js";
-export { GraphQLMutationOptions, GraphQLTypeContext } from "./options.js";
 export {
   GraphQLEnumMemberMutation,
   GraphQLEnumMutation,
@@ -9,3 +8,4 @@ export {
   GraphQLScalarMutation,
   GraphQLUnionMutation,
 } from "./mutations/index.js";
+export { GraphQLMutationOptions, GraphQLTypeContext } from "./options.js";
