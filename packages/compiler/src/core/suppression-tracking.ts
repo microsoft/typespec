@@ -5,7 +5,6 @@ import { visitChildren } from "./parser.js";
 import { SourceResolution } from "./source-loader.js";
 import {
   CodeFix,
-  Diagnostic,
   Directive,
   DirectiveExpressionNode,
   Node,
@@ -13,25 +12,19 @@ import {
   SyntaxKind,
 } from "./types.js";
 
-interface SuppressionRecord {
+export interface UnusedSuppression {
   directive: SuppressDirective;
-  used: boolean;
 }
 
-interface SuppressionTracker {
+export interface SuppressionTracker {
   markUsed(directiveNode: DirectiveExpressionNode): void;
-  reportUnusedSuppressions(): void;
+  getUnusedSuppressions(): UnusedSuppression[];
 }
 
-export function createSuppressionTracker({
-  addDiagnostic,
-  sourceResolution,
-}: {
-  addDiagnostic: (diagnostic: Diagnostic) => void;
-  sourceResolution: SourceResolution;
-}): SuppressionTracker {
+export function createSuppressionTracker(
+  sourceResolution: SourceResolution,
+): SuppressionTracker {
   const suppressions = collectSuppressions(sourceResolution);
-  let unusedSuppressionsReported = false;
 
   return {
     markUsed(directiveNode) {
@@ -40,12 +33,8 @@ export function createSuppressionTracker({
         suppression.used = true;
       }
     },
-    reportUnusedSuppressions() {
-      if (unusedSuppressionsReported) {
-        return;
-      }
-      unusedSuppressionsReported = true;
-
+    getUnusedSuppressions() {
+      const unused: UnusedSuppression[] = [];
       for (const suppression of suppressions.values()) {
         if (suppression.used) {
           continue;
@@ -59,16 +48,16 @@ export function createSuppressionTracker({
           continue;
         }
 
-        addDiagnostic({
-          code: "unused-suppression",
-          severity: "warning",
-          message: `Suppression for "${suppression.directive.code}" is unused.`,
-          target: suppression.directive.node,
-          codefixes: [createRemoveUnusedSuppressionCodeFix(suppression.directive.node)],
-        });
+        unused.push({ directive: suppression.directive });
       }
+      return unused;
     },
   };
+}
+
+interface SuppressionRecord {
+  directive: SuppressDirective;
+  used: boolean;
 }
 
 function collectSuppressions(

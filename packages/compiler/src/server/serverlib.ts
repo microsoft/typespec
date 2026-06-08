@@ -72,6 +72,7 @@ import {
 import { type Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
+import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
 import {
   AugmentDecoratorStatementNode,
   CodeFixEdit,
@@ -829,9 +830,6 @@ export function createServer(
             // if the unused template parameter is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
-        } else if (each.code === "unused-suppression") {
-          diagnostic.tags = [DiagnosticTag.Unnecessary];
-          diagnostic.severity = DiagnosticSeverity.Hint;
         }
         diagnostic.data = {
           id: diagnosticIdCounter++,
@@ -844,6 +842,38 @@ export function createServer(
         );
         diagnostics.push(diagnostic);
         newDiagnosticIndex.set(diagnostic.data.id, each);
+      }
+    }
+
+    // Report unused suppressions as hints with faded-out styling
+    for (const { directive } of program.suppressionTracker?.getUnusedSuppressions() ?? []) {
+      const unusedSuppressionDiagnostic: Diagnostic = {
+        code: "unused-suppression",
+        severity: "warning",
+        message: `Suppression for "${directive.code}" is unused.`,
+        target: directive.node,
+        codefixes: [createRemoveUnusedSuppressionCodeFix(directive.node)],
+      };
+      const results = convertDiagnosticToLsp(
+        fileService,
+        program,
+        document,
+        unusedSuppressionDiagnostic,
+      );
+      for (const [diagnostic, diagDocument] of results) {
+        diagnostic.tags = [DiagnosticTag.Unnecessary];
+        diagnostic.severity = DiagnosticSeverity.Hint;
+        diagnostic.data = {
+          id: diagnosticIdCounter++,
+          file: diagDocument.uri,
+        };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        newDiagnosticIndex.set(diagnostic.data.id, unusedSuppressionDiagnostic);
       }
     }
 

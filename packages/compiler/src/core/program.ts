@@ -44,6 +44,7 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   createSuppressionTracker,
   findDirectiveSuppressingOnNode,
+  SuppressionTracker,
 } from "./suppression-tracking.js";
 import {
   CompilerHost,
@@ -120,7 +121,7 @@ export interface Program {
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
   /** @internal */
-  reportUnusedSuppressions(): void;
+  readonly suppressionTracker: SuppressionTracker | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -203,7 +204,6 @@ export async function compile(
   }
   emitStats.total = timer.end();
   program.stats.runtime.emit = emitStats;
-  program.reportUnusedSuppressions();
   return program;
 }
 
@@ -225,9 +225,7 @@ async function createProgram(
   let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
-  const suppressionTracker: {
-    current?: ReturnType<typeof createSuppressionTracker>;
-  } = {};
+  let suppressionTracker: SuppressionTracker | undefined;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -257,7 +255,9 @@ async function createProgram(
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
-    reportUnusedSuppressions,
+    get suppressionTracker() {
+      return suppressionTracker;
+    },
     hasError() {
       return error;
     },
@@ -303,10 +303,7 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  suppressionTracker.current = createSuppressionTracker({
-    addDiagnostic: (diagnostic) => diagnostics.push(diagnostic),
-    sourceResolution,
-  });
+  suppressionTracker = createSuppressionTracker(sourceResolution);
 
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
@@ -342,10 +339,6 @@ async function createProgram(
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
-
-  if (emit.length === 0) {
-    reportUnusedSuppressions();
-  }
 
   return { program, shouldAbort: false };
 
@@ -838,6 +831,7 @@ async function createProgram(
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
+        suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -847,17 +841,11 @@ async function createProgram(
 
         return false;
       } else {
-        suppressionTracker.current?.markUsed(suppressing.node);
+        suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
-  }
-
-  function reportUnusedSuppressions(): void {
-    if (program.compilerOptions.designTimeBuild) {
-      suppressionTracker.current?.reportUnusedSuppressions();
-    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {

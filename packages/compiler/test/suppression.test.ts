@@ -1,3 +1,4 @@
+import { strictEqual } from "assert";
 import { it } from "vitest";
 import { SyntaxKind } from "../src/ast/index.js";
 import { navigateProgram } from "../src/core/semantic-walker.js";
@@ -85,8 +86,8 @@ it("error diagnostics cannot be suppressed and emit another error", async () => 
   expectDiagnostics(diagnostics, [{ code: "suppress-error" }, { code: "no-id-property" }]);
 });
 
-it("does not report unused suppression in normal compile", async () => {
-  const diagnostics = await Tester.diagnose(
+it("reports unused suppression via tracker", async () => {
+  const { program } = await Tester.compile(
     `
       #suppress "deprecated" "not needed anymore"
       model Foo {}
@@ -96,7 +97,9 @@ it("does not report unused suppression in normal compile", async () => {
     },
   );
 
-  expectDiagnosticEmpty(diagnostics);
+  const unused = program.suppressionTracker?.getUnusedSuppressions() ?? [];
+  strictEqual(unused.length, 1);
+  strictEqual(unused[0].directive.code, "deprecated");
 });
 
 it("provides a code fix to remove an unused suppression", async () => {
@@ -118,7 +121,7 @@ model Foo {}
 });
 
 it("does not report unused suppression when diagnostic was suppressed", async () => {
-  const diagnostics = await Tester.diagnose(
+  const { program } = await Tester.compile(
     `
       #deprecated "Old is deprecated"
       model Old {}
@@ -133,11 +136,12 @@ it("does not report unused suppression when diagnostic was suppressed", async ()
     },
   );
 
-  expectDiagnosticEmpty(diagnostics);
+  const unused = program.suppressionTracker?.getUnusedSuppressions() ?? [];
+  strictEqual(unused.length, 0);
 });
 
-it("does not report unused suppression for unavailable diagnostic source by default", async () => {
-  const diagnostics = await Tester.diagnose(
+it("does not report unused suppression for unavailable diagnostic source", async () => {
+  const { program } = await Tester.compile(
     `
       #suppress "test-emitter/not-run" "only emitted by another tool"
       model Foo {}
@@ -147,11 +151,12 @@ it("does not report unused suppression for unavailable diagnostic source by defa
     },
   );
 
-  expectDiagnosticEmpty(diagnostics);
+  const unused = program.suppressionTracker?.getUnusedSuppressions() ?? [];
+  strictEqual(unused.length, 0);
 });
 
 it("does not report unused suppression for errors as replacement for suppress-error", async () => {
-  const diagnostics = await Tester.diagnose(
+  const [{ program }, diagnostics] = await Tester.compileAndDiagnose(
     `
       model Foo {
         #suppress "invalid-ref" "errors cannot be suppressed"
@@ -164,4 +169,7 @@ it("does not report unused suppression for errors as replacement for suppress-er
   );
 
   expectDiagnostics(diagnostics, [{ code: "suppress-error" }, { code: "invalid-ref" }]);
+  // The suppression for an error should not appear as "unused" since it was explicitly rejected
+  const unused = program.suppressionTracker?.getUnusedSuppressions() ?? [];
+  strictEqual(unused.length, 0);
 });
