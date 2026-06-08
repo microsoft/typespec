@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -14,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public sealed partial class ModelSerializationExtensionsDefinition
@@ -256,7 +259,78 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var defaultCase = SwitchCaseStatement.Default(
                 Throw(New.NotSupportedException(new FormattableStringExpression("Not supported type {0}", [TypeOf(_t)]))));
 
-            var body = new SwitchStatement(value, [persistableModelCase, defaultCase]);
+            var cases = new List<SwitchCaseStatement> { persistableModelCase };
+
+            if (HasFileBinaryContentXmlModel)
+            {
+                var fileBinaryContentCase = new SwitchCaseStatement(
+                    Declare("fileBinaryContent", typeof(FileBinaryContent), out var fileBinaryContentVar),
+                    new MethodBodyStatement[]
+                    {
+                        writer.Invoke(WriteFileBinaryContentMethodName, fileBinaryContentVar).Terminate(),
+                        Return()
+                    });
+                cases.Add(fileBinaryContentCase);
+            }
+
+            cases.Add(defaultCase);
+
+            var body = new SwitchStatement(value, cases);
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildWriteFileBinaryContentXmlMethodProvider()
+        {
+            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(FileBinaryContent));
+            var signature = new MethodSignature(
+                Name: WriteFileBinaryContentMethodName,
+                Description: null,
+                Modifiers: _methodModifiers,
+                ReturnType: null,
+                ReturnDescription: null,
+                Parameters: [_xmlWriterParameter, valueParameter]);
+
+            var writer = _xmlWriterParameter.As<XmlWriter>();
+            var value = valueParameter.As<FileBinaryContent>();
+
+            // value.TryComputeLength(out long length)
+            var tryComputeLength = value.TryComputeLength(out var lengthVariable);
+            var length = lengthVariable.As<long>();
+
+            // length <= int.MaxValue
+            var fitsInInt = new BinaryOperatorExpression("<=", length, IntSnippets.MaxValue).As<bool>();
+
+            // value.TryComputeLength(out long length) && length <= int.MaxValue ? (int)length : 0
+            var capacityExpression = new TernaryConditionalExpression(
+                tryComputeLength.And(fitsInInt),
+                length.CastTo(typeof(int)),
+                Literal(0));
+
+            var declareCapacity = Declare("capacity", typeof(int), capacityExpression, out var capacity);
+
+            // using MemoryStream stream = new MemoryStream(capacity);
+            var declareStream = UsingDeclare(
+                "stream",
+                typeof(MemoryStream),
+                New.Instance<MemoryStream>(capacity),
+                out var stream);
+            var streamScoped = stream.As<Stream>();
+
+            // value.WriteTo(stream);
+            var writeTo = value.WriteTo(streamScoped).Terminate();
+
+            // writer.WriteBase64(stream.GetBuffer(), 0, (int)stream.Position);
+            var positionAsInt = streamScoped.Position().CastTo(typeof(int));
+            var writeBase64 = writer.WriteBase64(streamScoped.GetBuffer(), Literal(0), positionAsInt);
+
+            var body = new MethodBodyStatement[]
+            {
+                declareCapacity,
+                declareStream,
+                writeTo,
+                writeBase64,
+            };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }

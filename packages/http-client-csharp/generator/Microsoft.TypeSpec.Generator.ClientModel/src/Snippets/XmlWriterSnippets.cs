@@ -38,6 +38,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement WriteValue(this ScopedApi<XmlWriter> writer, ValueExpression value)
             => writer.Invoke(nameof(XmlWriter.WriteValue), value).Terminate();
 
+        public static MethodBodyStatement WriteBase64(this ScopedApi<XmlWriter> writer, ValueExpression buffer, ValueExpression index, ValueExpression count)
+            => writer.Invoke(nameof(XmlWriter.WriteBase64), [buffer, index, count]).Terminate();
+
         public static MethodBodyStatement WriteAttributeString(this ScopedApi<XmlWriter> writer, string prefix, string localName, string ns, ValueExpression value)
             => writer.Invoke(nameof(XmlWriter.WriteAttributeString), [Literal(prefix), Literal(localName), Literal(ns), value]).Terminate();
 
