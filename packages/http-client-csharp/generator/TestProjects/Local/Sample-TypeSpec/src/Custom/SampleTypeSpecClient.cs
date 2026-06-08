@@ -15,11 +15,11 @@ namespace SampleTypeSpec
     {
         // If generated, flows would come from the service level OAuth2 flow definitions as shown in the Oauth2 Scopes section of this: https://typespec.io/docs/libraries/http/authentication/
         private readonly Dictionary<string, object>[] flows = [
-            new Dictionary<string, object> {
-                { GetTokenOptions.ScopesPropertyName, new string[] { "defaultScope" } },
-                { GetTokenOptions.TokenUrlPropertyName , "https://myauthserver.com/token"},
-                { GetTokenOptions.RefreshUrlPropertyName, "https://myauthserver.com/refresh"}
-            }
+           new Dictionary<string, object> {
+               { GetTokenOptions.ScopesPropertyName, new string[] { "defaultScope" } },
+               { GetTokenOptions.TokenUrlPropertyName , "https://myauthserver.com/token"},
+               { GetTokenOptions.RefreshUrlPropertyName, "https://myauthserver.com/refresh"}
+           }
         ];
 
         /// <summary>

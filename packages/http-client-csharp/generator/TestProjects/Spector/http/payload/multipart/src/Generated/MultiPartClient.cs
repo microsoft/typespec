@@ -5,23 +5,65 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Payload.MultiPart._FormData;
 
 namespace Payload.MultiPart
 {
+    /// <summary> Test for multipart. </summary>
     public partial class MultiPartClient
     {
-        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private FormData _cachedFormData;
 
-        internal MultiPartClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultiPartClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of MultiPartClient. </summary>
+        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions())
+        {
+        }
 
-        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) : this(null, endpoint, options) => throw null;
+        /// <summary> Initializes a new instance of MultiPartClient. </summary>
+        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        internal MultiPartClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultiPartClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
+            options ??= new MultiPartClientOptions();
+
+            _endpoint = endpoint;
+            if (authenticationPolicy != null)
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(MultiPartClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(MultiPartClient).Assembly) }, Array.Empty<PipelinePolicy>());
+            }
+        }
+
+        /// <summary> Initializes a new instance of MultiPartClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) : this(null, endpoint, options)
+        {
+        }
+
+        /// <summary> Initializes a new instance of MultiPartClient from a <see cref="MultiPartClientSettings"/>. </summary>
+        /// <param name="settings"> The settings for MultiPartClient. </param>
         [Experimental("SCME0002")]
-        public MultiPartClient(MultiPartClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public MultiPartClient(MultiPartClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual FormData GetFormDataClient() => throw null;
+        /// <summary> Initializes a new instance of FormData. </summary>
+        public virtual FormData GetFormDataClient()
+        {
+            return Volatile.Read(ref _cachedFormData) ?? Interlocked.CompareExchange(ref _cachedFormData, new FormData(Pipeline, _endpoint), null) ?? _cachedFormData;
+        }
     }
 }
