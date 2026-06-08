@@ -2382,7 +2382,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
             // sbyte.Parse(element.GetString())
-            SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
+            SerializationFormat.Int_String => Static(type).Invoke(nameof(int.Parse), [element.GetString()]),
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),

@@ -254,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 });
 
             var defaultCase = SwitchCaseStatement.Default(
-                Throw(New.NotSupportedException(new FormattableStringExpression("Not supported type {0}", [new TypeOfExpression(_t)]))));
+                Throw(New.NotSupportedException(new FormattableStringExpression("Not supported type {0}", [TypeOf(_t)]))));
 
             var body = new SwitchStatement(value, [persistableModelCase, defaultCase]);
 
