@@ -11,7 +11,6 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { unwrapNullableUnion } from "../lib/type-utils.js";
 import type { TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import { GraphQLTypeContext } from "./options.js";
@@ -52,7 +51,6 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
     union: (node: Union) => {
-      if (unwrapNullableUnion(node) !== undefined) return;
       if (typeUsage.isUnreachable(node)) return;
 
       const mutation = engine.mutateUnion(node, GraphQLTypeContext.Output);

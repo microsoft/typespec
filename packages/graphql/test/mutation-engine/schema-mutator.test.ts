@@ -113,7 +113,7 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("Unreachable")).toBe(true);
   });
 
-  it("skips T | null unions (nullable wrappers are not real unions)", async () => {
+  it("T | null unions do not appear in the TypeGraph (engine replaces with inner type)", async () => {
     await tester.compile(
       t.code`
         union ${t.union("MaybeString")} { string, null }
