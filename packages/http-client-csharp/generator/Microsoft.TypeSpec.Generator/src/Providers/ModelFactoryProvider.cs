@@ -476,7 +476,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var fullConstructor = modelProvider.FullConstructor;
             if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
+                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic && !IsEnumDiscriminator(p)))
             {
                 return null;
             }
