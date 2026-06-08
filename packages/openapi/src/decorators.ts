@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isErrorModel,
   isType,
   Model,
   Namespace,
@@ -26,7 +27,7 @@ import {
   TagMetadataWithName as TagMetadataWithNameInput,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
-import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs, TagMetadataWithName } from "./types.js";
 
 export const [
@@ -162,6 +163,39 @@ export const $defaultResponse: DefaultResponseDecorator = (
 ) => {
   (http as any).setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
+
+  return {
+    onTargetFinish: () => {
+      const diagnostics: ReturnType<typeof createDiagnostic>[] = [];
+
+      // Warn if the model already has a @statusCode property
+      for (const prop of entity.properties.values()) {
+        if (http.isStatusCode(context.program, prop)) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "default-response-with-status-code",
+              messageId: "statusCode",
+              target: entity,
+            }),
+          );
+          break;
+        }
+      }
+
+      // Warn if the model is marked with @error
+      if (isErrorModel(context.program, entity)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "default-response-with-status-code",
+            messageId: "error",
+            target: entity,
+          }),
+        );
+      }
+
+      return diagnostics;
+    },
+  };
 };
 
 /**
@@ -400,7 +434,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     if (
       !validateAdditionalInfoModel(
         context.program,
-        context.getArgumentTarget(0)!,
+        context.getArgumentTarget(1)!,
         resolvedMetadata,
         "TypeSpec.OpenAPI.TagMetadata",
       )
@@ -413,7 +447,7 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
       if (
         !validateIsUri(
           context.program,
-          context.getArgumentTarget(0)!,
+          context.getArgumentTarget(1)!,
           resolvedMetadata.externalDocs.url,
           "externalDocs.url",
         )

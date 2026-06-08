@@ -366,6 +366,20 @@ describe("openapi: decorators", () => {
     });
 
     describe("emit diagnostics when passing extension key not starting with `x-` in metadata", () => {
+      it("reports the diagnostic on the invalid metadata property", async () => {
+        const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+          @service
+          @tagMetadata("tagName", #{ /*custom*/custom: "Bar" })
+          namespace PetStore{};
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'custom'`,
+          pos: pos.custom.pos,
+        });
+      });
+
       it.each([
         ["root", `#{ foo:"Bar" }`],
         ["externalDocs", `#{ externalDocs: #{ url: "https://example.com", foo:"Bar"} }`],
@@ -564,6 +578,46 @@ describe("openapi: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi/tag-metadata-array-with-metadata-arg",
       });
+    });
+  });
+
+  describe("@defaultResponse", () => {
+    it("emits warning when used on a model with @statusCode", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model MyResponse {
+          @TypeSpec.Http.statusCode _: 500;
+          message: string;
+        }
+
+        @defaultResponse
+        model DefaultError is MyResponse {}
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "@typespec/openapi/default-response-with-status-code", message: /status code/ },
+      ]);
+    });
+
+    it("emits warning when used on a model marked with @error", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @error
+        @defaultResponse
+        model DefaultError {
+          message: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "@typespec/openapi/default-response-with-status-code", message: /@error/ },
+      ]);
+    });
+
+    it("does not emit warning when used on a plain model", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @defaultResponse
+        model DefaultError {
+          message: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, []);
     });
   });
 });

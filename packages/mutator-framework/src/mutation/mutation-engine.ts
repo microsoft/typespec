@@ -168,11 +168,25 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
 
   /**
    * Replaces a reference with a new type and mutates it.
+   *
+   * Most often called either:
+   * - from inside a member mutation's `mutate()` with the member's own "type"
+   *   half-edge, which accepts any `Type` (no wrapping needed); or
+   * - from inside a member mutation's static `mutationInfo` with the parent's
+   *   member-yielding half-edge (e.g. a `Model`'s `startPropertyEdge`).
+   *
+   * In the latter case, if `newType.kind` does not match the slot the
+   * half-edge fills (declared via `halfEdge.expectedTailKind`), `newType` is
+   * wrapped in a synthetic member (a `ModelProperty` or `UnionVariant` named
+   * after the original `reference`) so the parent's slot remains kind-correct.
+   * The synthetic's normal mutation flow then mutates `newType` recursively
+   * through its own "type" edge.
+   *
    * @param reference - Original reference to replace
    * @param newType - New type to use
    * @param options - Mutation options
    * @param halfEdge - Optional half edge for tracking
-   * @returns Mutation for the new type
+   * @returns Mutation for the new type, or for the synthetic member wrapping it
    */
   replaceAndMutateReference<TType extends Type>(
     reference: MemberType,
@@ -180,11 +194,48 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     options: MutationOptions = new MutationOptions(),
     halfEdge?: MutationHalfEdge,
   ) {
+    const expected = halfEdge?.expectedTailKind;
+    if (expected && expected !== newType.kind) {
+      const synthetic = this.#createSyntheticMember(expected, reference, newType);
+      if (synthetic) {
+        return this.mutateWorker(synthetic, [], options, halfEdge, {
+          isSynthetic: true,
+        }) as any;
+      }
+    }
+
     const { references } = resolveReference(reference);
     const mut = this.mutateWorker(newType, references, options, halfEdge, {
       isSynthetic: true,
     });
     return mut;
+  }
+
+  /**
+   * Builds a synthetic member of `expectedKind` named after `reference` and
+   * with its `.type` slot pointing at `newType`. Returns `undefined` if the
+   * expected kind cannot be wrapped as a member, leaving the caller to fall
+   * back to the default behavior.
+   */
+  #createSyntheticMember(
+    expectedKind: Type["kind"],
+    reference: MemberType,
+    newType: Type,
+  ): MemberType | undefined {
+    if (expectedKind === "ModelProperty" && reference.kind === "ModelProperty") {
+      return this.$.modelProperty.create({
+        name: reference.name,
+        type: newType,
+        optional: reference.optional,
+      });
+    }
+    if (expectedKind === "UnionVariant" && reference.kind === "UnionVariant") {
+      return this.$.unionVariant.create({
+        name: typeof reference.name === "string" ? reference.name : undefined,
+        type: newType,
+      });
+    }
+    return undefined;
   }
 
   /**
@@ -301,6 +352,16 @@ export class MutationOptions {
  * Half-edge used to link mutations together. This represents the head-end of a
  * mutation. When the tail is created, it is set on the half-edge and allows the
  * head mutation to connect its nodes to the tail mutation.
+ *
+ * `expectedTailKind` declares the kind of `Mutation` the head expects on the
+ * other end. The engine uses this so that, when `replaceAndMutateReference` is
+ * given a `newType` whose kind does not match the slot the half-edge fills
+ * (e.g. a parent `Model` whose `"property"` slot is being substituted with a
+ * `Model` instead of a `ModelProperty`), it can wrap the replacement in a
+ * synthetic member of the expected kind, preserving the parent's contract.
+ *
+ * Leaving `expectedTailKind` undefined means the half-edge accepts any
+ * `Mutation` kind (e.g. the `"type"` slot of a `ModelProperty`).
  */
 export class MutationHalfEdge<
   THead extends Mutation<any, any> = any,
@@ -309,12 +370,19 @@ export class MutationHalfEdge<
   head: THead;
   tail: TTail | undefined;
   readonly kind: string;
+  readonly expectedTailKind?: Type["kind"];
   #onTailCreation: (tail: TTail) => void;
 
-  constructor(kind: string, head: THead, onTailCreation: (tail: TTail) => void) {
+  constructor(
+    kind: string,
+    head: THead,
+    onTailCreation: (tail: TTail) => void,
+    expectedTailKind?: Type["kind"],
+  ) {
     this.kind = kind;
     this.head = head;
     this.#onTailCreation = onTailCreation;
+    this.expectedTailKind = expectedTailKind;
   }
 
   setTail(tail: TTail) {
