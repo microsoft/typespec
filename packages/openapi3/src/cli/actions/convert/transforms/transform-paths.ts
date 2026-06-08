@@ -9,6 +9,7 @@ import {
   Refable,
 } from "../../../../types.js";
 import {
+  TypeSpecDirective,
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
@@ -75,6 +76,10 @@ export function transformPaths(
 
       const requestBodies = transformRequestBodies(operation.requestBody, context);
 
+      const directives: TypeSpecDirective[] = operation.deprecated
+        ? [{ name: "deprecated", message: "deprecated" }]
+        : [];
+
       // Check if we need to split the operation due to incompatible content types
       const splitOperations = splitOperationByContentType(
         operationId,
@@ -85,6 +90,7 @@ export function transformPaths(
         operationResponses,
         tags,
         fixmes,
+        directives,
         usedOperationIds,
       );
 
@@ -161,6 +167,7 @@ function splitOperationByContentType(
   responses: any,
   tags: string[],
   fixmes: string[],
+  directives: TypeSpecDirective[],
   usedOperationIds: Set<string>,
 ): TypeSpecOperation[] {
   // If no request bodies or only one content type, no splitting needed
@@ -169,6 +176,7 @@ function splitOperationByContentType(
       {
         ...getScopeAndName(operationId),
         decorators,
+        directives,
         parameters,
         doc,
         operationId,
@@ -190,6 +198,7 @@ function splitOperationByContentType(
       {
         ...getScopeAndName(operationId),
         decorators,
+        directives,
         parameters,
         doc,
         operationId,
@@ -248,6 +257,7 @@ function splitOperationByContentType(
     operations.push({
       ...getScopeAndName(newOperationId),
       decorators: newDecorators,
+      directives,
       parameters,
       doc,
       operationId: newOperationId,

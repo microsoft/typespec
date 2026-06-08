@@ -673,6 +673,12 @@ const diagnostics = {
       default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
     },
   },
+  "config-unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown compiler feature "${"feature"}".`,
+    },
+  },
   "config-project-not-as-cli-config": {
     severity: "error",
     messages: {

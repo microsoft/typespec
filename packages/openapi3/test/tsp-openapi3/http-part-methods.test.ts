@@ -20,7 +20,7 @@ describe("tsp-openapi: HTTP part generation methods", () => {
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(specification as OpenAPI3Document);
+    context = createContext(specification as unknown as OpenAPI3Document);
   });
 
   describe("basic HTTP part wrapping", () => {

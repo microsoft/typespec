@@ -16,6 +16,7 @@ import {
   ignoreDiagnostics,
   reportDeprecated,
 } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -2151,13 +2152,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "experimental-feature",
-        messageId: "functionDeclarations",
-        target: node,
-      }),
-    );
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "functionDeclarations",
+          target: node,
+        }),
+      );
+    }
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -5812,7 +5815,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: CallExpressionNode,
     target: FunctionValue<unknown[]>,
   ): Type | Value | null {
-    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target, node);
 
     const canCall =
       satisfied &&
@@ -5914,6 +5917,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     args: Expression[],
     target: FunctionValue,
+    diagnosticTarget: Node,
   ): [boolean, any[]] {
     let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
@@ -5927,7 +5931,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           code: "invalid-argument-count",
           messageId: "atLeast",
           format: { actual: args.length.toString(), expected: minArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       return [false, []];
@@ -5936,7 +5940,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "invalid-argument-count",
           format: { actual: args.length.toString(), expected: maxArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       // This error doesn't actually prevent us from checking the arguments and evaluating the function.
@@ -5968,11 +5972,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        resolvedArgs.push(
-          ...restArgs.map((v, idx) =>
-            v !== null && isValue(v) ? marshalTypeForJs(v, undefined) : v,
-          ),
-        );
+        for (const [idx, restArg] of restArgs.entries()) {
+          const resolved = collector.pipe(
+            checkEntityAssignableToConstraint(restArg!, constraint, restArgExpressions[idx]),
+          );
+
+          satisfied &&= !!resolved;
+
+          resolvedArgs.push(
+            resolved
+              ? isValue(resolved)
+                ? marshalTypeForJs(resolved, undefined)
+                : resolved
+              : undefined,
+          );
+        }
       } else {
         const arg = args[idx++];
 

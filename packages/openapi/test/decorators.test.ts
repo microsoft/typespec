@@ -366,6 +366,20 @@ describe("openapi: decorators", () => {
     });
 
     describe("emit diagnostics when passing extension key not starting with `x-` in metadata", () => {
+      it("reports the diagnostic on the invalid metadata property", async () => {
+        const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+          @service
+          @tagMetadata("tagName", #{ /*custom*/custom: "Bar" })
+          namespace PetStore{};
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-key",
+          message: `OpenAPI extension must start with 'x-' but was 'custom'`,
+          pos: pos.custom.pos,
+        });
+      });
+
       it.each([
         ["root", `#{ foo:"Bar" }`],
         ["externalDocs", `#{ externalDocs: #{ url: "https://example.com", foo:"Bar"} }`],
