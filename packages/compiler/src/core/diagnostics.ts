@@ -80,7 +80,9 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
         return getValueNode(target) ?? target.type.node;
       case "MixedParameterConstraint":
         // Prefer the explicit union expression node when present, otherwise fall back
-        // to whichever side of the constraint has a source node.
+        // to a side of the constraint that has a source node. Type is preferred
+        // over valueType to keep location behavior stable for mixed constraints
+        // that include both branches.
         return target.node ?? target.type?.node ?? target.valueType?.node;
       case "Indeterminate":
         return target.type.node;
