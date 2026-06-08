@@ -117,5 +117,86 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 ];
             }
         }
+
+        [Test]
+        public void CodeWriter_UsesSimpleTypeNamesWhenResolverIsEnabled()
+        {
+            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+                writer.WriteLine($"{typeof(BinaryData)} Value;"));
+
+            StringAssert.Contains("using System;\n", result);
+            StringAssert.Contains("BinaryData Value;\n", result);
+            StringAssert.DoesNotContain("global::System.BinaryData", result);
+        }
+
+        [Test]
+        public void CodeWriter_FallsBackToFullyQualifiedNameForConflictingSimpleNames()
+        {
+            var firstType = new CSharpType("Foo", "Azure.Sample", false, false, null, [], true, false);
+            var secondType = new CSharpType("Foo", "System", false, false, null, [], true, false);
+
+            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+            {
+                writer.WriteLine($"{firstType} first;");
+                writer.WriteLine($"{secondType} second;");
+            });
+
+            StringAssert.DoesNotContain("using Azure.Sample;\n", result);
+            StringAssert.DoesNotContain("using System;\n", result);
+            StringAssert.Contains("Azure.Sample.Foo first;\n", result);
+            StringAssert.Contains("System.Foo second;\n", result);
+            StringAssert.DoesNotContain("global::", result);
+        }
+
+        [Test]
+        public void CodeWriter_FallsBackToFullyQualifiedNameWhenCurrentNamespaceShadowsType()
+        {
+            var resolver = CSharpTypeNameResolver.Create(
+            [
+                new TestTypeProvider(name: "BinaryData", ns: "Sample.Models")
+            ]);
+
+            var result = WriteWithResolver(resolver, writer =>
+                writer.WriteLine($"{typeof(BinaryData)} Value;"));
+
+            StringAssert.DoesNotContain("using System;\n", result);
+            StringAssert.Contains("System.BinaryData Value;\n", result);
+            StringAssert.DoesNotContain("global::", result);
+        }
+
+        [Test]
+        public void CodeWriter_UsesCommonNamespacePrefixForConflictingSimpleNames()
+        {
+            var firstType = new CSharpType("Foo", "Azure.ResourceManager.Network", false, false, null, [], true, false);
+            var secondType = new CSharpType("Foo", "Azure.ResourceManager.Compute", false, false, null, [], true, false);
+
+            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+            {
+                writer.WriteLine($"{firstType} first;");
+                writer.WriteLine($"{secondType} second;");
+            });
+
+            StringAssert.Contains("using Azure.ResourceManager;\n", result);
+            StringAssert.Contains("Network.Foo first;\n", result);
+            StringAssert.Contains("Compute.Foo second;\n", result);
+            StringAssert.DoesNotContain("global::", result);
+        }
+
+        private static string WriteWithResolver(CSharpTypeNameResolver resolver, Action<CodeWriter> write)
+        {
+            using var collector = new CodeWriter(resolver.CreateCollector(), suppressOutput: true);
+            using (collector.SetNamespace("Sample.Models"))
+            {
+                write(collector);
+            }
+
+            using var writer = new CodeWriter(resolver.CreateResolver(collector.ReferencedTypes, "Sample.Models"));
+            using (writer.SetNamespace("Sample.Models"))
+            {
+                write(writer);
+            }
+
+            return writer.ToString();
+        }
     }
 }
