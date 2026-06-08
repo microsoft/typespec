@@ -18,12 +18,29 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public virtual CodeFile Write()
         {
-            using var writer = new CodeWriter();
-            using (var ns = writer.SetNamespace(_provider.Type.Namespace))
+            var typeNameResolver = CodeModelGenerator.Instance.TypeNameResolver;
+            if (typeNameResolver.IsEnabled)
             {
-                WriteType(writer);
+                using var collector = new CodeWriter(typeNameResolver.CreateCollector(), suppressOutput: true);
+                using (collector.SetNamespace(_provider.Type.Namespace))
+                {
+                    WriteType(collector);
+                }
+
+                using var writer = new CodeWriter(typeNameResolver.CreateResolver(collector.ReferencedTypes, _provider.Type.Namespace));
+                using (writer.SetNamespace(_provider.Type.Namespace))
+                {
+                    WriteType(writer);
+                }
+                return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
             }
-            return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
+
+            using var legacyWriter = new CodeWriter();
+            using (var ns = legacyWriter.SetNamespace(_provider.Type.Namespace))
+            {
+                WriteType(legacyWriter);
+            }
+            return new CodeFile(legacyWriter.ToString(), _provider.RelativeFilePath);
         }
 
         private bool IsPublicContext(TypeProvider provider)

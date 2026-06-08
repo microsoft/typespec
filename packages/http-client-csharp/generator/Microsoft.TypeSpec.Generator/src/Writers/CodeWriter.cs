@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator
         private const char _space = ' ';
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
+        private readonly CSharpTypeNameResolver _typeNameResolver;
 
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
@@ -33,14 +34,20 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
-        internal CodeWriter()
+        private readonly bool _suppressOutput;
+
+        internal CodeWriter(CSharpTypeNameResolver? typeNameResolver = null, bool suppressOutput = false)
         {
+            _typeNameResolver = typeNameResolver ?? CSharpTypeNameResolver.Disabled;
+            _suppressOutput = suppressOutput;
             _builder = new UnsafeBufferSequence(1024);
 
             _scopes = new Stack<CodeScope>();
             _scopes.Push(new CodeScope(this, "", false, 0));
             _atBeginningOfLine = true;
         }
+
+        internal IReadOnlyCollection<CSharpType> ReferencedTypes => _typeNameResolver.ReferencedTypes;
 
         public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
@@ -660,14 +667,27 @@ namespace Microsoft.TypeSpec.Generator
             }
             else
             {
-                UseNamespace(type.Namespace);
-
-                AppendRaw("global::");
-                AppendRaw(type.Namespace);
-                AppendRaw(".");
-                if (type.DeclaringType is not null)
-                    AppendRaw($"{type.DeclaringType.Name}.");
-                AppendRaw(type.Name);
+                _typeNameResolver.AddReference(type);
+                if (_typeNameResolver.TryResolve(type, out var resolvedName, out var namespaceToImport))
+                {
+                    if (namespaceToImport is not null)
+                    {
+                        UseNamespace(namespaceToImport);
+                    }
+                    AppendRaw(resolvedName);
+                }
+                else
+                {
+                    if (!_typeNameResolver.IsEnabled)
+                    {
+                        UseNamespace(type.Namespace);
+                        AppendFullyQualifiedType(type);
+                    }
+                    else
+                    {
+                        AppendQualifiedType(type);
+                    }
+                }
             }
 
             if (type.Arguments.Any())
@@ -681,6 +701,7 @@ namespace Microsoft.TypeSpec.Generator
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
                     }
                 }
+
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
@@ -689,6 +710,21 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AppendRaw("?");
             }
+        }
+
+        private void AppendFullyQualifiedType(CSharpType type)
+        {
+            AppendRaw("global::");
+            AppendQualifiedType(type);
+        }
+
+        private void AppendQualifiedType(CSharpType type)
+        {
+            AppendRaw(type.Namespace);
+            AppendRaw(".");
+            if (type.DeclaringType is not null)
+                AppendRaw($"{type.DeclaringType.Name}.");
+            AppendRaw(type.Name);
         }
 
         public CodeWriter WriteLine(FormattableString formattableString)
@@ -709,6 +745,11 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRawChar(char c)
         {
+            if (_suppressOutput)
+            {
+                return this;
+            }
+
             var destination = _builder.GetSpan(1);
             destination[0] = c;
             _builder.Advance(1);
@@ -720,6 +761,11 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (span.Length == 0 )
                 return this;
+
+            if (_suppressOutput)
+            {
+                return this;
+            }
 
             AddSpaces(span);
 

@@ -89,7 +89,12 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // Ensure back-compatibility processing is done after all visitors have run
                 outputType.ProcessTypeForBackCompatibility();
+            }
 
+            CodeModelGenerator.Instance.TypeNameResolver = CSharpTypeNameResolver.Create(output.TypeProviders);
+
+            foreach (var outputType in output.TypeProviders)
+            {
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
