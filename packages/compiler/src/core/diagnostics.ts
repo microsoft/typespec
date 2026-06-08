@@ -73,12 +73,16 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
     return target.declarations[0];
   } else if ("entityKind" in target) {
     switch (target.entityKind) {
+      case "Type":
+        return target.node;
       case "Value":
-        return target.node ?? target.type.node;
+        return ("node" in target ? target.node : undefined) ?? target.type.node;
       case "MixedParameterConstraint":
         return target.node ?? target.type?.node ?? target.valueType?.node;
       case "Indeterminate":
         return target.type.node;
+      default:
+        return undefined;
     }
   } else if ("kind" in target && typeof target.kind === "number") {
     // node

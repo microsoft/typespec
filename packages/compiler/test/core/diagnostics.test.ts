@@ -37,9 +37,13 @@ describe("compiler: diagnostics", () => {
   });
 
   describe("getNodeForTarget", () => {
+    const mockValueNodeKind = 999;
+    const mockTypeNodeKind = 998;
+    const mockStringTypeNodeKind = 997;
+
     it("returns function value node when available", () => {
-      const valueNode = { kind: 999 } as any;
-      const typeNode = { kind: 998 } as any;
+      const valueNode = { kind: mockValueNodeKind } as any;
+      const typeNode = { kind: mockTypeNodeKind } as any;
 
       const target = {
         entityKind: "Value",
@@ -52,7 +56,7 @@ describe("compiler: diagnostics", () => {
     });
 
     it("falls back to value type node when value has no node", () => {
-      const typeNode = { kind: 997 } as any;
+      const typeNode = { kind: mockStringTypeNodeKind } as any;
 
       const target = {
         entityKind: "Value",
