@@ -42,9 +42,9 @@ import {
 import { createStateAccessors } from "./state-accessors.js";
 import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
+  SuppressionTracker,
   createSuppressionTracker,
   findDirectiveSuppressingOnNode,
-  SuppressionTracker,
 } from "./suppression-tracking.js";
 import {
   CompilerHost,

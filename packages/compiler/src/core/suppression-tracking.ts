@@ -21,9 +21,7 @@ export interface SuppressionTracker {
   getUnusedSuppressions(): UnusedSuppression[];
 }
 
-export function createSuppressionTracker(
-  sourceResolution: SourceResolution,
-): SuppressionTracker {
+export function createSuppressionTracker(sourceResolution: SourceResolution): SuppressionTracker {
   const suppressions = collectSuppressions(sourceResolution);
 
   return {
