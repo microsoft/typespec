@@ -16,6 +16,7 @@ import {
   SyntaxKind,
   Type,
   TypeSpecDiagnosticTarget,
+  Value,
 } from "./types.js";
 
 export type WriteLine = (text?: string) => void;
@@ -76,8 +77,10 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
       case "Type":
         return target.node;
       case "Value":
-        return ("node" in target ? target.node : undefined) ?? target.type.node;
+        return getValueNode(target) ?? target.type.node;
       case "MixedParameterConstraint":
+        // Prefer the explicit union expression node when present, otherwise fall back
+        // to whichever side of the constraint has a source node.
         return target.node ?? target.type?.node ?? target.valueType?.node;
       case "Indeterminate":
         return target.type.node;
@@ -90,6 +93,17 @@ export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undef
   } else {
     // type
     return (target as Type).node;
+  }
+}
+
+function getValueNode(value: Value): Node | undefined {
+  switch (value.valueKind) {
+    case "ObjectValue":
+    case "ArrayValue":
+    case "Function":
+      return value.node;
+    default:
+      return undefined;
   }
 }
 

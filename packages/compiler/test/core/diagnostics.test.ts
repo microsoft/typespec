@@ -4,6 +4,7 @@ import { SourceLocationOptions, getSourceLocation } from "../../src/index.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
 import { getNodeForTarget } from "../../src/core/diagnostics.js";
+import { SyntaxKind } from "../../src/core/types.js";
 
 describe("compiler: diagnostics", () => {
   async function expectLocationMatch(code: string, options: SourceLocationOptions = {}) {
@@ -37,9 +38,9 @@ describe("compiler: diagnostics", () => {
   });
 
   describe("getNodeForTarget", () => {
-    const mockValueNodeKind = 999;
-    const mockTypeNodeKind = 998;
-    const mockStringTypeNodeKind = 997;
+    const mockValueNodeKind = SyntaxKind.ModelStatement;
+    const mockTypeNodeKind = SyntaxKind.ScalarStatement;
+    const mockStringTypeNodeKind = SyntaxKind.NamespaceStatement;
 
     it("returns function value node when available", () => {
       const valueNode = { kind: mockValueNodeKind } as any;
