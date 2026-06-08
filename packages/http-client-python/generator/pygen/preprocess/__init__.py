@@ -378,6 +378,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if type.get("values"):
                 # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
                 for value in type["values"]:
+                    if value.get("isExactName", False):
+                        continue
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name
