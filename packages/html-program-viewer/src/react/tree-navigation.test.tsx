@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import type { Type } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { NodeIcon } from "./tree-navigation.js";
 
@@ -10,7 +11,7 @@ describe("NodeIcon", () => {
           kind: "type",
           id: "$.broken",
           name: "broken",
-          type: { kind: undefined } as never,
+          type: { kind: undefined } as unknown as Type,
           children: [],
         }}
       />,
