@@ -8,7 +8,7 @@ import {
   type MutationInfo,
   type MutationOptions,
 } from "@typespec/mutator-framework";
-import { sanitizeNameForGraphQL } from "../../lib/type-utils.js";
+import { applyTypeNamePipeline } from "../../lib/naming.js";
 import type { GraphQLEnumMemberMutation } from "./enum-member.js";
 
 /**
@@ -62,9 +62,11 @@ export class GraphQLEnumMutation extends EnumMutation<MutationOptions, any, Muta
   }
 
   mutate() {
-    // Apply GraphQL name sanitization to the enum
     this.#mutationNode.mutate((enumType) => {
-      enumType.name = sanitizeNameForGraphQL(enumType.name);
+      enumType.name = applyTypeNamePipeline(enumType.name, {
+        isInput: false,
+        isInterface: false,
+      });
     });
     // Handle member mutations with proper edges
     this.mutateMembers();

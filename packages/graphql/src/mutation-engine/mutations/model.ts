@@ -1,4 +1,4 @@
-import type { MemberType, Model } from "@typespec/compiler";
+import { isTemplateInstance, type MemberType, type Model } from "@typespec/compiler";
 import {
   SimpleModelMutation,
   type MutationInfo,
@@ -6,7 +6,9 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
-import { sanitizeNameForGraphQL } from "../../lib/type-utils.js";
+import { isInterface } from "../../lib/interface.js";
+import { applyTypeNamePipeline } from "../../lib/naming.js";
+import { composeTemplateName } from "../../lib/template-composition.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /**
@@ -28,15 +30,22 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
    * Undefined when the model was mutated directly (not through an operation).
    */
   get typeContext(): GraphQLTypeContext | undefined {
-    return this.options instanceof GraphQLMutationOptions
-      ? this.options.typeContext
-      : undefined;
+    return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
   }
 
   mutate() {
-    // Apply GraphQL name sanitization
+    const program = this.engine.$.program;
+    const isInputContext = this.typeContext === GraphQLTypeContext.Input;
+    const isInterfaceModel = isInterface(program, this.sourceType);
+    const rawName = isTemplateInstance(this.sourceType)
+      ? composeTemplateName(this.sourceType)
+      : this.sourceType.name;
+
     this.mutationNode.mutate((model) => {
-      model.name = sanitizeNameForGraphQL(model.name);
+      model.name = applyTypeNamePipeline(rawName, {
+        isInput: isInputContext,
+        isInterface: isInterfaceModel,
+      });
     });
     super.mutate();
   }

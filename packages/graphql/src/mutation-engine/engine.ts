@@ -9,10 +9,10 @@ import {
 import { $ } from "@typespec/compiler/typekit";
 import {
   MutationEngine,
-  SimpleMutationOptions,
   SimpleInterfaceMutation,
   SimpleIntrinsicMutation,
   SimpleLiteralMutation,
+  SimpleMutationOptions,
   SimpleUnionVariantMutation,
 } from "@typespec/mutator-framework";
 import {

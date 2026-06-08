@@ -126,5 +126,4 @@ describe("type-utils", () => {
       expect(getSingleNameWithNamespace("MyType")).toBe("MyType");
     });
   });
-
 });

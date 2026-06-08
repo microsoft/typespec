@@ -1,4 +1,10 @@
-import { type MemberType, type Model, type Type, type Union, getTypeName } from "@typespec/compiler";
+import {
+  type MemberType,
+  type Model,
+  type Type,
+  type Union,
+  getTypeName,
+} from "@typespec/compiler";
 import {
   MutationEngine,
   MutationHalfEdge,
@@ -10,15 +16,14 @@ import {
   UnionVariantMutationNode,
 } from "@typespec/mutator-framework";
 import { reportDiagnostic } from "../../lib.js";
+import {
+  applyBaseNamePipeline,
+  applyFieldNamePipeline,
+  applyTypeNamePipeline,
+} from "../../lib/naming.js";
 import { setNullable } from "../../lib/nullable.js";
 import { setOneOf } from "../../lib/one-of.js";
-import {
-  unwrapNullableUnion,
-  getUnionName,
-  sanitizeNameForGraphQL,
-  stripNullVariants,
-  toTypeName,
-} from "../../lib/type-utils.js";
+import { getUnionName, stripNullVariants, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /** Convert a variant name (string or symbol) to a string. */
@@ -53,9 +58,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
 
   /** The input/output context, or undefined if options aren't GraphQLMutationOptions. */
   get typeContext(): GraphQLTypeContext | undefined {
-    return this.options instanceof GraphQLMutationOptions
-      ? this.options.typeContext
-      : undefined;
+    return this.options instanceof GraphQLMutationOptions ? this.options.typeContext : undefined;
   }
 
   get mutationNode() {
@@ -112,9 +115,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
 
     const { variants: sourceVariants, isNullable: hasNull } = stripNullVariants(this.sourceType);
 
-    const flattenedVariants = this.deduplicateVariants(
-      this.flattenVariants(sourceVariants),
-    );
+    const flattenedVariants = this.deduplicateVariants(this.flattenVariants(sourceVariants));
 
     if (flattenedVariants.length === 0) {
       reportDiagnostic(program, { code: "empty-union", target: this.sourceType });
@@ -152,7 +153,8 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       if (isScalar) {
         const variantName = variantNameToString(variant.name);
         const unionName = this.sourceType.name ?? "";
-        const wrapperName = toTypeName(unionName) + toTypeName(variantName) + "UnionVariant";
+        const wrapperName =
+          applyBaseNamePipeline(unionName) + applyBaseNamePipeline(variantName) + "UnionVariant";
 
         const valueProp = tk.modelProperty.create({
           name: "value",
@@ -180,9 +182,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
 
     const { variants: sourceVariants, isNullable: hasNull } = stripNullVariants(this.sourceType);
 
-    const flattenedVariants = this.deduplicateVariants(
-      this.flattenVariants(sourceVariants),
-    );
+    const flattenedVariants = this.deduplicateVariants(this.flattenVariants(sourceVariants));
 
     if (flattenedVariants.length === 0) {
       reportDiagnostic(program, { code: "empty-union", target: this.sourceType });
@@ -191,7 +191,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
 
     const properties: Record<string, ReturnType<typeof tk.modelProperty.create>> = {};
     for (const variant of flattenedVariants) {
-      const fieldName = sanitizeNameForGraphQL(variantNameToString(variant.name));
+      const fieldName = applyFieldNamePipeline(variantNameToString(variant.name));
       properties[fieldName] = tk.modelProperty.create({
         name: fieldName,
         type: variant.type,
@@ -200,7 +200,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     }
 
     const unionName = getUnionName(this.sourceType, program);
-    const modelName = sanitizeNameForGraphQL(unionName) + "Input";
+    const modelName = applyTypeNamePipeline(unionName, { isInput: true, isInterface: false });
 
     const oneOfModel = tk.model.create({
       name: modelName,

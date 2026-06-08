@@ -6,12 +6,9 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
+import { applyFieldNamePipeline } from "../../lib/naming.js";
 import { setNullable, setNullableElements } from "../../lib/nullable.js";
-import {
-  isNullableUnion,
-  sanitizeNameForGraphQL,
-  unwrapNullableUnion,
-} from "../../lib/type-utils.js";
+import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 
 /** GraphQL-specific ModelProperty mutation. */
 export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<SimpleMutationOptions> {
@@ -26,7 +23,7 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
     // Register rename callback before edge connections trigger mutation.
     this.mutationNode.whenMutated((property) => {
       if (property) {
-        property.name = sanitizeNameForGraphQL(property.name);
+        property.name = applyFieldNamePipeline(property.name);
       }
     });
   }
@@ -41,7 +38,9 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
     // For element nullability, look through an outer `| null` wrapper to find the array.
     // e.g. `(string | null)[] | null` → unwrap outer null → check array elements.
     const innerType =
-      originalType.kind === "Union" ? (unwrapNullableUnion(originalType) ?? originalType) : originalType;
+      originalType.kind === "Union"
+        ? (unwrapNullableUnion(originalType) ?? originalType)
+        : originalType;
 
     const isArrayWithNullableElements =
       innerType.kind === "Model" &&

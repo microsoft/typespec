@@ -6,8 +6,9 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
+import { applyFieldNamePipeline } from "../../lib/naming.js";
 import { setNullable } from "../../lib/nullable.js";
-import { isNullableUnion, sanitizeNameForGraphQL } from "../../lib/type-utils.js";
+import { isNullableUnion } from "../../lib/type-utils.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /** GraphQL-specific Operation mutation. */
@@ -47,7 +48,7 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     const hasNullableReturn = isNullableUnion(this.sourceType.returnType);
 
     this.mutationNode.mutate((operation) => {
-      operation.name = sanitizeNameForGraphQL(operation.name);
+      operation.name = applyFieldNamePipeline(operation.name);
     });
     super.mutate();
 

@@ -7,13 +7,13 @@ import {
   type SimpleMutations,
 } from "@typespec/mutator-framework";
 import { reportDiagnostic } from "../../lib.js";
+import { applyTypeNamePipeline } from "../../lib/naming.js";
 import {
   getCustomScalarMapping,
   getScalarMapping,
   isStdScalar,
 } from "../../lib/scalar-mappings.js";
 import { getSpecifiedBy, setSpecifiedByUrl } from "../../lib/specified-by.js";
-import { sanitizeNameForGraphQL } from "../../lib/type-utils.js";
 
 /**
  * GraphQL built-in scalar type names.
@@ -76,16 +76,19 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
         // User-defined custom scalar — sanitize name, strip extends.
         // May still have a mapping via extends chain (e.g. scalar MyInt extends int64),
         // which is used for @specifiedBy below but not for renaming.
-        const sanitizedName = sanitizeNameForGraphQL(this.sourceType.name);
-        if (GRAPHQL_BUILTIN_SCALARS.has(sanitizedName)) {
+        const finalName = applyTypeNamePipeline(this.sourceType.name, {
+          isInput: false,
+          isInterface: false,
+        });
+        if (GRAPHQL_BUILTIN_SCALARS.has(finalName)) {
           reportDiagnostic(program, {
             code: "graphql-builtin-scalar-collision",
             target: this.sourceType,
-            format: { name: this.sourceType.name, builtinName: sanitizedName },
+            format: { name: this.sourceType.name, builtinName: finalName },
           });
         }
         this.mutationNode.mutate((scalar) => {
-          scalar.name = sanitizedName;
+          scalar.name = finalName;
           scalar.baseScalar = undefined;
         });
       }
@@ -95,8 +98,7 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
 
     // Apply @specifiedBy: explicit decorator on source wins, then mapping table
     // (mapping may come from an ancestor via the extends chain)
-    const specUrl =
-      getSpecifiedBy(program, this.sourceType) ?? mapping?.specificationUrl;
+    const specUrl = getSpecifiedBy(program, this.sourceType) ?? mapping?.specificationUrl;
     if (specUrl) {
       setSpecifiedByUrl(program, this.mutatedType, specUrl);
     }
