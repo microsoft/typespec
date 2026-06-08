@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            Expression.WriteAsStatement(writer);
+            Expression.Write(writer);
             writer.WriteRawLine(";");
         }
 
