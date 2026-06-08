@@ -1142,6 +1142,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task TestBindCoreMethod_HonorsCustomPropertyRename()
+        {
+            // Custom code renames the generated 'Endpoint' settings property to 'ServiceUri'
+            // via [CodeGenMember("Endpoint")]. BindCore should assign to the renamed property
+            // while still reading from the original configuration key.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace", parameters: inputParameters);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settingsProvider = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settingsProvider);
+            Assert.IsNotNull(settingsProvider!.CustomCodeView,
+                "CustomCodeView should be available from the compilation");
+
+            // The generated 'Endpoint' property should be replaced by the custom 'ServiceUri' property.
+            Assert.IsNull(settingsProvider.Properties.FirstOrDefault(p => p.Name == "Endpoint"),
+                "Generated 'Endpoint' property should be replaced by the custom code rename");
+
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            // Validate full generated output: BindCore should assign to the renamed 'ServiceUri'
+            // property while still reading from the original 'Endpoint' configuration key.
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task TestGeneratedSettings_WithCustomizedBindCore()
         {
             await MockHelpers.LoadMockGeneratorAsync(
