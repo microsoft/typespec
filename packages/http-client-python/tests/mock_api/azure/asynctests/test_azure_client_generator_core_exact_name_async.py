@@ -6,6 +6,7 @@
 import pytest
 import pytest_asyncio
 from specs.azure.clientgenerator.core.exactname.aio import ExactNameClient
+from specs.azure.clientgenerator.core.exactname.enumvalue.models import EndpointConfig
 from specs.azure.clientgenerator.core.exactname.model.models import My_model
 from specs.azure.clientgenerator.core.exactname.property.models import ScopedModel
 
@@ -28,6 +29,23 @@ async def test_property(client: ExactNameClient):
     body = ScopedModel({"name": "test"})
     response = await client.property.send(body=body)
     assert response._my_name == "test"
+
+
+@pytest.mark.asyncio
+async def test_enum_value(client: ExactNameClient):
+    body = EndpointConfig(protocol="a2a")
+    response = await client.enum_value.send(body=body)
+    assert response.protocol == "a2a"
+
+
+@pytest.mark.asyncio
+async def test_operation(client: ExactNameClient):
+    await client.operation.my_op()
+
+
+@pytest.mark.asyncio
+async def test_parameter(client: ExactNameClient):
+    await client.parameter.send(myParam="hello")
 
 
 def test_model_class_name_preserved():

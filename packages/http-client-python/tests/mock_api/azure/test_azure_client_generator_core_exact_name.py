@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from specs.azure.clientgenerator.core.exactname import ExactNameClient
+from specs.azure.clientgenerator.core.exactname.enumvalue.models import EndpointConfig
 from specs.azure.clientgenerator.core.exactname.model.models import My_model
 from specs.azure.clientgenerator.core.exactname.property.models import ScopedModel
 
@@ -25,6 +26,20 @@ def test_property(client: ExactNameClient):
     body = ScopedModel({"name": "test"})
     response = client.property.send(body=body)
     assert response._my_name == "test"
+
+
+def test_enum_value(client: ExactNameClient):
+    body = EndpointConfig(protocol="a2a")
+    response = client.enum_value.send(body=body)
+    assert response.protocol == "a2a"
+
+
+def test_operation(client: ExactNameClient):
+    client.operation.my_op()
+
+
+def test_parameter(client: ExactNameClient):
+    client.parameter.send(myParam="hello")
 
 
 def test_model_class_name_preserved():
