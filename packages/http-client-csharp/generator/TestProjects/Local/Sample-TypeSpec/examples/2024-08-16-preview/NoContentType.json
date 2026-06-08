@@ -1,0 +1,75 @@
+{
+  "operationId": "noContentType",
+  "title": "CustomExample",
+  "parameters": {
+    "p1": "header-value",
+    "p2": "path-value",
+    "action": {
+      "requiredString": "sample-string",
+      "requiredInt": "42",
+      "requiredCollection": ["1", "2"],
+      "requiredDictionary": {
+        "key1": "1"
+      },
+      "requiredModel": {
+        "name": "sample-name",
+        "requiredUnion": "union-value",
+        "requiredLiteralString": "accept",
+        "requiredNullableString": "nullable-value",
+        "requiredNullableLiteralString": "someValue",
+        "requiredLiteralInt": 123,
+        "requiredLiteralFloat": 1.23,
+        "requiredLiteralBool": false,
+        "requiredBadDescription": "description",
+        "requiredNullableList": [1, 2, 3]
+      },
+      "requiredUnknown": "unknown-value",
+      "requiredRecordUnknown": {
+        "key1": "value1"
+      },
+      "modelWithRequiredNullable": {
+        "requiredNullablePrimitive": 42,
+        "requiredExtensibleEnum": "1",
+        "requiredFixedEnum": "1"
+      },
+      "requiredBytes": "dGVzdA=="
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "requiredString": "sample-string",
+        "requiredInt": "42",
+        "requiredCollection": ["1", "2"],
+        "requiredDictionary": {
+          "key1": "1"
+        },
+        "requiredModel": {
+          "name": "sample-thing",
+          "requiredUnion": "union-value",
+          "requiredLiteralString": "accept",
+          "requiredNullableString": "nullable-value",
+          "requiredNullableLiteralString": "someValue",
+          "requiredLiteralInt": 123,
+          "requiredLiteralFloat": 1.23,
+          "requiredLiteralBool": false,
+          "requiredBadDescription": "description",
+          "requiredNullableList": [1, 2, 3]
+        },
+        "requiredUnknown": "unknown-value",
+        "requiredRecordUnknown": {
+          "key1": "value1"
+        },
+        "readOnlyRequiredRecordUnknown": {
+          "key1": "value1"
+        },
+        "modelWithRequiredNullable": {
+          "requiredNullablePrimitive": 42,
+          "requiredExtensibleEnum": "1",
+          "requiredFixedEnum": "1"
+        },
+        "requiredBytes": "dGVzdA=="
+      }
+    }
+  }
+}

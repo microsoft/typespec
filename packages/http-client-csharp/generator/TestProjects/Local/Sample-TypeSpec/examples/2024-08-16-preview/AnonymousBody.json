@@ -1,0 +1,38 @@
+{
+  "operationId": "anonymousBody",
+  "title": "CustomExample",
+  "parameters": {
+    "requiredQueryParam": "someRequiredLiteralQueryParam",
+    "required-header": "someRequiredLiteralHeader",
+    "thing": {
+      "name": "anonymous",
+      "requiredUnion": "test",
+      "requiredLiteralString": "accept",
+      "requiredNullableString": "required-nullable",
+      "requiredNullableLiteralString": "someValue",
+      "requiredLiteralInt": 123,
+      "requiredLiteralFloat": 1.23,
+      "requiredLiteralBool": false,
+      "requiredBadDescription": "bad",
+      "requiredNullableList": [1, 2, 3],
+      "propertyWithSpecialDocs": "special"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "anonymous",
+        "requiredUnion": "test",
+        "requiredLiteralString": "accept",
+        "requiredNullableString": "required-nullable",
+        "requiredNullableLiteralString": "someValue",
+        "requiredLiteralInt": 123,
+        "requiredLiteralFloat": 1.23,
+        "requiredLiteralBool": false,
+        "requiredBadDescription": "bad",
+        "requiredNullableList": [1, 2, 3],
+        "propertyWithSpecialDocs": "special"
+      }
+    }
+  }
+}

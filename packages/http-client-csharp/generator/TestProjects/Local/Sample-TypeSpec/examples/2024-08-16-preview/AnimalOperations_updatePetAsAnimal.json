@@ -1,0 +1,20 @@
+{
+  "operationId": "AnimalOperations_updatePetAsAnimal",
+  "title": "CustomExample",
+  "parameters": {
+    "animal": {
+      "kind": "pet",
+      "name": "Buddy",
+      "trained": false
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "kind": "pet",
+        "name": "Buddy",
+        "trained": false
+      }
+    }
+  }
+}

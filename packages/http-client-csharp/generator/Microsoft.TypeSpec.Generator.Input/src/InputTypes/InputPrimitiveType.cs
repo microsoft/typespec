@@ -39,6 +39,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static InputPrimitiveType PlainTime { get; } = new(InputPrimitiveTypeKind.PlainTime, "plainTime", "TypeSpec.plainTime");
         public static InputPrimitiveType Any { get; } = new(InputPrimitiveTypeKind.Unknown, "unknown", string.Empty);
 
-        public bool IsNumber => Kind is InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Int32 or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.Float32 or InputPrimitiveTypeKind.Float64 or InputPrimitiveTypeKind.Decimal or InputPrimitiveTypeKind.Decimal128 or InputPrimitiveTypeKind.Numeric;
+        public bool IsNumber => Kind is InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Numeric
+            or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32 or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.SafeInt
+            or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 or InputPrimitiveTypeKind.UInt32 or InputPrimitiveTypeKind.UInt64
+            or InputPrimitiveTypeKind.Float32 or InputPrimitiveTypeKind.Float64
+            or InputPrimitiveTypeKind.Decimal or InputPrimitiveTypeKind.Decimal128;
     }
 }

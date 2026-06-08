@@ -1,0 +1,26 @@
+{
+  "operationId": "helloLiteral",
+  "title": "CustomExample",
+  "parameters": {
+    "p1": "test",
+    "p2": 123,
+    "p3": true
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "literal",
+        "requiredUnion": "test",
+        "requiredLiteralString": "accept",
+        "requiredNullableString": "required-nullable",
+        "requiredNullableLiteralString": "someValue",
+        "requiredLiteralInt": 123,
+        "requiredLiteralFloat": 1.23,
+        "requiredLiteralBool": false,
+        "requiredBadDescription": "bad",
+        "requiredNullableList": [1, 2, 3],
+        "propertyWithSpecialDocs": "special"
+      }
+    }
+  }
+}

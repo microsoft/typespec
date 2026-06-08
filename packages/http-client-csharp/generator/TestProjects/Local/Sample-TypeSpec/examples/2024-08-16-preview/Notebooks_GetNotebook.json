@@ -1,0 +1,15 @@
+{
+  "operationId": "Notebooks_getNotebook",
+  "title": "CustomExample",
+  "parameters": {
+    "notebookName": "my-notebook"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "my-notebook",
+        "content": "notebook content"
+      }
+    }
+  }
+}

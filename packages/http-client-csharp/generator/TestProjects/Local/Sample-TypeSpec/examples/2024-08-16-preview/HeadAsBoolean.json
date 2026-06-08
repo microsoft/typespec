@@ -1,0 +1,10 @@
+{
+  "operationId": "headAsBoolean",
+  "title": "CustomExample",
+  "parameters": {
+    "id": "test-id"
+  },
+  "responses": {
+    "200": {}
+  }
+}

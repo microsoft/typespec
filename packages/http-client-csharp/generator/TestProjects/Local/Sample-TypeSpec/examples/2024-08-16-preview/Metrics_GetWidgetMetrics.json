@@ -1,0 +1,16 @@
+{
+  "operationId": "Metrics_getWidgetMetrics",
+  "title": "CustomExample",
+  "parameters": {
+    "metricsNamespace": "testNamespace",
+    "day": "Monday"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "numSold": 42,
+        "averagePrice": 9.99
+      }
+    }
+  }
+}
