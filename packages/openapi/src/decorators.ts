@@ -376,7 +376,18 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
     }
 
     // Validate and store all tags from the array
+    const seenTags = new Set<string>();
     for (const tagItem of name) {
+      if (seenTags.has(tagItem.name)) {
+        reportDiagnostic(context.program, {
+          code: "duplicate-tag",
+          format: { tagName: tagItem.name },
+          target: context.getArgumentTarget(0)!,
+        });
+        return;
+      }
+      seenTags.add(tagItem.name);
+
       if (
         !validateAdditionalInfoModel(
           context.program,
