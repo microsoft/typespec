@@ -225,6 +225,7 @@ async function createProgram(
   let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
   let suppressionTracker: SuppressionTracker | undefined;
 
   const logger = createLogger({ sink: host.logSink });
