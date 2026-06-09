@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
-        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter, includeModifiers: false);
-        public static VariableExpression AsArgument(this ParameterProvider property) => ParameterProvider.GetVariableExpression(property, includeModifiers: true);
+        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter);
+        public static ValueExpression AsArgument(this ParameterProvider parameter) => ParameterProvider.GetArgumentExpression(parameter);
     }
 }

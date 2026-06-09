@@ -10,7 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
     public class VariableExpressionTests
     {
         [Test]
-        public void VariableExpressionWithoutRef()
+        public void VariableExpressionWritesName()
         {
             var variableExpression = new VariableExpression(typeof(int), "foo");
             using CodeWriter writer = new CodeWriter();
@@ -20,13 +20,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
         }
 
         [Test]
-        public void VariableExpressionWithRef()
+        public void VariableExpressionSupportsLegacyRefAndOutConstructor()
         {
-            var variableExpression = new VariableExpression(typeof(int), "foo", true);
-            using CodeWriter writer = new CodeWriter();
-            variableExpression.Write(writer);
+#pragma warning disable CS0618 // Obsolete
+            var variableExpression = new VariableExpression(typeof(int), "foo", isRef: true, isOut: true);
 
-            Assert.AreEqual("ref foo", writer.ToString(false));
+            Assert.IsTrue(variableExpression.IsRef);
+            Assert.IsTrue(variableExpression.IsOut);
+#pragma warning restore CS0618
         }
     }
 }
