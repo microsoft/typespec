@@ -4590,6 +4590,125 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("GetAll", inputServiceMethod.Name);
             Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
         }
+        private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
+        {
+            var body = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                location: InputRequestLocation.Body);
+
+            var bodyOperationParameter = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                requestMediaTypes: ["multipart/form-data"],
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyOperationParameter]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [body]);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [inputClient],
+                inputModels: () => [bodyModel]);
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_RequiredFileBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_MultiFileOnlyBody()
+        {
+            var inputModel = MultipartModel(
+                "BinaryArrayPartsRequest",
+                [MultiFilePartProperty("pictures")]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalFileBody()
+        {
+            var inputModel = MultipartModel(
+                "OptionalFileRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("optionalFile", isRequired: false),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel, bodyIsRequired: false);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
+            => InputFactory.Property(
+                name,
+                InputFactory.FileType(),
+                isRequired: isRequired,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true)));
+
+        private static InputModelProperty MultiFilePartProperty(string name)
+            => InputFactory.Property(
+                name,
+                InputFactory.Array(InputFactory.FileType()),
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
+
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+            => InputFactory.Property(
+                name,
+                type,
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+
+        private static InputModelType MultipartModel(string name, IEnumerable<InputModelProperty> properties)
+            => InputFactory.Model(name, usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData, properties: properties);
+
     }
 }
 

@@ -378,6 +378,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if type.get("values"):
                 # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
                 for value in type["values"]:
+                    if value.get("isExactName", False):
+                        continue
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name
@@ -473,15 +475,21 @@ class PreProcessPlugin(YamlUpdatePlugin):
     ) -> None:
         yaml_data["groupName"] = self.pad_reserved_words(yaml_data["groupName"], PadType.OPERATION_GROUP, yaml_data)
         yaml_data["groupName"] = to_snake_case(yaml_data["groupName"])
-        yaml_data["name"] = yaml_data["name"].lower()
-        if yaml_data.get("isLroInitialOperation") is True:
-            yaml_data["name"] = (
-                "_"
-                + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data)
-                + "_initial"
-            )
+        if yaml_data.get("isExactName", False):
+            # exact() client name: keep the operation name as-is without lowercasing,
+            # snake-casing, or padding reserved words.
+            if yaml_data.get("isLroInitialOperation") is True:
+                yaml_data["name"] = "_" + extract_original_name(yaml_data["name"]) + "_initial"
         else:
-            yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
+            yaml_data["name"] = yaml_data["name"].lower()
+            if yaml_data.get("isLroInitialOperation") is True:
+                yaml_data["name"] = (
+                    "_"
+                    + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data)
+                    + "_initial"
+                )
+            else:
+                yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
         yaml_data["description"] = update_description(yaml_data["description"], yaml_data["name"])
         yaml_data["summary"] = update_description(yaml_data.get("summary", ""))
         body_parameter = yaml_data.get("bodyParameter")

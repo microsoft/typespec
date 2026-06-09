@@ -208,6 +208,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
+        private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
+        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
+
         private protected virtual bool FilterCustomizedMembers => true;
 
         public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
@@ -461,6 +464,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual SuppressionStatement[] BuildDisabledFileWarnings() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
