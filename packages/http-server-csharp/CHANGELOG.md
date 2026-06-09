@@ -5,7 +5,6 @@
 ### Features
 
 - [#10372](https://github.com/microsoft/typespec/pull/10372) Rewrite using emitter framework and alloy engine
-- [#10372](https://github.com/microsoft/typespec/pull/10372) Rewrite using alloy and emitter framework
 
 
 ## 0.58.0-alpha.28
