@@ -1,4 +1,4 @@
-package type.file;
+package type.file.body;
 
 /**
  * Defines values for UploadFileMultipleContentTypesContentType.
