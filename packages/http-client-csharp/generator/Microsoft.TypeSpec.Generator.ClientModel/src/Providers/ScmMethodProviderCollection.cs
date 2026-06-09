@@ -842,7 +842,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
                         typeProvider is ModelProvider paramModel)
                     {
-                        AddArgument(protocolParam, paramModel.GetPropertyExpression(convenienceParam, propertySegments));
+                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments);
+                        // When the protocol parameter expects BinaryContent (i.e., it's a content parameter),
+                        // wrap the resolved BinaryData property expression with BinaryContent.Create().
+                        if (protocolParam.IsContentParameter)
+                        {
+                            AddArgument(protocolParam, RequestContentApiSnippets.Create(propertyExpression));
+                        }
+                        else
+                        {
+                            AddArgument(protocolParam, propertyExpression);
+                        }
                     }
                 }
                 else

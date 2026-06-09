@@ -210,6 +210,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-streaming-jsonl": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/streaming/jsonl -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-type-array": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/array -g StubLibraryGenerator",
       "commandName": "Executable",

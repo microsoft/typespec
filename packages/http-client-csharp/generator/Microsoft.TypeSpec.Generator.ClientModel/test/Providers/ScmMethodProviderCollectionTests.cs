@@ -1618,6 +1618,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task MethodParameterSegments_BodyBinaryDataProperty_WrapsWithBinaryContentCreate()
+        {
+            // Test scenario: When a body parameter navigates to a BinaryData property via MethodParameterSegments,
+            // the convenience method should wrap the expression with BinaryContent.Create().
+            var streamModel = InputFactory.Model(
+                "StreamModel",
+                properties:
+                [
+                    InputFactory.Property("body", InputPrimitiveType.Base64, isRequired: true),
+                ]);
+
+            var bodyParam = InputFactory.BodyParameter("body", InputPrimitiveType.Base64, isRequired: true,
+                contentTypes: ["application/jsonl"], defaultContentType: "application/jsonl");
+            bodyParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("stream", streamModel, isRequired: true, location: InputRequestLocation.None),
+                InputFactory.MethodParameter("body", InputPrimitiveType.Base64, isRequired: true)
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "send",
+                InputFactory.Operation(
+                    "send",
+                    parameters: [bodyParam],
+                    requestMediaTypes: ["application/jsonl"],
+                    responses: [InputFactory.OperationResponse([204])]),
+                parameters: [InputFactory.MethodParameter("stream", streamModel, isRequired: true, location: InputRequestLocation.None)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [streamModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "stream") && m.Signature.Name == "Send");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            // Verify that BinaryContent.Create() wraps the property access
+            Assert.IsTrue(methodBody.Contains("BinaryContent.Create(stream.Body)"),
+                $"Expected 'BinaryContent.Create(stream.Body)' in method body but got: {methodBody}");
+        }
+
+        [Test]
         public async Task MissingOperationParamsResultInNamedArgsForSubsequent()
         {
             var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);

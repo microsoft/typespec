@@ -53,8 +53,9 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\xml\src\Payload.Xml.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v1\src\Resiliency.SrvDriven.V1.csproj" Aliases="SrvDrivenV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v2\src\Resiliency.SrvDriven.V2.csproj" Aliases="SrvDrivenV2" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\service\multiple-services\src\Service.MultipleServices.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\response\status-code-range\src\Response.StatusCodeRange.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\service\multiple-services\src\Service.MultipleServices.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\streaming\jsonl\src\Streaming.Jsonl.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\routes\src\Routes.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\serialization\encoded-name\json\src\Serialization.EncodedName.Json.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\server\endpoint\not-defined\src\Server.Endpoint.NotDefined.csproj" />
