@@ -11,6 +11,7 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { reportDiagnostic } from "../lib.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import { GraphQLTypeContext } from "./options.js";
@@ -78,6 +79,21 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
   });
+
+  const seen = new Map<string, Type>();
+  for (const type of mutatedTypes) {
+    if (!("name" in type) || !type.name) continue;
+    const name = type.name as string;
+    if (seen.has(name)) {
+      reportDiagnostic(program, {
+        code: "type-name-collision",
+        format: { name },
+        target: type,
+      });
+    } else {
+      seen.set(name, type);
+    }
+  }
 
   return buildTypeGraph(program, tk, mutatedTypes);
 }

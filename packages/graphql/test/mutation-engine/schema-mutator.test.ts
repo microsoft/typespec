@@ -208,6 +208,30 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("Payload")).toBe(false);
   });
 
+  it("reports diagnostic when two types produce the same GraphQL name", async () => {
+    const [_, diagnostics] = await tester.compileAndDiagnose(
+      t.code`
+        model ${t.model("BookInput")} { x: int32; }
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Book): Book;
+      `,
+    );
+
+    // Book used as input → Input mutation → "BookInput"
+    // BookInput declared explicitly → Output mutation → "BookInput"
+    // This should produce a collision diagnostic
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    mutateSchema(tester.program, engine, ns, typeUsage);
+
+    const collisions = tester.program.diagnostics.filter(
+      (d) => d.code === "@typespec/graphql/type-name-collision",
+    );
+    expect(collisions.length).toBeGreaterThan(0);
+  });
+
   it("skips array models (they are list types, not object types)", async () => {
     await tester.compile(
       t.code`
