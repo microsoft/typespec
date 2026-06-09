@@ -57,7 +57,7 @@ describe("GraphQL Mutation Engine - Operations", () => {
     // The return type should be unwrapped to the inner type
     expect(mutation.mutatedType.returnType.kind).toBe("Model");
     // The operation itself should be marked nullable
-    expect(isNullable(tester.program, mutation.mutatedType)).toBe(true);
+    expect(isNullable(mutation.mutatedType)).toBe(true);
   });
 
   it("does not mark operation as nullable when return type is non-null", async () => {
@@ -72,6 +72,6 @@ describe("GraphQL Mutation Engine - Operations", () => {
     const mutation = engine.mutateOperation(getUser);
 
     expect(mutation.mutatedType.returnType.kind).toBe("Model");
-    expect(isNullable(tester.program, mutation.mutatedType)).toBe(false);
+    expect(isNullable(mutation.mutatedType)).toBe(false);
   });
 });

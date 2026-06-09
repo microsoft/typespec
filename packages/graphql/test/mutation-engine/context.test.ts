@@ -161,7 +161,7 @@ describe("GraphQL Mutation Engine - Operation Context Propagation", () => {
     const unionMutation = engine.mutateUnion(Pet, GraphQLTypeContext.Input);
     expect(unionMutation.mutatedType.kind).toBe("Model");
     expect(unionMutation.mutatedType.name).toBe("PetInput");
-    expect(isOneOf(tester.program, unionMutation.mutatedType as Model)).toBe(true);
+    expect(isOneOf(unionMutation.mutatedType as Model)).toBe(true);
   });
 
   it("keeps union return type as union via operation mutation", async () => {

@@ -32,6 +32,22 @@ function variantNameToString(name: string | symbol): string {
 }
 
 /**
+ * Resolve the actual mutated type from a mutation result.
+ * Handles the case where mutationNode.replace() was called — the inherited
+ * mutatedType getter doesn't reflect replacements, so we check the node directly.
+ */
+function resolveType(mutation: {
+  mutationNode: { isReplaced: boolean; replacementNode: any };
+  mutatedType: Type;
+}): Type {
+  const node = mutation.mutationNode;
+  if (node.isReplaced && node.replacementNode) {
+    return node.replacementNode.mutatedType;
+  }
+  return mutation.mutatedType;
+}
+
+/**
  * GraphQL-specific Union mutation.
  *
  * Output context: flattens nested unions, deduplicates, wraps scalar variants.
@@ -95,7 +111,8 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     // Nullability is tracked by the container (ModelProperty or Operation).
     const innerType = unwrapNullableUnion(this.sourceType);
     if (innerType) {
-      this.#mutationNode.replace(innerType);
+      const innerMutation = this.engine.mutate(innerType, this.options);
+      this.#mutationNode.replace(resolveType(innerMutation));
       return;
     }
 
@@ -113,6 +130,9 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     const tk = this.engine.$;
     const program = tk.program;
 
+    const rawName = getUnionName(this.sourceType, program);
+    const unionName = applyTypeNamePipeline(rawName, { isInput: false, isInterface: false });
+
     const { variants: sourceVariants, isNullable: hasNull } = stripNullVariants(this.sourceType);
 
     const flattenedVariants = this.deduplicateVariants(this.flattenVariants(sourceVariants));
@@ -122,10 +142,25 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       return;
     }
 
+    if (flattenedVariants.length === 1) {
+      const innerMutation = this.engine.mutate(flattenedVariants[0].type, this.options);
+      this.#mutationNode.replace(resolveType(innerMutation));
+      if (hasNull) {
+        setNullable(this.mutatedType);
+      }
+      return;
+    }
+
     const needsFlattening = flattenedVariants.length !== sourceVariants.length;
 
+    // Mutate each variant's type so it goes through the full pipeline
+    const mutatedVariants = flattenedVariants.map((variant) => ({
+      name: variant.name,
+      type: resolveType(this.engine.mutate(variant.type, this.options)),
+    }));
+
     if (needsFlattening || hasNull) {
-      const variantArray = flattenedVariants.map((variant) => {
+      const variantArray = mutatedVariants.map((variant) => {
         return tk.unionVariant.create({
           name: variantNameToString(variant.name),
           type: variant.type,
@@ -133,26 +168,27 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       });
 
       const flattenedUnion = tk.union.create({
-        name: this.sourceType.name,
+        name: unionName,
         variants: variantArray,
       });
 
       this.#flattenedUnion = flattenedUnion;
     } else {
-      this.#mutationNode.mutate();
+      this.#mutationNode.mutate((union) => {
+        union.name = unionName;
+      });
     }
 
     if (hasNull) {
-      setNullable(program, this.mutatedType);
+      setNullable(this.mutatedType);
     }
 
     // GraphQL unions can only contain object types — wrap scalars in synthetic models
-    for (const variant of flattenedVariants) {
+    for (const variant of mutatedVariants) {
       const isScalar = variant.type.kind === "Scalar" || variant.type.kind === "Intrinsic";
 
       if (isScalar) {
         const variantName = variantNameToString(variant.name);
-        const unionName = this.sourceType.name ?? "";
         const wrapperName =
           applyBaseNamePipeline(unionName) + applyBaseNamePipeline(variantName) + "UnionVariant";
 
@@ -192,9 +228,10 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     const properties: Record<string, ReturnType<typeof tk.modelProperty.create>> = {};
     for (const variant of flattenedVariants) {
       const fieldName = applyFieldNamePipeline(variantNameToString(variant.name));
+      const mutatedType = resolveType(this.engine.mutate(variant.type, this.options));
       properties[fieldName] = tk.modelProperty.create({
         name: fieldName,
-        type: variant.type,
+        type: mutatedType,
         optional: true, // oneOf: exactly one must be provided
       });
     }
@@ -207,10 +244,10 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       properties,
     });
 
-    setOneOf(program, oneOfModel);
+    setOneOf(oneOfModel);
 
     if (hasNull) {
-      setNullable(program, oneOfModel);
+      setNullable(oneOfModel);
     }
 
     this.#mutationNode.replace(oneOfModel);
