@@ -5,6 +5,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Xml;
@@ -656,6 +657,60 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsEmpty(
                 definition.DisabledFileWarnings,
                 "No file-level suppression should be emitted when no Json-usage model carries FileBinaryContent.");
+        }
+
+        // Regression test: probing every model property for FileBinaryContent must not have the side effect
+        // of promoting a discriminator enum to a public, kept root type.
+        // A discriminated subtype carries its discriminator value as an enum-value whose enum instance is
+        // (per TCGC) emitted as public, even though the canonical discriminator enum is internal. The probe
+        // must inspect the input type graph directly rather than materializing the CSharpType, which would
+        // register the public enum as a type to keep and emit it as public (e.g. DogKind / SnakeKind).
+        [Test]
+        public void FileBinaryContentProbeDoesNotPromoteDiscriminatorEnumToRoot()
+        {
+            // The canonical discriminator enum used by the base model is internal...
+            var canonicalKindEnum = InputFactory.StringEnum(
+                "PetKind",
+                [("dog", "dog")],
+                access: "internal");
+
+            // ...but the subtype's discriminator constant references a separate, public enum instance.
+            var publicKindEnum = InputFactory.StringEnum(
+                "DogKind",
+                [("golden", "golden")],
+                access: "public");
+
+            var dogModel = InputFactory.Model(
+                "Dog",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                discriminatedKind: "dog",
+                properties:
+                [
+                    InputFactory.Property(
+                        "kind",
+                        InputFactory.EnumMember.String("golden", "golden", publicKindEnum),
+                        isRequired: true,
+                        isDiscriminator: true),
+                ]);
+
+            var petModel = InputFactory.Model(
+                "Pet",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("kind", canonicalKindEnum, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["dog"] = dogModel });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [petModel, dogModel]);
+
+            // Building the definition runs the FileBinaryContent probe over every model property.
+            var definition = new ModelSerializationExtensionsDefinition();
+            _ = definition.Methods;
+
+            Assert.IsFalse(
+                CodeModelGenerator.Instance.AdditionalRootTypes.Contains("Sample.Models.DogKind"),
+                "Probing model properties for FileBinaryContent must not promote the discriminator enum to a kept root type.");
         }
 
         // Snapshot of the generated WriteFileBinaryContent extension method body.

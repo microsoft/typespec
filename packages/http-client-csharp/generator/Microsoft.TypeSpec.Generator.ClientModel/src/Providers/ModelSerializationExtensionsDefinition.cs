@@ -229,8 +229,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var property in model.Properties)
                 {
-                    var propertyType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type);
-                    if (propertyType != null && ScmModelProvider.IsFileBinaryContentType(propertyType))
+                    if (IsFileInputType(property.Type))
                     {
                         return true;
                     }
@@ -239,6 +238,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return false;
         }
+
+        // Inspect the input type graph directly instead of materializing the corresponding <see cref="CSharpType"/>.
+        // Creating a CSharpType has side effects (e.g. registering public enums as types to keep), which would
+        // incorrectly promote types such as discriminator enums to public when probing every model property.
+        private static bool IsFileInputType(InputType type) => type switch
+        {
+            InputModelType { IsFileType: true } => true,
+            InputPrimitiveType { IsFileType: true } => true,
+            InputArrayType array => IsFileInputType(array.ValueType),
+            InputNullableType nullable => IsFileInputType(nullable.Type),
+            _ => false,
+        };
 
         private MethodProvider BuildWriteFileBinaryContentMethodProvider()
         {
