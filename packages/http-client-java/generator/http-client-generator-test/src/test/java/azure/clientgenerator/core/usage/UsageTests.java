@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class UsageTests {
 
-    private final UsageClient client = new UsageClientBuilder().buildClient();
+    private final ModelInOperationClient client = new UsageClientBuilder().buildModelInOperationClient();
 
     @Test
     public void test() throws NoSuchMethodException {
