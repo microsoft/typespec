@@ -162,6 +162,19 @@ export const libDef = {
         default: paramMessage`Scalar "${"name"}" collides with GraphQL built-in type "${"builtinName"}". This may cause unexpected behavior. Consider renaming the scalar.`,
       },
     },
+    "type-name-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Type "${"name"}" collides with another type of the same name in the GraphQL schema. Consider renaming one of the types.`,
+      },
+    },
+    "empty-schema": {
+      severity: "warning",
+      messages: {
+        default:
+          "GraphQL schema has no operations. At minimum a Query root type is required.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,

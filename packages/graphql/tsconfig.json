@@ -1,10 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "useDefineForClassFields": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "es2022",
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@alloy-js/core",
+    "emitDeclarationOnly": true,
     "rootDir": ".",
-    "outDir": "dist",
-    "verbatimModuleSyntax": true
+    "outDir": "dist"
   },
-  "include": ["src", "test"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

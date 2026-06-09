@@ -1,4 +1,4 @@
-import type { Model, Union } from "@typespec/compiler";
+import { getDoc, type Model, type Union } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isNullable } from "../../src/lib/nullable.js";
@@ -71,6 +71,32 @@ describe("GraphQL Mutation Engine - Unions", () => {
     expect(mutation.wrapperModels[0].name).toBe("MixedTextUnionVariant");
   });
 
+  it("substitutes wrapper models into union variant types", async () => {
+    const { Mixed } = await tester.compile(
+      t.code`
+        model ${t.model("Cat")} { name: string; }
+        union ${t.union("Mixed")} { cat: Cat; text: string; }
+      `,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateUnion(Mixed, GraphQLTypeContext.Output);
+    const mutatedUnion = mutation.mutatedType as Union;
+
+    const variants = [...mutatedUnion.variants.values()];
+    expect(variants).toHaveLength(2);
+
+    // Model variant points to the mutated model
+    const catVariant = variants.find((v) => v.name === "cat")!;
+    expect(catVariant.type.kind).toBe("Model");
+    expect((catVariant.type as Model).name).toBe("Cat");
+
+    // Scalar variant points to the wrapper model, not the raw scalar
+    const textVariant = variants.find((v) => v.name === "text")!;
+    expect(textVariant.type.kind).toBe("Model");
+    expect((textVariant.type as Model).name).toBe("MixedTextUnionVariant");
+  });
+
   it("does not create wrappers for model-only unions", async () => {
     const { Pet } = await tester.compile(
       t.code`
@@ -111,6 +137,13 @@ describe("GraphQL Mutation Engine - Unions", () => {
     expect(mutation.wrapperModels).toHaveLength(2);
     const names = mutation.wrapperModels.map((m) => m.name).sort();
     expect(names).toEqual(["MixedCountUnionVariant", "MixedTextUnionVariant"]);
+
+    // All union variants point to Models (originals or wrappers)
+    const mutatedUnion = mutation.mutatedType as Union;
+    const variants = [...mutatedUnion.variants.values()];
+    for (const variant of variants) {
+      expect(variant.type.kind).toBe("Model");
+    }
   });
 
   it("names anonymous return type union as OperationUnion", async () => {
@@ -183,6 +216,22 @@ describe("GraphQL Mutation Engine - Unions", () => {
       .map((v) => ("name" in v.type ? v.type.name : v.type.kind))
       .sort();
     expect(variantNames).toEqual(["AdAccount", "Board"]);
+  });
+
+  it("preserves decorator state (e.g. @doc) on flattened unions", async () => {
+    const { MaybePet } = await tester.compile(
+      t.code`
+        model ${t.model("Cat")} { name: string; }
+        model ${t.model("Dog")} { breed: string; }
+        /** A pet or nothing */
+        union ${t.union("MaybePet")} { cat: Cat; dog: Dog; null; }
+      `,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateUnion(MaybePet, GraphQLTypeContext.Output);
+
+    expect(getDoc(tester.program, mutation.mutatedType)).toBe("A pet or nothing");
   });
 
   it("T | null replacement gets its mutation pipeline applied", async () => {

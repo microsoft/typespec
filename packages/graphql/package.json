@@ -30,15 +30,16 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.11.0",
-    "@alloy-js/typescript": "^0.11.0",
+    "@alloy-js/core": "^0.22.0",
+    "@alloy-js/graphql": "link:../../alloy/packages/graphql",
+    "@alloy-js/typescript": "^0.22.0",
     "change-case": "^5.4.4",
     "graphql": "^16.9.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc --watch",
+    "build": "alloy build",
+    "watch": "alloy build --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "lint": "eslint . --max-warnings=0",
@@ -56,6 +57,8 @@
     "@typespec/mutator-framework": "workspace:~"
   },
   "devDependencies": {
+    "@alloy-js/cli": "^0.22.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "~22.13.13",
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",

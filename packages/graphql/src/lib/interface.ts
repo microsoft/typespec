@@ -10,8 +10,10 @@ import {
 
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
-import type { Tagged } from "../types.d.ts";
 import { propertiesEqual } from "./utils.js";
+
+declare const tags: unique symbol;
+type Tagged<BaseType, Tag extends PropertyKey> = BaseType & { [tags]: { [K in Tag]: void } };
 
 // This will set the namespace for decorators implemented in this file
 export const namespace = NAMESPACE;

@@ -159,31 +159,8 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       type: resolveType(this.engine.mutate(variant.type, this.options)),
     }));
 
-    if (needsFlattening || hasNull) {
-      const variantArray = mutatedVariants.map((variant) => {
-        return tk.unionVariant.create({
-          name: variantNameToString(variant.name),
-          type: variant.type,
-        });
-      });
-
-      const flattenedUnion = tk.union.create({
-        name: unionName,
-        variants: variantArray,
-      });
-
-      this.#flattenedUnion = flattenedUnion;
-    } else {
-      this.#mutationNode.mutate((union) => {
-        union.name = unionName;
-      });
-    }
-
-    if (hasNull) {
-      setNullable(this.mutatedType);
-    }
-
     // GraphQL unions can only contain object types — wrap scalars in synthetic models
+    // and substitute the wrapper into the variant so the union is self-contained.
     for (const variant of mutatedVariants) {
       const isScalar = variant.type.kind === "Scalar" || variant.type.kind === "Intrinsic";
 
@@ -204,7 +181,36 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
         });
 
         this.#wrapperModels.push(wrapperModel);
+        variant.type = wrapperModel;
       }
+    }
+
+    if (needsFlattening || hasNull || this.#wrapperModels.length > 0) {
+      const variantArray = mutatedVariants.map((variant) => {
+        return tk.unionVariant.create({
+          name: variantNameToString(variant.name),
+          type: variant.type,
+        });
+      });
+
+      const flattenedUnion = tk.type.clone(this.sourceType);
+      flattenedUnion.name = unionName;
+      flattenedUnion.variants.clear();
+      for (const variant of variantArray) {
+        flattenedUnion.variants.set(variant.name, variant);
+        variant.union = flattenedUnion;
+      }
+      tk.type.finishType(flattenedUnion);
+
+      this.#flattenedUnion = flattenedUnion;
+    } else {
+      this.#mutationNode.mutate((union) => {
+        union.name = unionName;
+      });
+    }
+
+    if (hasNull) {
+      setNullable(this.mutatedType);
     }
   }
 
