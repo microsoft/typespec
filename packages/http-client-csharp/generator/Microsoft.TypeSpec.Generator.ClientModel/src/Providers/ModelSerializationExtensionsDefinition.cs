@@ -211,14 +211,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : [];
 
         private bool HasFileBinaryContentJsonModel
-            => _hasFileBinaryContentJsonModel ??= HasFileBinaryContentModelForUsage(InputModelTypeUsage.Json);
+            => _hasFileBinaryContentJsonModel ??= HasFileTypeForUsage(InputModelTypeUsage.Json);
         private bool? _hasFileBinaryContentJsonModel;
 
         private bool HasFileBinaryContentXmlModel
-            => _hasFileBinaryContentXmlModel ??= HasFileBinaryContentModelForUsage(InputModelTypeUsage.Xml);
+            => _hasFileBinaryContentXmlModel ??= HasFileTypeForUsage(InputModelTypeUsage.Xml);
         private bool? _hasFileBinaryContentXmlModel;
 
-        private static bool HasFileBinaryContentModelForUsage(InputModelTypeUsage usage)
+        private static bool HasFileTypeForUsage(InputModelTypeUsage usage)
         {
             foreach (var model in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
             {
@@ -229,8 +229,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var property in model.Properties)
                 {
-                    var propertyType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type);
-                    if (propertyType != null && ScmModelProvider.IsFileBinaryContentType(propertyType))
+                    if (IsFileInputType(property.Type))
                     {
                         return true;
                     }
@@ -239,6 +238,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return false;
         }
+
+        private static bool IsFileInputType(InputType type) => type switch
+        {
+            InputModelType { IsFileType: true } => true,
+            InputPrimitiveType { IsFileType: true } => true,
+            InputArrayType array => IsFileInputType(array.ValueType),
+            InputDictionaryType dictionary => IsFileInputType(dictionary.ValueType),
+            InputNullableType nullable => IsFileInputType(nullable.Type),
+            _ => false,
+        };
 
         private MethodProvider BuildWriteFileBinaryContentMethodProvider()
         {
