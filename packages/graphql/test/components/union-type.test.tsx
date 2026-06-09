@@ -1,8 +1,7 @@
-import { type Union } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import * as gql from "@alloy-js/graphql";
 import { beforeEach, describe, expect, it } from "vitest";
-import { UnionType } from "../../src/components/types/index.js";
+import { UnionType, type GraphQLUnion } from "../../src/components/types/index.js";
 import {
   createGraphQLMutationEngine,
   GraphQLTypeContext,
@@ -27,7 +26,7 @@ describe("UnionType component", () => {
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutation = engine.mutateUnion(Pet, GraphQLTypeContext.Output);
-    const mutatedUnion = mutation.mutatedType as Union;
+    const mutatedUnion = mutation.mutatedType as GraphQLUnion;
 
     // Union members must be registered for graphql-js to validate the schema
     const sdl = renderToSDL(
@@ -58,7 +57,7 @@ describe("UnionType component", () => {
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutation = engine.mutateUnion(Result, GraphQLTypeContext.Output);
-    const mutatedUnion = mutation.mutatedType as Union;
+    const mutatedUnion = mutation.mutatedType as GraphQLUnion;
 
     const sdl = renderToSDL(
       tester.program,
@@ -87,7 +86,7 @@ describe("UnionType component", () => {
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutation = engine.mutateUnion(Mixed, GraphQLTypeContext.Output);
-    const mutatedUnion = mutation.mutatedType as Union;
+    const mutatedUnion = mutation.mutatedType as GraphQLUnion;
 
     // Register the wrapper model and Cat so graphql-js can validate
     const sdl = renderToSDL(
@@ -118,7 +117,7 @@ describe("UnionType component", () => {
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutation = engine.mutateUnion(Shape, GraphQLTypeContext.Output);
-    const mutatedUnion = mutation.mutatedType as Union;
+    const mutatedUnion = mutation.mutatedType as GraphQLUnion;
 
     const sdl = renderToSDL(
       tester.program,
