@@ -10,5 +10,9 @@ export default mergeConfig(
       sourcemap: "both",
     },
     plugins: [alloyPlugin()],
+    resolve: {
+      conditions: ["development"],
+      dedupe: ["@alloy-js/core", "graphql"],
+    },
   }),
 );
