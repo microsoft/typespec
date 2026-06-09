@@ -11,7 +11,8 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import type { TypeUsageResolver } from "../type-usage.js";
+import { reportDiagnostic } from "../lib.js";
+import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import { GraphQLTypeContext } from "./options.js";
 import { buildTypeGraph, type TypeGraph } from "./type-graph.js";
@@ -22,6 +23,9 @@ import { buildTypeGraph, type TypeGraph } from "./type-graph.js";
  *
  * Filtering (unreachable types, array models, nullable unions) happens here
  * so the engine only processes types that belong in the schema.
+ *
+ * Models used as both input and output get two mutations (Output and Input),
+ * producing separate entries in the TypeGraph (e.g., `Book` and `BookInput`).
  */
 export function mutateSchema(
   program: Program,
@@ -37,8 +41,18 @@ export function mutateSchema(
       if (isArrayModelType(node)) return;
       if (typeUsage.isUnreachable(node)) return;
 
-      const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
-      mutatedTypes.push(mutation.mutatedType);
+      const usage = typeUsage.getUsage(node);
+      const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
+      const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
+
+      if (usedAsOutput || !usage) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
+        mutatedTypes.push(mutation.mutatedType);
+      }
+      if (usedAsInput) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
+        mutatedTypes.push(mutation.mutatedType);
+      }
     },
     enum: (node: Enum) => {
       if (typeUsage.isUnreachable(node)) return;
@@ -65,6 +79,21 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
   });
+
+  const seen = new Map<string, Type>();
+  for (const type of mutatedTypes) {
+    if (!("name" in type) || !type.name) continue;
+    const name = type.name as string;
+    if (seen.has(name)) {
+      reportDiagnostic(program, {
+        code: "type-name-collision",
+        format: { name },
+        target: type,
+      });
+    } else {
+      seen.set(name, type);
+    }
+  }
 
   return buildTypeGraph(program, tk, mutatedTypes);
 }

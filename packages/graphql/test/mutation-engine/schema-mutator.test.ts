@@ -150,6 +150,88 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("MixedNumUnionVariant")).toBe(true);
   });
 
+  it("produces Input variant for models used as operation parameters", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Book): Book;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Book is used as both output (return) and input (parameter),
+    // so both variants should appear in the TypeGraph
+    expect(typeGraph.globalNamespace.models.has("Book")).toBe(true);
+    expect(typeGraph.globalNamespace.models.has("BookInput")).toBe(true);
+  });
+
+  it("does not produce Input variant for output-only models", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    expect(typeGraph.globalNamespace.models.has("Book")).toBe(true);
+    expect(typeGraph.globalNamespace.models.has("BookInput")).toBe(false);
+  });
+
+  it("does not produce Output variant for input-only models", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        model ${t.model("Payload")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Payload): Book;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, true);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Payload is only used as input — should only appear as Input variant (PayloadInput)
+    expect(typeGraph.globalNamespace.models.has("PayloadInput")).toBe(true);
+    // Should NOT have an Output variant
+    expect(typeGraph.globalNamespace.models.has("Payload")).toBe(false);
+  });
+
+  it("reports diagnostic when two types produce the same GraphQL name", async () => {
+    const [_, diagnostics] = await tester.compileAndDiagnose(
+      t.code`
+        model ${t.model("BookInput")} { x: int32; }
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Book): Book;
+      `,
+    );
+
+    // Book used as input → Input mutation → "BookInput"
+    // BookInput declared explicitly → Output mutation → "BookInput"
+    // This should produce a collision diagnostic
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    mutateSchema(tester.program, engine, ns, typeUsage);
+
+    const collisions = tester.program.diagnostics.filter(
+      (d) => d.code === "@typespec/graphql/type-name-collision",
+    );
+    expect(collisions.length).toBeGreaterThan(0);
+  });
+
   it("skips array models (they are list types, not object types)", async () => {
     await tester.compile(
       t.code`
