@@ -159,7 +159,33 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       type: resolveType(this.engine.mutate(variant.type, this.options)),
     }));
 
-    if (needsFlattening || hasNull) {
+    // GraphQL unions can only contain object types — wrap scalars in synthetic models
+    // and substitute the wrapper into the variant so the union is self-contained.
+    for (const variant of mutatedVariants) {
+      const isScalar = variant.type.kind === "Scalar" || variant.type.kind === "Intrinsic";
+
+      if (isScalar) {
+        const variantName = variantNameToString(variant.name);
+        const wrapperName =
+          applyBaseNamePipeline(unionName) + applyBaseNamePipeline(variantName) + "UnionVariant";
+
+        const valueProp = tk.modelProperty.create({
+          name: "value",
+          type: variant.type,
+          optional: false,
+        });
+
+        const wrapperModel = tk.model.create({
+          name: wrapperName,
+          properties: { value: valueProp },
+        });
+
+        this.#wrapperModels.push(wrapperModel);
+        variant.type = wrapperModel;
+      }
+    }
+
+    if (needsFlattening || hasNull || this.#wrapperModels.length > 0) {
       const variantArray = mutatedVariants.map((variant) => {
         return tk.unionVariant.create({
           name: variantNameToString(variant.name),
@@ -181,30 +207,6 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
 
     if (hasNull) {
       setNullable(this.mutatedType);
-    }
-
-    // GraphQL unions can only contain object types — wrap scalars in synthetic models
-    for (const variant of mutatedVariants) {
-      const isScalar = variant.type.kind === "Scalar" || variant.type.kind === "Intrinsic";
-
-      if (isScalar) {
-        const variantName = variantNameToString(variant.name);
-        const wrapperName =
-          applyBaseNamePipeline(unionName) + applyBaseNamePipeline(variantName) + "UnionVariant";
-
-        const valueProp = tk.modelProperty.create({
-          name: "value",
-          type: variant.type,
-          optional: false,
-        });
-
-        const wrapperModel = tk.model.create({
-          name: wrapperName,
-          properties: { value: valueProp },
-        });
-
-        this.#wrapperModels.push(wrapperModel);
-      }
     }
   }
 
