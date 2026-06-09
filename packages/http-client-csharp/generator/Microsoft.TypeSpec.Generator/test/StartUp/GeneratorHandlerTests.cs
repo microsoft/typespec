@@ -624,5 +624,44 @@ namespace Redirected { public class Dummy { } }");
                 try { Directory.Delete(testDir, true); } catch { }
             }
         }
+
+        [Test]
+        public void BuildPlugin_FindsOutputForMultiTargetedProject()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Multi-targeting (multiple frameworks) produces a separate output folder
+                // per framework. The previous path-computation logic could not reliably
+                // pick a framework; the scan should still locate a loadable assembly.
+                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace MultiTarget { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "MultiTarget.csproj"), testDir, emitter);
+
+                Assert.IsNotNull(result, "Should locate the DLL for a multi-targeted project");
+                Assert.IsTrue(result!.EndsWith("MultiTarget.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The located assembly must be a real output, not an 'obj' reference assembly.
+                Assert.IsFalse(
+                    result.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                        .Contains("obj", StringComparer.OrdinalIgnoreCase),
+                    $"Should not return a metadata-only reference assembly under obj: {result}");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
     }
 }
