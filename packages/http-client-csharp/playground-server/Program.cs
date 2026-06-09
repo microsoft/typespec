@@ -123,6 +123,10 @@ catch (Exception ex)
 }
 Console.WriteLine($"Generator version: {generatorVersion}");
 
+// Root route exists so Azure App Service platform probes (Always On warm-up
+// and availability pings hit "/") get a 200 instead of logging noisy 404s.
+app.MapGet("/", () => Results.Ok(new { status = "ok", service = "csharp-playground-server" }));
+
 app.MapGet("/health", () =>
 {
     string dotnetVersion;
@@ -220,8 +224,10 @@ app.MapPost("/generate", async (HttpRequest request, IGenerationCache cache, Tel
     try
     {
         // Write the input files the generator expects
-        await File.WriteAllTextAsync(Path.Combine(tempDir, "tspCodeModel.json"), body.CodeModel);
+        var codeModelPath = Path.Combine(tempDir, "tspCodeModel.json");
+        await File.WriteAllTextAsync(codeModelPath, body.CodeModel);
         await File.WriteAllTextAsync(Path.Combine(tempDir, "Configuration.json"), body.Configuration);
+
 
         // Run the .NET generator as a subprocess
         Console.WriteLine($"Starting generator: dotnet --roll-forward Major {generatorPath} {tempDir} -g {generatorName} --new-project");

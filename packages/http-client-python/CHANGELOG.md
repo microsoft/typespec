@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.31.0
+
+### Features
+
+- [#10246](https://github.com/microsoft/typespec/pull/10246) Add Python 3.14 classifier to generated pyproject.toml
+
+### Bug Fixes
+
+- [#10920](https://github.com/microsoft/typespec/pull/10920) Support `exact` client names for enum members and operations
+
+
 ## 0.30.1
 
 ### Bug Fixes

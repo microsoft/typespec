@@ -314,6 +314,22 @@ describe("compiler: server: on hover", () => {
       });
     });
 
+    it("model property with function type", async () => {
+      const hover = await getHoverAtCursor(`
+        model Test {
+          fu┆nc: fn(v: valueof string) => valueof string;
+        }
+      `);
+
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n```typespec\nTest.func: fn (v: valueof string) => valueof string\n```",
+        },
+      });
+    });
+
     it("model reference", async () => {
       const hover = await getHoverAtCursor(
         `

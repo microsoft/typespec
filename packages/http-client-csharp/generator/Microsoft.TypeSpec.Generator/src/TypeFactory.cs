@@ -206,6 +206,18 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
 
         /// <summary>
+        /// Factory method for creating the <see cref="ModelFactoryProvider"/> that emits the
+        /// generated <c>ModelFactory</c> for the current output library.
+        /// </summary>
+        /// <param name="models">The input models to generate factory methods for.</param>
+        /// <returns>An instance of <see cref="ModelFactoryProvider"/>.</returns>
+        public ModelFactoryProvider CreateModelFactory(IEnumerable<InputModelType> models)
+            => CreateModelFactoryCore(models);
+
+        protected virtual ModelFactoryProvider CreateModelFactoryCore(IEnumerable<InputModelType> models)
+            => new ModelFactoryProvider(models);
+
+        /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
         /// </summary>
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>

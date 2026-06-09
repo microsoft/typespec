@@ -4,7 +4,7 @@ import { CompilerOptions } from "../core/options.js";
 import { getDirectoryPath, normalizePath } from "../core/path-utils.js";
 import { Diagnostic, NoTarget, SystemHost } from "../core/types.js";
 import { doIO } from "../utils/io.js";
-import { deepClone, omitUndefined } from "../utils/misc.js";
+import { omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";
@@ -164,7 +164,7 @@ function mergeOptions(
   base: Record<string, Record<string, unknown>> | undefined,
   overrides: Record<string, Record<string, unknown>> | undefined,
 ): Record<string, EmitterOptions> {
-  const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(base ?? {});
+  const configuredEmitters: Record<string, Record<string, unknown>> = structuredClone(base ?? {});
   function isObject(item: unknown): item is Record<string, unknown> {
     return item && typeof item === "object" && (!Array.isArray(item) as any);
   }
