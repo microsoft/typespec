@@ -48,7 +48,10 @@ TypeSpec 1.13.0 introduces project-level configuration capabilities, expands com
   model Template<T> {
     ...T;
   }
-  model User is Template<{name: string}>;
+  model User
+    is Template<{
+      name: string;
+    }>;
 
   alias UserName = User.name; // ❌ previously: "Model doesn't have member name"
   ```
@@ -59,13 +62,15 @@ TypeSpec 1.13.0 introduces project-level configuration capabilities, expands com
   model Template<T> {
     ...T;
   }
-  model User is Template<{name: string}>;
+  model User
+    is Template<{
+      name: string;
+    }>;
 
   alias UserName = User.name; // ✅ now resolves correctly
   ```
 
   This also works with:
-
   - Forward references to the template definition
   - Spread-based patterns (`model A { ...Template<{x: int32}> }`)
   - Members added by augment decorators
@@ -108,12 +113,15 @@ TypeSpec 1.13.0 introduces project-level configuration capabilities, expands com
   @service
   @tagMetadata(#[
     #{ name: "First Tag", description: "First tag description" },
-    #{ name: "Second Tag", description: "Second tag description" },
+    #{ name: "Second Tag", description: "Second tag description" }
   ])
-  namespace PetStore {}
+  namespace PetStore {
+
+  }
   ```
 
   Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+
 - Added a warning diagnostic when `@defaultResponse` is used on a model that already has a `@statusCode` property or is marked with `@error`.
 
 ### @typespec/openapi3
@@ -132,9 +140,11 @@ TypeSpec 1.13.0 introduces project-level configuration capabilities, expands com
   @service
   @tagMetadata(#[
     #{ name: "First Tag", description: "First tag description" },
-    #{ name: "Second Tag", description: "Second tag description" },
+    #{ name: "Second Tag", description: "Second tag description" }
   ])
-  namespace PetStore {}
+  namespace PetStore {
+
+  }
   ```
 
   Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
