@@ -140,5 +140,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
         }
+
+        // Validates the deserialize body produced for a required FileBinaryContent property.
+        [Test]
+        public void RequiredFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates the deserialize body produced for an optional FileBinaryContent property.
+        [Test]
+        public void OptionalFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: false)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

@@ -301,8 +301,6 @@ function getDocComment(entity: Entity & { node?: { docs?: readonly DocNode[] } }
       }
     }
     for (const tag of doc.tags) {
-      tagLines.push();
-
       let first = true;
       const hasContentFirstLine = checkIfTagHasDocOnSameLine(tag);
       const tagStart =

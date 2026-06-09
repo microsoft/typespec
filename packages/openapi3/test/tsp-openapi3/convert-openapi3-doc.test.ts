@@ -941,6 +941,116 @@ def grade(sample: dict, item: dict) -> float:
       ),
     );
   });
+
+  it("should convert deprecated operation without description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated operation with description to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {
+        "/foo": {
+          get: {
+            operationId: "Foo_get",
+            description: "Get foo",
+            deprecated: true,
+            tags: ["Foo"],
+            responses: {
+              "200": {
+                description: "OK",
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        /** Get foo */
+        #deprecated "deprecated"
+        @tag("Foo")
+        @route("/foo")
+        @get
+        op Foo_get(): OkResponse;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
 });
 
 describe("convertOpenAPI3Document tag metadata", () => {

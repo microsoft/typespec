@@ -107,6 +107,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
     },
   },
+  "unresolved-client-namespace": {
+    severity: "error",
+    messages: {
+      default: `Unable to determine a namespace for the generated client. Ensure the spec defines a service namespace (using the \`@service\` decorator) or set the \`package-name\` emitter option.`,
+    },
+  },
 };
 
 /**

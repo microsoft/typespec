@@ -1455,6 +1455,22 @@ Expected request body:
 { "name": "foo" }
 ```
 
+### Parameters_BodyRoot_nested
+
+- Endpoint: `post /parameters/body-root/nested`
+
+Test case for a `@bodyRoot` parameter nested inside a wrapper model.
+
+Emitters must resolve the accessor path through the wrapper (e.g.
+`body.bodyRootParameters`) rather than referencing the property name
+directly.
+
+Expected request body:
+
+```json
+{ "category": "widget", "linkType": "hard", "wasSuccessful": true }
+```
+
 ### Parameters_CollectionFormat_Header_csv
 
 - Endpoint: `get /parameters/collection-format/header/csv`
@@ -1533,6 +1549,18 @@ Second request path:
 - Endpoint: `post /parameters/query/constant`
 
 Expect to handle a constant value for query and mock api returns nothing
+
+### Parameters_Query_SpecialChar_dollarSign
+
+- Endpoint: `get /parameters/query/special-char/dollarSign`
+
+Send a request with a dollar-sign prefixed`$filter` query parameter.
+
+Expected query parameter:
+
+- `$filter` = "status eq 'active'"
+
+Expected response status code: 204
 
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
@@ -6226,6 +6254,18 @@ Expected response body:
 { "wingspan": 1, "kind": "sparrow" }
 ```
 
+### Type_Model_Inheritance_SingleDiscriminator_getNoSubtypesModel
+
+- Endpoint: `get /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Generate and receive a discriminated model that has no defined subtypes.
+The base model declares a discriminator but no models extend it.
+Expected response body:
+
+```json
+{ "kind": "salmon", "size": 10 }
+```
+
 ### Type_Model_Inheritance_SingleDiscriminator_getRecursiveModel
 
 - Endpoint: `get /type/model/inheritance/single-discriminator/recursivemodel`
@@ -6276,6 +6316,17 @@ Expected input body:
 
 ```json
 { "wingspan": 1, "kind": "sparrow" }
+```
+
+### Type_Model_Inheritance_SingleDiscriminator_putNoSubtypesModel
+
+- Endpoint: `put /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Send a discriminated model that has no defined subtypes.
+Expected input body:
+
+```json
+{ "kind": "salmon", "size": 10 }
 ```
 
 ### Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel
