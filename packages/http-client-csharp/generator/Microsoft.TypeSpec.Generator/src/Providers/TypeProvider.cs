@@ -610,19 +610,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
             }
 
-            if (name != null)
+            if (CanUpdateIdentity)
             {
-                ResetMembersBasedOnIdentityChange(name);
-            }
+                if (name != null)
+                {
+                    ResetMembersBasedOnIdentityChange(name);
+                }
 
-            if (@namespace != null)
-            {
-                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
+                if (@namespace != null)
+                {
+                    ResetMembersBasedOnIdentityChange(@namespace: @namespace);
+                }
             }
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
+
+        protected virtual bool CanUpdateIdentity => true;
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {

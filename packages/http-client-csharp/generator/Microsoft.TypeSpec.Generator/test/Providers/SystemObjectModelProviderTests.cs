@@ -174,6 +174,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void DerivedModel_SkipsPropertiesWithSameWireNameDefinedInSystemObjectBase()
+        {
+            var baseProp = InputFactory.Property("Name", InputPrimitiveType.String, serializedName: "name");
+            var baseInputModel = InputFactory.Model("Resource", properties: [baseProp]);
+
+            var derivedNameProp = InputFactory.Property("Name0", InputPrimitiveType.String, serializedName: "name");
+            var derivedLocationProp = InputFactory.Property("Location", InputPrimitiveType.String, serializedName: "location");
+            var derivedInputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [derivedNameProp, derivedLocationProp],
+                baseModel: baseInputModel);
+
+            var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: (model) =>
+                {
+                    if (model.Name == "Resource")
+                        return new SystemObjectModelProvider(systemType, model);
+                    return new ModelProvider(model);
+                });
+
+            var derived = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derived);
+
+            var propertyNames = derived!.Properties.Select(p => p.Name).ToList();
+            Assert.IsFalse(propertyNames.Contains("Name0"),
+                "Property 'Name0' should be skipped because its wire name is defined in the SystemObjectModelProvider base");
+            Assert.IsTrue(propertyNames.Contains("Location"),
+                "Property 'Location' should be generated because its wire name is NOT in the base");
+            Assert.IsFalse(derived.FullConstructor.Signature.Parameters.Any(p => p.Name == "name0"),
+                "Skipped wire-name duplicate properties should not be emitted as constructor parameters");
+        }
+
+        [Test]
         public void RegularBaseModel_DoesNotSkipMatchingProperties()
         {
             // Same setup but with a regular ModelProvider base (not SystemObjectModelProvider)
@@ -337,6 +372,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void Update_DoesNotChangeSystemTypeIdentity()
+        {
+            var systemType = CreateSystemCSharpType("TrackedResourceData", "Azure.ResourceManager.Models");
+            var inputModel = InputFactory.Model("TrackedResource", properties: [], access: "internal");
+            var provider = new SystemObjectModelProvider(systemType, inputModel);
+
+            provider.Update(name: "TrackedResource", @namespace: "Generated.Models");
+
+            Assert.AreEqual("TrackedResourceData", provider.Name);
+            Assert.AreEqual("Azure.ResourceManager.Models", provider.Type.Namespace);
+        }
+
+        [Test]
+        public void BaseModelProvider_ResolvesSystemTypeAlias()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("TrackedResource", properties: [], baseModel: baseInputModel);
+            var systemType = new CSharpType(typeof(InvalidOperationException));
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: (model) =>
+                {
+                    if (model == baseInputModel)
+                        return new SystemObjectModelProvider(systemType, model);
+                    if (model == derivedInputModel)
+                        return new BuildBaseTypeOverridingModelProvider(model, systemType);
+                    return new ModelProvider(model);
+                });
+
+            var systemBase = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derived = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+
+            Assert.IsNotNull(systemBase);
+            Assert.AreSame(systemBase, derived!.BaseModelProvider);
+        }
+
+        [Test]
         public void CrossLanguageDefinitionId_ComesFromInputModel()
         {
             var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
@@ -369,6 +442,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var inputModel = InputFactory.Model("Resource", properties: []);
             Assert.Throws<ArgumentNullException>(() => new SystemObjectModelProvider(null!, inputModel));
+        }
+
+        private class BuildBaseTypeOverridingModelProvider : ModelProvider
+        {
+            private readonly CSharpType _baseType;
+
+            public BuildBaseTypeOverridingModelProvider(InputModelType inputModel, CSharpType baseType) : base(inputModel)
+            {
+                _baseType = baseType;
+            }
+
+            protected override CSharpType? BuildBaseType() => _baseType;
         }
     }
 }

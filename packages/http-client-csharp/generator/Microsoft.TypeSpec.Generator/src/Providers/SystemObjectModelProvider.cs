@@ -62,6 +62,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override bool ShouldSkipDerivedModelProperties => true;
 
         /// <inheritdoc/>
+        protected override bool CanUpdateIdentity => false;
+
+        /// <inheritdoc/>
         public override bool ShouldSkipDerivedSerializationMethodOverrides => true;
 
         /// <summary>
