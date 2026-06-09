@@ -150,6 +150,43 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("MixedNumUnionVariant")).toBe(true);
   });
 
+  it("produces Input variant for models used as operation parameters", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Book): Book;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Book is used as both output (return) and input (parameter),
+    // so both variants should appear in the TypeGraph
+    expect(typeGraph.globalNamespace.models.has("Book")).toBe(true);
+    expect(typeGraph.globalNamespace.models.has("BookInput")).toBe(true);
+  });
+
+  it("does not produce Input variant for output-only models", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    expect(typeGraph.globalNamespace.models.has("Book")).toBe(true);
+    expect(typeGraph.globalNamespace.models.has("BookInput")).toBe(false);
+  });
+
   it("skips array models (they are list types, not object types)", async () => {
     await tester.compile(
       t.code`

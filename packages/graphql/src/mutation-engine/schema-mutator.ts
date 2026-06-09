@@ -11,7 +11,7 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import type { TypeUsageResolver } from "../type-usage.js";
+import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import { GraphQLTypeContext } from "./options.js";
 import { buildTypeGraph, type TypeGraph } from "./type-graph.js";
@@ -22,6 +22,9 @@ import { buildTypeGraph, type TypeGraph } from "./type-graph.js";
  *
  * Filtering (unreachable types, array models, nullable unions) happens here
  * so the engine only processes types that belong in the schema.
+ *
+ * Models used as both input and output get two mutations (Output and Input),
+ * producing separate entries in the TypeGraph (e.g., `Book` and `BookInput`).
  */
 export function mutateSchema(
   program: Program,
@@ -31,6 +34,7 @@ export function mutateSchema(
 ): TypeGraph {
   const tk = $(program);
   const mutatedTypes: Type[] = [];
+  const modelsToInputMutate: Model[] = [];
 
   navigateTypesInNamespace(schema, {
     model: (node: Model) => {
@@ -39,6 +43,11 @@ export function mutateSchema(
 
       const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
       mutatedTypes.push(mutation.mutatedType);
+
+      const usage = typeUsage.getUsage(node);
+      if (usage?.has(GraphQLTypeUsage.Input)) {
+        modelsToInputMutate.push(node);
+      }
     },
     enum: (node: Enum) => {
       if (typeUsage.isUnreachable(node)) return;
@@ -65,6 +74,11 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
   });
+
+  for (const model of modelsToInputMutate) {
+    const mutation = engine.mutateModel(model, GraphQLTypeContext.Input);
+    mutatedTypes.push(mutation.mutatedType);
+  }
 
   return buildTypeGraph(program, tk, mutatedTypes);
 }
