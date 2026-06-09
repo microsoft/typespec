@@ -21,11 +21,26 @@ def test_harvest(client: ClientDocClient):
 
 def test_model_doc_appended():
     # @clientDoc in append mode keeps the base @doc and appends the client-specific text.
-    assert "A plant in the garden." in models.Plant.__doc__
-    assert "This model is used to represent a plant in the client SDK." in models.Plant.__doc__
+    assert models.Plant.__doc__ == (
+        "A plant in the garden. This model is used to represent a plant in the client SDK.\n"
+        "\n"
+        "    :ivar name: The name of the plant. Required.\n"
+        "    :vartype name: str\n"
+        "    :ivar species: The species of the plant. Required.\n"
+        "    :vartype species: str\n"
+        "    "
+    )
 
 
 def test_operation_doc_replaced(client: ClientDocClient):
     # @clientDoc in replace mode overrides the base @doc completely.
-    assert "Retrieves a plant from the garden by submitting its name." in client.documentation.harvest.__doc__
-    assert "Internal operation to get a plant." not in client.documentation.harvest.__doc__
+    assert client.documentation.harvest.__doc__ == (
+        "Retrieves a plant from the garden by submitting its name.\n"
+        "\n"
+        "        :param body: Is one of the following types: Plant, JSON, IO[bytes] Required.\n"
+        "        :type body: ~specs.azure.clientgenerator.core.clientdoc.models.Plant or JSON or IO[bytes]\n"
+        "        :return: Plant. The Plant is compatible with MutableMapping\n"
+        "        :rtype: ~specs.azure.clientgenerator.core.clientdoc.models.Plant\n"
+        "        :raises ~azure.core.exceptions.HttpResponseError:\n"
+        "        "
+    )
