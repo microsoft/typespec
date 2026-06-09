@@ -74,6 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputSerializationOptions? serializationOptions = null;
             InputExternalTypeMetadata? external = null;
             bool isExactName = false;
+            bool isFileType = false;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -96,6 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadComplexType("external", options, ref external)
                     || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadBoolean("isFileType", ref isFileType)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -113,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
 
-            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml))
+            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml) && !parsedUsage.HasFlag(InputModelTypeUsage.MultipartFormData))
             {
                 parsedUsage |= InputModelTypeUsage.Json;
             }
@@ -146,6 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
             model.External = external;
+            model.IsFileType = isFileType;
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
