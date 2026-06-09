@@ -55,7 +55,16 @@ def test_enum_value_member_name_preserved():
 
 
 def test_operation(client: ExactNameClient):
-    client.operation.my_op()
+    client.operation.myOp()
+
+
+def test_operation_method_name_preserved():
+    # exact("myOp") should preserve the operation method name as-is, so Python should NOT
+    # convert it to "my_op".
+    from specs.azure.clientgenerator.core.exactname.operation.operations import OperationOperations
+
+    assert hasattr(OperationOperations, "myOp")
+    assert not hasattr(OperationOperations, "my_op")
 
 
 def test_parameter(client: ExactNameClient):
