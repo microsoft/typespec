@@ -193,10 +193,14 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
         });
       });
 
-      const flattenedUnion = tk.union.create({
-        name: unionName,
-        variants: variantArray,
-      });
+      const flattenedUnion = tk.type.clone(this.sourceType);
+      flattenedUnion.name = unionName;
+      flattenedUnion.variants.clear();
+      for (const variant of variantArray) {
+        flattenedUnion.variants.set(variant.name, variant);
+        variant.union = flattenedUnion;
+      }
+      tk.type.finishType(flattenedUnion);
 
       this.#flattenedUnion = flattenedUnion;
     } else {

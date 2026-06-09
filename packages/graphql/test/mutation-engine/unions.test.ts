@@ -1,4 +1,4 @@
-import type { Model, Union } from "@typespec/compiler";
+import { getDoc, type Model, type Union } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isNullable } from "../../src/lib/nullable.js";
@@ -216,6 +216,22 @@ describe("GraphQL Mutation Engine - Unions", () => {
       .map((v) => ("name" in v.type ? v.type.name : v.type.kind))
       .sort();
     expect(variantNames).toEqual(["AdAccount", "Board"]);
+  });
+
+  it("preserves decorator state (e.g. @doc) on flattened unions", async () => {
+    const { MaybePet } = await tester.compile(
+      t.code`
+        model ${t.model("Cat")} { name: string; }
+        model ${t.model("Dog")} { breed: string; }
+        /** A pet or nothing */
+        union ${t.union("MaybePet")} { cat: Cat; dog: Dog; null; }
+      `,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const mutation = engine.mutateUnion(MaybePet, GraphQLTypeContext.Output);
+
+    expect(getDoc(tester.program, mutation.mutatedType)).toBe("A pet or nothing");
   });
 
   it("T | null replacement gets its mutation pipeline applied", async () => {
