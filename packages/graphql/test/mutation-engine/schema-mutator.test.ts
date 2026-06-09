@@ -187,6 +187,27 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("BookInput")).toBe(false);
   });
 
+  it("does not produce Output variant for input-only models", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        model ${t.model("Payload")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Payload): Book;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, true);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Payload is only used as input — should only appear as Input variant (PayloadInput)
+    expect(typeGraph.globalNamespace.models.has("PayloadInput")).toBe(true);
+    // Should NOT have an Output variant
+    expect(typeGraph.globalNamespace.models.has("Payload")).toBe(false);
+  });
+
   it("skips array models (they are list types, not object types)", async () => {
     await tester.compile(
       t.code`

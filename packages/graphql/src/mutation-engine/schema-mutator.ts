@@ -34,19 +34,23 @@ export function mutateSchema(
 ): TypeGraph {
   const tk = $(program);
   const mutatedTypes: Type[] = [];
-  const modelsToInputMutate: Model[] = [];
 
   navigateTypesInNamespace(schema, {
     model: (node: Model) => {
       if (isArrayModelType(node)) return;
       if (typeUsage.isUnreachable(node)) return;
 
-      const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
-      mutatedTypes.push(mutation.mutatedType);
-
       const usage = typeUsage.getUsage(node);
-      if (usage?.has(GraphQLTypeUsage.Input)) {
-        modelsToInputMutate.push(node);
+      const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
+      const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
+
+      if (usedAsOutput || !usage) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
+        mutatedTypes.push(mutation.mutatedType);
+      }
+      if (usedAsInput) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
+        mutatedTypes.push(mutation.mutatedType);
       }
     },
     enum: (node: Enum) => {
@@ -74,11 +78,6 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
   });
-
-  for (const model of modelsToInputMutate) {
-    const mutation = engine.mutateModel(model, GraphQLTypeContext.Input);
-    mutatedTypes.push(mutation.mutatedType);
-  }
 
   return buildTypeGraph(program, tk, mutatedTypes);
 }
