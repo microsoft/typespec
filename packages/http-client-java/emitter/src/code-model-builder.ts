@@ -1011,7 +1011,8 @@ export class CodeModelBuilder {
     if (generateConvenienceApi && convenienceApiName) {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
       if (sdkMethod.isExactName) {
-        codeModelOperation.convenienceApi.language.java = codeModelOperation.convenienceApi.language.java ?? new Language();
+        codeModelOperation.convenienceApi.language.java =
+          codeModelOperation.convenienceApi.language.java ?? new Language();
         codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
       }
     }
