@@ -689,6 +689,10 @@ export class CodeModelBuilder {
       security: this.codeModel.security,
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    if (client.isExactName) {
+      codeModelClient.language.java = codeModelClient.language.java ?? new Language();
+      codeModelClient.language.java.name = clientName;
+    }
 
     // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
@@ -948,6 +952,10 @@ export class CodeModelBuilder {
         "x-ms-examples": operationExamples,
       },
     });
+    if (sdkMethod.isExactName) {
+      codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
+      codeModelOperation.language.java.name = sdkMethod.name;
+    }
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
@@ -998,6 +1006,10 @@ export class CodeModelBuilder {
     }
     if (generateConvenienceApi && convenienceApiName) {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
+      if (sdkMethod.isExactName) {
+        codeModelOperation.convenienceApi.language.java = codeModelOperation.convenienceApi.language.java ?? new Language();
+        codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
+      }
     }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
@@ -2710,9 +2722,14 @@ export class CodeModelBuilder {
     const valueType = this.processSchema(type.valueType, type.valueType.kind);
 
     const choices: ChoiceValue[] = [];
-    type.values.forEach((it: SdkEnumValueType) =>
-      choices.push(new ChoiceValue(it.name, it.doc ?? "", it.value ?? it.name)),
-    );
+    type.values.forEach((it: SdkEnumValueType) => {
+      const choice = new ChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
+      if (it.isExactName) {
+        choice.language.java = choice.language.java ?? new Language();
+        choice.language.java.name = it.name;
+      }
+      choices.push(choice);
+    });
 
     const schemaType = type.isFixed ? SealedChoiceSchema : ChoiceSchema;
 
