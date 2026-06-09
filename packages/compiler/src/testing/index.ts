@@ -4,7 +4,7 @@ export {
 } from "./test-compiler-host.js";
 
 export { expectCodeFixOnAst } from "./code-fix-testing.js";
-export { expectDiagnosticEmpty, expectDiagnostics, type DiagnosticMatch } from "./expect.js";
+export { expectDiagnosticEmpty, expectDiagnostics, type ExpectDiagnosticsOptions, type DiagnosticMatch } from "./expect.js";
 export { createTestFileSystem, mockFile } from "./fs.js";
 export { t, type TemplateWithMarkers } from "./marked-template.js";
 export {
