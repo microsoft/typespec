@@ -808,6 +808,10 @@ export class CodeModelBuilder {
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
+          if (subClient.isExactName) {
+            codeModelGroup.language.java = codeModelGroup.language.java ?? new Language();
+            codeModelGroup.language.java.name = subClient.name;
+          }
           codeModelGroup.language.default.crossLanguageDefinitionId =
             subClient.crossLanguageDefinitionId;
           for (const serviceMethod of serviceMethods) {
