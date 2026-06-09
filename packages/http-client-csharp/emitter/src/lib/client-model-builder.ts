@@ -6,11 +6,12 @@ import {
   SdkEnumType,
   SdkHttpOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
+import { createDiagnostic } from "./lib.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
@@ -97,8 +98,22 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // Fix naming conflicts for constants, enums, and models
   fixNamingConflicts(models, constants);
 
+  // Resolve the root namespace. When this cannot be determined the generated code model
+  // has no name, which the .NET generator rejects with an opaque root-level deserialization
+  // failure. Surface a clear, actionable diagnostic here instead and let the caller skip
+  // generation. See https://github.com/microsoft/typespec/issues/10914.
+  const clientNamespace = getClientNamespaceString(sdkContext);
+  if (clientNamespace === undefined) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unresolved-client-namespace",
+        target: NoTarget,
+      }),
+    );
+  }
+
   const clientModel: CodeModel = {
-    name: getClientNamespaceString(sdkContext)!,
+    name: clientNamespace ?? "",
     apiVersions: rootApiVersions,
     enums: enums,
     constants: constants,
