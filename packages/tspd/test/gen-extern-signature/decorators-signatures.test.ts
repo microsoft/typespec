@@ -26,9 +26,7 @@ async function generateDecoratorSignatures(code: string) {
     } as any,
   });
 
-  expectDiagnosticEmpty(
-    program.diagnostics.filter((x) => x.code !== "missing-implementation"),
-  );
+  expectDiagnosticEmpty(program.diagnostics.filter((x) => x.code !== "missing-implementation"));
 
   const result = await generateExternDecorators(program, "test-lib", {
     prettierConfig: {

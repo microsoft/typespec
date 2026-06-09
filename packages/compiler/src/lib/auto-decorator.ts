@@ -6,10 +6,12 @@ import type { Type } from "../core/types.js";
 
 /**
  * Get the state key for an auto decorator given its fully-qualified name.
+ * Uses `dec:` prefix so the state key is based on decorator identity,
+ * not declaration style — allows seamless migration from auto to extern.
  * @internal
  */
 export function getAutoDecoratorStateKey(decoratorFqn: string): symbol {
-  return Symbol.for(`auto-dec:${decoratorFqn}`);
+  return Symbol.for(`TypeSpec.dec:${decoratorFqn}`);
 }
 
 /**
