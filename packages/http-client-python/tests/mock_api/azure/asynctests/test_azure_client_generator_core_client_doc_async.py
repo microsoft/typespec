@@ -23,6 +23,7 @@ async def test_harvest(client: ClientDocClient):
 
 def test_model_doc_appended():
     # @clientDoc in append mode keeps the base @doc and appends the client-specific text.
+    # The full docstring is compared, including the trailing indentation that closes the docstring.
     assert models.Plant.__doc__ == (
         "A plant in the garden. This model is used to represent a plant in the client SDK.\n"
         "\n"
@@ -37,6 +38,7 @@ def test_model_doc_appended():
 @pytest.mark.asyncio
 async def test_operation_doc_replaced(client: ClientDocClient):
     # @clientDoc in replace mode overrides the base @doc completely.
+    # The full docstring is compared, including the trailing indentation that closes the docstring.
     assert client.documentation.harvest.__doc__ == (
         "Retrieves a plant from the garden by submitting its name.\n"
         "\n"
