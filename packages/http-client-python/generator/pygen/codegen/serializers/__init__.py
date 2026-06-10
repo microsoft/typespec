@@ -219,10 +219,13 @@ class JinjaSerializer(ReaderAndWriter):
                 )
 
             # write types.py per namespace (alongside models/)
-            # In typeddict mode, also generate types.py when there are enums (for Literal aliases)
-            has_models = self.code_model.has_non_json_models(client_namespace_type.models)
-            has_typeddict_enums = is_typeddict_mode and client_namespace_type.enums
-            if has_models or has_typeddict_enums:
+            # Only generate types.py if at least one model/enum would be imported via types
+            # in operations (the model itself volunteers this via is_used_in_operations_via_types)
+            has_types_models = any(
+                m.is_used_in_operations_via_types for m in client_namespace_type.models if m.base != "json"
+            )
+            has_types_enums = any(e.is_typeddict_mode for e in client_namespace_type.enums)
+            if has_types_models or has_types_enums:
                 generation_dir = self.code_model.get_generation_dir(client_namespace)
                 self.write_file(
                     generation_dir / Path("types.py"),

@@ -86,6 +86,11 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         return bool(self.usage & UsageFlags.Output.value)
 
     @property
+    def is_used_in_operations_via_types(self) -> bool:
+        """Whether this model would be imported from types.py (not models) in operations."""
+        return False
+
+    @property
     def flattened_property(self) -> Optional[Property]:
         try:
             return next(p for p in self.properties if p.flatten)
@@ -389,6 +394,10 @@ class MsrestModelType(GeneratedModelType):
 class DPGModelType(GeneratedModelType):
     base = "dpg"
 
+    @property
+    def is_used_in_operations_via_types(self) -> bool:
+        return self.is_typed_dict_only
+
     def type_annotation(self, **kwargs: Any) -> str:
         if self.is_typed_dict_only:
             is_operation_file = kwargs.pop("is_operation_file", False)
@@ -459,6 +468,10 @@ class DPGModelType(GeneratedModelType):
 
 class TypedDictModelType(DPGModelType):
     base = "typeddict"
+
+    @property
+    def is_used_in_operations_via_types(self) -> bool:
+        return True
 
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.pop("is_operation_file", False)
