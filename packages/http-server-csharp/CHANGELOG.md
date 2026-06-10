@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.29
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) Rewrite using emitter framework and alloy engine
+
+
+## 0.58.0-alpha.28
+
+### Bug Fixes
+
+- [#10327](https://github.com/microsoft/typespec/pull/10327) add arrayDeclarationContext
+
+
 ## 0.58.0-alpha.27
 
 ### Bug Fixes

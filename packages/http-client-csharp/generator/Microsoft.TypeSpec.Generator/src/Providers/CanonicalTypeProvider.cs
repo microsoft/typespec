@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = _specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
+            _specPropertiesMap = _specProperties.ToDictionary(p => p.IsExactName ? p.Name : p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();

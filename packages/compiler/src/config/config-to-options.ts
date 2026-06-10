@@ -4,7 +4,7 @@ import { CompilerOptions } from "../core/options.js";
 import { getDirectoryPath, normalizePath } from "../core/path-utils.js";
 import { Diagnostic, NoTarget, SystemHost } from "../core/types.js";
 import { doIO } from "../utils/io.js";
-import { deepClone, omitUndefined } from "../utils/misc.js";
+import { omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";
@@ -64,6 +64,29 @@ export async function resolveCompilerOptions(
     options.configPath === undefined,
   );
   config.diagnostics.forEach((x) => diagnostics.add(x));
+
+  // Validate that --config does not point to a project config
+  if (options.configPath !== undefined && config.kind === "project") {
+    diagnostics.add(
+      createDiagnostic({
+        code: "config-project-not-as-cli-config",
+        target: NoTarget,
+      }),
+    );
+  }
+
+  // When using --config with a non-project config, auto-inherit project settings
+  // from the project tspconfig.yaml of the entrypoint (not the config file location)
+  if (options.configPath !== undefined && config.kind !== "project") {
+    const entrypointDir = entrypointStat?.isDirectory()
+      ? options.entrypoint
+      : getDirectoryPath(options.entrypoint);
+    const projectConfig = await findProjectConfig(host, entrypointDir);
+    if (projectConfig?.kind === "project") {
+      config.entrypoint ??= projectConfig.entrypoint;
+      config.features ??= projectConfig.features;
+    }
+  }
 
   const compilerOptions = diagnostics.pipe(resolveOptionsFromConfig(config, options));
   return diagnostics.wrap(compilerOptions);
@@ -141,7 +164,7 @@ function mergeOptions(
   base: Record<string, Record<string, unknown>> | undefined,
   overrides: Record<string, Record<string, unknown>> | undefined,
 ): Record<string, EmitterOptions> {
-  const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(base ?? {});
+  const configuredEmitters: Record<string, Record<string, unknown>> = structuredClone(base ?? {});
   function isObject(item: unknown): item is Record<string, unknown> {
     return item && typeof item === "object" && (!Array.isArray(item) as any);
   }
@@ -172,4 +195,25 @@ function mergeOptions(
 
 function hasNestedObjects(value: any): boolean {
   return value && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Walk up directories from `startDir` to find the nearest project tspconfig.yaml (one with `kind: "project"`).
+ */
+async function findProjectConfig(
+  host: SystemHost,
+  startDir: string,
+): Promise<TypeSpecConfig | undefined> {
+  let dir = startDir;
+  while (true) {
+    const config = await loadTypeSpecConfigForPath(host, dir, false, false);
+    if (config.kind === "project" && config.diagnostics.length === 0) {
+      return config;
+    }
+    const parentDir = getDirectoryPath(dir);
+    if (parentDir === dir) {
+      return undefined;
+    }
+    dir = parentDir;
+  }
 }

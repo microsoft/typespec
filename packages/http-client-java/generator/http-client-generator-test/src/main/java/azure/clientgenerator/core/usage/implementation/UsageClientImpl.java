@@ -72,6 +72,20 @@ public final class UsageClientImpl {
     }
 
     /**
+     * The NamespaceUsagesImpl object to access its operations.
+     */
+    private final NamespaceUsagesImpl namespaceUsages;
+
+    /**
+     * Gets the NamespaceUsagesImpl object to access its operations.
+     * 
+     * @return the NamespaceUsagesImpl object.
+     */
+    public NamespaceUsagesImpl getNamespaceUsages() {
+        return this.namespaceUsages;
+    }
+
+    /**
      * Initializes an instance of UsageClient client.
      * 
      * @param endpoint Service host.
@@ -103,5 +117,6 @@ public final class UsageClientImpl {
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
         this.modelInOperations = new ModelInOperationsImpl(this);
+        this.namespaceUsages = new NamespaceUsagesImpl(this);
     }
 }

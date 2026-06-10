@@ -1,5 +1,53 @@
 # Change Log - @typespec/openapi3
 
+## 1.13.0
+
+### Features
+
+- [#10769](https://github.com/microsoft/typespec/pull/10769) Add `summary` and `kind` fields to `@tagMetadata` decorator.
+  
+  For OpenAPI 3.2, these fields are emitted as native tag object fields. For OpenAPI 3.0/3.1, they are emitted as `x-oai-summary` and `x-oai-kind` extensions. The OpenAPI converter also supports importing `x-oai-summary`, `x-oai-kind` (from 3.0/3.1) and native `summary`, `kind` (from 3.2) back to TypeSpec.
+  
+  ```typespec
+  @tagMetadata("foo", #{ summary: "all operations that allow doing Foo", kind: "FooGroup" })
+  ```
+- [#10770](https://github.com/microsoft/typespec/pull/10770) Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
+  
+  ```typespec
+  @service
+  @tagMetadata(#[
+    #{ name: "First Tag", description: "First tag description" },
+    #{ name: "Second Tag", description: "Second tag description" },
+  ])
+  namespace PetStore {}
+  ```
+  
+  Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+
+### Bug Fixes
+
+- [#10786](https://github.com/microsoft/typespec/pull/10786) Mark models as `@error` when imported from 4xx/5xx response body schema references.
+- [#10901](https://github.com/microsoft/typespec/pull/10901) Fix import of `deprecated: true` on OpenAPI3 operations to generate `#deprecated "deprecated"` directive in converted TypeSpec output.
+- [#10677](https://github.com/microsoft/typespec/pull/10677) Fix custom auth scheme models leaking into `components.schemas` when declared inside the service namespace. They are now emitted only under `components.securitySchemes` as expected.
+- [#10656](https://github.com/microsoft/typespec/pull/10656) Propagate `@JsonSchema.uniqueItems` to query, path and header parameter schemas. The decorator was only applied to body model property schemas; for HTTP parameter schemas (which go through `applyIntrinsicDecorators`) it was silently dropped, so arrays declared on operation parameters never emitted `uniqueItems: true` even when the decorator was present.
+  
+  ```tsp
+  op listUsers(
+    @query
+    @JsonSchema.uniqueItems
+    $select?: ("id" | "displayName")[],
+  ): User[];
+  ```
+
+
+## 1.12.0
+
+### Bug Fixes
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) Fix examples when operation return type have union of response mapping to same status code
+- [#10268](https://github.com/microsoft/typespec/pull/10268) Fix missing discriminator mapping entry when the first union variant causes a circular emit, affecting both the OpenAPI 3.0 and 3.2 emitters.
+
+
 ## 1.11.0
 
 ### Bug Fixes

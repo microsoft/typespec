@@ -1156,7 +1156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[0].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[0].Name);
@@ -1179,7 +1179,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType) == true
+                    var expectedName = ctorParams?[1].Type?.Equals(ClientPipelineProvider.Instance.TokenCredentialType!) == true
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[1].Name);
@@ -2787,9 +2787,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var protocolMethods = methods
@@ -2874,9 +2872,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider!.Methods;
             var convenienceMethods = methods
@@ -2956,9 +2952,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var protocolMethods = methods
@@ -3055,9 +3049,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var methods = clientProvider.Methods;
             var processDataMethods = methods
@@ -3143,10 +3135,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
             // This should not throw even when there are duplicate method signatures
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
+            Assert.DoesNotThrow(() => clientProvider!.ProcessTypeForBackCompatibility());
         }
 
         // Last contract has GetData(int param1, string param2, CancellationToken) (and async).
@@ -3183,8 +3173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3226,8 +3215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3272,8 +3260,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3312,8 +3299,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3353,8 +3339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -3399,8 +3384,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            processMethod?.Invoke(clientProvider, null);
+            clientProvider!.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Verifies that a back-compat overload added by ProcessTypeForBackCompatibility is removed
+        // when the user has explicitly suppressed it via [CodeGenSuppress] in custom code. Without
+        // filtering in ProcessTypeForBackCompatibility, the suppressed overload would be re-introduced
+        // after the FilterAllCustomizedMembers pass, leaking into the generated client.
+        [Test]
+        public async Task BackCompatibility_BackCompatOverloadSuppressedByCustomCode()
+        {
+            // Last contract had a GetData(int param1, string param2, CancellationToken) method.
+            // Current method adds an optional non-body parameter `param3`, which would normally
+            // cause a back-compat overload matching the previous signature to be added.
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var param2 = InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param2, param3],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+            Assert.IsNotNull(clientProvider.CustomCodeView);
+
+            clientProvider.ProcessTypeForBackCompatibility();
+
+            // The current spec method has param3, the back-compat overload would NOT have param3.
+            // With the fix, the suppressed back-compat overload should not appear in the methods.
+            var getDataOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetData" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+            var getDataAsyncOverloads = clientProvider.Methods
+                .Where(m => m.Signature.Name == "GetDataAsync" && !m.Signature.Parameters.Any(p => p.Name == "param3"))
+                .ToList();
+
+            Assert.AreEqual(0, getDataOverloads.Count, "Back-compat overload of GetData should be suppressed by [CodeGenSuppress] in custom code.");
+            Assert.AreEqual(0, getDataAsyncOverloads.Count, "Back-compat overload of GetDataAsync should be suppressed by [CodeGenSuppress] in custom code.");
+
+            // The current methods (with param3) must still be present.
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetData" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+            Assert.IsTrue(clientProvider.Methods.Any(m => m.Signature.Name == "GetDataAsync" && m.Signature.Parameters.Any(p => p.Name == "param3")));
+        }
+
+        // Last contract has only protocol methods: GetData(int param1, BinaryContent content, RequestOptions options = null).
+        // The current TypeSpec adds a new optional non-body query parameter "$select" whose raw input name
+        // starts with a reserved character.
+        // Expected: a hidden back-compat protocol overload matching the previous signature is added. The
+        // delegating call body must use the C# variable name ("select") for the named-argument label, not
+        // the raw "$select" name (which would produce invalid C#).
+        [Test]
+        public async Task BackCompatibility_NewOptionalParameterWithReservedName()
+        {
+            var param1 = InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+            var content = InputFactory.BodyParameter("content", InputPrimitiveType.String, isRequired: true);
+            var selectParam = InputFactory.QueryParameter("$select", InputPrimitiveType.String, isRequired: false);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, content, selectParam],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("content", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("$select", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: false),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            clientProvider!.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
@@ -4443,6 +4528,187 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     $"Params: [{string.Join(", ", paramNames)}]");
             }
         }
+
+        [Test]
+        public void TestIsExactNameClientPreservesNameVerbatim()
+        {
+            // A client marked with isExactName should bypass ToIdentifierName() casing.
+            var client = InputFactory.Client("snake_case_client", isExactName: true);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("snake_case_client", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameClientStillCased()
+        {
+            // A client without isExactName should still go through ToIdentifierName().
+            var client = InputFactory.Client("snake_case_client");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("SnakeCaseClient", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodPreservesOperationNameVerbatim()
+        {
+            // A service method marked with isExactName should preserve the operation name verbatim
+            // (no PascalCase transformation, no "List" -> "Get" rename).
+            var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodSkipsListToGetRename()
+        {
+            // The normal CleanOperationNames behavior renames "List" -> "GetAll" and "ListFoo" -> "GetFoo".
+            // When isExactName is true, even an operation literally named "List" must be preserved verbatim.
+            var inputOperation = InputFactory.Operation("List", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("List", inputServiceMethod.Name);
+            Assert.AreEqual("List", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameServiceMethodAppliesListRename()
+        {
+            // Sanity check that without isExactName the existing rename still applies.
+            var inputOperation = InputFactory.Operation("List");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("GetAll", inputServiceMethod.Name);
+            Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
+        }
+        private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
+        {
+            var body = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                location: InputRequestLocation.Body);
+
+            var bodyOperationParameter = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                requestMediaTypes: ["multipart/form-data"],
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyOperationParameter]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [body]);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [inputClient],
+                inputModels: () => [bodyModel]);
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_RequiredFileBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_MultiFileOnlyBody()
+        {
+            var inputModel = MultipartModel(
+                "BinaryArrayPartsRequest",
+                [MultiFilePartProperty("pictures")]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalFileBody()
+        {
+            var inputModel = MultipartModel(
+                "OptionalFileRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("optionalFile", isRequired: false),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel, bodyIsRequired: false);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
+            => InputFactory.Property(
+                name,
+                InputFactory.FileType(),
+                isRequired: isRequired,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true)));
+
+        private static InputModelProperty MultiFilePartProperty(string name)
+            => InputFactory.Property(
+                name,
+                InputFactory.Array(InputFactory.FileType()),
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
+
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+            => InputFactory.Property(
+                name,
+                type,
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+
+        private static InputModelType MultipartModel(string name, IEnumerable<InputModelProperty> properties)
+            => InputFactory.Model(name, usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData, properties: properties);
+
     }
 }
 

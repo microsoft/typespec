@@ -3,6 +3,7 @@ import {
   CompilerHost,
   Decorator,
   Diagnostic,
+  type FunctionValue,
   Namespace,
   type PackageJson,
   Program,
@@ -19,7 +20,6 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import prettier from "prettier";
-import { FunctionValue } from "../../../compiler/src/core/types.js";
 import { createDiagnostic } from "../ref-doc/lib.js";
 import { generateSignatures } from "./components/entity-signatures.js";
 import { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";

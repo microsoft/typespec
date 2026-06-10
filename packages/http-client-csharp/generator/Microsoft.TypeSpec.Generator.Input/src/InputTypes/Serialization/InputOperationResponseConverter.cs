@@ -31,13 +31,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputOperationResponseHeader>? headers = null;
             bool isErrorResponse = default;
             IReadOnlyList<string>? contentTypes = null;
+            InputSerializationOptions? serializationOptions = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("statusCodes", options, ref statusCodes)
                     || reader.TryReadComplexType("bodyType", options, ref bodyType)
                     || reader.TryReadComplexType("headers", options, ref headers)
                     || reader.TryReadBoolean("isErrorResponse", ref isErrorResponse)
-                    || reader.TryReadComplexType("contentTypes", options, ref contentTypes);
+                    || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
                 {
@@ -49,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             contentTypes ??= [];
             headers ??= [];
 
-            var result = new InputOperationResponse(statusCodes, bodyType, headers, isErrorResponse, contentTypes);
+            var result = new InputOperationResponse(statusCodes, bodyType, headers, isErrorResponse, contentTypes, serializationOptions);
 
             return result;
         }

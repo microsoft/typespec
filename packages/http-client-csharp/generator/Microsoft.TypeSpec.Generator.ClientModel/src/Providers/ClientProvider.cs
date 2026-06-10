@@ -214,6 +214,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name;
+            }
+
             var operationName = serviceMethod.Operation.Name.ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
@@ -417,7 +422,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -743,7 +748,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var propAccess = new MemberExpression(new NullConditionalExpression(settingsParam), propName);
                 // Value types (enums, primitives) need ?? default since null-conditional returns T?
                 ValueExpression arg = param.Type.IsValueType
-                    ? propAccess.NullCoalesce(new KeywordExpression("default", null))
+                    ? propAccess.NullCoalesce(Default)
                     : propAccess;
                 args.Add(arg);
             }
@@ -1818,11 +1823,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
+                {
+                    overload.Update(suppressions:
+                    [
+                        new SuppressionStatement(
+                            inner: null,
+                            code: Literal("AZC0002"),
+                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
+                    ]);
+                }
+
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
                     BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
             }
+        }
+
+        private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
+        {
+            if (previousSignature.Parameters.Count == 0)
+            {
+                return false;
+            }
+
+            var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
+            return new CSharpType.CSharpTypeIgnoreNullableComparer().Equals(lastParam.Type, new CSharpType(typeof(CancellationToken)));
         }
 
         // Returns true when currentSignature contains all parameters of previousSignature in the same
@@ -1885,16 +1912,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousParamsByName = new Dictionary<string, ParameterProvider>();
             foreach (var p in previousSignature.Parameters)
             {
-                previousParamsByName.TryAdd(p.Name, p);
+                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
             }
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
-                ValueExpression value = previousParamsByName.TryGetValue(currentParam.Name, out var prevParam)
+                var currentParamVariableName = currentParam.Name.ToVariableName();
+                ValueExpression value = previousParamsByName.TryGetValue(currentParamVariableName, out var prevParam)
                     ? prevParam
                     : (currentParam.DefaultValue ?? Default);
-                arguments.Add(PositionalReference(currentParam.Name, value));
+                arguments.Add(PositionalReference(currentParamVariableName, value));
             }
 
             return new ScmMethodProvider(

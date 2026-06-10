@@ -358,6 +358,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void PropagateModelListPropertyHelperMethods()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1",
+                        InputFactory.Array(InputFactory.Model(
+                            "anotherDynamic",
+                            isDynamicModel: true,
+                            properties:
+                            [
+                                InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
+                            ])))
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "TryResolveP1Array" or "ActiveP1"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void PropagateModelDictionaryProperty()
         {
             var inputModel = InputFactory.Model(

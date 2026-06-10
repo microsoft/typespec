@@ -1,3 +1,4 @@
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { DiagnosticHandler } from "./diagnostics.js";
@@ -32,6 +33,13 @@ export async function resolveTypeSpecEntrypointForDir(
   dir: string,
   reportDiagnostic: DiagnosticHandler,
 ): Promise<string> {
+  // Check for project tspconfig first
+  const config = await loadTypeSpecConfigForPath(host, dir, false, false);
+  if (config.kind === "project") {
+    const entrypoint = config.entrypoint ?? "main.tsp";
+    return resolvePath(dir, entrypoint);
+  }
+
   const pkgJsonPath = resolvePath(dir, "package.json");
   const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
     allowFileNotFound: true,

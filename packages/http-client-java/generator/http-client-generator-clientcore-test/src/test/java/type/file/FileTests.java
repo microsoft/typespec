@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 
 public class FileTests {
 
@@ -54,8 +55,7 @@ public class FileTests {
 
     @Test
     public void testDownloadFileMultipleContentTypes() {
-        BinaryData response
-            = client.downloadFileMultipleContentTypes(DownloadFileMultipleContentTypesContentType.IMAGE_PNG);
+        BinaryData response = client.downloadFileMultipleContentTypes();
         Assertions.assertNotNull(response);
     }
 

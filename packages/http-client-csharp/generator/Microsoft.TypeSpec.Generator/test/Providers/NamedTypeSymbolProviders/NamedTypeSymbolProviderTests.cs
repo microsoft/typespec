@@ -370,6 +370,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
         }
 
+        // Operator signatures parsed from a customization partial must compare equal to the corresponding generated signatures.
+        [Test]
+        public async Task ValidateOperatorSignaturesMatchGenerated()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithOperators")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+            var typeFromCustomization = provider.Type;
+
+            var leftParam = new ParameterProvider("left", $"left", typeFromCustomization);
+            var rightParam = new ParameterProvider("right", $"right", typeFromCustomization);
+            var valueParam = new ParameterProvider("value", $"value", typeof(string));
+            var operatorModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator;
+            var implicitOperatorModifiers = operatorModifiers | MethodSignatureModifiers.Implicit;
+
+            // Mirror the signatures emitted by generated providers (e.g. ExtensibleEnumProvider).
+            var generatedEquality = new MethodSignature("==", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedInequality = new MethodSignature("!=", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedImplicit = new MethodSignature(string.Empty, null, implicitOperatorModifiers, typeFromCustomization, null, [valueParam]);
+
+            var customEquality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("=="));
+            var customInequality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("!="));
+            var customImplicit = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedEquality, customEquality.Signature),
+                "Generated `==` operator should match the `==` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedInequality, customInequality.Signature),
+                "Generated `!=` operator should match the `!=` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedImplicit, customImplicit.Signature),
+                "Generated implicit conversion operator should match the implicit operator parsed from the customization partial.");
+
+            // Sanity check: `==` and `!=` parsed from customization must remain distinguishable.
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(customEquality.Signature, customInequality.Signature),
+                "`==` and `!=` operators must not compare as equal even though their parameter shapes match.");
+        }
+
         [Test]
         public void ValidateMethods()
         {
