@@ -25,6 +25,19 @@ def test_add_to_description_inserts_before_code_block() -> None:
     assert not result.rstrip().endswith("Required.")
 
 
+def test_add_to_description_chained_annotations_stay_before_code_block() -> None:
+    # Mirrors parameter.py, where add_to_description is called repeatedly on the
+    # same description (known values, Required., default value, ...).
+    description = "The tools to use.\n\n.. code-block:: json\n\n   [1]"
+    description = add_to_description(description, "Known values are X and None.")
+    description = add_to_description(description, "Required.")
+    description = add_to_description(description, "Default value is None.")
+    assert description == (
+        "The tools to use. Known values are X and None. Required. Default value is None."
+        "\n\n.. code-block:: json\n\n   [1]"
+    )
+
+
 def test_add_to_description_multiple_code_blocks_inserts_before_first() -> None:
     description = (
         "Prose.\n\n.. code-block:: json\n\n   [1]\n\n.. code-block:: json\n\n   [2]"
