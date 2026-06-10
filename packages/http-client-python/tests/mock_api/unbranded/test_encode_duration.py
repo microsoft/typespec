@@ -81,9 +81,7 @@ def test_property(client: DurationClient):
     assert abs(result.value - 150.0) < 0.0001
     result = client.property.int32_milliseconds_larger_unit(Int32MillisecondsLargerUnitDurationProperty(value=180000))
     assert result.value == 180000
-    result = client.property.float_milliseconds_larger_unit(
-        FloatMillisecondsLargerUnitDurationProperty(value=210000.0)
-    )
+    result = client.property.float_milliseconds_larger_unit(FloatMillisecondsLargerUnitDurationProperty(value=210000.0))
     assert abs(result.value - 210000.0) < 0.0001
 
 
