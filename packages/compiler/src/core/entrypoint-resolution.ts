@@ -36,7 +36,7 @@ export async function resolveTypeSpecEntrypointForDir(
   // Check for project tspconfig first
   const config = await loadTypeSpecConfigForPath(host, dir, false, false);
   if (config.kind === "project") {
-    const entrypoint = config.entrypoint ?? "main.tsp";
+    const entrypoint = config.entrypoint ?? (await resolveDefaultEntrypoint(host, dir));
     return resolvePath(dir, entrypoint);
   }
 
@@ -49,5 +49,11 @@ export async function resolveTypeSpecEntrypointForDir(
     return resolvePath(dir, tspMain);
   }
 
-  return resolvePath(dir, "main.tsp");
+  return resolvePath(dir, await resolveDefaultEntrypoint(host, dir));
+}
+
+async function resolveDefaultEntrypoint(host: CompilerHost, dir: string): Promise<string> {
+  const clientTspPath = resolvePath(dir, "client.tsp");
+  const stat = await doIO(host.stat, clientTspPath, () => {}, { allowFileNotFound: true });
+  return stat?.isFile() ? "client.tsp" : "main.tsp";
 }

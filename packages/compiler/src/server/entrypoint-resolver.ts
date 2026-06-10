@@ -24,14 +24,15 @@ export async function resolveEntrypointFile(
   let dir = isFilePath ? getDirectoryPath(path) : path;
 
   if (!entrypoints) {
-    entrypoints = ["main.tsp"];
+    entrypoints = ["client.tsp", "main.tsp"];
   }
 
   while (true) {
     // Check for project tspconfig first (highest priority)
     const config = await loadTypeSpecConfigForPath(host, dir, false, false);
     if (config.kind === "project") {
-      const entrypoint = config.entrypoint ?? "main.tsp";
+      const entrypoint =
+        config.entrypoint ?? ((await existingFile(dir, "client.tsp")) ? "client.tsp" : "main.tsp");
       const candidate = await existingFile(dir, entrypoint);
       logDebug({
         level: "debug",

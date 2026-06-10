@@ -70,6 +70,13 @@ describe("entrypoint resolution", () => {
     const resultForUndefined = await resolveEntrypoint(files, "project/src/file.tsp", undefined);
     expect(resultForUndefined).toBe(resolveVirtualPath("project/main.tsp"));
   });
+
+  it("prefers client.tsp over main.tsp in default fallback when both exist", async () => {
+    const files = { "project/main.tsp": "", "project/client.tsp": "" };
+
+    const result = await resolveEntrypoint(files, "project/src/file.tsp");
+    expect(result).toBe(resolveVirtualPath("project/client.tsp"));
+  });
 });
 
 describe("project tspconfig entrypoint resolution", () => {
@@ -104,6 +111,18 @@ describe("project tspconfig entrypoint resolution", () => {
       "project/src/doc.tsp",
     );
     expect(result).toBe(resolveVirtualPath("project/main.tsp"));
+  });
+
+  it("defaults to client.tsp when kind is project, no entrypoint specified, and client.tsp exists", async () => {
+    const result = await resolveEntrypoint(
+      {
+        "project/tspconfig.yaml": "kind: project\n",
+        "project/main.tsp": "",
+        "project/client.tsp": "",
+      },
+      "project/src/doc.tsp",
+    );
+    expect(result).toBe(resolveVirtualPath("project/client.tsp"));
   });
 
   it("project tspconfig stops the walk even if entrypoint file doesn't exist", async () => {
