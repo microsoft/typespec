@@ -1,29 +1,74 @@
-import { describe, it } from "vitest";
+import { expect, describe, it } from "vitest";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("emitter", () => {
-  it("runs the mutation pipeline without errors", async () => {
+  it("emits a schema with query operations", async () => {
     const code = `
       @schema
       namespace TestNamespace {
         model Book {
-          name: string;
-          page_count: int32;
-          published: boolean;
-          price: float64;
+          title: string;
+          pageCount: int32;
         }
-        model Author {
-          name: string;
-          books: Book[];
-        }
-        op getBooks(): Book[];
-        op getAuthors(): Author[];
+        @query op getBooks(): Book[];
       }
     `;
     const result = await emitSingleSchemaWithDiagnostics(code, {});
-    // Rendering is a stub — no output expected yet.
-    // This test verifies the pipeline (type-usage → mutation → buildTypeGraph) completes.
-    // Output assertions will be added when the Schema orchestrator component lands.
-    result; // no-op, just ensure no throw
+    const errors = result.diagnostics.filter((d) => d.severity === "error");
+    expect(errors).toHaveLength(0);
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toMatch(/type Query \{/);
+    expect(result.graphQLOutput).toContain("getBooks");
+    expect(result.graphQLOutput).toMatch(/type Book \{/);
+    expect(result.graphQLOutput).toContain("title: String!");
+    expect(result.graphQLOutput).toContain("pageCount: Int!");
+  });
+
+  it("emits mutation and subscription root types", async () => {
+    const code = `
+      @schema
+      namespace TestNamespace {
+        model Book { title: string; }
+        @query op getBooks(): Book[];
+        @mutation op createBook(title: string): Book;
+        @subscription op onBookCreated(): Book;
+      }
+    `;
+    const result = await emitSingleSchemaWithDiagnostics(code, {});
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toMatch(/type Query \{/);
+    expect(result.graphQLOutput).toMatch(/type Mutation \{/);
+    expect(result.graphQLOutput).toMatch(/type Subscription \{/);
+  });
+
+  it("emits enums and scalars referenced by models", async () => {
+    const code = `
+      @schema
+      namespace TestNamespace {
+        enum Status { Active, Inactive }
+        scalar DateTime extends string;
+        model Book { title: string; status: Status; created: DateTime; }
+        @query op getBooks(): Book[];
+      }
+    `;
+    const result = await emitSingleSchemaWithDiagnostics(code, {});
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toMatch(/enum Status \{/);
+    expect(result.graphQLOutput).toContain("scalar DateTime");
+  });
+
+  it("emits input types for operation parameters", async () => {
+    const code = `
+      @schema
+      namespace TestNamespace {
+        model Book { title: string; }
+        @query op getBooks(): Book[];
+        @mutation op createBook(input: Book): Book;
+      }
+    `;
+    const result = await emitSingleSchemaWithDiagnostics(code, {});
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toMatch(/type Book \{/);
+    expect(result.graphQLOutput).toMatch(/input BookInput \{/);
   });
 });
