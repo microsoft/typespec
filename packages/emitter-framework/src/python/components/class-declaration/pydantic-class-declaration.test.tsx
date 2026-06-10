@@ -6,7 +6,11 @@ import { pydanticModule, pydanticSettingsModule } from "../../builtins.js";
 import { getOutput } from "../../test-utils.js";
 import { ClassDeclaration } from "./class-declaration.js";
 import { Method } from "./class-method.js";
-import { PydanticClassDeclaration } from "./pydantic-class-declaration.js";
+import {
+  PydanticClassDeclaration,
+  PydanticRootModelDeclaration,
+  PydanticSettingsClassDeclaration,
+} from "./pydantic-class-declaration.js";
 
 describe("Python PydanticClassDeclaration", () => {
   it("creates a pydantic class from a model", async () => {
@@ -94,6 +98,45 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class AppSettings(BaseSettings):
+        pass
+
+    `);
+  });
+
+  it("creates a settings class with SettingsConfigDict", async () => {
+    const { program } = await Tester.compile(``);
+
+    expect(
+      getOutput(program, [
+        <PydanticSettingsClassDeclaration
+          name="AppSettings"
+          settingsConfig={{ envPrefix: "APP_", envFile: ".env" }}
+        />,
+      ]),
+    ).toRenderTo(`
+      from pydantic_settings import BaseSettings
+      from pydantic_settings import SettingsConfigDict
+
+
+      class AppSettings(BaseSettings):
+        model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env")
+
+
+    `);
+  });
+
+  it("creates a RootModel declaration from a root type", async () => {
+    const { program } = await Tester.compile(``);
+
+    expect(
+      getOutput(program, [
+        <PydanticRootModelDeclaration name="TagList" rootType={code`list[str]`} />,
+      ]),
+    ).toRenderTo(`
+      from pydantic import RootModel
+
+
+      class TagList(RootModel[list[str]]):
         pass
 
     `);
