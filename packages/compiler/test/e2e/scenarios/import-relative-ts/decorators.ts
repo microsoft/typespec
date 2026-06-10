@@ -1,5 +1,12 @@
 type DecoratorContext = {
-  program: unknown;
+  program: object;
 };
 
-export function $blue(_context: DecoratorContext, _target: unknown): void {}
+type DecoratorTarget = {
+  name: string;
+};
+
+export function $blue(context: DecoratorContext, target: DecoratorTarget): void {
+  void context;
+  void target;
+}
