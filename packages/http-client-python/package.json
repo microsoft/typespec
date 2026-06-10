@@ -103,7 +103,7 @@
     "@azure-tools/typespec-azure-resource-manager": "~0.68.0",
     "@azure-tools/typespec-azure-rulesets": "~0.68.0",
     "@azure-tools/typespec-client-generator-core": "~0.68.4",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.42-dev.0",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.42",
     "@typespec/compiler": "^1.12.0",
     "@typespec/http": "^1.12.0",
     "@typespec/openapi": "^1.12.0",
