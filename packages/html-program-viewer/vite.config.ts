@@ -31,7 +31,6 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      logLevel: "silent", // checker reports the errors
       tsconfigPath: "./tsconfig.build.json",
     }),
     checker({

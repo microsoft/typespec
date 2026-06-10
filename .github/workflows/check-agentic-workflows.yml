@@ -22,6 +22,8 @@ jobs:
       - name: Compile and check for drift
         run: |
           gh aw compile
+          # Restore dependabot.yml — gh aw compile reformats it even without --dependabot (known bug)
+          git checkout -- .github/dependabot.yml 2>/dev/null || true
           if ! git diff --exit-code .github/workflows/*.lock.yml; then
             echo "::error::Lock files are out of date. Run 'gh aw compile' locally and commit the changes."
             exit 1

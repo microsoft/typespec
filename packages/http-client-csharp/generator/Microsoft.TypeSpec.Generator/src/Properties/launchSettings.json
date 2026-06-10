@@ -190,6 +190,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-service-multiple-services": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/service/multiple-services -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-special-headers-conditional-request": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/special-headers/conditional-request -g StubLibraryGenerator",
       "commandName": "Executable",

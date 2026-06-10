@@ -214,6 +214,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string GetCleanOperationName(InputServiceMethod serviceMethod)
         {
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name;
+            }
+
             var operationName = serviceMethod.Operation.Name.ToIdentifierName();
             // Replace List with Get as .NET convention is to use Get for list operations.
             if (operationName == "List")
@@ -417,7 +422,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -743,7 +748,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var propAccess = new MemberExpression(new NullConditionalExpression(settingsParam), propName);
                 // Value types (enums, primitives) need ?? default since null-conditional returns T?
                 ValueExpression arg = param.Type.IsValueType
-                    ? propAccess.NullCoalesce(new KeywordExpression("default", null))
+                    ? propAccess.NullCoalesce(Default)
                     : propAccess;
                 args.Add(arg);
             }

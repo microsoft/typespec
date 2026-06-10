@@ -1782,8 +1782,14 @@ function createOAPIEmitter(
     }
 
     function processUnreferencedSchemas() {
+      const authSchemeModels = new Set<Type>(serviceAuth.schemes.map((s) => s.model));
       const addSchema = (type: Type) => {
         if (isOrExtendsHttpFile(program, type)) {
+          return;
+        }
+        if (authSchemeModels.has(type)) {
+          // Auth scheme models are emitted under components.securitySchemes
+          // and should not also appear as payload schemas in components.schemas.
           return;
         }
         if (
@@ -1810,20 +1816,33 @@ function createOAPIEmitter(
 
   /** Resolve tag information to be inserted at the root of the document */
   function resolveDocumentTags(service: Service): OpenAPI3Tag[] | OpenAPITag3_2[] {
-    const metadata = getTagsMetadata(program, service.type);
+    const metadataList = getTagsMetadata(program, service.type);
+    const metadataByName = new Map(metadataList?.map((t) => [t.name, t]));
 
     const tags: OpenAPI3Tag[] | OpenAPITag3_2[] = [];
     for (const tag of tagsUsedInOperations) {
-      if (!metadata?.[tag]) {
+      if (!metadataByName.has(tag)) {
         tags.push({ name: tag });
       }
     }
 
-    for (const [name, tag] of Object.entries(metadata || {})) {
-      const tagData: OpenAPI3Tag = { name: name, ...tag };
-      // For OpenAPI 3.0 and 3.1, drop the 'parent' field (only supported in 3.2)
-      if (specVersion !== "3.2.0" && tag.parent) {
-        delete (tagData as { parent?: string }).parent;
+    for (const tag of metadataList ?? []) {
+      const { name, ...rest } = tag;
+      const tagData: OpenAPI3Tag = { name, ...rest };
+      // For OpenAPI 3.0 and 3.1, convert 'parent', 'summary', and 'kind' to x-oai- prefixed extensions
+      if (specVersion !== "3.2.0") {
+        if (tag.parent) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-parent"] = tag.parent;
+          delete (tagData as { parent?: string }).parent;
+        }
+        if (tag.summary) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-summary"] = tag.summary;
+          delete (tagData as { summary?: string }).summary;
+        }
+        if (tag.kind) {
+          (tagData as unknown as Record<string, unknown>)["x-oai-kind"] = tag.kind;
+          delete (tagData as { kind?: string }).kind;
+        }
       }
       tags.push(tagData);
     }

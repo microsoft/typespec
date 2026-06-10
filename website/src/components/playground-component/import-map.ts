@@ -57,9 +57,14 @@ export async function loadImportMap({
   const requestedVersion = parsed.get("version");
   const importMapUrl = `${pkgsBaseUrl}/indexes/typespec/${requestedVersion ?? latestVersion}.json`;
 
+  // Only load additional packages when using the latest version.
+  // Additional packages are always built against the latest compiler and will
+  // fail to load if an older compiler version is selected via the import map.
+  const isLatest = !requestedVersion || requestedVersion === latestVersion;
+
   const [mainResponse, additionalImports] = await Promise.all([
     fetch(importMapUrl),
-    fetchAdditionalPackageImports(additionalPackages),
+    isLatest ? fetchAdditionalPackageImports(additionalPackages) : Promise.resolve({}),
   ]);
 
   const importMap: ImportMap = JSON.parse(await mainResponse.text());

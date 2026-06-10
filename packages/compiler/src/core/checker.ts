@@ -16,6 +16,7 @@ import {
   ignoreDiagnostics,
   reportDeprecated,
 } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -95,6 +96,7 @@ import {
   IntersectionExpressionNode,
   IntrinsicScalarName,
   JsNamespaceDeclarationNode,
+  JsSourceFileNode,
   LiteralNode,
   LiteralType,
   LocationContext,
@@ -529,6 +531,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const spreadResolutionAncestors = new Map<Sym, Set<Sym>>();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -2149,13 +2152,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "experimental-feature",
-        messageId: "functionDeclarations",
-        target: node,
-      }),
-    );
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "functionDeclarations",
+          target: node,
+        }),
+      );
+    }
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -4343,6 +4348,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return symbol;
     }
 
+    // When the member wasn't found but the container has unknown members (e.g. from
+    // template spreads or `is`), force-check the container type so that late-bound
+    // members become available, then retry the lookup.
+    if (node.selector === "." && base.flags & SymbolFlags.MemberContainer) {
+      const resolvedMember = tryForceResolveLateBoundMember(ctx, base, node);
+      if (resolvedMember) {
+        return resolvedMember;
+      }
+    }
+
     if (base.flags & SymbolFlags.Namespace) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4397,6 +4412,52 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
     return undefined;
+  }
+
+  /**
+   * Attempt to resolve a late-bound member by force-checking the container type.
+   * This handles the case where a model has `hasUnknownMembers` (e.g. from template
+   * spreads or `is`) and the member only becomes known after the type is fully checked.
+   */
+  function tryForceResolveLateBoundMember(
+    ctx: CheckContext,
+    base: Sym,
+    node: MemberExpressionNode,
+  ): Sym | undefined {
+    const links = getSymbolLinks(base);
+    if (!links.hasUnknownMembers) {
+      return undefined;
+    }
+
+    // Don't force-check if the container is currently being resolved (cycle).
+    if (pendingResolutions.has(base, ResolutionKind.Type)) {
+      return undefined;
+    }
+
+    // Force-check the container type to populate its members.
+    pendingResolutions.start(base, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(ctx, base, node.base);
+    pendingResolutions.finish(base, ResolutionKind.Type);
+
+    if (isErrorType(type)) {
+      return undefined;
+    }
+
+    // Late-bind the container and its members.
+    switch (type.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+      case "Enum":
+      case "Scalar":
+        lateBindMemberContainer(type);
+        lateBindMembers(type);
+        break;
+      default:
+        return undefined;
+    }
+
+    return getCanonicalResolvedMemberSymbol(type, node.id.sv);
   }
 
   function getMemberKindName(node: Node) {
@@ -4792,6 +4853,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkSourceFile(file);
     }
 
+    checkOrphanedFunctionImplementations();
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
@@ -4820,6 +4882,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
         program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
+
+  /**
+   * Check that all function implementations exported via $functions have a corresponding
+   * `extern fn` declaration in TypeSpec. Reports an error for each orphaned implementation.
+   */
+  function checkOrphanedFunctionImplementations() {
+    for (const file of program.jsSourceFiles.values()) {
+      checkSymbolTableForOrphanedFunctions(file.symbol.exports, file);
+    }
+  }
+
+  function checkSymbolTableForOrphanedFunctions(
+    exports: SymbolTable | undefined,
+    sourceFile: JsSourceFileNode,
+  ) {
+    if (!exports) return;
+    for (const sym of exports.values()) {
+      if (sym.flags & SymbolFlags.Function && sym.flags & SymbolFlags.Implementation) {
+        const merged = getMergedSymbol(sym);
+        const hasFunctionDeclaration = merged.declarations.some(
+          (d) => d.kind === SyntaxKind.FunctionDeclarationStatement,
+        );
+        if (!hasFunctionDeclaration) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "missing-extern-declaration",
+              format: { name: sym.name },
+              target: sourceFile,
+            }),
+          );
+        }
+      }
+      // Recurse into namespace symbols
+      if (sym.flags & SymbolFlags.Namespace && sym.exports) {
+        checkSymbolTableForOrphanedFunctions(sym.exports, sourceFile);
       }
     }
   }
@@ -5715,7 +5815,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: CallExpressionNode,
     target: FunctionValue<unknown[]>,
   ): Type | Value | null {
-    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target, node);
 
     const canCall =
       satisfied &&
@@ -5817,6 +5917,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     args: Expression[],
     target: FunctionValue,
+    diagnosticTarget: Node,
   ): [boolean, any[]] {
     let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
@@ -5830,7 +5931,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           code: "invalid-argument-count",
           messageId: "atLeast",
           format: { actual: args.length.toString(), expected: minArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       return [false, []];
@@ -5839,7 +5940,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "invalid-argument-count",
           format: { actual: args.length.toString(), expected: maxArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       // This error doesn't actually prevent us from checking the arguments and evaluating the function.
@@ -5871,11 +5972,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        resolvedArgs.push(
-          ...restArgs.map((v, idx) =>
-            v !== null && isValue(v) ? marshalTypeForJs(v, undefined) : v,
-          ),
-        );
+        for (const [idx, restArg] of restArgs.entries()) {
+          const resolved = collector.pipe(
+            checkEntityAssignableToConstraint(restArg!, constraint, restArgExpressions[idx]),
+          );
+
+          satisfied &&= !!resolved;
+
+          resolvedArgs.push(
+            resolved
+              ? isValue(resolved)
+                ? marshalTypeForJs(resolved, undefined)
+                : resolved
+              : undefined,
+          );
+        }
       } else {
         const arg = args[idx++];
 
@@ -6412,6 +6523,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: isExpr,
         }),
       );
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
       isType = checkArrayExpression(ctx, isExpr);
@@ -6427,11 +6539,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             }),
           );
         }
+        pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
         return undefined;
       }
       isType = getTypeForNode(isExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
+      pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
       return undefined;
     }
 
@@ -6473,6 +6587,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
+
+    // Ancestors are models that already depend on this model via spread.
+    const modelAncestors = spreadResolutionAncestors.get(modelSymId);
+    if (targetSym && modelAncestors?.has(targetSym)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "spread-model",
+            messageId: "selfSpread",
+            target: target,
+          }),
+        );
+      }
+      return undefined;
+    }
+
+    if (targetSym) {
+      let targetAncestors = spreadResolutionAncestors.get(targetSym);
+      if (!targetAncestors) {
+        targetAncestors = new Set<Sym>();
+        spreadResolutionAncestors.set(targetSym, targetAncestors);
+      }
+      targetAncestors.add(modelSymId);
+      for (const ancestor of modelAncestors ?? []) {
+        targetAncestors.add(ancestor);
+      }
+    }
+
     const type = getTypeForNode(target, ctx);
     return type;
   }
@@ -6568,26 +6710,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "circular-prop",
-          format: { propName: name },
-          target: prop,
-        }),
-      );
-      type.type = errorType;
-    } else {
-      pendingResolutions.start(sym, ResolutionKind.Type);
-      type.type = getTypeForNode(prop.value, ctx);
-      if (prop.default) {
-        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
-        if (defaultValue !== null) {
-          type.defaultValue = defaultValue;
-        }
+    // Link the property early so that re-entrant access (e.g., A.a from another model)
+    // finds this property via checkMemberSym without re-entering checkModelProperty.
+    if (links) {
+      linkType(ctx, links, type);
+    }
+
+    type.type = getTypeForNode(prop.value, ctx);
+
+    // Detect property-to-property cycles (e.g., A.a -> B.a -> A.a)
+    if (hasPropertyTypeCycle(type)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-prop",
+            format: { propName: name },
+            target: prop,
+          }),
+        );
       }
-      if (links) {
-        linkType(ctx, links, type);
+      type.type = errorType;
+    }
+
+    if (prop.default) {
+      const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
+      if (defaultValue !== null) {
+        type.defaultValue = defaultValue;
       }
     }
 
@@ -6603,8 +6751,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    pendingResolutions.finish(sym, ResolutionKind.Type);
     return finishType(type, { skipDecorators: !shouldRunDecorators });
+  }
+
+  /**
+   * Detect cycles in the property type chain. Follows `.type` links as long as
+   * they point to other ModelProperty types and checks whether we loop back to
+   * the starting property.
+   */
+  function hasPropertyTypeCycle(prop: ModelProperty): boolean {
+    let current: Type | undefined = prop.type;
+    while (current !== undefined && current.kind === "ModelProperty") {
+      if (current === prop) return true;
+      current = (current as ModelProperty).type;
+    }
+    return false;
   }
 
   function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
@@ -7267,6 +7428,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const aliasSymId = getNodeSym(node);
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
+      // Re-entrant resolution detected. Check if the alias value node has already produced
+      // a type (e.g., a model expression that creates and links its type before resolving
+      // properties). In that case, the circular reference is safe.
+      const valueSym = node.value.symbol;
+      if (valueSym) {
+        const valueLinks = getSymbolLinks(valueSym);
+        const inProgressType =
+          ctx.mapper === undefined
+            ? valueLinks.declaredType
+            : valueLinks.instantiations?.get(ctx.mapper.args);
+        if (inProgressType) {
+          linkType(ctx, links, inProgressType);
+          return inProgressType;
+        }
+      }
+      if (node.value.kind === SyntaxKind.ModelExpression) {
+        return getTypeForNode(node.value, ctx);
+      }
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

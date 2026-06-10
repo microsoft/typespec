@@ -713,6 +713,33 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes in the middle of an identifier replacing the full token", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: st┆r
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "string",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar string\n```",
+        },
+        textEdit: {
+          newText: "string",
+          range: {
+            start: { line: 2, character: 11 },
+            end: { line: 2, character: 14 },
+          },
+        },
+      },
+    ]);
+  });
+
   it("completes partial backticked identifiers", async () => {
     const completions = await complete(
       `
@@ -2795,7 +2822,21 @@ function check(
       actual,
       `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`,
     );
-    deepStrictEqual(actual, expected);
+
+    // If expected uses insertText but actual uses textEdit, normalize for comparison.
+    // This allows tests to verify completion text content without hardcoding cursor positions.
+    const normalizedActual = { ...actual };
+    if (
+      expected.insertText !== undefined &&
+      expected.textEdit === undefined &&
+      normalizedActual.textEdit !== undefined &&
+      "newText" in normalizedActual.textEdit
+    ) {
+      normalizedActual.insertText = normalizedActual.textEdit.newText;
+      delete (normalizedActual as any).textEdit;
+    }
+
+    deepStrictEqual(normalizedActual, expected);
     actualMap.delete(actual.label);
     expectedMap.delete(expected.label);
   }

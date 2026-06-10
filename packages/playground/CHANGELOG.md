@@ -1,5 +1,14 @@
 # Change Log - @typespec/playground
 
+## 0.15.1
+
+### Bug Fixes
+
+- [#10697](https://github.com/microsoft/typespec/pull/10697) Don't show file tree view in output when there is only a single file
+- [#10455](https://github.com/microsoft/typespec/pull/10455) Retain the emitter query parameter in the URL when a sample is selected
+- [#10815](https://github.com/microsoft/typespec/pull/10815) Fix unused `using` statements not being dimmed in the playground editor
+
+
 ## 0.15.0
 
 ### Breaking Changes

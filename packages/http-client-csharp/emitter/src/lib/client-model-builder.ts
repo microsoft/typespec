@@ -6,11 +6,12 @@ import {
   SdkEnumType,
   SdkHttpOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
+import { createDiagnostic } from "./lib.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
@@ -67,10 +68,12 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // response models for protocol-only paging operations where TCGC does not include the
   // response model in sdkPackage.models, or enums only reachable through nested property
   // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
-  // by crossLanguageDefinitionId when available, falling back to namespace + name for
+  // by crossLanguageDefinitionId when available, falling back to a name-only key for
   // anonymous types (empty crossLanguageDefinitionId). This avoids duplicates when TCGC
-  // produces a different reference for the same logical type, while still preserving
-  // distinct types that share a name across different namespaces.
+  // produces a different reference for the same logical anonymous type (e.g. inline-union
+  // operation-parameter enums) where the namespace can be inconsistent across emission
+  // paths. Distinct named types that share a name across different namespaces still have
+  // distinct crossLanguageDefinitionIds and are preserved.
   const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
@@ -95,8 +98,22 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // Fix naming conflicts for constants, enums, and models
   fixNamingConflicts(models, constants);
 
+  // Resolve the root namespace. When this cannot be determined the generated code model
+  // has no name, which the .NET generator rejects with an opaque root-level deserialization
+  // failure. Surface a clear, actionable diagnostic here instead and let the caller skip
+  // generation. See https://github.com/microsoft/typespec/issues/10914.
+  const clientNamespace = getClientNamespaceString(sdkContext);
+  if (clientNamespace === undefined) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unresolved-client-namespace",
+        target: NoTarget,
+      }),
+    );
+  }
+
   const clientModel: CodeModel = {
-    name: getClientNamespaceString(sdkContext)!,
+    name: clientNamespace ?? "",
     apiVersions: rootApiVersions,
     enums: enums,
     constants: constants,
@@ -190,12 +207,15 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 }
 
 /**
- * Returns a key for a model or enum type. Prefers `crossLanguageDefinitionId`
- * because it is the canonical identity TCGC assigns. Falls back to `namespace.name`
- * for anonymous/constant-derived types whose `crossLanguageDefinitionId` is empty.
+ * Dedupe key for a model or enum. Uses `crossLanguageDefinitionId` when present;
+ * otherwise falls back to `anon:${name}` since TCGC may report inconsistent
+ * namespaces for the same anonymous type across emission paths.
  */
 function typeDedupeKey(type: InputModelType | InputEnumType): string {
-  return type.crossLanguageDefinitionId || `${type.namespace}.${type.name}`;
+  if (type.crossLanguageDefinitionId) {
+    return type.crossLanguageDefinitionId;
+  }
+  return `anon:${type.name}`;
 }
 
 function navigateModels(sdkContext: CSharpEmitterContext): [void, readonly Diagnostic[]] {

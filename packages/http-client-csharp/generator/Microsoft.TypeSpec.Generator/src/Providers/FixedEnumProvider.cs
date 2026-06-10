@@ -46,6 +46,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
+        // The set of types permitted as a C# enum's underlying type (CS1008):
+        // https://learn.microsoft.com/dotnet/csharp/misc/cs1008
+        private static readonly HashSet<Type> _allowedEnumUnderlyingTypes =
+        [
+            typeof(byte),
+            typeof(sbyte),
+            typeof(short),
+            typeof(ushort),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+        ];
+        protected override CSharpType? BuildBaseType()
+        {
+            var underlying = EnumUnderlyingType;
+            if (!underlying.IsFrameworkType || !_allowedEnumUnderlyingTypes.Contains(underlying.FrameworkType))
+            {
+                return null;
+            }
+            return underlying;
+        }
+
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
@@ -58,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = inputValue.Name.ToIdentifierName();
+                var name = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;

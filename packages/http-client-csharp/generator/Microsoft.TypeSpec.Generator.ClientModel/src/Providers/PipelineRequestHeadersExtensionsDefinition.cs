@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new[]
             {
                 Declare("stringValues", value.Select(selector), out var stringValues),
-               new InvokeMethodExpression(_pipelineRequestHeadersParam, "Set", [nameParameter, StringSnippets.Join(delimiterParameter, stringValues)]).Terminate()
+               _pipelineRequestHeadersParam.Invoke("Set", [nameParameter, StringSnippets.Join(delimiterParameter, stringValues)]).Terminate()
             };
 
             return new(signature, body, this);
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dictionaryExpression = headersToAddParameter.AsDictionary(typeof(string), typeof(string));
             var forEachStatement = new ForEachStatement("header", dictionaryExpression, out var header);
             forEachStatement.Add(
-                new InvokeMethodExpression(_pipelineRequestHeadersParam, nameof(PipelineRequestHeaders.Add),
+                _pipelineRequestHeadersParam.Invoke(nameof(PipelineRequestHeaders.Add),
                     [new BinaryOperatorExpression("+", prefixParameter, header.Key), header.Value]).Terminate()
             );
 

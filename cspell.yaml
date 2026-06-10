@@ -27,6 +27,7 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azuresdkengkeyvault
   - azurev
   - azurevnext
   - bifilter
@@ -61,6 +62,7 @@ words:
   - dedented
   - Dedupes
   - deps
+  - deser
   - destructures
   - devdiv
   - Diagnoser
@@ -93,6 +95,7 @@ words:
   - fslib
   - genproto
   - getpgid
+  - ghapp
   - giacamo
   - graalvm
   - Gson
@@ -117,6 +120,7 @@ words:
   - IOHTTP
   - isdigit
   - isinstance
+  - issecret
   - issubclass
   - itertype
   - itor
@@ -163,6 +167,7 @@ words:
   - multis
   - munge
   - muscidae
+  - myblob
   - mylib
   - myname
   - mypy
@@ -260,6 +265,7 @@ words:
   - stubbed
   - swaggerui
   - TCGC
+  - TEAMPROJECTID
   - terlson
   - timegm
   - tomli

@@ -211,6 +211,7 @@ namespace TestPlugin
                 using var emitter = new Emitter(Stream.Null);
                 var result = GeneratorHandler.BuildPlugin(
                     Path.Combine(testDir, "TestPlugin.csproj"),
+                    testDir,
                     emitter);
 
                 Assert.IsNotNull(result, "BuildPlugin should return a DLL path");
@@ -239,6 +240,7 @@ namespace TestPlugin
                 Assert.Throws<InvalidOperationException>(() =>
                     GeneratorHandler.BuildPlugin(
                         Path.Combine(testDir, "Bad.csproj"),
+                        testDir,
                         emitter));
             }
             finally
@@ -317,7 +319,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
 
                 using var emitter = new Emitter(Stream.Null);
                 var dllPath = GeneratorHandler.BuildPlugin(
-                    Path.Combine(testDir, "TypedPlugin.csproj"), emitter);
+                    Path.Combine(testDir, "TypedPlugin.csproj"), testDir, emitter);
 
                 Assert.IsNotNull(dllPath);
                 var asm = System.Reflection.Assembly.LoadFrom(dllPath!);
@@ -478,34 +480,7 @@ namespace Plugin2 { public class Dummy { } }");
             }
         }
         [Test]
-        public void GetExpectedOutputPath_ConstructsPathFromCsprojProperties()
-        {
-            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
-            try
-            {
-                Directory.CreateDirectory(testDir);
-
-                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-  </PropertyGroup>
-</Project>");
-
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "MyPlugin.csproj"));
-
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "MyPlugin.dll");
-                Assert.AreEqual(expected, result);
-            }
-            finally
-            {
-                try { Directory.Delete(testDir, true); } catch { }
-            }
-        }
-
-        [Test]
-        public void GetExpectedOutputPath_UsesAssemblyNameWhenSpecified()
+        public void GetAssemblyName_UsesAssemblyNameWhenSpecified()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -519,12 +494,10 @@ namespace Plugin2 { public class Dummy { } }");
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
+                var result = GeneratorHandler.GetAssemblyName(
                     Path.Combine(testDir, "MyPlugin.csproj"));
 
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net10.0", "CustomName.dll");
-                Assert.AreEqual(expected, result);
+                Assert.AreEqual("CustomName", result);
             }
             finally
             {
@@ -533,22 +506,23 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_ReturnsNullWhenNoTargetFramework()
+        public void GetAssemblyName_FallsBackToProjectFileName()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "Bad.csproj"));
+                var result = GeneratorHandler.GetAssemblyName(
+                    Path.Combine(testDir, "MyPlugin.csproj"));
 
-                Assert.IsNull(result);
+                Assert.AreEqual("MyPlugin", result);
             }
             finally
             {
@@ -557,7 +531,7 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_ReturnsNullForInvalidXml()
+        public void GetAssemblyName_FallsBackToProjectFileNameForInvalidXml()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -566,10 +540,10 @@ namespace Plugin2 { public class Dummy { } }");
 
                 File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
+                var result = GeneratorHandler.GetAssemblyName(
                     Path.Combine(testDir, "Bad.csproj"));
 
-                Assert.IsNull(result);
+                Assert.AreEqual("Bad", result);
             }
             finally
             {
@@ -578,25 +552,111 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void GetExpectedOutputPath_UsesFirstTargetFrameworkFromMultiTargeting()
+        public void FindPluginAssembly_LocatesDllAndIgnoresIntermediateObjOutput()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+                File.WriteAllText(Path.Combine(testDir, "MyPlugin.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>CustomName</AssemblyName>
   </PropertyGroup>
 </Project>");
 
-                var result = GeneratorHandler.GetExpectedOutputPath(
-                    Path.Combine(testDir, "MultiTarget.csproj"));
+                // A reference assembly under 'obj' must be ignored (metadata-only).
+                var objRefDir = Path.Combine(testDir, "obj", "Release", "net10.0", "ref");
+                Directory.CreateDirectory(objRefDir);
+                File.WriteAllText(Path.Combine(objRefDir, "CustomName.dll"), "ref");
 
-                Assert.IsNotNull(result);
-                var expected = Path.Combine(testDir, "bin", "Release", "net8.0", "MultiTarget.dll");
+                // The real output may live in a non-default location.
+                var outDir = Path.Combine(testDir, "custom-out", "Release", "net10.0");
+                Directory.CreateDirectory(outDir);
+                var expected = Path.Combine(outDir, "CustomName.dll");
+                File.WriteAllText(expected, "real");
+
+                var result = GeneratorHandler.FindPluginAssembly(
+                    Path.Combine(testDir, "MyPlugin.csproj"), testDir);
+
                 Assert.AreEqual(expected, result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_FindsOutputWhenRedirectedToCustomLocation()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Use <TargetFrameworks> (plural) and redirect build output to a custom
+                // folder, mirroring repositories that send output to an 'artifacts'-style
+                // location. The previous path-computation logic failed in this scenario.
+                File.WriteAllText(Path.Combine(testDir, "Redirected.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <BaseOutputPath>$(MSBuildProjectDirectory)\artifacts-bin\</BaseOutputPath>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace Redirected { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Redirected.csproj"), testDir, emitter);
+
+                Assert.IsNotNull(result, "Should locate the DLL even when output is redirected");
+                Assert.IsTrue(result!.EndsWith("Redirected.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                StringAssert.Contains("artifacts-bin", result,
+                    "DLL should be located in the redirected output folder");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_FindsOutputForMultiTargetedProject()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Multi-targeting (multiple frameworks) produces a separate output folder
+                // per framework. The previous path-computation logic could not reliably
+                // pick a framework; the scan should still locate a loadable assembly.
+                File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace MultiTarget { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "MultiTarget.csproj"), testDir, emitter);
+
+                Assert.IsNotNull(result, "Should locate the DLL for a multi-targeted project");
+                Assert.IsTrue(result!.EndsWith("MultiTarget.dll", StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The located assembly must be a real output, not an 'obj' reference assembly.
+                Assert.IsFalse(
+                    result.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                        .Contains("obj", StringComparer.OrdinalIgnoreCase),
+                    $"Should not return a metadata-only reference assembly under obj: {result}");
             }
             finally
             {

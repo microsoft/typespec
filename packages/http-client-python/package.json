@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.29.1",
+  "version": "0.31.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -26,7 +26,7 @@
     }
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
@@ -64,7 +64,7 @@
     "@azure-tools/typespec-azure-core": ">=0.68.0 <1.0.0",
     "@azure-tools/typespec-azure-resource-manager": ">=0.68.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.68.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.68.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.68.4 <1.0.0",
     "@typespec/compiler": "^1.12.0",
     "@typespec/http": "^1.12.0",
     "@typespec/openapi": "^1.12.0",
@@ -102,8 +102,8 @@
     "@azure-tools/typespec-azure-core": "~0.68.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.68.0",
     "@azure-tools/typespec-azure-rulesets": "~0.68.0",
-    "@azure-tools/typespec-client-generator-core": "~0.68.0",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.40",
+    "@azure-tools/typespec-client-generator-core": "~0.68.4",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.42-dev.0",
     "@typespec/compiler": "^1.12.0",
     "@typespec/http": "^1.12.0",
     "@typespec/openapi": "^1.12.0",
