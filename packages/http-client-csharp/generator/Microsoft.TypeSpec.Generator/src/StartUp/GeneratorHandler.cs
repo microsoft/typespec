@@ -196,14 +196,14 @@ namespace Microsoft.TypeSpec.Generator
                 return null;
             }
 
-            return BuildPlugin(csprojFiles[0], emitter);
+            return BuildPlugin(csprojFiles[0], directory, emitter);
         }
 
         /// <summary>
-        /// Builds a plugin .csproj and returns the path to the output DLL.
-        /// The output path is constructed from the csproj properties rather than parsing build output.
+        /// Builds a plugin .csproj and returns the path to the output DLL by scanning
+        /// <paramref name="scanDirectory"/> for the built assembly.
         /// </summary>
-        internal static string? BuildPlugin(string csprojPath, Emitter emitter)
+        internal static string? BuildPlugin(string csprojPath, string scanDirectory, Emitter emitter)
         {
             emitter.Info($"Building plugin: {csprojPath}");
 
@@ -232,67 +232,75 @@ namespace Microsoft.TypeSpec.Generator
                     $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
             }
 
-            var dllPath = GetExpectedOutputPath(csprojPath);
-            if (dllPath != null && File.Exists(dllPath))
+            var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
+            if (dllPath != null)
             {
                 emitter.Info($"Plugin built: {dllPath}");
                 return dllPath;
             }
 
-            emitter.Info($"Warning: Build succeeded but could not determine output DLL path for '{csprojPath}'");
+            emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
             return null;
         }
 
         /// <summary>
-        /// Constructs the expected output DLL path from the csproj properties:
-        /// [ProjectDirectory]/bin/Release/[TargetFramework]/[AssemblyName].dll
+        /// Locates the assembly produced by building a plugin .csproj by scanning
+        /// <paramref name="scanDirectory"/> for a DLL whose name matches the project's
+        /// assembly name. Scanning is used instead of computing the output path because
+        /// the build output location varies across repositories (for example, some
+        /// redirect output to an 'artifacts' folder) and target frameworks, which makes
+        /// a computed path unreliable.
         /// </summary>
-        internal static string? GetExpectedOutputPath(string csprojPath)
+        internal static string? FindPluginAssembly(string csprojPath, string scanDirectory)
         {
-            var projectDir = Path.GetDirectoryName(csprojPath)!;
-            var projectName = Path.GetFileNameWithoutExtension(csprojPath);
+            var dllName = GetAssemblyName(csprojPath) + ".dll";
 
+            return Directory.EnumerateFiles(scanDirectory, dllName, SearchOption.AllDirectories)
+                // Skip intermediate build output under 'obj' (e.g. obj/.../ref/*.dll
+                // reference assemblies), which are metadata-only and cannot be loaded.
+                .FirstOrDefault(path => !ContainsDirectorySegment(path, "obj"));
+        }
+
+        /// <summary>
+        /// Reads the &lt;AssemblyName&gt; from the csproj, falling back to the project file name
+        /// when it is not explicitly specified.
+        /// </summary>
+        internal static string GetAssemblyName(string csprojPath)
+        {
             try
             {
                 using var stream = File.OpenRead(csprojPath);
                 var doc = XDocument.Load(stream);
 
-                var propertyGroups = doc.Descendants("PropertyGroup");
-                string? targetFramework = null;
-                string? assemblyName = null;
+                var assemblyName = doc.Descendants("PropertyGroup")
+                    .Select(pg => pg.Element("AssemblyName")?.Value)
+                    .FirstOrDefault(value => !string.IsNullOrEmpty(value));
 
-                foreach (var pg in propertyGroups)
+                if (!string.IsNullOrEmpty(assemblyName))
                 {
-                    targetFramework ??= pg.Element("TargetFramework")?.Value;
-                    assemblyName ??= pg.Element("AssemblyName")?.Value;
+                    return assemblyName!;
                 }
-
-                // For multi-targeting projects, use the first target framework
-                if (string.IsNullOrEmpty(targetFramework))
-                {
-                    foreach (var pg in propertyGroups)
-                    {
-                        var frameworks = pg.Element("TargetFrameworks")?.Value;
-                        if (!string.IsNullOrEmpty(frameworks))
-                        {
-                            targetFramework = frameworks.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-                            break;
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(targetFramework))
-                {
-                    return null;
-                }
-
-                var effectiveAssemblyName = string.IsNullOrEmpty(assemblyName) ? projectName : assemblyName;
-                return Path.Combine(projectDir, "bin", "Release", targetFramework, $"{effectiveAssemblyName}.dll");
             }
             catch
             {
-                return null;
+                // Fall back to the project file name below.
             }
+
+            return Path.GetFileNameWithoutExtension(csprojPath);
+        }
+
+        private static bool ContainsDirectorySegment(string path, string segment)
+        {
+            var dir = Path.GetDirectoryName(path);
+            while (!string.IsNullOrEmpty(dir))
+            {
+                if (string.Equals(Path.GetFileName(dir), segment, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                dir = Path.GetDirectoryName(dir);
+            }
+            return false;
         }
 
         internal static IList<string> GetOrderedPluginDlls(string pluginDirectoryStart)
