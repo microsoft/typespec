@@ -395,8 +395,9 @@ async function main(): Promise<void> {
   if (runGenerator || runBoth) {
     console.log(`\n${pc.bold("=== Generator Tests (Python) ===")}\n`);
 
-    // Determine flavors
-    const flavors = argv.values.flavor === "all" ? ["azure", "unbranded"] : [argv.values.flavor!];
+    // Determine flavors (default to both and "unbranded" first then "azure" so that spec-coverage.json
+    // could record all results in one run)
+    const flavors = argv.values.flavor === "all" ? ["unbranded", "azure"] : [argv.values.flavor!];
 
     // Determine environments
     let baseEnvs: string[];
