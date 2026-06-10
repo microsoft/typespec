@@ -367,6 +367,7 @@ export type {
   FunctionContext,
   FunctionParameter,
   FunctionParameterBase,
+  FunctionType,
   FunctionValue,
   IdentifierContext,
   IdentifierKind,

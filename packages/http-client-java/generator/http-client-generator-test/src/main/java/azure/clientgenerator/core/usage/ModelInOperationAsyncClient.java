@@ -19,22 +19,24 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.FluxUtil;
+import reactor.core.publisher.Mono;
 
 /**
- * Initializes a new instance of the synchronous UsageClient type.
+ * Initializes a new instance of the asynchronous UsageClient type.
  */
-@ServiceClient(builder = UsageClientBuilder.class)
-public final class UsageClient {
+@ServiceClient(builder = UsageClientBuilder.class, isAsync = true)
+public final class ModelInOperationAsyncClient {
     @Generated
     private final ModelInOperationsImpl serviceClient;
 
     /**
-     * Initializes an instance of UsageClient class.
+     * Initializes an instance of ModelInOperationAsyncClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    UsageClient(ModelInOperationsImpl serviceClient) {
+    ModelInOperationAsyncClient(ModelInOperationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
@@ -61,12 +63,12 @@ public final class UsageClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> inputToInputOutputWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.inputToInputOutputWithResponse(body, requestOptions);
+    public Mono<Response<Void>> inputToInputOutputWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.inputToInputOutputWithResponseAsync(body, requestOptions);
     }
 
     /**
@@ -91,12 +93,12 @@ public final class UsageClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return usage additive to roundtrip along with {@link Response}.
+     * @return usage additive to roundtrip along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> outputToInputOutputWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.outputToInputOutputWithResponse(requestOptions);
+    public Mono<Response<BinaryData>> outputToInputOutputWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.outputToInputOutputWithResponseAsync(requestOptions);
     }
 
     /**
@@ -146,12 +148,13 @@ public final class UsageClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> modelInReadOnlyPropertyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.modelInReadOnlyPropertyWithResponse(body, requestOptions);
+    public Mono<Response<BinaryData>> modelInReadOnlyPropertyWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        return this.serviceClient.modelInReadOnlyPropertyWithResponseAsync(body, requestOptions);
     }
 
     /**
@@ -178,12 +181,12 @@ public final class UsageClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> orphanModelSerializableWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.orphanModelSerializableWithResponse(body, requestOptions);
+    public Mono<Response<Void>> orphanModelSerializableWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.orphanModelSerializableWithResponseAsync(body, requestOptions);
     }
 
     /**
@@ -201,13 +204,14 @@ public final class UsageClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void inputToInputOutput(InputModel body) {
+    public Mono<Void> inputToInputOutput(InputModel body) {
         // Generated convenience method for inputToInputOutputWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        inputToInputOutputWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return inputToInputOutputWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -223,14 +227,15 @@ public final class UsageClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return usage additive to roundtrip.
+     * @return usage additive to roundtrip on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public OutputModel outputToInputOutput() {
+    public Mono<OutputModel> outputToInputOutput() {
         // Generated convenience method for outputToInputOutputWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return outputToInputOutputWithResponse(requestOptions).getValue().toObject(OutputModel.class);
+        return outputToInputOutputWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(OutputModel.class));
     }
 
     /**
@@ -258,14 +263,15 @@ public final class UsageClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public RoundTripModel modelInReadOnlyProperty(RoundTripModel body) {
+    public Mono<RoundTripModel> modelInReadOnlyProperty(RoundTripModel body) {
         // Generated convenience method for modelInReadOnlyPropertyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return modelInReadOnlyPropertyWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
-            .toObject(RoundTripModel.class);
+        return modelInReadOnlyPropertyWithResponse(BinaryData.fromObject(body), requestOptions)
+            .flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(RoundTripModel.class));
     }
 }

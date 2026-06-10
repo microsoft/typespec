@@ -365,6 +365,23 @@ describe("openapi: decorators", () => {
       });
     });
 
+    it("emit diagnostic if dup tagName in array form", async () => {
+      const diagnostics = await Tester.diagnose(
+        `
+        @service()
+        @tagMetadata(#[
+          #{ name: "tagName" },
+          #{ name: "tagName" },
+        ])
+        namespace PetStore{};
+        `,
+      );
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/duplicate-tag",
+      });
+    });
+
     describe("emit diagnostics when passing extension key not starting with `x-` in metadata", () => {
       it("reports the diagnostic on the invalid metadata property", async () => {
         const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`

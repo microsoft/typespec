@@ -128,8 +128,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<ParameterProvider> customParameters,
             bool removeDefaults)
         {
-            if (generatorParameters is null) throw new ArgumentNullException(nameof(generatorParameters));
-            if (customParameters is null) throw new ArgumentNullException(nameof(customParameters));
+            if (generatorParameters is null)
+            {
+                throw new ArgumentNullException(nameof(generatorParameters));
+            }
+
+            if (customParameters is null)
+            {
+                throw new ArgumentNullException(nameof(customParameters));
+            }
+
             if (generatorParameters.Count != customParameters.Count)
             {
                 throw new ArgumentException(
@@ -162,8 +170,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodSignature customSignature,
             IReadOnlyList<ParameterProvider> implementationParameters)
         {
-            if (customSignature is null) throw new ArgumentNullException(nameof(customSignature));
-            if (implementationParameters is null) throw new ArgumentNullException(nameof(implementationParameters));
+            if (customSignature is null)
+            {
+                throw new ArgumentNullException(nameof(customSignature));
+            }
+
+            if (implementationParameters is null)
+            {
+                throw new ArgumentNullException(nameof(implementationParameters));
+            }
 
             return new MethodSignature(
                 customSignature.Name,
