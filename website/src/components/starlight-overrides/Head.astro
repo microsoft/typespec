@@ -1,0 +1,14 @@
+---
+import Default from "@astrojs/starlight/components/Head.astro";
+
+const route = Astro.locals.starlightRoute;
+const isJsApi = route.entry.data.jsApi === true;
+const isReleaseNotes = route.id.includes("release-notes");
+
+let tag = "docs";
+if (isJsApi) tag = "js-api";
+else if (isReleaseNotes) tag = "release-notes";
+---
+
+<Default {...Astro.props} />
+<meta name="docsearch:tag" content={tag} />

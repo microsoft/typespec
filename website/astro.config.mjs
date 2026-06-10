@@ -92,6 +92,7 @@ export default defineConfig({
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
+        Head: "./src/components/starlight-overrides/Head.astro",
         PageFrame: "./src/components/starlight-overrides/PageFrame.astro",
         Sidebar: "./src/components/starlight-overrides/Sidebar.astro",
       },

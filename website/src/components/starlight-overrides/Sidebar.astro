@@ -42,10 +42,12 @@ if (isReleaseNotes) {
 }
 ---
 
-<SidebarPersister>
-  <SidebarSublist sublist={filtered} />
-</SidebarPersister>
+<div data-docsearch-ignore>
+  <SidebarPersister>
+    <SidebarSublist sublist={filtered} />
+  </SidebarPersister>
 
-<div class="md:sl-hidden">
-  <MobileMenuFooter />
+  <div class="md:sl-hidden">
+    <MobileMenuFooter />
+  </div>
 </div>

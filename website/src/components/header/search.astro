@@ -24,7 +24,7 @@ import "@docsearch/css";
           stroke-linecap="round"
           stroke-linejoin="round"></path>
       </svg>
-      <span class="DocSearch-Button-Placeholder">Search...</span>
+      <span class="DocSearch-Button-Placeholder">Search… ($ for all)</span>
     </span>
     <span class="DocSearch-Button-Keys"></span>
   </button>
@@ -33,15 +33,50 @@ import "@docsearch/css";
 <script>
   import algoliaConfig from "@site/algolia";
 
+  const EXCLUDED_URL_PATTERNS = ["/reference/js-api/", "/release-notes/"];
+
   class StarlightDocSearch extends HTMLElement {
     constructor() {
       super();
       window.addEventListener("DOMContentLoaded", async () => {
         const { default: docsearch } = await import("@docsearch/js");
+
+        let showAllResults = false;
+
         const options: Parameters<typeof docsearch>[0] = {
           ...algoliaConfig,
           container: "sl-doc-search",
           keyboardShortcuts: { "/": false },
+          transformSearchClient(searchClient) {
+            return {
+              ...searchClient,
+              search(requests: any[]) {
+                return searchClient.search(
+                  requests.map((req: any) => {
+                    const query: string = req.params?.query ?? "";
+                    if (query.startsWith("$")) {
+                      showAllResults = true;
+                      return {
+                        ...req,
+                        params: {
+                          ...req.params,
+                          query: query.slice(1),
+                        },
+                      };
+                    }
+                    showAllResults = false;
+                    return req;
+                  }),
+                );
+              },
+            };
+          },
+          transformItems(items) {
+            if (showAllResults) return items;
+            return items.filter(
+              (item) => !EXCLUDED_URL_PATTERNS.some((pattern) => item.url.includes(pattern)),
+            );
+          },
         };
         docsearch(options);
       });
