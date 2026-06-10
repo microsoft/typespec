@@ -2,8 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, EmitContext, Program } from "@typespec/compiler";
-import { resolve } from "path";
+import {
+  createDiagnosticCollector,
+  Diagnostic,
+  EmitContext,
+  Program,
+  resolvePath,
+} from "@typespec/compiler";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -49,7 +54,7 @@ export async function emitCodeModel(
 
   // Resolve plugin paths to absolute if specified
   if (options["plugins"]) {
-    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
+    options["plugins"] = options["plugins"].map((p) => resolvePath(outputFolder, p));
   }
 
   /* set the log level. */
@@ -76,24 +81,31 @@ export async function emitCodeModel(
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
       const namespace = updatedRoot.name;
-      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Serialize code model and configuration
-      const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
-      const configJson = JSON.stringify(configurations, null, 2) + "\n";
+      // If the namespace could not be resolved, createModel has already reported an
+      // actionable diagnostic. Skip generation so we don't send an unnamed code model that
+      // fails to deserialize in the .NET generator with an opaque root-level error.
+      // See https://github.com/microsoft/typespec/issues/10914.
+      if (namespace) {
+        const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Generate C# code via platform-specific implementation.
-      // In Node.js this runs the .NET generator locally.
-      // In the browser this sends the code model to a playground server.
-      await generate(sdkContext, codeModelJson, configJson, {
-        outputFolder,
-        packageName: configurations["package-name"] ?? "",
-        generatorName: options["generator-name"],
-        newProject: options["new-project"],
-        debug: options.debug ?? false,
-        saveInputs: options["save-inputs"] ?? false,
-        emitterExtensionPath: options["emitter-extension-path"],
-      });
+        // Serialize code model and configuration
+        const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
+        const configJson = JSON.stringify(configurations, null, 2) + "\n";
+
+        // Generate C# code via platform-specific implementation.
+        // In Node.js this runs the .NET generator locally.
+        // In the browser this sends the code model to a playground server.
+        await generate(sdkContext, codeModelJson, configJson, {
+          outputFolder,
+          packageName: configurations["package-name"] ?? "",
+          generatorName: options["generator-name"],
+          newProject: options["new-project"],
+          debug: options.debug ?? false,
+          saveInputs: options["save-inputs"] ?? false,
+          emitterExtensionPath: options["emitter-extension-path"],
+        });
+      }
     }
   }
 

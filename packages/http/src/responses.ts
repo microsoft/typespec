@@ -34,31 +34,70 @@ export function getResponsesForOperation(
   operation: Operation,
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const responseType = operation.returnType;
   const responses = new ResponseIndex();
-  const tk = $(program);
-  if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
-    // Check if the union itself has a @doc to use as the response description
-    const unionDescription = getDoc(program, responseType);
-    for (const option of responseType.variants.values()) {
-      if (isNullType(option.type)) {
-        // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
-        continue;
-      }
-      processResponseType(
-        program,
-        diagnostics,
-        operation,
-        responses,
-        option.type,
-        unionDescription,
-      );
-    }
-  } else {
-    processResponseType(program, diagnostics, operation, responses, responseType, undefined);
+
+  // Resolve union variants into concrete response types, grouping plain body variants
+  // (no HTTP metadata) into a single union type.
+  const variants = resolveResponseVariants(program, operation.returnType);
+  for (const { type, description } of variants) {
+    processResponseType(program, diagnostics, operation, responses, type, description);
   }
 
   return diagnostics.wrap(responses.values());
+}
+
+interface ResolvedResponseVariant {
+  type: Type;
+  description?: string;
+}
+
+/**
+ * Recursively flatten union variants and group "plain body" variants into a single union type.
+ * Variants with HTTP metadata (e.g., @statusCode, @header) are kept separate.
+ */
+function resolveResponseVariants(
+  program: Program,
+  responseType: Type,
+  parentDescription?: string,
+): ResolvedResponseVariant[] {
+  const tk = $(program);
+  if (!tk.union.is(responseType) || tk.union.getDiscriminatedUnion(responseType)) {
+    return [{ type: responseType, description: parentDescription }];
+  }
+
+  const unionDescription = getDoc(program, responseType) ?? parentDescription;
+
+  // Recursively flatten all union variants, then classify.
+  const plainVariants: Type[] = [];
+  const responseEnvelopes: ResolvedResponseVariant[] = [];
+
+  for (const option of responseType.variants.values()) {
+    if (isNullType(option.type)) {
+      continue;
+    }
+    // Recursively resolve nested unions
+    const resolved = resolveResponseVariants(program, option.type, unionDescription);
+    for (const variant of resolved) {
+      if (isPlainResponseBody(program, variant.type)) {
+        plainVariants.push(variant.type);
+      } else {
+        responseEnvelopes.push(variant);
+      }
+    }
+  }
+
+  // Combine plain variants into a single union type, process envelope variants individually.
+  const results: ResolvedResponseVariant[] = [];
+  if (plainVariants.length === 1) {
+    results.push({ type: plainVariants[0], description: unionDescription });
+  } else if (plainVariants.length > 1) {
+    // Reuse the original union if all variants are plain, otherwise create a new one.
+    const unionType =
+      responseEnvelopes.length === 0 ? responseType : tk.union.create(plainVariants);
+    results.push({ type: unionType, description: unionDescription });
+  }
+  results.push(...responseEnvelopes);
+  return results;
 }
 
 /**
@@ -96,31 +135,6 @@ function processResponseType(
   responseType: Type,
   parentDescription?: string,
 ) {
-  const tk = $(program);
-
-  // If the response type is itself a union (and not discriminated), expand it recursively.
-  // This handles cases where a named union is used as a return type (e.g., `op read(): MyUnion`)
-  // or when unions are nested (e.g., a union variant is itself a union).
-  // Each variant will be processed separately to extract its status codes and responses.
-  if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
-    // Check if this nested union has its own @doc, otherwise inherit parent's description
-    const unionDescription = getDoc(program, responseType) ?? parentDescription;
-    for (const option of responseType.variants.values()) {
-      if (isNullType(option.type)) {
-        continue;
-      }
-      processResponseType(
-        program,
-        diagnostics,
-        operation,
-        responses,
-        option.type,
-        unionDescription,
-      );
-    }
-    return;
-  }
-
   // Get body
   const verb = getOperationVerb(program, operation);
   let { body: resolvedBody, metadata } = diagnostics.pipe(
@@ -248,6 +262,26 @@ function isResponseEnvelope(metadata: HttpProperty[]): boolean {
       prop.kind === "multipartBody" ||
       prop.kind === "statusCode",
   );
+}
+
+/**
+ * Check if a type is a plain body with no HTTP response envelope metadata.
+ * Plain body types can be merged into a union when they share the same status code.
+ */
+function isPlainResponseBody(program: Program, type: Type): boolean {
+  if (isVoidType(type) || isErrorModel(program, type)) {
+    return false;
+  }
+  if (type.kind === "Model" && getExplicitSetStatusCode(program, type).length > 0) {
+    return false;
+  }
+  const [result] = resolveHttpPayload(
+    program,
+    type,
+    Visibility.Read,
+    HttpPayloadDisposition.Response,
+  );
+  return !result || !result.metadata.some((p) => p.kind !== "bodyProperty");
 }
 
 function getResponseDescription(

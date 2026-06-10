@@ -18,6 +18,20 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       type: "string",
       nullable: true,
     },
+    kind: {
+      type: "string",
+      enum: ["project"],
+      nullable: true,
+    },
+    entrypoint: {
+      type: "string",
+      nullable: true,
+    },
+    features: {
+      type: "array",
+      nullable: true,
+      items: { type: "string" },
+    },
     "environment-variables": {
       type: "object",
       nullable: true,
@@ -93,7 +107,9 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           type: "object",
           required: [],
           nullable: true,
-          additionalProperties: { type: "boolean" },
+          additionalProperties: {
+            oneOf: [{ type: "boolean" }, { type: "object" }],
+          },
         },
         disable: {
           type: "object",

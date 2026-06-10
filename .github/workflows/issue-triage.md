@@ -8,12 +8,13 @@ description: |
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened]
   workflow_dispatch:
     inputs:
       issue-number:
         description: "Issue number to triage"
         required: true
+  roles: all
   reaction: eyes
 
 permissions: read-all

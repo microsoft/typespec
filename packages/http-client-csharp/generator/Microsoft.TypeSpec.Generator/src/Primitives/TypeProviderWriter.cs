@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -18,9 +19,20 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.DisableStatement.Write(writer);
+            }
+
             using (var ns = writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
+            }
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.RestoreStatement.Write(writer);
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
@@ -40,6 +52,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             foreach (var attribute in _provider.GetAttributes())
             {
                 attribute.Write(writer);
+                if (attribute is AttributeStatement)
+                {
+                    writer.WriteLine();
+                }
             }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
@@ -119,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     foreach (var attr in _provider.Fields[i].Attributes)
                     {
                         attr.Write(writer);
+                        writer.WriteLine();
                     }
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)

@@ -692,7 +692,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+        public static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
 
         public sealed class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
         {

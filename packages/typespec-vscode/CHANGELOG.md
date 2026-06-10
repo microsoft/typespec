@@ -1,5 +1,21 @@
 # Change Log - typespec-vscode
 
+## 1.13.0
+
+### Bug Fixes
+
+- [#10847](https://github.com/microsoft/typespec/pull/10847) Improved telemetry instrumentation for `install-global-compiler-cli`, `preview-openapi3`, `start-server`, and `server-path-changed` events by adding missing `lastStep` tracking and error detail logging. Added actionable error message when compiler is found but neither `node` nor `tsp` is available on PATH, guiding users to fix common nvm/fnm/volta configuration issues.
+
+
+## 1.12.0
+
+### Bug Fixes
+
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Handle unhandled exceptions in VS Code extension: add custom error handler for server crashes with restart notification, wrap commands with graceful exception handling, and add null guards to prevent extension host errors when LSP client is unavailable
+- [#10523](https://github.com/microsoft/typespec/pull/10523) Show "Launching TypeSpec language service..." progress in the status bar instead of as a notification to avoid blocking the UI
+- [#10527](https://github.com/microsoft/typespec/pull/10527) Ensure operation telemetry events always carry a valid `result` value. Previously the `start-extension` event (and any other operation whose callback returned `void`) was sent with `result="undefined"` and classified as an error event. The `doOperationWithTelemetry` callback is now constrained to return `ResultCode | Result<...>`, so the result is always derived from the operation's return value.
+
+
 ## 1.11.0
 
 No changes, version bump only.

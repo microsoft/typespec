@@ -24,6 +24,7 @@ import {
   camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getClientNamespace,
   getImplementation,
 } from "./utils.js";
@@ -233,7 +234,8 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   return {
-    clientName: camelToSnakeCase(property.name),
+    clientName: getClientName(property),
+    isExactName: property.isExactName,
     wireName:
       (property.serializationOptions?.multipart
         ? property.serializationOptions?.multipart?.name
@@ -395,7 +397,8 @@ function emitEnumMember(
   }
 
   const result = {
-    name: enumName(type.name),
+    name: type.isExactName ? type.name : enumName(type.name),
+    isExactName: type.isExactName,
     value: type.value,
     description: type.summary ? type.summary : type.doc,
     enumType,
@@ -436,7 +439,7 @@ function emitConstant(context: PythonSdkContext, type: SdkConstantType) {
 }
 
 const sdkScalarKindToPythonKind: Record<string, string> = {
-  numeric: "integer",
+  numeric: "float",
   integer: "integer",
   safeint: "integer",
   int8: "integer",
@@ -545,6 +548,22 @@ export const KnownTypes = {
   any: { type: "any" },
 };
 
+/**
+ * Detect whether an endpoint template parameter should be treated as an API
+ * version parameter even when TCGC does not flag it as such.  This is a
+ * compatibility shim for unreleased TCGC changes that gate the name-based
+ * heuristic on `isMetadata`, which excludes server template parameters.
+ */
+function isEndpointApiVersionFallback(
+  param: { name: string; isApiVersionParam: boolean },
+  serviceApiVersions: string[],
+): boolean {
+  if (param.isApiVersionParam) return false;
+  if (serviceApiVersions.length === 0) return false;
+  const lower = param.name.toLowerCase();
+  return lower === "apiversion" || lower === "api-version";
+}
+
 export function emitEndpointType(
   context: PythonSdkContext,
   type: SdkEndpointType,
@@ -554,13 +573,29 @@ export function emitEndpointType(
   for (const param of type.templateArguments) {
     const paramBase = emitParamBase(context, param, undefined, serviceApiVersions);
     paramBase.clientName = context.arm ? "base_url" : paramBase.clientName;
+
+    let effectiveClientDefaultValue = param.clientDefaultValue;
+    // If this endpoint template param looks like an api-version but TCGC
+    // did not flag it, apply fallback: mark as api version and derive defaults.
+    if (isEndpointApiVersionFallback(param, serviceApiVersions)) {
+      paramBase.isApiVersion = true;
+      if (!effectiveClientDefaultValue) {
+        effectiveClientDefaultValue = serviceApiVersions[serviceApiVersions.length - 1];
+      }
+      paramBase.type = getSimpleTypeResult(context, {
+        type: "constant",
+        value: effectiveClientDefaultValue,
+        valueType: paramBase.type,
+      });
+    }
+
     params.push({
       ...paramBase,
-      optional: Boolean(param.clientDefaultValue),
+      optional: Boolean(effectiveClientDefaultValue),
       wireName: param.name,
       location: "endpointPath",
       implementation: getImplementation(context, param),
-      clientDefaultValue: param.clientDefaultValue,
+      clientDefaultValue: effectiveClientDefaultValue,
       skipUrlEncoding: param.allowReserved,
     });
     context.__endpointPathParameters!.push(params.at(-1)!);

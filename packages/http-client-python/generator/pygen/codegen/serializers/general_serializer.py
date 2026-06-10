@@ -29,7 +29,7 @@ VERSION_MAP = {
 }
 
 MIN_PYTHON_VERSION = "3.10"
-MAX_PYTHON_VERSION = "3.13"
+MAX_PYTHON_VERSION = "3.14"
 
 
 class GeneralSerializer(BaseSerializer):
@@ -242,6 +242,7 @@ class GeneralSerializer(BaseSerializer):
                 ImportType.LOCAL,
             )
             file_import.add_import("json", ImportType.STDLIB)
+            file_import.add_import("os", ImportType.STDLIB)
 
         return template.render(
             code_model=self.code_model,
@@ -329,6 +330,7 @@ class GeneralSerializer(BaseSerializer):
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,
                 "CrossLanguageDefinitionId": cross_langauge_def_dict,
+                "CrossLanguageVersion": self.code_model.cross_language_version,
             },
             indent=4,
         )

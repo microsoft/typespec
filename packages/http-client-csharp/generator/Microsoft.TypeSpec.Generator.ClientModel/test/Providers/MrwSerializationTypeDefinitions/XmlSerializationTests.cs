@@ -217,6 +217,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that a required FileBinaryContent property is serialized via WriteObjectValue in XmlModelWriteCore.
+        [Test]
+        public void RequiredFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "profileImage",
+                    InputFactory.FileType(),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("profileImage")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.First();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                mrwProvider,
+                name => name == "XmlModelWriteCore"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that an optional FileBinaryContent property is wrapped in Optional.IsDefined before WriteObjectValue.
+        [Test]
+        public void OptionalFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "profileImage",
+                    InputFactory.FileType(),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("profileImage")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.First();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                mrwProvider,
+                name => name == "XmlModelWriteCore"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public async Task XmlSerializationMethodHandlesUnwrappedListProperty()
         {
@@ -785,7 +829,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.Name == "WriteXml" || m.Signature.Name == "Write")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
 
         private class MockIPersistableModelMrwProvider : MrwSerializationTypeDefinition
@@ -803,7 +847,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 m.Signature.ExplicitInterface.Name == "IPersistableModel")];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
         }
     }
 }

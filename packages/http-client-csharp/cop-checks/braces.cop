@@ -1,0 +1,49 @@
+# Rule: enforce braces on control-flow statements in the C# emitter.
+#
+# Flags `if` / `else` / `else if` / `for` / `foreach` / `while` whose body is
+# written inline on the same line without a `{ ... }` block, e.g.:
+#
+#     if (a) DoX();              -> violation
+#     if (x is null) throw ...;  -> violation (guard clause without braces)
+#     for (...) Step();          -> violation
+#     while (a) Tick();          -> violation
+#     else Two();                -> violation
+#
+# These are allowed (body is a brace-delimited block, Allman or K&R):
+#
+#     if (a) { ... }
+#     if (a)                     # Allman: brace on the next line
+#     {
+#         ...
+#     }
+#
+# A line is reported when it is a control-flow header that also contains an
+# inline body terminated by `;` and introduces no `{` block. Keying on a
+# trailing `;` avoids false positives on multi-line conditions whose first
+# line ends in an operator (e.g. `if (a &&`), which are not complete headers.
+#
+# Known limitation: an unbraced body written on a *separate* line (Allman
+# header followed by a single unbraced statement) is not detected, because the
+# header line is indistinguishable from a valid Allman braced header.
+#
+# Predicates only; the runnable command/test live in main.cop.
+
+import code
+
+# A control-flow header whose condition closes on this line.
+predicate isControlHeader(Line) => Line.Text:matches('^\s*(else\s+)?(if|for|foreach|while)\s*\(.*\)')
+
+# An `else` that is not `else if`.
+predicate isElseHeader(Line) => Line.Text:matches('^\s*else\b') && !Line.Text:matches('^\s*else\s+if\b')
+
+# The line introduces a `{ ... }` block.
+predicate hasBrace(Line) => Line.Text:matches('\{')
+
+# The line ends with a `;`-terminated statement (the inline body), optionally
+# followed by a trailing line comment.
+predicate hasInlineBody(Line) => Line.Text:matches(';\s*(//.*)?$')
+
+predicate missingBraces(Line) =>
+    !Line:hasBrace
+    && Line:hasInlineBody
+    && (Line:isControlHeader || Line:isElseHeader)
