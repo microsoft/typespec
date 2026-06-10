@@ -70,10 +70,7 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = [
-  "type/file",
-  "service/multiple-services",
-];
+export const SKIP_SPECS: string[] = ["type/file", "service/multiple-services"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
