@@ -101,6 +101,7 @@ export async function runNodeEmit({
       code: "pyodide-flag-conflict",
       target: NoTarget,
     });
+    return;
   }
   commandArgs["output-folder"] = outputDir;
   commandArgs["tsp-file"] = yamlPath;
