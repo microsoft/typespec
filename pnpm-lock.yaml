@@ -9,9 +9,6 @@ catalogs:
     '@alloy-js/cli':
       specifier: ^0.24.0
       version: 0.24.0
-    '@alloy-js/core':
-      specifier: ^0.24.1
-      version: 0.24.1
     '@alloy-js/csharp':
       specifier: ^0.24.0
       version: 0.24.0
@@ -21,9 +18,6 @@ catalogs:
     '@alloy-js/msbuild':
       specifier: ^0.24.0
       version: 0.24.0
-    '@alloy-js/python':
-      specifier: ^0.5.0
-      version: 0.5.0
     '@alloy-js/rollup-plugin':
       specifier: ^0.1.2
       version: 0.1.2
@@ -497,10 +491,7 @@ catalogs:
       version: 18.0.0
 
 overrides:
-  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
-  diff@>=6.0.0 <8.0.3: '>=8.0.3'
-  dompurify: ^3.3.3
-  yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  '@alloy-js/core': 0.23.1
 
 importers:
 
@@ -868,11 +859,11 @@ importers:
         specifier: 'catalog:'
         version: 0.24.0
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.24.1
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/python':
-        specifier: 'catalog:'
-        version: 0.5.0
+        specifier: https://pkg.pr.new/@alloy-js/python@403
+        version: https://pkg.pr.new/@alloy-js/python@403
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
@@ -1092,8 +1083,8 @@ importers:
         specifier: 'catalog:'
         version: 0.24.0
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.24.1
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
@@ -1128,8 +1119,8 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.24.1
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.24.0
@@ -1219,8 +1210,8 @@ importers:
   packages/http-server-csharp:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.24.1
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/csharp':
         specifier: 'catalog:'
         version: 0.24.0
@@ -2637,8 +2628,8 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: 'catalog:'
-        version: 0.24.1
+        specifier: 0.23.1
+        version: 0.23.1
       '@alloy-js/markdown':
         specifier: 'catalog:'
         version: 0.24.0
@@ -3070,8 +3061,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.24.1':
-    resolution: {integrity: sha512-cye97/HGo0/G8XIc8UnS0PaSoSOj9DDPEiuKsXsn7xQgR1sbL+Nf0oTMZnL2fFb7mRnmULO84x5wK8R/YtReTg==}
+  '@alloy-js/core@0.23.1':
+    resolution: {integrity: sha512-zbPXbiWjF3BvgO+a6dyDiA9uI19x5cHKDy5iC3U2/DIimIB0/j1/ObT9BNIzcM69h5pYt7ADDGXx5eNyb8j7bw==}
 
   '@alloy-js/csharp@0.24.0':
     resolution: {integrity: sha512-TR+VAAnwbFV7YWnGSlyqL2X2/lrS3UBZ8JBKxszn7z+yk4Y5Sgs6dag3xPZMR5CsQXbxkN3gY/c4G3vqgKZf9A==}
@@ -3082,8 +3073,9 @@ packages:
   '@alloy-js/msbuild@0.24.0':
     resolution: {integrity: sha512-Y4bDr7uYEafm40GP92TdBYV4xYZA4O4AoFmES50wovTVSHp904JPU6Ct5GEsV7OG7RhrzT00oeCpJsx4bIYuFQ==}
 
-  '@alloy-js/python@0.5.0':
-    resolution: {integrity: sha512-p1O5eUFtfW5MLg4ngywnjMz43adco3+pdSLxfRFPYc452S7fStToP0jy7i9fyuLlR0o//1K9SDmfuP/VMK/Rtw==}
+  '@alloy-js/python@https://pkg.pr.new/@alloy-js/python@403':
+    resolution: {tarball: https://pkg.pr.new/@alloy-js/python@403}
+    version: 0.5.0-pr.403.1498
 
   '@alloy-js/rollup-plugin@0.1.2':
     resolution: {integrity: sha512-7jDdnePI+GA8UemsQEStdJ6XYNhs1rvv+yO5O/2jJqaoc0mYDchC+vwylljy2wUqGKDbFUXFX4xJktqtBZtyBg==}
@@ -8688,6 +8680,10 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
+  cross-spawn@7.0.3:
+    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
+    engines: {node: '>= 8'}
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -9080,10 +9076,6 @@ packages:
     resolution: {integrity: sha512-DPi0FmjiSU5EvQV0++GFDOJ9ASQUVFh5kD+OzOnYdi7n3Wpm9hWWGfB/O2blfHcMVTL5WkQXSnRiK9makhrcnw==}
     engines: {node: '>=0.3.1'}
 
-  diff@9.0.0:
-    resolution: {integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==}
-    engines: {node: '>=0.3.1'}
-
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -9115,6 +9107,9 @@ packages:
   domhandler@5.0.3:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
+
+  dompurify@3.2.7:
+    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
 
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
@@ -13365,7 +13360,7 @@ packages:
       sugarss: ^5.0.0
       terser: ^5.16.0
       tsx: ^4.8.1
-      yaml: '>=2.8.3'
+      yaml: ^2.4.2
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -13767,6 +13762,11 @@ packages:
     resolution: {integrity: sha512-qhjK/bzSRZ6HtTvgeFvjNPJGWdZ0+x5NREV/9XZWFjIGezew2b4r5JPy66IfOhd5OA7KeFwk1JfmEbnTvev0cA==}
     hasBin: true
 
+  yaml@2.7.1:
+    resolution: {integrity: sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==}
+    engines: {node: '>= 14'}
+    hasBin: true
+
   yaml@2.9.0:
     resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
     engines: {node: '>= 14.6'}
@@ -13939,7 +13939,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.24.1':
+  '@alloy-js/core@0.23.1':
     dependencies:
       '@types/ws': 8.18.1
       '@vue/reactivity': 3.5.38
@@ -13947,6 +13947,7 @@ snapshots:
       devalue: 5.8.1
       pathe: 2.0.3
       picocolors: 1.1.1
+      prettier: 3.8.4
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
@@ -13954,7 +13955,7 @@ snapshots:
 
   '@alloy-js/csharp@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.1
+      '@alloy-js/core': 0.23.1
       '@alloy-js/msbuild': 0.24.0
       change-case: 5.4.4
       marked: 18.0.5
@@ -13965,7 +13966,7 @@ snapshots:
 
   '@alloy-js/markdown@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.1
+      '@alloy-js/core': 0.23.1
       yaml: 2.9.0
     transitivePeerDependencies:
       - bufferutil
@@ -13973,7 +13974,7 @@ snapshots:
 
   '@alloy-js/msbuild@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.1
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       marked: 18.0.5
       pathe: 2.0.3
@@ -13981,9 +13982,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@alloy-js/python@0.5.0':
+  '@alloy-js/python@https://pkg.pr.new/@alloy-js/python@403':
     dependencies:
-      '@alloy-js/core': 0.24.1
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -14003,7 +14004,7 @@ snapshots:
 
   '@alloy-js/typescript@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.1
+      '@alloy-js/core': 0.23.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -16950,7 +16951,7 @@ snapshots:
       '@rushstack/rig-package': 0.7.3
       '@rushstack/terminal': 0.24.0(@types/node@26.0.0)
       '@rushstack/ts-command-line': 5.3.10(@types/node@26.0.0)
-      diff: 9.0.0
+      diff: 8.0.4
       minimatch: 10.2.3
       resolve: 1.22.12
       semver: 7.7.4
@@ -20305,7 +20306,7 @@ snapshots:
       '@yarnpkg/parsers': 3.0.3
       chalk: 3.0.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      cross-spawn: 7.0.6
+      cross-spawn: 7.0.3
       fast-glob: 3.3.3
       micromatch: 4.0.8
       tslib: 2.8.1
@@ -21239,6 +21240,12 @@ snapshots:
       '@epic-web/invariant': 1.0.0
       cross-spawn: 7.0.6
 
+  cross-spawn@7.0.3:
+    dependencies:
+      path-key: 3.1.1
+      shebang-command: 2.0.0
+      which: 2.0.2
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -21668,8 +21675,6 @@ snapshots:
 
   diff@8.0.4: {}
 
-  diff@9.0.0: {}
-
   dir-glob@3.0.1:
     dependencies:
       path-type: 4.0.0
@@ -21699,6 +21704,10 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
+
+  dompurify@3.2.7:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   dompurify@3.4.11:
     optionalDependencies:
@@ -24220,12 +24229,12 @@ snapshots:
 
   monaco-editor-core@0.55.1:
     dependencies:
-      dompurify: 3.4.11
+      dompurify: 3.2.7
       marked: 14.0.0
 
   monaco-editor@0.55.1:
     dependencies:
-      dompurify: 3.4.11
+      dompurify: 3.2.7
       marked: 14.0.0
 
   morgan@1.11.0:
@@ -27203,7 +27212,9 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.18.0
       vscode-uri: 3.1.0
-      yaml: 2.9.0
+      yaml: 2.7.1
+
+  yaml@2.7.1: {}
 
   yaml@2.9.0: {}
 
