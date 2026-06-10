@@ -97,10 +97,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     asyncProtocol,
                 };
 
-                // Skip generating a convenience method when the protocol method it relies on no longer
-                // exists in the canonical view. The convenience method calls the protocol method, so it
-                // would not compile if the protocol method has been suppressed via [CodeGenSuppress]
-                // without a custom replacement.
+                // Skip a convenience method when the protocol method it calls no longer exists.
                 if (ProtocolMethodExists(syncProtocol.Signature))
                 {
                     methods.Add(BuildConvenienceMethod(syncProtocol, false));
@@ -121,21 +118,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        // Determines whether a method with the given protocol <paramref name="signature"/> still exists
-        // after suppression and customization. A generated protocol method exists unless it was suppressed
-        // via [CodeGenSuppress]; a suppressed method only exists when custom code (merged into the canonical
-        // view) provides a non-partial replacement with the same signature.
-        private bool ProtocolMethodExists(MethodSignatureBase signature)
+        private bool ProtocolMethodExists(MethodSignatureBase generatedMethodSignature)
         {
-            if (!EnclosingType.IsMethodSuppressed(signature))
+            if (!EnclosingType.IsMethodSuppressed(generatedMethodSignature))
             {
                 return true;
             }
 
-            foreach (var method in EnclosingType.CanonicalView.CustomCodeView?.Methods ?? [])
+            foreach (var method in EnclosingType.CustomCodeView?.Methods ?? [])
             {
                 if (!method.IsPartialMethod &&
-                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, signature))
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedMethodSignature))
                 {
                     return true;
                 }

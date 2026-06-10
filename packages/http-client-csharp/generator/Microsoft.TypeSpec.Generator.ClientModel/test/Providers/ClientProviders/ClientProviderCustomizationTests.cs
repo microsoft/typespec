@@ -206,12 +206,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(syncConvenience);
             Assert.IsNotNull(asyncConvenience);
 
+            // Validate the generated convenience method bodies still call into the (custom) protocol methods.
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Sync"),
+                syncConvenience!.BodyStatements!.ToDisplayString());
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Async"),
+                asyncConvenience!.BodyStatements!.ToDisplayString());
+
             // The generated protocol methods (taking RequestOptions) should be suppressed in favor of the custom ones.
             var generatedProtocolMethods = clientProvider.Methods
                 .Where(m => (m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync") &&
                     m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))))
                 .ToList();
             Assert.AreEqual(0, generatedProtocolMethods.Count);
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] and the customization
+        // only provides an overload with an additional parameter (a different signature), the convenience
+        // method is still skipped because no replacement with the matching protocol signature exists.
+        [Test]
+        public async Task SuppressedProtocolMethodWithCustomOverloadSkipsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The custom overloads (with an additional parameter) do not match the suppressed protocol
+            // signature, so both the protocol and the dependent convenience methods should be gone.
+            var generatedHelloAgainMethods = clientProvider!.Methods
+                .Where(m => m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync")
+                .ToList();
+            Assert.AreEqual(0, generatedHelloAgainMethods.Count);
+
+            // The additional custom overload is still present in the custom code view.
+            var customMethods = clientProvider.CustomCodeView?.Methods ?? [];
+            Assert.AreEqual(2, customMethods.Count);
+            Assert.IsTrue(customMethods.All(m => m.Signature.Parameters.Count == 2));
         }
 
         // Validates that a method with a struct parameter can be replaced
