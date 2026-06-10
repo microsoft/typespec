@@ -400,6 +400,10 @@ export class CodeModelBuilder {
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
+        if (arg.isExactName) {
+          parameter.language.java = parameter.language.java ?? new Language();
+          parameter.language.java.name = arg.name;
+        }
       }
       hostParameters.push(this.codeModel.addGlobalParameter(parameter));
     });
@@ -685,6 +689,10 @@ export class CodeModelBuilder {
       security: this.codeModel.security,
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    if (client.isExactName) {
+      codeModelClient.language.java = codeModelClient.language.java ?? new Language();
+      codeModelClient.language.java.name = clientName;
+    }
 
     // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
@@ -800,6 +808,10 @@ export class CodeModelBuilder {
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
+          if (subClient.isExactName) {
+            codeModelGroup.language.java = codeModelGroup.language.java ?? new Language();
+            codeModelGroup.language.java.name = subClient.name;
+          }
           codeModelGroup.language.default.crossLanguageDefinitionId =
             subClient.crossLanguageDefinitionId;
           for (const serviceMethod of serviceMethods) {
@@ -944,6 +956,10 @@ export class CodeModelBuilder {
         "x-ms-examples": operationExamples,
       },
     });
+    if (sdkMethod.isExactName) {
+      codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
+      codeModelOperation.language.java.name = sdkMethod.name;
+    }
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
@@ -994,9 +1010,14 @@ export class CodeModelBuilder {
     }
     if (generateConvenienceApi && convenienceApiName) {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
+      if (sdkMethod.isExactName) {
+        codeModelOperation.convenienceApi.language.java =
+          codeModelOperation.convenienceApi.language.java ?? new Language();
+        codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
+      }
     }
     if (diagnostic) {
-      codeModelOperation.language.java = new Language();
+      codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
       codeModelOperation.language.java.comment = diagnostic.message;
     }
 
@@ -1558,6 +1579,10 @@ export class CodeModelBuilder {
         },
         extensions: extensions,
       });
+      if (param.isExactName) {
+        parameter.language.java = parameter.language.java ?? new Language();
+        parameter.language.java.name = param.name;
+      }
       op.addParameter(parameter);
 
       if (parameterOnClient) {
@@ -2221,26 +2246,28 @@ export class CodeModelBuilder {
         !existBodyProperty.readOnly &&
         !(existBodyProperty.schema instanceof ConstantSchema)
       ) {
-        request.parameters.push(
-          new VirtualParameter(
-            existBodyProperty.language.default.name,
-            existBodyProperty.language.default.description,
-            existBodyProperty.schema,
-            {
-              originalParameter: originalParameter,
-              targetProperty: existBodyProperty,
-              language: {
-                default: {
-                  serializedName: existBodyProperty.serializedName,
-                },
+        const virtualParameter = new VirtualParameter(
+          existBodyProperty.language.default.name,
+          existBodyProperty.language.default.description,
+          existBodyProperty.schema,
+          {
+            originalParameter: originalParameter,
+            targetProperty: existBodyProperty,
+            language: {
+              default: {
+                serializedName: existBodyProperty.serializedName,
               },
-              summary: existBodyProperty.summary,
-              implementation: ImplementationLocation.Method,
-              required: existBodyProperty.required,
-              nullable: existBodyProperty.nullable,
             },
-          ),
+            summary: existBodyProperty.summary,
+            implementation: ImplementationLocation.Method,
+            required: existBodyProperty.required,
+            nullable: existBodyProperty.nullable,
+          },
         );
+        if (existBodyProperty.language?.java?.name) {
+          virtualParameter.language.java = existBodyProperty.language.java;
+        }
+        request.parameters.push(virtualParameter);
       }
     }
   }
@@ -2274,16 +2301,19 @@ export class CodeModelBuilder {
           break;
         }
 
-        headers.push(
-          new HttpHeader(header.serializedName, schema, {
-            language: {
-              default: {
-                name: header.name,
-                description: header.summary ?? header.doc,
-              },
+        const httpHeader = new HttpHeader(header.serializedName, schema, {
+          language: {
+            default: {
+              name: header.name,
+              description: header.summary ?? header.doc,
             },
-          }),
-        );
+          },
+        });
+        if (header.isExactName) {
+          httpHeader.language.java = httpHeader.language.java ?? new Language();
+          httpHeader.language.java.name = header.name;
+        }
+        headers.push(httpHeader);
       }
     }
 
@@ -2697,9 +2727,14 @@ export class CodeModelBuilder {
     const valueType = this.processSchema(type.valueType, type.valueType.kind);
 
     const choices: ChoiceValue[] = [];
-    type.values.forEach((it: SdkEnumValueType) =>
-      choices.push(new ChoiceValue(it.name, it.doc ?? "", it.value ?? it.name)),
-    );
+    type.values.forEach((it: SdkEnumValueType) => {
+      const choice = new ChoiceValue(it.name, it.doc ?? "", it.value ?? it.name);
+      if (it.isExactName) {
+        choice.language.java = choice.language.java ?? new Language();
+        choice.language.java.name = it.name;
+      }
+      choices.push(choice);
+    });
 
     const schemaType = type.isFixed ? SealedChoiceSchema : ChoiceSchema;
 
@@ -2716,6 +2751,10 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName) {
+      schema.language.java = schema.language.java ?? new Language();
+      schema.language.java.name = type.name;
+    }
     if (type.external) {
       // java name
       schema.language.java = schema.language.java ?? new Language();
@@ -2832,6 +2871,10 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.isExactName) {
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
+      objectSchema.language.java.name = type.name;
+    }
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
 
     if (type.external) {
@@ -2997,6 +3040,10 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.isExactName) {
+      codeModelProperty.language.java = codeModelProperty.language.java ?? new Language();
+      codeModelProperty.language.java.name = modelProperty.name;
+    }
     if (modelProperty.encode) {
       if (schema instanceof ArraySchema) {
         // ArrayEncoding
@@ -3054,6 +3101,10 @@ export class CodeModelBuilder {
           },
         },
       });
+      if (type.isExactName) {
+        objectSchema.language.java = objectSchema.language.java ?? new Language();
+        objectSchema.language.java.name = type.name;
+      }
 
       const variantSchema = this.processSchema(it, variantName);
       objectSchema.addProperty(

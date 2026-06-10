@@ -7,14 +7,15 @@ using OpenAPI;
 
 @service(#{ title: "(title)" })
 @info(#{ version: "0.0.0" })
-@tagMetadata(
-  "extensive",
+@tagMetadata(#[
   #{
+    name: "extensive",
     description: "An extensive operation",
     summary: "A summary of the extensive tag",
     kind: "OperationGroup",
+    parent: "root",
   }
-)
+])
 namespace title;
 
 model Pet {

@@ -4528,6 +4528,187 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     $"Params: [{string.Join(", ", paramNames)}]");
             }
         }
+
+        [Test]
+        public void TestIsExactNameClientPreservesNameVerbatim()
+        {
+            // A client marked with isExactName should bypass ToIdentifierName() casing.
+            var client = InputFactory.Client("snake_case_client", isExactName: true);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("snake_case_client", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameClientStillCased()
+        {
+            // A client without isExactName should still go through ToIdentifierName().
+            var client = InputFactory.Client("snake_case_client");
+            var clientProvider = new ClientProvider(client);
+
+            Assert.AreEqual("SnakeCaseClient", clientProvider.Name);
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodPreservesOperationNameVerbatim()
+        {
+            // A service method marked with isExactName should preserve the operation name verbatim
+            // (no PascalCase transformation, no "List" -> "Get" rename).
+            var inputOperation = InputFactory.Operation("snake_case_op", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("snake_case_op", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            // After CleanOperationNames runs in the ClientProvider constructor, names should be unchanged.
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Name);
+            Assert.AreEqual("snake_case_op", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public void TestIsExactNameServiceMethodSkipsListToGetRename()
+        {
+            // The normal CleanOperationNames behavior renames "List" -> "GetAll" and "ListFoo" -> "GetFoo".
+            // When isExactName is true, even an operation literally named "List" must be preserved verbatim.
+            var inputOperation = InputFactory.Operation("List", isExactName: true);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("List", inputServiceMethod.Name);
+            Assert.AreEqual("List", inputServiceMethod.Operation.Name);
+        }
+
+        [Test]
+        public void TestNonExactNameServiceMethodAppliesListRename()
+        {
+            // Sanity check that without isExactName the existing rename still applies.
+            var inputOperation = InputFactory.Operation("List");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("List", inputOperation);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            _ = new ClientProvider(client);
+
+            Assert.AreEqual("GetAll", inputServiceMethod.Name);
+            Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
+        }
+        private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
+        {
+            var body = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                location: InputRequestLocation.Body);
+
+            var bodyOperationParameter = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                requestMediaTypes: ["multipart/form-data"],
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyOperationParameter]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [body]);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [inputClient],
+                inputModels: () => [bodyModel]);
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_RequiredFileBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_MultiFileOnlyBody()
+        {
+            var inputModel = MultipartModel(
+                "BinaryArrayPartsRequest",
+                [MultiFilePartProperty("pictures")]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalFileBody()
+        {
+            var inputModel = MultipartModel(
+                "OptionalFileRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("optionalFile", isRequired: false),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel, bodyIsRequired: false);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
+            => InputFactory.Property(
+                name,
+                InputFactory.FileType(),
+                isRequired: isRequired,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true)));
+
+        private static InputModelProperty MultiFilePartProperty(string name)
+            => InputFactory.Property(
+                name,
+                InputFactory.Array(InputFactory.FileType()),
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
+
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+            => InputFactory.Property(
+                name,
+                type,
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+
+        private static InputModelType MultipartModel(string name, IEnumerable<InputModelProperty> properties)
+            => InputFactory.Model(name, usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData, properties: properties);
+
     }
 }
 

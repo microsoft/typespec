@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             bool isMultiServiceClient = false;
+            bool isExactName = false;
             IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputParameter>? parameters = null;
             int initializedByValue = 0;
@@ -51,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
@@ -71,6 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
+            client.IsExactName = isExactName;
             client.Namespace = @namespace ?? string.Empty;
             client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
