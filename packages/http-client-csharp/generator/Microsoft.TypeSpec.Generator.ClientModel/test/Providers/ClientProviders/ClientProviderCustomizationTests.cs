@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -152,6 +153,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNull(customMethods[0].BodyExpression);
             Assert.AreEqual(string.Empty, customMethods[0].BodyStatements!.ToDisplayString());
 
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] without a custom
+        // replacement, the convenience method (which calls the protocol method) is not generated either,
+        // since it would not compile.
+        [Test]
+        public async Task SuppressedProtocolMethodSkipsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Both the suppressed protocol methods and the dependent convenience methods should be gone.
+            var helloAgainMethods = clientProvider!.Methods
+                .Where(m => m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync")
+                .ToList();
+            Assert.AreEqual(0, helloAgainMethods.Count);
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] but replaced by a
+        // custom (non-partial) method implementation, the convenience method is still generated because
+        // it will compile against the custom protocol method.
+        [Test]
+        public async Task SuppressedProtocolMethodWithCustomCodeKeepsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The generated protocol methods are suppressed (provided by custom code), but the convenience
+            // methods (taking a CancellationToken) should still be generated.
+            var syncConvenience = clientProvider!.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "HelloAgain" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))));
+            var asyncConvenience = clientProvider.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "HelloAgainAsync" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))));
+
+            Assert.IsNotNull(syncConvenience);
+            Assert.IsNotNull(asyncConvenience);
+
+            // The generated protocol methods (taking RequestOptions) should be suppressed in favor of the custom ones.
+            var generatedProtocolMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))))
+                .ToList();
+            Assert.AreEqual(0, generatedProtocolMethods.Count);
         }
 
         // Validates that a method with a struct parameter can be replaced

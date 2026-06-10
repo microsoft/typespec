@@ -799,7 +799,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// code that depends on it (such as a convenience method calling its protocol method) should not be
         /// generated either.
         /// </summary>
-        internal bool IsMethodSuppressed(MethodSignatureBase signature)
+        public bool IsMethodSuppressed(MethodSignatureBase signature)
         {
             bool isSuppressedByAttribute = false;
             foreach (var attribute in GetMemberSuppressionAttributes())
