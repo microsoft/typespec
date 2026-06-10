@@ -14,12 +14,12 @@ namespace Sample
     {
         public virtual ClientResult HelloAgain(RequestOptions options)
         {
-            return null;
+
         }
 
         public virtual Task<ClientResult> HelloAgainAsync(RequestOptions options)
         {
-            return null;
+
         }
     }
 }
