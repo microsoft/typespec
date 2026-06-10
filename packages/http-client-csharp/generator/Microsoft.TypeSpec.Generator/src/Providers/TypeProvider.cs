@@ -794,45 +794,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Determines whether the method with the given <paramref name="signature"/> is suppressed via a
-        /// <c>CodeGenSuppress</c> attribute and is not replaced by a custom (non-partial) method implementation.
-        /// When this returns <c>true</c> the method will not be present in the final output, so any generated
-        /// code that depends on it (such as a convenience method calling its protocol method) should not be
-        /// generated either.
+        /// <c>CodeGenSuppress</c> attribute. A suppressed method may still be provided by custom code, so
+        /// callers that need to know whether the method exists in the final output must additionally check
+        /// the canonical view for a custom replacement.
         /// </summary>
         public bool IsMethodSuppressed(MethodSignatureBase signature)
         {
-            bool isSuppressedByAttribute = false;
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
                 if (IsMatch(this, signature, attribute))
                 {
-                    isSuppressedByAttribute = true;
-                    break;
+                    return true;
                 }
             }
 
-            if (!isSuppressedByAttribute)
-            {
-                return false;
-            }
-
-            // A suppressed method may be replaced by a custom (non-partial) method with the same signature.
-            // In that case the method still exists in the output and is not considered suppressed.
-            var customMethods = CustomCodeView?.Methods ?? [];
-            foreach (var customMethod in customMethods)
-            {
-                if (customMethod.IsPartialMethod)
-                {
-                    continue;
-                }
-
-                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, signature))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
 
         private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)

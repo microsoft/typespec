@@ -97,15 +97,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     asyncProtocol,
                 };
 
-                // Skip generating a convenience method when the protocol method it relies on has been
-                // suppressed via custom code without a replacement. The convenience method calls the
-                // protocol method, so it would not compile if the protocol method does not exist.
-                if (!EnclosingType.IsMethodSuppressed(syncProtocol.Signature))
+                // Skip generating a convenience method when the protocol method it relies on no longer
+                // exists in the canonical view. The convenience method calls the protocol method, so it
+                // would not compile if the protocol method has been suppressed via [CodeGenSuppress]
+                // without a custom replacement.
+                if (ProtocolMethodExists(syncProtocol.Signature))
                 {
                     methods.Add(BuildConvenienceMethod(syncProtocol, false));
                 }
 
-                if (!EnclosingType.IsMethodSuppressed(asyncProtocol.Signature))
+                if (ProtocolMethodExists(asyncProtocol.Signature))
                 {
                     methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                 }
@@ -118,6 +119,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 syncProtocol,
                 asyncProtocol,
             ];
+        }
+
+        // Determines whether a method with the given protocol <paramref name="signature"/> still exists
+        // after suppression and customization. A generated protocol method exists unless it was suppressed
+        // via [CodeGenSuppress]; a suppressed method only exists when custom code (merged into the canonical
+        // view) provides a non-partial replacement with the same signature.
+        private bool ProtocolMethodExists(MethodSignatureBase signature)
+        {
+            if (!EnclosingType.IsMethodSuppressed(signature))
+            {
+                return true;
+            }
+
+            foreach (var method in EnclosingType.CanonicalView.CustomCodeView?.Methods ?? [])
+            {
+                if (!method.IsPartialMethod &&
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, signature))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
