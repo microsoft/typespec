@@ -13,6 +13,7 @@ import type {
   Scalar,
   Type,
   Union,
+  UnionVariant,
 } from "@typespec/compiler";
 
 export type TypeSpecRefDoc = TypeSpecLibraryRefDoc;
@@ -37,6 +38,14 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
 
   /** Documentation about the linter rules and ruleset provided in this library. */
   readonly linter?: LinterRefDoc;
+
+  /** Documentation for sub-exports (e.g., "./streams", "./testing"). Keyed by export path. */
+  readonly subExports?: ReadonlyMap<string, SubExportRefDoc>;
+};
+
+export type SubExportRefDoc = TypeSpecRefDocBase & {
+  /** The export path (e.g., "./streams") */
+  readonly path: string;
 };
 
 export type TypeSpecRefDocBase = {
@@ -69,6 +78,23 @@ export type EmitterOptionRefDoc = {
   readonly name: string;
   readonly type: string;
   readonly doc: string;
+  readonly default?: string;
+  readonly allowedValues?: readonly string[];
+  /** If set, the option is deprecated. Contains the deprecation message or empty string. */
+  readonly deprecated?: string;
+  /** Nested options for object-typed options. */
+  readonly nestedOptions?: readonly EmitterOptionRefDoc[];
+  /** When present, this option is a union of multiple variants (oneOf). */
+  readonly variants?: readonly EmitterOptionVariantRefDoc[];
+};
+
+export type EmitterOptionVariantRefDoc = {
+  readonly type: string;
+  readonly doc?: string;
+  readonly default?: string;
+  readonly allowedValues?: readonly string[];
+  /** Nested options for object-typed variants. */
+  readonly nestedOptions?: readonly EmitterOptionRefDoc[];
 };
 
 export type RefDocEntity =
@@ -182,6 +208,11 @@ export type UnionRefDoc = NamedTypeRefDoc & {
   readonly type: Union;
 
   readonly templateParameters?: readonly TemplateParameterRefDoc[];
+  readonly variants: ReadonlyMap<string, UnionVariantRefDoc>;
+};
+
+export type UnionVariantRefDoc = NamedTypeRefDoc & {
+  readonly type: UnionVariant;
 };
 
 export type ScalarRefDoc = NamedTypeRefDoc & {

@@ -1292,7 +1292,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
         protected virtual FieldProvider? BuildRawDataField()
         {
-            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            if (!_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)
+                && (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml)
+                    || _inputModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData)))
             {
                 return null;
             }

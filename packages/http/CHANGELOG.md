@@ -1,5 +1,9 @@
 # Change Log - @typespec/http
 
+## 1.13.0
+
+No changes, version bump only.
+
 ## 1.12.0
 
 ### Deprecations

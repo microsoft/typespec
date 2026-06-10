@@ -5,7 +5,10 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
+using Payload.MultiPart;
 using Payload.MultiPart._FormData.HttpParts.ContentType;
 using Payload.MultiPart._FormData.HttpParts.NonString;
 
@@ -22,6 +25,12 @@ namespace Payload.MultiPart._FormData.HttpParts
         public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual ClientResult JsonArrayAndFileArray(ComplexHttpPartsModelRequest body, CancellationToken cancellationToken = default) => throw null;
+
+        [Experimental("SCME0004")]
+        public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(ComplexHttpPartsModelRequest body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient() => throw null;
 
