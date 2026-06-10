@@ -20,6 +20,8 @@ namespace Microsoft.TypeSpec.Generator
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
+        private static readonly string[] _experimentalAttributeNames = ["Experimental", "ExperimentalAttribute"];
+
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
@@ -357,8 +359,6 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private static readonly string[] _experimentalAttributeNames = ["Experimental", "ExperimentalAttribute"];
-
         /// <summary>
         /// Removes any <c>[Experimental]</c> (<see cref="System.Diagnostics.CodeAnalysis.ExperimentalAttribute"/>)
         /// attribute from <paramref name="declarationNode"/>. The declaration's leading trivia (such as documentation
@@ -370,7 +370,9 @@ namespace Microsoft.TypeSpec.Generator
             string typeName)
         {
             if (declarationNode.AttributeLists.Count == 0)
+            {
                 return declarationNode;
+            }
 
             var newAttributeLists = new List<AttributeListSyntax>();
             bool removed = false;
@@ -400,7 +402,9 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             if (!removed)
+            {
                 return declarationNode;
+            }
 
             CodeModelGenerator.Instance.Emitter.Debug(
                 $"Removed [Experimental] attribute from '{typeName}' while internalizing it.");

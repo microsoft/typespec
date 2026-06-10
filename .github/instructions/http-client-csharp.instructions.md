@@ -26,3 +26,4 @@ applyTo: "packages/http-client-csharp/**/*"
 - Regenerate all generated libraries by running `eng/scripts/Generate.ps1`.
 - Ensure all unit tests are passing.
 - Do not comment out or delete any existing tests.
+- StyleCop runs as part of the generator build (warnings are treated as errors). Before committing C# changes, run the StyleCop check locally by building the generator with `dotnet build packages/http-client-csharp/generator/Microsoft.TypeSpec.Generator/src/Microsoft.TypeSpec.Generator.csproj` (or `npm run build:generator`) and ensure it reports `0 Warning(s)` and `0 Error(s)`.
