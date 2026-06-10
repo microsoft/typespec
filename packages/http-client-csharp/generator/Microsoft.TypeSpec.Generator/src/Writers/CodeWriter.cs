@@ -27,6 +27,8 @@ namespace Microsoft.TypeSpec.Generator
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
         private readonly CSharpTypeNameResolver _typeNameResolver;
+        private Dictionary<string, CSharpTypeNameResolver.TypeResolution>? _typeNameResolutions;
+        private HashSet<CSharpType>? _referencedTypes;
 
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
@@ -34,12 +36,11 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
-        private readonly bool _suppressOutput;
+        private bool _suppressOutput;
 
-        internal CodeWriter(CSharpTypeNameResolver? typeNameResolver = null, bool suppressOutput = false)
+        internal CodeWriter(CSharpTypeNameResolver? typeNameResolver = null)
         {
             _typeNameResolver = typeNameResolver ?? CSharpTypeNameResolver.Disabled;
-            _suppressOutput = suppressOutput;
             _builder = new UnsafeBufferSequence(1024);
 
             _scopes = new Stack<CodeScope>();
@@ -47,7 +48,30 @@ namespace Microsoft.TypeSpec.Generator
             _atBeginningOfLine = true;
         }
 
-        internal IReadOnlyCollection<CSharpType> ReferencedTypes => _typeNameResolver.ReferencedTypes;
+        internal void CollectTypeReferences(string @namespace, Action<CodeWriter> write)
+        {
+            if (!_typeNameResolver.IsEnabled)
+            {
+                return;
+            }
+
+            _referencedTypes = [];
+            _suppressOutput = true;
+            try
+            {
+                using (SetNamespace(@namespace))
+                {
+                    write(this);
+                }
+            }
+            finally
+            {
+                _suppressOutput = false;
+            }
+
+            _typeNameResolutions = _typeNameResolver.Analyze(_referencedTypes, @namespace);
+            _referencedTypes = null;
+        }
 
         public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
@@ -667,8 +691,12 @@ namespace Microsoft.TypeSpec.Generator
             }
             else
             {
-                _typeNameResolver.AddReference(type);
-                if (_typeNameResolver.TryResolve(type, out var resolvedName, out var namespaceToImport))
+                if (_referencedTypes is not null && CSharpTypeNameResolver.CanAnalyze(type))
+                {
+                    _referencedTypes.Add(type);
+                }
+
+                if (_typeNameResolver.TryResolve(type, _typeNameResolutions, out var resolvedName, out var namespaceToImport))
                 {
                     if (namespaceToImport is not null)
                     {

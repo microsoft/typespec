@@ -184,13 +184,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         private static string WriteWithResolver(CSharpTypeNameResolver resolver, Action<CodeWriter> write)
         {
-            using var collector = new CodeWriter(resolver.CreateCollector(), suppressOutput: true);
-            using (collector.SetNamespace("Sample.Models"))
-            {
-                write(collector);
-            }
+            using var writer = new CodeWriter(resolver);
+            writer.CollectTypeReferences("Sample.Models", write);
 
-            using var writer = new CodeWriter(resolver.CreateResolver(collector.ReferencedTypes, "Sample.Models"));
             using (writer.SetNamespace("Sample.Models"))
             {
                 write(writer);

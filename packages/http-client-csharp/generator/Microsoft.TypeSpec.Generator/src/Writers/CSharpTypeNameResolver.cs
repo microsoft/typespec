@@ -11,72 +11,27 @@ namespace Microsoft.TypeSpec.Generator
     internal sealed class CSharpTypeNameResolver
     {
         private readonly KnownTypeIndex _knownTypes;
-        private readonly HashSet<CSharpType>? _referencedTypes;
-        private readonly Dictionary<string, TypeResolution>? _resolutions;
 
-        public static CSharpTypeNameResolver Disabled { get; } = new(false, new KnownTypeIndex([]), null, null);
+        public static CSharpTypeNameResolver Disabled { get; } = new(false, new KnownTypeIndex([]));
 
-        private CSharpTypeNameResolver(
-            bool isEnabled,
-            KnownTypeIndex knownTypes,
-            HashSet<CSharpType>? referencedTypes,
-            Dictionary<string, TypeResolution>? resolutions)
+        private CSharpTypeNameResolver(bool isEnabled, KnownTypeIndex knownTypes)
         {
             IsEnabled = isEnabled;
             _knownTypes = knownTypes;
-            _referencedTypes = referencedTypes;
-            _resolutions = resolutions;
         }
 
         public bool IsEnabled { get; }
 
-        public IReadOnlyCollection<CSharpType> ReferencedTypes => _referencedTypes ?? [];
-
         public static CSharpTypeNameResolver Create(IEnumerable<TypeProvider> providers)
-            => new(true, new KnownTypeIndex(EnumerateProviders(providers)), null, null);
+            => new(true, new KnownTypeIndex(EnumerateProviders(providers)));
 
-        public CSharpTypeNameResolver CreateCollector()
-            => IsEnabled
-                ? new CSharpTypeNameResolver(true, _knownTypes, new HashSet<CSharpType>(), null)
-                : Disabled;
-
-        public CSharpTypeNameResolver CreateResolver(IEnumerable<CSharpType> referencedTypes, string? currentNamespace)
-            => IsEnabled
-                ? new CSharpTypeNameResolver(true, _knownTypes, null, Analyze(referencedTypes, currentNamespace))
-                : Disabled;
-
-        public void AddReference(CSharpType type)
+        public Dictionary<string, TypeResolution> Analyze(IEnumerable<CSharpType> referencedTypes, string? currentNamespace)
         {
-            if (_referencedTypes is null || !CanAnalyze(type))
+            if (!IsEnabled)
             {
-                return;
+                return [];
             }
 
-            _referencedTypes.Add(type);
-        }
-
-        public bool TryResolve(CSharpType type, out string resolvedName, out string? namespaceToImport)
-        {
-            resolvedName = string.Empty;
-            namespaceToImport = null;
-
-            if (!IsEnabled || _resolutions is null || !CanAnalyze(type))
-            {
-                return false;
-            }
-
-            if (!_resolutions.TryGetValue(GetFullName(type), out var resolution))
-            {
-                return false;
-            }
-
-            resolvedName = resolution.Name;
-            namespaceToImport = resolution.NamespaceToImport;
-            return true;
-        }
-
-        private Dictionary<string, TypeResolution> Analyze(IEnumerable<CSharpType> referencedTypes, string? currentNamespace)
-        {
             var groups = new Dictionary<string, TypeReferenceGroup>(StringComparer.Ordinal);
 
             foreach (var type in referencedTypes)
@@ -123,7 +78,31 @@ namespace Microsoft.TypeSpec.Generator
             return resolutions;
         }
 
-        private static bool CanAnalyze(CSharpType type)
+        public bool TryResolve(
+            CSharpType type,
+            IReadOnlyDictionary<string, TypeResolution>? resolutions,
+            out string resolvedName,
+            out string? namespaceToImport)
+        {
+            resolvedName = string.Empty;
+            namespaceToImport = null;
+
+            if (!IsEnabled || resolutions is null || !CanAnalyze(type))
+            {
+                return false;
+            }
+
+            if (!resolutions.TryGetValue(GetFullName(type), out var resolution))
+            {
+                return false;
+            }
+
+            resolvedName = resolution.Name;
+            namespaceToImport = resolution.NamespaceToImport;
+            return true;
+        }
+
+        public static bool CanAnalyze(CSharpType type)
             => !string.IsNullOrEmpty(type.Namespace);
 
         private static string GetLookupName(CSharpType type)
@@ -155,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private readonly record struct TypeResolution(string Name, string? NamespaceToImport);
+        public readonly record struct TypeResolution(string Name, string? NamespaceToImport);
 
         private sealed class TypeReferenceGroup
         {
