@@ -98,12 +98,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 };
 
                 // Skip a convenience method when the protocol method it calls no longer exists.
-                if (ProtocolMethodExists(syncProtocol.Signature))
+                if (ProtocolMethodExists(syncProtocol))
                 {
                     methods.Add(BuildConvenienceMethod(syncProtocol, false));
                 }
 
-                if (ProtocolMethodExists(asyncProtocol.Signature))
+                if (ProtocolMethodExists(asyncProtocol))
                 {
                     methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                 }
@@ -118,9 +118,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private bool ProtocolMethodExists(MethodSignatureBase generatedProtocolMethodSig)
+        private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
         {
-            if (!EnclosingType.IsMethodSuppressed(generatedProtocolMethodSig))
+            if (!generatedProtocolMethod.IsMethodSuppressed())
             {
                 return true;
             }
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var method in EnclosingType.CustomCodeView?.Methods ?? [])
             {
                 if (!method.IsPartialMethod &&
-                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedProtocolMethodSig))
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedProtocolMethod.Signature))
                 {
                     return true;
                 }

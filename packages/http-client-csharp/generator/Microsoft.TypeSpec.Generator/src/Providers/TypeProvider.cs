@@ -792,25 +792,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        /// <summary>
-        /// Determines whether the method with the given <paramref name="signature"/> is suppressed via a
-        /// <c>CodeGenSuppress</c> attribute. A suppressed method may still be provided by custom code, so
-        /// callers that need to know whether the method exists in the final output must additionally check
-        /// the canonical view for a custom replacement.
-        /// </summary>
-        public bool IsMethodSuppressed(MethodSignatureBase signature)
-        {
-            foreach (var attribute in GetMemberSuppressionAttributes())
-            {
-                if (IsMatch(this, signature, attribute))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
@@ -851,7 +832,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return name == fieldProvider.Name;
         }
 
-        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        /// <summary>
+        /// Determines whether the method with the given <paramref name="signature"/> on <paramref name="enclosingType"/>
+        /// matches the given <c>CodeGenSuppress</c> <paramref name="attribute"/>.
+        /// </summary>
+        internal static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
@@ -1011,7 +996,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
-        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+        internal IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.Attributes.Where(a => a.Data?.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName).
                 Select(a => a.Data!).ToList() ?? [];
     }
