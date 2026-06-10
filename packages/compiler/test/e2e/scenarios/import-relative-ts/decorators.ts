@@ -1,5 +1,7 @@
 type DecoratorContext = {
-  program: object;
+  program: {
+    compilerVersion?: string;
+  };
 };
 
 type DecoratorTarget = {
@@ -7,6 +9,7 @@ type DecoratorTarget = {
 };
 
 export function $blue(context: DecoratorContext, target: DecoratorTarget): void {
-  void context;
-  void target;
+  if (context.program.compilerVersion === "__never__" && target.name === "__never__") {
+    throw new Error("Unreachable branch for e2e fixture.");
+  }
 }
