@@ -1,5 +1,5 @@
 import { code, type Children } from "@alloy-js/core";
-import { pydanticModule } from "../../builtins.js";
+import * as py from "@alloy-js/python";
 
 export type PydanticValidationMode = "before" | "after" | "plain" | "wrap";
 
@@ -30,7 +30,7 @@ export function fieldValidatorDecorator(
   if (options.mode !== undefined) args.push(`mode=${JSON.stringify(options.mode)}`);
   if (options.checkFields !== undefined) args.push(`check_fields=${options.checkFields}`);
 
-  return code`@${pydanticModule["."].field_validator}(${args.join(", ")})`;
+  return code`@${py.pydanticModule["."].field_validator}(${args.join(", ")})`;
 }
 
 /**
@@ -39,7 +39,7 @@ export function fieldValidatorDecorator(
 export function modelValidatorDecorator(options: PydanticModelValidatorOptions): Children {
   const args: string[] = [];
   if (options.mode !== undefined) args.push(`mode=${JSON.stringify(options.mode)}`);
-  return code`@${pydanticModule["."].model_validator}(${args.join(", ")})`;
+  return code`@${py.pydanticModule["."].model_validator}(${args.join(", ")})`;
 }
 
 /**
@@ -55,12 +55,12 @@ export function fieldSerializerDecorator(
   if (options.returnType !== undefined) args.push(`return_type=${options.returnType}`);
   if (options.whenUsed !== undefined) args.push(`when_used=${JSON.stringify(options.whenUsed)}`);
 
-  return code`@${pydanticModule["."].field_serializer}(${args.join(", ")})`;
+  return code`@${py.pydanticModule["."].field_serializer}(${args.join(", ")})`;
 }
 
 /**
  * Build a `@computed_field` decorator for method `decorators`.
  */
 export function computedFieldDecorator(): Children {
-  return code`@${pydanticModule["."].computed_field}`;
+  return code`@${py.pydanticModule["."].computed_field}`;
 }

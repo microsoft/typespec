@@ -6,8 +6,6 @@ import {
   abcModule,
   datetimeModule,
   decimalModule,
-  pydanticModule,
-  pydanticSettingsModule,
   typingModule,
 } from "./builtins.js";
 
@@ -25,8 +23,8 @@ export function getOutput(program: Program, children: Children[]): Children {
         abcModule,
         datetimeModule,
         decimalModule,
-        pydanticModule,
-        pydanticSettingsModule,
+        py.pydanticModule,
+        py.pydanticSettingsModule,
         typingModule,
         py.abcModule,
         py.dataclassesModule,
