@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
+import pytest_asyncio
 import geojson
 from specs.azure.clientgenerator.core.alternatetype.aio import AlternateTypeClient
 from specs.azure.clientgenerator.core.alternatetype import models
@@ -16,7 +17,7 @@ GEOMETRY = geojson.Point((-122.25, 37.87))
 FEATURE_ID = "feature-1"
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AlternateTypeClient(endpoint="http://localhost:3000") as client:
         yield client
