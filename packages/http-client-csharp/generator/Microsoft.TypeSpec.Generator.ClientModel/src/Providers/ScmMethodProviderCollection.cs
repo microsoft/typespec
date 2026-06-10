@@ -118,9 +118,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private bool ProtocolMethodExists(MethodSignatureBase generatedMethodSignature)
+        private bool ProtocolMethodExists(MethodSignatureBase generatedProtocolMethodSig)
         {
-            if (!EnclosingType.IsMethodSuppressed(generatedMethodSignature))
+            if (!EnclosingType.IsMethodSuppressed(generatedProtocolMethodSig))
             {
                 return true;
             }
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var method in EnclosingType.CustomCodeView?.Methods ?? [])
             {
                 if (!method.IsPartialMethod &&
-                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedMethodSignature))
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedProtocolMethodSig))
                 {
                     return true;
                 }

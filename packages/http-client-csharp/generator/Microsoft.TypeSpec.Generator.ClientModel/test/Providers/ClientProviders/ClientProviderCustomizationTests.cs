@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -206,13 +207,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(syncConvenience);
             Assert.IsNotNull(asyncConvenience);
 
-            // Validate the generated convenience method bodies still call into the (custom) protocol methods.
-            Assert.AreEqual(
-                Helpers.GetExpectedFromFile("Sync"),
-                syncConvenience!.BodyStatements!.ToDisplayString());
-            Assert.AreEqual(
-                Helpers.GetExpectedFromFile("Async"),
-                asyncConvenience!.BodyStatements!.ToDisplayString());
+            // Validate the generated convenience methods (signature and body) still call into the
+            // (custom) protocol methods.
+            string syncActual;
+            using (var syncWriter = new CodeWriter())
+            {
+                syncWriter.WriteMethod(syncConvenience!);
+                syncActual = syncWriter.ToString(false);
+            }
+
+            string asyncActual;
+            using (var asyncWriter = new CodeWriter())
+            {
+                asyncWriter.WriteMethod(asyncConvenience!);
+                asyncActual = asyncWriter.ToString(false);
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncActual);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncActual);
 
             // The generated protocol methods (taking RequestOptions) should be suppressed in favor of the custom ones.
             var generatedProtocolMethods = clientProvider.Methods
