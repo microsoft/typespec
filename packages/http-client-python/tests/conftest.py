@@ -96,6 +96,61 @@ def terminate_server_process(process):
             pass
 
 
+def graceful_stop_server(timeout: float = 30.0) -> None:
+    """Gracefully stop the mock server so it writes its coverage file.
+
+    The tsp-spector server only persists spec-coverage.json from its process
+    ``exit`` handler, which is triggered by the ``tsp-spector server stop``
+    command (it posts to the ``/.admin/stop`` admin endpoint and the server then
+    calls ``process.exit(0)``). A hard kill of the process skips that handler and
+    leaves no coverage file. Stopping the server via the CLI here lets coverage
+    be written by the test run itself, so no extra pipeline step is required to
+    flush coverage before uploading it.
+    """
+    env = os.environ.copy()
+    node_bin = str(ROOT / "node_modules" / ".bin")
+    env["PATH"] = f"{node_bin}{os.pathsep}{env.get('PATH', '')}"
+    try:
+        subprocess.run(
+            f"npx tsp-spector server stop --port {SERVER_PORT}",
+            shell=True,
+            cwd=str(ROOT),
+            env=env,
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except Exception:
+        # Server already stopped or never started — nothing to do.
+        return
+
+    # Coverage is written synchronously in the server's exit handler. Wait until
+    # the server is no longer reachable to ensure the file is flushed to disk.
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            urllib.request.urlopen(SERVER_URL, timeout=1)
+        except urllib.error.HTTPError:
+            pass  # Server up but returned an error response — still running.
+        except (urllib.error.URLError, OSError):
+            return  # Server is down — coverage has been flushed.
+        time.sleep(0.3)
+
+
+def pytest_unconfigure(config):
+    """Stop the shared mock server once the whole test session is finished.
+
+    Under pytest-xdist the server must outlive individual workers (which may
+    finish at different times), so it is intentionally not stopped in the
+    session-scoped fixture teardown. This hook runs after all workers complete:
+    only the controller process (no ``workerinput``) gracefully stops the
+    server so the coverage file is written.
+    """
+    if hasattr(config, "workerinput"):
+        return  # xdist worker — leave the shared server running for others.
+    graceful_stop_server()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def testserver():
     """Start the mock API server, coordinated across xdist workers via file lock.
