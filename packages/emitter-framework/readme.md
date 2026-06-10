@@ -72,4 +72,4 @@ export function Models() {
 - Pass custom decorators to `Method` through the `decorators` prop.
 - Decorators are emitted before `@classmethod`/`@staticmethod` when both are present.
 - If you need direct symbol access, use `pydanticModule` and
-  `pydanticSettingsModule` from `@typespec/emitter-framework/python`.
+  `pydanticSettingsModule` from `@alloy-js/python`.

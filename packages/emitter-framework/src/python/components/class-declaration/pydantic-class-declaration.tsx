@@ -3,7 +3,6 @@ import * as py from "@alloy-js/python";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
-import { pydanticModule, pydanticSettingsModule } from "../../builtins.js";
 import { declarationRefkeys } from "../../utils/refkey.js";
 import { DocElement } from "../doc-element/doc-element.js";
 import { ClassBases } from "./class-bases.js";
@@ -83,7 +82,7 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
   ) : hasStructuredModelConfig ? (
     <>
       {"model_config = "}
-      {pydanticModule["."].ConfigDict}
+      {py.pydanticModule["."].ConfigDict}
       {"("}
       <For each={configEntries} comma space>
         {([k, v]) => (
@@ -99,7 +98,7 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
 
   if (!isTypedPydanticClassDeclarationProps(props)) {
     return (
-      <ClassDeclaration {...props} bases={props.bases ?? [pydanticModule["."].BaseModel]}>
+      <ClassDeclaration {...props} bases={props.bases ?? [py.pydanticModule["."].BaseModel]}>
         {configLine}
         {props.children}
       </ClassDeclaration>
@@ -130,7 +129,7 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
     bases: props.bases,
   });
   const resolvedBases =
-    props.bases === undefined && bases.length === 0 ? [pydanticModule["."].BaseModel] : bases;
+    props.bases === undefined && bases.length === 0 ? [py.pydanticModule["."].BaseModel] : bases;
 
   return (
     <MethodProvider value={props.methodType}>
@@ -194,7 +193,7 @@ export function PydanticSettingsClassDeclaration(props: PydanticSettingsClassDec
     settingsConfigExpression
   ) : hasStructuredConfig ? (
     <>
-      {pydanticSettingsModule["."].SettingsConfigDict}
+      {py.pydanticSettingsModule["."].SettingsConfigDict}
       {"("}
       <For each={configEntries} comma space>
         {([k, v]) => (
@@ -210,7 +209,7 @@ export function PydanticSettingsClassDeclaration(props: PydanticSettingsClassDec
   return (
     <PydanticClassDeclaration
       {...classProps}
-      bases={[pydanticSettingsModule["."].BaseSettings]}
+      bases={[py.pydanticSettingsModule["."].BaseSettings]}
       modelConfigExpression={modelConfigExpression}
     />
   );
@@ -228,7 +227,7 @@ export function PydanticRootModelDeclaration(props: PydanticRootModelDeclaration
   return (
     <py.ClassDeclaration
       {...classProps}
-      bases={[code`${pydanticModule["."].RootModel}[${rootType}]`]}
+      bases={[code`${py.pydanticModule["."].RootModel}[${rootType}]`]}
     />
   );
 }

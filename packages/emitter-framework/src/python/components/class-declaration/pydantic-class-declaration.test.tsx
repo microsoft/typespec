@@ -1,8 +1,8 @@
 import { Tester } from "#test/test-host.js";
 import { code } from "@alloy-js/core";
+import * as py from "@alloy-js/python";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { pydanticModule, pydanticSettingsModule } from "../../builtins.js";
 import { getOutput } from "../../test-utils.js";
 import { ClassDeclaration } from "./class-declaration.js";
 import { Method } from "./class-method.js";
@@ -67,7 +67,7 @@ describe("Python PydanticClassDeclaration", () => {
           <Method
             type={stripName}
             methodType="class"
-            decorators={[code`@${pydanticModule["."].field_validator}("name", mode="before")`]}
+            decorators={[code`@${py.pydanticModule["."].field_validator}("name", mode="before")`]}
           />
         </PydanticClassDeclaration>,
       ]),
@@ -91,7 +91,7 @@ describe("Python PydanticClassDeclaration", () => {
 
     expect(
       getOutput(program, [
-        <ClassDeclaration name="AppSettings" bases={[pydanticSettingsModule["."].BaseSettings]} />,
+        <ClassDeclaration name="AppSettings" bases={[py.pydanticSettingsModule["."].BaseSettings]} />,
       ]),
     ).toRenderTo(`
       from pydantic_settings import BaseSettings
