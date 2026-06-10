@@ -88,18 +88,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ClientPipelineExtensionsDefinition(),
                 new CancellationTokenExtensionsDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
-                .. GetMultipartFormDataBinaryContentDefinition(),
+                .. GetMultipartFormDataTypes(),
                 new ModelReaderWriterContextDefinition()
             ];
         }
 
-        private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
+        private IEnumerable<TypeProvider> GetMultipartFormDataTypes()
         {
             if (ScmCodeModelGenerator.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
                 ScmCodeModelGenerator.Instance.AddTypeToKeep(multipart.Name);
+
                 yield return multipart;
+                yield return new MultipartFormDataHelperDefinition();
             }
         }
     }

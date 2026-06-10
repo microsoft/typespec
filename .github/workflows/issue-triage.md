@@ -8,7 +8,7 @@ description: |
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened]
   workflow_dispatch:
     inputs:
       issue-number:
