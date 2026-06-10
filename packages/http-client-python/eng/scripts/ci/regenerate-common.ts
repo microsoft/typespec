@@ -724,7 +724,7 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
       "azure/generation-subdir2",
       "unbranded/generation-subdir",
       "unbranded/generation-subdir2",
-      "azure-client-generator-core-alternate-type",
+      "azure/azure-client-generator-core-alternate-type",
     ];
 
     const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
