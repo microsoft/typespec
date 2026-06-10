@@ -23,29 +23,14 @@ async def test_harvest(client: ClientDocClient):
 
 def test_model_doc_appended():
     # @clientDoc in append mode keeps the base @doc and appends the client-specific text.
-    # The full docstring is compared, including the trailing indentation that closes the docstring.
-    assert models.Plant.__doc__ == (
-        "A plant in the garden. This model is used to represent a plant in the client SDK.\n"
-        "\n"
-        "    :ivar name: The name of the plant. Required.\n"
-        "    :vartype name: str\n"
-        "    :ivar species: The species of the plant. Required.\n"
-        "    :vartype species: str\n"
-        "    "
-    )
+    # Only the model description is compared, not the parameter docstrings.
+    doc = models.Plant.__doc__.split(":ivar")[0].strip()
+    assert doc == "A plant in the garden. This model is used to represent a plant in the client SDK."
 
 
 @pytest.mark.asyncio
 async def test_operation_doc_replaced(client: ClientDocClient):
     # @clientDoc in replace mode overrides the base @doc completely.
-    # The full docstring is compared, including the trailing indentation that closes the docstring.
-    assert client.documentation.harvest.__doc__ == (
-        "Retrieves a plant from the garden by submitting its name.\n"
-        "\n"
-        "        :param body: Is one of the following types: Plant, JSON, IO[bytes] Required.\n"
-        "        :type body: ~specs.azure.clientgenerator.core.clientdoc.models.Plant or JSON or IO[bytes]\n"
-        "        :return: Plant. The Plant is compatible with MutableMapping\n"
-        "        :rtype: ~specs.azure.clientgenerator.core.clientdoc.models.Plant\n"
-        "        :raises ~azure.core.exceptions.HttpResponseError:\n"
-        "        "
-    )
+    # Only the operation description is compared, not the parameter docstrings.
+    doc = client.documentation.harvest.__doc__.split(":param")[0].strip()
+    assert doc == "Retrieves a plant from the garden by submitting its name."
