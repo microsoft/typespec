@@ -74,7 +74,7 @@ describe("compiler: imports", () => {
     }).compile(`
       import "./blue.ts";
       @blue
-      model A  {}
+      model A {}
     `);
     expectFileLoaded(program, { typespec: ["main.tsp"], js: ["blue.ts"] });
   });
@@ -85,7 +85,7 @@ describe("compiler: imports", () => {
       "proj/main.tsp": `
       import "../blue.ts";
       @blue
-      model A  {}
+      model A {}
       `,
     }).compile(`import "./proj/main.tsp";`);
     expectFileLoaded(program, { typespec: ["proj/main.tsp"], js: ["blue.ts"] });
