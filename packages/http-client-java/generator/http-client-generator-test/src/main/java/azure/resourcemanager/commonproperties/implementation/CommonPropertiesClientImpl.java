@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.commonproperties.implementation;
 
+import azure.resourcemanager.commonproperties.fluent.ArmResourceIdentifiersClient;
 import azure.resourcemanager.commonproperties.fluent.CommonPropertiesClient;
 import azure.resourcemanager.commonproperties.fluent.ErrorsClient;
 import azure.resourcemanager.commonproperties.fluent.ManagedIdentitiesClient;
@@ -156,6 +157,20 @@ public final class CommonPropertiesClientImpl implements CommonPropertiesClient 
     }
 
     /**
+     * The ArmResourceIdentifiersClient object to access its operations.
+     */
+    private final ArmResourceIdentifiersClient armResourceIdentifiers;
+
+    /**
+     * Gets the ArmResourceIdentifiersClient object to access its operations.
+     * 
+     * @return the ArmResourceIdentifiersClient object.
+     */
+    public ArmResourceIdentifiersClient getArmResourceIdentifiers() {
+        return this.armResourceIdentifiers;
+    }
+
+    /**
      * Initializes an instance of CommonPropertiesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -175,6 +190,7 @@ public final class CommonPropertiesClientImpl implements CommonPropertiesClient 
         this.apiVersion = "2023-12-01-preview";
         this.managedIdentities = new ManagedIdentitiesClientImpl(this);
         this.errors = new ErrorsClientImpl(this);
+        this.armResourceIdentifiers = new ArmResourceIdentifiersClientImpl(this);
     }
 
     /**
