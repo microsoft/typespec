@@ -91,13 +91,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_generateConvenienceMethod)
             {
-                return
-                [
+                var methods = new List<ScmMethodProvider>
+                {
                     syncProtocol,
                     asyncProtocol,
-                    BuildConvenienceMethod(syncProtocol, false),
-                    BuildConvenienceMethod(asyncProtocol, true),
-                ];
+                };
+
+                // Skip generating a convenience method when the protocol method it relies on has been
+                // suppressed via custom code without a replacement. The convenience method calls the
+                // protocol method, so it would not compile if the protocol method does not exist.
+                if (!EnclosingType.IsMethodSuppressed(syncProtocol.Signature))
+                {
+                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                }
+
+                if (!EnclosingType.IsMethodSuppressed(asyncProtocol.Signature))
+                {
+                    methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                }
+
+                return methods;
             }
 
             return

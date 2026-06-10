@@ -792,6 +792,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the method with the given <paramref name="signature"/> is suppressed via a
+        /// <c>CodeGenSuppress</c> attribute and is not replaced by a custom (non-partial) method implementation.
+        /// When this returns <c>true</c> the method will not be present in the final output, so any generated
+        /// code that depends on it (such as a convenience method calling its protocol method) should not be
+        /// generated either.
+        /// </summary>
+        internal bool IsMethodSuppressed(MethodSignatureBase signature)
+        {
+            bool isSuppressedByAttribute = false;
+            foreach (var attribute in GetMemberSuppressionAttributes())
+            {
+                if (IsMatch(this, signature, attribute))
+                {
+                    isSuppressedByAttribute = true;
+                    break;
+                }
+            }
+
+            if (!isSuppressedByAttribute)
+            {
+                return false;
+            }
+
+            // A suppressed method may be replaced by a custom (non-partial) method with the same signature.
+            // In that case the method still exists in the output and is not considered suppressed.
+            var customMethods = CustomCodeView?.Methods ?? [];
+            foreach (var customMethod in customMethods)
+            {
+                if (customMethod.IsPartialMethod)
+                {
+                    continue;
+                }
+
+                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, signature))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
