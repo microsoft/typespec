@@ -22,6 +22,9 @@ export const namespace = NAMESPACE;
 type Interface = Tagged<Model, "interface">;
 
 const [getInterface, setInterface] = useStateSet<Interface>(GraphQLKeys.interface);
+const [getExclusiveInterface, setExclusiveInterface] = useStateSet<Interface>(
+  GraphQLKeys.exclusiveInterface,
+);
 const [getComposition, setComposition, _getCompositionMap] = useStateMap<Model, Interface[]>(
   GraphQLKeys.compose,
 );
@@ -34,6 +37,7 @@ export {
    * @returns Composed interfaces or undefined if no interfaces are composed.
    */
   getComposition,
+  setComposition,
 };
 
 /**
@@ -44,6 +48,10 @@ export {
  */
 export function isInterface(program: Program, model: Model | Interface): model is Interface {
   return !!getInterface(program, model as Interface);
+}
+
+export function isExclusiveInterface(program: Program, model: Model): boolean {
+  return !!getExclusiveInterface(program, model as Interface);
 }
 
 function validateImplementedsAreInterfaces(context: DecoratorContext, interfaces: Model[]) {
@@ -123,9 +131,16 @@ function validateImplementsInterfacesProperties(
   return valid;
 }
 
-export const $Interface: DecoratorFunction = (context: DecoratorContext, target: Model) => {
+export const $Interface: DecoratorFunction = (
+  context: DecoratorContext,
+  target: Model,
+  options?: { exclusive?: boolean },
+) => {
   validateDecoratorUniqueOnNode(context, target, $Interface);
   setInterface(context.program, target as Interface);
+  if (options?.exclusive) {
+    setExclusiveInterface(context.program, target as Interface);
+  }
 };
 
 export const $compose: DecoratorFunction = (

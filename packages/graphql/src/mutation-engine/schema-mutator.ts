@@ -11,6 +11,8 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { setInputType } from "../lib/input-type.js";
+import { isInterface } from "../lib/interface.js";
 import { reportDiagnostic } from "../lib.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
@@ -44,13 +46,19 @@ export function mutateSchema(
       const usage = typeUsage.getUsage(node);
       const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
       const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
+      const isInterfaceModel = isInterface(program, node);
 
-      if (usedAsOutput || !usage) {
+      if (isInterfaceModel) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Interface);
+        mutatedTypes.push(mutation.mutatedType);
+      }
+      if (usedAsOutput || (!usage && !isInterfaceModel)) {
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
         mutatedTypes.push(mutation.mutatedType);
       }
       if (usedAsInput) {
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
+        setInputType(mutation.mutatedType);
         mutatedTypes.push(mutation.mutatedType);
       }
     },

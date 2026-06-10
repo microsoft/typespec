@@ -1,5 +1,6 @@
 import { t } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
+import { isInputType } from "../../src/lib/input-type.js";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
 import { mutateSchema } from "../../src/mutation-engine/schema-mutator.js";
 import { resolveTypeUsage } from "../../src/type-usage.js";
@@ -206,6 +207,27 @@ describe("mutateSchema", () => {
     expect(typeGraph.globalNamespace.models.has("PayloadInput")).toBe(true);
     // Should NOT have an Output variant
     expect(typeGraph.globalNamespace.models.has("Payload")).toBe(false);
+  });
+
+  it("marks input models with isInputType decorator", async () => {
+    await tester.compile(
+      t.code`
+        model ${t.model("Book")} { title: string; }
+        op ${t.op("getBooks")}(): Book[];
+        op ${t.op("createBook")}(input: Book): Book;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, false);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    const bookOutput = typeGraph.globalNamespace.models.get("Book")!;
+    const bookInput = typeGraph.globalNamespace.models.get("BookInput")!;
+
+    expect(isInputType(bookOutput)).toBe(false);
+    expect(isInputType(bookInput)).toBe(true);
   });
 
   it("reports diagnostic when two types produce the same GraphQL name", async () => {
