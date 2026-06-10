@@ -1,8 +1,11 @@
 import {
   isTemplateInstance,
+  isType,
   walkPropertiesInherited,
   type MemberType,
   type Model,
+  type Type,
+  type Value,
 } from "@typespec/compiler";
 import {
   SimpleModelMutation,
@@ -11,11 +14,25 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
-import { isInterface } from "../../lib/interface.js";
+import { isInterfaceOnly } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
 import { isRecordType } from "../../lib/type-utils.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
+
+/**
+ * Maps decorator function names to the mutation context their type args
+ * should be mutated with. When a model is cloned, decorator args that
+ * reference types need re-mutation — but the context may differ from the
+ * model's own context (e.g., @compose args are always interfaces regardless
+ * of whether the model is mutated as Input or Output).
+ *
+ * Keyed by function name (not reference) because vitest can load the same
+ * module from different paths, creating distinct function objects.
+ */
+const decoratorArgContext = new Map<string, GraphQLTypeContext>([
+  ["$compose", GraphQLTypeContext.Interface],
+]);
 
 /**
  * GraphQL-specific Model mutation.
@@ -43,6 +60,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     const tk = this.engine.$;
     const program = tk.program;
     const isInputContext = this.typeContext === GraphQLTypeContext.Input;
+    const isInterfaceContext = this.typeContext === GraphQLTypeContext.Interface;
 
     if (isRecordType(this.sourceType) && walkPropertiesInherited(this.sourceType).next().done) {
       const rawName = isTemplateInstance(this.sourceType)
@@ -63,17 +81,50 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       return;
     }
 
-    const isInterfaceModel = isInterface(program, this.sourceType);
     const rawName = isTemplateInstance(this.sourceType)
       ? composeTemplateName(this.sourceType)
       : this.sourceType.name;
 
+    const needsInterfaceSuffix =
+      isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
+
     this.mutationNode.mutate((model) => {
       model.name = applyTypeNamePipeline(rawName, {
         isInput: isInputContext,
-        isInterface: isInterfaceModel,
+        isInterface: needsInterfaceSuffix,
       });
+      this.mutateDecoratorTypeArgs(model);
     });
     super.mutate();
+  }
+
+  private mutateDecoratorTypeArgs(model: Model) {
+    for (let i = 0; i < model.decorators.length; i++) {
+      const dec = model.decorators[i];
+      const argContext = decoratorArgContext.get(dec.decorator.name);
+      const options = argContext
+        ? new GraphQLMutationOptions(argContext)
+        : this.options;
+
+      let argsChanged = false;
+      const newArgs = dec.args.map((arg) => {
+        if (this.isMutatableType(arg.value)) {
+          const mutation = this.engine.mutate(arg.value, options) as { mutatedType: Type };
+          argsChanged = true;
+          return { ...arg, value: mutation.mutatedType, jsValue: mutation.mutatedType };
+        }
+        return arg;
+      });
+
+      if (argsChanged) {
+        model.decorators[i] = { ...dec, args: newArgs };
+      }
+    }
+  }
+
+  private isMutatableType(value: Type | Value): value is Type {
+    if (!isType(value)) return false;
+    const kind = value.kind;
+    return kind === "Model" || kind === "Union" || kind === "Scalar" || kind === "Enum" || kind === "Interface" || kind === "Operation";
   }
 }

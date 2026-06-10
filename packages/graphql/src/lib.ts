@@ -187,6 +187,7 @@ export const libDef = {
     operationFields: { description: "State for the @operationFields decorator." },
     compose: { description: "State for the @compose decorator." },
     interface: { description: "State for the @Interface decorator." },
+    interfaceOnly: { description: "State for @Interface(#{interfaceOnly: true})." },
     schema: { description: "State for the @schema decorator." },
     specifiedBy: { description: "State for the @specifiedBy decorator." },
   },
