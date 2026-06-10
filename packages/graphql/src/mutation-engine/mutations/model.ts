@@ -14,7 +14,7 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
-import { isExclusiveInterface } from "../../lib/interface.js";
+import { isInterfaceOnly } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
 import { isRecordType } from "../../lib/type-utils.js";
@@ -86,7 +86,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       : this.sourceType.name;
 
     const needsInterfaceSuffix =
-      isInterfaceContext && !isExclusiveInterface(program, this.sourceType);
+      isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
 
     this.mutationNode.mutate((model) => {
       model.name = applyTypeNamePipeline(rawName, {

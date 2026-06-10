@@ -7,14 +7,14 @@ namespace TypeSpec.GraphQL;
 /**
  * Mark this model as a GraphQL Interface. Interfaces can be implemented by other models.
  *
- * @param exclusive When true, the model will only be emitted as an interface (no
+ * @param interfaceOnly When true, the model will only be emitted as an interface (no
  * "Interface" suffix is added to the name). Use this for models that will never be
  * used directly as output/input types (e.g., Node, Connection). Defaults to false.
  *
  * @example
  *
  * ```typespec
- * @Interface(#{exclusive: true})
+ * @Interface(#{interfaceOnly: true})
  * model Node {
  *   id: string;
  * }
@@ -25,7 +25,7 @@ namespace TypeSpec.GraphQL;
  * }
  * ```
  */
-extern dec Interface(target: Model, options?: valueof {exclusive?: boolean});
+extern dec Interface(target: Model, options?: valueof {interfaceOnly?: boolean});
 
 /**
  * Specify the GraphQL interfaces that should be implemented by a model.

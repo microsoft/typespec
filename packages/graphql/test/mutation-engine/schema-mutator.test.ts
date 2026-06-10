@@ -255,10 +255,10 @@ describe("mutateSchema", () => {
     expect((sourceComposeArg!.value as any).name).toBe("Animal");
   });
 
-  it("exclusive @Interface model used as output does not produce name collision", async () => {
+  it("interfaceOnly @Interface model used as output does not produce name collision", async () => {
     await tester.compile(
       t.code`
-        @Interface(#{exclusive: true}) model ${t.model("Node")} { id: string; }
+        @Interface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
         op ${t.op("getNode")}(): Node;
       `,
     );

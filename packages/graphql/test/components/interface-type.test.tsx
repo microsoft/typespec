@@ -25,9 +25,9 @@ describe("InterfaceType component", () => {
     expect(sdl).toContain("id: String!");
   });
 
-  it("renders exclusive interface without suffix", async () => {
+  it("renders interfaceOnly interface without suffix", async () => {
     const { Node } = await tester.compile(
-      t.code`@Interface(#{exclusive: true}) model ${t.model("Node")} { id: string; }`,
+      t.code`@Interface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }`,
     );
 
     const engine = createGraphQLMutationEngine(tester.program);
