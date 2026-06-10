@@ -35,3 +35,7 @@ def test_orphan_model_serializable(client: UsageClient):
 def test_namespace_model_serializable(client: UsageClient):
     namespace_model = models.NamespaceModel(name="test")
     client.namespace_usage.namespace_model_serializable(body=namespace_model)
+
+def test_import():
+    # NestedNamespaceModel shall be exposed
+    from specs.azure.clientgenerator.core.usage.models import NestedNamespaceModel
