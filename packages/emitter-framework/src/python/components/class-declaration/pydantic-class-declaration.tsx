@@ -1,9 +1,9 @@
-import { For, type Children } from "@alloy-js/core";
+import { code, For, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
-import { pydanticModule } from "../../builtins.js";
+import { pydanticModule, pydanticSettingsModule } from "../../builtins.js";
 import { declarationRefkeys } from "../../utils/refkey.js";
 import { DocElement } from "../doc-element/doc-element.js";
 import { ClassBases } from "./class-bases.js";
@@ -21,6 +21,15 @@ export interface PydanticModelConfigDictProps {
   strict?: boolean;
   validateAssignment?: boolean;
   validateDefault?: boolean;
+}
+
+export interface PydanticSettingsConfigDictProps {
+  caseSensitive?: boolean;
+  envFile?: string;
+  envFileEncoding?: string;
+  envIgnoreEmpty?: boolean;
+  envNestedDelimiter?: string;
+  envPrefix?: string;
 }
 
 export interface PydanticClassDeclarationBaseProps extends Omit<py.ClassDeclarationProps, "name"> {
@@ -139,6 +148,88 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
         <>{props.children}</>
       </py.ClassDeclaration>
     </MethodProvider>
+  );
+}
+
+type PydanticSettingsClassDeclarationBaseProps = Omit<
+  PydanticClassDeclarationBaseProps,
+  "bases" | "modelConfig" | "modelConfigExpression"
+>;
+
+type PydanticSettingsClassDeclarationPropsWithType = Omit<
+  PydanticClassDeclarationPropsWithType,
+  "bases" | "modelConfig" | "modelConfigExpression"
+>;
+
+export type PydanticSettingsClassDeclarationProps =
+  | (PydanticSettingsClassDeclarationBaseProps & {
+      settingsConfig?: PydanticSettingsConfigDictProps;
+      settingsConfigExpression?: Children;
+    })
+  | (PydanticSettingsClassDeclarationPropsWithType & {
+      settingsConfig?: PydanticSettingsConfigDictProps;
+      settingsConfigExpression?: Children;
+    });
+
+/**
+ * Convenience wrapper for classes that inherit from pydantic-settings BaseSettings.
+ */
+export function PydanticSettingsClassDeclaration(props: PydanticSettingsClassDeclarationProps) {
+  const { settingsConfig, settingsConfigExpression, ...classProps } = props;
+  const configEntries: Array<[string, unknown]> = [];
+  if (settingsConfig && settingsConfigExpression === undefined) {
+    for (const key of Object.keys(settingsConfig)) {
+      const value = (settingsConfig as Record<string, unknown>)[key];
+      if (value !== undefined) {
+        configEntries.push([toSnakeCase(key), value]);
+      }
+    }
+  }
+
+  const hasStructuredConfig =
+    settingsConfigExpression === undefined && configEntries.length > 0;
+  const hasExpressionConfig = settingsConfigExpression !== undefined;
+
+  const modelConfigExpression = hasExpressionConfig ? (
+    settingsConfigExpression
+  ) : hasStructuredConfig ? (
+    <>
+      {pydanticSettingsModule["."].SettingsConfigDict}
+      {"("}
+      <For each={configEntries} comma space>
+        {([k, v]) => (
+          <>
+            {k}=<py.Atom jsValue={v as any} />
+          </>
+        )}
+      </For>
+      {")"}
+    </>
+  ) : undefined;
+
+  return (
+    <PydanticClassDeclaration
+      {...classProps}
+      bases={[pydanticSettingsModule["."].BaseSettings]}
+      modelConfigExpression={modelConfigExpression}
+    />
+  );
+}
+
+export interface PydanticRootModelDeclarationProps extends Omit<py.ClassDeclarationProps, "bases"> {
+  rootType: Children;
+}
+
+/**
+ * Convenience wrapper for pydantic RootModel[T] declarations.
+ */
+export function PydanticRootModelDeclaration(props: PydanticRootModelDeclarationProps) {
+  const { rootType, ...classProps } = props;
+  return (
+    <py.ClassDeclaration
+      {...classProps}
+      bases={[code`${pydanticModule["."].RootModel}[${rootType}]`]}
+    />
   );
 }
 
