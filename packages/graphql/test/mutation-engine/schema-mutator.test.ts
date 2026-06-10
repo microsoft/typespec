@@ -230,6 +230,53 @@ describe("mutateSchema", () => {
     expect(isInputType(bookInput)).toBe(true);
   });
 
+  it("mutateDecoratorTypeArgs does not corrupt source type decorator args", async () => {
+    await tester.compile(
+      t.code`
+        @Interface model ${t.model("Animal")} { name: string; }
+        @compose(Animal)
+        model ${t.model("Cat")} { name: string; breed: string; }
+        op ${t.op("getCat")}(): Cat;
+        op ${t.op("createCat")}(input: Cat): Cat;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const sourceCat = ns.models.get("Cat")!;
+    const sourceComposeArg = sourceCat.decorators.find(
+      (d) => d.decorator.name === "$compose",
+    )?.args[0];
+
+    const typeUsage = resolveTypeUsage(ns, true);
+    const engine = createGraphQLMutationEngine(tester.program);
+    mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Source type's decorator args must not be modified by mutation
+    expect((sourceComposeArg!.value as any).name).toBe("Animal");
+  });
+
+  it("exclusive @Interface model used as output does not produce name collision", async () => {
+    await tester.compile(
+      t.code`
+        @Interface(#{exclusive: true}) model ${t.model("Node")} { id: string; }
+        op ${t.op("getNode")}(): Node;
+      `,
+    );
+
+    const ns = tester.program.getGlobalNamespaceType();
+    const typeUsage = resolveTypeUsage(ns, true);
+    const engine = createGraphQLMutationEngine(tester.program);
+    const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
+
+    // Exclusive interface: only Interface variant emitted (no suffix → "Node")
+    // Should NOT also emit an Output variant (which would also be "Node" → collision)
+    expect(typeGraph.globalNamespace.models.has("Node")).toBe(true);
+    const collisions = tester.program.diagnostics.filter(
+      (d) => d.code === "@typespec/graphql/type-name-collision",
+    );
+    expect(collisions.length).toBe(0);
+  });
+
   it("reports diagnostic when two types produce the same GraphQL name", async () => {
     const [_, diagnostics] = await tester.compileAndDiagnose(
       t.code`

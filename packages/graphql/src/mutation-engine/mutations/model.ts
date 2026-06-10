@@ -99,17 +99,25 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
   }
 
   private mutateDecoratorTypeArgs(model: Model) {
-    for (const dec of model.decorators) {
-      const argContext = decoratorArgContext.get(dec.decorator.name ?? "");
+    for (let i = 0; i < model.decorators.length; i++) {
+      const dec = model.decorators[i];
+      const argContext = decoratorArgContext.get(dec.decorator.name);
       const options = argContext
         ? new GraphQLMutationOptions(argContext)
         : this.options;
-      for (const arg of dec.args) {
+
+      let argsChanged = false;
+      const newArgs = dec.args.map((arg) => {
         if (this.isMutatableType(arg.value)) {
           const mutation = this.engine.mutate(arg.value, options) as { mutatedType: Type };
-          arg.value = mutation.mutatedType;
-          arg.jsValue = mutation.mutatedType;
+          argsChanged = true;
+          return { ...arg, value: mutation.mutatedType, jsValue: mutation.mutatedType };
         }
+        return arg;
+      });
+
+      if (argsChanged) {
+        model.decorators[i] = { ...dec, args: newArgs };
       }
     }
   }
