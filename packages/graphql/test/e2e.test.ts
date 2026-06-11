@@ -525,6 +525,52 @@ describe("e2e: nullability combinations", () => {
   });
 });
 
+describe("e2e: nullable scalar does not emit built-in scalar declaration", () => {
+  it("does not emit scalar string for nullable string field", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Foo {
+          id: GraphQL.ID;
+          value: string | null;
+        }
+        @query op getFoo(id: GraphQL.ID): Foo;
+      }
+    `);
+    expect(result.graphQLOutput).not.toContain("scalar string");
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Foo {
+        id: ID!
+        value: String
+      }
+
+      type Query {
+        getFoo(id: ID!): Foo!
+      }"
+    `);
+  });
+
+  it("does not emit scalar int32 for nullable int field", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Bar {
+          count: int32 | null;
+        }
+        @query op getBar(): Bar;
+      }
+    `);
+    expect(result.graphQLOutput).not.toContain("scalar int32");
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Bar {
+        count: Int
+      }
+
+      type Query {
+        getBar: Bar!
+      }"
+    `);
+  });
+});
+
 describe("e2e: @operationFields", () => {
   it("renders operation as field with arguments on object type", async () => {
     const result = await emitSingleSchemaWithDiagnostics(`
