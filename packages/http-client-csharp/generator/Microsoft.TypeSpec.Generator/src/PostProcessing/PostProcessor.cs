@@ -22,6 +22,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private static readonly string[] _experimentalAttributeNames = ["Experimental", "ExperimentalAttribute"];
 
+        // CS8019: Unnecessary using directive.
+        private const string UnnecessaryUsingDirectiveDiagnosticId = "CS8019";
+
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
@@ -523,25 +526,24 @@ namespace Microsoft.TypeSpec.Generator
             return solution.GetProject(project.Id)!;
         }
 
-        private const string CodeAnalysisNamespace = "System.Diagnostics.CodeAnalysis";
-
         /// <summary>
-        /// Removes the <c>using System.Diagnostics.CodeAnalysis;</c> directive from the given documents when it is no
-        /// longer referenced. Internalizing a type strips its <c>[Experimental]</c> attribute, which can leave this
-        /// using directive unused.
+        /// Removes unnecessary using directives from the given documents. Internalizing a type strips its
+        /// <c>[Experimental]</c> attribute, which can leave a using directive (such as
+        /// <c>System.Diagnostics.CodeAnalysis</c>) unused. The C# compiler reports such directives via CS8019, so
+        /// this pass removes any using directive flagged by that diagnostic.
         /// </summary>
-        private async Task<Project> RemoveUnusedCodeAnalysisUsingsAsync(Project project, IEnumerable<DocumentId> documentIds)
+        private async Task<Project> RemoveUnusedUsingsAsync(Project project, IEnumerable<DocumentId> documentIds)
         {
             var solution = project.Solution;
             foreach (var documentId in documentIds)
             {
-                solution = await RemoveUnusedCodeAnalysisUsings(solution, documentId);
+                solution = await RemoveUnusedUsings(solution, documentId);
             }
 
             return solution.GetProject(project.Id)!;
         }
 
-        private async Task<Solution> RemoveUnusedCodeAnalysisUsings(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveUnusedUsings(Solution solution, DocumentId documentId)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
@@ -550,51 +552,20 @@ namespace Microsoft.TypeSpec.Generator
             if (root is not CompilationUnitSyntax cu || model == null)
                 return solution;
 
-            var unusedUsings = cu.Usings
-                .Where(u => u.Alias == null
-                    && u.StaticKeyword.IsKind(SyntaxKind.None)
-                    && u.Name?.ToString() == CodeAnalysisNamespace)
+            // CS8019: Unnecessary using directive.
+            var unusedUsings = model.GetDiagnostics()
+                .Where(d => d.Id == UnnecessaryUsingDirectiveDiagnosticId)
+                .Select(d => cu.FindNode(d.Location.SourceSpan).FirstAncestorOrSelf<UsingDirectiveSyntax>())
+                .OfType<UsingDirectiveSyntax>()
                 .ToList();
 
-            if (unusedUsings.Count == 0 || IsNamespaceReferenced(cu, model, CodeAnalysisNamespace))
+            if (unusedUsings.Count == 0)
                 return solution;
 
             cu = cu.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
             solution = solution.WithDocumentSyntaxRoot(documentId, cu);
 
             return solution;
-        }
-
-        /// <summary>
-        /// Determines whether any symbol declared in <paramref name="namespaceName"/> is referenced from a name syntax
-        /// in <paramref name="cu"/>, ignoring the using directives themselves.
-        /// </summary>
-        private static bool IsNamespaceReferenced(CompilationUnitSyntax cu, SemanticModel model, string namespaceName)
-        {
-            foreach (var name in cu.DescendantNodes().OfType<SimpleNameSyntax>())
-            {
-                // Skip names that are part of a using directive (e.g. the using being evaluated).
-                if (name.Ancestors().OfType<UsingDirectiveSyntax>().Any())
-                    continue;
-
-                var symbol = model.GetSymbolInfo(name).Symbol;
-                if (symbol == null)
-                    continue;
-
-                var containingNamespace = symbol switch
-                {
-                    INamespaceSymbol namespaceSymbol => namespaceSymbol.ToDisplayString(),
-                    ITypeSymbol typeSymbol => typeSymbol.ContainingNamespace?.ToDisplayString(),
-                    // For members (methods, properties, etc.) prefer the namespace of the declaring type,
-                    // falling back to the symbol's own containing namespace.
-                    _ => (symbol.ContainingType?.ContainingNamespace ?? symbol.ContainingNamespace)?.ToDisplayString()
-                };
-
-                if (containingNamespace == namespaceName)
-                    return true;
-            }
-
-            return false;
         }
 
         private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
