@@ -15,7 +15,7 @@ import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { deepClone, distinctArray } from "../utils/misc.js";
+import { distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
@@ -145,7 +145,7 @@ export function createCompileService({
       cwd: getDirectoryPath(path),
     });
     // we need to keep the optionsFromConfig unchanged which will be returned in CompileResult
-    const clone = deepClone(optionsFromConfig);
+    const clone = structuredClone(optionsFromConfig);
     const options: CompilerOptions = {
       ...clone,
       ...serverOptions,
@@ -296,14 +296,14 @@ export function createCompileService({
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
 
+    // JSON round-trip intentionally strips non-serializable values (functions) from the config
     const cached = await fileSystemCache.get(configPath);
-    const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
     if (cached?.data) {
-      return deepCopy(cached.data);
+      return JSON.parse(JSON.stringify(cached.data));
     }
 
     const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    return deepCopy(config);
+    return JSON.parse(JSON.stringify(config));
   }
 
   async function getScript(

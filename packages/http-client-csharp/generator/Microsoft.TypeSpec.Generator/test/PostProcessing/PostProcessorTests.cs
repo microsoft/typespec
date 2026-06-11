@@ -3,10 +3,12 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -288,6 +290,100 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
 
             Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
+
+        [Test]
+        public async Task RemovesExperimentalAttributeWhenInternalizing()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(ExperimentalAttribute).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string rootFileName = "ExperimentalInternalizeRoot.cs";
+            string[] modelFileNames =
+            [
+                "ReferencedModel.cs",
+                "UnreferencedModel.cs",
+                "UnreferencedWithOtherAttribute.cs",
+                "UnreferencedWithCombinedAttributes.cs"
+            ];
+            foreach (var fileName in modelFileNames)
+            {
+                project = project.AddDocument(
+                    fileName,
+                    File.ReadAllText(Path.Join(folder, fileName))).Project;
+            }
+            project = project.AddDocument(
+                rootFileName,
+                File.ReadAllText(Path.Join(folder, rootFileName))).Project;
+            var postProcessor = new TestPostProcessor(rootFileName);
+
+            var resultProject = await postProcessor.InternalizeAsync(project);
+
+            var referencedModel = await GetSingleClassAsync(resultProject, "ReferencedModel.cs", "ReferencedModel");
+            var unreferencedModel = await GetSingleClassAsync(resultProject, "UnreferencedModel.cs", "UnreferencedModel");
+            var unreferencedWithOther = await GetSingleClassAsync(resultProject, "UnreferencedWithOtherAttribute.cs", "UnreferencedWithOtherAttribute");
+            var unreferencedWithCombined = await GetSingleClassAsync(resultProject, "UnreferencedWithCombinedAttributes.cs", "UnreferencedWithCombinedAttributes");
+
+            // The referenced model stays public and keeps its [Experimental] attribute.
+            Assert.IsTrue(referencedModel.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)));
+            Assert.IsTrue(HasExperimentalAttribute(referencedModel), "Referenced (public) model should keep [Experimental].");
+
+            // The unreferenced model is internalized and loses its [Experimental] attribute.
+            Assert.IsTrue(unreferencedModel.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+            Assert.IsFalse(unreferencedModel.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)));
+            Assert.IsFalse(HasExperimentalAttribute(unreferencedModel), "Internalized model should not keep [Experimental].");
+
+            // The documentation comment on the internalized type is preserved.
+            Assert.IsTrue(
+                unreferencedModel.GetLeadingTrivia().ToFullString().Contains("not referenced"),
+                "Doc comment of the internalized type should be preserved.");
+
+            // An internalized type with another attribute in a separate list keeps the other attribute.
+            Assert.IsTrue(unreferencedWithOther.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+            Assert.IsFalse(HasExperimentalAttribute(unreferencedWithOther), "Internalized model should not keep [Experimental].");
+            Assert.IsTrue(HasAttribute(unreferencedWithOther, "Serializable"), "Other attributes should be preserved.");
+            Assert.IsTrue(
+                unreferencedWithOther.GetLeadingTrivia().ToFullString().Contains("must be preserved"),
+                "Doc comment should be preserved when only one of several attribute lists is removed.");
+
+            // An internalized type with the experimental attribute combined in a single list keeps the others.
+            Assert.IsTrue(unreferencedWithCombined.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+            Assert.IsFalse(HasExperimentalAttribute(unreferencedWithCombined), "Internalized model should not keep [Experimental].");
+            Assert.IsTrue(HasAttribute(unreferencedWithCombined, "Serializable"), "Other attributes in the same list should be preserved.");
+        }
+
+        private static async Task<ClassDeclarationSyntax> GetSingleClassAsync(Project project, string fileName, string className)
+        {
+            var doc = project.Documents.Single(d => d.Name == fileName);
+            var root = await doc.GetSyntaxRootAsync();
+            return ((CompilationUnitSyntax)root!)
+                .DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .Single(t => t.Identifier.Text == className);
+        }
+
+        private static bool HasAttribute(BaseTypeDeclarationSyntax type, string attributeName)
+            => type.AttributeLists
+                .SelectMany(list => list.Attributes)
+                .Any(attr => attr.Name.ToString() == attributeName);
+
+
+        private static bool HasExperimentalAttribute(BaseTypeDeclarationSyntax type)
+            => type.AttributeLists
+                .SelectMany(list => list.Attributes)
+                .Any(attr => attr.Name.ToString() is "Experimental" or "ExperimentalAttribute");
 
         private class TestPostProcessor : PostProcessor
         {
