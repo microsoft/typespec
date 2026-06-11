@@ -535,13 +535,13 @@ namespace Microsoft.TypeSpec.Generator
             var solution = project.Solution;
             foreach (var documentId in documentIds)
             {
-                solution = await RemoveUnusedCodeAnalysisUsing(solution, documentId);
+                solution = await RemoveUnusedCodeAnalysisUsings(solution, documentId);
             }
 
             return solution.GetProject(project.Id)!;
         }
 
-        private async Task<Solution> RemoveUnusedCodeAnalysisUsing(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveUnusedCodeAnalysisUsings(Solution solution, DocumentId documentId)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
@@ -585,6 +585,8 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     INamespaceSymbol namespaceSymbol => namespaceSymbol.ToDisplayString(),
                     ITypeSymbol typeSymbol => typeSymbol.ContainingNamespace?.ToDisplayString(),
+                    // For members (methods, properties, etc.) prefer the namespace of the declaring type,
+                    // falling back to the symbol's own containing namespace.
                     _ => (symbol.ContainingType?.ContainingNamespace ?? symbol.ContainingNamespace)?.ToDisplayString()
                 };
 
