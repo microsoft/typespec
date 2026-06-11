@@ -15,10 +15,10 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.AppendRaw(Keyword);
             if (Expression is not null)
             {
-                if (writer.UseExpressionPrecedence && Keyword is "checked" or "unchecked")
+                if (Keyword is "checked" or "unchecked")
                 {
                     writer.AppendRaw("(");
-                    Expression.Write(writer);
+                    Expression.WriteNested(writer);
                     writer.AppendRaw(")");
                 }
                 else

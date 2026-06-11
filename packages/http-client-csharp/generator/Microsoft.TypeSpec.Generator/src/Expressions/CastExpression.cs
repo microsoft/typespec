@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             // if the parenthesis are not needed, the roslyn reducer will remove it.
             writer.AppendRaw("(");
             writer.Append($"({Type})");
-            Inner.WriteInContext(writer, ExpressionPrecedence.Unary);
+            Inner.WriteNested(writer);
             writer.AppendRaw(")");
         }
     }

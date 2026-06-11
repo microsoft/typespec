@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         internal override void Write(CodeWriter writer)
         {
-            Inner.Write(writer);
+            Inner.WriteNested(writer);
             writer.AppendRaw("?");
         }
     }

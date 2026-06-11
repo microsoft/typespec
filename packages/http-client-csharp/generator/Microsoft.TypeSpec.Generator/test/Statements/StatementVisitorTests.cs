@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var updatedMethod = method.Accept(visitor);
             Assert.IsNotNull(updatedMethod);
             var actual = updatedMethod!.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("for (int index = 0; (index < 20); index++)\n{\n}\n", actual);
+            Assert.AreEqual("for (int index = 0; index < 20; index++)\n{\n}\n", actual);
         }
 
         [Test]

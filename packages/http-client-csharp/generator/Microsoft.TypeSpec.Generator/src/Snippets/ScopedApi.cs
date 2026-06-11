@@ -22,8 +22,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         private MethodBodyStatement? _terminated;
 
-        internal override ExpressionPrecedence Precedence => Original.Precedence;
-
         internal override void Write(CodeWriter writer)
         {
             Original.Write(writer);

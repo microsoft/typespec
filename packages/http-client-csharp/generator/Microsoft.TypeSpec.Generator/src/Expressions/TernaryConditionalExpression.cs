@@ -10,11 +10,11 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         internal override void Write(CodeWriter writer)
         {
-            Condition.Write(writer);
+            Condition.WriteNested(writer);
             writer.AppendRaw(" ? ");
-            Consequent.Write(writer);
+            Consequent.WriteNested(writer);
             writer.AppendRaw(" : ");
-            Alternative.Write(writer);
+            Alternative.WriteNested(writer);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         {
             if (Inner is not null)
             {
-                Inner.WriteInContext(writer, ExpressionPrecedence.Primary);
+                Inner.WriteNested(writer);
                 writer.AppendRaw(".");
             }
 

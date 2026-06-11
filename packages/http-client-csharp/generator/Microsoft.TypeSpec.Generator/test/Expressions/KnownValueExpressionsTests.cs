@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             using var writer = new CodeWriter();
             result.Write(writer);
 
-            Assert.AreEqual("(||)", writer.ToString(false));
+            Assert.AreEqual("||", writer.ToString(false));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             using var writer = new CodeWriter();
             result.Write(writer);
 
-            Assert.AreEqual("(&&)", writer.ToString(false));
+            Assert.AreEqual("&&", writer.ToString(false));
         }
 
         [TestCase(typeof(int))]

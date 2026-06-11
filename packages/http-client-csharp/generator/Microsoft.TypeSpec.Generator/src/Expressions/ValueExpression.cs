@@ -12,24 +12,6 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
-    internal enum ExpressionPrecedence
-    {
-        Assignment = 1,
-        NullCoalescing = 2,
-        ConditionalOr = 3,
-        ConditionalAnd = 4,
-        LogicalOr = 5,
-        LogicalXor = 6,
-        LogicalAnd = 7,
-        Equality = 8,
-        Relational = 9,
-        Shift = 10,
-        Additive = 11,
-        Multiplicative = 12,
-        Unary = 13,
-        Primary = 14
-    }
-
     /// <summary>
     /// Represents a single operator or operand, or a sequence of operators or operands.
     /// </summary>
@@ -40,20 +22,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         private protected ValueExpression() { }
 
-        internal virtual ExpressionPrecedence Precedence => ExpressionPrecedence.Primary;
-
         internal virtual void Write(CodeWriter writer) { }
 
-        internal void WriteInContext(CodeWriter writer, ExpressionPrecedence parentPrecedence, bool parenthesizeOnEqualPrecedence = false)
+        internal void WriteNested(CodeWriter writer)
         {
-            if (!writer.UseExpressionPrecedence)
-            {
-                Write(writer);
-                return;
-            }
-
-            var shouldParenthesize = Precedence < parentPrecedence ||
-                (parenthesizeOnEqualPrecedence && Precedence == parentPrecedence);
+            var expression = this is ScopedApi scopedApi ? scopedApi.Original : this;
+            var shouldParenthesize = expression is BinaryOperatorExpression or AssignmentExpression or TernaryConditionalExpression;
 
             if (shouldParenthesize)
             {
