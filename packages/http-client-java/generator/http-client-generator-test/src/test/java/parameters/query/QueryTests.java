@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class QueryTests {
 
-    private final QueryClient client = new QueryClientBuilder().buildClient();
+    private final ConstantClient client = new QueryClientBuilder().buildConstantClient();
 
     @Test
     public void testConstant() {
