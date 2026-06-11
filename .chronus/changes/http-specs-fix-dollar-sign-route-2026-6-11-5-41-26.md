@@ -1,5 +1,5 @@
 ---
-changeKind: internal
+changeKind: fix
 packages:
   - "@typespec/http-specs"
 ---
