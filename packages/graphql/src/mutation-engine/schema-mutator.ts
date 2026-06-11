@@ -80,6 +80,9 @@ export function mutateSchema(
       if (mutation.mutatedType.kind === "Model" && isArrayModelType(mutation.mutatedType)) {
         return;
       }
+      if ((mutation.mutatedType as Type).kind === "Scalar") {
+        return;
+      }
       mutatedTypes.push(mutation.mutatedType);
       for (const wrapper of mutation.wrapperModels) {
         mutatedTypes.push(wrapper);
