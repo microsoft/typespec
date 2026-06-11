@@ -7,10 +7,16 @@ import org.junit.jupiter.api.Test;
 
 public class QueryTests {
 
-    private final ConstantClient client = new QueryClientBuilder().buildConstantClient();
+    private final ConstantClient constantClient = new QueryClientBuilder().buildConstantClient();
+    private final SpecialCharClient specialCharClient = new QueryClientBuilder().buildSpecialCharClient();
 
     @Test
     public void testConstant() {
-        client.post();
+        constantClient.post();
+    }
+
+    @Test
+    public void testDollarSign() {
+        specialCharClient.dollarSign("status eq 'active'");
     }
 }
