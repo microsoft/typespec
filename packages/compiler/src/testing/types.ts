@@ -220,6 +220,7 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 // #endregion
 
 // #region Legacy Test host
+/** @deprecated Use {@link Tester} */
 export interface TestHost extends Pick<
   TestFileSystem,
   | "addTypeSpecFile"
@@ -243,12 +244,14 @@ export interface TestHost extends Pick<
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestFiles {
   realDir: string;
   pattern: string;
   virtualPath: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibraryInit {
   name: string;
   packageRoot: string;
@@ -263,16 +266,19 @@ export interface TypeSpecTestLibraryInit {
   jsFileFolder?: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibrary {
   name: string;
   packageRoot: string;
   files: TestFiles[];
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestHostConfig {
   libraries?: TypeSpecTestLibrary[];
 }
 
+/** @deprecated Use {@link Tester} */
 export class TestHostError extends Error {
   constructor(
     message: string,
@@ -282,6 +288,7 @@ export class TestHostError extends Error {
   }
 }
 
+/** @deprecated Use {@link TesterInstance} */
 export interface BasicTestRunner {
   readonly program: Program;
   readonly fs: Map<string, string>;

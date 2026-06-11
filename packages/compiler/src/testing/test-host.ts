@@ -11,7 +11,7 @@ import { addTestLib, StandardTestLibrary } from "./test-compiler-host.js";
 import { createTestWrapper, resolveVirtualPath } from "./test-utils.js";
 import { BasicTestRunner, TestHost, TestHostConfig, TypeSpecTestLibrary } from "./types.js";
 
-/** Use {@link createTester} */
+/** @deprecated Use {@link createTester} */
 export async function createTestHost(config: TestHostConfig = {}): Promise<TestHost> {
   const testHost = await createTestHostInternal();
   await testHost.addTypeSpecLibrary(StandardTestLibrary);
@@ -23,7 +23,7 @@ export async function createTestHost(config: TestHostConfig = {}): Promise<TestH
   return testHost;
 }
 
-/** Use {@link createTester} */
+/** @deprecated Use {@link createTester} */
 export async function createTestRunner(host?: TestHost): Promise<BasicTestRunner> {
   const testHost = host ?? (await createTestHost());
   return createTestWrapper(testHost);
