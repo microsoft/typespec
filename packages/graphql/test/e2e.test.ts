@@ -399,10 +399,6 @@ describe("e2e: interfaces", () => {
         name: String!
       }
 
-      interface Animal {
-        name: String!
-      }
-
       type Cat implements AnimalInterface {
         name: String!
         breed: String!

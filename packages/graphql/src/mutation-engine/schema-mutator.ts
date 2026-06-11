@@ -12,7 +12,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { setInputType } from "../lib/input-type.js";
-import { isInterfaceOnly, isInterface } from "../lib/interface.js";
+import { isInterface } from "../lib/interface.js";
 import { reportDiagnostic } from "../lib.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
@@ -47,13 +47,12 @@ export function mutateSchema(
       const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
       const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
       const isInterfaceModel = isInterface(program, node);
-      const isExclusive = isInterfaceModel && isInterfaceOnly(program, node);
 
       if (isInterfaceModel) {
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Interface);
         mutatedTypes.push(mutation.mutatedType);
       }
-      if (!isExclusive && (usedAsOutput || !usage)) {
+      if (!isInterfaceModel && (usedAsOutput || !usage)) {
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
         mutatedTypes.push(mutation.mutatedType);
       }
