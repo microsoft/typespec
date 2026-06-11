@@ -4,8 +4,6 @@ packages:
   - "@typespec/compiler"
   - "@typespec/http"
   - "@typespec/rest"
-  - "@typespec/openapi"
-  - "@typespec/openapi3"
   - "@typespec/versioning"
   - "@typespec/json-schema"
   - "@typespec/xml"
