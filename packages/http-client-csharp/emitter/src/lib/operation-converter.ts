@@ -196,9 +196,6 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
-  // Convenience methods are not currently supported for multipart content types other than
-  // multipart/form-data (for example multipart/mixed). Generating one would produce incorrect
-  // code, so disable convenience method generation and report a diagnostic.
   const requestMediaTypes = getRequestMediaTypes(method.operation);
   if (generateConvenience && isUnsupportedMultipart(requestMediaTypes)) {
     diagnostics.add(
@@ -769,13 +766,11 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
 }
 
 function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
-  if (requestMediaTypes === undefined) {
-    return false;
-  }
-  const mediaTypes = requestMediaTypes.map((mediaType) => mediaType.toLowerCase());
   return (
-    mediaTypes.some((mediaType) => mediaType.startsWith("multipart/")) &&
-    !mediaTypes.some((mediaType) => mediaType === "multipart/form-data")
+    requestMediaTypes?.some((mediaType) => {
+      const normalized = mediaType.toLowerCase();
+      return normalized.startsWith("multipart/") && normalized !== "multipart/form-data";
+    }) ?? false
   );
 }
 
