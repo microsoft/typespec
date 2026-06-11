@@ -49,7 +49,7 @@ function buildSchema(
   const program = context.program;
   const omitUnreachable = context.options["omit-unreachable-types"] ?? false;
 
-  const typeUsage = resolveTypeUsage(schema, omitUnreachable);
+  const typeUsage = resolveTypeUsage(program, schema, omitUnreachable);
   const engine = createGraphQLMutationEngine(program);
   const typeGraph = mutateSchema(program, engine, schema, typeUsage);
 

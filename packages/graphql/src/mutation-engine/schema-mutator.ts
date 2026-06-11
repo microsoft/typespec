@@ -15,6 +15,7 @@ import { setInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
 import { getOperationFields } from "../lib/operation-fields.js";
 import { reportDiagnostic } from "../lib.js";
+import { createVisibilityFilters } from "../lib/visibility.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import { GraphQLTypeContext } from "./options.js";
@@ -38,6 +39,7 @@ export function mutateSchema(
 ): TypeGraph {
   const tk = $(program);
   const mutatedTypes: Type[] = [];
+  const filters = createVisibilityFilters(program);
 
   navigateTypesInNamespace(schema, {
     model: (node: Model) => {
@@ -54,7 +56,7 @@ export function mutateSchema(
         mutatedTypes.push(mutation.mutatedType);
       }
       if (!isInterfaceModel && (usedAsOutput || !usage)) {
-        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output, filters.output);
         mutatedTypes.push(mutation.mutatedType);
       }
       if (usedAsInput) {
@@ -65,9 +67,33 @@ export function mutateSchema(
             target: node,
           });
         }
-        const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
-        setInputType(mutation.mutatedType);
-        mutatedTypes.push(mutation.mutatedType);
+        const hasVariance = typeUsage.hasInputOperationVariance(node);
+        const usedByQuery = usage?.has(GraphQLTypeUsage.InputQuery) ?? false;
+        const usedByMutation = usage?.has(GraphQLTypeUsage.InputMutation) ?? false;
+
+        if (hasVariance) {
+          // Different property sets per operation kind — emit both with qualified names.
+          const qm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query", "Query");
+          const mm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation", "Mutation");
+          setInputType(qm.mutatedType);
+          setInputType(mm.mutatedType);
+          mutatedTypes.push(qm.mutatedType);
+          mutatedTypes.push(mm.mutatedType);
+        } else {
+          // Same property sets — one input type, but create cache entries for each
+          // operation kind so operations can resolve their references.
+          const emitted = usedByMutation
+            ? engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation")
+            : engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query");
+          setInputType(emitted.mutatedType);
+          mutatedTypes.push(emitted.mutatedType);
+
+          if (usedByQuery && usedByMutation) {
+            setInputType(
+              engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query").mutatedType,
+            );
+          }
+        }
       }
     },
     enum: (node: Enum) => {

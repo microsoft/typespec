@@ -21,7 +21,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -36,7 +36,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -53,7 +53,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -71,7 +71,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -88,7 +88,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, true);
+    const typeUsage = resolveTypeUsage(tester.program, ns, true);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -106,7 +106,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -124,7 +124,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -142,7 +142,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -161,7 +161,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -180,7 +180,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -199,7 +199,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, true);
+    const typeUsage = resolveTypeUsage(tester.program, ns, true);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -219,7 +219,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -247,7 +247,7 @@ describe("mutateSchema", () => {
       (d) => d.decorator.name === "$compose",
     )?.args[0];
 
-    const typeUsage = resolveTypeUsage(ns, true);
+    const typeUsage = resolveTypeUsage(tester.program, ns, true);
     const engine = createGraphQLMutationEngine(tester.program);
     mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -264,7 +264,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, true);
+    const typeUsage = resolveTypeUsage(tester.program, ns, true);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -291,7 +291,7 @@ describe("mutateSchema", () => {
     // BookInput declared explicitly → Output mutation → "BookInput"
     // This should produce a collision diagnostic
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     mutateSchema(tester.program, engine, ns, typeUsage);
 
@@ -310,7 +310,7 @@ describe("mutateSchema", () => {
     );
 
     const ns = tester.program.getGlobalNamespaceType();
-    const typeUsage = resolveTypeUsage(ns, false);
+    const typeUsage = resolveTypeUsage(tester.program, ns, false);
     const engine = createGraphQLMutationEngine(tester.program);
     const typeGraph = mutateSchema(tester.program, engine, ns, typeUsage);
 

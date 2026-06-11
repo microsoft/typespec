@@ -1,10 +1,14 @@
 import {
   isArrayModelType,
   navigateTypesInNamespace,
+  type Model,
   type Namespace,
   type Operation,
+  type Program,
   type Type,
 } from "@typespec/compiler";
+import { getOperationKind, type GraphQLOperationKind } from "./lib/operation-kind.js";
+import { createVisibilityFilters, isPropertyVisible } from "./lib/visibility.js";
 
 /**
  * GraphQL-specific flags for type usage tracking (input vs output).
@@ -12,41 +16,56 @@ import {
 export enum GraphQLTypeUsage {
   /** Type is used as an input (operation parameter or nested within one) */
   Input = "Input",
+  /** Type is used as an input to a @query or @subscription operation */
+  InputQuery = "InputQuery",
+  /** Type is used as an input to a @mutation operation */
+  InputMutation = "InputMutation",
   /** Type is used as an output (operation return type or nested within one) */
   Output = "Output",
 }
 
 export interface TypeUsageResolver {
-  /** Get the set of usage flags for a type, or undefined if never referenced by an operation */
   getUsage(type: Type): Set<GraphQLTypeUsage> | undefined;
-  /** Returns true if the type should not be included in the schema */
   isUnreachable(type: Type): boolean;
+  /**
+   * Returns true if the model is used by both @query and @mutation operations
+   * AND the visibility filters produce different property sets for each context.
+   * When true, two separate input types are needed (e.g., UserQueryInput + UserMutationInput).
+   */
+  hasInputOperationVariance(type: Type): boolean;
 }
 
-/**
- * Walk all operations in a namespace tree to determine type reachability and
- * input/output classification.
- *
- * Produces two independent results:
- * - **Reachability**: whether a type should be included in the emitted schema.
- * - **Usage**: whether a type is used as Input, Output, or both.
- *
- * When `omitUnreachableTypes` is false, all types declared in the namespace
- * are considered reachable regardless of whether an operation references them.
- */
 export function resolveTypeUsage(
+  program: Program,
   root: Namespace,
   omitUnreachableTypes: boolean,
 ): TypeUsageResolver {
-  // Two independent concerns tracked in a single walk:
-  //   reachableTypes — should this type appear in the schema?
-  //   usages         — is this type used as Input, Output, or both?
   const reachableTypes = new Set<Type>();
   const usages = new Map<Type, Set<GraphQLTypeUsage>>();
+  const inputOperationVariance = new Set<Type>();
 
-  addUsagesInNamespace(root, reachableTypes, usages);
+  addUsagesInNamespace(program, root, reachableTypes, usages);
 
-  // When all declared types should be emitted, mark them reachable.
+  // Pre-compute which models need split input types
+  const filters = createVisibilityFilters(program);
+  for (const [type, usage] of usages) {
+    if (
+      type.kind === "Model" &&
+      usage.has(GraphQLTypeUsage.InputQuery) &&
+      usage.has(GraphQLTypeUsage.InputMutation)
+    ) {
+      const queryVisible = new Set<string>();
+      const mutationVisible = new Set<string>();
+      for (const prop of type.properties.values()) {
+        if (isPropertyVisible(program, prop, filters.query)) queryVisible.add(prop.name);
+        if (isPropertyVisible(program, prop, filters.mutation)) mutationVisible.add(prop.name);
+      }
+      if (queryVisible.size !== mutationVisible.size || ![...queryVisible].every(k => mutationVisible.has(k))) {
+        inputOperationVariance.add(type);
+      }
+    }
+  }
+
   if (!omitUnreachableTypes) {
     const markReachable = (type: Type) => {
       reachableTypes.add(type);
@@ -62,6 +81,7 @@ export function resolveTypeUsage(
   return {
     getUsage: (type: Type) => usages.get(type),
     isUnreachable: (type: Type) => !reachableTypes.has(type),
+    hasInputOperationVariance: (type: Type) => inputOperationVariance.has(type),
   };
 }
 
@@ -77,46 +97,45 @@ function trackUsage(
   usages.set(type, existing);
 }
 
-/**
- * Recursively walk a namespace and all sub-namespaces, tracking type usage
- * from operations.
- */
 function addUsagesInNamespace(
+  program: Program,
   namespace: Namespace,
   reachableTypes: Set<Type>,
   usages: Map<Type, Set<GraphQLTypeUsage>>,
 ): void {
   for (const subNamespace of namespace.namespaces.values()) {
-    addUsagesInNamespace(subNamespace, reachableTypes, usages);
+    addUsagesInNamespace(program, subNamespace, reachableTypes, usages);
   }
   for (const iface of namespace.interfaces.values()) {
     for (const operation of iface.operations.values()) {
-      addUsagesFromOperation(operation, reachableTypes, usages);
+      addUsagesFromOperation(program, operation, reachableTypes, usages);
     }
   }
   for (const operation of namespace.operations.values()) {
-    addUsagesFromOperation(operation, reachableTypes, usages);
+    addUsagesFromOperation(program, operation, reachableTypes, usages);
   }
 }
 
-/**
- * For a single operation, mark parameter types as Input and return type as Output.
- */
+function inputUsageForKind(kind: GraphQLOperationKind | undefined): GraphQLTypeUsage {
+  if (kind === "Query" || kind === "Subscription") return GraphQLTypeUsage.InputQuery;
+  return GraphQLTypeUsage.InputMutation;
+}
+
 function addUsagesFromOperation(
+  program: Program,
   operation: Operation,
   reachableTypes: Set<Type>,
   usages: Map<Type, Set<GraphQLTypeUsage>>,
 ): void {
+  const kind = getOperationKind(program, operation);
+  const inputUsage = inputUsageForKind(kind);
   for (const param of operation.parameters.properties.values()) {
     navigateReferencedTypes(param.type, GraphQLTypeUsage.Input, reachableTypes, usages);
+    navigateReferencedTypes(param.type, inputUsage, reachableTypes, usages);
   }
   navigateReferencedTypes(operation.returnType, GraphQLTypeUsage.Output, reachableTypes, usages);
 }
 
-/**
- * Recursively walk a type graph, tracking reachability and usage classification.
- * Handles circular references via a visited set.
- */
 function navigateReferencedTypes(
   type: Type,
   usage: GraphQLTypeUsage,
@@ -134,9 +153,6 @@ function navigateReferencedTypes(
           navigateReferencedTypes(type.indexer.value, usage, reachableTypes, usages, visited);
         }
       } else {
-        // Note: Record<K, V> models land here but their indexer value type
-        // is not navigated. That's intentional — we don't support Record
-        // types in GraphQL.
         trackUsage(reachableTypes, usages, type, usage);
         for (const prop of type.properties.values()) {
           navigateReferencedTypes(prop.type, usage, reachableTypes, usages, visited);

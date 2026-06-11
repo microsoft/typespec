@@ -788,3 +788,188 @@ describe("e2e: TypeSpec interface keyword prefixes operations", () => {
     `);
   });
 });
+
+describe("e2e: visibility filtering", () => {
+  it("excludes read-only properties from input type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Board {
+          @visibility(Lifecycle.Read)
+          id: string;
+
+          @visibility(Lifecycle.Read)
+          createdAt: string;
+
+          name: string;
+          description: string;
+        }
+        @query op getBoard(id: string): Board;
+        @mutation op createBoard(input: Board): Board;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Board {
+        id: String!
+        createdAt: String!
+        name: String!
+        description: String!
+      }
+
+      input BoardInput {
+        name: String!
+        description: String!
+      }
+
+      type Query {
+        getBoard(id: String!): Board!
+      }
+
+      type Mutation {
+        createBoard(input: BoardInput!): Board!
+      }"
+    `);
+  });
+
+  it("excludes create-only properties from output type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model User {
+          @visibility(Lifecycle.Read)
+          id: string;
+
+          @visibility(Lifecycle.Create)
+          password: string;
+
+          name: string;
+        }
+        @query op getUser(id: string): User;
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type User {
+        id: String!
+        name: String!
+      }
+
+      input UserInput {
+        password: String!
+        name: String!
+      }
+
+      type Query {
+        getUser(id: String!): User!
+      }
+
+      type Mutation {
+        createUser(input: UserInput!): User!
+      }"
+    `);
+  });
+
+  it("includes all properties when no visibility decorator is set", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Item {
+          name: string;
+          count: int32;
+        }
+        @query op getItem(): Item;
+        @mutation op createItem(input: Item): Item;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Item {
+        name: String!
+        count: Int!
+      }
+
+      input ItemInput {
+        name: String!
+        count: Int!
+      }
+
+      type Query {
+        getItem: Item!
+      }
+
+      type Mutation {
+        createItem(input: ItemInput!): Item!
+      }"
+    `);
+  });
+
+  it("splits input types when query and mutation have different visible properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model User {
+          @visibility(Lifecycle.Read, Lifecycle.Query)
+          id: string;
+
+          @visibility(Lifecycle.Create, Lifecycle.Update)
+          password: string;
+
+          name: string;
+        }
+        @query op getUser(filter: User): User;
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type User {
+        id: String!
+        name: String!
+      }
+
+      input UserQueryInput {
+        id: String!
+        name: String!
+      }
+
+      input UserMutationInput {
+        password: String!
+        name: String!
+      }
+
+      type Query {
+        getUser(filter: UserQueryInput!): User!
+      }
+
+      type Mutation {
+        createUser(input: UserMutationInput!): User!
+      }"
+    `);
+  });
+
+  it("does not split input types when visibility produces same properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Item {
+          name: string;
+          count: int32;
+        }
+        @query op searchItems(filter: Item): Item[];
+        @mutation op createItem(input: Item): Item;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Item {
+        name: String!
+        count: Int!
+      }
+
+      input ItemInput {
+        name: String!
+        count: Int!
+      }
+
+      type Query {
+        searchItems(filter: ItemInput!): [Item!]!
+      }
+
+      type Mutation {
+        createItem(input: ItemInput!): Item!
+      }"
+    `);
+  });
+});
