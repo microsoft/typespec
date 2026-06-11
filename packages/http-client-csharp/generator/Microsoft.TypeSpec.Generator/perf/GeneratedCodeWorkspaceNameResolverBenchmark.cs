@@ -13,7 +13,6 @@ using Microsoft.TypeSpec.Generator.Tests.Common;
 
 namespace Microsoft.TypeSpec.Generator.Perf
 {
-    [InProcess]
     public class GeneratedCodeWorkspaceNameResolverBenchmark
     {
         private TypeProvider[] _providers = [];
