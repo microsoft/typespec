@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -105,6 +106,9 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
+
+        private bool? _isMultipart;
+        public bool IsMultipart => _isMultipart ??= RequestMediaTypes is not null && RequestMediaTypes.Any(mediaType => mediaType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase));
 
         public void Update(
             string? name = null,

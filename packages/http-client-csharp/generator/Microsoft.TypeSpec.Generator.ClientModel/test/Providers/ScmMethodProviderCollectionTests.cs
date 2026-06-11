@@ -2139,5 +2139,96 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.IsFalse(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             }
         }
+
+        [Test]
+        public void MultipartMixed_DoesNotGenerateConvenienceMethods()
+        {
+            var bodyModel = InputFactory.Model(
+                "MixedRequest",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: true,
+                contentTypes: ["multipart/mixed"],
+                defaultContentType: "multipart/mixed");
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                httpMethod: "POST",
+                parameters: [InputFactory.ContentTypeParameter("multipart/mixed"), bodyParam],
+                requestMediaTypes: ["multipart/mixed"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [bodyModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            // Only protocol methods should be generated for multipart/mixed; convenience methods are skipped.
+            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Protocol).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
+            Assert.IsEmpty(convenienceMethods);
+        }
+
+        [Test]
+        public void MultipartFormData_GeneratesConvenienceMethods()
+        {
+            var bodyModel = InputFactory.Model(
+                "FormDataRequest",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties:
+                [
+                    InputFactory.Property(
+                        "file",
+                        InputFactory.FileType(),
+                        isRequired: true,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            multipart: InputFactory.Serialization.Multipart("file", isFilePart: true))),
+                ]);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: true,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                httpMethod: "POST",
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyParam],
+                requestMediaTypes: ["multipart/form-data"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [bodyModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            // multipart/form-data is supported, so convenience methods are still generated.
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+        }
     }
 }

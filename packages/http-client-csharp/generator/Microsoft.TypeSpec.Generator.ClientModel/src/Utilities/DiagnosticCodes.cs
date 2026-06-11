@@ -10,5 +10,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         public const string NoMatchingItemsProperty = "no-matching-items-property";
         public const string UnsupportedSerialization = "unsupported-serialization";
         public const string UnsupportedFrameworkType = "unsupported-framework-type";
+        public const string UnsupportedMultipartConvenienceMethod = "unsupported-multipart-convenience-method";
     }
 }
