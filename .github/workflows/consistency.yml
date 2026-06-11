@@ -100,9 +100,6 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm --filter="@typespec/eslint-plugin..." run  build
-        name: Build prettier plugin
-
       - run: pnpm run lint
         name: Lint
 
