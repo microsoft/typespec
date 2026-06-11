@@ -769,10 +769,13 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
 }
 
 function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
+  if (requestMediaTypes === undefined) {
+    return false;
+  }
+  const mediaTypes = requestMediaTypes.map((mediaType) => mediaType.toLowerCase());
   return (
-    requestMediaTypes !== undefined &&
-    requestMediaTypes.some((mediaType) => mediaType.toLowerCase().startsWith("multipart/")) &&
-    !requestMediaTypes.some((mediaType) => mediaType.toLowerCase() === "multipart/form-data")
+    mediaTypes.some((mediaType) => mediaType.startsWith("multipart/")) &&
+    !mediaTypes.some((mediaType) => mediaType === "multipart/form-data")
   );
 }
 
