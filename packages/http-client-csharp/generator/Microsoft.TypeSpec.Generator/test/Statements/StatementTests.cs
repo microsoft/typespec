@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var condition = True;
             var ifStatement = new IfStatement(condition);
 
-            using var writer = new CodeWriter();
+            using var writer = new CodeWriter(resolveTypeNames: true);
             ifStatement.Write(writer);
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
-            using var writer = new CodeWriter();
+            using var writer = new CodeWriter(resolveTypeNames: true);
             ifElseStatement.Write(writer);
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
@@ -184,6 +184,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             ifElseStatement.Write(writer);
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
+        public void CompoundAssignmentExpressionStatementIsNotParenthesized()
+        {
+            var x = new VariableExpression(typeof(int), "x");
+            var statement = x.AddAndAssign(Literal(1));
+
+            using var writer = new CodeWriter(resolveTypeNames: true);
+            statement.Write(writer);
+
+            Assert.AreEqual("x += 1;\n", writer.ToString(false));
         }
 
         [Test]

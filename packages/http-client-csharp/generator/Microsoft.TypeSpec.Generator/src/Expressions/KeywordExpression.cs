@@ -15,8 +15,17 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.AppendRaw(Keyword);
             if (Expression is not null)
             {
-                writer.AppendRaw(" ");
-                Expression.Write(writer);
+                if (writer.UseExpressionPrecedence && Keyword is "checked" or "unchecked")
+                {
+                    writer.AppendRaw("(");
+                    Expression.Write(writer);
+                    writer.AppendRaw(")");
+                }
+                else
+                {
+                    writer.AppendRaw(" ");
+                    Expression.Write(writer);
+                }
             }
         }
 

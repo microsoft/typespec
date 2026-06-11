@@ -48,6 +48,8 @@ namespace Microsoft.TypeSpec.Generator
             _atBeginningOfLine = true;
         }
 
+        internal bool UseExpressionPrecedence => _resolveTypeNames;
+
         internal void CollectTypeReferences(string @namespace, Action<CodeWriter> write)
         {
             if (!_resolveTypeNames)

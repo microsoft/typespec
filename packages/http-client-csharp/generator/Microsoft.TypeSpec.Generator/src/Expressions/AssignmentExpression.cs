@@ -15,9 +15,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         public ValueExpression Variable { get; private set; } = Variable;
         public ValueExpression Value { get; private set; } = Value;
+
+        internal override ExpressionPrecedence Precedence => ExpressionPrecedence.Assignment;
+
         internal override void Write(CodeWriter writer)
         {
-            Variable.Write(writer);
+            Variable.WriteInContext(writer, Precedence);
             if (UseNullCoalesce)
             {
                 writer.Append($" ??= ");
@@ -26,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             {
                 writer.Append($" = ");
             }
-            Value.Write(writer);
+            Value.WriteInContext(writer, Precedence);
         }
 
         private MethodBodyStatement? _terminated;
