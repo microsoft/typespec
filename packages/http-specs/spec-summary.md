@@ -1552,7 +1552,7 @@ Expect to handle a constant value for query and mock api returns nothing
 
 ### Parameters_Query_SpecialChar_dollarSign
 
-- Endpoint: `get /parameters/query/special-char/dollarSign`
+- Endpoint: `get /parameters/query/special-char/dollar-sign`
 
 Send a request with a dollar-sign prefixed`$filter` query parameter.
 
