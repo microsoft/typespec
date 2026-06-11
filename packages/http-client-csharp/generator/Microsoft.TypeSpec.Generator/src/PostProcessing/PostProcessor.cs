@@ -20,8 +20,6 @@ namespace Microsoft.TypeSpec.Generator
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
-        private static readonly string[] _experimentalAttributeNames = ["Experimental", "ExperimentalAttribute"];
-
         // CS8019: Unnecessary using directive.
         private const string UnnecessaryUsingDirectiveDiagnosticId = "CS8019";
 
@@ -364,87 +362,12 @@ namespace Microsoft.TypeSpec.Generator
                 $"Internalizing unreferenced public type '{declarationNode.Identifier.Text}'.");
 
             var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
-            // The [Experimental] attribute is a public-API stability signal that is meaningless on a type that is
-            // being internalized, so strip it to avoid emitting it (and its use-site diagnostics) on internal types.
-            newNode = RemoveExperimentalAttribute(newNode, declarationNode.Identifier.Text);
             var tree = declarationNode.SyntaxTree;
             var document = project.GetDocument(documentId)!;
             var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
                 .WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(newRoot);
             return document.Project;
-        }
-
-        /// <summary>
-        /// Removes any <c>[Experimental]</c> (<see cref="System.Diagnostics.CodeAnalysis.ExperimentalAttribute"/>)
-        /// attribute from <paramref name="declarationNode"/>. The declaration's leading trivia (such as documentation
-        /// comments and indentation) is re-attached to the resulting first token so that the surrounding formatting and
-        /// any documentation comment are preserved even when the attribute that carried them is removed.
-        /// </summary>
-        private static BaseTypeDeclarationSyntax RemoveExperimentalAttribute(
-            BaseTypeDeclarationSyntax declarationNode,
-            string typeName)
-        {
-            if (declarationNode.AttributeLists.Count == 0)
-            {
-                return declarationNode;
-            }
-
-            var newAttributeLists = new List<AttributeListSyntax>();
-            bool removed = false;
-
-            foreach (var attributeList in declarationNode.AttributeLists)
-            {
-                var keptAttributes = attributeList.Attributes
-                    .Where(attribute => !IsExperimentalAttribute(attribute))
-                    .ToList();
-
-                if (keptAttributes.Count == attributeList.Attributes.Count)
-                {
-                    // Nothing removed from this list.
-                    newAttributeLists.Add(attributeList);
-                }
-                else if (keptAttributes.Count > 0)
-                {
-                    // Keep the remaining (non-experimental) attributes in this list.
-                    removed = true;
-                    newAttributeLists.Add(attributeList.WithAttributes(SyntaxFactory.SeparatedList(keptAttributes)));
-                }
-                else
-                {
-                    // The entire list only contained experimental attributes and is dropped.
-                    removed = true;
-                }
-            }
-
-            if (!removed)
-            {
-                return declarationNode;
-            }
-
-            CodeModelGenerator.Instance.Emitter.Debug(
-                $"Removed [Experimental] attribute from '{typeName}' while internalizing it.");
-
-            // Preserve the original leading trivia (e.g. documentation comments and indentation) by re-attaching it to
-            // whatever token now leads the declaration. This keeps the doc comment even when it was attached to the
-            // attribute list that was removed.
-            var originalLeadingTrivia = declarationNode.GetLeadingTrivia();
-            var newNode = declarationNode.WithAttributeLists(SyntaxFactory.List(newAttributeLists));
-            var firstToken = newNode.GetFirstToken();
-
-            return newNode.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(originalLeadingTrivia));
-        }
-
-        private static bool IsExperimentalAttribute(AttributeSyntax attribute)
-        {
-            var name = attribute.Name switch
-            {
-                QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
-                IdentifierNameSyntax identifier => identifier.Identifier.Text,
-                _ => attribute.Name.ToString()
-            };
-
-            return Array.IndexOf(_experimentalAttributeNames, name) >= 0;
         }
 
         private async Task<Project> RemoveModelsAsync(Project project,
