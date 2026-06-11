@@ -97,13 +97,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     asyncProtocol,
                 };
 
-                // Skip a convenience method when the protocol method it calls no longer exists.
-                if (ProtocolMethodExists(syncProtocol))
+                // Skip a convenience method when the protocol method it calls no longer exists. Paging
+                // convenience methods instantiate the collection result directly instead of calling the
+                // protocol method, so they are always generated (along with their paging helpers).
+                if (_pagingServiceMethod != null || ProtocolMethodExists(syncProtocol))
                 {
                     methods.Add(BuildConvenienceMethod(syncProtocol, false));
                 }
 
-                if (ProtocolMethodExists(asyncProtocol))
+                if (_pagingServiceMethod != null || ProtocolMethodExists(asyncProtocol))
                 {
                     methods.Add(BuildConvenienceMethod(asyncProtocol, true));
                 }

@@ -263,6 +263,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsTrue(customMethods.All(m => m.Signature.Parameters.Count == 2));
         }
 
+        // Validates that when a paging protocol method is suppressed via [CodeGenSuppress], the paging
+        // helpers (collection result definitions) are still generated so that custom code can reference
+        // them. Unlike non-paging convenience methods, paging convenience methods instantiate the
+        // collection result directly instead of calling the protocol method, so they are always generated.
+        [Test]
+        public async Task SuppressedPagingProtocolMethodKeepsPagingHelpers()
+        {
+            var inputModel = InputFactory.Model("item", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property("items", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                    ]));
+            var inputOperation = InputFactory.Operation("GetItems", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("GetItems", inputOperation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = (ClientProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ClientProvider);
+
+            // The generated protocol methods (taking RequestOptions) are suppressed.
+            var generatedProtocolMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "GetItems" || m.Signature.Name == "GetItemsAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))))
+                .ToList();
+            Assert.AreEqual(0, generatedProtocolMethods.Count);
+
+            // The paging convenience methods (taking a CancellationToken) are still generated because they
+            // instantiate the collection result directly rather than calling the suppressed protocol method.
+            var convenienceMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "GetItems" || m.Signature.Name == "GetItemsAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))))
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            // The paging helpers (collection result definitions) are still emitted so that the custom code
+            // referencing them continues to compile.
+            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders
+                .OfType<CollectionResultDefinition>()
+                .Select(t => t.Name)
+                .ToList();
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResultOfT");
+        }
+
         // Validates that a method with a struct parameter can be replaced
         [TestCase(true)]
         [TestCase(false)]
