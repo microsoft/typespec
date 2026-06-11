@@ -165,14 +165,17 @@ namespace Microsoft.TypeSpec.Generator
             {
                 CodeModelGenerator.Instance.Emitter.Info(
                     $"Internalized {nodesToInternalize.Count} unreferenced public type(s).");
-
-                var internalizedDocumentIds = nodesToInternalize.Values.ToHashSet();
-                project = await RemoveUnusedUsingsAsync(project, internalizedDocumentIds);
             }
 
             var modelNamesToRemove =
                 nodesToInternalize.Keys.Select(item => item.Identifier.Text);
             project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+
+            if (nodesToInternalize.Count > 0)
+            {
+                var internalizedDocumentIds = nodesToInternalize.Values.ToHashSet();
+                project = await RemoveUnusedUsingsAsync(project, internalizedDocumentIds);
+            }
 
             return project;
         }
@@ -538,6 +541,14 @@ namespace Microsoft.TypeSpec.Generator
         private async Task<Solution> RemoveUnusedUsings(Solution solution, DocumentId documentId)
         {
             var document = solution.GetDocument(documentId)!;
+
+            // The post-processor runs before the simplification pass, so type references in the document are
+            // still fully qualified (annotated for later reduction). Reduce them first so that the CS8019
+            // diagnostic only flags using directives that are genuinely unused (such as the
+            // System.Diagnostics.CodeAnalysis directive left over from a stripped [Experimental] attribute),
+            // rather than directives that are still needed once names are simplified.
+            document = await Simplifier.ReduceAsync(document);
+
             var root = await document.GetSyntaxRootAsync();
             var model = await document.GetSemanticModelAsync();
 
@@ -554,7 +565,22 @@ namespace Microsoft.TypeSpec.Generator
             if (unusedUsings.Count == 0)
                 return solution;
 
+            // Preserve any leading trivia on the first using directive (such as the file header and the
+            // #nullable directive) when that directive is removed, by carrying it over to the node that
+            // follows the removed directives.
+            var firstUsing = cu.Usings.FirstOrDefault();
+            var leadingTrivia = firstUsing is not null && unusedUsings.Contains(firstUsing)
+                ? firstUsing.GetLeadingTrivia()
+                : default;
+
             cu = cu.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+
+            if (leadingTrivia.Count > 0)
+            {
+                var firstToken = cu.GetFirstToken();
+                cu = cu.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
+            }
+
             solution = solution.WithDocumentSyntaxRoot(documentId, cu);
 
             return solution;
