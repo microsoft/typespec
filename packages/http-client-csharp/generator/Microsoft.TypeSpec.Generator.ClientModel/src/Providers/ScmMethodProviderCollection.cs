@@ -76,22 +76,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
             _generateConvenienceMethod = ServiceMethod.Operation.GenerateConvenienceMethod;
 
-            // Convenience methods are not currently supported for multipart content types other than
-            // multipart/form-data (for example multipart/mixed). Generating one would produce incorrect
-            // code, so disable convenience method generation and report a diagnostic until a concrete
-            // design exists.
-            if (_generateConvenienceMethod
-                && ServiceMethod.Operation.IsMultipart
-                && !ServiceMethod.Operation.IsMultipartFormData)
-            {
-                _generateConvenienceMethod = false;
-                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    DiagnosticCodes.UnsupportedMultipartConvenienceMethod,
-                    $"Convenience methods are not supported for multipart content types other than 'multipart/form-data'. Skipping convenience method generation for operation '{ServiceMethod.Operation.Name}'.",
-                    ServiceMethod.Operation.CrossLanguageDefinitionId,
-                    EmitterDiagnosticSeverity.Warning);
-            }
-
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
                 _pagingServiceMethod = pagingServiceMethod;
