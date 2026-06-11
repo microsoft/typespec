@@ -27,7 +27,7 @@ export async function runNodeEmit({ context }: RunNodeEmitArgs): Promise<void> {
     target: NoTarget,
     format: {
       details:
-        " Native Python execution is not supported in the browser; the emitter must run in the in-browser Pyodide branch.",
+        "Native Python execution is not supported in the browser; the emitter must run in the in-browser Pyodide branch.",
     },
   });
 }

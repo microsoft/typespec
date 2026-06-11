@@ -30,7 +30,11 @@ function loadPyodideScript(indexURL: string): Promise<void> {
     // indexURL is expected to end with a trailing slash, matching pyodide's contract.
     script.src = `${indexURL}pyodide.js`;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Failed to load pyodide from ${script.src}`));
+    script.onerror = () => {
+      // Clear the cached promise so a later call can retry after a transient failure.
+      scriptLoadPromise = null;
+      reject(new Error(`Failed to load pyodide from ${script.src}`));
+    };
     document.head.appendChild(script);
   });
   return scriptLoadPromise;
