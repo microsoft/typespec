@@ -106,3 +106,15 @@ interface NullableModelValue
       NullableModel[],
       "[{'property': 'hello'}, null, {'property': 'world'}]"
     > {}
+
+@scenario
+@doc("Optional array value")
+@scenarioDoc("""
+  Expected no request body.
+  Expected Content-Type header: must NOT be present
+  """)
+@route("/optional")
+interface OptionalValue {
+  @put
+  omit(@body body?: string[]): void;
+}
