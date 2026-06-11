@@ -5,6 +5,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record BinaryOperatorExpression(string Operator, ValueExpression Left, ValueExpression Right) : ValueExpression
     {
+        internal override bool ShouldParenthesize => true;
+
         internal override void Write(CodeWriter writer)
         {
             Left.WriteNested(writer);

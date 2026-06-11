@@ -22,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         private MethodBodyStatement? _terminated;
 
+        internal override bool ShouldParenthesize => Original.ShouldParenthesize;
+
         internal override void Write(CodeWriter writer)
         {
             Original.Write(writer);

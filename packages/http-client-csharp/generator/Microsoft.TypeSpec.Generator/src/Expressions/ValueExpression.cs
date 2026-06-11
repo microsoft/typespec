@@ -22,21 +22,20 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         private protected ValueExpression() { }
 
+        internal virtual bool ShouldParenthesize => false;
+
         internal virtual void Write(CodeWriter writer) { }
 
         internal void WriteNested(CodeWriter writer)
         {
-            var expression = this is ScopedApi scopedApi ? scopedApi.Original : this;
-            var shouldParenthesize = expression is BinaryOperatorExpression or AssignmentExpression or TernaryConditionalExpression;
-
-            if (shouldParenthesize)
+            if (ShouldParenthesize)
             {
                 writer.AppendRaw("(");
             }
 
             Write(writer);
 
-            if (shouldParenthesize)
+            if (ShouldParenthesize)
             {
                 writer.AppendRaw(")");
             }

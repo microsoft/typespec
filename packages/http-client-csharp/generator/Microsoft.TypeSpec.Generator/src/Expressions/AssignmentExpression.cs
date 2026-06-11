@@ -16,6 +16,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression Variable { get; private set; } = Variable;
         public ValueExpression Value { get; private set; } = Value;
 
+        internal override bool ShouldParenthesize => true;
+
         internal override void Write(CodeWriter writer)
         {
             Variable.WriteNested(writer);

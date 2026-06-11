@@ -8,6 +8,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// </summary>
     public sealed record TernaryConditionalExpression(ValueExpression Condition, ValueExpression Consequent, ValueExpression Alternative) : ValueExpression
     {
+        internal override bool ShouldParenthesize => true;
+
         internal override void Write(CodeWriter writer)
         {
             Condition.WriteNested(writer);
