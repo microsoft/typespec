@@ -1,7 +1,5 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-console.log("Abc");
-
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi",
   diagnostics: {

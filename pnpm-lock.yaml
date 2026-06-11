@@ -327,6 +327,9 @@ catalogs:
     ora:
       specifier: ^9.3.0
       version: 9.4.0
+    oxlint:
+      specifier: ^1.69.0
+      version: 1.69.0
     p-limit:
       specifier: ^7.3.0
       version: 7.3.0
@@ -540,7 +543,7 @@ importers:
         specifier: 'catalog:'
         version: 4.0.8
       oxlint:
-        specifier: ^1.69.0
+        specifier: 'catalog:'
         version: 1.69.0(oxlint-tsgolint@0.23.0)
       picocolors:
         specifier: 'catalog:'

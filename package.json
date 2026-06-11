@@ -52,7 +52,7 @@
     "c8": "catalog:",
     "cspell": "catalog:",
     "micromatch": "catalog:",
-    "oxlint": "^1.69.0",
+    "oxlint": "catalog:",
     "picocolors": "catalog:",
     "playwright": "catalog:",
     "prettier": "catalog:",

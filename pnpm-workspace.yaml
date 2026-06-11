@@ -114,6 +114,7 @@ catalog:
   multer: ^2.1.1
   mustache: ^4.2.0
   ora: ^9.3.0
+  oxlint: ^1.69.0
   p-limit: ^7.3.0
   pathe: ^2.0.3
   picocolors: ^1.1.1
