@@ -360,6 +360,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 "The generated model factory output should match the expected content.");
         }
 
+        [Test]
+        public async Task KeepsUsedUsingWhenTypeReferencesAreUnresolved()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            // Intentionally omit the System.ClientModel reference so that the BinaryContent/ClientResult
+            // type references in the serialization document cannot be resolved. This mirrors the post-processing
+            // compilation in real generation, where not every external assembly is referenced.
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(System.BinaryData).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string rootFileName = "Root.cs";
+            const string serializationFileName = "UnreferencedModel.Serialization.cs";
+            foreach (var fileName in new[] { "UnreferencedModel.cs", serializationFileName })
+            {
+                project = project.AddDocument(fileName, File.ReadAllText(Path.Join(folder, fileName)), folders: ["Generated"]).Project;
+            }
+            project = project.AddDocument(rootFileName, File.ReadAllText(Path.Join(folder, rootFileName))).Project;
+            var postProcessor = new TestPostProcessor(rootFileName);
+
+            var resultProject = await postProcessor.InternalizeAsync(project);
+
+            // The unreferenced model is internalized.
+            var model = await GetSingleClassAsync(resultProject, "UnreferencedModel.cs", "UnreferencedModel");
+            Assert.IsTrue(model.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+
+            // The using is still referenced by the conversion operators, but the type references cannot be
+            // resolved in this compilation. The using must be preserved rather than removed by the CS8019 pass.
+            Assert.IsTrue(
+                await HasUsingAsync(resultProject, serializationFileName, "System.ClientModel"),
+                "A used using directive must not be removed when its type references cannot be resolved.");
+
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().TrimEnd(),
+                (await GetDocumentTextAsync(resultProject, serializationFileName)).TrimEnd(),
+                "The serialization document should be left untouched when references are unresolved.");
+        }
+
         private static async Task<string> GetDocumentTextAsync(Project project, string fileName)
         {
             var doc = project.Documents.Single(d => d.Name == fileName);

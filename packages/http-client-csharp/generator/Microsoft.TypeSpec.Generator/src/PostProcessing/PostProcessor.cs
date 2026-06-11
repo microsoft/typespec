@@ -23,6 +23,18 @@ namespace Microsoft.TypeSpec.Generator
         // CS8019: Unnecessary using directive.
         private const string UnnecessaryUsingDirectiveDiagnosticId = "CS8019";
 
+        // Diagnostics that indicate a type, namespace, or name could not be resolved. When any of these are
+        // present in a document the compiler cannot reliably determine whether a using directive is used, so
+        // the CS8019 ("unnecessary using") diagnostic may be a false positive and must not be trusted.
+        private static readonly HashSet<string> UnresolvedReferenceDiagnosticIds =
+        [
+            "CS0103", // The name does not exist in the current context.
+            "CS0234", // The type or namespace name does not exist in the namespace (missing assembly reference?).
+            "CS0246", // The type or namespace name could not be found (missing using or assembly reference?).
+            "CS0305", // Using the generic type requires type arguments.
+            "CS0308", // The non-generic type cannot be used with type arguments.
+        ];
+
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
@@ -487,7 +499,18 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // CS8019: Unnecessary using directive.
-            var unusedUsings = model.GetDiagnostics()
+            var diagnostics = model.GetDiagnostics();
+
+            // If the document has any unresolved type/namespace/name references, the compiler cannot reliably
+            // determine which using directives are actually used, so CS8019 may flag a using that is genuinely
+            // needed (for example, "using System.ClientModel;" in a serialization file when that assembly is not
+            // referenced in the post-processing compilation). In that case skip removal to avoid breaking the build.
+            if (diagnostics.Any(d => UnresolvedReferenceDiagnosticIds.Contains(d.Id)))
+            {
+                return solution;
+            }
+
+            var unusedUsings = diagnostics
                 .Where(d => d.Id == UnnecessaryUsingDirectiveDiagnosticId)
                 .Select(d => cu.FindNode(d.Location.SourceSpan).FirstAncestorOrSelf<UsingDirectiveSyntax>())
                 .OfType<UsingDirectiveSyntax>()
