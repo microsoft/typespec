@@ -542,18 +542,17 @@ namespace Microsoft.TypeSpec.Generator
                 solution = await RemoveUnusedUsings(solution, documentId);
             }
 
-            return solution.GetProject(project.Id)!;
+            return solution.GetProject(project.Id) ?? project;
         }
 
         private async Task<Solution> RemoveUnusedUsings(Solution solution, DocumentId documentId)
         {
-            var document = solution.GetDocument(documentId)!;
+            var document = solution.GetDocument(documentId);
+            if (document == null)
+            {
+                return solution;
+            }
 
-            // The post-processor runs before the simplification pass, so type references in the document are
-            // still fully qualified (annotated for later reduction). Reduce them first so that the CS8019
-            // diagnostic only flags using directives that are genuinely unused (such as the
-            // System.Diagnostics.CodeAnalysis directive left over from a stripped [Experimental] attribute),
-            // rather than directives that are still needed once names are simplified.
             document = await Simplifier.ReduceAsync(document);
 
             var root = await document.GetSyntaxRootAsync();
