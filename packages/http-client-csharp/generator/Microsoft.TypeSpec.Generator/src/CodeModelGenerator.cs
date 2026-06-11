@@ -95,8 +95,8 @@ namespace Microsoft.TypeSpec.Generator
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
-        internal CSharpTypeNameResolver TypeNameResolver { get; set; } = CSharpTypeNameResolver.Disabled;
-        internal bool ShouldSkipRoslynSimplifier => TypeNameResolver.IsEnabled && Rewriters.Count == 0;
+        internal bool ShouldResolveTypeNames { get; set; }
+        internal bool ShouldSkipRoslynSimplifier => ShouldResolveTypeNames && Rewriters.Count == 0;
         public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;

@@ -17,8 +17,6 @@ namespace Microsoft.TypeSpec.Generator.Perf
     public class GeneratedCodeWorkspaceNameResolverBenchmark
     {
         private TypeProvider[] _providers = [];
-        private CSharpTypeNameResolver _typeNameResolver = CSharpTypeNameResolver.Disabled;
-
         [Params(100)]
         public int ModelCount { get; set; }
 
@@ -55,20 +53,19 @@ namespace Microsoft.TypeSpec.Generator.Perf
             }
 
             _providers = [.. providers];
-            _typeNameResolver = CSharpTypeNameResolver.Create(_providers);
         }
 
         [Benchmark(Baseline = true)]
         public Task<int> LegacyWriterWithRoslynSimplifier()
-            => WriteAndPostProcessAsync(CSharpTypeNameResolver.Disabled);
+            => WriteAndPostProcessAsync(resolveTypeNames: false);
 
         [Benchmark]
         public Task<int> OptimizedWriterWithoutRoslynSimplifier()
-            => WriteAndPostProcessAsync(_typeNameResolver);
+            => WriteAndPostProcessAsync(resolveTypeNames: true);
 
-        private async Task<int> WriteAndPostProcessAsync(CSharpTypeNameResolver typeNameResolver)
+        private async Task<int> WriteAndPostProcessAsync(bool resolveTypeNames)
         {
-            CodeModelGenerator.Instance.TypeNameResolver = typeNameResolver;
+            CodeModelGenerator.Instance.ShouldResolveTypeNames = resolveTypeNames;
 
             var workspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
             foreach (var provider in _providers)

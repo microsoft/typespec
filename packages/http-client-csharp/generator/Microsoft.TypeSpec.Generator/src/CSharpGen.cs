@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator
                 outputType.ProcessTypeForBackCompatibility();
             }
 
-            CodeModelGenerator.Instance.TypeNameResolver = CSharpTypeNameResolver.Create(output.TypeProviders);
+            CodeModelGenerator.Instance.ShouldResolveTypeNames = true;
 
             foreach (var outputType in output.TypeProviders)
             {

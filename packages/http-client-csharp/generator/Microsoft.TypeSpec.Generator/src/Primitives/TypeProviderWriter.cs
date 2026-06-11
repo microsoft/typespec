@@ -18,8 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public virtual CodeFile Write()
         {
-            var typeNameResolver = CodeModelGenerator.Instance.TypeNameResolver;
-            using var writer = new CodeWriter(typeNameResolver);
+            using var writer = new CodeWriter(CodeModelGenerator.Instance.ShouldResolveTypeNames);
             writer.CollectTypeReferences(_provider.Type.Namespace, WriteType);
 
             using (writer.SetNamespace(_provider.Type.Namespace))

@@ -26,8 +26,8 @@ namespace Microsoft.TypeSpec.Generator
         private const char _space = ' ';
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
-        private readonly CSharpTypeNameResolver _typeNameResolver;
-        private Dictionary<string, CSharpTypeNameResolver.TypeResolution>? _typeNameResolutions;
+        private readonly bool _resolveTypeNames;
+        private CSharpTypeNameResolver? _typeNameResolver;
         private HashSet<CSharpType>? _referencedTypes;
 
         private readonly Stack<CodeScope> _scopes;
@@ -38,9 +38,9 @@ namespace Microsoft.TypeSpec.Generator
         private bool _writingNewInstance;
         private bool _suppressOutput;
 
-        internal CodeWriter(CSharpTypeNameResolver? typeNameResolver = null)
+        internal CodeWriter(bool resolveTypeNames = false)
         {
-            _typeNameResolver = typeNameResolver ?? CSharpTypeNameResolver.Disabled;
+            _resolveTypeNames = resolveTypeNames;
             _builder = new UnsafeBufferSequence(1024);
 
             _scopes = new Stack<CodeScope>();
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal void CollectTypeReferences(string @namespace, Action<CodeWriter> write)
         {
-            if (!_typeNameResolver.IsEnabled)
+            if (!_resolveTypeNames)
             {
                 return;
             }
@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator
                 _suppressOutput = false;
             }
 
-            _typeNameResolutions = _typeNameResolver.Analyze(_referencedTypes, @namespace);
+            _typeNameResolver = CSharpTypeNameResolver.Create(_referencedTypes, @namespace);
             _referencedTypes = null;
         }
 
@@ -696,7 +696,7 @@ namespace Microsoft.TypeSpec.Generator
                     _referencedTypes.Add(type);
                 }
 
-                if (_typeNameResolver.TryResolve(type, _typeNameResolutions, out var resolvedName, out var namespaceToImport))
+                if (_typeNameResolver?.TryResolve(type, out var resolvedName, out var namespaceToImport) == true)
                 {
                     if (namespaceToImport is not null)
                     {
@@ -706,7 +706,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 else
                 {
-                    if (!_typeNameResolver.IsEnabled)
+                    if (!_resolveTypeNames)
                     {
                         UseNamespace(type.Namespace);
                         AppendFullyQualifiedType(type);

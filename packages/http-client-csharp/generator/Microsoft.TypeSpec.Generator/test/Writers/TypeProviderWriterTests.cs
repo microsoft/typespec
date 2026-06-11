@@ -121,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         [Test]
         public void CodeWriter_UsesSimpleTypeNamesWhenResolverIsEnabled()
         {
-            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+            var result = WriteWithResolver(writer =>
                 writer.WriteLine($"{typeof(BinaryData)} Value;"));
 
             StringAssert.Contains("using System;\n", result);
@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var firstType = new CSharpType("Foo", "Azure.Sample", false, false, null, [], true, false);
             var secondType = new CSharpType("Foo", "System", false, false, null, [], true, false);
 
-            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+            var result = WriteWithResolver(writer =>
             {
                 writer.WriteLine($"{firstType} first;");
                 writer.WriteLine($"{secondType} second;");
@@ -149,18 +149,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
-        public void CodeWriter_FallsBackToFullyQualifiedNameWhenCurrentNamespaceShadowsType()
+        public void CodeWriter_UsesFileLocalReferencesForResolution()
         {
-            var resolver = CSharpTypeNameResolver.Create(
-            [
-                new TestTypeProvider(name: "BinaryData", ns: "Sample.Models")
-            ]);
+            var usedType = new CSharpType("Foo", "A", false, false, null, [], true, false);
+            var unusedType = new CSharpType("Foo", "A.B", false, false, null, [], true, false);
 
-            var result = WriteWithResolver(resolver, writer =>
-                writer.WriteLine($"{typeof(BinaryData)} Value;"));
+            var result = WriteWithResolver(writer =>
+                writer.WriteLine($"{usedType} Value;"));
 
-            StringAssert.DoesNotContain("using System;\n", result);
-            StringAssert.Contains("System.BinaryData Value;\n", result);
+            _ = unusedType;
+            StringAssert.Contains("using A;\n", result);
+            StringAssert.Contains("Foo Value;\n", result);
+            StringAssert.DoesNotContain("using A.B;\n", result);
+            StringAssert.DoesNotContain("A.Foo", result);
+            StringAssert.DoesNotContain("A.B.Foo", result);
             StringAssert.DoesNotContain("global::", result);
         }
 
@@ -170,7 +172,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var firstType = new CSharpType("Foo", "Azure.ResourceManager.Network", false, false, null, [], true, false);
             var secondType = new CSharpType("Foo", "Azure.ResourceManager.Compute", false, false, null, [], true, false);
 
-            var result = WriteWithResolver(CSharpTypeNameResolver.Create([]), writer =>
+            var result = WriteWithResolver(writer =>
             {
                 writer.WriteLine($"{firstType} first;");
                 writer.WriteLine($"{secondType} second;");
@@ -182,9 +184,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             StringAssert.DoesNotContain("global::", result);
         }
 
-        private static string WriteWithResolver(CSharpTypeNameResolver resolver, Action<CodeWriter> write)
+        private static string WriteWithResolver(Action<CodeWriter> write)
         {
-            using var writer = new CodeWriter(resolver);
+            using var writer = new CodeWriter(resolveTypeNames: true);
             writer.CollectTypeReferences("Sample.Models", write);
 
             using (writer.SetNamespace("Sample.Models"))
