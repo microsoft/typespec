@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             {
                 writer.Append($" = ");
             }
-            Value.WriteNested(writer);
+            Value.Write(writer);
         }
 
         private MethodBodyStatement? _terminated;
