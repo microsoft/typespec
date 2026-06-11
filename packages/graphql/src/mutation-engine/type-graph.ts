@@ -15,8 +15,7 @@ export interface TypeGraph {
 
 /**
  * Package a set of types into a self-contained TypeGraph.
- * Sets `.namespace` and calls `finishType` on each so that
- * `navigateTypesInNamespace` will visit them.
+ * Sets `.namespace` on each type so that `navigateTypesInNamespace` will visit them.
  */
 export function buildTypeGraph(program: Program, tk: Typekit, types: Type[]): TypeGraph {
   const globalNamespace = tk.type.clone(program.getGlobalNamespaceType());
@@ -38,7 +37,9 @@ export function buildTypeGraph(program: Program, tk: Typekit, types: Type[]): Ty
 }
 
 function addToNamespace(tk: Typekit, ns: Namespace, type: Type): void {
-  tk.type.finishType(type);
+  if (!type.isFinished) {
+    tk.type.finishType(type);
+  }
 
   switch (type.kind) {
     case "Model":

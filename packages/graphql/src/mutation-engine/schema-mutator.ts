@@ -13,6 +13,7 @@ import {
 import { $ } from "@typespec/compiler/typekit";
 import { setInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
+import { getOperationFields } from "../lib/operation-fields.js";
 import { reportDiagnostic } from "../lib.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
@@ -57,6 +58,13 @@ export function mutateSchema(
         mutatedTypes.push(mutation.mutatedType);
       }
       if (usedAsInput) {
+        if (getOperationFields(program, node).size > 0) {
+          reportDiagnostic(program, {
+            code: "operation-fields-ignored-on-input",
+            format: { model: node.name },
+            target: node,
+          });
+        }
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
         setInputType(mutation.mutatedType);
         mutatedTypes.push(mutation.mutatedType);
