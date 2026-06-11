@@ -169,24 +169,31 @@ namespace Microsoft.TypeSpec.Generator
 
             var modelNamesToRemove =
                 nodesToInternalize.Keys.Select(item => item.Identifier.Text);
-            project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+            DocumentId? modelFactoryDocumentId;
+            (project, modelFactoryDocumentId) = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
 
             if (nodesToInternalize.Count > 0)
             {
-                var internalizedDocumentIds = nodesToInternalize.Values.ToHashSet();
-                project = await RemoveUnusedUsingsAsync(project, internalizedDocumentIds);
+                var documentsToClean = nodesToInternalize.Values.ToHashSet();
+                // Removing methods from the model factory can leave a using directive (for a model in a
+                // different namespace) unused, so include the model factory document in the cleanup pass.
+                if (modelFactoryDocumentId != null)
+                {
+                    documentsToClean.Add(modelFactoryDocumentId);
+                }
+                project = await RemoveUnusedUsingsAsync(project, documentsToClean);
             }
 
             return project;
         }
 
-        private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
+        private async Task<(Project Project, DocumentId? ModelFactoryDocumentId)> RemoveMethodsFromModelFactoryAsync(Project project,
             TypeSymbols definitions,
             HashSet<string> namesToRemove)
         {
             var modelFactorySymbol = definitions.ModelFactorySymbol;
             if (modelFactorySymbol == null)
-                return project;
+                return (project, null);
 
             var nodesToRemove = new List<SyntaxNode>();
 
@@ -220,7 +227,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // maybe this is possible, for instance, we could be adding the customization all entries previously inside the generated model factory so that the generated model factory is empty and removed.
             if (modelFactoryGeneratedDocument == null)
-                return project;
+                return (project, null);
 
             var root = await modelFactoryGeneratedDocument.GetSyntaxRootAsync();
             Debug.Assert(root is not null);
@@ -231,10 +238,10 @@ namespace Microsoft.TypeSpec.Generator
             var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
             if (!methods.Any())
             {
-                return project.RemoveDocument(modelFactoryGeneratedDocument.Id);
+                return (project.RemoveDocument(modelFactoryGeneratedDocument.Id), null);
             }
 
-            return modelFactoryGeneratedDocument.Project;
+            return (modelFactoryGeneratedDocument.Project, modelFactoryGeneratedDocument.Id);
         }
 
         /// <summary>
@@ -553,7 +560,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             // CS8019: Unnecessary using directive.
             var unusedUsings = model.GetDiagnostics()
@@ -563,7 +572,9 @@ namespace Microsoft.TypeSpec.Generator
                 .ToList();
 
             if (unusedUsings.Count == 0)
+            {
                 return solution;
+            }
 
             // Preserve any leading trivia on the first using directive (such as the file header and the
             // #nullable directive) when that directive is removed, by carrying it over to the node that
@@ -581,9 +592,7 @@ namespace Microsoft.TypeSpec.Generator
                 cu = cu.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
             }
 
-            solution = solution.WithDocumentSyntaxRoot(documentId, cu);
-
-            return solution;
+            return solution.WithDocumentSyntaxRoot(documentId, cu);
         }
 
         private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)

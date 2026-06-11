@@ -403,11 +403,90 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 "The generated output should match the expected content.");
         }
 
+        [Test]
+        public async Task RemovesUnusedUsingFromModelFactoryWhenInternalizing()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            const string rootFileName = "ModelFactoryRoot.cs";
+            string[] modelFileNames =
+            [
+                "KeptModel.cs",
+                "OtherNamespaceModel.cs"
+            ];
+            foreach (var fileName in modelFileNames)
+            {
+                project = project.AddDocument(
+                    fileName,
+                    File.ReadAllText(Path.Join(folder, fileName))).Project;
+            }
+            // The model factory lives in a generated document so the post-processor can rewrite it.
+            const string modelFactoryFileName = "SampleModelFactory.cs";
+            project = project.AddDocument(
+                modelFactoryFileName,
+                File.ReadAllText(Path.Join(folder, modelFactoryFileName)),
+                folders: ["Generated"]).Project;
+            project = project.AddDocument(
+                rootFileName,
+                File.ReadAllText(Path.Join(folder, rootFileName))).Project;
+            var postProcessor = new TestPostProcessor(rootFileName, modelFactoryFullName: "Sample.SampleModelFactory");
+
+            var resultProject = await postProcessor.InternalizeAsync(project);
+
+            // The model in the other namespace is unreferenced and is internalized.
+            var otherNamespaceModel = await GetSingleClassAsync(resultProject, "OtherNamespaceModel.cs", "OtherNamespaceModel");
+            Assert.IsTrue(otherNamespaceModel.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+
+            // The referenced model stays public and keeps its model factory method.
+            var keptModel = await GetSingleClassAsync(resultProject, "KeptModel.cs", "KeptModel");
+            Assert.IsTrue(keptModel.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)));
+
+            var modelFactory = await GetSingleClassAsync(resultProject, modelFactoryFileName, "SampleModelFactory");
+            var methodNames = modelFactory.Members
+                .OfType<MethodDeclarationSyntax>()
+                .Select(m => m.Identifier.Text)
+                .ToList();
+            Assert.IsTrue(methodNames.Contains("KeptModel"), "The model factory method for the referenced model should be preserved.");
+            Assert.IsFalse(methodNames.Contains("OtherNamespaceModel"), "The model factory method for the internalized model should be removed.");
+
+            // Removing the model factory method for the internalized model leaves the using for its namespace unused, so it is removed.
+            Assert.IsFalse(
+                await HasUsingAsync(resultProject, modelFactoryFileName, "Sample.Models"),
+                "Unused using for the internalized model's namespace should be removed from the model factory.");
+
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile().TrimEnd(),
+                (await GetDocumentTextAsync(resultProject, modelFactoryFileName)).TrimEnd(),
+                "The generated model factory output should match the expected content.");
+        }
+
         private static async Task<string> GetDocumentTextAsync(Project project, string fileName)
         {
             var doc = project.Documents.Single(d => d.Name == fileName);
             var root = await doc.GetSyntaxRootAsync();
             return root!.ToFullString();
+        }
+
+        private static async Task<bool> HasUsingAsync(Project project, string fileName, string usingName)
+        {
+            var doc = project.Documents.Single(d => d.Name == fileName);
+            var root = await doc.GetSyntaxRootAsync();
+            return ((CompilationUnitSyntax)root!)
+                .Usings
+                .Any(u => u.Name?.ToString() == usingName);
         }
 
         private static async Task<bool> HasCodeAnalysisUsingAsync(Project project, string fileName)
@@ -444,7 +523,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         {
             private readonly string _rootFile;
 
-            public TestPostProcessor(string rootFile, IEnumerable<string>? nonRootTypes = null) : base([], additionalNonRootTypeNames: nonRootTypes)
+            public TestPostProcessor(string rootFile, IEnumerable<string>? nonRootTypes = null, string? modelFactoryFullName = null) : base([], modelFactoryFullName: modelFactoryFullName, additionalNonRootTypeNames: nonRootTypes)
             {
                 _rootFile = rootFile;
             }
