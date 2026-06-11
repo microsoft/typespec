@@ -316,7 +316,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 "ReferencedModel.cs",
                 "UnreferencedModel.cs",
                 "UnreferencedWithOtherAttribute.cs",
-                "UnreferencedWithCombinedAttributes.cs"
+                "UnreferencedWithCombinedAttributes.cs",
+                "UnreferencedStillUsingCodeAnalysis.cs"
             ];
             foreach (var fileName in modelFileNames)
             {
@@ -362,6 +363,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             Assert.IsTrue(unreferencedWithCombined.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
             Assert.IsFalse(HasExperimentalAttribute(unreferencedWithCombined), "Internalized model should not keep [Experimental].");
             Assert.IsTrue(HasAttribute(unreferencedWithCombined, "Serializable"), "Other attributes in the same list should be preserved.");
+
+            // The referenced model keeps its [Experimental] attribute and therefore keeps the using directive.
+            Assert.IsTrue(
+                await HasCodeAnalysisUsingAsync(resultProject, "ReferencedModel.cs"),
+                "Referenced model should keep the System.Diagnostics.CodeAnalysis using.");
+
+            // Internalizing strips [Experimental], leaving the System.Diagnostics.CodeAnalysis using unused, so it is removed.
+            Assert.IsFalse(
+                await HasCodeAnalysisUsingAsync(resultProject, "UnreferencedModel.cs"),
+                "Unused System.Diagnostics.CodeAnalysis using should be removed.");
+            Assert.IsFalse(
+                await HasCodeAnalysisUsingAsync(resultProject, "UnreferencedWithOtherAttribute.cs"),
+                "Unused System.Diagnostics.CodeAnalysis using should be removed when another attribute is preserved.");
+            Assert.IsFalse(
+                await HasCodeAnalysisUsingAsync(resultProject, "UnreferencedWithCombinedAttributes.cs"),
+                "Unused System.Diagnostics.CodeAnalysis using should be removed when attributes are combined in one list.");
+
+            // When the namespace is still used by another attribute, the using directive must be preserved.
+            var unreferencedStillUsing = await GetSingleClassAsync(resultProject, "UnreferencedStillUsingCodeAnalysis.cs", "UnreferencedStillUsingCodeAnalysis");
+            Assert.IsTrue(unreferencedStillUsing.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)));
+            Assert.IsFalse(HasExperimentalAttribute(unreferencedStillUsing), "Internalized model should not keep [Experimental].");
+            Assert.IsTrue(HasAttribute(unreferencedStillUsing, "SuppressMessage"), "Other CodeAnalysis attributes should be preserved.");
+            Assert.IsTrue(
+                await HasCodeAnalysisUsingAsync(resultProject, "UnreferencedStillUsingCodeAnalysis.cs"),
+                "System.Diagnostics.CodeAnalysis using should be preserved when still referenced by another attribute.");
+        }
+
+        private static async Task<bool> HasCodeAnalysisUsingAsync(Project project, string fileName)
+        {
+            var doc = project.Documents.Single(d => d.Name == fileName);
+            var root = await doc.GetSyntaxRootAsync();
+            return ((CompilationUnitSyntax)root!)
+                .Usings
+                .Any(u => u.Name?.ToString() == "System.Diagnostics.CodeAnalysis");
         }
 
         private static async Task<ClassDeclarationSyntax> GetSingleClassAsync(Project project, string fileName, string className)
