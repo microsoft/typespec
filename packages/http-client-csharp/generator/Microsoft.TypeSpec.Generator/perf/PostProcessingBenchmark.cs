@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,6 +17,8 @@ namespace Microsoft.TypeSpec.Generator.Perf
     public class PostProcessingBenchmark
     {
         private const string GeneratedDirectoryEnvironmentVariable = "POSTPROCESSING_BENCHMARK_GENERATED_DIR";
+        private const string ProfileEnvironmentVariable = "POSTPROCESSING_BENCHMARK_PROFILE_STEPS";
+        private const string ProfileOutputDirectoryEnvironmentVariable = "POSTPROCESSING_BENCHMARK_PROFILE_DIR";
         private static readonly Regex NamespaceDeclarationRegex = new(
             @"\bnamespace\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)",
             RegexOptions.Compiled);
@@ -24,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
         public int CorpusMultiplier { get; set; }
 
         private (string Name, string Content)[] _generatedFiles = [];
+        private bool _profileSteps;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -42,26 +46,68 @@ namespace Microsoft.TypeSpec.Generator.Perf
 
             var declaredNamespaces = GetDeclaredNamespaces(sourceFiles);
             _generatedFiles = BuildCorpus(generatedDirectory, sourceFiles, declaredNamespaces);
+            _profileSteps = string.Equals(
+                Environment.GetEnvironmentVariable(ProfileEnvironmentVariable),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
         }
 
         [Benchmark]
         public async Task<int> ProcessSampleTypeSpecGeneratedFiles()
         {
+            var profile = _profileSteps ? new GeneratedCodeWorkspacePostProcessingProfile() : null;
+            GeneratedCodeWorkspace.PostProcessingProfile = profile;
+
+            var stopwatch = Stopwatch.StartNew();
             GeneratedCodeWorkspace.Initialize();
             var workspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 
-            foreach (var file in _generatedFiles)
+            try
             {
-                await workspace.AddGeneratedFile(new CodeFile(file.Content, file.Name));
-            }
+                foreach (var file in _generatedFiles)
+                {
+                    await workspace.AddGeneratedFile(new CodeFile(file.Content, file.Name));
+                }
 
-            var totalLength = 0;
-            await foreach (var file in workspace.GetGeneratedFilesAsync())
+                var totalLength = 0;
+                await foreach (var file in workspace.GetGeneratedFilesAsync())
+                {
+                    totalLength += file.Text.Length;
+                }
+
+                return totalLength;
+            }
+            finally
             {
-                totalLength += file.Text.Length;
-            }
+                stopwatch.Stop();
+                if (profile != null)
+                {
+                    WriteProfile(
+                        profile,
+                        $"post-processing-profile-RoslynSimplifier-x{CorpusMultiplier}-{DateTime.UtcNow:yyyyMMddHHmmssfff}.csv",
+                        $"Reduction strategy: RoslynSimplifier{Environment.NewLine}" +
+                        $"Corpus multiplier: {CorpusMultiplier}{Environment.NewLine}" +
+                        $"File count: {_generatedFiles.Length}{Environment.NewLine}" +
+                        $"Benchmark invocation elapsed ms: {stopwatch.Elapsed.TotalMilliseconds:F3}{Environment.NewLine}");
+                }
 
-            return totalLength;
+                GeneratedCodeWorkspace.PostProcessingProfile = null;
+            }
+        }
+
+        private static void WriteProfile(GeneratedCodeWorkspacePostProcessingProfile profile, string fileName, string header)
+        {
+            var profileDirectory = GetProfileOutputDirectory();
+            Directory.CreateDirectory(profileDirectory);
+            File.WriteAllText(Path.Combine(profileDirectory, fileName), header + profile.GetSummary());
+        }
+
+        private static string GetProfileOutputDirectory()
+        {
+            var configuredPath = Environment.GetEnvironmentVariable(ProfileOutputDirectoryEnvironmentVariable);
+            return string.IsNullOrWhiteSpace(configuredPath)
+                ? Path.Combine(Path.GetTempPath(), "typespec-post-processing-profiles")
+                : Path.GetFullPath(configuredPath);
         }
 
         private (string Name, string Content)[] BuildCorpus(string generatedDirectory, string[] sourceFiles, IReadOnlyList<string> declaredNamespaces)
