@@ -26,11 +26,10 @@ export async function emitWithDiagnostics(
   code: string,
   options: GraphQLEmitterOptions = {},
 ): Promise<readonly GraphQLTestResult[]> {
-  const outputFile = `{emitter-output-dir}/${outputFileName}`;
   const [result, diagnostics] = await EmitterTester.compileAndDiagnose(code, {
     compilerOptions: {
       options: {
-        "@typespec/graphql": { ...options, "output-file": outputFile },
+        "@typespec/graphql": { ...options, "output-file": outputFileName },
       },
     },
   });
