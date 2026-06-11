@@ -369,6 +369,90 @@ Expected response body:
 }
 ```
 
+### Encode_Boolean_Property_falseLower
+
+- Endpoint: `post /encode/boolean/property/false-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+### Encode_Boolean_Property_falseMixed
+
+- Endpoint: `post /encode/boolean/property/false-mixed`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+### Encode_Boolean_Property_trueLower
+
+- Endpoint: `post /encode/boolean/property/true-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+### Encode_Boolean_Property_trueUpper
+
+- Endpoint: `post /encode/boolean/property/true-upper`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
