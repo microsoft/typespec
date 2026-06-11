@@ -39,9 +39,8 @@ public class ManagementGroupTests {
     @Test
     public void testCreateOrUpdate() {
         ManagementGroupChildResource resource = manager.managementGroupChildResources()
-            .createOrUpdate(MANAGEMENT_GROUP_ID, RESOURCE_NAME,
-                new ManagementGroupChildResourceInner()
-                    .withProperties(new ManagementGroupChildResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID)));
+            .createOrUpdate(MANAGEMENT_GROUP_ID, RESOURCE_NAME, new ManagementGroupChildResourceInner().withProperties(
+                new ManagementGroupChildResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID)));
         Assertions.assertNotNull(resource);
         Assertions.assertEquals(RESOURCE_NAME, resource.name());
         Assertions.assertEquals(RESOURCE_TYPE, resource.type());
@@ -53,9 +52,8 @@ public class ManagementGroupTests {
     @Test
     public void testUpdate() {
         ManagementGroupChildResource resource = manager.managementGroupChildResources()
-            .update(MANAGEMENT_GROUP_ID, RESOURCE_NAME,
-                new ManagementGroupChildResourceInner()
-                    .withProperties(new ManagementGroupChildResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2)));
+            .update(MANAGEMENT_GROUP_ID, RESOURCE_NAME, new ManagementGroupChildResourceInner().withProperties(
+                new ManagementGroupChildResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2)));
         Assertions.assertNotNull(resource);
         Assertions.assertEquals(RESOURCE_NAME, resource.name());
         Assertions.assertNotNull(resource.properties());
@@ -70,9 +68,10 @@ public class ManagementGroupTests {
 
     @Test
     public void testListByManagementGroup() {
-        List<ManagementGroupChildResource> resources
-            = manager.managementGroupChildResources().listByManagementGroup(MANAGEMENT_GROUP_ID).stream()
-                .collect(Collectors.toList());
+        List<ManagementGroupChildResource> resources = manager.managementGroupChildResources()
+            .listByManagementGroup(MANAGEMENT_GROUP_ID)
+            .stream()
+            .collect(Collectors.toList());
         Assertions.assertEquals(1, resources.size());
         ManagementGroupChildResource resource = resources.get(0);
         Assertions.assertNotNull(resource);
