@@ -15,7 +15,7 @@ Scenarios.Parameters_Query_Constant_post = passOnSuccess({
 });
 
 Scenarios.Parameters_Query_SpecialChar_dollarSign = passOnSuccess({
-  uri: "/parameters/query/special-char/dollar-sign",
+  uri: "/parameters/query/special-char/dollarSign",
   method: "get",
   request: {
     query: { $filter: "status eq 'active'" },
