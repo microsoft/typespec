@@ -144,9 +144,7 @@ export function createConfiguration(
     "disable-xml-docs":
       options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
     "disable-roslyn-reduce":
-      options["disable-roslyn-reduce"] === false
-        ? undefined
-        : options["disable-roslyn-reduce"],
+      options["disable-roslyn-reduce"] === false ? undefined : options["disable-roslyn-reduce"],
     license: sdkContext.sdkPackage.licenseInfo,
   };
 }
