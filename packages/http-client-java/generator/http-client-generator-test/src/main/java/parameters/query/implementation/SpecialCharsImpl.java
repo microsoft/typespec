@@ -56,7 +56,7 @@ public final class SpecialCharsImpl {
     @Host("{endpoint}")
     @ServiceInterface(name = "QueryClientSpecialChars")
     public interface SpecialCharsService {
-        @Get("/parameters/query/special-char/dollar-sign")
+        @Get("/parameters/query/special-char/dollarSign")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
@@ -65,7 +65,7 @@ public final class SpecialCharsImpl {
         Mono<Response<Void>> dollarSign(@HostParam("endpoint") String endpoint, @QueryParam("$filter") String filter,
             RequestOptions requestOptions, Context context);
 
-        @Get("/parameters/query/special-char/dollar-sign")
+        @Get("/parameters/query/special-char/dollarSign")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })

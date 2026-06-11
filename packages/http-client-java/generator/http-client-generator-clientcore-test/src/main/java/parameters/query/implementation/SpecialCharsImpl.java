@@ -65,7 +65,7 @@ public final class SpecialCharsImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
-            path = "/parameters/query/special-char/dollar-sign",
+            path = "/parameters/query/special-char/dollarSign",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> dollarSign(@HostParam("endpoint") String endpoint, @QueryParam("$filter") String filter,
