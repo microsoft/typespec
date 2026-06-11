@@ -317,7 +317,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 "UnreferencedModel.cs",
                 "UnreferencedWithOtherAttribute.cs",
                 "UnreferencedWithCombinedAttributes.cs",
-                "UnreferencedStillUsingCodeAnalysis.cs"
+                "UnreferencedStillUsingCodeAnalysis.cs",
+                "UnreferencedWithUnusedUsing.cs"
             ];
             foreach (var fileName in modelFileNames)
             {
@@ -388,6 +389,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             Assert.IsTrue(
                 await HasCodeAnalysisUsingAsync(resultProject, "UnreferencedStillUsingCodeAnalysis.cs"),
                 "System.Diagnostics.CodeAnalysis using should be preserved when still referenced by another attribute.");
+
+            // Validate the full generated output against the expected TestData files. The preserved-using case keeps
+            // the System.Diagnostics.CodeAnalysis directive, while the other case has all of its now-unused usings
+            // (including a non-CodeAnalysis one) removed.
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("UnreferencedStillUsingCodeAnalysis").TrimEnd(),
+                (await GetDocumentTextAsync(resultProject, "UnreferencedStillUsingCodeAnalysis.cs")).TrimEnd(),
+                "The generated output should match the expected content.");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("UnreferencedWithUnusedUsing").TrimEnd(),
+                (await GetDocumentTextAsync(resultProject, "UnreferencedWithUnusedUsing.cs")).TrimEnd(),
+                "The generated output should match the expected content.");
+        }
+
+        private static async Task<string> GetDocumentTextAsync(Project project, string fileName)
+        {
+            var doc = project.Documents.Single(d => d.Name == fileName);
+            var root = await doc.GetSyntaxRootAsync();
+            return root!.ToFullString();
         }
 
         private static async Task<bool> HasCodeAnalysisUsingAsync(Project project, string fileName)

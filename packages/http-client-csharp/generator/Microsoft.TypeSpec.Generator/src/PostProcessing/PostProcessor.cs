@@ -166,10 +166,8 @@ namespace Microsoft.TypeSpec.Generator
                 CodeModelGenerator.Instance.Emitter.Info(
                     $"Internalized {nodesToInternalize.Count} unreferenced public type(s).");
 
-                // Removing the [Experimental] attribute while internalizing can leave the
-                // System.Diagnostics.CodeAnalysis using directive unused, so clean it up.
                 var internalizedDocumentIds = nodesToInternalize.Values.ToHashSet();
-                project = await RemoveUnusedCodeAnalysisUsingsAsync(project, internalizedDocumentIds);
+                project = await RemoveUnusedUsingsAsync(project, internalizedDocumentIds);
             }
 
             var modelNamesToRemove =
@@ -526,12 +524,6 @@ namespace Microsoft.TypeSpec.Generator
             return solution.GetProject(project.Id)!;
         }
 
-        /// <summary>
-        /// Removes unnecessary using directives from the given documents. Internalizing a type strips its
-        /// <c>[Experimental]</c> attribute, which can leave a using directive (such as
-        /// <c>System.Diagnostics.CodeAnalysis</c>) unused. The C# compiler reports such directives via CS8019, so
-        /// this pass removes any using directive flagged by that diagnostic.
-        /// </summary>
         private async Task<Project> RemoveUnusedUsingsAsync(Project project, IEnumerable<DocumentId> documentIds)
         {
             var solution = project.Solution;
