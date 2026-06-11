@@ -583,15 +583,19 @@ namespace Microsoft.TypeSpec.Generator
                 ? firstUsing.GetLeadingTrivia()
                 : default;
 
-            cu = cu.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+            var updatedRoot = cu.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia);
+            if (updatedRoot == null)
+            {
+                return solution;
+            }
 
             if (leadingTrivia.Count > 0)
             {
-                var firstToken = cu.GetFirstToken();
-                cu = cu.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
+                var firstToken = updatedRoot.GetFirstToken();
+                updatedRoot = updatedRoot.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
             }
 
-            return solution.WithDocumentSyntaxRoot(documentId, cu);
+            return solution.WithDocumentSyntaxRoot(documentId, updatedRoot);
         }
 
         private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
