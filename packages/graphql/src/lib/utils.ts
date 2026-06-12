@@ -1,4 +1,5 @@
 import {
+  getTypeName,
   walkPropertiesInherited,
   type Model,
   type ModelProperty,
@@ -7,12 +8,7 @@ import {
 } from "@typespec/compiler";
 
 function typesEqual(a: Type, b: Type): boolean {
-  if (a === b) return true;
-  if (a.kind !== b.kind) return false;
-  if ("name" in a && "name" in b) {
-    return (a as any).name === (b as any).name;
-  }
-  return false;
+  return a === b || getTypeName(a) === getTypeName(b);
 }
 
 export function propertiesEqual(
