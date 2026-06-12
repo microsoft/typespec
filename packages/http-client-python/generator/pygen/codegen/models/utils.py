@@ -40,6 +40,7 @@ class NamespaceType(str, Enum):
     OPERATION = "operation"
     CLIENT = "client"
     TYPES_FILE = "types_file"
+    UNIONS_FILE = "unions_file"
 
 
 LOCALS_LENGTH_LIMIT = 25
