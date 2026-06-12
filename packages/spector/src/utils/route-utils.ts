@@ -76,8 +76,14 @@ function splitSegments(path: string): string[] {
 export function isMockApiUriConsistentWithRoute(template: string, uri: string): boolean {
   const templateSegments = splitSegments(template.split("?")[0]);
   const uriSegments = splitSegments(normalizeMockApiUri(uri));
-  const length = Math.min(templateSegments.length, uriSegments.length);
-  for (let i = 0; i < length; i++) {
+  // The uri may carry extra trailing segments (e.g. `@path` annotated params, server-templated
+  // api-versions, reserved expansions), but it must cover every segment of the route template.
+  // A uri that is only a prefix of the route serves fewer path segments than the client calls, so
+  // it is a real mismatch.
+  if (uriSegments.length < templateSegments.length) {
+    return false;
+  }
+  for (let i = 0; i < templateSegments.length; i++) {
     const templateSegment = templateSegments[i];
     const uriSegment = uriSegments[i];
     if (templateSegment.includes("{")) {

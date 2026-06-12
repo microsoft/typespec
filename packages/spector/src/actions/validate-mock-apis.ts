@@ -67,7 +67,7 @@ export async function validateMockApis({
       if (mockApiScenario === undefined) {
         foundFailure = true;
         diagnostics.reportDiagnostic({
-          message: `Scenario ${scenario.name} is missing implementation in for ${name} scenario file.`,
+          message: `Scenario ${scenario.name} is missing an implementation in the ${name} scenario file.`,
         });
         continue;
       }

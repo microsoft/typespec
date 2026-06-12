@@ -81,6 +81,18 @@ describe("isMockApiUriConsistentWithRoute", () => {
     ).toBe(true);
   });
 
+  it("detects a uri that is missing trailing segments present in the route template", () => {
+    expect(
+      isMockApiUriConsistentWithRoute(
+        "/routes/path/template-only/{param}",
+        "/routes/path/template-only",
+      ),
+    ).toBe(false);
+    expect(
+      isMockApiUriConsistentWithRoute("/parameters/basic/simple", "/parameters/basic"),
+    ).toBe(false);
+  });
+
   it("matches routes containing escaped characters in the uri", () => {
     expect(
       isMockApiUriConsistentWithRoute(
