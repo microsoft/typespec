@@ -2021,7 +2021,7 @@ class Deserializer:
     def _deserialize_duration_numeric(attr, unit):
         """Deserialize a numeric duration value into a TimeDelta object.
 
-        :param attr: response value to be deserialized.
+        :param float attr: response value to be deserialized.
         :param str unit: The wire unit, used as the ``timedelta`` keyword
             (``"seconds"`` or ``"milliseconds"``).
         :return: Deserialized duration
@@ -2031,7 +2031,7 @@ class Deserializer:
         if isinstance(attr, ET.Element):
             attr = attr.text
         try:
-            duration = datetime.timedelta(**{unit: float(attr)})
+            duration = datetime.timedelta(**{unit: float(attr)})  # type: ignore
         except (ValueError, OverflowError, TypeError) as err:
             msg = "Cannot deserialize duration object."
             raise DeserializationError(msg) from err
@@ -2041,7 +2041,7 @@ class Deserializer:
     def deserialize_duration_seconds(attr):
         """Deserialize a numeric number of seconds into a TimeDelta object.
 
-        :param attr: response value to be deserialized.
+        :param float attr: response value to be deserialized.
         :return: Deserialized duration
         :rtype: TimeDelta
         :raises DeserializationError: if value is invalid.
@@ -2052,7 +2052,7 @@ class Deserializer:
     def deserialize_duration_milliseconds(attr):
         """Deserialize a numeric number of milliseconds into a TimeDelta object.
 
-        :param attr: response value to be deserialized.
+        :param float attr: response value to be deserialized.
         :return: Deserialized duration
         :rtype: TimeDelta
         :raises DeserializationError: if value is invalid.
