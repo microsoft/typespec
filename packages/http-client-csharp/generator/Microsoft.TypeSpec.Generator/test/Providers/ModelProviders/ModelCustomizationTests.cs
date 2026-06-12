@@ -1840,9 +1840,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(customCodeView);
 
             // Validate that the parsed type registers the custom-code attribute contributed by the provider.
-            var customAttr = customCodeView!.Attributes.SingleOrDefault(a => a.Type.Name == "CodeGenCustomAttribute");
-            Assert.IsNotNull(customAttr);
-            Assert.AreEqual(AttributeNamespace, customAttr!.Type.Namespace);
+            var customAttr = customCodeView!.Attributes.Single(a => a.Type.Name == "CodeGenCustomAttribute");
+            Assert.AreEqual(AttributeNamespace, customAttr.Type.Namespace);
             Assert.AreEqual(1, customAttr.Arguments.Count);
         }
 
