@@ -81,24 +81,31 @@ export async function emitCodeModel(
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
       const namespace = updatedRoot.name;
-      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Serialize code model and configuration
-      const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
-      const configJson = JSON.stringify(configurations, null, 2) + "\n";
+      // If the namespace could not be resolved, createModel has already reported an
+      // actionable diagnostic. Skip generation so we don't send an unnamed code model that
+      // fails to deserialize in the .NET generator with an opaque root-level error.
+      // See https://github.com/microsoft/typespec/issues/10914.
+      if (namespace) {
+        const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      // Generate C# code via platform-specific implementation.
-      // In Node.js this runs the .NET generator locally.
-      // In the browser this sends the code model to a playground server.
-      await generate(sdkContext, codeModelJson, configJson, {
-        outputFolder,
-        packageName: configurations["package-name"] ?? "",
-        generatorName: options["generator-name"],
-        newProject: options["new-project"],
-        debug: options.debug ?? false,
-        saveInputs: options["save-inputs"] ?? false,
-        emitterExtensionPath: options["emitter-extension-path"],
-      });
+        // Serialize code model and configuration
+        const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
+        const configJson = JSON.stringify(configurations, null, 2) + "\n";
+
+        // Generate C# code via platform-specific implementation.
+        // In Node.js this runs the .NET generator locally.
+        // In the browser this sends the code model to a playground server.
+        await generate(sdkContext, codeModelJson, configJson, {
+          outputFolder,
+          packageName: configurations["package-name"] ?? "",
+          generatorName: options["generator-name"],
+          newProject: options["new-project"],
+          debug: options.debug ?? false,
+          saveInputs: options["save-inputs"] ?? false,
+          emitterExtensionPath: options["emitter-extension-path"],
+        });
+      }
     }
   }
 

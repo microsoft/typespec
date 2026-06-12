@@ -551,7 +551,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
     if (source.kind !== "FunctionType") {
-      return [Related.false, [createUnassignableDiagnostic(source, target, source)]];
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     const { parameters: sourceParameters, returnType: sourceReturnType } = source;

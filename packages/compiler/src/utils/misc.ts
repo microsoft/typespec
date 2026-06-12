@@ -31,9 +31,12 @@ export function deepFreeze<T>(value: T): T {
  *
  * Does not support cycles. Intended to be used only on plain data that can
  * be directly represented in JSON.
+ *
+ * @deprecated Use `structuredClone` instead.
  */
 export function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return value.map(deepClone) as any;
   }
 
@@ -44,6 +47,7 @@ export function deepClone<T>(value: T): T {
   if (typeof value === "object") {
     const obj: any = {};
     for (const prop in value) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       obj[prop] = deepClone(value[prop]);
     }
     return obj;

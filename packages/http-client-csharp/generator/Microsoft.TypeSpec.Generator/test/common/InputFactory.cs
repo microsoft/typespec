@@ -75,9 +75,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             public static InputSerializationOptions Options(
                 InputJsonSerializationOptions? json = null,
-                InputXmlSerializationOptions? xml = null)
+                InputXmlSerializationOptions? xml = null,
+                InputMultipartOptions? multipart = null)
             {
-                return new InputSerializationOptions(json, xml);
+                return new InputSerializationOptions(json, xml, multipart);
             }
 
             public static InputJsonSerializationOptions Json(string name)
@@ -100,6 +101,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             {
                 return new InputXmlNamespaceOptions(ns, prefix);
             }
+
+            public static InputMultipartOptions Multipart(
+                string name,
+                bool isFilePart = true,
+                bool isMulti = false,
+                IReadOnlyList<string>? defaultContentTypes = null,
+                InputModelProperty? filename = null,
+                InputModelProperty? contentType = null)
+            {
+                return new InputMultipartOptions(
+                    name,
+                    isFilePart,
+                    isMulti,
+                    defaultContentTypes ?? ["application/octet-stream"],
+                    filename,
+                    contentType);
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="InputPrimitiveType"/> representing a file (HttpPart-like) input,
+        /// which the ClientModel type factory maps to <c>System.ClientModel.FileBinaryContent</c>.
+        /// </summary>
+        public static InputPrimitiveType FileType()
+        {
+            return new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes")
+            {
+                IsFileType = true
+            };
         }
 
         public static InputHeaderParameter ContentTypeParameter(string contentType)

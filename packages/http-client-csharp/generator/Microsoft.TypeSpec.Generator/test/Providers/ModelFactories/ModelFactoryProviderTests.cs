@@ -651,6 +651,88 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 childMethod!.BodyStatements!.ToDisplayString());
         }
 
+        // A factory method is still generated when the discriminator extensible enum is internal on the wire.
+        [Test]
+        public void InternalDiscriminatorEnumByWireStillGeneratesFactoryMethod()
+        {
+            var discriminatorProperty = InputFactory.Property(
+                "Type",
+                InputFactory.StringEnum("toolType", [("function", "function")], access: "internal", isExtensible: true),
+                isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ];
+
+            var derivedModel = InputFactory.Model(
+                "FunctionTool",
+                properties: properties,
+                discriminatedKind: "function");
+            var baseModel = InputFactory.Model(
+                "Tool",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [derivedModel]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [derivedModel, baseModel]);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNotNull(modelFactory);
+            var derivedMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "FunctionTool");
+            Assert.IsNotNull(derivedMethod);
+            Assert.IsFalse(derivedMethod!.Signature.Parameters.Any(p => p.Name == "type"));
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A factory method is still generated when the discriminator extensible enum is made internal via custom code.
+        [Test]
+        public async Task InternalDiscriminatorEnumByCustomCodeStillGeneratesFactoryMethod()
+        {
+            var discriminatorProperty = InputFactory.Property(
+                "Type",
+                InputFactory.StringEnum("toolType", [("function", "function")], isExtensible: true),
+                isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ];
+
+            var derivedModel = InputFactory.Model(
+                "FunctionTool",
+                properties: properties,
+                discriminatedKind: "function");
+            var baseModel = InputFactory.Model(
+                "Tool",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [derivedModel]);
+
+            // The discriminator enum is public on the wire but made internal via custom code
+            // (TestData/.../ToolType.cs declares `internal readonly partial struct ToolType`).
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [derivedModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+
+            var derivedMethod = modelFactory!.Methods.FirstOrDefault(m => m.Signature.Name == "FunctionTool");
+            Assert.IsNotNull(derivedMethod);
+
+            Assert.IsFalse(derivedMethod!.Signature.Parameters.Any(p => p.Name == "type"));
+
+            // Validate the generated factory against the expected TestData snapshot.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // This test validates that when a model has a property whose name is a C# keyword (e.g. "Object"),
         // the backward-compat overload correctly escapes the named argument identifier with '@'.
         [Test]
