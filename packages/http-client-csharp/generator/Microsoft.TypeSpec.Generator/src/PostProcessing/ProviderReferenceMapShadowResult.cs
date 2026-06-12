@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal sealed record ProviderReferenceMapShadowResult(
+        ProjectId ProjectId,
         HashSet<string> InternalizeCandidates,
         HashSet<string> RemoveCandidates)
     {
-        public static ProviderReferenceMapShadowResult Empty { get; } = new([], []);
     }
 }

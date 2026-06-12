@@ -134,7 +134,9 @@ namespace Microsoft.TypeSpec.Generator
             // first get all the declared symbols
             var definitions = await MeasureAsync("PostProcessor.Internalize.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, true));
             IEnumerable<INamedTypeSymbol> symbolsToInternalize;
-            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap &&
+                ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult &&
+                useShadowResult.ProjectId == project.Id)
             {
                 symbolsToInternalize = Measure("PostProcessor.Internalize.UseShadowCandidates", () =>
                     GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.InternalizeCandidates).ToArray());
@@ -155,7 +157,7 @@ namespace Microsoft.TypeSpec.Generator
                 symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
             }
 
-            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
+            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult && shadowResult.ProjectId == project.Id)
             {
                 ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
                     "internalize",
@@ -274,7 +276,9 @@ namespace Microsoft.TypeSpec.Generator
             var definitions = await MeasureAsync("PostProcessor.Remove.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, false));
             IEnumerable<INamedTypeSymbol> symbolsToRemove;
             HashSet<INamedTypeSymbol> referencedSet;
-            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap &&
+                ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult &&
+                useShadowResult.ProjectId == project.Id)
             {
                 symbolsToRemove = Measure("PostProcessor.Remove.UseShadowCandidates", () =>
                     GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.RemoveCandidates).ToArray());
@@ -304,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator
                 symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
             }
 
-            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
+            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult && shadowResult.ProjectId == project.Id)
             {
                 ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
                     "remove",

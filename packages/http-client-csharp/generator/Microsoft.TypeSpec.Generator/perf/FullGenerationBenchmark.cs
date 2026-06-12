@@ -14,8 +14,14 @@ namespace Microsoft.TypeSpec.Generator.Perf
     {
         private const string ProfileEnvironmentVariable = "POSTPROCESSING_BENCHMARK_PROFILE_STEPS";
         private const string ProfileOutputDirectoryEnvironmentVariable = "POSTPROCESSING_BENCHMARK_PROFILE_DIR";
+        private const string ShadowEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_SHADOW";
+        private const string UseShadowEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_USE_SHADOW";
+        private const string ShadowReportEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_SHADOW_REPORT";
 
         private bool _profileSteps;
+
+        [Params(false, true)]
+        public bool UseProviderReferenceMap { get; set; }
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -35,9 +41,13 @@ namespace Microsoft.TypeSpec.Generator.Perf
             CSharpGen.GenerationProfile = generationProfile;
 
             var benchmarkDirectory = CreateBenchmarkInputDirectory();
+            var previousShadow = Environment.GetEnvironmentVariable(ShadowEnvironmentVariable);
+            var previousUseShadow = Environment.GetEnvironmentVariable(UseShadowEnvironmentVariable);
+            var previousShadowReport = Environment.GetEnvironmentVariable(ShadowReportEnvironmentVariable);
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                SetProviderReferenceMapEnvironment();
                 CodeModelGenerator.Instance = new BenchmarkCodeModelGenerator(benchmarkDirectory);
                 CodeModelGenerator.Instance.Configure();
 
@@ -72,8 +82,18 @@ namespace Microsoft.TypeSpec.Generator.Perf
 
                 CSharpGen.GenerationProfile = null;
                 GeneratedCodeWorkspace.PostProcessingProfile = null;
+                Environment.SetEnvironmentVariable(ShadowEnvironmentVariable, previousShadow);
+                Environment.SetEnvironmentVariable(UseShadowEnvironmentVariable, previousUseShadow);
+                Environment.SetEnvironmentVariable(ShadowReportEnvironmentVariable, previousShadowReport);
                 TryDeleteDirectory(benchmarkDirectory);
             }
+        }
+
+        private void SetProviderReferenceMapEnvironment()
+        {
+            Environment.SetEnvironmentVariable(ShadowEnvironmentVariable, UseProviderReferenceMap ? "true" : null);
+            Environment.SetEnvironmentVariable(UseShadowEnvironmentVariable, UseProviderReferenceMap ? "true" : null);
+            Environment.SetEnvironmentVariable(ShadowReportEnvironmentVariable, null);
         }
 
         private static void WriteProfile(GeneratedCodeWorkspacePostProcessingProfile profile, string fileName, string header)
