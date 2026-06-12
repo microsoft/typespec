@@ -113,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator
         /// custom code. Derived generators can contribute additional providers via
         /// <see cref="AddCustomCodeAttributeProvider(TypeProvider)"/>.
         /// </summary>
-        public IReadOnlyList<TypeProvider> CustomCodeAttributeProviders => _customCodeAttributeProviders;
+        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders => _customCodeAttributeProviders;
 
         protected internal virtual void Configure()
         {
