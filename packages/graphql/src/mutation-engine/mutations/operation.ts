@@ -77,6 +77,13 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     });
     super.mutate();
 
+    // Remove parameters whose type was visibility-filtered to an empty model.
+    for (const [name, param] of this.mutatedType.parameters.properties) {
+      if (param.type.kind === "Model" && !isArrayModelType(param.type) && param.type.properties.size === 0) {
+        this.mutatedType.parameters.properties.delete(name);
+      }
+    }
+
     if (hasNullableReturn) {
       setNullable(this.mutatedType);
     }
