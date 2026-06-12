@@ -3,6 +3,7 @@ import { logger } from "../logger.js";
 import { findScenarioSpecFiles, loadScenarioMockApiFiles } from "../scenarios-resolver.js";
 import { importSpecExpect, importTypeSpec } from "../spec-utils/import-spec.js";
 import { createDiagnosticReporter } from "../utils/diagnostic-reporter.js";
+import { isMockApiUriConsistentWithRoute, normalizeMockApiUri } from "../utils/route-utils.js";
 
 export interface ValidateMockApisConfig {
   scenariosPath: string;
@@ -62,11 +63,36 @@ export async function validateMockApis({
 
     let foundFailure = false;
     for (const scenario of scenarios) {
-      if (mockApiFile.scenarios[scenario.name] === undefined) {
+      const mockApiScenario = mockApiFile.scenarios[scenario.name];
+      if (mockApiScenario === undefined) {
         foundFailure = true;
         diagnostics.reportDiagnostic({
           message: `Scenario ${scenario.name} is missing implementation in for ${name} scenario file.`,
         });
+        continue;
+      }
+
+      // Ensure the `uri` served by the mock api matches the route defined in the spec. Otherwise
+      // a generated client (which calls the spec route) would get a 404 from the mock server.
+      if (scenario.endpoints.length > 0 && Array.isArray(mockApiScenario.apis)) {
+        for (const api of mockApiScenario.apis) {
+          if (api.kind !== "MockApiDefinition") {
+            continue;
+          }
+          const matches = scenario.endpoints.some((endpoint) =>
+            isMockApiUriConsistentWithRoute(endpoint.path, api.uri),
+          );
+          if (!matches) {
+            foundFailure = true;
+            diagnostics.reportDiagnostic({
+              message: `Scenario ${scenario.name} has a mock api uri "${normalizeMockApiUri(
+                api.uri,
+              )}" that does not match any of the routes defined in the spec: ${scenario.endpoints
+                .map((endpoint) => `"${endpoint.path}"`)
+                .join(", ")}.`,
+            });
+          }
+        }
       }
     }
 

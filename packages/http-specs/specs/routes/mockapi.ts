@@ -49,8 +49,8 @@ function createTests(uri: string) {
   });
 }
 
-Scenarios.Routes_InInterface = createTests("/routes/fixed");
-Scenarios.Routes_fixed = createTests("/routes/in-interface/fixed");
+Scenarios.Routes_InInterface = createTests("/routes/in-interface/fixed");
+Scenarios.Routes_fixed = createTests("/routes/fixed");
 Scenarios.Routes_PathParameters_templateOnly = createTests("/routes/path/template-only/a");
 Scenarios.Routes_PathParameters_explicit = createTests("/routes/path/explicit/a");
 Scenarios.Routes_PathParameters_annotationOnly = createTests("/routes/path/annotation-only/a");
