@@ -21,7 +21,13 @@ namespace Microsoft.TypeSpec.Generator
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
             var graph = BuildGraph(providers);
+
+            // Generated-code dependencies come from providers. Custom code still needs Roslyn
+            // because arbitrary user C# can reference generated types in ways providers cannot see.
             var customRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
+
+            // Helper types are rooted after an initial reachability pass so unused infrastructure
+            // such as change-tracking dictionaries can still be removed when no reachable type needs them.
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false);
             internalizeRoots.UnionWith(customRoots);
             var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, graph.References);
@@ -122,6 +128,9 @@ namespace Microsoft.TypeSpec.Generator
                 AddTypeReference(references[current], provider.BaseType, nodes);
                 AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes);
 
+                // Model factory signatures mention many models. The existing Roslyn post-processor
+                // removes factory methods for unreachable models, so model factory should only
+                // contribute helper dependencies, not model reachability edges.
                 if (IsModelFactoryProvider(provider))
                 {
                     continue;
@@ -251,6 +260,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var method in provider.Methods)
                 {
+                    // Only factory methods for reachable models can instantiate collection helpers.
                     if (isModelFactory &&
                         (method.Signature.ReturnType == null || !reachableTypes.Contains(GetProviderTypeName(method.Signature.ReturnType))))
                     {
