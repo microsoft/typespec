@@ -2,7 +2,12 @@ import { Output } from "#core/components/index.js";
 import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Program } from "@typespec/compiler";
-import { abcModule, datetimeModule, decimalModule, typingModule } from "./builtins.js";
+import {
+  abcModule,
+  datetimeModule,
+  decimalModule,
+  typingModule,
+} from "./builtins.js";
 
 export const renderOptions = {
   printWidth: 80,
@@ -18,6 +23,8 @@ export function getOutput(program: Program, children: Children[]): Children {
         abcModule,
         datetimeModule,
         decimalModule,
+        py.pydanticModule,
+        py.pydanticSettingsModule,
         typingModule,
         py.abcModule,
         py.dataclassesModule,
