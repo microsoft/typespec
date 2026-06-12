@@ -44,14 +44,70 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 result.AddRange(breakLines);
             }
 
-            // escape lines if they have invalid characters
+            // escape lines if they have invalid characters and trim any
+            // leading/trailing whitespace so that indentation present in the
+            // source description does not leak into the generated comment.
             for (int i = 0; i < result.Count; i++)
             {
                 var line = result[i];
+                line = TrimLine(line);
                 result[i] = FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments()));
             }
 
             return result;
+        }
+
+        // Trims leading and trailing whitespace from a single doc comment line.
+        // Whitespace can live either in the literal portions of the format string
+        // (e.g. when a description contains embedded line breaks with indentation)
+        // or inside a plain string argument that represents the entire line.
+        private static FormattableString TrimLine(FormattableString line)
+        {
+            var format = line.Format;
+            if (format.Length == 0)
+            {
+                return line;
+            }
+
+            // Whitespace characters can never be part of a placeholder ("{0}") or a
+            // brace escape ("{{"/"}}"), so trimming the raw format string only ever
+            // removes literal leading/trailing whitespace.
+            int start = 0;
+            while (start < format.Length && char.IsWhiteSpace(format[start]))
+            {
+                start++;
+            }
+            int end = format.Length;
+            while (end > start && char.IsWhiteSpace(format[end - 1]))
+            {
+                end--;
+            }
+
+            var trimmedFormat = format.Substring(start, end - start);
+            var args = line.GetArguments();
+
+            if (args.Length == 0)
+            {
+                return trimmedFormat.Length == format.Length
+                    ? line
+                    : FormattableStringFactory.Create(trimmedFormat);
+            }
+
+            // When the whole line is provided as a single string argument (the form
+            // produced when breaking embedded line breaks inside a string argument),
+            // the whitespace lives inside that argument, so trim it as well.
+            if (trimmedFormat == SingleArgFormat && args[0] is string str)
+            {
+                var trimmedStr = str.Trim();
+                if (trimmedStr.Length != str.Length)
+                {
+                    return FormattableStringFactory.Create(trimmedFormat, trimmedStr);
+                }
+            }
+
+            return trimmedFormat.Length == format.Length
+                ? line
+                : FormattableStringFactory.Create(trimmedFormat, args);
         }
 
         private static object?[] EscapeArguments(object?[] objects)
