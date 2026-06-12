@@ -340,7 +340,7 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsClientProviderRoot(TypeProvider provider) =>
             provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
 
-        private static bool IsModelFactoryProvider(TypeProvider provider) => provider.GetType().Name == "ModelFactoryProvider";
+        private static bool IsModelFactoryProvider(TypeProvider provider) => provider is ModelFactoryProvider;
 
         private static HashSet<string> GetHelperRootNames(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, HashSet<string> reachableTypes)
         {
