@@ -498,13 +498,8 @@ namespace Microsoft.TypeSpec.Generator
                 return solution;
             }
 
-            // CS8019: Unnecessary using directive.
             var diagnostics = model.GetDiagnostics();
 
-            // If the document has any unresolved type/namespace/name references, the compiler cannot reliably
-            // determine which using directives are actually used, so CS8019 may flag a using that is genuinely
-            // needed (for example, "using System.ClientModel;" in a serialization file when that assembly is not
-            // referenced in the post-processing compilation). In that case skip removal to avoid breaking the build.
             if (diagnostics.Any(d => UnresolvedReferenceDiagnosticIds.Contains(d.Id)))
             {
                 return solution;
