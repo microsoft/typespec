@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator
 {
-    internal sealed record ProviderReferenceMapShadowResult(
+    internal sealed record ProviderReferenceMapResult(
         HashSet<string> InternalizeCandidates,
         HashSet<string> RemoveCandidates)
     {
-        public static ProviderReferenceMapShadowResult Empty { get; } = new([], []);
+        public static ProviderReferenceMapResult Empty { get; } = new([], []);
     }
 }

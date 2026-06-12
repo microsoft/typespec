@@ -12,11 +12,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.TypeSpec.Generator
 {
-    internal static class ProviderReferenceMapShadowAnalyzer
+    internal static class ProviderReferenceMapAnalyzer
     {
-        private static ProviderReferenceMapShadowResult? _latestResult;
+        private static ProviderReferenceMapResult? _latestResult;
 
-        public static ProviderReferenceMapShadowResult? LatestResult => _latestResult;
+        public static ProviderReferenceMapResult? LatestResult => _latestResult;
 
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator
 
             var helperRoots = internalizeHelperRoots.Concat(removeHelperRoots).ToHashSet(StringComparer.Ordinal);
 
-            _latestResult = new ProviderReferenceMapShadowResult(
+            _latestResult = new ProviderReferenceMapResult(
                 internalizeCandidates.ToHashSet(StringComparer.Ordinal),
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
         }

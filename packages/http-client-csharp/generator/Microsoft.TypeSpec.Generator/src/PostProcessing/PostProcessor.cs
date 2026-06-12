@@ -131,8 +131,8 @@ namespace Microsoft.TypeSpec.Generator
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            var shadowResult = ProviderReferenceMapShadowAnalyzer.LatestResult ?? ProviderReferenceMapShadowResult.Empty;
-            var symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, shadowResult.InternalizeCandidates).ToArray();
+            var referenceMapResult = ProviderReferenceMapAnalyzer.LatestResult ?? ProviderReferenceMapResult.Empty;
+            var symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.InternalizeCandidates).ToArray();
 
             var nodesToInternalize = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
             foreach (var symbol in symbolsToInternalize)
@@ -230,8 +230,8 @@ namespace Microsoft.TypeSpec.Generator
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
-            var shadowResult = ProviderReferenceMapShadowAnalyzer.LatestResult ?? ProviderReferenceMapShadowResult.Empty;
-            var symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, shadowResult.RemoveCandidates).ToArray();
+            var referenceMapResult = ProviderReferenceMapAnalyzer.LatestResult ?? ProviderReferenceMapResult.Empty;
+            var symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.RemoveCandidates).ToArray();
             var referencedSet = new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default);
 
             var nodesToRemove = new List<BaseTypeDeclarationSyntax>();

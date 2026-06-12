@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal void AnalyzeProviderReferenceMap(IReadOnlyList<TypeProvider> providers)
         {
-            ProviderReferenceMapShadowAnalyzer.Analyze(providers, _project);
+            ProviderReferenceMapAnalyzer.Analyze(providers, _project);
         }
 
         private async Task UpdateProject(Document document)
