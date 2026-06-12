@@ -9,6 +9,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -37,6 +38,10 @@ namespace Microsoft.TypeSpec.Generator
             var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(providers, graph.Nodes, publicOnly: true);
             var internalizeCandidates = internalizeDeclaredNodes.Except(internalizeReachable, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
 
+            // Body-only generated dependencies are needed to avoid deleting helper files, but they do
+            // not contribute to public API reachability for internalization.
+            AddGeneratedBodyReferences(project, providers, graph);
+
             var removeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true);
             removeRoots.UnionWith(customRoots);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
@@ -49,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator
             var helperRoots = internalizeHelperRoots.Concat(removeHelperRoots).ToHashSet(StringComparer.Ordinal);
 
             _latestResult = new ProviderReferenceMapResult(
+                project.Id,
                 internalizeCandidates.ToHashSet(StringComparer.Ordinal),
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
         }
@@ -178,6 +184,82 @@ namespace Microsoft.TypeSpec.Generator
             return new ProviderReferenceGraph(nodes, references);
         }
 
+        private static void AddGeneratedBodyReferences(Project project, IReadOnlyList<TypeProvider> providers, ProviderReferenceGraph graph)
+        {
+            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
+            if (compilation == null)
+            {
+                return;
+            }
+
+            foreach (var provider in providers)
+            {
+                var providerName = GetProviderTypeName(provider.Type);
+                if (!graph.Nodes.Contains(providerName))
+                {
+                    continue;
+                }
+
+                var symbol = compilation.GetTypeByMetadataName(providerName);
+                if (symbol == null)
+                {
+                    continue;
+                }
+
+                AddGeneratedReferencesToHelper(project, compilation, graph, providerName, symbol);
+                if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
+                {
+                    foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>())
+                    {
+                        if (method.IsExtensionMethod)
+                        {
+                            AddGeneratedReferencesToHelper(project, compilation, graph, providerName, method);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void AddGeneratedReferencesToHelper(Project project, Compilation compilation, ProviderReferenceGraph graph, string helperName, ISymbol symbol)
+        {
+            foreach (var reference in SymbolFinder.FindReferencesAsync(symbol, project.Solution).GetAwaiter().GetResult())
+            {
+                foreach (var location in reference.Locations)
+                {
+                    var document = location.Document;
+                    if (!GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                    {
+                        continue;
+                    }
+
+                    var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
+                    if (root == null)
+                    {
+                        continue;
+                    }
+
+                    var node = root.FindNode(location.Location.SourceSpan);
+                    var owner = node.AncestorsAndSelf().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault();
+                    if (owner == null)
+                    {
+                        continue;
+                    }
+
+                    var semanticModel = compilation.GetSemanticModel(owner.SyntaxTree);
+                    if (semanticModel.GetDeclaredSymbol(owner) is not INamedTypeSymbol ownerSymbol)
+                    {
+                        continue;
+                    }
+
+                    var ownerName = ownerSymbol.GetFullyQualifiedName();
+                    if (graph.Nodes.Contains(ownerName))
+                    {
+                        graph.References[ownerName].Add(helperName);
+                    }
+                }
+            }
+        }
+
         private static HashSet<string> GetRootNames(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, HashSet<string> helperRoots, bool includeModelFactory)
         {
             var generator = CodeModelGenerator.Instance;
@@ -187,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var provider in providers)
             {
                 var name = GetProviderTypeName(provider.Type);
-                if (provider.Name.EndsWith("Client", StringComparison.Ordinal) ||
+                if (IsClientProviderRoot(provider) ||
                     IsKept(provider.Type, generator.AdditionalRootTypes, nodes) ||
                     includeModelFactory && string.Equals(name, modelFactoryName, StringComparison.Ordinal) ||
                     includeModelFactory && helperRoots.Contains(name))
@@ -224,6 +306,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsKept(CSharpType type, HashSet<string> roots, HashSet<string> nodes) =>
             roots.Contains(type.Name) || roots.Contains(GetProviderTypeName(type)) && nodes.Contains(GetProviderTypeName(type));
+
+        private static bool IsClientProviderRoot(TypeProvider provider) =>
+            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
 
         private static bool IsModelFactoryProvider(TypeProvider provider) => provider.GetType().Name == "ModelFactoryProvider";
 
