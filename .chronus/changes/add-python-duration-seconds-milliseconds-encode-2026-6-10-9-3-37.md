@@ -5,13 +5,3 @@ packages:
 ---
 
 Support `datetime.timedelta` for `duration` types encoded as `seconds` or `milliseconds`. SDK users can now pass a `datetime.timedelta` (instead of a raw `int`/`float`) and responses are deserialized back into `datetime.timedelta`.
-
-```python
-from datetime import timedelta
-
-client.query.int32_seconds(input=timedelta(seconds=36))
-result = client.property.int32_milliseconds(
-    Int32MillisecondsDurationProperty(value=timedelta(milliseconds=36000))
-)
-assert result.value == timedelta(milliseconds=36000)
-```
