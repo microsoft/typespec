@@ -33,7 +33,7 @@ interface SpecialChar {
     
     Expected response status code: 204
     """)
-  @route("/dollarSign")
+  @route("/dollar-sign")
   @get
   dollarSign(
     @query("$filter")
