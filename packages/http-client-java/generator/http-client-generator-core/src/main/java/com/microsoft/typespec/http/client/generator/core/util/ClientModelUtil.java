@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
@@ -170,6 +171,8 @@ public class ClientModelUtil {
 
     private static List<ConvenienceMethod> getConvenienceMethods(Supplier<List<ClientMethod>> clientMethods,
         OperationGroup og) {
+        final JavaSettings settings = JavaSettings.getInstance();
+        final JavaSettings.MaxOverload maxOverload = settings.getMaxOverload();
         return og.getOperations().stream().filter(o -> o.getConvenienceApi() != null).flatMap(o -> {
             List<ClientMethod> cMethods = Mappers.getClientMethodMapper()
                 .map(o, false)
@@ -182,12 +185,21 @@ public class ClientModelUtil {
                 return clientMethods.get()
                     .stream()
                     .filter(m -> proxyMethodBaseName.equals(m.getProxyMethod().getBaseName())
-                        && m.getMethodVisibility() == JavaVisibility.Public)
+                        // In MODEL mode protocol WithResponse methods are intentionally non-public in wrapper clients,
+                        // but they are still required as the invocation target for generated model overloads.
+                        && (m.getMethodVisibility() == JavaVisibility.Public
+                            || (maxOverload == JavaSettings.MaxOverload.MODEL
+                                && isSimpleWithResponseMethod(m))))
                     .map(m -> new ConvenienceMethod(m, cMethods));
             } else {
                 return Stream.empty();
             }
         }).collect(Collectors.toList());
+    }
+
+    private static boolean isSimpleWithResponseMethod(ClientMethod method) {
+        return method.getType() == ClientMethodType.SimpleSyncRestResponse
+            || method.getType() == ClientMethodType.SimpleAsyncRestResponse;
     }
 
     /**

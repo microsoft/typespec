@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -50,7 +51,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
+        return isMethodAsync(method.getProtocolMethod())
+            && (isMethodVisible(method.getProtocolMethod()) || isModelOnlyProtocolWithResponse(method.getProtocolMethod()))
         // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginAsync
                 || (method.getProtocolMethod().getImplementationDetails() != null
@@ -59,6 +61,12 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 .getMethodParameters()
                 .stream()
                 .noneMatch(p -> p.getClientType() == ClassType.CONTEXT);
+    }
+
+    private boolean isModelOnlyProtocolWithResponse(ClientMethod protocolMethod) {
+        return JavaSettings.getInstance().getMaxOverload() == JavaSettings.MaxOverload.MODEL
+            && (protocolMethod.getType() == ClientMethodType.SimpleSyncRestResponse
+                || protocolMethod.getType() == ClientMethodType.SimpleAsyncRestResponse);
     }
 
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,

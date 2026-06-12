@@ -161,7 +161,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
                 final CreateMethodArgs createMethodArgs = new CreateMethodArgs(settings, isProtocolMethod,
-                    methodsReturnDescription, methodNamer, getMethodOverloadType(paramsDetails));
+                    methodsReturnDescription, methodNamer, getMethodOverloadType(paramsDetails),
+                    operation.getConvenienceApi() != null);
 
                 if (operation.isPageable()) {
                     // Create Paging Client Methods.
@@ -814,6 +815,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     private void createSimpleWithResponseClientMethods(boolean isSync, ClientMethod baseMethod,
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
+        final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
         final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
@@ -830,10 +832,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methodName = methodNamer.getSimpleAsyncRestResponseMethodName();
             clientMethodType = ClientMethodType.SimpleAsyncRestResponse;
         }
-        final JavaVisibility methodVisibility
+        JavaVisibility methodVisibility
             = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
-        final JavaVisibility methodWithContextVisibility
+        JavaVisibility methodWithContextVisibility
             = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
+        if (settings.isDataPlaneClient()
+            && isProtocolMethod
+            && settings.getMaxOverload() == JavaSettings.MaxOverload.MODEL
+            && createMethodArgs.hasConvenienceApi
+            && isSimpleWithResponseType(clientMethodType)) {
+            methodWithContextVisibility = NOT_VISIBLE;
+        }
         final boolean hasContextOverload = methodWithContextVisibility != NOT_GENERATE;
 
         final ClientMethod withResponseMethod = baseMethod.newBuilder()
@@ -849,8 +858,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
         // proxy method, and is usually filtered out in methodVisibility function.
         methods.add(withResponseMethod);
-        ClientMethod clientMethodWithContext
-            = addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
+        final boolean useRequestOptionsParam = !isProtocolMethod
+            && settings.isDataPlaneClient()
+            && settings.isGenerateModelMaxOverload()
+            && isSimpleWithResponseType(clientMethodType);
+        ClientMethod clientMethodWithContext = addClientMethodWithContext(methods, withResponseMethod,
+            methodWithContextVisibility, useRequestOptionsParam || isProtocolMethod);
 
         // Simple op '[Operation]WithResponse' overloads for versioning
         createOverloadForVersioning(methods, withResponseMethod, clientMethodWithContext, methodWithContextVisibility,
@@ -983,12 +996,21 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     return NOT_GENERATE;
                 }
 
+                if (settings.isGenerateModelMaxOverload() && isSimpleWithResponseType(methodType)) {
+                    return NOT_VISIBLE;
+                }
+
                 if (methodType == ClientMethodType.PagingAsyncSinglePage
                     || (methodType == ClientMethodType.PagingSyncSinglePage && settings.isSyncStackEnabled())) {
                     return NOT_VISIBLE;
                 }
                 return VISIBLE;
             } else {
+                if (isSimpleWithResponseType(methodType)
+                    && settings.isDataPlaneClient()
+                    && settings.isGenerateModelMaxOverload()) {
+                    return hasContextParameter ? VISIBLE : NOT_GENERATE;
+                }
                 // at present, only generate convenience method for simple API and pageable API (no LRO)
                 return ((methodType == ClientMethodType.SimpleAsync && !hasContextParameter)
                     || (methodType == ClientMethodType.SimpleSync && !hasContextParameter)
@@ -1074,22 +1096,24 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         public final MethodOverloadType methodOverloadType;
         public final MethodNamer methodNamer;
         public final boolean generateRequiredOnlyParamsMethodOverload;
+        public final boolean hasConvenienceApi;
 
         CreateMethodArgs(JavaSettings settings, boolean isProtocolMethod,
             ClientMethodsReturnDescription methodsReturnDescription, MethodNamer methodNamer,
-            MethodOverloadType methodOverloadType) {
+            MethodOverloadType methodOverloadType, boolean hasConvenienceApi) {
             this.settings = settings;
             this.isProtocolMethod = isProtocolMethod;
             this.methodsReturnDescription = methodsReturnDescription;
             this.methodOverloadType = methodOverloadType;
             this.methodNamer = methodNamer;
+            this.hasConvenienceApi = hasConvenienceApi;
             this.generateRequiredOnlyParamsMethodOverload = settings.isRequiredParameterClientMethods()
                 && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
         }
 
         CreateMethodArgs forPaging(PagingMetadata pagingMetadata, ClientMethodParametersDetails paramsDetails) {
             return new CreateMethodArgs(this.settings, this.isProtocolMethod, this.methodsReturnDescription,
-                this.methodNamer, getPageMethodOverloadType(pagingMetadata, paramsDetails));
+                this.methodNamer, getPageMethodOverloadType(pagingMetadata, paramsDetails), this.hasConvenienceApi);
         }
     }
 
@@ -1108,5 +1132,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         } else {
             return MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
         }
+    }
+
+    private static boolean isSimpleWithResponseType(ClientMethodType methodType) {
+        return methodType == ClientMethodType.SimpleSyncRestResponse
+            || methodType == ClientMethodType.SimpleAsyncRestResponse;
     }
 }

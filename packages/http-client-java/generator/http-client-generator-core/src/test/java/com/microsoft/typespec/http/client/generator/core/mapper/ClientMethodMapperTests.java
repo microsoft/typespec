@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -11,13 +12,16 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +30,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+// JavaSettings is process-global and mutable in tests.
+// Keep these tests single-threaded to avoid cross-test settings races.
+@Execution(ExecutionMode.SAME_THREAD)
 public class ClientMethodMapperTests {
+
+    private static class TestClientMethodMapper extends ClientMethodMapper {
+        public JavaVisibility methodVisibilityForTest(ClientMethodType methodType, boolean hasContextParameter,
+            boolean isProtocolMethod) {
+            return methodVisibility(methodType, MethodOverloadType.OVERLOAD_MAXIMUM, hasContextParameter,
+                isProtocolMethod);
+        }
+    }
+
+    private static void configureDataPlaneSettings(String maxOverloadValue) {
+        MockUnitJavagen.resetSettings();
+        MockUnitJavagen.setSetting("data-plane", true);
+        MockUnitJavagen.setSetting("flavor", "azure");
+        MockUnitJavagen.setSetting("max-overload", maxOverloadValue);
+        new MockUnitJavagen();
+        JavaSettings.clear();
+        JavaSettings.getInstance();
+    }
 
     @Test
     public void testOverloadedSignatures() {
@@ -199,6 +226,38 @@ public class ClientMethodMapperTests {
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the response body along with {@link Response}";
         Assertions.assertEquals(expectedDescription, description);
+    }
+
+    @Test
+    public void maxOverloadProtocolDoesNotGenerateModelWithResponse() {
+        configureDataPlaneSettings("protocol");
+        TestClientMethodMapper mapper = new TestClientMethodMapper();
+        Assertions.assertFalse(JavaSettings.getInstance().isGenerateModelMaxOverload());
+
+        Assertions.assertNull(
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, false, false));
+    }
+
+    @Test
+    public void maxOverloadModelGeneratesModelWithResponseWithRequestOptions() {
+        configureDataPlaneSettings("model");
+        TestClientMethodMapper mapper = new TestClientMethodMapper();
+
+        Assertions.assertEquals(JavaVisibility.Public,
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, true, false));
+        Assertions.assertNull(
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, false, false));
+    }
+
+    @Test
+    public void maxOverloadModelHidesProtocolWithResponse() {
+        configureDataPlaneSettings("model");
+        TestClientMethodMapper mapper = new TestClientMethodMapper();
+
+        Assertions.assertEquals(JavaVisibility.Private,
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleSyncRestResponse, true, true));
+        Assertions.assertEquals(JavaVisibility.Private,
+            mapper.methodVisibilityForTest(ClientMethodType.SimpleAsyncRestResponse, true, true));
     }
 
     private Operation operationWithNoDesc() {

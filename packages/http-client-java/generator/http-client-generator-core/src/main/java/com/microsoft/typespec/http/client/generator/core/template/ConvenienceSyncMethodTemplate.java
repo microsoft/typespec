@@ -50,11 +50,18 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return !isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
+        return !isMethodAsync(method.getProtocolMethod())
+            && (isMethodVisible(method.getProtocolMethod()) || isModelOnlyProtocolWithResponse(method.getProtocolMethod()))
         // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginSync
                 || (method.getProtocolMethod().getImplementationDetails() != null
                     && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()));
+    }
+
+    private boolean isModelOnlyProtocolWithResponse(ClientMethod protocolMethod) {
+        return JavaSettings.getInstance().getMaxOverload() == JavaSettings.MaxOverload.MODEL
+            && (protocolMethod.getType() == ClientMethodType.SimpleSyncRestResponse
+                || protocolMethod.getType() == ClientMethodType.SimpleAsyncRestResponse);
     }
 
     @Override

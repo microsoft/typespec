@@ -129,30 +129,38 @@ $generateScript = {
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx --no tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommands = @("npx --no tsp compile $tspFile $tspOptions $tspTrace")
+  if ($tspFile -match "tsp[\\/]max-overload\.tsp$") {
+    $tspCommands = @(
+      "npx --no tsp compile $tspFile $tspOptions --option ""@typespec/http-client-java.max-overload=protocol"" --option ""@typespec/http-client-java.namespace=tsptest.maxoverload.protocol"" $tspTrace",
+      "npx --no tsp compile $tspFile $tspOptions --option ""@typespec/http-client-java.max-overload=model"" --option ""@typespec/http-client-java.namespace=tsptest.maxoverload.model"" $tspTrace"
+    )
+  }
 
-  # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
-  $timer = [Diagnostics.Stopwatch]::StartNew()
-  $generateOutput = Invoke-Expression $tspCommand 2>&1
-  $timer.Stop()
+  foreach ($tspCommand in $tspCommands) {
+    # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    $generateOutput = Invoke-Expression $tspCommand 2>&1
+    $timer.Stop()
 
-  $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
+    $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
 
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "
-    ========================
-    $tspCommand
-    ========================
-    FAILED (Time elapsed: $($timer.ToString()))
-    $([String]::Join("`n", $generateOutput))
-    "
-  } else {
-    Write-Host "
-    ========================
-    $tspCommand
-    ========================
-    SUCCEEDED (Time elapsed: $($timer.ToString()))
-    "
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "
+      ========================
+      $tspCommand
+      ========================
+      FAILED (Time elapsed: $($timer.ToString()))
+      $([String]::Join("`n", $generateOutput))
+      "
+    } else {
+      Write-Host "
+      ========================
+      $tspCommand
+      ========================
+      SUCCEEDED (Time elapsed: $($timer.ToString()))
+      "
+    }
   }
 
   if ($global:ExitCode -ne 0) {

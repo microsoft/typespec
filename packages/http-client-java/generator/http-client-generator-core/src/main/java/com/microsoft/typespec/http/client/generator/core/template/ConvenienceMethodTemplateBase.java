@@ -113,7 +113,7 @@ abstract class ConvenienceMethodTemplateBase {
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
 
         // RequestOptions
-        createEmptyRequestOptions(methodBlock);
+        createEmptyRequestOptions(convenienceMethod, methodBlock);
 
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
@@ -219,8 +219,19 @@ abstract class ConvenienceMethodTemplateBase {
         javaBlock.line("requestOptions.setBody(" + variableName + ");");
     }
 
-    protected void createEmptyRequestOptions(JavaBlock methodBlock) {
-        methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
+    protected void createEmptyRequestOptions(ClientMethod convenienceMethod, JavaBlock methodBlock) {
+        boolean hasRequestOptionsParameter = convenienceMethod.getMethodInputParameters()
+            .stream()
+            .anyMatch(p -> p.getClientType() == ClassType.REQUEST_OPTIONS);
+        if (hasRequestOptionsParameter) {
+            // Model max-overload WithResponse takes RequestOptions from the method signature.
+            // Ensure it is initialized when null.
+            methodBlock.ifBlock("requestOptions == null",
+                block -> block.line("requestOptions = new RequestOptions();"));
+        } else {
+            // Legacy convenience overloads synthesize RequestOptions internally.
+            methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
+        }
     }
 
     /**

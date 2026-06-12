@@ -21,6 +21,15 @@ public class MockUnitJavagen extends Javagen {
         SETTINGS_MAP.put("namespace", "com.azure.mock");
     }
 
+    public static void resetSettings() {
+        SETTINGS_MAP.clear();
+        SETTINGS_MAP.put("namespace", "com.azure.mock");
+    }
+
+    public static void setSetting(String key, Object value) {
+        SETTINGS_MAP.put(key, value);
+    }
+
     public static class MockConnection extends Connection {
 
         public MockConnection() {
