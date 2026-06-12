@@ -133,18 +133,35 @@ namespace Microsoft.TypeSpec.Generator
 
             // first get all the declared symbols
             var definitions = await MeasureAsync("PostProcessor.Internalize.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, true));
-            // build the reference map
-            var referenceMap =
-                await MeasureAsync(
-                    "PostProcessor.Internalize.BuildPublicReferenceMapAsync",
-                    () => new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                        definitions.DeclaredSymbols, definitions.DeclaredNodesCache));
-            // get the root symbols
-            var rootSymbols = await MeasureAsync("PostProcessor.Internalize.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
-            // traverse all the root and recursively add all the things we met
-            var publicSymbols = Measure("PostProcessor.Internalize.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray());
+            IEnumerable<INamedTypeSymbol> symbolsToInternalize;
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
+            {
+                symbolsToInternalize = Measure("PostProcessor.Internalize.UseShadowCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.InternalizeCandidates).ToArray());
+            }
+            else
+            {
+                // build the reference map
+                var referenceMap =
+                    await MeasureAsync(
+                        "PostProcessor.Internalize.BuildPublicReferenceMapAsync",
+                        () => new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+                            definitions.DeclaredSymbols, definitions.DeclaredNodesCache));
+                // get the root symbols
+                var rootSymbols = await MeasureAsync("PostProcessor.Internalize.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
+                // traverse all the root and recursively add all the things we met
+                var publicSymbols = Measure("PostProcessor.Internalize.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray());
 
-            var symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
+                symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
+            }
+
+            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
+            {
+                ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
+                    "internalize",
+                    symbolsToInternalize.Select(static symbol => symbol.GetFullyQualifiedName()),
+                    shadowResult.InternalizeCandidates);
+            }
 
             var nodesToInternalize = Measure("PostProcessor.Internalize.CollectNodes", () =>
             {
@@ -255,25 +272,45 @@ namespace Microsoft.TypeSpec.Generator
 
             // find all the declarations, including non-public declared
             var definitions = await MeasureAsync("PostProcessor.Remove.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, false));
-            // build reference map
-            var referenceMap =
-                await MeasureAsync(
-                    "PostProcessor.Remove.BuildAllReferenceMapAsync",
-                    () => new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
-                        definitions.DeclaredSymbols, definitions.DocumentsCache));
-            // get root symbols
-            var rootSymbols = await MeasureAsync("PostProcessor.Remove.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
-            // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
-            // helpers that are required by the model factory.
-            if (_modelFactorySymbol != null)
-                rootSymbols.Add(_modelFactorySymbol);
-            // traverse the map to determine the declarations that we are about to remove, starting from root nodes
-            var referencedSymbols = Measure("PostProcessor.Remove.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray().AsEnumerable());
+            IEnumerable<INamedTypeSymbol> symbolsToRemove;
+            HashSet<INamedTypeSymbol> referencedSet;
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
+            {
+                symbolsToRemove = Measure("PostProcessor.Remove.UseShadowCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.RemoveCandidates).ToArray());
+                referencedSet = Measure("PostProcessor.Remove.BuildShadowReferencedSet", () =>
+                    new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default));
+            }
+            else
+            {
+                // build reference map
+                var referenceMap =
+                    await MeasureAsync(
+                        "PostProcessor.Remove.BuildAllReferenceMapAsync",
+                        () => new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
+                            definitions.DeclaredSymbols, definitions.DocumentsCache));
+                // get root symbols
+                var rootSymbols = await MeasureAsync("PostProcessor.Remove.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
+                // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
+                // helpers that are required by the model factory.
+                if (_modelFactorySymbol != null)
+                    rootSymbols.Add(_modelFactorySymbol);
+                // traverse the map to determine the declarations that we are about to remove, starting from root nodes
+                var referencedSymbols = Measure("PostProcessor.Remove.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray().AsEnumerable());
 
-            referencedSymbols = Measure("PostProcessor.Remove.AddSampleSymbols", () => AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols));
-            var referencedSet = Measure("PostProcessor.Remove.BuildReferencedSet", () => new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default));
+                referencedSymbols = Measure("PostProcessor.Remove.AddSampleSymbols", () => AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols));
+                referencedSet = Measure("PostProcessor.Remove.BuildReferencedSet", () => new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default));
 
-            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+                symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+            }
+
+            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
+            {
+                ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
+                    "remove",
+                    symbolsToRemove.Select(static symbol => symbol.GetFullyQualifiedName()),
+                    shadowResult.RemoveCandidates);
+            }
 
             var nodesToRemove = Measure("PostProcessor.Remove.CollectNodes", () =>
             {
@@ -356,6 +393,17 @@ namespace Microsoft.TypeSpec.Generator
                 return references;
 
             return Enumerable.Empty<T>();
+        }
+
+        private static IEnumerable<INamedTypeSymbol> GetSymbolsByName(IEnumerable<INamedTypeSymbol> symbols, HashSet<string> names)
+        {
+            foreach (var symbol in symbols)
+            {
+                if (names.Contains(symbol.GetFullyQualifiedName()))
+                {
+                    yield return symbol;
+                }
+            }
         }
 
         private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)

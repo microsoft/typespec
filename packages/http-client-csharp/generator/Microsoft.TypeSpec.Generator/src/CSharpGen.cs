@@ -121,6 +121,8 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await MeasureGenerationStepAsync("Generation.AddGeneratedFilesToWorkspace", () => Task.WhenAll(generateFilesTasks));
 
+            MeasureGenerationStep("Generation.ProviderReferenceMapShadowAnalysis", () => generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders));
+
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
             // Delete any old generated files
