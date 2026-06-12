@@ -99,13 +99,21 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
 
-        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders { get; } =
+        private readonly List<TypeProvider> _customCodeAttributeProviders =
         [
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
             new CodeGenSuppressAttributeDefinition(),
             new CodeGenSerializationAttributeDefinition()
         ];
+
+        /// <summary>
+        /// The list of <see cref="TypeProvider"/> instances that define custom-code attributes. These attribute
+        /// definitions are generated into the SDK project and are made available to the compiler while it compiles
+        /// custom code. Derived generators can contribute additional providers via
+        /// <see cref="AddCustomCodeAttributeProvider(TypeProvider)"/>.
+        /// </summary>
+        public IReadOnlyList<TypeProvider> CustomCodeAttributeProviders => _customCodeAttributeProviders;
 
         protected internal virtual void Configure()
         {
@@ -158,6 +166,17 @@ namespace Microsoft.TypeSpec.Generator
         public virtual void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
+        }
+
+        /// <summary>
+        /// Adds a custom-code attribute provider that derived generators can use to contribute
+        /// generator-specific attribute definitions. The provider's attribute definition is generated into
+        /// the SDK project and made available to the compiler while it compiles custom code.
+        /// </summary>
+        /// <param name="provider">The <see cref="TypeProvider"/> that defines the custom-code attribute.</param>
+        protected void AddCustomCodeAttributeProvider(TypeProvider provider)
+        {
+            _customCodeAttributeProviders.Add(provider);
         }
 
         private record KeptTypesInfo(HashSet<string> TypeNames, HashSet<TypeProvider> TypeProviders);
