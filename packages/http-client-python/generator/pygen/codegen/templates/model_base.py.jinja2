@@ -330,16 +330,10 @@ def _deserialize_duration(attr):
     return isodate.parse_duration(attr)
 
 
-def _deserialize_duration_seconds(attr):
+def _deserialize_duration_numeric(attr, unit):
     if isinstance(attr, timedelta):
         return attr
-    return timedelta(seconds=float(attr))
-
-
-def _deserialize_duration_milliseconds(attr):
-    if isinstance(attr, timedelta):
-        return attr
-    return timedelta(milliseconds=float(attr))
+    return timedelta(**{unit: float(attr)})
 
 
 def _deserialize_decimal(attr):
@@ -371,10 +365,10 @@ _DESERIALIZE_MAPPING_WITHFORMAT = {
     "unix-timestamp": _deserialize_datetime_unix_timestamp,
     "base64": _deserialize_bytes,
     "base64url": _deserialize_bytes_base64,
-    "duration-seconds-int": _deserialize_duration_seconds,
-    "duration-seconds-float": _deserialize_duration_seconds,
-    "duration-milliseconds-int": _deserialize_duration_milliseconds,
-    "duration-milliseconds-float": _deserialize_duration_milliseconds,
+    "duration-seconds-int": functools.partial(_deserialize_duration_numeric, unit="seconds"),
+    "duration-seconds-float": functools.partial(_deserialize_duration_numeric, unit="seconds"),
+    "duration-milliseconds-int": functools.partial(_deserialize_duration_numeric, unit="milliseconds"),
+    "duration-milliseconds-float": functools.partial(_deserialize_duration_numeric, unit="milliseconds"),
 }
 
 
