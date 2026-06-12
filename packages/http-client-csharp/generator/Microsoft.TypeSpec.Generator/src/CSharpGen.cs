@@ -103,6 +103,8 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
+            generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders);
+
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
             // Delete any old generated files

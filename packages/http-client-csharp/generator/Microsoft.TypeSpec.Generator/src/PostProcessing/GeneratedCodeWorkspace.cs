@@ -83,6 +83,11 @@ namespace Microsoft.TypeSpec.Generator
             await UpdateProject(document);
         }
 
+        internal void AnalyzeProviderReferenceMap(IReadOnlyList<TypeProvider> providers)
+        {
+            ProviderReferenceMapAnalyzer.Analyze(providers, _project);
+        }
+
         private async Task UpdateProject(Document document)
         {
             var root = await document.GetSyntaxRootAsync();

@@ -131,16 +131,21 @@ namespace Microsoft.TypeSpec.Generator
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            // build the reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+            IEnumerable<INamedTypeSymbol> symbolsToInternalize;
+            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult && referenceMapResult.ProjectId == project.Id)
+            {
+                // ProviderReferenceMapAnalyzer replaces Roslyn reference-map construction for generated code.
+                // It still uses Roslyn-discovered roots for custom/shared code before this point.
+                symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.InternalizeCandidates).ToArray();
+            }
+            else
+            {
+                var referenceMap = await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
                     definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
-            // get the root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // traverse all the root and recursively add all the things we met
-            var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-            var symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
+                var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+                var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
+                symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
+            }
 
             var nodesToInternalize = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
             foreach (var symbol in symbolsToInternalize)
@@ -238,23 +243,30 @@ namespace Microsoft.TypeSpec.Generator
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
-            // build reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
+            IEnumerable<INamedTypeSymbol> symbolsToRemove;
+            HashSet<INamedTypeSymbol> referencedSet;
+            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult && referenceMapResult.ProjectId == project.Id)
+            {
+                // The remove pass uses the same precomputed hybrid map to avoid scanning all generated
+                // documents with Roslyn while preserving custom-code references as roots.
+                symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.RemoveCandidates).ToArray();
+                referencedSet = new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default);
+            }
+            else
+            {
+                var referenceMap = await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
                     definitions.DeclaredSymbols, definitions.DocumentsCache);
-            // get root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
-            // helpers that are required by the model factory.
-            if (_modelFactorySymbol != null)
-                rootSymbols.Add(_modelFactorySymbol);
-            // traverse the map to determine the declarations that we are about to remove, starting from root nodes
-            var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
+                var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+                if (_modelFactorySymbol != null)
+                {
+                    rootSymbols.Add(_modelFactorySymbol);
+                }
 
-            referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
-            var referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
-
-            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+                var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
+                referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
+                referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
+                symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+            }
 
             var nodesToRemove = new List<BaseTypeDeclarationSyntax>();
             foreach (var symbol in symbolsToRemove)
@@ -332,6 +344,17 @@ namespace Microsoft.TypeSpec.Generator
                 return references;
 
             return Enumerable.Empty<T>();
+        }
+
+        private static IEnumerable<INamedTypeSymbol> GetSymbolsByName(IEnumerable<INamedTypeSymbol> symbols, HashSet<string> names)
+        {
+            foreach (var symbol in symbols)
+            {
+                if (names.Contains(symbol.GetFullyQualifiedName()))
+                {
+                    yield return symbol;
+                }
+            }
         }
 
         private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
