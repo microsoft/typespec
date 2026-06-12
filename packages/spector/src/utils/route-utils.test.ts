@@ -88,9 +88,9 @@ describe("isMockApiUriConsistentWithRoute", () => {
         "/routes/path/template-only",
       ),
     ).toBe(false);
-    expect(
-      isMockApiUriConsistentWithRoute("/parameters/basic/simple", "/parameters/basic"),
-    ).toBe(false);
+    expect(isMockApiUriConsistentWithRoute("/parameters/basic/simple", "/parameters/basic")).toBe(
+      false,
+    );
   });
 
   it("matches routes containing escaped characters in the uri", () => {
