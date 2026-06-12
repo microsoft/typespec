@@ -85,10 +85,7 @@ export function mutateSchema(
       if (typeUsage.isUnreachable(node)) return;
 
       const mutation = engine.mutateUnion(node, GraphQLTypeContext.Output);
-      if (mutation.mutatedType.kind === "Model" && isArrayModelType(mutation.mutatedType)) {
-        return;
-      }
-      if ((mutation.mutatedType as Type).kind === "Scalar") {
+      if (mutation.mutatedType.kind !== "Union") {
         return;
       }
       mutatedTypes.push(mutation.mutatedType);
