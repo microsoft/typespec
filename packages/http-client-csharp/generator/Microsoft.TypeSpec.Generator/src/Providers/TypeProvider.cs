@@ -832,7 +832,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return name == fieldProvider.Name;
         }
 
-        private static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
+        /// <summary>
+        /// Determines whether the method with the given <paramref name="signature"/> on <paramref name="enclosingType"/>
+        /// matches the given <c>CodeGenSuppress</c> <paramref name="attribute"/>.
+        /// </summary>
+        internal static bool IsMatch(TypeProvider enclosingType, MethodSignatureBase signature, AttributeData attribute)
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
@@ -992,7 +996,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static FileLinePositionSpan GetFileLinePosition(SyntaxReference? syntaxReference)
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
-        private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
+        internal IEnumerable<AttributeData> GetMemberSuppressionAttributes()
             => CustomCodeView?.Attributes.Where(a => a.Data?.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName).
                 Select(a => a.Data!).ToList() ?? [];
     }
