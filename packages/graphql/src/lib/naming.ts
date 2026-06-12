@@ -3,6 +3,7 @@ import { camelCase, constantCase, pascalCase, split, splitSeparateNumbers } from
 export interface NamingContext {
   isInput: boolean;
   isInterface: boolean;
+  inputQualifier?: string;
 }
 
 type NameTransform = (name: string, context: NamingContext) => string;
@@ -64,7 +65,9 @@ function applyInterfaceSuffix(name: string, context: NamingContext): string {
 
 function applyInputSuffix(name: string, context: NamingContext): string {
   if (!context.isInput) return name;
-  return name.endsWith("Input") ? name : name + "Input";
+  const qualifier = context.inputQualifier ?? "";
+  const suffix = `${qualifier}Input`;
+  return name.endsWith(suffix) ? name : name + suffix;
 }
 
 const baseNamePipeline: NameTransform[] = [stripNamespace, sanitizeForGraphQL, toPascalCase];
